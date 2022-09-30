@@ -1,11 +1,5 @@
 #!/bin/bash
 
-if [ ! -f /opt/debian-live.deb ]; then
-	wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb --output-document=/opt/debian-live.deb
-fi
-
-/usr/bin/apt install /opt/debian-live.deb
-
 rm -r /opt/UIT-TSS-CLONE/
 mkdir /opt/UIT-TSS-CLONE/
 
@@ -479,31 +473,3 @@ echo -e "Banner /etc/issue.net" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc
 
 (cd /opt/UIT-TSS-CLONE && \
 	lb build)
-
-cat <<'EOF' > /usr/sbin/uit-tss-flash-clone
-#!/bin/bash
-
-echo "These are the current disks and their sizes:"
-lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
-echo ""
-echo "Which disk do you want to flash with the ISO?"
-        select ISODISK in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
-        do
-        echo ""
-        echo "$(lsblk /dev/${ISODISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
-        echo "You chose ${ISODISK}. Is this correct?"
-        PS3="Select a drive: "
-        read -p "All data on ${ISODISK} will be deleted. Press Enter to confirm...."
-        break
-        done
-echo "Unmounting ${ISODISK}"
-umount /dev/${ISODISK} &>/dev/null
-echo "Making FAT filesystem"
-mkfs.vfat -I /dev/${ISODISK} &>/dev/null
-echo "Creating new label: UITTSSCLONE"
-mlabel -i /dev/${ISODISK} ::UITTSSCLONE &>/dev/null
-echo "Writing ISO to disk, this may take a while..."
-dd if=/opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso of=/dev/${ISODISK} bs=4M status=progress
-EOF
-chmod 700 /usr/sbin/uit-tss-flash-clone
-chown root:root /usr/sbin/uit-tss-flash-clone
