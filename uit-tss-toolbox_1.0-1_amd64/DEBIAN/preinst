@@ -1,6 +1,0 @@
-#!/bin/bash
-
-/usr/bin/apt purge live-build -y
-/usr/bin/wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb --output-document=/opt/debian-live.deb
-/usr/bin/apt install /opt/debian-live.deb -y
-/usr/bin/rm /opt/debian-live.deb
