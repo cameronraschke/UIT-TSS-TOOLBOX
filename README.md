@@ -25,7 +25,7 @@ Download my repo from GitHub
 Change directory to the newly downloaded Git repo
 <br />
 <br />
-<code>cd UIT-TSS-TOOLBOX</code>
+<code>cd ./UIT-TSS-TOOLBOX</code>
 <br />
 <br />
 Make the folder into a .deb package
