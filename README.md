@@ -34,6 +34,14 @@ Change directory to the newly downloaded Git repo
 <code>cd ./UIT-TSS-TOOLBOX</code>
 <br />
 <br />
+Change file permissions
+<br />
+<br />
+<code>chmod 700 ./uit-tss-toolbox_1.0-1_amd64/DEBIAN/postinst</code>
+<br />
+<code>chmod 700 ./uit-tss-toolbox_1.0-1_amd64/DEBIAN/postinst</code>
+<br />
+<br />
 Make the folder into a .deb package
 <br />
 <br />
