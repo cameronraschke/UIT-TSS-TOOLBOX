@@ -15,7 +15,7 @@ _UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data
 <br />
 <br />
 <br />
-<h1>Installing UIT-TSS-TOOLBOX</h1>
+# Installing UIT-TSS-TOOLBOX
 <br />
 <br />
 <br />
