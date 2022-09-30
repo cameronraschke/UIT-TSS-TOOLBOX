@@ -1,0 +1,509 @@
+#!/bin/bash
+
+if [ ! -f /opt/debian-live.deb ]; then
+	wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb --output-document=/opt/debian-live.deb
+fi
+
+/usr/bin/apt install /opt/debian-live.deb
+
+rm -r /opt/UIT-TSS-CLONE/
+mkdir /opt/UIT-TSS-CLONE/
+
+( cd /opt/UIT-TSS-CLONE/ && \
+
+	lb clean && \
+
+	/usr/bin/lb config \
+		--apt apt \
+		--apt-recommends true \
+		--apt-secure true \
+		--apt-source-archives true \
+		--architecture amd64 \
+		--archive-areas 'main' \
+		--binary-filesystem fat32 \
+		--binary-images iso-hybrid \
+		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-CLONE timezone=America/Chicago xorg-resolution=640x400" \
+		--bootloaders "grub-efi syslinux" \
+		--chroot-filesystem squashfs \
+		--compression gzip \
+		--clean \
+		--debian-installer live \
+		--debian-installer-distribution bullseye \
+		--distribution bullseye \
+		--debootstrap-options "--variant=minbase --arch=amd64" \
+		--hdd-label UIT-TSS-CLONE \
+		--image-name UIT-TSS-CLONE \
+		--initramfs live-boot \
+		--initsystem systemd \
+		--iso-application UIT-TSS-CLONE \
+		--iso-preparer "Cameron Raschke caraschke@uh.edu" \
+		--iso-publisher "Cameron Raschke caraschke@uh.edu" \
+		--iso-volume UIT-TSS-CLONE \
+		--mode debian \
+		--system live \
+		--uefi-secure-boot enable \
+		--updates true)
+
+mkdir -p /opt/UIT-TSS-CLONE/config/bootloaders
+cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-CLONE/config/bootloaders
+cp -r /usr/share/live/build/bootloaders/grub-pc /opt/UIT-TSS-CLONE/config/bootloaders
+
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/isolinux/isolinux.cfg
+UI vesamenu.c32
+
+MENU TITLE Boot Menu
+DEFAULT linux
+        TIMEOUT 100
+        MENU RESOLUTION 640 480
+        SAY Now booting into UIT-TSS-CLONE by Cameron Raschke
+label linux
+        menu label UIT-TSS-CLONE by Cameron Raschke
+        menu default
+        linux /live/vmlinuz
+        initrd /live/initrd.img
+        append @APPEND_LIVE@
+EOF
+
+rm -r /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/*
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/grub.cfg
+set gfxmode=640x480
+insmod part_gpt
+insmod part_msdos
+insmod fat
+insmod iso9660
+insmod gfxterm
+
+set default="0"
+set timeout=10
+
+menuentry "UIT-TSS-CLONE by Cameron Raschke" {
+        linux @KERNEL_LIVE@ @APPEND_LIVE@
+        initrd @INITRD_LIVE@
+}
+EOF
+
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/package-lists/live.list.chroot
+live-boot
+live-config
+live-config-systemd
+systemd-sysv
+network-manager
+openssl
+less
+iproute2
+curl
+wget
+openssh-client
+ssh
+nano
+vim
+clonezilla
+cifs-utils
+passwd
+locales
+firmware-linux-free
+apt-utils
+parted
+partclone
+partimage
+gparted
+ethtool
+isc-dhcp-client
+net-tools
+gzip
+lzip
+zstd
+sudo
+chntpw
+libasound2
+libasound2-plugins
+alsa-utils
+sox
+libsox-fmt-all
+postfix
+ca-certificates
+sshpass
+kbd
+EOF
+
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
+touch /opt/UIT-TSS-CLONE/config/includes.chroot/etc/mailname
+echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/mailname
+
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/
+touch /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/sasl_passwd
+touch /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/main.cf
+
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/main.cf
+smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+biff = no
+append_dot_mydomain = no
+compatibility_level = 3.6
+smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+smtpd_tls_security_level=may
+
+smtp_tls_CApath=/etc/ssl/certs
+smtp_tls_security_level=may
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+smtpd_relay_restrictions = permit_mynetworks reject
+myhostname = UIT-TSS-LAPTOP.cameronraschke.com
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+myorigin = /etc/mailname
+mydestination = $myhostname, , localhost
+mynetworks = 127.0.0.0/8
+mailbox_size_limit = 0
+recipient_delimiter = +
+inet_interfaces = loopback-only
+inet_protocols = ipv4
+
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_security_options = noanonymous
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+smtp_use_tls = yes
+relayhost = [mickey.uit]:25
+EOF
+
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/sasl_passwd
+[mickey.uit]:25	cameron:UHouston!
+EOF
+
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
+wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 --output-document=/opt/UIT-TSS-CLONE/config/includes.chroot/root/oven.mp3
+
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
+touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
+echo "UHouston!" > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
+chown root:root /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
+chmod 600 /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
+
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
+touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/laptop-reimage-count.today.txt
+
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root
+touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
+#!/bin/bash
+
+clear
+
+echo ""
+echo "Updating Kernel..."
+echo "" >> /etc/sysctl.conf
+echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
+echo "kernel.printk = 2 4 1 2" >> /etc/sysctl.conf
+/usr/sbin/sysctl -p &>/dev/null
+echo "Done."
+echo ""
+ 
+echo "Updating networking..."
+/usr/bin/nmcli connection modify "$(nmcli -t -f DEVICE device | grep '^e.*')" connection.interface-name "eth0" connection.id "Wired connection 1" &>/dev/null
+/usr/bin/nmcli connection modify "Wired connection 1" ipv4.method auto &>/dev/null
+/usr/bin/nmcli connection modify "Wired connection 1" ipv6.method disabled &>/dev/null
+/usr/bin/nmcli connection modify "Wired connection 1" 802-3-ethernet.mac-address "$(cat /sys/class/net/e*/address)" &>/dev/null
+/usr/bin/nmcli radio wifi off &>/dev/null
+/usr/bin/nmcli connection up "Wired connection 1" &>/dev/null
+echo "Done."
+echo ""
+
+echo "Updating SSH..."
+if [ ! -f /root/.ssh/id_rsa ]; then
+/usr/bin/ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
+fi
+/usr/bin/sshpass -f /root/.ssh_passwd ssh-copy-id -o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
+echo "Done."
+echo ""
+
+echo "Updating audio..."
+/usr/bin/amixer sset Master 100% &>/dev/null
+/usr/bin/amixer set Master unmute &>/dev/null
+/usr/bin/amixer sset Speakers 100% &>/dev/null
+/usr/sbin/amixer set Speakers unmute &>/dev/null
+echo "Done."
+echo ""
+
+echo "Configuring email..."
+/usr/bin/chmod 600 /etc/postfix/sasl_passwd &>/dev/null
+/usr/bin/chown root:root /etc/postfix/sasl_passwd &>/dev/null
+/usr/sbin/postmap /etc/postfix/sasl_passwd &>/dev/null
+/usr/sbin/postfix reload &>/dev/null
+echo "Done."
+echo ""
+
+echo "Changing font..."
+/usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz
+echo "Done."
+echo ""
+
+sleep 1
+
+clear
+
+SERVER=''
+SERVERDNS=''
+USER='cameron'
+PASS='UHouston!'
+SMBPATH=''
+HOSTNAME='TSS-RENTAL-LAPTOP'
+CLIENTDISK=''
+IMAGENAME=''
+MODE=''
+
+function intro {
+	clear
+	echo ""
+	echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n"
+	echo "Press CTRL + C at any time to exit"
+	echo "If you have exited and want to restart UIT-TSS-CLONE, press CTRL + D"
+	echo ""
+	echo ""
+echo '
+| |    | |  | |     | |
+| |    | |  | |_____| |
+| |    | |  | |_____| |
+| |____| |  | |     | |
+\________/  | |     | |
+'
+	sleep 1
+	echo ""
+	echo "------------------------------"
+	echo ""
+echo 'Checklist:
+	-Physical connections
+	   * Make sure that both power and ethernet are plugged in to the client.
+	-General best practices
+	   * Sanitize laptops with cleaner before imaging them.
+	   * Reset BIOS to default/factory settings before imaging.
+	-Dells
+	   * Make sure SATA mode is in AHCI mode and not RAID mode.
+	      * This is usually under "System Configuration" or "Storage" in BIOS.
+	      * Every Dell is in RAID mode by default. 
+	      * If you reset BIOS, make sure you change SATA mode after the reset.
+'
+	read -p "Please remove the thumb drive and press Enter...."
+	clear
+}
+
+function modeselect {
+	echo ""
+	echo "Do you want to clone a returned laptop/desktop [1] or save an image to the server [2]?"
+	read -n1 -p "Choose [1,2] " MODE
+	echo ""
+	case $MODE in
+	1)
+	MODE='restoredisk'
+	ACTION='clone'
+	;;
+	2)
+	MODE='savedisk'
+	ACTION='save'
+	;;
+	*)
+	modeselect
+	;;
+	esac
+}
+
+function diskselect {
+	echo ""
+	echo "These are the current disks and their sizes:"
+	lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
+	echo ""
+	echo "Which disk do you want to ${ACTION}"
+	select CLIENTDISK in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
+	do
+	echo ""
+	echo "$(lsblk /dev/${CLIENTDISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
+	echo "You chose ${CLIENTDISK}. Is this correct?"
+	PS3="Select a drive: "
+	read -p "Press Enter to confirm...." DISKCONF
+	break
+	done
+}
+
+function serverselect {
+	echo ""
+	echo "Do you want to use server Mickey [1] or Minnie [2]?"
+	read -n1 -p "Choose [1,2] " HOSTTYPE
+	echo ""
+	case $HOSTTYPE in
+	1)
+	SERVER='10.0.0.1'
+	SERVERDNS='mickey.uit'
+	;;
+	2)
+	SERVER='10.0.0.2'
+	SERVERDNS='minnie.uit'
+	;;
+	*)
+	serverselect
+	;;
+	esac
+}
+
+function clientselect {
+	echo ""
+	echo "Would you like to run this for HP laptops [1], Dell laptops [2], or Dell desktops [3]?"
+	read -n1 -p "Choose [1,2,3] " CLIENTTYPE
+	echo ""
+	case $CLIENTTYPE in
+	1)
+	SMBPATH='hp'
+	IMAGENAME='2022Fall-HP'
+	;;
+	2)
+	SMBPATH='dell'
+	IMAGENAME='2022Fall-Dell'
+	;;
+	3)
+	SMBPATH='desktops'
+	IMAGENAME='2022Fall-Win11Desktops'
+	;;
+	*)
+	clientselect
+	;;
+	esac
+}
+
+function confirm {
+	if [[ -z $SERVER || -z $SERVERDNS || -z $USER || -z $PASS || -z $SMBPATH || -z $HOSTNAME || -z CLIENTDISK || -z $IMAGENAME || -z $MODE ]]; then
+	clear
+	echo 'One or more variables are undefined. Exiting...'
+	exit 1
+	fi
+	echo ""
+	echo ""
+	echo ""
+	echo "------------------------------"
+	echo ""
+	echo "Default settings:"
+	echo "Server type: Samba"
+	echo "User: ${USER}"
+	echo "Password: ${PASS}"
+	echo "Hostname prefix: ${HOSTNAME}"
+	echo ""
+	echo ""
+	echo "Custom settings:"
+	echo "Mode is: ${MODE}"
+	echo "Server is: ${SERVER}/${SERVERDNS}"
+	echo "Samba path is: //${SERVERDNS}/${SMBPATH}"
+	echo "Image name is: ${IMAGENAME}"
+	echo "Client disk: ${CLIENTDISK}"
+	echo ""
+		if [[ $MODE == "savedisk" ]]; then
+		echo "If saving an image, it will overwrite the previous image stored on the server. Please make a backup if necessary."
+		fi
+		if [[ $MODE == "restoredisk" ]]; then
+		echo "If restoring an image, it will overwrite the client's hard drive. Please make a backup if necessary."
+		fi
+	echo ""
+	read -p "Press Enter to continue or CTRL + C to exit...."
+	clear
+}
+
+function execute {
+	start_time=$SECONDS
+	mkdir /home/partimag
+	/usr/bin/umount /home/partimag &>/dev/null
+	/usr/bin/mount -t cifs -o user=${USER} -o password=${PASS} //${SERVER}/${SMBPATH} /home/partimag
+	if [[ $MODE == "restoredisk" ]]; then
+	clear
+	echo ""
+	echo "Restoring disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/sbin/ocs-sr --nogui -l en_US.UTF-8 --postaction command --user-mode beginner --verbose --grub-install auto -k1 -hn1 ${HOSTNAME} --skip-check-restorable-r ${MODE} ${IMAGENAME} ${CLIENTDISK}
+	fi
+	if [[ $MODE == "savedisk" ]]; then
+	clear
+	echo ""
+	echo "Saving disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/sbin/ocs-sr --nogui -l en_US.UTF-8 --postaction command --user-mode beginner --verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${MODE} ${IMAGENAME} ${CLIENTDISK}
+	fi
+}
+
+function terminate {
+	elapsed=$(( SECONDS - start_time ))
+	echo ""
+	echo ""
+	echo ""
+	echo "Sending Email..."
+	if [[ $MODE == "restoredisk" ]]; then
+	ssh cameron@mickey.uit 'echo -e "UIT-TSS-CLONE\n" >> /home/cameron/laptop-reimage-count.today.txt &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt' &>/dev/null
+	echo -e "From: UIT-TSS-CLONE@cameronraschke.com \nTo: clone-status@cameronraschke.com \nSubject: Computer Successfully Reimaged \n\nHello, \nA computer has been reimaged from the server ${SERVERDNS} using the image ${IMAGENAME}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.today.txt | wc -l) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').") \n\nThank you, \nCameron" | /usr/sbin/sendmail -t
+	echo "Done."
+	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${IMAGENAME}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.today.txt | wc -l) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")"
+	elapsed=''
+	fi
+	if [[ $MODE == "savedisk" ]]; then
+	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
+	echo -e "From: UIT-TSS-CLONE@cameronraschke.com \nTo: image-status@cameronraschke.com \nSubject: Computer Image Successfully Saved \n\nHello, \nA computer image has been saved to the server ${SERVERDNS} using the image ${IMAGENAME}. The last update to the image was on $(cat /root/laptop-image-update.txt). This process took $(eval "echo $(date -ud "@$elapsed" +'%M minutes') to complete.") \n\nThank you, \nCameron" | /usr/sbin/sendmail -t
+	echo "Done."
+	echo -e "This computer image has been saved to the server ${SERVERDNS} using the image ${IMAGENAME}. The last update to the image was on $(cat /root/laptop-image-update.txt). This process took $(eval "echo $(date -ud "@$elapsed" +'%M minutes') to complete.")"
+	elapsed=''
+	ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > /home/cameron/laptop-image-update.txt' &>/dev/null
+	fi
+	echo ""
+	/usr/bin/play /root/oven.mp3 &> /dev/null
+	read -p "Process has finished. Press Enter to reboot..."
+	reboot
+}
+
+intro
+modeselect
+diskselect
+clientselect
+serverselect
+confirm
+execute
+terminate
+EOF
+
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/ssh/
+echo "" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
+echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
+echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
+echo "kernel.printk = 2 4 1 2" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
+echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/hostname
+echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/motd
+echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/issue.net
+echo -e "Banner /etc/issue.net" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/ssh/sshd_config
+
+(cd /opt/UIT-TSS-CLONE && \
+	lb build)
+
+cat <<'EOF' > /usr/sbin/uit-tss-flash-clone
+#!/bin/bash
+
+echo "These are the current disks and their sizes:"
+lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
+echo ""
+echo "Which disk do you want to flash with the ISO?"
+        select ISODISK in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
+        do
+        echo ""
+        echo "$(lsblk /dev/${ISODISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
+        echo "You chose ${ISODISK}. Is this correct?"
+        PS3="Select a drive: "
+        read -p "All data on ${ISODISK} will be deleted. Press Enter to confirm...."
+        break
+        done
+echo "Unmounting ${ISODISK}"
+umount /dev/${ISODISK} &>/dev/null
+echo "Making FAT filesystem"
+mkfs.vfat -I /dev/${ISODISK} &>/dev/null
+echo "Creating new label: UITTSSCLONE"
+mlabel -i /dev/${ISODISK} ::UITTSSCLONE &>/dev/null
+echo "Writing ISO to disk, this may take a while..."
+dd if=/opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso of=/dev/${ISODISK} bs=4M status=progress
+EOF
+chmod 700 /usr/sbin/uit-tss-flash-clone
+chown root:root /usr/sbin/uit-tss-flash-clone
