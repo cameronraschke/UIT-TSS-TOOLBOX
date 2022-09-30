@@ -28,8 +28,8 @@ Server 2:\
 IP: 10.0.0.2\
 DNS address: minnie.uit\
 Samba shares: 2022Fall-HP, 2022Fall-Dell, 2022Fall-Win11Desktops\
-Username: cameron\
-Password: UHouston!\
+Samba username: cameron\
+Samba password: UHouston!\
 Hostname prefix of client: TSS-RENTAL-LAPTOP\
 <br />
 **Important file locations:**\
