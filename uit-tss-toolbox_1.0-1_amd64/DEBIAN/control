@@ -1,0 +1,8 @@
+Package: uit-tss-toolbox
+Source: uit-tss-toolbox
+Version: 1.0-0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Cameron Raschke <cameron@cameronraschke.com>
+Description: UIT-TSS-TOOLBOX includes two main programs: UIT-TSS-CONFIGURE-CLONE and UIT-TSS-CONFIGURE-SHRED.
