@@ -10,9 +10,13 @@ _UIT-TSS-CONFIGURE-CLONE_ is inteded to clone computers based on a specific clie
 _UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data. _UIT-TSS-CONFIGURE-SHRED_ is not intended to be connected to any network and doesn't have any networking outside of what is present in the Kernel.
 
 **Specific server configuration:**
+
 Server 1:
+
 IP: 10.0.0.1
+
 DNS address: mickey.uit
+
 Samba shares: 2022Fall-HP, 2022Fall-Dell, 2022Fall-Win11Desktops
 Username: cameron
 Password: UHouston!
