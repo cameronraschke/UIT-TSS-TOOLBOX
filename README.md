@@ -43,7 +43,7 @@ Make the folder into a .deb package
 Install the new .deb file
 <br />
 <br />
-<code>dpkg -i ./uit-tss-toolbox_1.0-1_amd64</code>
+<code>dpkg -i ./uit-tss-toolbox_1.0-1_amd64.deb</code>
 <br />
 <br />
 <br />
