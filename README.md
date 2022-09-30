@@ -34,4 +34,4 @@ Hostname prefix of client: TSS-RENTAL-LAPTOP\
 <br />
 **Important file locations:**\
 Main directory: /opt/UIT-TSS-CLONE/ or /opt/UIT-TSS-SHRED/\
-ISO file location: /opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso or /opt/UIT-TSS-CLONE/UIT-TSS-SHRED-amd64.hybrid.iso\
+ISO file location: /opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso or /opt/UIT-TSS-CLONE/UIT-TSS-SHRED-amd64.hybrid.iso
