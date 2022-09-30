@@ -16,6 +16,12 @@ _UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data
 <br />
 <br />
 # Installing UIT-TSS-TOOLBOX
+Make sure you are root
+<br />
+<br />
+<code>sudo -i</code>
+<br />
+<br />
 Download my repo from GitHub
 <br />
 <br />
