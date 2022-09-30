@@ -11,7 +11,7 @@ Both packages are written in Bash (Unix Shell), so they can only be ran on Linux
 _UIT-TSS-CONFIGURE-CLONE_ is inteded to clone computers based on a specific client-server setup.
 
 
-_UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data. _UIT-TSS-CONFIGURE-SHRED_ is not intended to be connected to any network and doesn't have any networking outside of what is present in the Kernel.
+_UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data. _UIT-TSS-CONFIGURE-SHRED_ is not intended to be connected to any network and doesn't have any networking outside of what is present in the Kernel. \n\n\n\n
 
 
 
