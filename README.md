@@ -16,7 +16,8 @@ _UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data
 <br />
 <br />
 # Installing UIT-TSS-TOOLBOX
-The
+The package will be called uit-tss-toolbox_1.0-1_amd64.deb
+<code>dpkg-deb --build --root-owner-group uit-tss-toolbox_1.01_amd64.deb</code>
 # Specific server configuration:
 Server 1:\
 IP: 10.0.0.1\
