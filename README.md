@@ -19,7 +19,16 @@ _UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data
 Download the folder called uit-tss-toolbox_1.0-1_amd64 and make it into a .deb file
 <br />
 <br />
-<code>dpkg-deb --build --root-owner-group uit-tss-toolbox_1.0-1_amd64</code>
+<code>git clone https://github.com/cameronraschke/UIT-TSS-TOOLBOX</code>
+<br />
+<br />
+Change directory to the newly downloaded Git repo
+<br />
+<br />
+<code>cd UIT-TSS-TOOLBOX</code>
+<br />
+<br />
+<code>dpkg-deb --build --root-owner-group ./uit-tss-toolbox_1.0-1_amd64</code>
 <br />
 <br />
 Install the new .deb file
