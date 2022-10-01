@@ -14,7 +14,7 @@ _UIT-TSS-CONFIGURE-CLONE_ and _UIT-TSS-CONFIGURE-SHRED_ create and configure a c
 _UIT-TSS-CONFIGURE-CLONE_ is inteded to clone computers based on a specific client-server setup.
 <br />
 <br />
-_UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data. _UIT-TSS-CONFIGURE-SHRED_ is not intended to be connected to any network and doesn't have any networking outside of what is present in the Kernel.
+_UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data. _UIT-TSS-CONFIGURE-SHRED_ is not intended to be connected to any network and has networking disabled in the Kernel.
 <br />
 <br />
 <br />
