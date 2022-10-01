@@ -6,7 +6,7 @@ echo ""
 echo "Which USB disk do you want to flash with the ISO?"
         select ISODISK in $(for ISODISK in /sys/block/*; \ 
         do if udevadm info --query=property --path=${ISODISK} | grep -q ^ID_BUS=usb; \ 
-        then ${ISODISK}=$(echo ${ISODISK} | grep -o 'sd.*'); \ 
+        then ISODISK=$(echo ${ISODISK} | grep -o 'sd.*'); \ 
         echo ${ISODISK}; fi; done)
         do
         echo ""
