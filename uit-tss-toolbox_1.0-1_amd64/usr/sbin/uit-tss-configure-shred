@@ -102,6 +102,7 @@ alsa-utils
 sox
 libsox-fmt-all
 kbd
+iptables
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
@@ -116,7 +117,15 @@ clear
 
 echo ""
 echo "Updating Kernel..."
+/usr/bin/apt purge iproute2 -y &>/dev/null
+/usr/sbin/iptables -P INPUT DROP &>/dev/null
+/usr/sbin/iptables -P FORWARD DROP &>/dev/null
+/usr/sbin/iptables -P OUTPUT DROP &>/dev/null
 echo "" >> /etc/sysctl.conf
+echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
+echo "net.ipv6.conf.all.disable_ipv4 = 1" >> /etc/sysctl.conf
+echo "net.ipv6.conf.default.disable_ipv4 = 1" >> /etc/sysctl.conf
 echo "kernel.printk = 2 4 1 2" >> /etc/sysctl.conf
 /usr/sbin/sysctl -p &>/dev/null
 echo "Done."
@@ -162,7 +171,7 @@ echo '
 	echo ""
 echo 'Checklist:
 	-Physical connections
-	   * Make sure that both power and ethernet are plugged in to the client.
+	   * Make sure that power is plugged in to the client.
 	-General best practices
 	   * Sanitize laptops with cleaner before imaging them.
 	   * Reset BIOS to default/factory settings before imaging.
@@ -226,10 +235,6 @@ terminate
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/etc/
-echo "" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
-echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
-echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
-echo "kernel.printk = 2 4 1 2" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
 echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/hostname
 echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/motd
 echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/issue.net
