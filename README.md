@@ -11,10 +11,13 @@ _UIT-TSS-CONFIGURE-CLONE_ and _UIT-TSS-CONFIGURE-SHRED_ create and configure a c
 <code>uit-tss-configure-shred</code>
 <br />
 <br />
-_UIT-TSS-CONFIGURE-CLONE_ is inteded to clone computers based on a specific client-server setup.
+To flash the ISOs to a USB device, use the following commands as root:
 <br />
 <br />
-_UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data. _UIT-TSS-CONFIGURE-SHRED_ is not intended to be connected to any network and has networking disabled in the Kernel.
+<code>uit-tss-flash-clone</code>
+<br />
+<br />
+<code>uit-tss-flash-shred</code>
 <br />
 <br />
 <br />
