@@ -15,7 +15,7 @@ _UIT-TSS-CONFIGURE-SHRED_ is intended to completely wipe hard drives of all data
 <br />
 <br />
 <br />
-# Installing UIT-TSS-TOOLBOX
+## Installing UIT-TSS-TOOLBOX
 Make sure you are root
 <br />
 <br />
@@ -53,7 +53,7 @@ Install the new .deb file
 <br />
 <br />
 <br />
-# Removing uit-tss-toolbox
+## Removing uit-tss-toolbox
 Type in this command to completely purge uit-tss-toolbox
 <br />
 <br />
@@ -61,7 +61,7 @@ Type in this command to completely purge uit-tss-toolbox
 <br />
 <br />
 <br />
-# Specific server configuration:
+### Specific server configuration:
 Server 1:\
 IP: 10.0.0.1\
 DNS address: mickey.uit\
@@ -78,6 +78,6 @@ Samba username: cameron\
 Samba password: UHouston!\
 Hostname prefix of client: TSS-RENTAL-LAPTOP\
 <br />
-**Important file locations:**\
+### Important file locations:
 Main directory: /opt/UIT-TSS-CLONE/ or /opt/UIT-TSS-SHRED/\
 ISO file location: /opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso or /opt/UIT-TSS-CLONE/UIT-TSS-SHRED-amd64.hybrid.iso
