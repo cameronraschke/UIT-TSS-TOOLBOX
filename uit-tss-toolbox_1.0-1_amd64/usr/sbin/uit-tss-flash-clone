@@ -16,6 +16,8 @@ echo "Which USB disk do you want to flash with the ISO?"
         read -p "All data on ${ISODISK} will be deleted. Press Enter to confirm...."
         break
         done
+
+if [[ ${ISODISK} -ne "" ]]; then
 echo "Unmounting ${ISODISK}"
 umount /dev/${ISODISK} &>/dev/null
 echo "Making FAT filesystem"
@@ -24,3 +26,4 @@ echo "Creating new label: UITTSSCLONE"
 mlabel -i /dev/${ISODISK} ::UITTSSCLONE &>/dev/null
 echo "Writing ISO to disk, this may take a while..."
 dd if=/opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso of=/dev/${ISODISK} bs=4M status=progress
+fi
