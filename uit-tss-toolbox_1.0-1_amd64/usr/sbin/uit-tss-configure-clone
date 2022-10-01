@@ -436,7 +436,16 @@ function terminate {
 	ssh cameron@mickey.uit 'echo -e "UIT-TSS-CLONE\n" >> /home/cameron/laptop-reimage-count.today.txt &>/dev/null
 	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
 	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt' &>/dev/null
-	echo -e "From: UIT-TSS-CLONE@cameronraschke.com \nTo: clone-status@cameronraschke.com \nSubject: Computer Successfully Reimaged \n\nHello, \nA computer has been reimaged from the server ${SERVERDNS} using the image ${IMAGENAME}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.today.txt | wc -l) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').") \n\nThank you, \nCameron" | /usr/sbin/sendmail -t
+	echo -e "From: UIT-TSS-CLONE@cameronraschke.com
+To: clone-status@cameronraschke.com
+Subject: Computer Successfully Reimaged
+
+Hello,
+
+A computer has been reimaged from the server minnie.uit using the image 2022Fall-HP, which was last updated on Tuesday, September 27 at 2:32PM. Today, 21 computers have been reimaged, with this reimage taking 08 minutes.
+
+Thank you,
+Cameron" | sendmail -t
 	echo "Done."
 	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${IMAGENAME}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.today.txt | wc -l) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")"
 	elapsed=''
