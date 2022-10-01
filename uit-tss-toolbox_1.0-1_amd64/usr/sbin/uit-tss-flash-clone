@@ -17,7 +17,7 @@ echo "Which USB disk do you want to flash with the ISO?"
         break
         done
 
-if [ ! -z ${ISODISK} ]; then
+if [ -n ${ISODISK} ]; then
 echo "Unmounting /dev/${ISODISK}"
 umount /dev/${ISODISK} &>/dev/null
 echo "Making FAT filesystem on /dev/${ISODISK}"
