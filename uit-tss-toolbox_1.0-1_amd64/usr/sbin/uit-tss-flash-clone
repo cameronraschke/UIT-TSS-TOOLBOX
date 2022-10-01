@@ -3,8 +3,11 @@
 echo "These are the current disks and their sizes:"
 lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
 echo ""
-echo "Which disk do you want to flash with the ISO?"
-        select ISODISK in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
+echo "Which USB disk do you want to flash with the ISO?"
+        select ISODISK in $(for ISODISK in /sys/block/*; \ 
+        do if udevadm info --query=property --path=${ISODISK} | grep -q ^ID_BUS=usb; \ 
+        then ${ISODISK}=$(echo ${ISODISK} | grep -o 'sd.*'); \ 
+        echo ${ISODISK}; fi; done)
         do
         echo ""
         echo "$(lsblk /dev/${ISODISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
