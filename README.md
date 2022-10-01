@@ -54,7 +54,7 @@ Install the new .deb file
 <br />
 <br />
 ## Removing uit-tss-toolbox
-Type in this command to completely purge uit-tss-toolbox
+Type in this command to completely purge UIT-TSS-TOOLBOX
 <br />
 <br />
 <code>dpkg --purge uit-tss-toolbox</code>
