@@ -262,12 +262,12 @@ function execute {
 	echo "Shredding disk ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/shred -vz -n 3 /dev/${CLIENTDISK}
-	if [[ $CLIENTDISK = $SSD_REGEX ]]; then 
+	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	/usr/sbin/hdparm --user-master u --security-set-pass password /dev/${CLIENTDISK}
 	/usr/sbin/hdparm --user-master u --security-erase password /dev/${CLIENTDISK}
 	fi
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-	/usr/sbin/nvme format /dev/nvme0 -s 2 -n 1
+	/usr/sbin/nvme format /dev/${CLIENTDISK} -s 2 -n 1
 	fi
 	/usr/sbin/blkdiscard --secure /dev/${CLIENTDISK}
 	
