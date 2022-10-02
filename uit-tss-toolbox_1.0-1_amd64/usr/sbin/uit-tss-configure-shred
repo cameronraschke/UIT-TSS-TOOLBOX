@@ -122,12 +122,9 @@ echo "Updating Kernel..."
 /usr/sbin/iptables -P INPUT DROP &>/dev/null
 /usr/sbin/iptables -P FORWARD DROP &>/dev/null
 /usr/sbin/iptables -P OUTPUT DROP &>/dev/null
-echo "" >> /etc/sysctl.conf
-echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
-echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
-echo "net.ipv6.conf.all.disable_ipv4 = 1" >> /etc/sysctl.conf
-echo "net.ipv6.conf.default.disable_ipv4 = 1" >> /etc/sysctl.conf
-echo "kernel.printk = 2 4 1 2" >> /etc/sysctl.conf
+/usr/sbin/sysctl -w net.ipv6.conf.all.disable_ipv6 = 1 &>/dev/null
+/usr/sbin/sysctl -w net.ipv6.conf.default.disable_ipv6 = 1 &>/dev/null
+/usr/sbin/sysctl -w kernel.printk = 2 4 1 2 &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
 echo "Done."
 echo ""
