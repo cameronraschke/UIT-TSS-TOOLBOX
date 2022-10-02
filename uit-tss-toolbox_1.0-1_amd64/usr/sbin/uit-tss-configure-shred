@@ -151,6 +151,8 @@ sox
 libsox-fmt-all
 kbd
 iptables
+hdparm
+util-linux
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
@@ -249,6 +251,8 @@ function diskselect {
 }
 
 function execute {
+	SSD_REGEX='sd.*'
+	NVME_REGEX='nvme.*'
 	start_time=$SECONDS
 	clear
 	echo ""
@@ -258,6 +262,15 @@ function execute {
 	echo "Shredding disk ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/shred -vz -n 3 /dev/${CLIENTDISK}
+	if [[ $CLIENTDISK = $SSD_REGEX ]]; then 
+	/usr/sbin/hdparm --user-master u --security-set-pass password /dev/${CLIENTDISK}
+	/usr/sbin/hdparm --user-master u --security-erase password /dev/${CLIENTDISK}
+	fi
+	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
+	/usr/sbin/nvme format /dev/nvme0 -s 2 -n 1
+	fi
+	/usr/sbin/blkdiscard --secure /dev/${CLIENTDISK}
+	
 }
 
 function terminate {
