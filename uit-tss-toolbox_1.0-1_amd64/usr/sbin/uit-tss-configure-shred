@@ -22,7 +22,7 @@ mkdir /opt/UIT-TSS-SHRED/
 		--archive-areas 'main' \
 		--binary-filesystem fat32 \
 		--binary-images iso-hybrid \
-		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-SHRED timezone=America/Chicago xorg-resolution=640x400" \
+		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-SHRED timezone=America/Chicago" \
 		--bootloaders "grub-efi syslinux" \
 		--chroot-filesystem squashfs \
 		--compression gzip \
@@ -238,7 +238,7 @@ function diskselect {
 	echo "These are the current disks and their sizes:"
 	lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
 	echo ""
-	echo "Which disk do you want to ${ACTION}"
+	echo "Which disk do you want to erase?"
 	select CLIENTDISK in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
 	do
 	echo ""
