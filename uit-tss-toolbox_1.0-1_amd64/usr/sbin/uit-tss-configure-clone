@@ -428,9 +428,6 @@ function execute {
 
 function terminate {
 	elapsed=$(( SECONDS - start_time ))
-	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
-	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
-	UPDATE=$(cat /root/laptop-image-update.txt)
 	echo ""
 	echo ""
 	echo ""
@@ -439,6 +436,9 @@ function terminate {
 	ssh cameron@mickey.uit 'echo "UIT-TSS-CLONE" >> /home/cameron/laptop-reimage-count.today.txt' &>/dev/null
 	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
 	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
+	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
+	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
+	UPDATE=$(cat /root/laptop-image-update.txt)
 	echo -e "From: UIT-TSS-CLONE@cameronraschke.com
 To: clone-status@cameronraschke.com
 Subject: Computer Successfully Reimaged
@@ -456,11 +456,11 @@ Cameron" | sendmail -t
 	
 	if [[ $MODE == "savedisk" ]]; then
 	elapsed=$(( SECONDS - start_time ))
+	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
 	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
 	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 	UPDATE=$(cat /root/laptop-image-update.txt)
-	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
-	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
 	echo -e "From: UIT-TSS-CLONE@cameronraschke.com
 To: clone-status@cameronraschke.com
 Subject: Computer Image Successfully Saved
