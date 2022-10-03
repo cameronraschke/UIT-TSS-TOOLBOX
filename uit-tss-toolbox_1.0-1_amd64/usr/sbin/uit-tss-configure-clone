@@ -192,7 +192,6 @@ clear
 
 echo ""
 echo "Updating Kernel..."
-echo "" >> /etc/sysctl.conf
 /usr/sbin/sysctl -w net.ipv6.conf.all.disable_ipv6 = 1 &>/dev/null
 /usr/sbin/sysctl -w net.ipv6.conf.default.disable_ipv6 = 1 &>/dev/null
 /usr/sbin/sysctl -w kernel.printk = 2 4 1 2 &>/dev/null
@@ -489,6 +488,9 @@ EOF
 
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/ssh/
+echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
+echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
+echo "kernel.printk = 2 4 1 2" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
 echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/hostname
 echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/motd
 echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/issue.net
