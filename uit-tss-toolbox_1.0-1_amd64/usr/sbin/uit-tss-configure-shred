@@ -216,21 +216,24 @@ function execute {
 	echo ""
 	echo "Shredding disk ${CLIENTDISK}...."
 	sleep 1
-	/usr/bin/shred -v -n 2 /dev/${CLIENTDISK}
+	/usr/bin/shred -vz -n 3 /dev/${CLIENTDISK}
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
-	echo "Formatting the HDD/SSD at a firmware level. Please keep the device powered on."
+	echo "Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	sleep 1
 	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK}
 	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK}
 	fi
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-	echo "Formatting the NVME drive at a firmware level. Please keep the device powered on."
-	/usr/sbin/nvme format /dev/${CLIENTDISK} -s 2
+	echo "Deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	sleep 1
+	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1
+	echo "Cryptographically deleting ${CLIENTDISK}. Please keep the device powered on."
+	sleep 1
+	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1
 	fi
-	echo "Discarding all sectors." 
+	echo "Discarding all sectors."
+	sleep 1
 	/usr/sbin/blkdiscard --secure /dev/${CLIENTDISK}
-	echo "Zeroing out drive one last time."
-	/usr/bin/shred -vz -n 1 /dev/${CLIENTDISK}
-	
 }
 
 function terminate {
