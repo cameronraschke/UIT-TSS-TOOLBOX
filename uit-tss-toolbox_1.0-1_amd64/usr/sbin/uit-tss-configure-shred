@@ -249,7 +249,7 @@ terminate
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/etc/
-echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/hostname
+echo "uit-tss-shred.uit" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/hostname
 echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/motd
 echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/issue.net
 
