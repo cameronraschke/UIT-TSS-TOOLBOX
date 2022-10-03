@@ -450,7 +450,7 @@ A computer has been reimaged from the server ${SERVERDNS} using the image ${SMBP
 Thank you,
 Cameron" | sendmail -t
 	echo "Done."
-	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.txt) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")"
+	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.today.txt) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")"
 	fi
 	
 	if [[ $MODE == "savedisk" ]]; then
