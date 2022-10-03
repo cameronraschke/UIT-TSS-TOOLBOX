@@ -181,7 +181,7 @@ echo 'Checklist:
 	      
 	*** WARNING *** After pressing Enter, the system will enter hibernate mode.
 	This is normal. Please wake up the system by pressing the Space key.
-	If that doesn't work, then press the Power key once. *** WARNING ***
+	If that does not work, then press the Power key once. *** WARNING ***
 '
 	read -p "Please remove the thumb drive and press Enter...."
 	echo -n mem > /sys/power/state
