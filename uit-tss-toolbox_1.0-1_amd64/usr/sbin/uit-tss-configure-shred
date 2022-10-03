@@ -249,6 +249,9 @@ terminate
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/etc/
+echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
+echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
+echo "kernel.printk = 2 4 1 2" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
 echo "uit-tss-shred.uit" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/hostname
 echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/motd
 echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/issue.net
