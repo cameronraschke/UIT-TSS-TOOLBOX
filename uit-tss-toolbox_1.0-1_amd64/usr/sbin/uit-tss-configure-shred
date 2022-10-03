@@ -178,8 +178,13 @@ echo 'Checklist:
 	      * This is usually under "System Configuration" or "Storage" in BIOS.
 	      * Every Dell is in RAID mode by default. 
 	      * If you reset BIOS, make sure you change SATA mode after the reset.
+	      
+	*** WARNING *** After pressing Enter, the system will enter hibernate mode.
+	This is normal. Please wake up the system by pressing the Space key.
+	If that doesn't work, then press the Power key once. *** WARNING ***
 '
 	read -p "Please remove the thumb drive and press Enter...."
+	echo -n mem > /sys/power/state
 	clear
 }
 
@@ -211,11 +216,11 @@ function execute {
 	echo ""
 	echo "Shredding disk ${CLIENTDISK}...."
 	sleep 1
-	/usr/bin/shred -vz -n 3 /dev/${CLIENTDISK}
+	/usr/bin/shred -v -n 2 /dev/${CLIENTDISK}
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo "Formatting the HDD/SSD at a firmware level. Please keep the device powered on."
-	/usr/sbin/hdparm --user-master u --security-set-pass password /dev/${CLIENTDISK}
-	/usr/sbin/hdparm --user-master u --security-erase password /dev/${CLIENTDISK}
+	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK}
+	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK}
 	fi
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo "Formatting the NVME drive at a firmware level. Please keep the device powered on."
@@ -224,7 +229,7 @@ function execute {
 	echo "Discarding all sectors." 
 	/usr/sbin/blkdiscard --secure /dev/${CLIENTDISK}
 	echo "Zeroing out drive one last time."
-	/usr/sbin/blkdiscard --zeroout --verbose /dev/${CLIENTDISK}
+	/usr/bin/shred -vz -n 1 /dev/${CLIENTDISK}
 	
 }
 
