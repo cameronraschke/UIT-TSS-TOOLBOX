@@ -442,18 +442,14 @@ Subject: Computer Successfully Reimaged
 
 Hello,
 
-A computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.txt) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")
+A computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.today.txt) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")
 
 Thank you,
 Cameron" | sendmail -t
 	echo "Done."
 	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.txt) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")"
-	elapsed='0'
-	SECONDS='0'
 	fi
 	if [[ $MODE == "savedisk" ]]; then
-	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
-	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
 	echo -e "From: UIT-TSS-CLONE@cameronraschke.com
 To: clone-status@cameronraschke.com
 Subject: Computer Image Successfully Saved
@@ -466,8 +462,6 @@ Thank you,
 Cameron" | sendmail -t
 	echo "Done."
 	echo -e "${SMBPATH} has been successfully updated and saved to the server ${SERVERDNS}. ${SMBPATH} was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.txt) computers have been reimaged, with this process taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")"
-	elapsed=''
-	SECONDS='0'
 	ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > /home/cameron/laptop-image-update.txt' &>/dev/null
 	fi
 	echo ""
