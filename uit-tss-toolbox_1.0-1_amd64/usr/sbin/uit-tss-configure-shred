@@ -65,7 +65,7 @@ label linux
 EOF
 
 rm -r /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/*
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/grub.cfg
+cat <<'EOF' > /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/grub.cfg
 set gfxmode=640x480
 insmod part_gpt
 insmod part_msdos
@@ -74,7 +74,7 @@ insmod iso9660
 insmod gfxterm
 set default="0"
 set timeout=10
-menuentry "UIT-TSS-CLONE by Cameron Raschke" {
+menuentry "UIT-TSS-SHRED by Cameron Raschke" {
         linux @KERNEL_LIVE@ @APPEND_LIVE@
         initrd @INITRD_LIVE@
 }
