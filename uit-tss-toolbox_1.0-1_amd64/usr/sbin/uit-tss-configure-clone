@@ -433,7 +433,7 @@ function terminate {
 	echo ""
 	echo "Sending Email..."
 	if [[ $MODE == "restoredisk" ]]; then
-	ssh cameron@mickey.uit 'echo -e "UIT-TSS-CLONE\n" >> /home/cameron/laptop-reimage-count.today.txt &>/dev/null
+	ssh cameron@mickey.uit 'echo -e "UIT-TSS-CLONE\n" >> /home/cameron/laptop-reimage-count.today.txt' &>/dev/null
 	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
 	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt' &>/dev/null
 	echo -e "From: UIT-TSS-CLONE@cameronraschke.com
@@ -449,7 +449,10 @@ Cameron" | sendmail -t
 	echo "Done."
 	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.txt) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")"
 	fi
+	
 	if [[ $MODE == "savedisk" ]]; then
+	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt' &>/dev/null
 	echo -e "From: UIT-TSS-CLONE@cameronraschke.com
 To: clone-status@cameronraschke.com
 Subject: Computer Image Successfully Saved
