@@ -104,6 +104,7 @@ kbd
 iptables
 hdparm
 util-linux
+nvme-cli
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
