@@ -449,8 +449,9 @@ A computer has been reimaged from the server ${SERVERDNS} using the image ${SMBP
 
 Thank you,
 Cameron" | sendmail -t
-	echo "Done."
-	echo -e "A computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged, with this reimage taking ${TIME}."
+	echo "Sent."
+	echo ""
+	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged, with this reimage taking ${TIME}."
 	fi
 	
 	if [[ $MODE == "savedisk" ]]; then
@@ -470,8 +471,9 @@ The image ${SMBPATH} has been successfully updated and saved to the server ${SER
 
 Thank you,
 Cameron" | sendmail -t
-	echo "Done."
-	echo -e "The image ${SMBPATH} has been successfully updated and saved to the server ${SERVERDNS} The process took ${TIME} to complete. ${SMBPATH} was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged."
+	echo "Sent."
+	echo ""
+	echo -e "The image ${SMBPATH} has been successfully updated and saved to the server ${SERVERDNS}. The process took ${TIME} to complete. ${SMBPATH} was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged."
 	ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > /home/cameron/laptop-image-update.txt' &>/dev/null
 	fi
 	echo ""
