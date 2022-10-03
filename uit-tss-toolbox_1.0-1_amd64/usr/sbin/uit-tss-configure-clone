@@ -459,7 +459,7 @@ Cameron" | sendmail -t
 	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 	UPDATE=$(cat /root/laptop-image-update.txt)
 	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
-	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt' &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
 	echo -e "From: UIT-TSS-CLONE@cameronraschke.com
 To: clone-status@cameronraschke.com
 Subject: Computer Image Successfully Saved
