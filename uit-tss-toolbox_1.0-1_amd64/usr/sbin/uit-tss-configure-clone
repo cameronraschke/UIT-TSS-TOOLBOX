@@ -487,7 +487,7 @@ terminate
 EOF
 
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/ssh/
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/ssh/
 echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
 echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
 echo "kernel.printk = 2 4 1 2" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
