@@ -263,12 +263,12 @@ function execute {
 	sleep 1
 	/usr/bin/shred -vz -n 3 /dev/${CLIENTDISK}
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
-	echo "Formatting the HDD/SSD at a firmware level."
+	echo "Formatting the HDD/SSD at a firmware level. Please keep the device powered on."
 	/usr/sbin/hdparm --user-master u --security-set-pass password /dev/${CLIENTDISK}
 	/usr/sbin/hdparm --user-master u --security-erase password /dev/${CLIENTDISK}
 	fi
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-	echo "Formatting the NVME drive at a firmware level."
+	echo "Formatting the NVME drive at a firmware level. Please keep the device powered on."
 	/usr/sbin/nvme format /dev/${CLIENTDISK} -s 2 -n 1
 	fi
 	echo "Discarding all sectors." 
