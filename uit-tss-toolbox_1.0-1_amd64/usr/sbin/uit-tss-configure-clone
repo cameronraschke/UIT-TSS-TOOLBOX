@@ -22,7 +22,7 @@ mkdir /opt/UIT-TSS-CLONE/
 		--archive-areas 'main' \
 		--binary-filesystem fat32 \
 		--binary-images iso-hybrid \
-		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-CLONE timezone=America/Chicago xorg-resolution=640x400" \
+		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-CLONE timezone=America/Chicago" \
 		--bootloaders "grub-efi syslinux" \
 		--chroot-filesystem squashfs \
 		--compression gzip \
@@ -395,10 +395,10 @@ function confirm {
 	echo "Client disk: ${CLIENTDISK}"
 	echo ""
 		if [[ $MODE == "savedisk" ]]; then
-		echo "If saving an image, it will overwrite the previous image stored on the server. Please make a backup if necessary."
+		echo "Saving an image will overwrite the previous image stored on the server. Please make a backup if necessary."
 		fi
 		if [[ $MODE == "restoredisk" ]]; then
-		echo "If restoring an image, it will overwrite the client's hard drive. Please make a backup if necessary."
+		echo "Restoring an image will overwrite the client's hard drive. Please make a backup if necessary."
 		fi
 	echo ""
 	read -p "Press Enter to continue or CTRL + C to exit...."
@@ -406,6 +406,7 @@ function confirm {
 }
 
 function execute {
+	SECONDS=0
 	start_time=$SECONDS
 	mkdir /home/partimag
 	/usr/bin/umount /home/partimag &>/dev/null
@@ -442,13 +443,14 @@ Subject: Computer Successfully Reimaged
 
 Hello,
 
-A computer has been reimaged from the server minnie.uit using the image 2022Fall-HP, which was last updated on Tuesday, September 27 at 2:32PM. Today, 21 computers have been reimaged, with this reimage taking 08 minutes.
+A computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.txt) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")
 
 Thank you,
 Cameron" | sendmail -t
 	echo "Done."
-	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${IMAGENAME}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.today.txt | wc -l) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")"
-	elapsed=''
+	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on $(cat /root/laptop-image-update.txt). Today, $(cat /root/laptop-reimage-count.txt) computers have been reimaged, with this reimage taking $(eval "echo $(date -ud "@$elapsed" +'%M minutes').")"
+	elapsed='0'
+	SECONDS='0'
 	fi
 	if [[ $MODE == "savedisk" ]]; then
 	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
