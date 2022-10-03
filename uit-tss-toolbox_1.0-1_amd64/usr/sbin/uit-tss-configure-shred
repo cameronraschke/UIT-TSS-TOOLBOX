@@ -224,7 +224,7 @@ function execute {
 	fi
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo "Formatting the NVME drive at a firmware level. Please keep the device powered on."
-	/usr/sbin/nvme format /dev/${CLIENTDISK} -s 2 -n 1
+	/usr/sbin/nvme format /dev/${CLIENTDISK} -s 2
 	fi
 	echo "Discarding all sectors." 
 	/usr/sbin/blkdiscard --secure /dev/${CLIENTDISK}
