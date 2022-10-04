@@ -250,6 +250,7 @@ function execute {
 
 function terminate {
 	elapsed=$(( SECONDS - start_time ))
+	TIME=$(date -d@$elapsed -u +'%H hours and %M minutes')
 	echo ""
 	echo ""
 	echo ""
@@ -258,7 +259,8 @@ function terminate {
 	elapsed=''
 	echo ""
 	/usr/bin/play /root/oven.mp3 &> /dev/null
-	read -p "Process has finished. Press Enter to shutdown..."
+	echo "Process has finished in ${TIME}."
+	read -p "Press Enter to shutdown..."
 	poweroff
 }
 
