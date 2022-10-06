@@ -280,10 +280,12 @@ echo "Configuring networking..."
 /usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
 /usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
-/usr/bin/nmcli connection modify "$(nmcli -t -f DEVICE device | grep '^e.*')" connection.interface-name "eth0" connection.id "Wired connection 1" &>/dev/null
+/usr/bin/nmcli connection modify "$(nmcli -t -f DEVICE device | grep '^e.*')" \
+	connection.interface-name "eth0" connection.id "Wired connection 1" &>/dev/null
 /usr/bin/nmcli connection modify "Wired connection 1" ipv4.method auto &>/dev/null
 /usr/bin/nmcli connection modify "Wired connection 1" ipv6.method disabled &>/dev/null
-/usr/bin/nmcli connection modify "Wired connection 1" 802-3-ethernet.mac-address "$(cat /sys/class/net/e*/address)" &>/dev/null
+/usr/bin/nmcli connection modify "Wired connection 1" 802-3-ethernet.mac-address \
+	"$(cat /sys/class/net/e*/address)" &>/dev/null
 /usr/bin/nmcli radio wifi off &>/dev/null
 /usr/bin/nmcli connection up "Wired connection 1" &>/dev/null
 echo "Done."
@@ -293,7 +295,8 @@ echo "Configuring SSH..."
 if [ ! -f /root/.ssh/id_rsa ]; then
 /usr/bin/ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
 fi
-/usr/bin/sshpass -f /root/.ssh_passwd ssh-copy-id -o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
+/usr/bin/sshpass -f /root/.ssh_passwd ssh-copy-id \
+	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
 echo "Done."
 echo ""
 
@@ -404,7 +407,7 @@ function diskselect {
         echo ""
         break
         else
-		echo "Invalid block device selected... Exiting..."
+		echo "Invalid block device selected. Exiting..."
 		echo ""
         exit 1
         fi
@@ -456,11 +459,6 @@ function clientselect {
 }
 
 function confirm {
-	if [[ -z $SERVER || -z $SERVERDNS || -z $USER || -z $PASS || -z $SMBPATH || -z $HOSTNAME || -z CLIENTDISK || -z $IMAGENAME || -z $MODE ]]; then
-	clear
-	echo 'One or more variables are undefined. Exiting...'
-	exit 1
-	fi
 	echo ""
 	echo ""
 	echo ""
@@ -481,10 +479,12 @@ function confirm {
 	echo "Client disk: ${CLIENTDISK}"
 	echo ""
 		if [[ $MODE == "savedisk" ]]; then
-		echo "Saving an image will overwrite the previous image stored on the server. Please make a backup if necessary."
+		echo "Saving an image will overwrite the previous image stored on the server. 
+			Please make a backup if necessary."
 		fi
 		if [[ $MODE == "restoredisk" ]]; then
-		echo "Restoring an image will overwrite the client's hard drive. Please make a backup if necessary."
+		echo "Restoring an image will overwrite the client's hard drive. \
+			Please make a backup if necessary."
 		fi
 	echo ""
 	read -p "Press Enter to continue or CTRL + C to exit...."
@@ -502,14 +502,16 @@ function execute {
 	echo ""
 	echo "Restoring disk ${CLIENTDISK}...."
 	sleep 1
-	/usr/sbin/ocs-sr --nogui -l en_US.UTF-8 --postaction command --user-mode beginner --verbose --grub-install auto -k1 -hn1 ${HOSTNAME} --skip-check-restorable-r ${MODE} ${IMAGENAME} ${CLIENTDISK}
+	/usr/sbin/ocs-sr --nogui -l en_US.UTF-8 --postaction command --user-mode beginner \
+		--verbose --grub-install auto -k1 -hn1 ${HOSTNAME} --skip-check-restorable-r ${MODE} ${IMAGENAME} ${CLIENTDISK}
 	fi
 	if [[ $MODE == "savedisk" ]]; then
 	clear
 	echo ""
 	echo "Saving disk ${CLIENTDISK}...."
 	sleep 1
-	/usr/sbin/ocs-sr --nogui -l en_US.UTF-8 --postaction command --user-mode beginner --verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${MODE} ${IMAGENAME} ${CLIENTDISK}
+	/usr/sbin/ocs-sr --nogui -l en_US.UTF-8 --postaction command --user-mode beginner \
+		--verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${MODE} ${IMAGENAME} ${CLIENTDISK}
 	fi
 }
 
@@ -532,19 +534,25 @@ Subject: Computer Successfully Reimaged
 
 Hello,
 
-A computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged, with this reimage taking ${TIME}.
+A computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, \
+	which was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged, \
+	with this reimage taking ${TIME}.
 
 Thank you,
 Cameron" | sendmail -t
 	echo "Sent."
 	echo ""
-	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, which was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged, with this reimage taking ${TIME}."
+	echo -e "This computer has been reimaged from the server ${SERVERDNS} using the image \
+		${SMBPATH}, which was last updated on ${UPDATE}. Today, ${TODAY} computers have been \
+		reimaged, with this reimage taking ${TIME}."
 	fi
 	
 	if [[ $MODE == "savedisk" ]]; then
 	elapsed=$(( SECONDS - start_time ))
-	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
-	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt \
+		/root/laptop-reimage-count.today.txt &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt \
+		/root/laptop-image-update.txt &>/dev/null
 	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
 	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 	UPDATE=$(cat /root/laptop-image-update.txt)
@@ -554,14 +562,19 @@ Subject: Computer Image Successfully Saved
 
 Hello,
 
-The image ${SMBPATH} has been successfully updated and saved to the server ${SERVERDNS}. The process took ${TIME} to complete. ${SMBPATH} was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged.
+The image ${SMBPATH} has been successfully updated and saved to the server ${SERVERDNS}. \
+	The process took ${TIME} to complete. ${SMBPATH} was last updated on ${UPDATE}. \
+	Today, ${TODAY} computers have been reimaged.
 
 Thank you,
 Cameron" | sendmail -t
 	echo "Sent."
 	echo ""
-	echo -e "The image ${SMBPATH} has been successfully updated and saved to the server ${SERVERDNS}. The process took ${TIME} to complete. ${SMBPATH} was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged."
-	ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > /home/cameron/laptop-image-update.txt' &>/dev/null
+	echo -e "The image ${SMBPATH} has been successfully updated and saved to the server ${SERVERDNS}. \
+		The process took ${TIME} to complete. ${SMBPATH} was last updated on ${UPDATE}. \
+		Today, ${TODAY} computers have been reimaged."
+	ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
+		/home/cameron/laptop-image-update.txt' &>/dev/null
 	fi
 	echo ""
 	/usr/bin/play /root/oven.mp3 &> /dev/null
