@@ -47,7 +47,7 @@ mkdir /opt/UIT-TSS-CLONE/
 		--updates true)
 
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.binary/
-wget https://www.google.com/url?sa=i&url=http%3A%2F%2Fbonner.pbworks.com%2FUniversity-of-Houston-Campus-Profile&psig=AOvVaw3_NxSx377ukIja2F59HGwF&ust=1665170773110000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCIiKpdaqzPoCFQAAAAAdAAAAABAI \
+wget http://bonner.pbworks.com/f/1655321802/ECullen.jpeg \
 	--output-document /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
 convert /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg /opt/UIT-TSS-CLONE/config/includes.binary/UH.png
 rm /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
