@@ -6,6 +6,8 @@ if [ ! -f /opt/live-build.deb ]; then
 /usr/bin/apt install /opt/debian-live.deb -y
 fi
 
+/usr/bin/apt install imagemagick -y
+
 rm -r /opt/UIT-TSS-CLONE/
 mkdir /opt/UIT-TSS-CLONE/
 
@@ -44,6 +46,12 @@ mkdir /opt/UIT-TSS-CLONE/
 		--uefi-secure-boot enable \
 		--updates true)
 
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.binary/
+wget https://www.google.com/url?sa=i&url=http%3A%2F%2Fbonner.pbworks.com%2FUniversity-of-Houston-Campus-Profile&psig=AOvVaw3_NxSx377ukIja2F59HGwF&ust=1665170773110000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCIiKpdaqzPoCFQAAAAAdAAAAABAI \
+	--output-document /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
+convert /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg /opt/UIT-TSS-CLONE/config/includes.binary/UH.png
+rm /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
+
 mkdir -p /opt/UIT-TSS-CLONE/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-CLONE/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/grub-pc /opt/UIT-TSS-CLONE/config/bootloaders
@@ -66,12 +74,16 @@ EOF
 
 rm -r /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/*
 cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/grub.cfg
-set gfxmode=640x480
+set gfxmode=auto
 insmod part_gpt
 insmod part_msdos
 insmod fat
 insmod iso9660
 insmod gfxterm
+insmod png
+terminal_output gfxterm
+
+background_image /UH.png
 
 set default="0"
 set timeout=10
