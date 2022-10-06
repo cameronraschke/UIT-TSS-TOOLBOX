@@ -141,6 +141,7 @@ sshpass
 kbd
 EOF
 
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
 cat <<'EOF' > /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 echo "uit-tss-clone.cameronraschke.com" > /etc/mailname
 touch /etc/postfix/sasl_passwd
@@ -164,16 +165,11 @@ postconf "smtp_sasl_security_options = noanonymous"
 postconf "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
 postconf "smtp_use_tls = yes"
 postconf "relayhost = [mickey.uit]:25"
-postfix reload
 
 touch /root/.ssh_passwd
 echo "UHouston!" > /root/.ssh_passwd
 chown root:root /root/.ssh_passwd
 chmod 600 /root/.ssh_passwd
-
-touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/laptop-reimage-count.today.txt
-
-touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
 
 /usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
@@ -197,62 +193,10 @@ EOF
 
 chmod 777 /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
-#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
-#touch /opt/UIT-TSS-CLONE/config/includes.chroot/etc/mailname
-#echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/mailname
-
-#cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/main.cf
-#smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
-#biff = no
-#append_dot_mydomain = no
-#compatibility_level = 3.6
-#smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
-#smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
-#smtpd_tls_security_level=may
-
-#smtp_tls_CApath=/etc/ssl/certs
-#smtp_tls_security_level=may
-#smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
-
-#smtpd_relay_restrictions = permit_mynetworks reject
-#myhostname = UIT-TSS-LAPTOP.cameronraschke.com
-#alias_maps = hash:/etc/aliases
-#alias_database = hash:/etc/aliases
-#myorigin = /etc/mailname
-#mydestination = $myhostname, , localhost
-#mynetworks = 127.0.0.0/8
-#mailbox_size_limit = 0
-#recipient_delimiter = +
-#inet_interfaces = loopback-only
-#inet_protocols = ipv4
-
-#smtp_sasl_auth_enable = yes
-#smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
-#smtp_sasl_security_options = noanonymous
-#smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
-#smtp_use_tls = yes
-#relayhost = [mickey.uit]:25
-#EOF
-
-#cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/sasl_passwd
-#[mickey.uit]:25	cameron:UHouston!
-#EOF
-
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
 	--output-document=/opt/UIT-TSS-CLONE/config/includes.chroot/root/oven.mp3
 
-#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
-#touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
-#echo "UHouston!" > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
-#chown root:root /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
-#chmod 600 /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
-
-#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
-#touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/laptop-reimage-count.today.txt
-
-#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root
-#touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
 cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
 #!/bin/bash
 
@@ -588,16 +532,6 @@ confirm
 execute
 terminate
 EOF
-
-#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
-#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/ssh/
-#echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
-#echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
-#echo "kernel.printk = 2 4 1 2" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
-#echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/hostname
-#echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/motd
-#echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/issue.net
-#echo -e "Banner /etc/issue.net" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/ssh/sshd_config
 
 (cd /opt/UIT-TSS-CLONE && \
 	lb build)
