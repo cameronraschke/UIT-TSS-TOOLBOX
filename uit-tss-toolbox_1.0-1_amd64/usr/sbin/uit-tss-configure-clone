@@ -165,7 +165,38 @@ postconf "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
 postconf "smtp_use_tls = yes"
 postconf "relayhost = [mickey.uit]:25"
 postfix reload
+
+touch /root/.ssh_passwd
+echo "UHouston!" > /root/.ssh_passwd
+chown root:root /root/.ssh_passwd
+chmod 600 /root/.ssh_passwd
+
+touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/laptop-reimage-count.today.txt
+
+touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
+
+/usr/sbin/sysctl -w "net.ipv6.conf.all.use_tempaddr = 2" &>/dev/null
+/usr/sbin/sysctl -w net.ipv6.conf.default.use_tempaddr = 2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
+/usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
+/usr/sbin/sysctl -p &>/dev/null
+
+/usr/sbin/sysctl -w "kernel.printk = 2 4 1 2" &>/dev/null
+/usr/sbin/sysctl -w "kernel.kptr_restrict = 1" &>/dev/null
+/usr/sbin/sysctl -w "vm.mmap_min_addr = 65536" &>/dev/null
+/usr/sbin/sysctl -p &>/dev/null
+
+echo "uit-tss-clone.cameronraschke.com" > /etc/hostname
+echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/motd
+echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/issue.net
+echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 EOF
+
 chmod 777 /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
 #mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
@@ -213,32 +244,42 @@ mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
 	--output-document=/opt/UIT-TSS-CLONE/config/includes.chroot/root/oven.mp3
 
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
-touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
-echo "UHouston!" > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
-chown root:root /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
-chmod 600 /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
+#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
+#touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
+#echo "UHouston!" > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
+#chown root:root /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
+#chmod 600 /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
 
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
-touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/laptop-reimage-count.today.txt
+#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
+#touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/laptop-reimage-count.today.txt
 
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root
-touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
+#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root
+#touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
 cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
 #!/bin/bash
 
 clear
 
 echo ""
-echo "Updating Kernel..."
-/usr/sbin/sysctl -w net.ipv6.conf.all.disable_ipv6 = 1 &>/dev/null
-/usr/sbin/sysctl -w net.ipv6.conf.default.disable_ipv6 = 1 &>/dev/null
-/usr/sbin/sysctl -w kernel.printk = 2 4 1 2 &>/dev/null
+echo "Configurating Kernel..."
+/usr/sbin/sysctl -w "kernel.printk = 2 4 1 2" &>/dev/null
+/usr/sbin/sysctl -w "kernel.kptr_restrict = 1" &>/dev/null
+/usr/sbin/sysctl -w "vm.mmap_min_addr = 65536" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
 echo "Done."
 echo ""
  
-echo "Updating networking..."
+echo "Configuring networking..."
+/usr/sbin/sysctl -w "net.ipv6.conf.all.use_tempaddr = 2" &>/dev/null
+/usr/sbin/sysctl -w net.ipv6.conf.default.use_tempaddr = 2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
+/usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
+/usr/sbin/sysctl -p &>/dev/null
 /usr/bin/nmcli connection modify "$(nmcli -t -f DEVICE device | grep '^e.*')" connection.interface-name "eth0" connection.id "Wired connection 1" &>/dev/null
 /usr/bin/nmcli connection modify "Wired connection 1" ipv4.method auto &>/dev/null
 /usr/bin/nmcli connection modify "Wired connection 1" ipv6.method disabled &>/dev/null
@@ -248,7 +289,7 @@ echo "Updating networking..."
 echo "Done."
 echo ""
 
-echo "Updating SSH..."
+echo "Configuring SSH..."
 if [ ! -f /root/.ssh/id_rsa ]; then
 /usr/bin/ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
 fi
@@ -256,7 +297,7 @@ fi
 echo "Done."
 echo ""
 
-echo "Updating audio..."
+echo "Configuring audio..."
 /usr/bin/amixer sset Master 100% &>/dev/null
 /usr/bin/amixer set Master unmute &>/dev/null
 /usr/bin/amixer sset Speakers 100% &>/dev/null
@@ -265,10 +306,10 @@ echo "Done."
 echo ""
 
 echo "Configuring email..."
-/usr/bin/chmod 600 /etc/postfix/sasl_passwd &>/dev/null
-/usr/bin/chown root:root /etc/postfix/sasl_passwd &>/dev/null
-/usr/sbin/postmap /etc/postfix/sasl_passwd &>/dev/null
-/usr/sbin/postfix reload &>/dev/null
+#/usr/bin/chmod 600 /etc/postfix/sasl_passwd &>/dev/null
+#/usr/bin/chown root:root /etc/postfix/sasl_passwd &>/dev/null
+#/usr/sbin/postmap /etc/postfix/sasl_passwd &>/dev/null
+#/usr/sbin/postfix reload &>/dev/null
 echo "Done."
 echo ""
 
@@ -347,20 +388,27 @@ function modeselect {
 }
 
 function diskselect {
+	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
 	echo ""
-	echo "These are the current disks and their sizes:"
-	lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
-	echo ""
-	echo "Which disk do you want to ${ACTION}"
-	select CLIENTDISK in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
-	do
-	echo ""
-	echo "$(lsblk /dev/${CLIENTDISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
-	echo "You chose ${CLIENTDISK}. Is this correct?"
-	PS3="Select a drive: "
-	read -p "Press Enter to confirm...." DISKCONF
-	break
-	done
+    echo "These are the current disks and their sizes:"
+    /usr/bin/lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
+    echo ""
+    echo "Which disk do you want to clone?"
+    PS3="Select a drive: "
+    select CLIENTDISK in ${DISKNAMES}
+    do
+        if [[ $CLIENTDISK =~ sd.* || $CLIENTDISK =~ nvme.* ]]; then
+        echo "$(lsblk /dev/${CLIENTDISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
+        echo "You chose ${CLIENTDISK}. Is this correct?"
+        read -p "Press Enter to confirm...."
+        echo ""
+        break
+        else
+		echo "Invalid block device selected... Exiting..."
+		echo ""
+        exit 1
+        fi
+    done
 }
 
 function serverselect {
@@ -531,15 +579,15 @@ execute
 terminate
 EOF
 
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/ssh/
-echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
-echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
-echo "kernel.printk = 2 4 1 2" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
-echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/hostname
-echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/motd
-echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/issue.net
-echo -e "Banner /etc/issue.net" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/ssh/sshd_config
+#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
+#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/ssh/
+#echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
+#echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
+#echo "kernel.printk = 2 4 1 2" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/sysctl.conf
+#echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/hostname
+#echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/motd
+#echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/issue.net
+#echo -e "Banner /etc/issue.net" >> /opt/UIT-TSS-CLONE/config/includes.chroot/etc/ssh/sshd_config
 
 (cd /opt/UIT-TSS-CLONE && \
 	lb build)
