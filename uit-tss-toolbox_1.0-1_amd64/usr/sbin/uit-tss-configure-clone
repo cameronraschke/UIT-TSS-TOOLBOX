@@ -2,7 +2,8 @@
 
 if [ ! -f /opt/live-build.deb ]; then
 /usr/bin/apt purge live-build -y
-/usr/bin/wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb --output-document=/opt/debian-live.deb
+/usr/bin/wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb \
+	--output-document=/opt/debian-live.deb
 /usr/bin/apt install /opt/debian-live.deb -y
 fi
 
@@ -24,7 +25,8 @@ mkdir /opt/UIT-TSS-CLONE/
 		--archive-areas 'main' \
 		--binary-filesystem fat32 \
 		--binary-images iso-hybrid \
-		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-CLONE timezone=America/Chicago" \
+		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-CLONE \
+			timezone=America/Chicago locales=en_US.UTF-8" \
 		--bootloaders "grub-efi syslinux" \
 		--chroot-filesystem squashfs \
 		--compression gzip \
@@ -49,7 +51,8 @@ mkdir /opt/UIT-TSS-CLONE/
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.binary/
 wget http://bonner.pbworks.com/f/1655321802/ECullen.jpeg \
 	--output-document /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
-convert /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg /opt/UIT-TSS-CLONE/config/includes.binary/UH.png
+/usr/bin/convert /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg \
+	/opt/UIT-TSS-CLONE/config/includes.binary/UH.png
 rm /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
 
 mkdir -p /opt/UIT-TSS-CLONE/config/bootloaders
@@ -138,53 +141,77 @@ sshpass
 kbd
 EOF
 
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
-touch /opt/UIT-TSS-CLONE/config/includes.chroot/etc/mailname
-echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/mailname
-
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/
-touch /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/sasl_passwd
-touch /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/main.cf
-
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/main.cf
-smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
-biff = no
-append_dot_mydomain = no
-compatibility_level = 3.6
-smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
-smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
-smtpd_tls_security_level=may
-
-smtp_tls_CApath=/etc/ssl/certs
-smtp_tls_security_level=may
-smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
-
-smtpd_relay_restrictions = permit_mynetworks reject
-myhostname = UIT-TSS-LAPTOP.cameronraschke.com
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
-myorigin = /etc/mailname
-mydestination = $myhostname, , localhost
-mynetworks = 127.0.0.0/8
-mailbox_size_limit = 0
-recipient_delimiter = +
-inet_interfaces = loopback-only
-inet_protocols = ipv4
-
-smtp_sasl_auth_enable = yes
-smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
-smtp_sasl_security_options = noanonymous
-smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
-smtp_use_tls = yes
-relayhost = [mickey.uit]:25
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+echo "uit-tss-clone.cameronraschke.com" > /etc/mailname
+touch /etc/postfix/sasl_passwd
+echo '[mickey.uit]:25	cameron:UHouston!' > /etc/postfix/sasl_passwd
+postmap /etc/postfix/sasl_passwd
+postconf "smtp_tls_security_level=may"
+postconf "smtpd_tls_security_level=may"
+postconf "smtpd_relay_restrictions=permit_mynetworks reject"
+postconf "myhostname=uit-tss-clone.cameronraschke.com"
+postconf "alias_maps=hash:/etc/aliases"
+postconf "alias_database=hash:/etc/aliases"
+postconf "myorigin=/etc/mailname"
+postconf "mydestination=$myhostname, , localhost"
+postconf "mynetworks = 127.0.0.0/8"
+postconf "mailbox_size_limit = 1"
+postconf "inet_interfaces = loopback-only"
+postconf "inet_protocols = ipv4"
+postconf "smtp_sasl_auth_enable = yes"
+postconf "smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd"
+postconf "smtp_sasl_security_options = noanonymous"
+postconf "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
+postconf "smtp_use_tls = yes"
+postconf "relayhost = [mickey.uit]:25"
+postfix reload
 EOF
+chmod 777 /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/sasl_passwd
-[mickey.uit]:25	cameron:UHouston!
-EOF
+#mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/etc/
+#touch /opt/UIT-TSS-CLONE/config/includes.chroot/etc/mailname
+#echo "uit-tss-clone.cameronraschke.com" > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/mailname
+
+#cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/main.cf
+#smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+#biff = no
+#append_dot_mydomain = no
+#compatibility_level = 3.6
+#smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+#smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+#smtpd_tls_security_level=may
+
+#smtp_tls_CApath=/etc/ssl/certs
+#smtp_tls_security_level=may
+#smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+#smtpd_relay_restrictions = permit_mynetworks reject
+#myhostname = UIT-TSS-LAPTOP.cameronraschke.com
+#alias_maps = hash:/etc/aliases
+#alias_database = hash:/etc/aliases
+#myorigin = /etc/mailname
+#mydestination = $myhostname, , localhost
+#mynetworks = 127.0.0.0/8
+#mailbox_size_limit = 0
+#recipient_delimiter = +
+#inet_interfaces = loopback-only
+#inet_protocols = ipv4
+
+#smtp_sasl_auth_enable = yes
+#smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+#smtp_sasl_security_options = noanonymous
+#smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+#smtp_use_tls = yes
+#relayhost = [mickey.uit]:25
+#EOF
+
+#cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/etc/postfix/sasl_passwd
+#[mickey.uit]:25	cameron:UHouston!
+#EOF
 
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
-wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 --output-document=/opt/UIT-TSS-CLONE/config/includes.chroot/root/oven.mp3
+wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
+	--output-document=/opt/UIT-TSS-CLONE/config/includes.chroot/root/oven.mp3
 
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
 touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.ssh_passwd
