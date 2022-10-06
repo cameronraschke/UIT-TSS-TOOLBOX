@@ -175,8 +175,6 @@ touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/laptop-reimage-count.today.
 
 touch /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
 
-/usr/sbin/sysctl -w "net.ipv6.conf.all.use_tempaddr = 2" &>/dev/null
-/usr/sbin/sysctl -w net.ipv6.conf.default.use_tempaddr = 2" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
@@ -270,8 +268,6 @@ echo "Done."
 echo ""
  
 echo "Configuring networking..."
-/usr/sbin/sysctl -w "net.ipv6.conf.all.use_tempaddr = 2" &>/dev/null
-/usr/sbin/sysctl -w net.ipv6.conf.default.use_tempaddr = 2" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
