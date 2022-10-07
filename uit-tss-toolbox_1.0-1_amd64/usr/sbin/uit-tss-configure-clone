@@ -8,6 +8,7 @@ if [ ! -f /opt/live-build.deb ]; then
 fi
 
 /usr/bin/apt install imagemagick -y
+/usr/bin/apt install dosfstools -y
 
 rm -r /opt/UIT-TSS-CLONE/
 mkdir /opt/UIT-TSS-CLONE/

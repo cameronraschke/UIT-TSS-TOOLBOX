@@ -2,9 +2,12 @@
 
 if [ ! -f /opt/live-build.deb ]; then
 /usr/bin/apt purge live-build -y
-/usr/bin/wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb --output-document=/opt/debian-live.deb
+/usr/bin/wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb \
+	--output-document=/opt/debian-live.deb
 /usr/bin/apt install /opt/debian-live.deb -y
 fi
+
+/usr/bin/apt install imagemagick -y
 
 rm -r /opt/UIT-TSS-SHRED/
 mkdir /opt/UIT-TSS-SHRED/
@@ -22,7 +25,8 @@ mkdir /opt/UIT-TSS-SHRED/
 		--archive-areas 'main' \
 		--binary-filesystem fat32 \
 		--binary-images iso-hybrid \
-		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-SHRED timezone=America/Chicago" \
+		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-SHRED \
+			timezone=America/Chicago" \
 		--bootloaders "grub-efi syslinux" \
 		--chroot-filesystem squashfs \
 		--compression gzip \
@@ -43,6 +47,13 @@ mkdir /opt/UIT-TSS-SHRED/
 		--system live \
 		--uefi-secure-boot enable \
 		--updates true)
+
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.binary/
+wget http://bonner.pbworks.com/f/1655321802/ECullen.jpeg \
+	--output-document /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
+/usr/bin/convert /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg \
+	/opt/UIT-TSS-CLONE/config/includes.binary/UH.png
+rm /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
 
 mkdir -p /opt/UIT-TSS-SHRED/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-SHRED/config/bootloaders
@@ -65,15 +76,21 @@ label linux
 EOF
 
 rm -r /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/*
-cat <<'EOF' > /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/grub.cfg
-set gfxmode=640x480
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/grub.cfg
+set gfxmode=auto
 insmod part_gpt
 insmod part_msdos
 insmod fat
 insmod iso9660
 insmod gfxterm
+insmod png
+terminal_output gfxterm
+
+background_image /UH.png
+
 set default="0"
 set timeout=10
+
 menuentry "UIT-TSS-SHRED by Cameron Raschke" {
         linux @KERNEL_LIVE@ @APPEND_LIVE@
         initrd @INITRD_LIVE@
@@ -107,8 +124,36 @@ util-linux
 nvme-cli
 EOF
 
+mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+
+/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
+/usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
+/usr/sbin/sysctl -p &>/dev/null
+
+/usr/sbin/sysctl -w "kernel.printk = 2 4 1 2" &>/dev/null
+/usr/sbin/sysctl -w "kernel.kptr_restrict = 1" &>/dev/null
+/usr/sbin/sysctl -w "vm.mmap_min_addr = 65536" &>/dev/null
+/usr/sbin/sysctl -p &>/dev/null
+
+echo "uit-tss-clone.cameronraschke.com" > /etc/hostname
+echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/motd
+echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/issue.net
+echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
+
+/usr/bin/apt purge iproute2 -y &>/dev/null
+EOF
+
+chmod 777 /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
-/usr/bin/wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 --output-document=/opt/UIT-TSS-SHRED/config/includes.chroot/root/oven.mp3
+/usr/bin/wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
+	--output-document=/opt/UIT-TSS-SHRED/config/includes.chroot/root/oven.mp3
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root
 touch /opt/UIT-TSS-SHRED/config/includes.chroot/root/.bash_profile
@@ -118,19 +163,25 @@ cat <<'EOF' > /opt/UIT-TSS-SHRED/config/includes.chroot/root/.bash_profile
 clear
 
 echo ""
-echo "Updating Kernel..."
-/usr/bin/apt purge iproute2 -y &>/dev/null
+echo "Configuring Kernel..."
 /usr/sbin/iptables -P INPUT DROP &>/dev/null
 /usr/sbin/iptables -P FORWARD DROP &>/dev/null
 /usr/sbin/iptables -P OUTPUT DROP &>/dev/null
-/usr/sbin/sysctl -w net.ipv6.conf.all.disable_ipv6 = 1 &>/dev/null
-/usr/sbin/sysctl -w net.ipv6.conf.default.disable_ipv6 = 1 &>/dev/null
-/usr/sbin/sysctl -w kernel.printk = 2 4 1 2 &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
+/usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
+/usr/sbin/sysctl -w "kernel.printk = 2 4 1 2" &>/dev/null
+/usr/sbin/sysctl -w "kernel.kptr_restrict = 1" &>/dev/null
+/usr/sbin/sysctl -w "vm.mmap_min_addr = 65536" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
 echo "Done."
 echo ""
  
-echo "Updating audio..."
+echo "Configuring audio..."
 /usr/bin/amixer sset Master 100% &>/dev/null
 /usr/bin/amixer set Master unmute &>/dev/null
 /usr/bin/amixer sset Speakers 100% &>/dev/null
@@ -138,7 +189,7 @@ echo "Updating audio..."
 echo "Done."
 echo ""
 
-echo "Changing font..."
+echo "Configuring font..."
 /usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz
 echo "Done."
 echo ""
@@ -190,20 +241,28 @@ echo 'Checklist:
 }
 
 function diskselect {
+	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
 	echo ""
-	echo "These are the current disks and their sizes:"
-	lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
-	echo ""
-	echo "Which disk do you want to erase?"
-	select CLIENTDISK in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
-	do
-	echo ""
-	echo "$(lsblk /dev/${CLIENTDISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
-	echo "You chose ${CLIENTDISK}. Is this correct?"
-	PS3="Select a drive: "
-	read -p "All data will be deleted off of drive ${CLIENTDISK}. Press Enter to confirm...."
-	break
-	done
+    echo "These are the current disks and their sizes:"
+    echo "${DISKNAMES}"
+    echo ""
+    echo "Which disk do you want to ${ACTION}?"
+    PS3="Select a drive: "
+    select CLIENTDISK in ${DISKNAMES}
+    do
+        if [[ $CLIENTDISK =~ sd.* || $CLIENTDISK =~ nvme.* ]]; then
+        echo "$(lsblk /dev/${CLIENTDISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
+        echo "You chose ${CLIENTDISK}. Is this correct?"
+        read -p "Press Enter to confirm...."
+        echo ""
+        break
+        else
+		echo "Invalid block device selected."
+		echo ""
+		diskselect
+        exit 1
+        fi
+    done
 }
 
 function execute {
@@ -269,14 +328,6 @@ diskselect
 execute
 terminate
 EOF
-
-mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/etc/
-echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
-echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
-echo "kernel.printk = 2 4 1 2" >> /opt/UIT-TSS-SHRED/config/includes.chroot/etc/sysctl.conf
-echo "uit-tss-shred.uit" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/hostname
-echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/motd
-echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /opt/UIT-TSS-SHRED/config/includes.chroot/etc/issue.net
 
 (cd /opt/UIT-TSS-SHRED && \
 	lb build)
