@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function selectdisk {
-        DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
+        DISKNAMES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
         echo "These are the current disks and their sizes:"
         echo "${DISKNAMES}"
         echo ""
