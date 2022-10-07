@@ -85,6 +85,7 @@ insmod fat
 insmod iso9660
 insmod gfxterm
 insmod png
+insmod font
 terminal_output gfxterm
 
 background_image /UH.png
