@@ -8,6 +8,7 @@ if [ ! -f /opt/live-build.deb ]; then
 fi
 
 /usr/bin/apt install imagemagick -y
+/usr/bin/apt install dosfstools -y
 
 rm -r /opt/UIT-TSS-SHRED/
 mkdir /opt/UIT-TSS-SHRED/
@@ -48,12 +49,12 @@ mkdir /opt/UIT-TSS-SHRED/
 		--uefi-secure-boot enable \
 		--updates true)
 
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.binary/
+mkdir -p /opt/UIT-TSS-SHRED/config/includes.binary/
 wget http://bonner.pbworks.com/f/1655321802/ECullen.jpeg \
-	--output-document /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
-/usr/bin/convert /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg \
-	/opt/UIT-TSS-CLONE/config/includes.binary/UH.png
-rm /opt/UIT-TSS-CLONE/config/includes.binary/UH.jpg
+	--output-document /opt/UIT-TSS-SHRED/config/includes.binary/UH.jpg
+/usr/bin/convert /opt/UIT-TSS-SHRED/config/includes.binary/UH.jpg \
+	/opt/UIT-TSS-SHRED/config/includes.binary/UH.png
+rm /opt/UIT-TSS-SHRED/config/includes.binary/UH.jpg
 
 mkdir -p /opt/UIT-TSS-SHRED/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-SHRED/config/bootloaders
@@ -76,7 +77,7 @@ label linux
 EOF
 
 rm -r /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/*
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/grub.cfg
+cat <<'EOF' > /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/grub.cfg
 set gfxmode=auto
 insmod part_gpt
 insmod part_msdos
@@ -124,8 +125,8 @@ util-linux
 nvme-cli
 EOF
 
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
+cat <<'EOF' > /opt/UIT-TSS-SHRED/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
 /usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
@@ -141,15 +142,15 @@ cat <<'EOF' > /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.ho
 /usr/sbin/sysctl -w "vm.mmap_min_addr = 65536" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
 
-echo "uit-tss-clone.cameronraschke.com" > /etc/hostname
-echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/motd
-echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/issue.net
+echo "UIT-TSS-SHRED" > /etc/hostname
+echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /etc/motd
+echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /etc/issue.net
 echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 
 /usr/bin/apt purge iproute2 -y &>/dev/null
 EOF
 
-chmod 777 /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+chmod 777 /opt/UIT-TSS-SHRED/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
 /usr/bin/wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
