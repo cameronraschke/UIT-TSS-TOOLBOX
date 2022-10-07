@@ -234,7 +234,7 @@ echo 'Checklist:
 }
 
 function diskselect {
-	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
+	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
 	echo ""
     echo "These are the current disks and their sizes:"
     echo "${DISKNAMES}"
