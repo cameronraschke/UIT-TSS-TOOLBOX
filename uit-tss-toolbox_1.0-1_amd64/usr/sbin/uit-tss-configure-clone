@@ -415,7 +415,7 @@ function confirm {
 	echo ""
 		if [[ $MODE == "savedisk" ]]; then
 		echo "Saving an image will overwrite the previous image stored on the server. \
-			Please make a backup if necessary."
+Please make a backup if necessary."
 		fi
 		if [[ $MODE == "restoredisk" ]]; then
 		echo "Restoring an image will overwrite the client's hard drive. \
