@@ -66,7 +66,7 @@ UI vesamenu.c32
 
 MENU TITLE Boot Menu
 DEFAULT linux
-        TIMEOUT 100
+        TIMEOUT 0
         MENU RESOLUTION 640 480
         SAY Now booting into UIT-TSS-CLONE by Cameron Raschke
 label linux
@@ -77,7 +77,7 @@ label linux
         append @APPEND_LIVE@
 EOF
 
-cat <<'EOF' > /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/grub.cfg
+cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/grub.cfg
 insmod part_gpt
 insmod part_msdos
 insmod fat
@@ -91,7 +91,7 @@ set default="0"
 set timeout=0
 set timeout_style=hidden
 
-menuentry "UIT-TSS-SHRED by Cameron Raschke" {
+menuentry "UIT-TSS-CLONE by Cameron Raschke" {
         linux @KERNEL_LIVE@ @APPEND_LIVE@
         initrd @INITRD_LIVE@
 }
