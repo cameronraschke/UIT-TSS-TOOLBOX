@@ -78,7 +78,6 @@ label linux
 EOF
 
 cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/grub.cfg
-set gfxmode=800x600
 insmod part_gpt
 insmod part_msdos
 insmod fat
@@ -86,6 +85,8 @@ insmod iso9660
 insmod gfxterm
 insmod png
 insmod font
+
+set gfxmode=800x600
 terminal_output gfxterm
 
 background_image /UH.png
