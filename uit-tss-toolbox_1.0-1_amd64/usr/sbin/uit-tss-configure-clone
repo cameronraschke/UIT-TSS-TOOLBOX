@@ -205,22 +205,23 @@ clear
 
 echo ""
 echo "Configurating Kernel..."
-/usr/sbin/sysctl -w "kernel.printk = 2 4 1 2" &>/dev/null
-/usr/sbin/sysctl -w "kernel.kptr_restrict = 1" &>/dev/null
-/usr/sbin/sysctl -w "vm.mmap_min_addr = 65536" &>/dev/null
+/usr/sbin/sysctl -w "kernel.printk=2 4 1 2" &>/dev/null
+/usr/sbin/sysctl -w "kernel.kptr_restrict=1" &>/dev/null
+/usr/sbin/sysctl -w "vm.mmap_min_addr=65536" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
 echo "Done."
 echo ""
  
 echo "Configuring networking..."
-/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
-/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6=1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6=1" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
-/usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.default.forwarding=1" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
+
 /usr/bin/nmcli connection modify "$(nmcli -t -f DEVICE device | grep '^e.*')" \
 	connection.interface-name "eth0" connection.id "Wired connection 1" &>/dev/null
 /usr/bin/nmcli connection modify "Wired connection 1" ipv4.method auto &>/dev/null

@@ -128,8 +128,8 @@ EOF
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
 cat <<'EOF' > /opt/UIT-TSS-SHRED/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
-/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
-/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6=1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6=1" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
@@ -137,9 +137,9 @@ cat <<'EOF' > /opt/UIT-TSS-SHRED/config/hooks/live/0100-uit-tss-toolbox-setup.ho
 /usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
 
-/usr/sbin/sysctl -w "kernel.printk = 2 4 1 2" &>/dev/null
-/usr/sbin/sysctl -w "kernel.kptr_restrict = 1" &>/dev/null
-/usr/sbin/sysctl -w "vm.mmap_min_addr = 65536" &>/dev/null
+/usr/sbin/sysctl -w "kernel.printk=2 4 1 2" &>/dev/null
+/usr/sbin/sysctl -w "kernel.kptr_restrict=1" &>/dev/null
+/usr/sbin/sysctl -w "vm.mmap_min_addr=65536" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
 
 echo "UIT-TSS-SHRED" > /etc/hostname
@@ -168,16 +168,16 @@ echo "Configuring Kernel..."
 /usr/sbin/iptables -P INPUT DROP &>/dev/null
 /usr/sbin/iptables -P FORWARD DROP &>/dev/null
 /usr/sbin/iptables -P OUTPUT DROP &>/dev/null
-/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6 = 1" &>/dev/null
-/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6 = 1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6=1" &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6=1" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
 /usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
 /usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
-/usr/sbin/sysctl -w "kernel.printk = 2 4 1 2" &>/dev/null
-/usr/sbin/sysctl -w "kernel.kptr_restrict = 1" &>/dev/null
-/usr/sbin/sysctl -w "vm.mmap_min_addr = 65536" &>/dev/null
+/usr/sbin/sysctl -w "kernel.printk=2 4 1 2" &>/dev/null
+/usr/sbin/sysctl -w "kernel.kptr_restrict=1" &>/dev/null
+/usr/sbin/sysctl -w "vm.mmap_min_addr=65536" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
 echo "Done."
 echo ""
