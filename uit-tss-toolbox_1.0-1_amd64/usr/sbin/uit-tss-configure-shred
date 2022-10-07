@@ -87,6 +87,7 @@ insmod png
 insmod font
 
 set gfxmode=800x600
+terminal_output gfxterm
 
 background_image /UH.png
 set menu_color=black/black
@@ -127,6 +128,7 @@ iptables
 hdparm
 util-linux
 nvme-cli
+procps
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
@@ -150,6 +152,8 @@ echo "UIT-TSS-SHRED" > /etc/hostname
 echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /etc/motd
 echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /etc/issue.net
 echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
+
+/usr/bin/apt purge iproute2 -y &>/dev/null
 EOF
 
 chmod 777 /opt/UIT-TSS-SHRED/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot

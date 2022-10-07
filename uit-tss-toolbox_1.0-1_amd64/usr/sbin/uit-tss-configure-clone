@@ -87,6 +87,7 @@ insmod png
 insmod font
 
 set gfxmode=800x600
+terminal_output gfxterm
 
 background_image /UH.png
 set menu_color=black/black
@@ -144,6 +145,7 @@ postfix
 ca-certificates
 sshpass
 kbd
+procps
 EOF
 
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
