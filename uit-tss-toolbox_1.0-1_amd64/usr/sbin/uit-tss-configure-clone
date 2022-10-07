@@ -87,7 +87,6 @@ insmod png
 insmod font
 
 set gfxmode=800x600
-terminal_output gfxterm
 
 background_image /UH.png
 set menu_color=black/black
