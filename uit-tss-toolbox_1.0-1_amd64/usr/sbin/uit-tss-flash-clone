@@ -32,13 +32,16 @@ function selectdisk {
 
 function execute {
         if [ ! -z ${ISODISK} ]; then
-        echo "Unmounting /dev/${ISODISK}"
+        echo "Unmounting ${ISODISK}"
         umount /dev/${ISODISK} &>/dev/null
-        echo "Making FAT filesystem on /dev/${ISODISK}"
+        echo "Making FAT filesystem on ${ISODISK}"
         mkfs.vfat -I /dev/${ISODISK} &>/dev/null
-        echo "Creating new label on disk /dev/${ISODISK}: UITTSSCLONE"
-        mlabel -i /dev/${ISODISK} ::UITTSSCLONE &>/dev/null
-        echo "Writing ISO to /dev/${ISODISK}, this may take a while..."
+        echo "Creating new label on disk ${ISODISK}: UITTSSCLONE"
+        fatlabel /dev/${ISODISK} UITTSSCLONE &>/dev/null
+        echo "Writing ISO to ${ISODISK}, this may take a while..."
         dd if=/opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso of=/dev/${ISODISK} bs=4M status=progress
         fi
 }
+
+selectdisk
+execute
