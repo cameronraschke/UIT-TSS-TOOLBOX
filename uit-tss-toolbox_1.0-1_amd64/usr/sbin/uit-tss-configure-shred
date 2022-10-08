@@ -115,6 +115,7 @@ hdparm
 util-linux
 nvme-cli
 procps
+coreutils
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
