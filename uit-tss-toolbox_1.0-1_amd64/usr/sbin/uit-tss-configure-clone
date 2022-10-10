@@ -101,7 +101,6 @@ iproute2
 curl
 wget
 openssh-client
-ssh
 nano
 vim
 clonezilla
