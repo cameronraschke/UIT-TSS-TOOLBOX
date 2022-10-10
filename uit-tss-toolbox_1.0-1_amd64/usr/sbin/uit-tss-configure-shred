@@ -140,6 +140,7 @@ echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /etc/issue.net
 echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 
 /usr/bin/apt purge iproute2 -y &>/dev/null
+/usr/bin/apt install pv
 EOF
 
 chmod 777 /opt/UIT-TSS-SHRED/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
@@ -298,6 +299,29 @@ function execute {
 	echo "Discarding all sectors."
 	sleep 1
 	/usr/sbin/blkdiscard /dev/${CLIENTDISK} &>/dev/null
+
+	echo ""
+	echo ""
+	echo "Checking to make sure drive is completely zeroed."
+	HEXSIZE=$(lsblk --noheadings -o SIZE ${CLIENTDISK} | grep -m1 -oiP '[0-9]{3}' | sed 's/$/g/g')
+	PV="/usr/bin/pv --progress --timer --eta --rate --bytes --size ${HEXSIZE}"
+	echo ""
+	echo "Searching all sectors for non-zero bits..." 
+	HEXVERIFY=$(/usr/bin/xxd -plain ${CLIENTDISK} | $PV | grep -oP -m 1 '[^0\ ]' | head -1)
+
+	echo""
+	echo "Double-checking sectors..."
+	/usr/bin/xxd -plain ${CLIENTDISK} | head -50 | grep -oP '[^0]' | sed -z '/[[:space:]]/ s/[[:space:]]//g' | pv --quiet -L 200
+	echo""
+
+	if [[ ! -z $HEXVERIFY ]]; then
+        echo ""
+        echo "Non-zero bits found. Test has failed."
+	else
+        echo ""
+        echo "Test passed successfully!"
+		echo "The drive ${CLIENTDISK} is completely and securely wiped."
+	fi
 }
 
 function terminate {
