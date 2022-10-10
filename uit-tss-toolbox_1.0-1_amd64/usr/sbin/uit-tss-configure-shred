@@ -304,15 +304,15 @@ function execute {
 	echo ""
 	echo ""
 	echo "Checking to make sure drive is completely zeroed."
-	HEXSIZE=$(lsblk --noheadings -o SIZE ${CLIENTDISK} | grep -m1 -oiP '[0-9]{3}' | sed 's/$/g/g')
-	PV="/usr/bin/pv --progress --timer --eta --rate --bytes --size ${HEXSIZE}"
+	HEXSIZE=$(lsblk --noheadings -o SIZE /dev/${CLIENTDISK} | grep -m1 -oiP '[0-9]{3}' | sed 's/$/g/g')
+	PV="/usr/bin/pv --progress --timer --eta --rate --bytes --size /dev/${CLIENTDISK}"
 	echo ""
 	echo "Searching all sectors for non-zero bits..." 
-	HEXVERIFY=$(/usr/bin/xxd -plain ${CLIENTDISK} | $PV | grep -oP -m 1 '[^0\ ]' | head -1)
+	HEXVERIFY=$(/usr/bin/xxd -plain /dev/${CLIENTDISK} | $PV | grep -oP -m 1 '[^0\ ]' | head -1)
 
 	echo""
 	echo "Double-checking sectors..."
-	/usr/bin/xxd -plain ${CLIENTDISK} | head -50 | grep -oP '[^0]' | sed -z '/[[:space:]]/ s/[[:space:]]//g' | pv --quiet -L 200
+	/usr/bin/xxd -plain /dev/${CLIENTDISK} | head -50 | grep -oP '[^0]' | sed -z '/[[:space:]]/ s/[[:space:]]//g' | pv --quiet -L 200
 	echo""
 
 	if [[ ! -z $HEXVERIFY ]]; then
