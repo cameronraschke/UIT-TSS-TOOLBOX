@@ -305,10 +305,10 @@ function execute {
 	echo ""
 	echo "Checking to make sure drive is completely zeroed."
 	HEXSIZE=$(lsblk --noheadings -o SIZE /dev/${CLIENTDISK} | grep -m1 -oiP '[0-9]{3}' | sed 's/$/g/g')
-	PV="/usr/bin/pv --progress --timer --eta --rate --bytes --size ${HEXSIZE}"
+	PV="/usr/bin/pv --progress --timer --eta --rate --bytes"
 	echo ""
 	echo "Searching all sectors for non-zero bits..." 
-	HEXVERIFY=$(/usr/bin/xxd -plain /dev/${CLIENTDISK} | $PV | grep -oP -m 1 '[^0\ ]' | head -1)
+	HEXVERIFY=$($PV /dev/${CLIENTDISK} | /usr/bin/xxd -plain | grep -oP -m 1 '[^0\ ]' | head -1)
 
 	echo""
 	echo "Double-checking sectors..."
