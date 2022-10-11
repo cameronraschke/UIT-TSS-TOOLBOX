@@ -272,17 +272,17 @@ function execute {
 	echo "Shredding disk ${CLIENTDISK}...."
 	sleep 1
 	echo ""
-	echo "First pass: shredding disk ${CLIENTDISK}...."
+	echo "[1/6] Shredding disk ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	echo ""
-	echo "Second pass: shredding disk ${CLIENTDISK}...."
+	echo "[2/6] Shredding disk ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
-	echo "Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	echo "[3/6] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
@@ -290,21 +290,21 @@ function execute {
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo ""
-	echo "Deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	echo "[4/6] Deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
 	echo ""
-	echo "Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	echo "[4/6] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 	
 	echo ""
-	echo "Shredding ${CLIENTDISK} one last time...."
+	echo "[5/6] Shredding ${CLIENTDISK} one last time...."
 	sleep 1
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	echo ""
-	echo "Zeroing ${CLIENTDISK} one last time...."
+	echo "[6/6] Zeroing ${CLIENTDISK} one last time...."
 	sleep 1
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 	echo ""
