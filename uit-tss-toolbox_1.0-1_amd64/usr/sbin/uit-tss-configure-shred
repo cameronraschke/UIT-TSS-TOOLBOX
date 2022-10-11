@@ -141,7 +141,6 @@ echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n" > /etc/issue.net
 echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 
 /usr/bin/apt purge iproute2 -y &>/dev/null
-/usr/bin/apt install pv
 EOF
 
 chmod 777 /opt/UIT-TSS-SHRED/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
@@ -271,7 +270,14 @@ function execute {
 	echo ""
 	echo "Shredding disk ${CLIENTDISK}...."
 	sleep 1
-	/usr/bin/shred -v -n 2 /dev/${CLIENTDISK}
+	echo ""
+	echo "First pass: shredding disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	echo ""
+	echo "Second pass: shredding disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
@@ -287,24 +293,26 @@ function execute {
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
 	echo ""
-	echo "Cryptographically deleting ${CLIENTDISK}. Please keep the device powered on."
+	echo "Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 	
 	echo ""
-	echo "Overwriting and zeroing ${CLIENTDISK} one last time...."
+	echo "Shredding ${CLIENTDISK} one last time...."
 	sleep 1
-	/usr/bin/shred -vz -n 1 /dev/${CLIENTDISK}
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	echo ""
+	echo "Zeroing ${CLIENTDISK} one last time...."
+	sleep 1
+	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 	echo ""
 	echo "Discarding all sectors."
 	sleep 1
 	/usr/sbin/blkdiscard /dev/${CLIENTDISK} &>/dev/null
 
 	echo ""
-	echo ""
 	echo "Checking to make sure drive is completely zeroed."
-	HEXSIZE=$(lsblk --noheadings -o SIZE /dev/${CLIENTDISK} | grep -m1 -oiP '[0-9]{3}' | sed 's/$/g/g')
 	PV="/usr/bin/pv --progress --timer --eta --rate --bytes"
 	echo ""
 	echo "Searching all sectors for non-zero bits..." 
@@ -333,7 +341,6 @@ function terminate {
 	echo ""
 	echo "Done."
 	echo -e ""
-	elapsed=''
 	echo ""
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	echo "Process has finished in ${TIME}."
