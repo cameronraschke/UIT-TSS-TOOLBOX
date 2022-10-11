@@ -290,25 +290,25 @@ function execute {
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo ""
-	echo "[4/6] Deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	echo "[3/6] Deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
 	echo ""
-	echo "[4/6] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	echo "[3/6] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 	
 	echo ""
-	echo "[5/6] Shredding ${CLIENTDISK} one last time...."
+	echo "[4/6] Shredding ${CLIENTDISK} one last time...."
 	sleep 1
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	echo ""
-	echo "[6/6] Zeroing ${CLIENTDISK} one last time...."
+	echo "[5/6] Zeroing ${CLIENTDISK} one last time...."
 	sleep 1
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 	echo ""
-	echo "Discarding all sectors."
+	echo "[6/6] Discarding all sectors."
 	sleep 1
 	/usr/sbin/blkdiscard /dev/${CLIENTDISK} &>/dev/null
 
