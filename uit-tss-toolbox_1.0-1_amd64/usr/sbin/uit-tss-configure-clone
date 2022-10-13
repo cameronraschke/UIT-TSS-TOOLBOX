@@ -419,7 +419,7 @@ Please make a backup if necessary."
 		fi
 		if [[ $MODE == "restoredisk" ]]; then
 		echo "Restoring an image will overwrite the client's hard drive. \
-			Please make a backup if necessary."
+Please make a backup if necessary."
 		fi
 	echo ""
 	read -p "Press Enter to continue or CTRL + C to exit...."

@@ -217,6 +217,7 @@ echo '
 echo 'Checklist:
 	-Physical connections
 	   * Make sure that power is plugged in to the client.
+	   * Do not use UIT-TSS-SHRED on USB drives or drives connected over USB.
 	-General best practices
 	   * Sanitize laptops with cleaner before imaging them.
 	   * Reset BIOS to default/factory settings before imaging.
@@ -227,7 +228,7 @@ echo 'Checklist:
 	      * If you reset BIOS, make sure you change SATA mode after the reset.
 	      
 	*** WARNING *** After pressing Enter, the system will enter hibernate mode.
-	This is normal. Please wake up the system by pressing the Space key.
+	This is normal. Please wake up the system by pressing the CTRL key repeatedly.
 	If that does not work, then press the Power key once. *** WARNING ***
 '
 	read -p "Please remove the thumb drive and press Enter...."
@@ -247,6 +248,8 @@ function diskselect {
     do
         if [[ $CLIENTDISK =~ sd.* || $CLIENTDISK =~ nvme.* ]]; then
         echo "$(lsblk /dev/${CLIENTDISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
+		echo "*** WARNING *** There is no going back once you confirm. \
+Press CTRL + C to exit. *** WARNING ***"
         echo "You chose ${CLIENTDISK}. Is this correct?"
         read -p "Press Enter to confirm...."
         echo ""
@@ -266,23 +269,20 @@ function execute {
 	start_time=$SECONDS
 	clear
 	echo ""
-	echo "Destroying all GPT and MBR data...."
+	echo "[1/8] Destroying all GPT and MBR data...."
 	/usr/sbin/sgdisk --zap-all /dev/${CLIENTDISK} &>/dev/null
 	echo ""
-	echo "Shredding disk ${CLIENTDISK}...."
-	sleep 1
-	echo ""
-	echo "[1/6] Shredding disk ${CLIENTDISK}...."
+	echo "[2/8] First pass - shredding disk ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	echo ""
-	echo "[2/6] Shredding disk ${CLIENTDISK}...."
+	echo "[3/8] Second pass - shredding disk ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
-	echo "[3/6] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	echo "[4/8] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
@@ -290,34 +290,30 @@ function execute {
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo ""
-	echo "[3/6] Deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	echo "[4/8] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
-	echo ""
-	echo "[3/6] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
-	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 	
 	echo ""
-	echo "[4/6] Shredding ${CLIENTDISK} one last time...."
+	echo "[5/8] Shredding ${CLIENTDISK} one last time...."
 	sleep 1
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	echo ""
-	echo "[5/6] Zeroing ${CLIENTDISK} one last time...."
+	echo "[6/8] Zeroing ${CLIENTDISK} one last time...."
 	sleep 1
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 	echo ""
-	echo "[6/6] Discarding all sectors."
+	echo "[7/8] Discarding all sectors."
 	sleep 1
 	/usr/sbin/blkdiscard /dev/${CLIENTDISK} &>/dev/null
 
 	echo ""
-	echo "Checking to make sure drive is completely zeroed."
-	PV="/usr/bin/pv --progress --timer --eta --rate --bytes"
 	echo ""
-	echo "Searching all sectors for non-zero bits..." 
-	HEXVERIFY=$($PV /dev/${CLIENTDISK} | /usr/bin/xxd -plain | grep -oP -m 1 '[^0\ ]' | head -1)
+	echo ""
+	echo "[8/8] Searching all sectors for non-zero bits."
+	HEXVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | /usr/bin/xxd -plain | grep -oP -m 1 '[^0\ ]' | head -1)
 
 	echo""
 	echo "Double-checking sectors..."
