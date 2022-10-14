@@ -305,28 +305,25 @@ function execute {
 	sleep 1
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 	echo ""
-	echo "[7/8] Discarding all sectors."
+	echo "[7/8] Discarding all sectors...."
 	sleep 1
 	/usr/sbin/blkdiscard /dev/${CLIENTDISK} &>/dev/null
 
 	echo ""
-	echo ""
-	echo ""
-	echo "[8/8] Searching all sectors for non-zero bits."
+	echo "[8/8] Verifying - searching all sectors for non-zero bits...."
 	HEXVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | /usr/bin/xxd -plain | grep -oP -m 1 '[^0\ ]' | head -1)
 
-	echo""
-	echo "Double-checking sectors..."
 	/usr/bin/xxd -plain /dev/${CLIENTDISK} | head -50 | grep -oP '[^0]' | sed -z '/[[:space:]]/ s/[[:space:]]//g' | pv --quiet -L 200
 	echo""
 
 	if [[ ! -z $HEXVERIFY ]]; then
         echo ""
-        echo "Non-zero bits found. Test has failed."
+        echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+		exit 1
 	else
         echo ""
-        echo "Test passed successfully!"
 		echo "The drive ${CLIENTDISK} is completely and securely wiped."
+		echo "Test passed successfully!"
 	fi
 }
 
@@ -335,9 +332,7 @@ function terminate {
 	TIME=$(date -d@$elapsed -u +'%H hours and %M minutes')
 	echo ""
 	echo ""
-	echo ""
-	echo "Done."
-	echo -e ""
+	echo "--------------------"
 	echo ""
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	echo "Process has finished in ${TIME}."
