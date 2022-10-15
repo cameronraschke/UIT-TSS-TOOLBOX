@@ -42,7 +42,7 @@ function execute {
         echo "Making FAT filesystem on ${ISODISK}"
         mkfs.vfat -I -F 32 /dev/${ISODISK} &>/dev/null
         echo "Writing ISO to ${ISODISK}, this may take a while..."
-        /usr/bin pv < /opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso > /dev/${ISODISK}
+        /usr/bin/pv < /opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso > /dev/${ISODISK}
         echo "Creating new label on disk ${ISODISK}: UITTSSCLONE"
         fatlabel /dev/${ISODISK} "UITTSSCLONE" &>/dev/null
         fatlabel /dev/${ISODISK}1 "UITTSSCLONE" &>/dev/null
