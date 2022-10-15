@@ -2,44 +2,54 @@
 
 function selectdisk {
         DISKNAMES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
-        echo "These are the current disks and their sizes:"
-        echo "${DISKNAMES}"
-        echo ""
-        echo "Which USB disk do you want to flash with the ISO?"
-        PS3="Select a drive: "
-        select ISODISK in $(for ISODISK in /sys/block/*;
+        DISKCHECK=$(for ISODISK in /sys/block/*;
                 do if udevadm info --query=property --path=${ISODISK} | grep -q ^ID_BUS=usb;
                 then ISODISK=$(echo ${ISODISK} | grep -o 'sd.*');
                 echo ${ISODISK}; fi; done)
-                do
-                if [[ $ISODISK =~ sd.* || $ISODISK =~ nvme.* ]]; then
+
+        echo ""
+        echo "These are the current disks and their sizes:"
+        echo "${DISKNAMES}"
+
+        if [[ ! -f /opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso ]]; then
+        echo ""
+        echo "ISO file does not exist. Please run uit-tss-configure-clone."
+        fi
+
+        if [[ $DISKCHECK =~ sd.* ]]; then
+        echo ""
+        echo "Which USB drive do you want to flash with the clone ISO?"
+                PS3="Select a drive: "
+                select ISODISK in $DISKCHECK
+                do        
                 echo ""
-                echo "$(lsblk /dev/${ISODISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
-                echo "You chose ${ISODISK}. Is this correct?"
+                echo "$(lsblk /dev/${ISODISK} -o NAME,SIZE,MOUNTPOINT)"
+                echo ""
                 read -p "All data on ${ISODISK} will be deleted. Press Enter to confirm...."
                 break
-                else
-                echo ""
-                echo "Invalid block device selected."
-                selectdisk
-                fi
-                if [[ ! -f /opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso ]]; then
-                echo ""
-                echo "ISO file does not exist."
-                fi
-        done
+                done
+        else
+        echo ""
+        echo "Invalid block device or no USB drive found. Exiting...."
+        exit 1
+        fi
 }
 
 function execute {
-        if [ ! -z ${ISODISK} ]; then
+        if [[ ! -z ${ISODISK} && $DISKCHECK =~ sd.* ]]; then
         echo "Unmounting ${ISODISK}"
         umount /dev/${ISODISK} &>/dev/null
         echo "Making FAT filesystem on ${ISODISK}"
-        mkfs.vfat -I /dev/${ISODISK} &>/dev/null
-        echo "Creating new label on disk ${ISODISK}: UITTSSCLONE"
-        fatlabel /dev/${ISODISK} UITTSSCLONE &>/dev/null
+        mkfs.vfat -I -F 32 /dev/${ISODISK} &>/dev/null
         echo "Writing ISO to ${ISODISK}, this may take a while..."
-        dd if=/opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso of=/dev/${ISODISK} bs=4M status=progress
+        /usr/bin pv < /opt/UIT-TSS-CLONE/UIT-TSS-CLONE-amd64.hybrid.iso > /dev/${ISODISK}
+        echo "Creating new label on disk ${ISODISK}: UITTSSCLONE"
+        fatlabel /dev/${ISODISK} "UITTSSCLONE" &>/dev/null
+        fatlabel /dev/${ISODISK}1 "UITTSSCLONE" &>/dev/null
+        else
+        echo ""
+        echo "Invalid block device or no USB drive found. Exiting...."
+        exit 1
         fi
 }
 
