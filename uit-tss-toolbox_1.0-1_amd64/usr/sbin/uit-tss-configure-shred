@@ -249,7 +249,6 @@ function modeselect {
 	echo ""
 	echo "1 Default 
 	-Mixture of modes
-	-Most secure"
 
 	echo ""
 	echo "2 Zero mode 
@@ -374,14 +373,14 @@ function default {
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo ""
-	echo "[4/6] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	echo "[3/6] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-	echo "[4/6] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
+	echo "[3/6] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
 	fi
 
 	echo ""
