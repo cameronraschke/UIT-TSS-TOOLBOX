@@ -274,10 +274,10 @@ function modeselect {
 	-Writes random bit, verifies random bit"
 
 	echo ""
-	echo "6 Gutmann (Very long)
-	-Four random character passes (excluding zero)
+	echo "6 Gutmann
+	-Four random character passes
 	-27 predefined pattern passes
-	-Four random character passes (exluding zero)"
+	-Four random character passes"
 
 	echo ""
 	echo "7 Schneier
@@ -285,9 +285,9 @@ function modeselect {
 	-Five passes of a random stream of characters"
 
 	echo ""
-	read -n1 -p "Choose [1-7] " MODE
+	read -n1 -p "Choose [1-7] " MODESELECT
 	echo ""
-	case $MODE in
+	case $MODESELECT in
 	1)
 	MODE='default'
 	;;
@@ -330,7 +330,7 @@ function diskselect {
         if [[ $CLIENTDISK =~ sd.* || $CLIENTDISK =~ nvme.* ]]; then
         echo "$(lsblk /dev/${CLIENTDISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
 		echo "*** WARNING *** There is no going back once you confirm. \
-Press CTRL + C to exit. *** WARNING ***"
+Press CTRL + C to exit."
         echo "You chose ${CLIENTDISK}. Is this correct?"
         read -p "Press Enter to confirm...."
         echo ""
@@ -463,8 +463,7 @@ function secureerase {
 	fi
 
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-	echo "[1/1] Error: No SATA or NVME drive was selected, cannot use Secure Erase. Please use another mode. Exiting...."
-	else
+	echo ""
 	echo "[1/1] Error: No SATA or NVME drive was selected, cannot use Secure Erase. Please use another mode. Exiting...."
 	fi
 
@@ -484,7 +483,7 @@ function dod {
 	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
 
 	echo ""
-	echo "[1/6] Writing a pass of all 0's to ${CLIENTDISK}"
+	echo "[1/6] Writing a pass of 0's to ${CLIENTDISK}"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 	echo ""
 	echo "[2/6] Verifying disk ${CLIENTDISK} - checking for 0's...."
@@ -496,7 +495,7 @@ function dod {
 	fi
 
 	echo ""
-	echo "[3/6] Writing a pass of all 1's to ${CLIENTDISK}"
+	echo "[3/6] Writing a pass of 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 	echo ""
 	echo "[4/6] Verifying disk ${CLIENTDISK} - checking for 1's...."
@@ -540,27 +539,27 @@ function rcmp {
 	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
 
 	echo ""
-	echo "[1/8] Writing a pass of all 0's to ${CLIENTDISK}"
+	echo "[1/8] Writing a pass of 0's to ${CLIENTDISK}"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 
 	echo ""
-	echo "[2/8] Writing a pass of all 1's to ${CLIENTDISK}"
+	echo "[2/8] Writing a pass of 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
-	echo "[3/8] Writing a pass of all 0's to ${CLIENTDISK}"
+	echo "[3/8] Writing a pass of 0's to ${CLIENTDISK}"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 
 	echo ""
-	echo "[4/8] Writing a pass of all 1's to ${CLIENTDISK}"
+	echo "[4/8] Writing a pass of 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
-	echo "[5/8] Writing a pass of all 0's to ${CLIENTDISK}"
+	echo "[5/8] Writing a pass of 0's to ${CLIENTDISK}"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 
 	echo ""
-	echo "[6/8] Writing a pass of all 1's to ${CLIENTDISK}"
+	echo "[6/8] Writing a pass of 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
@@ -715,11 +714,11 @@ function schneier {
 	echo ""
 
 	echo ""
-	echo "[1/7] Writing a pass of all 1's to ${CLIENTDISK}"
+	echo "[1/7] Writing a pass of 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
-	echo "[2/7] Writing a pass of all 0's to ${CLIENTDISK}"
+	echo "[2/7] Writing a pass of 0's to ${CLIENTDISK}"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 
 	echo ""
@@ -751,7 +750,7 @@ function schneier {
 function execute {
 	start_time=$SECONDS
 
-	if [[ ! -z $MODE ]]; then
+	if [[ -z $MODE ]]; then
 	modeselect
 	fi
 	
