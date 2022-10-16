@@ -480,10 +480,10 @@ function dod {
 	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
 
 	echo ""
-	echo "Writing a pass of all 0's"
+	echo "[1/6] Writing a pass of all 0's"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 	echo ""
-	echo "Verifying disk - checking for 0's...."
+	echo "[2/6] Verifying disk - checking for 0's...."
 	ZEROVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' &> /dev/null | head -1)
 	if [[ ! -z $ZEROVERIFY ]]; then
         echo ""
@@ -492,10 +492,10 @@ function dod {
 	fi
 
 	echo ""
-	echo "Writing a pass of all 1's"
+	echo "[3/6] Writing a pass of all 1's"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 	echo ""
-	echo "Verifying disk - checking for 1's...."
+	echo "[4/6] Verifying disk - checking for 1's...."
 	ONEVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^1]' &> /dev/null | head -1)
 	if [[ ! -z $ONEVERIFY ]]; then
         echo ""
@@ -504,10 +504,10 @@ function dod {
 	fi
 
 	echo ""
-	echo "Writing a pass of a random bit (${RANDOMBIT})"
+	echo "[5/6] Writing a pass of a random bit (${RANDOMBIT})"
 	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 	echo ""
-	echo "Verifying disk - checking for the random bit (${RANDOMBIT})'s...."
+	echo "[6/6] Verifying disk - checking for the random bit (${RANDOMBIT})'s...."
 	RBITVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${RANDOMBIT}]" &> /dev/null | head -1)
 	if [[ ! -z $RBITVERIFY ]]; then
         echo ""
@@ -521,14 +521,57 @@ function dod {
 		exit 1
 	else
         echo ""
-		echo "The drive ${CLIENTDISK} is erased and verified."
+		echo "The drive ${CLIENTDISK} is erased in accordance with DOD 5220.22-M."
 	fi
 }
 
 
 
 function rcmp {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in RCMP TSSIT OPS-II mode."
 
+	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+
+	echo ""
+	echo "[1/8] Writing a pass of all 0's"
+	pv < /dev/zero > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[2/8] Writing a pass of all 1's"
+	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+
+	echo ""
+	echo "[3/8] Writing a pass of all 0's"
+	pv < /dev/zero > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[4/8] Writing a pass of all 1's"
+	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+
+	echo ""
+	echo "[5/8] Writing a pass of all 0's"
+	pv < /dev/zero > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[6/8] Writing a pass of all 1's"
+	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+
+	echo ""
+	echo "[7/8] Writing a pass of a random bit (${RANDOMBIT})"
+	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
+	echo ""
+	echo "[8/8] Verifying disk - checking for the random bit (${RANDOMBIT})'s...."
+	RBITVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${RANDOMBIT}]" &> /dev/null | head -1)
+	if [[ ! -z $RBITVERIFY ]]; then
+        echo ""
+        echo "Bits found on device ${CLIENTDISK} that weren't ${RANDOMBIT}'s. Test has failed."
+		exit 1
+	fi
+
+	echo ""
+	echo "The drive ${CLIENTDISK} is erased in accordance with RCMP TSSIT OPS-II."
 }
 
 
