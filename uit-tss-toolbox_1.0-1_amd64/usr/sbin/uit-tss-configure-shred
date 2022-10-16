@@ -57,7 +57,7 @@ UI vesamenu.c32
 
 MENU TITLE Boot Menu
 DEFAULT linux
-        TIMEOUT 0
+        TIMEOUT 10
         MENU RESOLUTION 640 480
         SAY Now booting into UIT-TSS-SHRED by Cameron Raschke
 label linux
@@ -117,6 +117,7 @@ nvme-cli
 procps
 coreutils
 pv
+hexdump
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
@@ -261,7 +262,7 @@ function modeselect {
 
 	echo ""
 	echo "4 DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5
-	-Writes zeroes, ones, random bits
+	-Writes a pass of zeroes, then ones, then a random bit
 	-3 passes, 3 verifications"
 
 	echo ""
@@ -340,16 +341,17 @@ Press CTRL + C to exit. *** WARNING ***"
 function default {
 	clear
 	echo ""
-	echo "Mode is default"
+	echo "UIT-TSS-SHRED running in default mode."
 
 	echo ""
 	echo "[1/8] Destroying all GPT and MBR data...."
+	sleep 1
 	/usr/sbin/sgdisk --zap-all /dev/${CLIENTDISK} &>/dev/null
 
 	echo ""
 	echo "[2/8] First pass - using pattern 01010101 on ${CLIENTDISK}...."
 	sleep 1
-	/usr/bin/yes "01010101" | (pv > /dev/${CLIENTDISK})
+	cat /dev/zero "01010101" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
 	echo "[3/8] Second pass - using pattern 10101010 on ${CLIENTDISK}...."
@@ -374,6 +376,8 @@ function default {
 
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
 	echo "[4/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
+	else
+	echo "[4/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
 	fi
 
 	echo ""
@@ -387,12 +391,12 @@ function default {
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 
 	echo ""
-	echo "[7/8] Discarding all sectors...."
+	echo "[7/8] Discarding and deleting all sectors on ${CLIENTDISK}...."
 	sleep 1
 	/usr/sbin/blkdiscard /dev/${CLIENTDISK} &>/dev/null
 
 	echo ""
-	echo "[8/8] Verifying - searching all sectors for non-zero bits...."
+	echo "[8/8] Verifying - searching all sectors on ${CLIENTDISK} for non-zero bits...."
 	HEXVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | /usr/bin/xxd -plain | grep -oP -m 1 '[^0\ ]' | head -1)
 
 	/usr/bin/xxd -plain /dev/${CLIENTDISK} | head -50 | grep -oP '[^0]' | sed -z '/[[:space:]]/ s/[[:space:]]//g' | pv --quiet -L 200
@@ -409,11 +413,103 @@ function default {
 	fi
 }
 
+function fast {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in fast mode."
+
+	echo ""
+	echo "[1/1] Using the Write Zero method on ${CLIENTDISK}...."
+	sleep 1
+	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
+}
+
+function secureerase {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in Secure Erase mode."
+	echo "Warning: This mode will only work on newer SATA/NVME drives."
+
+	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
+	echo ""
+	echo "[1/1] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	sleep 1
+	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
+	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
+	fi
+	
+	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
+	echo ""
+	echo "[1/1] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	sleep 1
+	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
+	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
+	fi
+
+	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
+	echo "[1/1] Error: No SATA or NVME drive was selected, cannot use Secure Erase. Please use another mode. Exiting...."
+	else
+	echo "[1/1] Error: No SATA or NVME drive was selected, cannot use Secure Erase. Please use another mode. Exiting...."
+	fi
+}
+
+function dod {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in DOD 5220.22-M mode."
+
+	echo "Writing a pass of all 1's"
+	cat /dev/zero | /usr/bin/tr '\000' '\061' | (pv > /dev/${CLIENTDISK})
+}
+
+function rcmp {
+
+}
+
+function gutmann {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in Gutmann mode."
+
+	#01010101.....
+	cat /dev/zero | tr '\000' '\001' | xxd -p
+	#10101010.....
+	cat /dev/zero | tr '\000' '\020' | xxd -p
+}
+
+function gutmann
+
 function execute {
 	start_time=$SECONDS
+	
 	if [[ $MODE == 'default' ]]; then
 	default
 	fi
+
+	if [[ $MODE == 'fast' ]]; then
+	fast
+	fi
+
+	if [[ $MODE == 'secureerase' ]]; then
+	secureerase
+	fi
+
+	if [[ $MODE == 'dod' ]]; then
+	dod
+	fi
+
+	if [[ $MODE == 'rcmp' ]]; then
+	rcmp
+	fi
+	
+	if [[ $MODE == 'gutmann' ]]; then
+	gutmann
+	fi
+	
+	if [[ $MODE == 'schneier' ]]; then
+	schneier
+	fi
+
 }
 
 function terminate {
