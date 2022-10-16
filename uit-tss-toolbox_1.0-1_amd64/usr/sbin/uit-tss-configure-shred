@@ -194,6 +194,9 @@ sleep 1
 clear
 
 CLIENTDISK=''
+SSD_REGEX='sd.*'
+NVME_REGEX='nvme.*'
+SCSI_REGEX='hd.*'
 
 function intro {
 	clear
@@ -228,12 +231,83 @@ echo 'Checklist:
 	      * If you reset BIOS, make sure you change SATA mode after the reset.
 	      
 	*** WARNING *** After pressing Enter, the system will enter hibernate mode.
-	This is normal. Please wake up the system by pressing the CTRL key repeatedly.
-	If that does not work, then press the Power key once. *** WARNING ***
+	This is normal. Please wake up the system after it hibernates. *** WARNING ***
 '
 	read -p "Please remove the thumb drive and press Enter...."
 	echo -n mem > /sys/power/state
 	clear
+}
+
+function modeselect {
+	echo ""
+	echo "Choose a mode:"
+
+	echo ""
+	echo "1 Default 
+	-Mixture of modes
+	-Most secure"
+
+	echo ""
+	echo "2 Zero mode 
+	-One pass of zeroes
+	-Fastest for SATA"
+
+	echo ""
+	echo "3 Secure Erase
+	-Firmware zeroing
+	-SATA/NVME Only
+	-Fastest for NVME
+	-One pass, real-time verification"
+
+	echo ""
+	echo "4 DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5
+	-Writes zeroes, ones, random bits
+	-3 passes, 3 verifications"
+
+	echo ""
+	echo "5 RCMP TSSIT OPS-II/VSITR
+	-Alternates passes between 0's and 1's 6 times
+	-Writes random bit, verifies random bit"
+
+	echo ""
+	echo "6 Gutmann (Very long)
+	-Four random character passes (excluding zero)
+	-27 predefined pattern passes
+	-Four random character passes (exluding zero)"
+
+	echo ""
+	echo "7 Schneier
+	-A pass of 1's then a pass of 0's
+	-Five passes of a random stream of characters"
+
+	read -n1 -p "Choose [1-7] " MODE
+	echo ""
+	case $MODE in
+	1)
+	MODE='default'
+	;;
+	2)
+	MODE='fast'
+	;;
+	3)
+	MODE='secureerase'
+	;;
+	4)
+	MODE='dod'
+	;;
+	5)
+	MODE='rcmp'
+	;;
+	6)
+	MODE='gutmann'
+	;;
+	7)
+	MODE='schneier'
+	;;
+	*)
+	modeselect
+	;;
+	esac
 }
 
 function diskselect {
@@ -263,26 +337,28 @@ Press CTRL + C to exit. *** WARNING ***"
     done
 }
 
-function execute {
-	SSD_REGEX='sd.*'
-	NVME_REGEX='nvme.*'
-	start_time=$SECONDS
+function default {
 	clear
+	echo ""
+	echo "Mode is default"
+
 	echo ""
 	echo "[1/8] Destroying all GPT and MBR data...."
 	/usr/sbin/sgdisk --zap-all /dev/${CLIENTDISK} &>/dev/null
+
 	echo ""
-	echo "[2/8] First pass - shredding disk ${CLIENTDISK}...."
+	echo "[2/8] First pass - using pattern 01010101 on ${CLIENTDISK}...."
 	sleep 1
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	/usr/bin/yes "01010101" | (pv > /dev/${CLIENTDISK})
+
 	echo ""
-	echo "[3/8] Second pass - shredding disk ${CLIENTDISK}...."
+	echo "[3/8] Second pass - using pattern 10101010 on ${CLIENTDISK}...."
 	sleep 1
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	/usr/bin/yes "10101010" | (pv > /dev/${CLIENTDISK})
 	
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
-	echo "[4/8] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	echo "[4/8] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
@@ -290,20 +366,26 @@ function execute {
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo ""
-	echo "[4/8] Cryptographically deleting ${CLIENTDISK} at a firmware level. Please keep the device powered on."
+	echo "[4/8] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
-	
+
+	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
+	echo "[4/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
+	fi
+
 	echo ""
-	echo "[5/8] Shredding ${CLIENTDISK} one last time...."
+	echo "[5/8] Writing a stream of random characters to ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
 	echo ""
-	echo "[6/8] Zeroing ${CLIENTDISK} one last time...."
+	echo "[6/8] Using the Write Zero method on ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
+
 	echo ""
 	echo "[7/8] Discarding all sectors...."
 	sleep 1
@@ -327,6 +409,13 @@ function execute {
 	fi
 }
 
+function execute {
+	start_time=$SECONDS
+	if [[ $MODE == 'default' ]]; then
+	default
+	fi
+}
+
 function terminate {
 	elapsed=$(( SECONDS - start_time ))
 	TIME=$(date -d@$elapsed -u +'%H hours and %M minutes')
@@ -342,6 +431,7 @@ function terminate {
 
 intro
 diskselect
+modeselect
 execute
 terminate
 EOF
