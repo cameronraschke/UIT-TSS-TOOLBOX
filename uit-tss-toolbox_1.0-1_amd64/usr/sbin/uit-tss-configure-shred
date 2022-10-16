@@ -350,6 +350,7 @@ function default {
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in default mode."
+	echo ""
 
 	echo ""
 	echo "[1/8] Destroying all GPT and MBR data...."
@@ -424,6 +425,7 @@ function fast {
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in fast mode."
+	echo ""
 
 	echo ""
 	echo "[1/1] Using the Write Zero method on ${CLIENTDISK}...."
@@ -442,6 +444,7 @@ function secureerase {
 	echo ""
 	echo "UIT-TSS-SHRED running in Secure Erase mode."
 	echo "Notice: This mode will only work on newer SATA/NVME drives."
+	echo ""
 
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
@@ -476,14 +479,15 @@ function dod {
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in DOD 5220.22-M mode."
+	echo ""
 
 	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
 
 	echo ""
-	echo "[1/6] Writing a pass of all 0's"
+	echo "[1/6] Writing a pass of all 0's to ${CLIENTDISK}"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 	echo ""
-	echo "[2/6] Verifying disk - checking for 0's...."
+	echo "[2/6] Verifying disk ${CLIENTDISK} - checking for 0's...."
 	ZEROVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' &> /dev/null | head -1)
 	if [[ ! -z $ZEROVERIFY ]]; then
         echo ""
@@ -492,10 +496,10 @@ function dod {
 	fi
 
 	echo ""
-	echo "[3/6] Writing a pass of all 1's"
+	echo "[3/6] Writing a pass of all 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 	echo ""
-	echo "[4/6] Verifying disk - checking for 1's...."
+	echo "[4/6] Verifying disk ${CLIENTDISK} - checking for 1's...."
 	ONEVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^1]' &> /dev/null | head -1)
 	if [[ ! -z $ONEVERIFY ]]; then
         echo ""
@@ -504,10 +508,10 @@ function dod {
 	fi
 
 	echo ""
-	echo "[5/6] Writing a pass of a random bit (${RANDOMBIT})"
+	echo "[5/6] Writing a pass of a random bit (${RANDOMBIT}) to ${CLIENTDISK}"
 	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 	echo ""
-	echo "[6/6] Verifying disk - checking for the random bit (${RANDOMBIT})'s...."
+	echo "[6/6] Verifying disk ${CLIENTDISK} - checking for the random bit (${RANDOMBIT})...."
 	RBITVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${RANDOMBIT}]" &> /dev/null | head -1)
 	if [[ ! -z $RBITVERIFY ]]; then
         echo ""
@@ -531,38 +535,39 @@ function rcmp {
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in RCMP TSSIT OPS-II mode."
+	echo ""
 
 	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
 
 	echo ""
-	echo "[1/8] Writing a pass of all 0's"
+	echo "[1/8] Writing a pass of all 0's to ${CLIENTDISK}"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 
 	echo ""
-	echo "[2/8] Writing a pass of all 1's"
+	echo "[2/8] Writing a pass of all 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
-	echo "[3/8] Writing a pass of all 0's"
+	echo "[3/8] Writing a pass of all 0's to ${CLIENTDISK}"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 
 	echo ""
-	echo "[4/8] Writing a pass of all 1's"
+	echo "[4/8] Writing a pass of all 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
-	echo "[5/8] Writing a pass of all 0's"
+	echo "[5/8] Writing a pass of all 0's to ${CLIENTDISK}"
 	pv < /dev/zero > /dev/${CLIENTDISK}
 
 	echo ""
-	echo "[6/8] Writing a pass of all 1's"
+	echo "[6/8] Writing a pass of all 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
-	echo "[7/8] Writing a pass of a random bit (${RANDOMBIT})"
+	echo "[7/8] Writing a pass of a random bit (${RANDOMBIT}) to ${CLIENTDISK}"
 	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 	echo ""
-	echo "[8/8] Verifying disk - checking for the random bit (${RANDOMBIT})'s...."
+	echo "[8/8] Verifying disk - checking ${CLIENTDISK} for the random bit (${RANDOMBIT})'s...."
 	RBITVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${RANDOMBIT}]" &> /dev/null | head -1)
 	if [[ ! -z $RBITVERIFY ]]; then
         echo ""
@@ -580,11 +585,75 @@ function gutmann {
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in Gutmann mode."
+	echo ""
 
-	#01010101.....
-	#cat /dev/zero | tr '\000' '\001' | xxd -p | (pv /dev/${CLIENTDISK})
-	#10101010.....
-	#cat /dev/zero | tr '\000' '\020' | xxd -p | (pv /dev/${CLIENTDISK})
+	RANDOMBIT1=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+	RANDOMBIT2=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+	RANDOMBIT3=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+	RANDOMBIT4=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+	RANDOMBIT5=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+	RANDOMBIT6=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+	RANDOMBIT7=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+	RANDOMBIT8=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+
+	echo ""
+	echo "[1/35] Writing a pass of a random bit (${RANDOMBIT1}) to ${CLIENTDISK}"
+	/usr/bin/yes "${RANDOMBIT1}" | (pv > /dev/${CLIENTDISK})
+
+	echo "[2/35] Writing a pass of a random bit (${RANDOMBIT2}) to ${CLIENTDISK}"
+	/usr/bin/yes "${RANDOMBIT2}" | (pv > /dev/${CLIENTDISK})
+
+	echo "[3/35] Writing a pass of a random bit (${RANDOMBIT3}) to ${CLIENTDISK}"
+	/usr/bin/yes "${RANDOMBIT3}" | (pv > /dev/${CLIENTDISK})
+
+	echo "[4/35] Writing a pass of a random bit (${RANDOMBIT4}) to ${CLIENTDISK}"
+	/usr/bin/yes "${RANDOMBIT4}" | (pv > /dev/${CLIENTDISK})
+
+	echo "[5/35] Writing pattern 01010101 to ${CLIENTDISK}"
+	/usr/bin/yes "01010101" | (pv > /dev/${CLIENTDISK})
+
+	echo ""
+	echo "The drive ${CLIENTDISK} is erased in accordance with Schneier's method."
+}
+
+
+
+function schneier {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in Schneier mode."
+	echo ""
+
+	echo ""
+	echo "[1/7] Writing a pass of all 1's to ${CLIENTDISK}"
+	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+
+	echo ""
+	echo "[2/7] Writing a pass of all 0's to ${CLIENTDISK}"
+	pv < /dev/zero > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[3/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[4/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[5/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[6/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[7/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "The drive ${CLIENTDISK} is erased in accordance with Schneier's method."
 }
 
 
