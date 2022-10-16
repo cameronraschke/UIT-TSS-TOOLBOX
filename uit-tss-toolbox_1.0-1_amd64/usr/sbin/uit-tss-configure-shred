@@ -612,6 +612,69 @@ function gutmann {
 	echo "[5/35] Writing pattern 01010101 to ${CLIENTDISK}"
 	/usr/bin/yes "01010101" | (pv > /dev/${CLIENTDISK})
 
+	echo "[6/35] Writing pattern 10101010 to ${CLIENTDISK}"
+	/usr/bin/yes "10101010" | (pv > /dev/${CLIENTDISK})
+
+	echo "[7/35] Writing pattern 10010010 to ${CLIENTDISK}"
+	/usr/bin/yes "10010010" | (pv > /dev/${CLIENTDISK})
+
+	echo "[8/35] Writing pattern 01001001 to ${CLIENTDISK}"
+	/usr/bin/yes "01001001" | (pv > /dev/${CLIENTDISK})
+
+	echo "[9/35] Writing pattern 00100100 to ${CLIENTDISK}"
+	/usr/bin/yes "00100100" | (pv > /dev/${CLIENTDISK})
+
+	echo "[10/35] Writing pattern 00000000 to ${CLIENTDISK}"
+	/usr/bin/yes "00000000" | (pv > /dev/${CLIENTDISK})
+
+	echo "[11/35] Writing pattern 00010001 to ${CLIENTDISK}"
+	/usr/bin/yes "00010001" | (pv > /dev/${CLIENTDISK})
+
+	echo "[12/35] Writing pattern 00100010 to ${CLIENTDISK}"
+	/usr/bin/yes "00100010" | (pv > /dev/${CLIENTDISK})
+
+	echo "[13/35] Writing pattern 00110011 to ${CLIENTDISK}"
+	/usr/bin/yes "00110011" | (pv > /dev/${CLIENTDISK})
+
+	echo "[14/35] Writing pattern 01000100 to ${CLIENTDISK}"
+	/usr/bin/yes "01000100" | (pv > /dev/${CLIENTDISK})
+
+	echo "[15/35] Writing pattern 01010101 to ${CLIENTDISK}"
+	/usr/bin/yes "01010101" | (pv > /dev/${CLIENTDISK})
+
+	echo "[16/35] Writing pattern 01100110 to ${CLIENTDISK}"
+	/usr/bin/yes "01100110" | (pv > /dev/${CLIENTDISK})
+
+	echo "[17/35] Writing pattern 01110111 to ${CLIENTDISK}"
+	/usr/bin/yes "01110111" | (pv > /dev/${CLIENTDISK})
+
+	echo "[18/35] Writing pattern 10001000 to ${CLIENTDISK}"
+	/usr/bin/yes "10001000" | (pv > /dev/${CLIENTDISK})
+
+	echo "[19/35] Writing pattern 10011001 to ${CLIENTDISK}"
+	/usr/bin/yes "10011001" | (pv > /dev/${CLIENTDISK})
+
+	echo "[20/35] Writing pattern 10101010 to ${CLIENTDISK}"
+	/usr/bin/yes "10101010" | (pv > /dev/${CLIENTDISK})
+
+	echo "[21/35] Writing pattern 10111011 to ${CLIENTDISK}"
+	/usr/bin/yes "10111011" | (pv > /dev/${CLIENTDISK})
+
+	echo "[22/35] Writing pattern 11001100 to ${CLIENTDISK}"
+	/usr/bin/yes "11001100" | (pv > /dev/${CLIENTDISK})
+
+	echo "[23/35] Writing pattern 11011101 to ${CLIENTDISK}"
+	/usr/bin/yes "11011101" | (pv > /dev/${CLIENTDISK})
+
+	echo "[24/35] Writing pattern 11101110 to ${CLIENTDISK}"
+	/usr/bin/yes "11101110" | (pv > /dev/${CLIENTDISK})
+
+	echo "[25/35] Writing pattern 11111111 to ${CLIENTDISK}"
+	/usr/bin/yes "11111111" | (pv > /dev/${CLIENTDISK})
+
+	echo "[26/35] Writing pattern 11111111 to ${CLIENTDISK}"
+	/usr/bin/yes "11111111" | (pv > /dev/${CLIENTDISK})
+
 	echo ""
 	echo "The drive ${CLIENTDISK} is erased in accordance with Schneier's method."
 }
