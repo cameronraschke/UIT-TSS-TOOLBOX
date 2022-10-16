@@ -319,21 +319,20 @@ function modeselect {
 
 function diskselect {
 	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
+	clear
+	echo ""
+	echo "Mode is ${MODE}"
 	echo ""
     echo "These are the current disks and their sizes:"
     echo "$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)"
     echo ""
-    echo "Which disk do you want to erase?"
     PS3="Select a drive: "
     select CLIENTDISK in ${DISKNAMES}
     do
         if [[ $CLIENTDISK =~ sd.* || $CLIENTDISK =~ nvme.* ]]; then
 		echo ""
         echo "$(lsblk /dev/${CLIENTDISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
-		echo "*** WARNING *** There is no going back once you confirm. \
-Press CTRL + C to exit."
-		echo ""
-        echo "You chose ${CLIENTDISK}. Is this correct?"
+        echo "You chose ${CLIENTDISK}."
         read -p "Press Enter to confirm...."
         echo ""
         break
