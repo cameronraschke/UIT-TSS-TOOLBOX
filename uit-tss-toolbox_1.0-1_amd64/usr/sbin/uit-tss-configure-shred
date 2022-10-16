@@ -672,11 +672,38 @@ function gutmann {
 	echo "[25/35] Writing pattern 11111111 to ${CLIENTDISK}"
 	/usr/bin/yes "11111111" | (pv > /dev/${CLIENTDISK})
 
-	echo "[26/35] Writing pattern 11111111 to ${CLIENTDISK}"
-	/usr/bin/yes "11111111" | (pv > /dev/${CLIENTDISK})
+	echo "[26/35] Writing pattern 10010010 to ${CLIENTDISK}"
+	/usr/bin/yes "10010010" | (pv > /dev/${CLIENTDISK})
+
+	echo "[27/35] Writing pattern 01001001 to ${CLIENTDISK}"
+	/usr/bin/yes "01001001" | (pv > /dev/${CLIENTDISK})
+
+	echo "[28/35] Writing pattern 00100100 to ${CLIENTDISK}"
+	/usr/bin/yes "00100100" | (pv > /dev/${CLIENTDISK})
+
+	echo "[29/35] Writing pattern 01101101 to ${CLIENTDISK}"
+	/usr/bin/yes "01101101" | (pv > /dev/${CLIENTDISK})
+
+	echo "[30/35] Writing pattern 10110110 to ${CLIENTDISK}"
+	/usr/bin/yes "10110110" | (pv > /dev/${CLIENTDISK})
+
+	echo "[31/35] Writing pattern 11011011 to ${CLIENTDISK}"
+	/usr/bin/yes "11011011" | (pv > /dev/${CLIENTDISK})
+
+	echo "[32/35] Writing a pass of a random bit (${RANDOMBIT5}) to ${CLIENTDISK}"
+	/usr/bin/yes "${RANDOMBIT5}" | (pv > /dev/${CLIENTDISK})
+
+	echo "[33/35] Writing a pass of a random bit (${RANDOMBIT6}) to ${CLIENTDISK}"
+	/usr/bin/yes "${RANDOMBIT6}" | (pv > /dev/${CLIENTDISK})
+
+	echo "[34/35] Writing a pass of a random bit (${RANDOMBIT7}) to ${CLIENTDISK}"
+	/usr/bin/yes "${RANDOMBIT7}" | (pv > /dev/${CLIENTDISK})
+
+	echo "[35/35] Writing a pass of a random bit (${RANDOMBIT8}) to ${CLIENTDISK}"
+	/usr/bin/yes "${RANDOMBIT8}" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
-	echo "The drive ${CLIENTDISK} is erased in accordance with Schneier's method."
+	echo "The drive ${CLIENTDISK} is erased in accordance with Gutmann's method."
 }
 
 
@@ -723,6 +750,10 @@ function schneier {
 
 function execute {
 	start_time=$SECONDS
+
+	if [[ ! -z $MODE ]]; then
+	modeselect
+	fi
 	
 	if [[ $MODE == 'default' ]]; then
 	default
