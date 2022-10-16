@@ -117,7 +117,6 @@ nvme-cli
 procps
 coreutils
 pv
-hexdump
 EOF
 
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
@@ -323,7 +322,7 @@ function diskselect {
     echo "These are the current disks and their sizes:"
     echo "$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)"
     echo ""
-    echo "Which disk do you want to ${ACTION}?"
+    echo "Which disk do you want to erase?"
     PS3="Select a drive: "
     select CLIENTDISK in ${DISKNAMES}
     do
