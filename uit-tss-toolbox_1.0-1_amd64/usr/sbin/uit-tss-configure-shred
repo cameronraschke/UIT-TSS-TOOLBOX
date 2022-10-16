@@ -789,7 +789,7 @@ function execute {
 
 function terminate {
 	elapsed=$(( SECONDS - start_time ))
-	TIME=$(date -d@$elapsed -u +'%H hours and %M minutes')
+	TIME=$(date -d@$elapsed -u +'%d Days %H hours and %M minutes')
 	echo ""
 	echo ""
 	echo "--------------------"
