@@ -355,28 +355,18 @@ function default {
 	echo ""
 
 	echo ""
-	echo "[1/8] Destroying all GPT and MBR data...."
+	echo "[1/6] Destroying all GPT and MBR data...."
 	sleep 1
 	/usr/sbin/sgdisk --zap-all /dev/${CLIENTDISK} &>/dev/null
 
 	echo ""
-	echo "[2/8] Writing pattern 01010101 on ${CLIENTDISK}...."
-	sleep 1
-	/usr/bin/yes "01" | (pv > /dev/${CLIENTDISK})
-
-	echo ""
-	echo "[3/8] Writing pattern 10101010 on ${CLIENTDISK}...."
-	sleep 1
-	/usr/bin/yes "10" | (pv > /dev/${CLIENTDISK})
-
-	echo ""
-	echo "[4/8] Writing a stream of random characters to ${CLIENTDISK}...."
+	echo "[2/6] Writing a stream of random characters to ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
-	echo "[5/8] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	echo "[3/6] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
@@ -384,28 +374,28 @@ function default {
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo ""
-	echo "[5/8] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	echo "[4/6] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-	echo "[5/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
+	echo "[4/6] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
 	fi
 
 	echo ""
-	echo "[6/8] Writing a stream of zeroes to ${CLIENTDISK}...."
+	echo "[4/6] Writing a stream of zeroes to ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 
 	echo ""
-	echo "[7/8] Discarding and deleting all sectors on ${CLIENTDISK}...."
+	echo "[5/6] Discarding and deleting all sectors on ${CLIENTDISK}...."
 	sleep 1
 	/usr/sbin/blkdiscard /dev/${CLIENTDISK} &>/dev/null
 
 	echo ""
-	echo "[8/8] Verifying - searching all sectors on ${CLIENTDISK} for non-zero bits...."
+	echo "[6/6] Verifying - searching all sectors on ${CLIENTDISK} for non-zero bits...."
 	HEXVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' &> /dev/null | head -1)
 
 	if [[ ! -z $HEXVERIFY ]]; then
@@ -434,7 +424,7 @@ function fast {
 
 	echo ""
 	echo ""
-	echo "Done."
+	echo "The drive ${CLIENTDISK} is erased using the Write Zero method."
 }
 
 
@@ -465,11 +455,12 @@ function secureerase {
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
 	echo ""
 	echo "[1/1] Error: No SATA or NVME drive was selected, cannot use Secure Erase. Please use another mode. Exiting...."
+	exit 1
 	fi
 
 	echo ""
 	echo ""
-	echo "Done."
+	echo "The drive ${CLIENTDISK} is erased using the Secure Erase method."
 }
 
 
@@ -520,10 +511,12 @@ function dod {
 
 	if [[ ! -z $ZEROVERIFY && ! -z $ONEVERIFY && ! -z $RBITVERIFY ]]; then
         echo ""
+		echo ""
         echo "Bad bits found on device ${CLIENTDISK}. Test has failed."
 		exit 1
 	else
         echo ""
+		echo ""
 		echo "The drive ${CLIENTDISK} is erased in accordance with DOD 5220.22-M."
 	fi
 }
@@ -570,10 +563,12 @@ function rcmp {
 	RBITVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${RANDOMBIT}]" &> /dev/null | head -1)
 	if [[ ! -z $RBITVERIFY ]]; then
         echo ""
+		echo ""
         echo "Bits found on device ${CLIENTDISK} that weren't ${RANDOMBIT}'s. Test has failed."
 		exit 1
 	fi
 
+	echo ""
 	echo ""
 	echo "The drive ${CLIENTDISK} is erased in accordance with RCMP TSSIT OPS-II."
 }
@@ -702,7 +697,8 @@ function gutmann {
 	/usr/bin/yes "${RANDOMBIT8}" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
-	echo "The drive ${CLIENTDISK} is erased in accordance with Gutmann's method."
+	echo ""
+	echo "The drive ${CLIENTDISK} is erased using Gutmann's method."
 }
 
 
@@ -742,7 +738,8 @@ function schneier {
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 
 	echo ""
-	echo "The drive ${CLIENTDISK} is erased in accordance with Schneier's method."
+	echo ""
+	echo "The drive ${CLIENTDISK} is erased using Schneier's method."
 }
 
 
