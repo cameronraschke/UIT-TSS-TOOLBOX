@@ -284,6 +284,7 @@ function modeselect {
 	-A pass of 1's then a pass of 0's
 	-Five passes of a random stream of characters"
 
+	echo ""
 	read -n1 -p "Choose [1-7] " MODE
 	echo ""
 	case $MODE in
@@ -802,8 +803,8 @@ function terminate {
 
 
 intro
-diskselect
 modeselect
+diskselect
 execute
 terminate
 EOF
