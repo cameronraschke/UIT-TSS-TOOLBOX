@@ -58,7 +58,7 @@ UI vesamenu.c32
 
 MENU TITLE Boot Menu
 DEFAULT linux
-        TIMEOUT 0
+        TIMEOUT 10
         MENU RESOLUTION 640 480
         SAY Now booting into UIT-TSS-CLONE by Cameron Raschke
 label linux
