@@ -328,9 +328,11 @@ function diskselect {
     select CLIENTDISK in ${DISKNAMES}
     do
         if [[ $CLIENTDISK =~ sd.* || $CLIENTDISK =~ nvme.* ]]; then
+		echo ""
         echo "$(lsblk /dev/${CLIENTDISK} -o NAME,SIZE,TYPE,MOUNTPOINT)"
 		echo "*** WARNING *** There is no going back once you confirm. \
 Press CTRL + C to exit."
+		echo ""
         echo "You chose ${CLIENTDISK}. Is this correct?"
         read -p "Press Enter to confirm...."
         echo ""
@@ -358,12 +360,12 @@ function default {
 	/usr/sbin/sgdisk --zap-all /dev/${CLIENTDISK} &>/dev/null
 
 	echo ""
-	echo "[2/8] First pass - using pattern 01010101 on ${CLIENTDISK}...."
+	echo "[2/8] Writing pattern 01010101 on ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/yes "01" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
-	echo "[3/8] Second pass - using pattern 10101010 on ${CLIENTDISK}...."
+	echo "[3/8] Writing pattern 10101010 on ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/yes "10" | (pv > /dev/${CLIENTDISK})
 
@@ -390,12 +392,10 @@ function default {
 
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
 	echo "[5/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
-	else
-	echo "[5/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
 	fi
 
 	echo ""
-	echo "[6/8] Using the Write Zero method on ${CLIENTDISK}...."
+	echo "[6/8] Writing a stream of zeroes to ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 
@@ -781,7 +781,6 @@ function execute {
 	if [[ $MODE == 'schneier' ]]; then
 	schneier
 	fi
-
 }
 
 
