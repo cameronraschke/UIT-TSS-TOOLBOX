@@ -366,10 +366,15 @@ function default {
 	echo "[3/8] Second pass - using pattern 10101010 on ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/yes "10" | (pv > /dev/${CLIENTDISK})
+
+	echo ""
+	echo "[4/8] Writing a stream of random characters to ${CLIENTDISK}...."
+	sleep 1
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
-	echo "[4/8] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	echo "[5/8] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
@@ -377,22 +382,17 @@ function default {
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo ""
-	echo "[4/8] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	echo "[5/8] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-	echo "[4/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
+	echo "[5/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
 	else
-	echo "[4/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
+	echo "[5/8] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
 	fi
-
-	echo ""
-	echo "[5/8] Writing a stream of random characters to ${CLIENTDISK}...."
-	sleep 1
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 
 	echo ""
 	echo "[6/8] Using the Write Zero method on ${CLIENTDISK}...."
@@ -789,7 +789,7 @@ function execute {
 
 function terminate {
 	elapsed=$(( SECONDS - start_time ))
-	TIME=$(date -d@$elapsed -u +'%d Days %H hours and %M minutes')
+	TIME=$(eval "echo $(date -ud "@$elapsed" +'$((%s/3600/24)) days %H hours and %M minutes')")
 	echo ""
 	echo ""
 	echo "--------------------"
