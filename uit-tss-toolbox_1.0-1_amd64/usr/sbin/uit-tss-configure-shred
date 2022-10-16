@@ -351,12 +351,12 @@ function default {
 	echo ""
 	echo "[2/8] First pass - using pattern 01010101 on ${CLIENTDISK}...."
 	sleep 1
-	cat /dev/zero "01010101" | (pv > /dev/${CLIENTDISK})
+	/usr/bin/yes "01" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
 	echo "[3/8] Second pass - using pattern 10101010 on ${CLIENTDISK}...."
 	sleep 1
-	/usr/bin/yes "10101010" | (pv > /dev/${CLIENTDISK})
+	/usr/bin/yes "10" | (pv > /dev/${CLIENTDISK})
 	
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
@@ -472,9 +472,9 @@ function gutmann {
 	echo "UIT-TSS-SHRED running in Gutmann mode."
 
 	#01010101.....
-	cat /dev/zero | tr '\000' '\001' | xxd -p
+	cat /dev/zero | tr '\000' '\001' | xxd -p | (pv /dev/${CLIENTDISK})
 	#10101010.....
-	cat /dev/zero | tr '\000' '\020' | xxd -p
+	cat /dev/zero | tr '\000' '\020' | xxd -p | (pv /dev/${CLIENTDISK})
 }
 
 function gutmann
