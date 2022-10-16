@@ -199,6 +199,8 @@ SSD_REGEX='sd.*'
 NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'
 
+
+
 function intro {
 	clear
 	echo ""
@@ -238,6 +240,8 @@ echo 'Checklist:
 	echo -n mem > /sys/power/state
 	clear
 }
+
+
 
 function modeselect {
 	echo ""
@@ -311,6 +315,8 @@ function modeselect {
 	esac
 }
 
+
+
 function diskselect {
 	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
 	echo ""
@@ -337,6 +343,8 @@ Press CTRL + C to exit. *** WARNING ***"
         fi
     done
 }
+
+
 
 function default {
 	clear
@@ -397,10 +405,7 @@ function default {
 
 	echo ""
 	echo "[8/8] Verifying - searching all sectors on ${CLIENTDISK} for non-zero bits...."
-	HEXVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | /usr/bin/xxd -plain | grep -oP -m 1 '[^0\ ]' | head -1)
-
-	/usr/bin/xxd -plain /dev/${CLIENTDISK} | head -50 | grep -oP '[^0]' | sed -z '/[[:space:]]/ s/[[:space:]]//g' | pv --quiet -L 200
-	echo""
+	HEXVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' &> /dev/null | head -1)
 
 	if [[ ! -z $HEXVERIFY ]]; then
         echo ""
@@ -413,6 +418,8 @@ function default {
 	fi
 }
 
+
+
 function fast {
 	clear
 	echo ""
@@ -422,13 +429,19 @@ function fast {
 	echo "[1/1] Using the Write Zero method on ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
+
+	echo ""
+	echo ""
+	echo "Done."
 }
+
+
 
 function secureerase {
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in Secure Erase mode."
-	echo "Warning: This mode will only work on newer SATA/NVME drives."
+	echo "Notice: This mode will only work on newer SATA/NVME drives."
 
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
@@ -451,20 +464,74 @@ function secureerase {
 	else
 	echo "[1/1] Error: No SATA or NVME drive was selected, cannot use Secure Erase. Please use another mode. Exiting...."
 	fi
+
+	echo ""
+	echo ""
+	echo "Done."
 }
+
+
 
 function dod {
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in DOD 5220.22-M mode."
 
+	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+
+	echo ""
+	echo "Writing a pass of all 0's"
+	pv < /dev/zero > /dev/${CLIENTDISK}
+	echo ""
+	echo "Verifying disk - checking for 0's...."
+	ZEROVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' &> /dev/null | head -1)
+	if [[ ! -z $ZEROVERIFY ]]; then
+        echo ""
+        echo "Bits found on device ${CLIENTDISK} that weren't 0's. Test has failed."
+		exit 1
+	fi
+
+	echo ""
 	echo "Writing a pass of all 1's"
-	cat /dev/zero | /usr/bin/tr '\000' '\061' | (pv > /dev/${CLIENTDISK})
+	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+	echo ""
+	echo "Verifying disk - checking for 1's...."
+	ONEVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^1]' &> /dev/null | head -1)
+	if [[ ! -z $ONEVERIFY ]]; then
+        echo ""
+        echo "Bits found on device ${CLIENTDISK} that weren't 1's. Test has failed."
+		exit 1
+	fi
+
+	echo ""
+	echo "Writing a pass of a random bit (${RANDOMBIT})"
+	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
+	echo ""
+	echo "Verifying disk - checking for the random bit (${RANDOMBIT})'s...."
+	RBITVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${RANDOMBIT}]" &> /dev/null | head -1)
+	if [[ ! -z $RBITVERIFY ]]; then
+        echo ""
+        echo "Bits found on device ${CLIENTDISK} that weren't ${RANDOMBIT}'s. Test has failed."
+		exit 1
+	fi
+
+	if [[ ! -z $ZEROVERIFY && ! -z $ONEVERIFY && ! -z $RBITVERIFY ]]; then
+        echo ""
+        echo "Bad bits found on device ${CLIENTDISK}. Test has failed."
+		exit 1
+	else
+        echo ""
+		echo "The drive ${CLIENTDISK} is erased and verified."
+	fi
 }
+
+
 
 function rcmp {
 
 }
+
+
 
 function gutmann {
 	clear
@@ -472,12 +539,12 @@ function gutmann {
 	echo "UIT-TSS-SHRED running in Gutmann mode."
 
 	#01010101.....
-	cat /dev/zero | tr '\000' '\001' | xxd -p | (pv /dev/${CLIENTDISK})
+	#cat /dev/zero | tr '\000' '\001' | xxd -p | (pv /dev/${CLIENTDISK})
 	#10101010.....
-	cat /dev/zero | tr '\000' '\020' | xxd -p | (pv /dev/${CLIENTDISK})
+	#cat /dev/zero | tr '\000' '\020' | xxd -p | (pv /dev/${CLIENTDISK})
 }
 
-function gutmann
+
 
 function execute {
 	start_time=$SECONDS
@@ -512,6 +579,8 @@ function execute {
 
 }
 
+
+
 function terminate {
 	elapsed=$(( SECONDS - start_time ))
 	TIME=$(date -d@$elapsed -u +'%H hours and %M minutes')
@@ -524,6 +593,8 @@ function terminate {
 	read -p "Press Enter to shutdown..."
 	poweroff
 }
+
+
 
 intro
 diskselect
