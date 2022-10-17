@@ -445,14 +445,14 @@ function fast {
 	DISKVERIFY9=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 8)) | grep -oP -m 1 [^0] &> /dev/null | head -1)
 	DISKVERIFY10=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 9)) | grep -oP -m 1 [^0] &> /dev/null | head -1)
 	
-	#if [[ ! -z $DISKVERIFY{1-10} ]]; then
-	#echo ""
-	#echo ""
-	#echo "Test failed for drive ${CLIENTDISK}. Please run the test again. Exiting...."
-	#else
-	#echo ""
-	#echo ""
-	#echo "The drive ${CLIENTDISK} is erased using the Write Zero method."
+	if [[ ! -z $DISKVERIFY{1..10} ]]; then
+	echo ""
+	echo ""
+	echo "Verification test failed for drive ${CLIENTDISK}. Exiting...."
+	else
+	echo ""
+	echo ""
+	echo "The drive ${CLIENTDISK} is erased using the Write Zero method."
 }
 
 
