@@ -253,13 +253,11 @@ function modeselect {
 	echo ""
 	echo "2 Zero Mode + Quick Verify
 	-One pass of zeroes
-	-Fastest for SATA"
+	-Quick verification step"
 
 	echo ""
 	echo "3 Secure Erase
-	-Firmware zeroing
 	-SATA/NVME Only
-	-Fastest for NVME
 	-One pass, real-time verification"
 
 	echo ""
@@ -292,8 +290,8 @@ function modeselect {
 	RMODE='Default'
 	;;
 	2)
-	MODE='fast'
-	RMODE='Fast'
+	MODE='zero'
+	RMODE='Zero Mode'
 	;;
 	3)
 	MODE='secureerase'
@@ -417,10 +415,10 @@ function default {
 
 
 
-function fast {
+function zero {
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in fast mode."
+	echo "UIT-TSS-SHRED running in zero mode."
 	echo ""
 
 	echo ""
@@ -434,16 +432,16 @@ function fast {
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1048576 ))
 	DISKVERIFYSIZE=$(( ${DISKSIZEMB} / 10 ))
 	
-	DISKVERIFY1=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY2=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 1)) | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY3=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 2)) | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY4=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 3)) | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY5=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 4)) | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY6=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 5)) | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY7=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 6)) | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY8=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 7)) | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY9=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 8)) | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY10=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 9)) | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY1=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY2=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 1)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY3=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 2)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY4=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 3)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY5=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 4)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY6=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 5)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY7=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 6)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY8=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 7)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY9=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 8)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY10=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 9)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
 	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
 	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
 	
@@ -781,8 +779,8 @@ function execute {
 	default
 	fi
 
-	if [[ $MODE == 'fast' ]]; then
-	fast
+	if [[ $MODE == 'zero' ]]; then
+	zero
 	fi
 
 	if [[ $MODE == 'secureerase' ]]; then
