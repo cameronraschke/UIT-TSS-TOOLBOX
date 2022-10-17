@@ -431,7 +431,7 @@ function fast {
 	echo ""
 	echo "[2/2] Quickly verifying disk ${CLIENTDISK}...."
 	
-	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK) / 1048576 ))
+	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1048576 ))
 	DISKVERIFYSIZE=$(( ${DISKSIZEMB} / 10 ))
 	
 	DISKVERIFY1=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 | grep -oP -m 1 [^0] | head -1)
