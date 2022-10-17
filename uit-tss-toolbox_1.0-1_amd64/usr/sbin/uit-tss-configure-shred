@@ -248,7 +248,7 @@ function modeselect {
 
 	echo ""
 	echo "1 Default 
-	-Mixture of modes
+	-Mixture of modes"
 
 	echo ""
 	echo "2 Zero mode 
