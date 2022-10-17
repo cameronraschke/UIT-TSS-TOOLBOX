@@ -251,7 +251,7 @@ function modeselect {
 	-Mixture of modes"
 
 	echo ""
-	echo "2 Zero mode 
+	echo "2 Zero Mode + Quick Verify
 	-One pass of zeroes
 	-Fastest for SATA"
 
@@ -424,9 +424,18 @@ function fast {
 	echo ""
 
 	echo ""
-	echo "[1/1] Using the Write Zero method on ${CLIENTDISK}...."
+	echo "[1/2] Using the Write Zero method on ${CLIENTDISK}...."
 	sleep 1
 	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
+	
+	echo ""
+	echo "[2/2] Quickly verifying disk ${CLIENTDISK}...."
+	
+	#DISKVERIFY1=$(pv /dev/${CLIENTDISK} | /usr/bin/dd bs=1000000 count=100 | grep -oP -m 1 [^0] | head -1)
+	#DISKVERIFY2=$(pv /dev/${CLIENTDISK} | /usr/bin/dd bs=1000000 count=100 skip=25000 | grep -oP -m 1 [^0] | head -1)
+	#DISKVERIFY3=$(pv /dev/${CLIENTDISK} | /usr/bin/dd bs=1000000 count=100 skip=50000 | grep -oP -m 1 [^0] | head -1)
+	#DISKVERIFY4=$(pv /dev/${CLIENTDISK} | /usr/bin/dd bs=1000000 count=100 skip=75000 | grep -oP -m 1 [^0] | head -1)
+	#DISKVERIFY5=$(pv /dev/${CLIENTDISK} | /usr/bin/dd bs=1000000 count=100 skip=100000 | grep -oP -m 1 [^0] | head -1)
 
 	echo ""
 	echo ""
