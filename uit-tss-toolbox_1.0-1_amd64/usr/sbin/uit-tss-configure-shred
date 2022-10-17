@@ -273,15 +273,15 @@ function modeselect {
 	-Writes random bit, verifies random bit"
 
 	echo ""
-	echo "6 Gutmann
+	echo "6 Schneier
+	-A pass of 1's then a pass of 0's
+	-Five passes of a random stream of characters"
+
+	echo ""
+	echo "7 Gutmann
 	-Four random character passes
 	-27 predefined pattern passes
 	-Four random character passes"
-
-	echo ""
-	echo "7 Schneier
-	-A pass of 1's then a pass of 0's
-	-Five passes of a random stream of characters"
 
 	echo ""
 	read -n1 -p "Choose [1-7] " MODESELECT
@@ -289,24 +289,31 @@ function modeselect {
 	case $MODESELECT in
 	1)
 	MODE='default'
+	RMODE='Default'
 	;;
 	2)
 	MODE='fast'
+	RMODE='Fast'
 	;;
 	3)
 	MODE='secureerase'
+	RMODE='Secure Erase'
 	;;
 	4)
 	MODE='dod'
+	RMODE='DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5'
 	;;
 	5)
 	MODE='rcmp'
+	RMODE='RCMP TSSIT OPS-II/VSITR'
 	;;
 	6)
-	MODE='gutmann'
+	MODE='schneier'
+	RMODE='Schneier Method'
 	;;
 	7)
-	MODE='schneier'
+	MODE='gutmann'
+	RMODE='Gutmann Method'
 	;;
 	*)
 	modeselect
@@ -320,7 +327,7 @@ function diskselect {
 	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
 	clear
 	echo ""
-	echo "Mode is ${MODE}"
+	echo "The mode is: ${RMODE}"
 	echo ""
     echo "These are the current disks and their sizes:"
     echo "$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)"
@@ -574,6 +581,47 @@ function rcmp {
 
 
 
+function schneier {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in Schneier mode."
+	echo ""
+
+	echo ""
+	echo "[1/7] Writing a pass of 1's to ${CLIENTDISK}"
+	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+
+	echo ""
+	echo "[2/7] Writing a pass of 0's to ${CLIENTDISK}"
+	pv < /dev/zero > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[3/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[4/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[5/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[6/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo "[7/7] Writing a stream of random characters to ${CLIENTDISK}."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+
+	echo ""
+	echo ""
+	echo "The drive ${CLIENTDISK} is erased using Schneier's method."
+}
+
+
+
 function gutmann {
 	clear
 	echo ""
@@ -702,53 +750,8 @@ function gutmann {
 
 
 
-function schneier {
-	clear
-	echo ""
-	echo "UIT-TSS-SHRED running in Schneier mode."
-	echo ""
-
-	echo ""
-	echo "[1/7] Writing a pass of 1's to ${CLIENTDISK}"
-	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
-
-	echo ""
-	echo "[2/7] Writing a pass of 0's to ${CLIENTDISK}"
-	pv < /dev/zero > /dev/${CLIENTDISK}
-
-	echo ""
-	echo "[3/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
-
-	echo ""
-	echo "[4/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
-
-	echo ""
-	echo "[5/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
-
-	echo ""
-	echo "[6/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
-
-	echo ""
-	echo "[7/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
-
-	echo ""
-	echo ""
-	echo "The drive ${CLIENTDISK} is erased using Schneier's method."
-}
-
-
-
 function execute {
 	start_time=$SECONDS
-
-	if [[ -z $MODE ]]; then
-	modeselect
-	fi
 	
 	if [[ $MODE == 'default' ]]; then
 	default
