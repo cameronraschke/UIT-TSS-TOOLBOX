@@ -453,6 +453,7 @@ function zero {
 	echo ""
 	echo ""
 	echo "The drive ${CLIENTDISK} is erased using the Write Zero method."
+	fi
 }
 
 
