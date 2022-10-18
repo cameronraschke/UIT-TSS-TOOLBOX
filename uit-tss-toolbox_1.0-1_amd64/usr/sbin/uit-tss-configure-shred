@@ -400,14 +400,15 @@ function default {
 
 	echo ""
 	echo "[6/6] Verifying - searching all sectors on ${CLIENTDISK} for non-zero bits...."
-	HEXVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' &> /dev/null | head -1)
+	HEXVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' | head -1)
 
-	if [[ ! -z $HEXVERIFY ]]; then
+	if [[ -z $HEXVERIFY ]]; then
         echo ""
+	echo ""
         echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
-		exit 1
 	else
         echo ""
+	echo ""
 		echo "The drive ${CLIENTDISK} is completely and securely wiped."
 		echo "Test passed successfully!"
 	fi
