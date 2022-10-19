@@ -624,7 +624,8 @@ function dod {
 
 	echo ""
 	echo "[1/6] Writing a pass of 0's to ${CLIENTDISK}"
-	pv < /dev/zero > /dev/${CLIENTDISK}
+	zerofull
+	
 	echo ""
 	echo "[2/6] Verifying disk ${CLIENTDISK} - checking for 0's...."
 	VRFYCHAR='0'
@@ -632,7 +633,9 @@ function dod {
 
 	echo ""
 	echo "[3/6] Writing a pass of 1's to ${CLIENTDISK}"
-	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+	SELBIT='1'
+	charfull
+	
 	echo ""
 	echo "[4/6] Verifying disk ${CLIENTDISK} - checking for 1's...."
 	VRFYCHAR='1'
@@ -640,7 +643,9 @@ function dod {
 
 	echo ""
 	echo "[5/6] Writing a pass of a random bit (${RANDOMBIT}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
+	SELBIT=${RANDBIT}
+	charfull
+	
 	echo ""
 	echo "[6/6] Verifying disk ${CLIENTDISK} - checking for the random bit (${RANDOMBIT})...."
 	VRFYCHAR="${RANDOMBIT}"
@@ -654,9 +659,6 @@ function rcmp {
 	echo ""
 	echo "UIT-TSS-SHRED running in RCMP TSSIT OPS-II mode."
 	echo ""
-
-	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-	VRFYCHAR=${RANDOMBIT}
 
 	echo ""
 	echo "[1/8] Writing a pass of 0's to ${CLIENTDISK}"
@@ -683,23 +685,18 @@ function rcmp {
 	echo ""
 	echo "[6/8] Writing a pass of 1's to ${CLIENTDISK}"
 	SELCHAR='1'
+	charfull
 
 	echo ""
 	echo "[7/8] Writing a pass of a random bit (${RANDOMBIT}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
+	randbit
+	SELCHAR=${RANDBIT}
+	charfull
+	
 	echo ""
 	echo "[8/8] Verifying disk - checking ${CLIENTDISK} for the random bit (${RANDOMBIT})'s...."
-	RBITVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${RANDOMBIT}]" &> /dev/null | head -1)
-	if [[ ! -z $RBITVERIFY ]]; then
-        echo ""
-		echo ""
-        echo "Bits found on device ${CLIENTDISK} that weren't ${RANDOMBIT}'s. Test has failed."
-		exit 1
-	fi
-
-	echo ""
-	echo ""
-	echo "The drive ${CLIENTDISK} is erased in accordance with RCMP TSSIT OPS-II."
+	VRFYCHAR=${RANDBIT}
+	vrfyfull
 }
 
 
