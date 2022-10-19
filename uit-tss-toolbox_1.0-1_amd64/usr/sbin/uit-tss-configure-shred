@@ -470,6 +470,7 @@ function vrfyfast {
 
 
 function vrfycustom {
+	echo -n ""
 }
 
 
@@ -914,6 +915,7 @@ function execute {
 	fi
 	
 	if [[ $MODE == 'verify' ]]; then
+	echo -n ""
 	fi
 }
 
