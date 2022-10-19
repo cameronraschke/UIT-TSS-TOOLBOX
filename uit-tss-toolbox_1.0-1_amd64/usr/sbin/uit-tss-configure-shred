@@ -548,7 +548,7 @@ function vrfynist {
 	DISKVRFY=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
 	i=$(( $i + 1 ))
 
-	if [[ -z $DISKVRFY ]]; then
+	if [[ -z $DISKVRFY && $VRFYFAIL=='0']]; then
 	:
 	else
 	VRFYFAIL='1'
@@ -559,10 +559,11 @@ function vrfynist {
 	fi
 	done
 
-	VRFYFAIL='0'
+	if [[ $VRFYFAIL=='0' ]]; then
 	echo ""
 	echo ""
     echo "${VRFYCOUNTGB}GB over ${VRFYSECTIONS} different locations of ${CLIENTDISK} have been successfully verified."
+	fi
 }
 
 
