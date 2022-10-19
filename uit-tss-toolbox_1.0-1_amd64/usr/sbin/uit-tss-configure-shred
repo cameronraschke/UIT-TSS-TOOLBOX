@@ -355,6 +355,21 @@ function diskselect {
 }
 
 
+function randhalf {
+
+}
+
+
+function randfull {
+
+}
+
+
+function zerofull {
+
+}
+
+
 
 function fullverify {
 	DISKVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${VRFYCHAR}]" | head -1)
@@ -382,7 +397,7 @@ function mediumverify {
 
 	echo ""
 	echo ""
-	echo "Looking for ${VRFYCHAR}'s on ${CLIENTDISK}...."
+	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
 
 	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} &> /dev/null | grep -oP -m 1 [^0] | head -1)
 	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
@@ -400,7 +415,7 @@ function mediumverify {
 	if [[ -z $DISKVERIFY ]]; then
         echo ""
 	echo ""
-        echo "${VRFYCOUNTGB}GB in ${VRFYSECTIONS} different sections of ${CLIENTDISK} have been successfully verified."
+        echo "${VRFYCOUNTGB}GB over ${VRFYSECTIONS} different sections of ${CLIENTDISK} have been successfully verified."
 	else
         echo ""
 	echo ""
@@ -421,24 +436,22 @@ function customverify {
 
 
 function default {
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	RANDWRITESIZE=$(( ${DISKSIZEGB} / 2 ))
+
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in default mode."
 	echo ""
-
+	
 	echo ""
-	echo "[1/6] Destroying all GPT and MBR data...."
+	echo "[1/3] Writing a stream of random characters to ${CLIENTDISK}...."
 	sleep 1
-	/usr/sbin/sgdisk --zap-all /dev/${CLIENTDISK} &>/dev/null
-
-	echo ""
-	echo "[2/6] Writing a stream of random characters to ${CLIENTDISK}...."
-	sleep 1
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	/usr/bin/pv --size ${RANDWRITESIZE}g --stop-at-size < /dev/urandom > /dev/${CLIENTDISK}
 	
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	echo ""
-	echo "[3/6] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	echo "[2/3] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
@@ -446,30 +459,26 @@ function default {
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 	echo ""
-	echo "[3/6] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	echo "[2/3] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
 	sleep 1
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
 	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-	echo "[3/6] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
+	echo "[2/3] No SATA or NVME drive was selected, cannot use Secure Erase. Continuing...."
 	fi
 
 	echo ""
-	echo "[4/6] Writing a stream of zeroes to ${CLIENTDISK}...."
-	sleep 1
-	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
-
-	echo ""
-	echo "[5/6] Discarding and deleting all sectors on ${CLIENTDISK}...."
-	sleep 1
-	/usr/sbin/blkdiscard /dev/${CLIENTDISK} &>/dev/null
-
-	echo ""
-	echo "[6/6] Verifying - searching all sectors on ${CLIENTDISK} for non-zero bits...."
+	echo "[3/3] Verifying - searching all sectors on ${CLIENTDISK} for non-zero bits...."
 	VRFYCHAR='0'
-	fullverify
+	mediumverify
+	
+	if [[ ! -z $DISKVERIFY ]]; then
+	echo ""
+	echo "Zeroing disk ${CLIENTDISK}"
+	
+	fi
 }
 
 
@@ -488,18 +497,8 @@ function zero {
 	echo ""
 	echo "[2/2] Quickly verifying disk ${CLIENTDISK}...."
 	
-	quickverify
 	VRFYCHAR='0'
-	
-	if [[ ! -z $DISKVERIFY ]]; then
-	echo ""
-	echo ""
-	echo "Verification test failed for drive ${CLIENTDISK}. Exiting...."
-	else
-	echo ""
-	echo ""
-	echo "The drive ${CLIENTDISK} is erased using the Write Zero method."
-	fi
+	quickverify
 }
 
 
