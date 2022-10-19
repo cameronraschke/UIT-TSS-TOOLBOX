@@ -246,7 +246,7 @@ function modeselect {
 	echo "Choose a mode:"
 
 	echo ""
-	echo "1 Default 
+	echo "1 NIST SP 800-88 (Default)
 	-Mixture of modes"
 
 	echo ""
@@ -525,6 +525,45 @@ function vrfyfull {
 	fi
 }
 
+
+
+function vrfynist {
+	VRFYSECTIONS='1000'
+	VRFYCOUNT='20'
+	VRFYCOUNTGB=$(( ${VRFYCOUNT} / 1000 ))
+	VRFYBS='1000000'
+	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
+	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
+	i='0'
+
+	echo ""
+	echo ""
+	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
+	
+	while [[ i -le 1000 ]]; do
+	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
+	DISKVRFY=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+
+	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} + $(shuf -i 1-${DISKVRFYAMOUNT} -n 1) ))
+	DISKVRFY=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	i=$(( $i + 1 ))
+
+	if [[ -z $DISKVRFY ]]; then
+	:
+	else
+	VRFYFAIL='1'
+    echo ""
+	echo ""
+	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+	break
+	fi
+	done
+
+	VRFYFAIL='0'
+	echo ""
+	echo ""
+    echo "${VRFYCOUNTGB}GB over ${VRFYSECTIONS} different locations of ${CLIENTDISK} have been successfully verified."
+}
 
 
 function secerase {
