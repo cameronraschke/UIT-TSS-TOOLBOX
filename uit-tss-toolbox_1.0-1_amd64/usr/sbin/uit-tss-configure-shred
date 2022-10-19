@@ -354,8 +354,10 @@ function diskselect {
     done
 }
 
+
+
 function fullverify {
-	VRFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' | head -1)
+	VRFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${VRFYCHAR}]" | head -1)
 
 	if [[ -z $VRFY ]]; then
         echo ""
@@ -369,8 +371,12 @@ function fullverify {
 	fi
 }
 
+
+
 function mediumverify {
 }
+
+
 
 function fastverify {
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1048576 ))
@@ -390,8 +396,12 @@ function fastverify {
 	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
 }
 
+
+
 function customverify {
 }
+
+
 
 function default {
 	clear
@@ -441,6 +451,7 @@ function default {
 
 	echo ""
 	echo "[6/6] Verifying - searching all sectors on ${CLIENTDISK} for non-zero bits...."
+	VRFYCHAR='0'
 	fullverify
 }
 
@@ -519,6 +530,7 @@ function dod {
 	echo ""
 
 	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+	VRFYCHAR=${RANDOMBIT}
 
 	echo ""
 	echo "[1/6] Writing a pass of 0's to ${CLIENTDISK}"
@@ -577,6 +589,7 @@ function rcmp {
 	echo ""
 
 	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+	VRFYCHAR=${RANDOMBIT}
 
 	echo ""
 	echo "[1/8] Writing a pass of 0's to ${CLIENTDISK}"
