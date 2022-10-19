@@ -294,7 +294,7 @@ function modeselect {
 	RMODE='Zero Mode'
 	;;
 	3)
-	MODE='secureerase'
+	MODE='default'
 	RMODE='Secure Erase Mode'
 	;;
 	4)
@@ -373,7 +373,7 @@ function zerofull {
 
 
 
-function fullverify {
+function vrfyfull {
 	DISKVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${VRFYCHAR}]" | head -1)
 
 	if [[ -z $DISKVERIFY ]]; then
@@ -389,7 +389,7 @@ function fullverify {
 
 
 
-function mediumverify {
+function vrfymedium {
 	VRFYSECTIONS='10'
 	VRFYCOUNT='2000'
 	VRFYCOUNTGB=$(( ${VRFYCOUNT} / 1000 ))
@@ -429,12 +429,47 @@ function mediumverify {
 
 
 
-function fastverify {
+function vrfyfast {
+	VRFYSECTIONS='10'
+	VRFYCOUNT='500'
+	VRFYCOUNTGB=$(( ${VRFYCOUNT} / 1000 ))
+	VRFYBS='1000000'
+	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
+	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
+
+	echo ""
+	echo ""
+	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
+
+	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY3=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 2)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY4=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 3)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY5=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 4)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY6=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 5)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY7=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 6)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY8=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 7)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY9=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 8)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY10=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 9)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
+	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
+	
+	if [[ -z $DISKVERIFY ]]; then
+	VRFYFAIL='0'
+        echo ""
+	echo ""
+        echo "${VRFYCOUNTGB}GB over ${VRFYSECTIONS} different sections of ${CLIENTDISK} have been successfully verified."
+	else
+	VRFYFAIL='1'
+        echo ""
+	echo ""
+	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+	fi
 }
 
 
 
-function customverify {
+function vrfycustom {
 }
 
 
@@ -480,23 +515,27 @@ function default {
 	fi
 
 	echo ""
-	echo "[3/3] Verifying - searching all sectors on ${CLIENTDISK} for non-${VRFYCHAR} bits...."
-	mediumverify
+	echo "[3/3] Verifying - searching sectors on ${CLIENTDISK} for non-${VRFYCHAR} bits...."
+	vrfymedium
 	
 	if [[ $VRFYFAIL=='1' ]]; then
+	echo ""
+	echo ""
 	echo ""
 	echo "[1/2] Verification failed, Zeroing disk ${CLIENTDISK}"
 	zerofull
 	
 	echo ""
-	echo "[2/2] Verifying - searching all sectors on ${CLIENTDISK} for non-${VRFYCHAR} bits...."
-	mediumverify
+	echo "[2/2] Verifying - searching sectors on ${CLIENTDISK} for non-${VRFYCHAR} bits...."
+	vrfymedium
 	fi
 }
 
 
 
 function zero {
+	VRFYCHAR='0'
+	
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in zero mode."
@@ -505,49 +544,12 @@ function zero {
 	echo ""
 	echo "[1/2] Using the Write Zero method on ${CLIENTDISK}...."
 	sleep 1
-	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
+	zerofull
 	
 	echo ""
-	echo "[2/2] Quickly verifying disk ${CLIENTDISK}...."
-	
-	VRFYCHAR='0'
-	quickverify
-}
-
-
-
-function secureerase {
-	clear
-	echo ""
-	echo "UIT-TSS-SHRED running in Secure Erase mode."
-	echo "Notice: This mode will only work on newer SATA/NVME drives."
-	echo ""
-
-	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
-	echo ""
-	echo "[1/1] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
+	echo "[2/2] Verifying - searching sectors on ${CLIENTDISK} for non-${VRFYCHAR} bits...."
 	sleep 1
-	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
-	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
-	fi
-	
-	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-	echo ""
-	echo "[1/1] Using Secure Erase on ${CLIENTDISK}. Please keep the device powered on."
-	sleep 1
-	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
-	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
-	fi
-
-	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-	echo ""
-	echo "[1/1] Error: No SATA or NVME drive was selected, cannot use Secure Erase. Please use another mode. Exiting...."
-	exit 1
-	fi
-
-	echo ""
-	echo ""
-	echo "The drive ${CLIENTDISK} is erased using the Secure Erase method."
+	vrfyfast
 }
 
 
@@ -847,7 +849,7 @@ function verify {
 	-Longest, verifies every bit on the disk"
 	echo ""
 	echo "2 Very fast verification
-	-10 divisions, 1GB verified"
+	-10 divisions, 5GB verified"
 	echo ""
 	echo "3 Medium verification
 	-10 divisions, 20GB verified"
@@ -912,7 +914,6 @@ function execute {
 	fi
 	
 	if [[ $MODE == 'verify' ]]; then
-	verify
 	fi
 }
 
