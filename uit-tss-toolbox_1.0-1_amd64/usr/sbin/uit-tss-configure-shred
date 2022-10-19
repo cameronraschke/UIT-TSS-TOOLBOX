@@ -706,31 +706,32 @@ function schneier {
 
 	echo ""
 	echo "[1/7] Writing a pass of 1's to ${CLIENTDISK}"
-	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='1'
+	charfull
 
 	echo ""
 	echo "[2/7] Writing a pass of 0's to ${CLIENTDISK}"
-	pv < /dev/zero > /dev/${CLIENTDISK}
+	zerofull
 
 	echo ""
 	echo "[3/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	randfull
 
 	echo ""
 	echo "[4/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	randfull
 
 	echo ""
 	echo "[5/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	randfull
 
 	echo ""
 	echo "[6/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	randfull
 
 	echo ""
 	echo "[7/7] Writing a stream of random characters to ${CLIENTDISK}."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	randfull
 
 	echo ""
 	echo ""
@@ -745,51 +746,58 @@ function gutmann {
 	echo "UIT-TSS-SHRED running in Gutmann mode."
 	echo ""
 
-	RANDOMBIT1=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-	RANDOMBIT2=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-	RANDOMBIT3=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-	RANDOMBIT4=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-	RANDOMBIT5=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-	RANDOMBIT6=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-	RANDOMBIT7=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-	RANDOMBIT8=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-
 	echo ""
 	echo "[1/35] Writing a pass of a random bit (${RANDOMBIT1}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT1}" | (pv > /dev/${CLIENTDISK})
+	randbit
+	SELCHAR=${RANDBIT}
+	charfull
 
 	echo "[2/35] Writing a pass of a random bit (${RANDOMBIT2}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT2}" | (pv > /dev/${CLIENTDISK})
+	randbit
+	SELCHAR=${RANDBIT}
+	charfull
 
 	echo "[3/35] Writing a pass of a random bit (${RANDOMBIT3}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT3}" | (pv > /dev/${CLIENTDISK})
+	randbit
+	SELCHAR=${RANDBIT}
+	charfull
 
 	echo "[4/35] Writing a pass of a random bit (${RANDOMBIT4}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT4}" | (pv > /dev/${CLIENTDISK})
+	randbit
+	SELCHAR=${RANDBIT}
+	charfull
 
 	echo "[5/35] Writing pattern 01010101 to ${CLIENTDISK}"
-	/usr/bin/yes "01010101" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='01010101'
+	charfull
 
 	echo "[6/35] Writing pattern 10101010 to ${CLIENTDISK}"
-	/usr/bin/yes "10101010" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='10101010'
+	charfull
 
 	echo "[7/35] Writing pattern 10010010 to ${CLIENTDISK}"
-	/usr/bin/yes "10010010" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='10010010'
+	charfull
 
 	echo "[8/35] Writing pattern 01001001 to ${CLIENTDISK}"
-	/usr/bin/yes "01001001" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='01001001'
+	charfull
 
 	echo "[9/35] Writing pattern 00100100 to ${CLIENTDISK}"
-	/usr/bin/yes "00100100" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='00100100'
+	charfull
 
 	echo "[10/35] Writing pattern 00000000 to ${CLIENTDISK}"
-	/usr/bin/yes "00000000" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='00000000'
+	charfull
 
 	echo "[11/35] Writing pattern 00010001 to ${CLIENTDISK}"
-	/usr/bin/yes "00010001" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='00010001'
+	charfull
 
 	echo "[12/35] Writing pattern 00100010 to ${CLIENTDISK}"
-	/usr/bin/yes "00100010" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='00100010'
+	charfull
 
 	echo "[13/35] Writing pattern 00110011 to ${CLIENTDISK}"
 	/usr/bin/yes "00110011" | (pv > /dev/${CLIENTDISK})
