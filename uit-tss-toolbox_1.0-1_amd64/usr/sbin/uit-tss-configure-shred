@@ -500,12 +500,6 @@ function vrfyfull {
 
 
 
-function custom {
-	echo ""
-}
-
-
-
 function secerase {
 	SSD_REGEX='sd.*'
 	NVME_REGEX='nvme.*'
@@ -605,47 +599,24 @@ function dod {
 	pv < /dev/zero > /dev/${CLIENTDISK}
 	echo ""
 	echo "[2/6] Verifying disk ${CLIENTDISK} - checking for 0's...."
-	ZEROVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' &> /dev/null | head -1)
-	if [[ ! -z $ZEROVERIFY ]]; then
-        echo ""
-        echo "Bits found on device ${CLIENTDISK} that weren't 0's. Test has failed."
-		exit 1
-	fi
+	VRFYCHAR='0'
+	vrfyfull
 
 	echo ""
 	echo "[3/6] Writing a pass of 1's to ${CLIENTDISK}"
 	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
 	echo ""
 	echo "[4/6] Verifying disk ${CLIENTDISK} - checking for 1's...."
-	ONEVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^1]' &> /dev/null | head -1)
-	if [[ ! -z $ONEVERIFY ]]; then
-        echo ""
-        echo "Bits found on device ${CLIENTDISK} that weren't 1's. Test has failed."
-		exit 1
-	fi
+	VRFYCHAR='1'
+	vrfyfull
 
 	echo ""
 	echo "[5/6] Writing a pass of a random bit (${RANDOMBIT}) to ${CLIENTDISK}"
 	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 	echo ""
 	echo "[6/6] Verifying disk ${CLIENTDISK} - checking for the random bit (${RANDOMBIT})...."
-	RBITVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${RANDOMBIT}]" &> /dev/null | head -1)
-	if [[ ! -z $RBITVERIFY ]]; then
-        echo ""
-        echo "Bits found on device ${CLIENTDISK} that weren't ${RANDOMBIT}'s. Test has failed."
-		exit 1
-	fi
-
-	if [[ ! -z $ZEROVERIFY && ! -z $ONEVERIFY && ! -z $RBITVERIFY ]]; then
-        echo ""
-		echo ""
-        echo "Bad bits found on device ${CLIENTDISK}. Test has failed."
-		exit 1
-	else
-        echo ""
-		echo ""
-		echo "The drive ${CLIENTDISK} is erased in accordance with DOD 5220.22-M."
-	fi
+	VRFYCHAR="${RANDOMBIT}"
+	vrfyfull
 }
 
 
