@@ -215,7 +215,6 @@ echo '
 | |____| |  | |     | |
 \________/  | |     | |
 '
-	sleep 1
 	echo ""
 	echo "------------------------------"
 	echo ""
@@ -553,8 +552,6 @@ function secerase {
 
 
 function default {
-	VRFYCHAR='0'
-	
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in default mode."
@@ -575,6 +572,7 @@ function default {
 
 	echo ""
 	echo "[3/3] Verifying - searching sectors on ${CLIENTDISK} for non-${VRFYCHAR} bits...."
+	VRFYCHAR='0'
 	vrfymedium
 	
 	if [[ $VRFYFAIL=='1' ]]; then
@@ -593,8 +591,6 @@ function default {
 
 
 function zero {
-	VRFYCHAR='0'
-	
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in zero mode."
@@ -608,6 +604,7 @@ function zero {
 	echo ""
 	echo "[2/2] Verifying - searching sectors on ${CLIENTDISK} for non-${VRFYCHAR} bits...."
 	sleep 1
+	VRFYCHAR='0'
 	vrfyfast
 }
 
@@ -615,8 +612,7 @@ function zero {
 
 function dod {
 	randbit
-	VRFYCHAR=${RANDBIT}
-
+	
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in DOD 5220.22-M mode."
@@ -648,13 +644,15 @@ function dod {
 	
 	echo ""
 	echo "[6/6] Verifying disk ${CLIENTDISK} - checking for the random bit (${RANDOMBIT})...."
-	VRFYCHAR="${RANDOMBIT}"
+	VRFYCHAR=${RANDBIT}
 	vrfyfull
 }
 
 
 
 function rcmp {
+	randbit
+
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in RCMP TSSIT OPS-II mode."
@@ -689,7 +687,6 @@ function rcmp {
 
 	echo ""
 	echo "[7/8] Writing a pass of a random bit (${RANDOMBIT}) to ${CLIENTDISK}"
-	randbit
 	SELCHAR=${RANDBIT}
 	charfull
 	
