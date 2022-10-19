@@ -404,6 +404,34 @@ function zerofull {
 
 
 
+function charquarter {
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	RANDWRITESIZE=$(( ${DISKSIZEGB} / 4 ))
+	/usr/bin/yes "${SELCHAR}" | (pv > /dev/${CLIENTDISK})
+}
+
+
+
+function charhalf {
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	RANDWRITESIZE=$(( ${DISKSIZEGB} / 2 ))
+	/usr/bin/yes "${SELCHAR}" | (pv > /dev/${CLIENTDISK})
+}
+
+
+
+function charfull {
+	/usr/bin/yes "${SELCHAR}" | (pv > /dev/${CLIENTDISK})
+}
+
+
+
+function randbit {
+	RANDBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+}
+
+
+
 function vrfyfast {
 	VRFYSECTIONS='10'
 	VRFYCOUNT='500'
@@ -586,13 +614,13 @@ function zero {
 
 
 function dod {
+	randbit
+	VRFYCHAR=${RANDBIT}
+
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in DOD 5220.22-M mode."
 	echo ""
-
-	RANDOMBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-	VRFYCHAR=${RANDOMBIT}
 
 	echo ""
 	echo "[1/6] Writing a pass of 0's to ${CLIENTDISK}"
@@ -632,27 +660,29 @@ function rcmp {
 
 	echo ""
 	echo "[1/8] Writing a pass of 0's to ${CLIENTDISK}"
-	pv < /dev/zero > /dev/${CLIENTDISK}
+	zerofull
 
 	echo ""
 	echo "[2/8] Writing a pass of 1's to ${CLIENTDISK}"
-	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='1'
+	charfull
 
 	echo ""
 	echo "[3/8] Writing a pass of 0's to ${CLIENTDISK}"
-	pv < /dev/zero > /dev/${CLIENTDISK}
+	zerofull
 
 	echo ""
 	echo "[4/8] Writing a pass of 1's to ${CLIENTDISK}"
-	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='1'
+	charfull
 
 	echo ""
 	echo "[5/8] Writing a pass of 0's to ${CLIENTDISK}"
-	pv < /dev/zero > /dev/${CLIENTDISK}
+	zerofull
 
 	echo ""
 	echo "[6/8] Writing a pass of 1's to ${CLIENTDISK}"
-	/usr/bin/yes "1" | (pv > /dev/${CLIENTDISK})
+	SELCHAR='1'
 
 	echo ""
 	echo "[7/8] Writing a pass of a random bit (${RANDOMBIT}) to ${CLIENTDISK}"
