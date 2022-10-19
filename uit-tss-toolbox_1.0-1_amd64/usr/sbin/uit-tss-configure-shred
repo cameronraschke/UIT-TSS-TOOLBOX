@@ -354,7 +354,44 @@ function diskselect {
     done
 }
 
+function fullverify {
+	VRFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' | head -1)
 
+	if [[ -z $VRFY ]]; then
+        echo ""
+	echo ""
+        echo "The drive ${CLIENTDISK} is completely and securely wiped."
+	echo "Test passed successfully!"
+	else
+        echo ""
+	echo ""
+	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+	fi
+}
+
+function mediumverify {
+}
+
+function fastverify {
+	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1048576 ))
+	DISKVERIFYSIZE=$(( ${DISKSIZEMB} / 10 ))
+	
+	DISKVERIFY1=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY2=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 1)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY3=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 2)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY4=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 3)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY5=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 4)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY6=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 5)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY7=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 6)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY8=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 7)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY9=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 8)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY10=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 9)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
+	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
+}
+
+function customverify {
+}
 
 function default {
 	clear
@@ -404,18 +441,7 @@ function default {
 
 	echo ""
 	echo "[6/6] Verifying - searching all sectors on ${CLIENTDISK} for non-zero bits...."
-	HEXVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 '[^0]' | head -1)
-
-	if [[ -z $HEXVERIFY ]]; then
-        echo ""
-	echo ""
-        echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
-	else
-        echo ""
-	echo ""
-		echo "The drive ${CLIENTDISK} is completely and securely wiped."
-		echo "Test passed successfully!"
-	fi
+	fullverify
 }
 
 
@@ -434,23 +460,10 @@ function zero {
 	echo ""
 	echo "[2/2] Quickly verifying disk ${CLIENTDISK}...."
 	
-	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1048576 ))
-	DISKVERIFYSIZE=$(( ${DISKSIZEMB} / 10 ))
+	quickverify
 	
-	DISKVERIFY1=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY2=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 1)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY3=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 2)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY4=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 3)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY5=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 4)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY6=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 5)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY7=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 6)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY8=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 7)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY9=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 8)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY10=$(/usr/bin/dd if=/dev/${CLIENTDISK} bs=1048576 count=100 skip=$(( ${DISKVERIFYSIZE} * 9)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
-	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
 	
-	if [[ ! -z $DISKVERIFY ]]; then
+	if [[ ! -z $VRFY ]]; then
 	echo ""
 	echo ""
 	echo "Verification test failed for drive ${CLIENTDISK}. Exiting...."
@@ -788,17 +801,40 @@ function verify {
 	echo "Which level of verification do you want?"
 	echo ""
 	echo ""
-	echo "Full verification (Default)
+	echo "1 Full verification (Default)
 	-Longest, verifies every bit on the disk"
 	echo ""
-	echo "20 divisions, 40GB"
-	echo "20 divisions, 20GB"
-	echo "20 divisions, 2GB"
-	echo "10 divisions, 10GB"
-	echo "10 divisions, 1GB"	
-	echo "Very fast verification
+	echo "2 Very fast verification
 	-10 divisions, 1GB verified"
 	echo ""
+	echo "3 Medium verification
+	-10 divisions, 20GB verified"
+	echo ""
+	echo "4 Other (Manual Specification)"
+	echo ""
+	read -n 1 -p "Select mode [1-4]: " VRFYSELECT
+	echo ""
+	case $VRFYSELECT in
+	1)
+	VRFYMODE='full'
+	;;
+	2)
+	VRFYMODE='fast'
+	;;
+	3)
+	VRFYMODE='medium'
+	;;
+	4)
+	VRFYMODE='custom'
+	;;
+	*)
+	echo ""
+	echo ""
+	echo "Incorrect input selected, please try again"
+	sleep 1
+	verify
+	;;
+	esac
 }
 
 
