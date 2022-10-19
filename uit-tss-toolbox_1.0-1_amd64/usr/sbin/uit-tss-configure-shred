@@ -544,7 +544,7 @@ function vrfynist {
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
 	DISKVRFY=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
 
-	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} + $(shuf -i 1-${DISKVRFYAMOUNT} -n 1) ))
+	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} + $(shuf -i 21-${DISKVRFYAMOUNT} -n 1) ))
 	DISKVRFY=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
 	i=$(( $i + 1 ))
 
