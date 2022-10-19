@@ -287,7 +287,7 @@ function modeselect {
 	case $MODESELECT in
 	1)
 	MODE='default'
-	RMODE='Default'
+	RMODE='Default Mode'
 	;;
 	2)
 	MODE='zero'
@@ -295,23 +295,27 @@ function modeselect {
 	;;
 	3)
 	MODE='secureerase'
-	RMODE='Secure Erase'
+	RMODE='Secure Erase Mode'
 	;;
 	4)
 	MODE='dod'
-	RMODE='DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5'
+	RMODE='DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5 Mode'
 	;;
 	5)
 	MODE='rcmp'
-	RMODE='RCMP TSSIT OPS-II/VSITR'
+	RMODE='RCMP TSSIT OPS-II/VSITR Mode'
 	;;
 	6)
 	MODE='schneier'
-	RMODE='Schneier Method'
+	RMODE='Schneier Mode'
 	;;
 	7)
 	MODE='gutmann'
-	RMODE='Gutmann Method'
+	RMODE='Gutmann Mode'
+	;;
+	8)
+	MODE='verify'
+	RMODE='Verify Mode'
 	;;
 	*)
 	modeselect
@@ -774,6 +778,30 @@ function gutmann {
 
 
 
+function verify {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in Verify Mode."
+	echo ""
+	
+	echo ""
+	echo "Which level of verification do you want?"
+	echo ""
+	echo ""
+	echo "Full verification (Default)
+	-Longest, verifies every bit on the disk"
+	echo ""
+	echo "20 divisions, 40GB"
+	echo "20 divisions, 20GB"
+	echo "20 divisions, 2GB"
+	echo "10 divisions, 10GB"
+	echo "10 divisions, 1GB"	
+	echo "Very fast verification
+	-10 divisions, 1GB verified"
+	echo ""
+}
+
+
 function execute {
 	start_time=$SECONDS
 	
@@ -803,6 +831,10 @@ function execute {
 	
 	if [[ $MODE == 'schneier' ]]; then
 	schneier
+	fi
+	
+	if [[ $MODE == 'verify' ]]; then
+	verify
 	fi
 }
 
