@@ -475,6 +475,10 @@ function vrfycustom {
 
 
 function secerase {
+	SSD_REGEX='sd.*'
+	NVME_REGEX='nvme.*'
+	SCSI_REGEX='hd.*'
+
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 	SECERASEFAIL=0
 	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
