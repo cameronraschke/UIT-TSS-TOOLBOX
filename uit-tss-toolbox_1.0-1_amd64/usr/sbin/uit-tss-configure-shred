@@ -254,32 +254,36 @@ function modeselect {
 	echo "2 Zero Mode + Quick Verify
 	-One pass of zeroes
 	-Quick verification step"
-
+	
 	echo ""
-	echo "3 Secure Erase
-	-SATA/NVME Only
-	-One pass, real-time verification"
-
-	echo ""
-	echo "4 DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5
+	echo "3 DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5
 	-Writes a pass of zeroes, then ones, then a random bit
 	-3 passes, 3 verifications"
 
 	echo ""
-	echo "5 RCMP TSSIT OPS-II/VSITR
+	echo "4 RCMP TSSIT OPS-II/VSITR
 	-Alternates passes between 0's and 1's 6 times
 	-Writes random bit, verifies random bit"
 
 	echo ""
-	echo "6 Schneier
+	echo "5 Schneier
 	-A pass of 1's then a pass of 0's
 	-Five passes of a random stream of characters"
 
 	echo ""
-	echo "7 Gutmann
+	echo "6 Gutmann
 	-Four random character passes
 	-27 predefined pattern passes
 	-Four random character passes"
+	
+	echo ""
+	echo "7 Verify Only
+	-Does not write data
+	-Different types of verification"
+	
+	echo ""
+	echo "8 Custom Mode
+	-User chooses different options"
 
 	echo ""
 	read -n1 -p "Choose [1-7] " MODESELECT
@@ -294,28 +298,28 @@ function modeselect {
 	RMODE='Zero Mode'
 	;;
 	3)
-	MODE='default'
-	RMODE='Secure Erase Mode'
-	;;
-	4)
 	MODE='dod'
 	RMODE='DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5 Mode'
 	;;
-	5)
+	4)
 	MODE='rcmp'
 	RMODE='RCMP TSSIT OPS-II/VSITR Mode'
 	;;
-	6)
+	5)
 	MODE='schneier'
 	RMODE='Schneier Mode'
 	;;
-	7)
+	6)
 	MODE='gutmann'
 	RMODE='Gutmann Mode'
 	;;
-	8)
+	7)
 	MODE='verify'
 	RMODE='Verify Mode'
+	;;
+	7)
+	MODE='custom'
+	RMODE='Custom Mode'
 	;;
 	*)
 	modeselect
@@ -355,6 +359,15 @@ function diskselect {
 }
 
 
+
+function randquarter {
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	RANDWRITESIZE=$(( ${DISKSIZEGB} / 4 ))
+	/usr/bin/pv --size ${RANDWRITESIZE}g --stop-at-size < /dev/urandom > /dev/${CLIENTDISK}
+}
+
+
+
 function randhalf {
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	RANDWRITESIZE=$(( ${DISKSIZEGB} / 2 ))
@@ -362,9 +375,27 @@ function randhalf {
 }
 
 
+
 function randfull {
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 }
+
+
+
+function zeroquarter {
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	RANDWRITESIZE=$(( ${DISKSIZEGB} / 4 ))
+	/usr/bin/pv --size ${RANDWRITESIZE}g --stop-at-size < /dev/zero > /dev/${CLIENTDISK}
+}
+
+
+
+function zerohalf {
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	RANDWRITESIZE=$(( ${DISKSIZEGB} / 2 ))
+	/usr/bin/pv --size ${RANDWRITESIZE}g --stop-at-size < /dev/zero > /dev/${CLIENTDISK}
+}
+
 
 
 function zerofull {
@@ -373,14 +404,38 @@ function zerofull {
 
 
 
-function vrfyfull {
-	DISKVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${VRFYCHAR}]" | head -1)
+function vrfyfast {
+	VRFYSECTIONS='10'
+	VRFYCOUNT='500'
+	VRFYCOUNTGB=$(( ${VRFYCOUNT} / 1000 ))
+	VRFYBS='1000000'
+	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
+	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
 
+	echo ""
+	echo ""
+	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
+
+	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY3=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 2)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY4=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 3)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY5=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 4)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY6=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 5)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY7=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 6)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY8=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 7)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY9=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 8)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY10=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 9)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
+	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
+	
 	if [[ -z $DISKVERIFY ]]; then
+	VRFYFAIL='0'
         echo ""
 	echo ""
-        echo "The drive ${CLIENTDISK} is completely and securely wiped."
+        echo "${VRFYCOUNTGB}GB over ${VRFYSECTIONS} different sections of ${CLIENTDISK} have been successfully verified."
 	else
+	VRFYFAIL='1'
         echo ""
 	echo ""
 	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
@@ -429,38 +484,14 @@ function vrfymedium {
 
 
 
-function vrfyfast {
-	VRFYSECTIONS='10'
-	VRFYCOUNT='500'
-	VRFYCOUNTGB=$(( ${VRFYCOUNT} / 1000 ))
-	VRFYBS='1000000'
-	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
-	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
+function vrfyfull {
+	DISKVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${VRFYCHAR}]" | head -1)
 
-	echo ""
-	echo ""
-	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
-
-	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY3=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 2)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY4=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 3)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY5=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 4)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY6=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 5)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY7=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 6)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY8=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 7)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY9=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 8)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY10=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 9)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
-	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
-	
 	if [[ -z $DISKVERIFY ]]; then
-	VRFYFAIL='0'
         echo ""
 	echo ""
-        echo "${VRFYCOUNTGB}GB over ${VRFYSECTIONS} different sections of ${CLIENTDISK} have been successfully verified."
+        echo "The drive ${CLIENTDISK} is completely and securely wiped."
 	else
-	VRFYFAIL='1'
         echo ""
 	echo ""
 	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
@@ -469,9 +500,10 @@ function vrfyfast {
 
 
 
-function vrfycustom {
-	echo -n ""
+function custom {
+	echo ""
 }
+
 
 
 function secerase {
