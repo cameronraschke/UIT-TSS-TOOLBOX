@@ -534,14 +534,13 @@ function vrfynist {
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
 	VRFYFAIL='0'
 	i='0'
-	a='0'
 
 	echo ""
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
 	
 	while [[ i -le 1000 ]]; do
-	VRFYCOUNT1='20'
+	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / 20 ))
 
 	DISKVRFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
 
@@ -550,6 +549,7 @@ function vrfynist {
 	i=$(( $i + 1 ))
 
 	if [[ -z $DISKVRFY1 && -z $DISKVRFY2 ]]; then
+	VRFYFAIL='0'
 	:
 	else
 	VRFYFAIL='1'
@@ -559,6 +559,21 @@ function vrfynist {
 	break
 	fi
 	done
+
+	if [[ VRFYFAIL=='0' ]]; then
+	DISKVRFYLAST=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+
+	if [[ -z $DISKVRFYLAST && -z $DISKVRFYLAST ]]; then
+	VRFYFAIL='0'
+	:
+	else
+	VRFYFAIL='1'
+    echo ""
+	echo ""
+	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+	break
+	fi
+	fi
 
 	if [[ $VRFYFAIL=='0' ]]; then
 	echo ""
