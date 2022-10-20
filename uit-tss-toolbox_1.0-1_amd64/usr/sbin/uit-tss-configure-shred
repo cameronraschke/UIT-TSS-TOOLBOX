@@ -539,9 +539,11 @@ function vrfynist {
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
 	
-	while [[ $i -le 1000 ]]; do
+	while [[ $i -le $VRFYSECTIONS ]]; do
 	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / 20 ))
 
+	echo ""
+	echo "Verifying location ${i}/${VRFYSECTIONS}
 	DISKVRFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
 
 	VRFYCOUNT2=$(( ${VRFYCOUNT1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${VRFYCOUNT1} )) -n 1) ))
@@ -563,7 +565,7 @@ function vrfynist {
 	if [[ VRFYFAIL=='0' ]]; then
 	DISKVRFYLAST=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
 
-	if [[ -z $DISKVRFYLAST && -z $DISKVRFYLAST ]]; then
+	if [[ -z $DISKVRFYLAST ]]; then
 	VRFYFAIL='0'
 	:
 	else
