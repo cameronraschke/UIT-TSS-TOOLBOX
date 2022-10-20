@@ -529,26 +529,27 @@ function vrfyfull {
 
 function vrfynist {
 	VRFYSECTIONS='1000'
-	VRFYCOUNT='20'
-	VRFYCOUNTGB=$(( ${VRFYCOUNT} / 1000 ))
 	VRFYBS='1000000'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
+	VRFYFAIL='0'
 	i='0'
+	a='0'
 
 	echo ""
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
 	
 	while [[ i -le 1000 ]]; do
-	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
-	DISKVRFY=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	VRFYCOUNT1='20'
 
-	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} + $(shuf -i 21-${DISKVRFYAMOUNT} -n 1) ))
-	DISKVRFY=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVRFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+
+	VRFYCOUNT2=$(( ${VRFYCOUNT1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${VRFYCOUNT1} )) -n 1) ))
+	DISKVRFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
 	i=$(( $i + 1 ))
 
-	if [[ -z $DISKVRFY && $VRFYFAIL=='0']]; then
+	if [[ -z $DISKVRFY1 && -z $DISKVRFY2 ]]; then
 	:
 	else
 	VRFYFAIL='1'
@@ -562,7 +563,7 @@ function vrfynist {
 	if [[ $VRFYFAIL=='0' ]]; then
 	echo ""
 	echo ""
-    echo "${VRFYCOUNTGB}GB over ${VRFYSECTIONS} different locations of ${CLIENTDISK} have been successfully verified."
+    echo "${VRFYSECTIONS} different locations of ${CLIENTDISK} have been successfully verified."
 	fi
 }
 
