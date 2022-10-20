@@ -539,7 +539,7 @@ function vrfynist {
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
 	
-	while [[ i -le 1000 ]]; do
+	while [[ $i -le 1000 ]]; do
 	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / 20 ))
 
 	DISKVRFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
