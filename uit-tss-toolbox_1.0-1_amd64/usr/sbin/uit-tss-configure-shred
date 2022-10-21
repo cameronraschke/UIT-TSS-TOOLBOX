@@ -565,6 +565,8 @@ function vrfynist {
         break
     fi
 
+	i=$(( ${i} + 1 ))
+
 	done
 
 	if [[ VRFYFAIL == '0' ]]; then
