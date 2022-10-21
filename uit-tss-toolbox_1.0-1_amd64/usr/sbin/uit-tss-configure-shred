@@ -556,19 +556,19 @@ function vrfynist {
 	DISKVRFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} )) iflag=fullblock status=none | grep -oP -m 1 [^${VRFYCHAR}] | head -1)
 	i=$(( $i + 1 ))
 
-	if [[ -z $DISKVRFY1 || -z $DISKVRFY2 ]]; then
-    	VRFYFAIL='1'
-    	echo ""
-        echo ""
-        echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
-        break
-        else
-        VRFYFAIL='0'
-        :
+	if [[ ! -z $DISKVRFY1 || ! -z $DISKVRFY2 ]]; then
+    VRFYFAIL='1'
+    echo ""
+    echo ""
+    echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+    break
+	else
+    VRFYFAIL='0'
+    :
     fi
 	done
 
-	if [[ VRFYFAIL=='0' ]]; then
+	if [[ VRFYFAIL == '0' ]]; then
 	DISKVRFYLAST=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none | grep -oP -m 1 [^${VRFYCHAR}] | head -1)
 
 	if [[ -z $DISKVRFYLAST ]]; then
@@ -582,7 +582,7 @@ function vrfynist {
 	fi
 	fi
 
-	if [[ $VRFYFAIL=='0' ]]; then
+	if [[ $VRFYFAIL == '0' ]]; then
 	echo ""
 	echo ""
     echo "${i} different locations of ${CLIENTDISK} have been verified."
@@ -652,7 +652,7 @@ function default {
 	echo "[2/3] Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
 	sleep 1
 	secerase
-	if [[ $SECERASEFAIL=='1' ]]; then
+	if [[ $SECERASEFAIL == '1' ]]; then
 	echo "No compatible SATA or NVME drive is detected. Continuing...."
 	fi
 
@@ -661,7 +661,7 @@ function default {
 	VRFYCHAR='0'
 	vrfymedium
 	
-	if [[ $VRFYFAIL=='1' ]]; then
+	if [[ $VRFYFAIL == '1' ]]; then
 	echo ""
 	echo ""
 	echo ""
