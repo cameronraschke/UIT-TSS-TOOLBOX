@@ -550,27 +550,21 @@ function vrfynist {
 	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / ${PCNTOFSECTOR} * 2 ))
 
 	echo -e "\r\033[1A\033[0KVerifying location ${i}/${VRFYSECTIONS}"
-	DISKVRFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) iflag=fullblock status=none \
-	| grep -oP -m 1 [^${VRFYCHAR}] \
-	| head -1; test ${PIPESTATUS[0]} -eq 0)
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) iflag=fullblock status=none \
+	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
+		VRFYFAIL='1'
+		echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+        break
+    fi
 
 	VRFYCOUNT2=$(( ${VRFYCOUNT1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${VRFYCOUNT1} )) -n 1) ))
-	DISKVRFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} )) iflag=fullblock status=none \
-	| grep -oP -m 1 [^${VRFYCHAR}] \
-	| head -1; test ${PIPESTATUS[0]} -eq 0)
-	i=$(( $i + 1 ))
-
-	if [[ ! -z $DISKVRFY1 || ! -z $DISKVRFY2 ]]; then
-	VRFYFAIL='1'
-    echo ""
-    echo ""
-    echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
-    break
-	else
-	VRFYFAIL='0'
-    :
-
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} )) iflag=fullblock status=none \
+	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
+		VRFYFAIL='1'
+		echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+        break
     fi
+
 	done
 
 	if [[ VRFYFAIL == '0' ]]; then
@@ -587,10 +581,16 @@ function vrfynist {
 	fi
 	fi
 
-	if [[ $VRFYFAIL == '0' ]]; then
+
 	echo ""
 	echo ""
     echo "${i} different locations of ${CLIENTDISK} have been verified."
+	if [[ $VRFYFAIL == '0' ]]; then
+	echo ""
+	echo "Test passed successfully!"
+	else
+	echo ""
+	echo "Test failed."
 	fi
 }
 
