@@ -536,36 +536,40 @@ function vrfynist {
 	PCNTOFSECTOR='10'
 	i='0'
 
+	if [[ -z $VRFYCHAR ]]; then
+	VRFYCHAR='0'
+	fi
+
 	echo ""
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
+	echo ""
+	echo ""
 	
-	echo "Verifying location 0/${VRFYSECTIONS}"
 	while [[ $i -le $VRFYSECTIONS ]]; do
 	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / ${PCNTOFSECTOR} * 2 ))
 
-	echo ""
-	echo -e '\e[1A\e[KVerifying location ${i}/${VRFYSECTIONS}'
-	DISKVRFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	echo -e "\r\033[1A\033[0KVerifying location ${i}/${VRFYSECTIONS}"
+	DISKVRFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) iflag=fullblock status=none | grep -oP -m 1 [^${VRFYCHAR}] | head -1)
 
 	VRFYCOUNT2=$(( ${VRFYCOUNT1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${VRFYCOUNT1} )) -n 1) ))
-	DISKVRFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} ))iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVRFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} )) iflag=fullblock status=none | grep -oP -m 1 [^${VRFYCHAR}] | head -1)
 	i=$(( $i + 1 ))
 
-	if [[ -z $DISKVRFY1 && -z $DISKVRFY2 ]]; then
-	VRFYFAIL='0'
-	:
-	else
-	VRFYFAIL='1'
-    echo ""
-	echo ""
-	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
-	break
-	fi
+	if [[ -z $DISKVRFY1 || -z $DISKVRFY2 ]]; then
+    	VRFYFAIL='1'
+    	echo ""
+        echo ""
+        echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+        break
+        else
+        VRFYFAIL='0'
+        :
+    fi
 	done
 
 	if [[ VRFYFAIL=='0' ]]; then
-	DISKVRFYLAST=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVRFYLAST=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none | grep -oP -m 1 [^${VRFYCHAR}] | head -1)
 
 	if [[ -z $DISKVRFYLAST ]]; then
 	VRFYFAIL='0'
@@ -581,7 +585,7 @@ function vrfynist {
 	if [[ $VRFYFAIL=='0' ]]; then
 	echo ""
 	echo ""
-    echo "${VRFYSECTIONS} different locations of ${CLIENTDISK} have been successfully verified."
+    echo "${i} different locations of ${CLIENTDISK} have been verified."
 	fi
 }
 
