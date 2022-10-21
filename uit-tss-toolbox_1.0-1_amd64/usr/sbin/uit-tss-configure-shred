@@ -443,16 +443,16 @@ function vrfyfast {
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
 
-	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY3=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 2)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY4=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 3)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY5=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 4)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY6=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 5)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY7=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 6)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY8=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 7)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY9=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 8)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY10=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 9)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY3=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 2)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY4=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 3)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY5=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 4)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY6=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 5)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY7=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 6)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY8=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 7)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY9=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 8)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY10=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 9)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
 	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
 	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
 	
@@ -483,16 +483,16 @@ function vrfymedium {
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
 
-	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY3=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 2)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY4=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 3)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY5=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 4)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY6=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 5)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY7=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 6)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY8=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 7)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY9=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 8)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY10=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 9)) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY3=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 2)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY4=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 3)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY5=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 4)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY6=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 5)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY7=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 6)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY8=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 7)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY9=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 8)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVERIFY10=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 9)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
 	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
 	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
 	
@@ -533,21 +533,23 @@ function vrfynist {
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
 	VRFYFAIL='0'
+	PCNTOFSECTOR='10'
 	i='0'
 
 	echo ""
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
 	
+	echo "Verifying location 0/${VRFYSECTIONS}"
 	while [[ $i -le $VRFYSECTIONS ]]; do
-	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / 20 ))
+	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / ${PCNTOFSECTOR} * 2 ))
 
 	echo ""
-	echo "Verifying location ${i}/${VRFYSECTIONS}
-	DISKVRFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	echo -e '\e[1A\e[KVerifying location ${i}/${VRFYSECTIONS}'
+	DISKVRFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
 
 	VRFYCOUNT2=$(( ${VRFYCOUNT1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${VRFYCOUNT1} )) -n 1) ))
-	DISKVRFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVRFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} ))iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
 	i=$(( $i + 1 ))
 
 	if [[ -z $DISKVRFY1 && -z $DISKVRFY2 ]]; then
@@ -563,7 +565,7 @@ function vrfynist {
 	done
 
 	if [[ VRFYFAIL=='0' ]]; then
-	DISKVRFYLAST=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) &> /dev/null | grep -oP -m 1 [^0] | head -1)
+	DISKVRFYLAST=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
 
 	if [[ -z $DISKVRFYLAST ]]; then
 	VRFYFAIL='0'
@@ -573,7 +575,6 @@ function vrfynist {
     echo ""
 	echo ""
 	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
-	break
 	fi
 	fi
 
@@ -605,6 +606,29 @@ function secerase {
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
 	SECERASEFAIL=1
 	fi
+}
+
+
+
+function iorem {
+	sync
+	sleep 10
+	sync
+	sleep 10
+	echo 1 > /proc/sys/vm/drop_caches
+	echo 2 > /proc/sys/vm/drop_caches
+	echo 3 > /proc/sys/vm/drop_caches
+	hdparm -F /dev/${CLIENTDISK}
+	blockdev -flushbufs /dev/${CLIENTDISK}
+	umount /dev/${CLIENTDISK}
+	hdparm -Y /dev/${CLIENTDISK}
+	echo 1 > /sys/block/${CLIENTDISK}/device/delete
+}
+
+
+
+function iorefresh {
+	echo "1" > /sys/class/fc_host/host/issue_lip
 }
 
 
