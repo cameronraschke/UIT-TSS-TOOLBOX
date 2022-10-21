@@ -553,7 +553,7 @@ function vrfynist {
     if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) iflag=fullblock status=none \
 	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
 		VRFYFAIL='1'
-		echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+		echo "Bad bits found on device ${CLIENTDISK}."
         break
     fi
 
@@ -561,7 +561,7 @@ function vrfynist {
     if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} )) iflag=fullblock status=none \
 	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
 		VRFYFAIL='1'
-		echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+		echo "Bad bits found on device ${CLIENTDISK}."
         break
     fi
 
