@@ -579,19 +579,15 @@ function vrfynist {
 	VRFYFAIL='1'
     echo ""
 	echo ""
-	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+	echo "Test has failed."
 	fi
 	fi
 
-
-	echo ""
 	echo ""
     echo "${i} different locations of ${CLIENTDISK} have been verified."
 	if [[ $VRFYFAIL == '0' ]]; then
-	echo ""
 	echo "Test passed successfully!"
 	else
-	echo ""
 	echo "Test failed."
 	fi
 }
