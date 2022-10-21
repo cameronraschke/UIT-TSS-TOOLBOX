@@ -360,9 +360,45 @@ function diskselect {
 
 
 function randquarter {
+	RANDSECTIONS='1000'
+	RANDBS='1000000'
+	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
+	DISKRANDAMOUNT=$(( ${DISKSIZEMB} / ${RANDSECTIONS} ))
+	PCNTOFSECTOR='5'
+	i='0'
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	RANDWRITESIZE=$(( ${DISKSIZEGB} / 4 ))
-	/usr/bin/pv --size ${RANDWRITESIZE}g --stop-at-size < /dev/urandom > /dev/${CLIENTDISK}
+
+	
+
+	if [[ -z $VRFYCHAR ]]; then
+	VRFYCHAR='0'
+	fi
+
+	echo ""
+	echo ""
+	echo "Filling ${CLIENTDISK} with a stream of random bits...."
+	echo ""
+	echo ""
+	
+	while [[ $i -le $RANDSECTIONS ]]; do
+	
+	echo -e "\r\033[1A\033[0KWriting to location ${i}/${VRFYSECTIONS}"
+
+	RANDCOUNT1=$(( ${DISKRANDAMOUNT} / ${PCNTOFSECTOR} * 2 ))
+	dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${RANDCOUNT1} skip=$(( ${RANDCOUNT1} * ${i} )) iflag=fullblock status=none
+
+	VRFYCOUNT2=$(( ${VRFYCOUNT1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${VRFYCOUNT1} )) -n 1) ))
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} )) iflag=fullblock status=none
+
+	i=$(( ${i} + 1 ))
+
+	done
+
+	pv /dev/urandom --size ${RANDWRITESIZE}g --stop-at-size | dd bs=${RANDBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none
+
+	
+
 }
 
 
@@ -405,16 +441,16 @@ function zerofull {
 
 function charquarter {
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	RANDWRITESIZE=$(( ${DISKSIZEGB} / 4 ))
-	/usr/bin/yes "${SELCHAR}" | (pv > /dev/${CLIENTDISK})
+	CHARWRITESIZE=$(( ${DISKSIZEGB} / 4 ))
+	/usr/bin/yes "${SELCHAR}" | (pv --size ${CHARWRITESIZE}g --stop-at-size > /dev/${CLIENTDISK})
 }
 
 
 
 function charhalf {
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	RANDWRITESIZE=$(( ${DISKSIZEGB} / 2 ))
-	/usr/bin/yes "${SELCHAR}" | (pv > /dev/${CLIENTDISK})
+	CHARWRITESIZE=$(( ${DISKSIZEGB} / 2 ))
+	/usr/bin/yes "${SELCHAR}" | (pv --size ${CHARWRITESIZE}g --stop-at-size > /dev/${CLIENTDISK})
 }
 
 
@@ -547,9 +583,10 @@ function vrfynist {
 	echo ""
 	
 	while [[ $i -le $VRFYSECTIONS || $VRFYFAIL == '0' ]]; do
-	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / ${PCNTOFSECTOR} * 2 ))
 
 	echo -e "\r\033[1A\033[0KVerifying location ${i}/${VRFYSECTIONS}"
+
+	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / ${PCNTOFSECTOR} * 2 ))
     if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) iflag=fullblock status=none \
 	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
 		VRFYFAIL='1'
