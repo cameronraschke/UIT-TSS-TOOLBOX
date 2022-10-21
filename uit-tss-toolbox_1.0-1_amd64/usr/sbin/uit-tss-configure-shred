@@ -379,7 +379,7 @@ function randquarter {
 	
 	echo -e "\r\033[1A\033[0KWriting to location ${i}/${VRFYSECTIONS}"
 
-	RANDCOUNT1=$(( ${DISKRANDAMOUNT} / ${PCNTOFSECTOR} ))
+	RANDCOUNT1=$(( ${DISKRANDAMOUNT} / 100 * ${PCNTOFSECTOR} ))
 	dd if=/dev/urandom bs=${VRFYBS} count=${RANDCOUNT1} skip=$(( ${RANDCOUNT1} * ${i} )) iflag=fullblock status=none
 
 	RANDCOUNT2=$(( ${RANDCOUNT1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${RANDCOUNT1} )) -n 1) ))
@@ -580,7 +580,7 @@ function vrfynist {
 
 	echo -e "\r\033[1A\033[0KVerifying location ${i}/${VRFYSECTIONS}"
 
-	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / ${PCNTOFSECTOR} ))
+	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / 100 * ${PCNTOFSECTOR} ))
     if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) iflag=fullblock status=none \
 	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
 		VRFYFAIL='1'
