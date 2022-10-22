@@ -563,6 +563,7 @@ function vrfynist {
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
 	PCNTOFSECTOR='25'
+	a='0'
 	i='0'
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	VRFYWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
@@ -583,24 +584,27 @@ function vrfynist {
 
 	echo -e "\r\033[1A\033[0KVerifying location ${i}/${VRFYSECTIONS}"
 
-	VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=${VRFYSKIP1} iflag=fullblock status=none \
-	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
-		VRFYFAIL='1'
-		echo "Bad bits found on device ${CLIENTDISK}."
+	VRFYCOUNT1=$(shuf -i 1-${VRFYCOUNT} -n 1)
+    VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
         break
     fi
 
 
-	VRFYSKIP2=$(( ${VRFYSKIP1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=${VRFYSKIP2} iflag=fullblock status=none \
-	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
-		VRFYFAIL='1'
-		echo "Bad bits found on device ${CLIENTDISK}."
+	VRFYCOUNT2=$(shuf -i 1-${VRFYCOUNT} -n 1)
+    VRFYSKIP2=$(( ${VRFYSKIP1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
         break
     fi
 
 	i=$(( ${i} + 1 ))
+	a=$(( ${a} + 1000 ))
 
 	done
 
