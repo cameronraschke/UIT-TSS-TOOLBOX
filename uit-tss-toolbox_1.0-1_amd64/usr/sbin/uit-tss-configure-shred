@@ -583,7 +583,7 @@ function vrfynist {
 	echo -e "\r\033[1A\033[0KVerifying location ${i}/${VRFYSECTIONS}"
 
 	VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) ))
-    if [[ $(dd if=/dev/uVRFYom bs=${VRFYBS} count=${VRFYCOUNT} skip=${VRFYSKIP1} iflag=fullblock status=none \
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=${VRFYSKIP1} iflag=fullblock status=none \
 	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
 		VRFYFAIL='1'
 		echo "Bad bits found on device ${CLIENTDISK}."
