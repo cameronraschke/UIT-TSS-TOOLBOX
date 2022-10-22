@@ -359,6 +359,12 @@ function diskselect {
 
 
 
+function randbit {
+	RANDBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
+}
+
+
+
 function randdisk {
 	RANDSECTIONS='1000'
 	RANDDIVPERSEC='2'
@@ -376,6 +382,12 @@ function randdisk {
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of random bits...."
 	echo ""
 	echo ""
+
+	if [[ $PCNTOFSECTOR == '100' ]]
+	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of random bits...."
+	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	return 0
+	fi
 	
 	while [[ $i -le $RANDSECTIONS ]]; do
 
@@ -404,63 +416,7 @@ function randdisk {
 
 
 
-function randfull {
-	PCNTOFSECTOR='100'
-	echo ""
-	echo ""
-	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of random bits...."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
-}
-
-
-
-function zeroquarter {
-	ZEROSECTIONS='1000'
-	ZERODIVPERSEC='2'
-	ZEROBS='1000000'
-	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
-	DISKZEROAMOUNT=$(( ${DISKSIZEMB} / ${ZEROSECTIONS} ))
-	PCNTOFSECTOR='25'
-	a='0'
-	i='0'
-	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	ZEROWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
-	ZEROCOUNT=$(( ${DISKZEROAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
-
-	echo ""
-	echo ""
-	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of null bits...."
-	echo ""
-	echo ""
-	
-	while [[ $i -le $ZEROSECTIONS ]]; do
-
-	echo -e "\r\033[1A\033[0KWriting to section ${i}/${ZEROSECTIONS}"
-
-	ZEROCOUNT1=$(shuf -i 1-${ZEROCOUNT} -n 1)
-    ZEROSKIP1=$(( $(shuf -i 1-$(( ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} ))
-    dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT1} seek=${ZEROSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
-
-
-	ZEROCOUNT2=$(shuf -i 1-${ZEROCOUNT} -n 1)
-    ZEROSKIP2=$(( ${ZEROSKIP1} + $(shuf -i 1-$(( ${DISKZEROAMOUNT} - ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} ))
-    dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT2} seek=${ZEROSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
-
-	i=$(( ${i} + 1 ))
-	a=$(( ${a} + ${ZEROSECTIONS} ))
-
-	done
-
-	echo ""
-	echo "[1/2] Completely filling the first and last sector"
-    dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none
-	echo -e "\r\033[1A\033[0K[2/2] Completely filling the first and last sector"
-	dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKZEROAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none
-}
-
-
-
-function zerohalf {
+function zerodisk {
 	ZEROSECTIONS='1000'
 	ZERODIVPERSEC='2'
 	ZEROBS='1000000'
@@ -478,6 +434,12 @@ function zerohalf {
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of null bits...."
 	echo ""
 	echo ""
+
+	if [[ PCNTOFSECTOR == '100' ]]; then
+		echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of null bits...."
+		/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
+		return 0
+	fi
 	
 	while [[ $i -le $ZEROSECTIONS ]]; do
 
@@ -506,27 +468,9 @@ function zerohalf {
 
 
 
-function zerofull {
-	PCNTOFSECTOR='100'
-	echo ""
-	echo ""
-	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of null bits...."
-	/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
-}
-
-
-
-function charquarter {
+function chardisk {
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	CHARWRITESIZE=$(( ${DISKSIZEGB} / 4 ))
-	/usr/bin/yes "${SELCHAR}" | (pv --size ${CHARWRITESIZE}g --stop-at-size > /dev/${CLIENTDISK})
-}
-
-
-
-function charhalf {
-	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	CHARWRITESIZE=$(( ${DISKSIZEGB} / 2 ))
 	/usr/bin/yes "${SELCHAR}" | (pv --size ${CHARWRITESIZE}g --stop-at-size > /dev/${CLIENTDISK})
 }
 
@@ -538,9 +482,7 @@ function charfull {
 
 
 
-function randbit {
-	RANDBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
-}
+
 
 
 
