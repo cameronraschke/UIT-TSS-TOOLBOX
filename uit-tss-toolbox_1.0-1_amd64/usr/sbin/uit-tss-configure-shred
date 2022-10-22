@@ -630,11 +630,27 @@ function nist {
 	secerase
 	
 	echo ""
-	VRFYCHAR='0'
-	PCNTOFSECTOR='10'
 	echo "Step [3/3]: "
 	echo ""
+	VRFYCHAR='0'
+	PCNTOFSECTOR='10'
 	vrfydisk
+
+	if [[ $VRFYFAIL == '1' ]]; then
+		echo ""
+		echo ""
+		echo "Step [1/2]: "
+		echo ""
+		PCNTOFSECTOR='100'
+		zerodisk
+
+		echo ""
+		echo "Step [2/2]: "
+		echo ""
+		PCNTOFSECTOR='10'
+		VRFYCHAR='0'
+		vrfydisk
+	fi
 }
 
 
@@ -669,8 +685,9 @@ function dod {
 	echo ""
 
 	echo ""
-	echo "[1/6] Writing a pass of 0's to ${CLIENTDISK}"
-	zerofull
+	echo "Step [1/6] "
+	PCNTOFSECTOR='100'
+	zerodisk
 	
 	echo ""
 	echo "[2/6] Verifying disk ${CLIENTDISK} - checking for 0's...."
