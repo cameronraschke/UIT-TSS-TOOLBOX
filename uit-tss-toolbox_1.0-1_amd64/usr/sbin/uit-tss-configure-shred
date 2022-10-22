@@ -562,7 +562,7 @@ function vrfynist {
 	VRFYBS='1000000'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
-	PCNTOFSECTOR='25'
+	PCNTOFSECTOR='10'
 	a='0'
 	i='0'
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
@@ -595,7 +595,7 @@ function vrfynist {
 
 
 	VRFYCOUNT2=$(shuf -i 1-${VRFYCOUNT} -n 1)
-    VRFYSKIP2=$(( ${VRFYSKIP1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
+    VRFYSKIP2=$(( ${VRFYSKIP1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
     if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
                 VRFYFAIL='1'
