@@ -371,7 +371,6 @@ function randquarter {
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	RANDWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
 	RANDCOUNT=$(( ${DISKRANDAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
-	RANDFAIL='0'
 
 	echo ""
 	echo ""
@@ -379,7 +378,7 @@ function randquarter {
 	echo ""
 	echo ""
 	
-	while [[ $i -le $RANDSECTIONS && $RANDFAIL == '0' ]]; do
+	while [[ $i -le $RANDSECTIONS ]]; do
 
 	echo -e "\r\033[1A\033[0KWriting to section ${i}/${RANDSECTIONS}"
 
