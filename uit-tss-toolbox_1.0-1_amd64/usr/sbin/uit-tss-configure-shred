@@ -376,13 +376,11 @@ function randdisk {
 	RANDWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
 	RANDCOUNT=$(( ${DISKRANDAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
 
-	echo ""
-	echo ""
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of random bits...."
 	echo ""
 	echo ""
 
-	if [[ $PCNTOFSECTOR == '100' ]]
+	if [[ $PCNTOFSECTOR == '100' ]]; then
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of random bits...."
 	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
 	return 0
@@ -428,8 +426,6 @@ function zerodisk {
 	ZEROWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
 	ZEROCOUNT=$(( ${DISKZEROAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
 
-	echo ""
-	echo ""
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of null bits...."
 	echo ""
 	echo ""
@@ -498,13 +494,11 @@ function vrfydisk {
 	VRFYCHAR='0'
 	fi
 
-	echo ""
-	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
 	echo ""
 	echo ""
 
-	if [[ $PCNTOFSECTOR == '100' ]]
+	if [[ $PCNTOFSECTOR == '100' ]]; then
 		DISKVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${VRFYCHAR}]" | head -1)
 
 		if [[ -z $DISKVERIFY ]]; then
@@ -569,19 +563,23 @@ function secerase {
 	SCSI_REGEX='hd.*'
 
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
-	SECERASEFAIL=0
-	/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
-	/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
+		SECERASEFAIL=0
+		/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
+		/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
 	fi
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-	SECERASEFAIL=0
-	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
-	/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
+		SECERASEFAIL=0
+		/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
+		/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 	
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-	SECERASEFAIL=1
+		SECERASEFAIL=1
+	fi
+
+	if [[ $SECERASEFAIL == '1' ]]; then
+		echo "No compatible SATA or NVME drive is detected. Can't use Secure Erase...."
 	fi
 }
 
@@ -614,30 +612,26 @@ function nist {
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in default mode."
-	echo ""
 	
 	echo ""
-	echo "Step 1/3:"
-	sleep 1
+	echo ""
+	echo "Step [1/3]: "
+	echo ""
 	PCNTOFSECTOR='25'
 	randdisk
 	
 	echo ""
-	echo "[2/3] Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
-	sleep 1
-	secerase
-	if [[ $SECERASEFAIL == '1' ]]; then
-	echo "No compatible SATA or NVME drive is detected. Continuing...."
-	fi
-
-	VRFYCHAR='0'
 	echo ""
-	echo "[3/3] Verifying - searching sectors on ${CLIENTDISK} for non-${VRFYCHAR} bits...."
-	PCNTOFSECTOR='10'
-	vrfydisk
+	echo "[2/3] Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
+	secerase
 	
-	if [[ $VRFYFAIL == '1' ]]; then
-	fi
+	echo ""
+	echo ""
+	VRFYCHAR='0'
+	PCNTOFSECTOR='10'
+	echo "Step [3/3]: "
+	echo ""
+	vrfydisk
 }
 
 
