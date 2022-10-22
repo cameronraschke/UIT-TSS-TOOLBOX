@@ -382,10 +382,10 @@ function randquarter {
 	echo -e "\r\033[1A\033[0KWriting to location ${i}/${RANDSECTIONS}"
 
 	RANDSKIP1=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) ))
-	dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT} skip=${RANDSKIP1} iflag=fullblock status=none
+	dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT} seek=${RANDSKIP1} iflag=fullblock status=none
 
-	RANDSKIP2=$(( ${RANDSKIP1} + $(shuf -i 1-$(( ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) ))
-    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT} skip=${RANDSKIP2} iflag=fullblock status=none
+	RANDSKIP2=$(( ${RANDSKIP1} + $(shuf -i 1-$(( ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) ))
+    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT} seek=${RANDSKIP2} iflag=fullblock status=none
 
 	i=$(( ${i} + 1 ))
 
@@ -558,12 +558,15 @@ function vrfyfull {
 
 function vrfynist {
 	VRFYSECTIONS='1000'
+	VRFYDIVPERSEC='2'
 	VRFYBS='1000000'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
-	VRFYFAIL='0'
-	PCNTOFSECTOR='10'
+	PCNTOFSECTOR='25'
 	i='0'
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	VRFYWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
+	VRFYCOUNT=$(( ${DISKVRFYAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
 
 	if [[ -z $VRFYCHAR ]]; then
 	VRFYCHAR='0'
@@ -575,20 +578,21 @@ function vrfynist {
 	echo ""
 	echo ""
 	
-	while [[ $i -le $VRFYSECTIONS || $VRFYFAIL == '0' ]]; do
+	while [[ $i -le $VRFYSECTIONS && $VRFYFAIL == '0' ]]; do
 
 	echo -e "\r\033[1A\033[0KVerifying location ${i}/${VRFYSECTIONS}"
 
-	VRFYCOUNT1=$(( ${DISKVRFYAMOUNT} / 100 * ${PCNTOFSECTOR} ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=$(( ${VRFYCOUNT1} * ${i} )) iflag=fullblock status=none \
+	VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) ))
+    if [[ $(dd if=/dev/uVRFYom bs=${VRFYBS} count=${VRFYCOUNT} skip=${VRFYSKIP1} iflag=fullblock status=none \
 	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
 		VRFYFAIL='1'
 		echo "Bad bits found on device ${CLIENTDISK}."
         break
     fi
 
-	VRFYCOUNT2=$(( ${VRFYCOUNT1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${VRFYCOUNT1} )) -n 1) ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=$(( ${VRFYCOUNT2} * ${i} )) iflag=fullblock status=none \
+
+	VRFYSKIP2=$(( ${VRFYSKIP1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) ))
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=${VRFYSKIP2} iflag=fullblock status=none \
 	| grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
 		VRFYFAIL='1'
 		echo "Bad bits found on device ${CLIENTDISK}."
