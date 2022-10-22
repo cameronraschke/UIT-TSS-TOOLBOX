@@ -467,12 +467,11 @@ function chardisk {
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	CHARWRITESIZE=$(( ${DISKSIZEGB} / 4 ))
 	/usr/bin/yes "${SELCHAR}" | (pv --size ${CHARWRITESIZE}g --stop-at-size > /dev/${CLIENTDISK})
-}
 
+	if [[ $PCNTOFSECTOR == '100' ]]; then
+		/usr/bin/yes "${SELCHAR}" | (pv > /dev/${CLIENTDISK})
+	fi
 
-
-function charfull {
-	/usr/bin/yes "${SELCHAR}" | (pv > /dev/${CLIENTDISK})
 }
 
 
@@ -632,8 +631,8 @@ function nist {
 	echo ""
 	echo "Step [3/3]: "
 	echo ""
-	VRFYCHAR='0'
 	PCNTOFSECTOR='10'
+	VRFYCHAR='0'
 	vrfydisk
 
 	if [[ $VRFYFAIL == '1' ]]; then
@@ -685,32 +684,43 @@ function dod {
 	echo ""
 
 	echo ""
-	echo "Step [1/6] "
+	echo "Step [1/6]: "
+	echo ""
 	PCNTOFSECTOR='100'
 	zerodisk
 	
 	echo ""
-	echo "[2/6] Verifying disk ${CLIENTDISK} - checking for 0's...."
+	echo "Step [2/6]: "
+	echo ""
+	PCNTOFSECTOR='100'
 	VRFYCHAR='0'
-	vrfyfull
+	vrfydisk
 
 	echo ""
-	echo "[3/6] Writing a pass of 1's to ${CLIENTDISK}"
-	SELBIT='1'
-	charfull
+	echo "Step [3/6]: "
+	echo ""
+	PCNTOFSECTOR='100'
+	SELCHAR='1'
+	chardisk
 	
 	echo ""
-	echo "[4/6] Verifying disk ${CLIENTDISK} - checking for 1's...."
+	echo "Step [4/6]: "
+	echo ""
+	PCNTOFSECTOR='100'
 	VRFYCHAR='1'
-	vrfyfull
+	vrfydisk
 
 	echo ""
-	echo "[5/6] Writing a pass of a random bit (${RANDOMBIT}) to ${CLIENTDISK}"
+	echo "Step [5/6]: "
+	echo ""
+	PCNTOFSECTOR='100'
 	SELBIT=${RANDBIT}
-	charfull
+	chardisk
 	
 	echo ""
-	echo "[6/6] Verifying disk ${CLIENTDISK} - checking for the random bit (${RANDOMBIT})...."
+	echo "Step [6/6]: "
+	echo ""
+	PCNTOFSECTOR='100'
 	VRFYCHAR=${RANDBIT}
 	vrfyfull
 }
