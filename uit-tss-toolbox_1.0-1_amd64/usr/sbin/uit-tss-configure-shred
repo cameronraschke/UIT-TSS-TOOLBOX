@@ -470,80 +470,140 @@ function randbit {
 
 
 function vrfyfast {
-	VRFYSECTIONS='10'
-	VRFYCOUNT='500'
-	VRFYCOUNTGB=$(( ${VRFYCOUNT} / 1000 ))
+	VRFYSECTIONS='1000'
+	VRFYDIVPERSEC='2'
 	VRFYBS='1000000'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
+	PCNTOFSECTOR='1'
+	a='0'
+	i='0'
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	VRFYWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
+	VRFYCOUNT=$(( ${DISKVRFYAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
+	VRFYFAIL='0'
+
+	if [[ -z $VRFYCHAR ]]; then
+	VRFYCHAR='0'
+	fi
 
 	echo ""
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
-
-	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY3=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 2)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY4=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 3)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY5=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 4)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY6=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 5)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY7=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 6)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY8=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 7)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY9=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 8)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY10=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 9)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
-	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
+	echo ""
+	echo ""
 	
-	if [[ -z $DISKVERIFY ]]; then
-	VRFYFAIL='0'
-        echo ""
+	while [[ $i -le $VRFYSECTIONS && $VRFYFAIL == '0' ]]; do
+
+	echo -e "\r\033[1A\033[0KVerifying section ${i}/${VRFYSECTIONS}"
+
+	VRFYCOUNT1=$(shuf -i 1-${VRFYCOUNT} -n 1)
+    VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
+        break
+    fi
+
+
+	VRFYCOUNT2=$(shuf -i 1-${VRFYCOUNT} -n 1)
+    VRFYSKIP2=$(( ${VRFYSKIP1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=${VRFYSKIP2} iflag=fullblock status=none \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
+        break
+    fi
+
+	i=$(( ${i} + 1 ))
+	a=$(( ${a} + ${VRFYSECTIONS} ))
+
+	done
+
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
+        break
+    fi
+
 	echo ""
-        echo "${VRFYCOUNTGB}GB over ${VRFYSECTIONS} different sections of ${CLIENTDISK} have been successfully verified."
+    echo "${i} different locations of ${CLIENTDISK} have been verified."
+	if [[ $VRFYFAIL == '0' ]]; then
+	echo "Test passed successfully!"
 	else
-	VRFYFAIL='1'
-        echo ""
-	echo ""
-	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+	echo "Test failed."
 	fi
 }
 
 
 
 function vrfymedium {
-	VRFYSECTIONS='10'
-	VRFYCOUNT='2000'
-	VRFYCOUNTGB=$(( ${VRFYCOUNT} / 1000 ))
+	VRFYSECTIONS='1000'
+	VRFYDIVPERSEC='2'
 	VRFYBS='1000000'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
+	PCNTOFSECTOR='5'
+	a='0'
+	i='0'
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	VRFYWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
+	VRFYCOUNT=$(( ${DISKVRFYAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
+	VRFYFAIL='0'
+
+	if [[ -z $VRFYCHAR ]]; then
+	VRFYCHAR='0'
+	fi
 
 	echo ""
 	echo ""
 	echo "Looking for non-${VRFYCHAR}'s on ${CLIENTDISK}...."
-
-	DISKVERIFY1=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY2=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 1)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY3=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 2)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY4=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 3)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY5=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 4)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY6=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 5)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY7=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 6)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY8=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 7)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY9=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 8)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY10=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT} skip=$(( ${DISKVRFYAMOUNT} * 9)) iflag=fullblock &> /dev/null | grep -oP -m 1 [^0] | head -1)
-	DISKVERIFY=$DISKVERIFY1 && $DISKVERIFY2 && $DISKVERIFY3 && $DISKVERIFY4 && $DISKVERIFY5 && $DISKVERIFY6 && \
-	$DISKVERIFY7 && $DISKVERIFY8 && $DISKVERIFY9 && $DISKVERIFY10
+	echo ""
+	echo ""
 	
-	if [[ -z $DISKVERIFY ]]; then
-	VRFYFAIL='0'
-        echo ""
+	while [[ $i -le $VRFYSECTIONS && $VRFYFAIL == '0' ]]; do
+
+	echo -e "\r\033[1A\033[0KVerifying section ${i}/${VRFYSECTIONS}"
+
+	VRFYCOUNT1=$(shuf -i 1-${VRFYCOUNT} -n 1)
+    VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
+        break
+    fi
+
+
+	VRFYCOUNT2=$(shuf -i 1-${VRFYCOUNT} -n 1)
+    VRFYSKIP2=$(( ${VRFYSKIP1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=${VRFYSKIP2} iflag=fullblock status=none \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
+        break
+    fi
+
+	i=$(( ${i} + 1 ))
+	a=$(( ${a} + ${VRFYSECTIONS} ))
+
+	done
+
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
+        break
+    fi
+
 	echo ""
-        echo "${VRFYCOUNTGB}GB over ${VRFYSECTIONS} different sections of ${CLIENTDISK} have been successfully verified."
+    echo "${i} different locations of ${CLIENTDISK} have been verified."
+	if [[ $VRFYFAIL == '0' ]]; then
+	echo "Test passed successfully!"
 	else
-	VRFYFAIL='1'
-        echo ""
-	echo ""
-	echo "Non-zero bits found on device ${CLIENTDISK}. Test has failed."
+	echo "Test failed."
 	fi
 }
 
@@ -591,7 +651,7 @@ function vrfynist {
 	
 	while [[ $i -le $VRFYSECTIONS && $VRFYFAIL == '0' ]]; do
 
-	echo -e "\r\033[1A\033[0KVerifying location ${i}/${VRFYSECTIONS}"
+	echo -e "\r\033[1A\033[0KVerifying section ${i}/${VRFYSECTIONS}"
 
 	VRFYCOUNT1=$(shuf -i 1-${VRFYCOUNT} -n 1)
     VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
