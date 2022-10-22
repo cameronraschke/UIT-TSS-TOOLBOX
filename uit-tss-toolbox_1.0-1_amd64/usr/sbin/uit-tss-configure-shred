@@ -608,19 +608,12 @@ function vrfynist {
 
 	done
 
-	if [[ VRFYFAIL == '0' ]]; then
-	DISKVRFYLAST=$(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none | grep -oP -m 1 [^${VRFYCHAR}] | head -1)
-
-	if [[ -z $DISKVRFYLAST ]]; then
-	VRFYFAIL='0'
-	:
-	else
-	VRFYFAIL='1'
-    echo ""
-	echo ""
-	echo "Test has failed."
-	fi
-	fi
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
+        break
+    fi
 
 	echo ""
     echo "${i} different locations of ${CLIENTDISK} have been verified."
