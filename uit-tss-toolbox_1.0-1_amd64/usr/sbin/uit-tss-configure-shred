@@ -366,32 +366,41 @@ function randquarter {
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKRANDAMOUNT=$(( ${DISKSIZEMB} / ${RANDSECTIONS} ))
 	PCNTOFSECTOR='25'
+	a='0'
 	i='0'
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	RANDWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
 	RANDCOUNT=$(( ${DISKRANDAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
+	RANDFAIL='0'
 
 	echo ""
 	echo ""
-	echo "Filling ${CLIENTDISK} with a stream of random bits...."
+	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of random bits...."
 	echo ""
 	echo ""
 	
-	while [[ $i -le $RANDSECTIONS ]]; do
-	
-	echo -e "\r\033[1A\033[0KWriting to location ${i}/${RANDSECTIONS}"
+	while [[ $i -le $RANDSECTIONS && $RANDFAIL == '0' ]]; do
 
-	RANDSKIP1=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) ))
-	dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT} seek=${RANDSKIP1} iflag=fullblock status=none
+	echo -e "\r\033[1A\033[0KWriting to section ${i}/${RANDSECTIONS}"
 
-	RANDSKIP2=$(( ${RANDSKIP1} + $(shuf -i 1-$(( ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) ))
-    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT} seek=${RANDSKIP2} iflag=fullblock status=none
+	RANDCOUNT1=$(shuf -i 1-${RANDCOUNT} -n 1)
+    RANDSKIP1=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} ))
+    dd if=/dev/${CLIENTDISK} bs=${RANDBS} count=${RANDCOUNT1} skip=${RANDSKIP1} iflag=fullblock status=none
+
+
+	RANDCOUNT2=$(shuf -i 1-${RANDCOUNT} -n 1)
+    RANDSKIP2=$(( ${RANDSKIP1} + $(shuf -i 1-$(( ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} ))
+    dd if=/dev/${CLIENTDISK} bs=${RANDBS} count=${RANDCOUNT2} skip=${RANDSKIP2} iflag=fullblock status=none
 
 	i=$(( ${i} + 1 ))
+	a=$(( ${a} + ${RANDSECTIONS} ))
 
 	done
 
-	pv /dev/urandom --size 1g --stop-at-size | dd bs=${RANDBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none
+	echo ""
+	echo "Completely filling the first and last sector"
+    dd if=/dev/${CLIENTDISK} bs=${RANDBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none
+	dd if=/dev/${CLIENTDISK} bs=${RANDBS} count=1000 skip=0 iflag=fullblock status=none
 }
 
 
@@ -596,7 +605,7 @@ function vrfynist {
 
 	VRFYCOUNT2=$(shuf -i 1-${VRFYCOUNT} -n 1)
     VRFYSKIP2=$(( ${VRFYSKIP1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none \
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=${VRFYSKIP2} iflag=fullblock status=none \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
                 VRFYFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
@@ -604,7 +613,7 @@ function vrfynist {
     fi
 
 	i=$(( ${i} + 1 ))
-	a=$(( ${a} + 1000 ))
+	a=$(( ${a} + ${VRFYSECTIONS} ))
 
 	done
 
