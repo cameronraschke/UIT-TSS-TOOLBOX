@@ -567,6 +567,7 @@ function vrfynist {
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	VRFYWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
 	VRFYCOUNT=$(( ${DISKVRFYAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
+	VRFYFAIL='0'
 
 	if [[ -z $VRFYCHAR ]]; then
 	VRFYCHAR='0'
