@@ -208,17 +208,16 @@ function intro {
 	echo "If you have exited and want to restart UIT-TSS-SHRED, press CTRL + D"
 	echo ""
 	echo ""
-echo '
-| |    | |  | |     | |
-| |    | |  | |_____| |
-| |    | |  | |_____| |
-| |____| |  | |     | |
-\________/  | |     | |
-'
+	echo ""
+	echo "| |    | |  | |     | |"
+	echo "| |    | |  | |_____| |"
+	echo "| |    | |  | |_____| |"
+	echo "| |____| |  | |     | |"
+	echo "\________/  | |     | |"
 	echo ""
 	echo "------------------------------"
 	echo ""
-echo 'Checklist:
+	echo 'Checklist:
 	-Physical connections
 	   * Make sure that power is plugged in to the client.
 	   * Do not use UIT-TSS-SHRED on USB drives or drives connected over USB.
@@ -233,7 +232,7 @@ echo 'Checklist:
 	      
 	*** WARNING *** After pressing Enter, the system will enter hibernate mode.
 	This is normal. Please wake up the system after it hibernates. *** WARNING ***
-'
+	'
 	read -p "Please remove the thumb drive and press Enter...."
 	echo -n mem > /sys/power/state
 	clear
@@ -482,10 +481,6 @@ function charfull {
 
 
 
-
-
-
-
 function vrfydisk {
 	VRFYSECTIONS='1000'
 	VRFYDIVPERSEC='2'
@@ -622,7 +617,7 @@ function nist {
 	echo ""
 	
 	echo ""
-	echo "[1/3] Writing a stream of random characters to half of ${CLIENTDISK}...."
+	echo "Step 1/3:"
 	sleep 1
 	PCNTOFSECTOR='25'
 	randdisk
