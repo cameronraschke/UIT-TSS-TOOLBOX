@@ -384,12 +384,12 @@ function randquarter {
 
 	RANDCOUNT1=$(shuf -i 1-${RANDCOUNT} -n 1)
     RANDSKIP1=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} ))
-    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT1} seek=${RANDSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none
+    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT1} seek=${RANDSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
 
 
 	RANDCOUNT2=$(shuf -i 1-${RANDCOUNT} -n 1)
     RANDSKIP2=$(( ${RANDSKIP1} + $(shuf -i 1-$(( ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} ))
-    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT2} seek=${RANDSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none
+    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT2} seek=${RANDSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
 
 	i=$(( ${i} + 1 ))
 	a=$(( ${a} + ${RANDSECTIONS} ))
@@ -398,9 +398,9 @@ function randquarter {
 
 	echo ""
 	echo "[1/2] Completely filling the first and last sector"
-    dd if=/dev/${CLIENTDISK} bs=${RANDBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none
+    dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none
 	echo -e "\r\033[1A\033[0K[2/2] Completely filling the first and last sector"
-	dd if=/dev/${CLIENTDISK} bs=${RANDBS} count=1000 skip=0 iflag=fullblock status=none
+	dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKRANDAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none
 }
 
 
