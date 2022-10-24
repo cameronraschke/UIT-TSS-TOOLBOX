@@ -367,7 +367,7 @@ function randbit {
 function randdisk {
 	RANDSECTIONS='1000'
 	RANDDIVPERSEC='2'
-	RANDBS='1000000'
+	RANDBS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKRANDAMOUNT=$(( ${DISKSIZEMB} / ${RANDSECTIONS} ))
 	a='0'
@@ -416,7 +416,7 @@ function randdisk {
 function zerodisk {
 	ZEROSECTIONS='1000'
 	ZERODIVPERSEC='2'
-	ZEROBS='1000000'
+	ZEROBS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKZEROAMOUNT=$(( ${DISKSIZEMB} / ${ZEROSECTIONS} ))
 	PCNTOFSECTOR='50'
@@ -479,7 +479,7 @@ function chardisk {
 function vrfydisk {
 	VRFYSECTIONS='1000'
 	VRFYDIVPERSEC='2'
-	VRFYBS='1000000'
+	VRFYBS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
 	a='0'
