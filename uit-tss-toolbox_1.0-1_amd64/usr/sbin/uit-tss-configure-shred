@@ -469,14 +469,52 @@ function zerodisk {
 
 
 function chardisk {
+	CHARSECTIONS='1000'
+	CHARDIVPERSEC='2'
+	CHARBS='1M'
+	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
+	DISKCHARAMOUNT=$(( ${DISKSIZEMB} / ${CHARSECTIONS} ))
+	a='0'
+	i='0'
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	CHARWRITESIZE=$(( ${DISKSIZEGB} / 4 ))
-	/usr/bin/yes "${SELCHAR}" | (pv --size ${CHARWRITESIZE}g --stop-at-size > /dev/${CLIENTDISK})
+	CHARWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
+	CHARCOUNT=$(( ${DISKCHARAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
+
+	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${SELCHAR}'s...."
+	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		/usr/bin/yes "${SELCHAR}" | (pv > /dev/${CLIENTDISK})
+		/usr/bin/pv < yes "${SELCHAR}" > /dev/${CLIENTDISK}
+		return 0
 	fi
+	
+	while [[ $i -le $CHARSECTIONS ]]; do
 
+	echo -e "\r\033[1A\033[0KWriting to section ${i}/${CHARSECTIONS}"
+
+	CHARCOUNT1=$(shuf -i 1-${CHARCOUNT} -n 1)
+   CHARSKIP1=$(( $(shuf -i 1-$(( ${DISKCHARAMOUNT} / ${CHARDIVPERSEC} )) -n 1) + ${a} / 2 ))
+    yes "${SELCHAR}" \
+    	| dd bs=${CHARBS} count=${CHARCOUNT1} seek=${CHARSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+
+
+	CHARCOUNT2=$(shuf -i 1-${CHARCOUNT} -n 1)
+    CHARSKIP2=$(( $(shuf -i 1-$(( ${DISKCHARAMOUNT} + ${DISKCHARAMOUNT} - ${DISKCHARAMOUNT} / ${CHARDIVPERSEC} )) -n 1) + ${a} ))
+	yes "${SELCHAR}" \
+    	| dd bs=${CHARBS} count=${CHARCOUNT2} seek=${CHARSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+
+	i=$(( ${i} + 1 ))
+	a=$(( ${a} + ${DISKCHARAMOUNT} ))
+
+	done
+
+	echo ""
+	echo "[1/2] Completely filling the first and last sector"
+	yes "${SELCHAR}" \
+    	| dd bs=${CHARBS} count=${DISKCHARAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+	echo -e "\r\033[1A\033[0K[2/2] Completely filling the first and last sector"
+	yes "${SELCHAR}" \
+    	| dd bs=${CHARBS} count=${DISKCHARAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKCHARAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 }
 
 
@@ -836,8 +874,7 @@ function schneier {
 
 
 function gutmann {
-	randbit
-	
+
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in Gutmann mode."
@@ -845,55 +882,68 @@ function gutmann {
 
 	echo ""
 	echo "[1/35] Writing a pass of a random bit (${RANDOMBIT1}) to ${CLIENTDISK}"
+	randbit
+	PCNTOFSECTOR='100'
 	SELCHAR=${RANDBIT}
-	charfull
+	chardisk
 
 	echo "[2/35] Writing a pass of a random bit (${RANDOMBIT2}) to ${CLIENTDISK}"
 	randbit
+	PCNTOFSECTOR='100'
 	SELCHAR=${RANDBIT}
-	charfull
+	chardisk
 
 	echo "[3/35] Writing a pass of a random bit (${RANDOMBIT3}) to ${CLIENTDISK}"
 	randbit
+	PCNTOFSECTOR='100'
 	SELCHAR=${RANDBIT}
-	charfull
+	chardisk
 
 	echo "[4/35] Writing a pass of a random bit (${RANDOMBIT4}) to ${CLIENTDISK}"
 	randbit
+	PCNTOFSECTOR='100'
 	SELCHAR=${RANDBIT}
-	charfull
+	chardisk
 
 	echo "[5/35] Writing pattern 01010101 to ${CLIENTDISK}"
+	PCNTOFSECTOR='100'
 	SELCHAR='01010101'
-	charfull
+	chardisk
 
 	echo "[6/35] Writing pattern 10101010 to ${CLIENTDISK}"
+	PCNTOFSECTOR='100'
 	SELCHAR='10101010'
-	charfull
+	chardisk
 
 	echo "[7/35] Writing pattern 10010010 to ${CLIENTDISK}"
+	PCNTOFSECTOR='100'
 	SELCHAR='10010010'
-	charfull
+	chardisk
 
 	echo "[8/35] Writing pattern 01001001 to ${CLIENTDISK}"
+	PCNTOFSECTOR='100'
 	SELCHAR='01001001'
-	charfull
+	chardisk
 
 	echo "[9/35] Writing pattern 00100100 to ${CLIENTDISK}"
+	PCNTOFSECTOR='100'
 	SELCHAR='00100100'
-	charfull
+	chardisk
 
 	echo "[10/35] Writing pattern 00000000 to ${CLIENTDISK}"
+	PCNTOFSECTOR='100'
 	SELCHAR='00000000'
-	charfull
+	chardisk
 
 	echo "[11/35] Writing pattern 00010001 to ${CLIENTDISK}"
+	PCNTOFSECTOR='100'
 	SELCHAR='00010001'
-	charfull
+	chardisk
 
 	echo "[12/35] Writing pattern 00100010 to ${CLIENTDISK}"
+	PCNTOFSECTOR='100'
 	SELCHAR='00100010'
-	charfull
+	chardisk
 
 	echo "[13/35] Writing pattern 00110011 to ${CLIENTDISK}"
 	/usr/bin/yes "00110011" | (pv > /dev/${CLIENTDISK})
