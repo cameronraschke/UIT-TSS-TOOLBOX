@@ -396,7 +396,7 @@ function randdisk {
 
 
 	RANDCOUNT2=$(shuf -i 1-${RANDCOUNT} -n 1)
-    RANDSKIP2=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} + ${DISKRANDAMOUNT} - ${DISKRNADAMOUNT} / ${RNADDIVPERSEC} )) -n 1) + ${a} ))
+    RANDSKIP2=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} + ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDIVPERSEC} )) -n 1) + ${a} ))
     dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT2} seek=${RANDSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
 
 	i=$(( ${i} + 1 ))
@@ -540,7 +540,7 @@ function vrfydisk {
 
 	done
 
-    if [[ $(dd if=/dev/${CLIENTDISK} count=1000000 skip=$(( $(cat /sys/block/${CLIENTDISK}/size) - 1000000 )) iflag=fullblock status=none \
+    if [[ $(dd if=/dev/${CLIENTDISK} count=100000 skip=$(( $(cat /sys/block/${CLIENTDISK}/size) - 100000 )) iflag=fullblock status=none \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
                 VRFYFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
