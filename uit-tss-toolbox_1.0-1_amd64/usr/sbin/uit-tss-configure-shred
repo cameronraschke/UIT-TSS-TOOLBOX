@@ -277,14 +277,11 @@ function modeselect {
 	echo "7 Verify Only
 	-Does not write data
 	-Different types of verification"
-	
-	echo ""
-	echo "8 Custom Mode
-	-User chooses different options"
 
 	echo ""
-	read -n1 -p "Choose [1-7] " MODESELECT
+	read -n1 -p "Choose [1-8] " MODESELECT
 	echo ""
+
 	case $MODESELECT in
 	1)
 	MODE='nist'
@@ -314,16 +311,12 @@ function modeselect {
 	MODE='verify'
 	RMODE='Verify Mode'
 	;;
-	7)
-	MODE='custom'
-	RMODE='Custom Mode'
-	;;
 	*)
 	modeselect
 	;;
 	esac
 	
-	if [[ $MODE == 'nist' ]]; then
+	if [[ $MODE == 'nist' || $MODE == 'custom' ]]; then
 	echo ""
 	echo '*** WARNING *** After pressing Enter, the system will enter hibernate mode.
 	This is normal. Please wake up the system after it hibernates. *** WARNING ***'
@@ -413,9 +406,9 @@ function randdisk {
 	done
 
 	echo ""
-	echo "[1/2] Completely filling the first and last sector"
+	echo "[1/2] Completely filling the first sector"
     dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-	echo -e "\r\033[1A\033[0K[2/2] Completely filling the first and last sector"
+	echo -e "\r\033[1A\033[0K[2/2] Completely filling the last sector"
 	dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKRANDAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 }
 
@@ -460,9 +453,9 @@ function zerodisk {
 	done
 
 	echo ""
-	echo "[1/2] Completely filling the first and last sector"
+	echo "[1/2] Completely filling the first sector"
     dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-	echo -e "\r\033[1A\033[0K[2/2] Completely filling the first and last sector"
+	echo -e "\r\033[1A\033[0K[2/2] Completely filling the last sector"
 	dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKZEROAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 }
 
@@ -509,10 +502,10 @@ function chardisk {
 	done
 
 	echo ""
-	echo "[1/2] Completely filling the first and last sector"
+	echo "[1/2] Completely filling the first sector"
 	yes "${SELCHAR}" \
     	| dd bs=${CHARBS} count=${DISKCHARAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-	echo -e "\r\033[1A\033[0K[2/2] Completely filling the first and last sector"
+	echo -e "\r\033[1A\033[0K[2/2] Completely filling the last sector"
 	yes "${SELCHAR}" \
     	| dd bs=${CHARBS} count=${DISKCHARAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKCHARAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 }
@@ -555,7 +548,7 @@ function vrfydisk {
 
 	fi
 	
-	while [[ $i -le $VRFYSECTIONS && $VRFYFAIL == '0' ]]; do
+	while [[ $i -lt $VRFYSECTIONS && $VRFYFAIL == '0' ]]; do
 
 	echo -e "\r\033[1A\033[0KVerifying section ${i}/${VRFYSECTIONS}"
 
@@ -583,6 +576,15 @@ function vrfydisk {
 
 	done
 
+	echo "Verifing the first location of the disk...."
+	if [[ $(dd if=/dev/${CLIENTDISK} count=${DISKVRFYAMOUNT} skip=0 iflag=fullblock status=none 2>/dev/null \
+        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
+                VRFYFAIL='1'
+                echo "Bad bits found on device ${CLIENTDISK}."
+        break
+    fi
+
+	echo "Verifing the last location of the disk...."
     if [[ $(dd if=/dev/${CLIENTDISK} count=${DISKVRFYAMOUNT} skip=$(( ${DISKSIZEMB} - ${DISKVRFYAMOUNT} )) iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
                 VRFYFAIL='1'
@@ -880,27 +882,27 @@ function gutmann {
 	echo "UIT-TSS-SHRED running in Gutmann mode."
 	echo ""
 
+	randbit
 	echo ""
 	echo "[1/35] Writing a pass of a random bit (${RANDOMBIT1}) to ${CLIENTDISK}"
-	randbit
 	PCNTOFSECTOR='100'
 	SELCHAR=${RANDBIT}
 	chardisk
 
+	randbit
 	echo "[2/35] Writing a pass of a random bit (${RANDOMBIT2}) to ${CLIENTDISK}"
-	randbit
 	PCNTOFSECTOR='100'
 	SELCHAR=${RANDBIT}
 	chardisk
 
+	randbit
 	echo "[3/35] Writing a pass of a random bit (${RANDOMBIT3}) to ${CLIENTDISK}"
-	randbit
 	PCNTOFSECTOR='100'
 	SELCHAR=${RANDBIT}
 	chardisk
 
-	echo "[4/35] Writing a pass of a random bit (${RANDOMBIT4}) to ${CLIENTDISK}"
 	randbit
+	echo "[4/35] Writing a pass of a random bit (${RANDOMBIT4}) to ${CLIENTDISK}"
 	PCNTOFSECTOR='100'
 	SELCHAR=${RANDBIT}
 	chardisk
@@ -1002,17 +1004,21 @@ function gutmann {
 	echo "[31/35] Writing pattern 11011011 to ${CLIENTDISK}"
 	/usr/bin/yes "11011011" | (pv > /dev/${CLIENTDISK})
 
+	randbit
 	echo "[32/35] Writing a pass of a random bit (${RANDOMBIT5}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT5}" | (pv > /dev/${CLIENTDISK})
+	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 
+	randbit
 	echo "[33/35] Writing a pass of a random bit (${RANDOMBIT6}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT6}" | (pv > /dev/${CLIENTDISK})
+	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 
+	randbit
 	echo "[34/35] Writing a pass of a random bit (${RANDOMBIT7}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT7}" | (pv > /dev/${CLIENTDISK})
+	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 
+	randbit
 	echo "[35/35] Writing a pass of a random bit (${RANDOMBIT8}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT8}" | (pv > /dev/${CLIENTDISK})
+	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
 	echo ""
@@ -1034,21 +1040,25 @@ function verify {
 	echo "1 Full verification (Default)
 	-Longest, verifies every bit on the disk"
 	echo ""
-	echo "2 Very fast verification
-	-1000 divisions, 10% verified"
-	echo ""
-	echo "3 Medium verification
+	echo "2 Medium verification
 	-1000 divisions, 50% verified"
 	echo ""
+	echo "3 Very fast verification
+	-1000 divisions, 10% verified"
+
+	echo ""
+	read -p -n 1 "Please select [1-3]: "
+	echo ""
+
 	case $VRFYSELECT in
 	1)
 	VRFYMODE='full'
 	;;
 	2)
-	VRFYMODE='fast'
+	VRFYMODE='medium'
 	;;
 	3)
-	VRFYMODE='medium'
+	VRFYMODE='fast'
 	;;
 	*)
 	echo ""
@@ -1058,24 +1068,6 @@ function verify {
 	verify
 	;;
 	esac
-	
-	if [[ $VRFYMODE == 'full' ]]; then
-	PCNTOFSECTOR='100'
-	VRFYCHAR=0
-	vrfydisk
-	fi
-	
-	if [[ $VRFYMODE == 'fast' ]]; then
-	PCNTOFSECTOR='10'
-	VRFYCHAR=0
-	vrfydisk
-	fi
-	
-	if [[ $VRFYMODE == 'medium' ]]; then
-	PCNTOFSECTOR='50'
-	VRFYCHAR=0
-	vrfydisk
-	fi
 }
 
 
@@ -1088,10 +1080,6 @@ function execute {
 
 	if [[ $MODE == 'zero' ]]; then
 	zero
-	fi
-
-	if [[ $MODE == 'secureerase' ]]; then
-	secureerase
 	fi
 
 	if [[ $MODE == 'dod' ]]; then
@@ -1111,7 +1099,24 @@ function execute {
 	fi
 	
 	if [[ $MODE == 'verify' ]]; then
-	verify
+
+		if [[ $VRFYMODE == 'full' ]]; then
+			PCNTOFSECTOR='100'
+			VRFYCHAR=0
+			vrfydisk
+		fi
+	
+		if [[ $VRFYMODE == 'medium' ]]; then
+			PCNTOFSECTOR='50'
+			VRFYCHAR=0
+			vrfydisk
+		fi
+
+		if [[ $VRFYMODE == 'fast' ]]; then
+			PCNTOFSECTOR='10'
+			VRFYCHAR=0
+			vrfydisk
+		fi
 	fi
 }
 
