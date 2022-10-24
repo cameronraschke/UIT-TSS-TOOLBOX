@@ -426,7 +426,7 @@ function zerodisk {
 	echo ""
 	echo ""
 
-	if [[ PCNTOFSECTOR == '100' ]]; then
+	if [[ $PCNTOFSECTOR == '100' ]]; then
 		echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of null bits...."
 		/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 		return 0
@@ -633,7 +633,7 @@ function nist {
 	echo ""
 	echo "Step [3/3]: "
 	echo ""
-	PCNTOFSECTOR='10'
+	PCNTOFSECTOR='50'
 	VRFYCHAR='0'
 	vrfydisk
 
@@ -648,7 +648,7 @@ function nist {
 		echo ""
 		echo "Step [2/2]: "
 		echo ""
-		PCNTOFSECTOR='10'
+		PCNTOFSECTOR='100'
 		VRFYCHAR='0'
 		vrfydisk
 	fi
@@ -670,7 +670,7 @@ function zero {
 	
 	echo ""
 	echo "Step: [2/2]: "
-	PCNTOFSECTOR='1'
+	PCNTOFSECTOR='10'
 	VRFYCHAR='0'
 	vrfydisk
 }
