@@ -239,11 +239,13 @@ function intro {
 function modeselect {
 	echo ""
 	echo "Choose a mode:"
+	echo ""
 
 	echo ""
 	echo "1 NIST SP 800-88 (Default)
 	-Secure Erase
-	-Verification"
+	-Partial verification
+	-Fastest for NVME"
 
 	echo ""
 	echo "2 Zero Mode + Quick Verify
@@ -320,6 +322,15 @@ function modeselect {
 	modeselect
 	;;
 	esac
+	
+	if [[ $MODE == 'nist' ]]; then
+	echo ""
+	echo '*** WARNING *** After pressing Enter, the system will enter hibernate mode.
+	This is normal. Please wake up the system after it hibernates. *** WARNING ***'
+	echo ""
+	read -p "Please press Enter...."
+	echo -n mem > /sys/power/state
+	fi
 }
 
 
@@ -389,12 +400,12 @@ function randdisk {
 
 	RANDCOUNT1=$(shuf -i 1-${RANDCOUNT} -n 1)
    RANDSKIP1=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} / 2 ))
-    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT1} seek=${RANDSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
+    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT1} seek=${RANDSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 
 	RANDCOUNT2=$(shuf -i 1-${RANDCOUNT} -n 1)
     RANDSKIP2=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} + ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} ))
-    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT2} seek=${RANDSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
+    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT2} seek=${RANDSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 	i=$(( ${i} + 1 ))
 	a=$(( ${a} + ${DISKRANDAMOUNT} ))
@@ -403,9 +414,9 @@ function randdisk {
 
 	echo ""
 	echo "[1/2] Completely filling the first and last sector"
-    dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none
+    dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 	echo -e "\r\033[1A\033[0K[2/2] Completely filling the first and last sector"
-	dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKRANDAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none
+	dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKRANDAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 }
 
 
@@ -438,12 +449,12 @@ function zerodisk {
 
 	ZEROCOUNT1=$(shuf -i 1-${ZEROCOUNT} -n 1)
    ZEROSKIP1=$(( $(shuf -i 1-$(( ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} / 2 ))
-    dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT1} seek=${ZEROSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
+    dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT1} seek=${ZEROSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 
 	ZEROCOUNT2=$(shuf -i 1-${ZEROCOUNT} -n 1)
     ZEROSKIP2=$(( $(shuf -i 1-$(( ${DISKZEROAMOUNT} + ${DISKZEROAMOUNT} - ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} ))
-    dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT2} seek=${ZEROSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
+    dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT2} seek=${ZEROSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 	i=$(( ${i} + 1 ))
 	a=$(( ${a} + ${DISKZEROAMOUNT} ))
@@ -452,9 +463,9 @@ function zerodisk {
 
 	echo ""
 	echo "[1/2] Completely filling the first and last sector"
-    dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none
+    dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 	echo -e "\r\033[1A\033[0K[2/2] Completely filling the first and last sector"
-	dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKZEROAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none
+	dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKZEROAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 }
 
 
@@ -536,7 +547,7 @@ function vrfydisk {
 
 	done
 
-    if [[ $(dd if=/dev/${CLIENTDISK} count=100000 skip=$(( $(cat /sys/block/${CLIENTDISK}/size) - 100000 )) iflag=fullblock status=none \
+    if [[ $(dd if=/dev/${CLIENTDISK} count=${DISKVRFYAMOUNT} skip=$(( ${DISKSIZEMB} - ${DISKVRFYAMOUNT} )) iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
                 VRFYFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
@@ -558,12 +569,6 @@ function secerase {
 	SSD_REGEX='sd.*'
 	NVME_REGEX='nvme.*'
 	SCSI_REGEX='hd.*'
-	
-	echo '*** WARNING *** After pressing Enter, the system will enter hibernate mode.
-	This is normal. Please wake up the system after it hibernates. *** WARNING ***
-	'
-	read -p "Please press Enter...."
-	echo -n mem > /sys/power/state
 
 	echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
 
@@ -1005,16 +1010,19 @@ function verify {
 	verify
 	;;
 	esac
+	
 	if [[ $VRFYMODE == 'full' ]]; then
 	PCNTOFSECTOR='100'
 	VRFYCHAR=0
 	vrfydisk
 	fi
+	
 	if [[ $VRFYMODE == 'fast' ]]; then
 	PCNTOFSECTOR='10'
 	VRFYCHAR=0
 	vrfydisk
 	fi
+	
 	if [[ $VRFYMODE == 'medium' ]]; then
 	PCNTOFSECTOR='50'
 	VRFYCHAR=0
