@@ -126,7 +126,6 @@ libasound2-plugins
 alsa-utils
 sox
 libsox-fmt-all
-postfix
 ca-certificates
 sshpass
 kbd
@@ -136,28 +135,6 @@ EOF
 
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
 cat <<'EOF' > /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
-echo "uit-tss-clone.cameronraschke.com" > /etc/mailname
-touch /etc/postfix/sasl_passwd
-echo '[mickey.uit]:25	cameron:UHouston!' > /etc/postfix/sasl_passwd
-postmap /etc/postfix/sasl_passwd
-postconf "smtp_tls_security_level=may"
-postconf "smtpd_tls_security_level=may"
-postconf "smtpd_relay_restrictions=permit_mynetworks reject"
-postconf "myhostname=uit-tss-clone.cameronraschke.com"
-postconf "alias_maps=hash:/etc/aliases"
-postconf "alias_database=hash:/etc/aliases"
-postconf "myorigin=/etc/mailname"
-postconf "mydestination=$myhostname, , localhost"
-postconf "mynetworks = 127.0.0.0/8"
-postconf "mailbox_size_limit = 1"
-postconf "inet_interfaces = loopback-only"
-postconf "inet_protocols = ipv4"
-postconf "smtp_sasl_auth_enable = yes"
-postconf "smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd"
-postconf "smtp_sasl_security_options = noanonymous"
-postconf "smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt"
-postconf "smtp_use_tls = yes"
-postconf "relayhost = [mickey.uit]:25"
 
 touch /root/.ssh_passwd
 echo "UHouston!" > /root/.ssh_passwd
