@@ -366,155 +366,71 @@ function randbit {
 
 
 
-function randdisk {
-	RANDSECTIONS='1000'
-	RANDDIVPERSEC='2'
-	RANDBS='1M'
+function writedisk {
+	SECTIONS='1000'
+	DIVPERSEC='2'
+	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
-	DISKRANDAMOUNT=$(( ${DISKSIZEMB} / ${RANDSECTIONS} ))
+	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	a='0'
 	i='0'
-	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	RANDWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
-	RANDCOUNT=$(( ${DISKRANDAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
+	WRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
+	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
+	PROCFAIL='0'
 
-	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of random bits...."
+	if [[ "$SOURCE" == 'zero' ]]; then
+		SOURCE='/dev/null'
+		BITS='null bits'
+	fi
+
+	if [[ "$SOURCE" == 'random' ]]; then
+		SOURCE='/dev/urandom'
+		BITS='random bits'
+	fi
+
+	if [[ "$SOURCE" == 'pattern' || "$SOURCE" == 'char' ]]
+		SOURCE=$(/usr/bin/yes "${CHAR}")
+		BITS="${CHAR}'s"
+	fi
+
+	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
 	echo ""
 	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of random bits...."
-	/usr/bin/pv < /dev/urandom > /dev/${CLIENTDISK}
+	/usr/bin/pv < ${SOURCE} > /dev/${CLIENTDISK}
 	return 0
 	fi
 	
-	while [[ $i -le $RANDSECTIONS ]]; do
+	while [[ $i -lt $SECTIONS ]]; do
 
-	echo -e "\r\033[1A\033[0KWriting to section ${i}/${RANDSECTIONS}"
+	echo -e "\r\033[1A\033[0KWriting to section ${i}/${SECTIONS}"
 
-	RANDCOUNT1=$(shuf -i 1-${RANDCOUNT} -n 1)
-   RANDSKIP1=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} / 2 ))
-    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT1} seek=${RANDSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+	COUNT1=$(shuf -i 1-${COUNT} -n 1)
+	SKIP1=$(( $(shuf -i 1-$(( ${DISKAMOUNT} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
+    dd if=${SOURCE} bs=${BS} count=${COUNT1} seek=${SKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 
-	RANDCOUNT2=$(shuf -i 1-${RANDCOUNT} -n 1)
-    RANDSKIP2=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} + ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} ))
-    dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT2} seek=${RANDSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+	COUNT2=$(shuf -i 1-${COUNT} -n 1)
+    SKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} ))
+    dd if=${SOURCE} bs=${BS} count=${COUNT2} seek=${SKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 	i=$(( ${i} + 1 ))
-	a=$(( ${a} + ${DISKRANDAMOUNT} ))
+	a=$(( ${a} + ${SECTIONSIZEMB} ))
 
 	done
 
 	echo ""
 	echo "[1/2] Completely filling the first sector"
-    dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+    dd if=${SOURCE} bs=${BS} count=${SECTIONSIZEMB} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 	echo -e "\r\033[1A\033[0K[2/2] Completely filling the last sector"
-	dd if=/dev/urandom bs=${RANDBS} count=${DISKRANDAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKRANDAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-}
-
-
-
-function zerodisk {
-	ZEROSECTIONS='1000'
-	ZERODIVPERSEC='2'
-	ZEROBS='1M'
-	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
-	DISKZEROAMOUNT=$(( ${DISKSIZEMB} / ${ZEROSECTIONS} ))
-	a='0'
-	i='0'
-	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	ZEROWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
-	ZEROCOUNT=$(( ${DISKZEROAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
-
-	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of null bits...."
-	echo ""
-
-	if [[ $PCNTOFSECTOR == '100' ]]; then
-		/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
-		return 0
-	fi
-	
-	while [[ $i -le $ZEROSECTIONS ]]; do
-
-	echo -e "\r\033[1A\033[0KWriting to section ${i}/${ZEROSECTIONS}"
-
-	ZEROCOUNT1=$(shuf -i 1-${ZEROCOUNT} -n 1)
-   ZEROSKIP1=$(( $(shuf -i 1-$(( ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} / 2 ))
-    dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT1} seek=${ZEROSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-
-
-	ZEROCOUNT2=$(shuf -i 1-${ZEROCOUNT} -n 1)
-    ZEROSKIP2=$(( $(shuf -i 1-$(( ${DISKZEROAMOUNT} + ${DISKZEROAMOUNT} - ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} ))
-    dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT2} seek=${ZEROSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-
-	i=$(( ${i} + 1 ))
-	a=$(( ${a} + ${DISKZEROAMOUNT} ))
-
-	done
-
-	echo ""
-	echo "[1/2] Completely filling the first sector"
-    dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-	echo -e "\r\033[1A\033[0K[2/2] Completely filling the last sector"
-	dd if=/dev/zero bs=${ZEROBS} count=${DISKZEROAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKZEROAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-}
-
-
-
-function chardisk {
-	CHARSECTIONS='1000'
-	CHARDIVPERSEC='2'
-	CHARBS='1M'
-	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
-	DISKCHARAMOUNT=$(( ${DISKSIZEMB} / ${CHARSECTIONS} ))
-	a='0'
-	i='0'
-	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	CHARWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
-	CHARCOUNT=$(( ${DISKCHARAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
-
-	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${SELCHAR}'s...."
-	echo ""
-
-	if [[ $PCNTOFSECTOR == '100' ]]; then
-		/usr/bin/pv < yes "${SELCHAR}" > /dev/${CLIENTDISK}
-		return 0
-	fi
-	
-	while [[ $i -le $CHARSECTIONS ]]; do
-
-	echo -e "\r\033[1A\033[0KWriting to section ${i}/${CHARSECTIONS}"
-
-	CHARCOUNT1=$(shuf -i 1-${CHARCOUNT} -n 1)
-   CHARSKIP1=$(( $(shuf -i 1-$(( ${DISKCHARAMOUNT} / ${CHARDIVPERSEC} )) -n 1) + ${a} / 2 ))
-    yes "${SELCHAR}" \
-    	| dd bs=${CHARBS} count=${CHARCOUNT1} seek=${CHARSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-
-
-	CHARCOUNT2=$(shuf -i 1-${CHARCOUNT} -n 1)
-    CHARSKIP2=$(( $(shuf -i 1-$(( ${DISKCHARAMOUNT} + ${DISKCHARAMOUNT} - ${DISKCHARAMOUNT} / ${CHARDIVPERSEC} )) -n 1) + ${a} ))
-	yes "${SELCHAR}" \
-    	| dd bs=${CHARBS} count=${CHARCOUNT2} seek=${CHARSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-
-	i=$(( ${i} + 1 ))
-	a=$(( ${a} + ${DISKCHARAMOUNT} ))
-
-	done
-
-	echo ""
-	echo "[1/2] Completely filling the first sector"
-	yes "${SELCHAR}" \
-    	| dd bs=${CHARBS} count=${DISKCHARAMOUNT} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-	echo -e "\r\033[1A\033[0K[2/2] Completely filling the last sector"
-	yes "${SELCHAR}" \
-    	| dd bs=${CHARBS} count=${DISKCHARAMOUNT} seek=$(( ${DISKSIZEMB} - ${DISKCHARAMOUNT} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+	dd if=${SOURCE} bs=${BS} count=${SECTIONSIZEMB} seek=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 }
 
 
 
 function vrfydisk {
-	# Generic variables
 	SECTIONS='1000'
 	DIVPERSEC='2'
 	BS='1M'
@@ -536,7 +452,7 @@ function vrfydisk {
 	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		FULLVRFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${VRFYCHAR}]" | head -1)
+		FULLVRFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${CHAR}]" | head -1)
 
 		if [[ -z $FULLVRFY ]]; then
         	echo "The drive ${CLIENTDISK} is completely and securely wiped."
@@ -555,21 +471,20 @@ function vrfydisk {
 
 	COUNT1=$(shuf -i 1-${COUNT} -n 1)
 	SKIP1=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none 2>/dev/null \
-        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
-                VRFYFAIL='1'
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP1} iflag=fullblock status=none 2>/dev/null \
+        | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
+                PROCFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
-        break
+        return 1
     fi
 
-
-	VRFYCOUNT2=$(shuf -i 1-${VRFYCOUNT} -n 1)
-    VRFYSKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=${VRFYSKIP2} iflag=fullblock status=none 2>/dev/null \
-        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
-                VRFYFAIL='1'
+	COUNT2=$(shuf -i 1-${COUNT} -n 1)
+    SKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} ))
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT2} skip=${SKIP2} iflag=fullblock status=none 2>/dev/null \
+        | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
+                PROCFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
-        break
+        return 1
     fi
 
 	i=$(( ${i} + 1 ))
@@ -579,26 +494,28 @@ function vrfydisk {
 
 	echo "Verifing the first location of the disk...."
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=0 iflag=fullblock status=none 2>/dev/null \
-        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
-                VRFYFAIL='1'
+        | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' && $PROCFAIL == '0' ]]; then
+                PROCFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
-        break
+        return 1
     fi
 
 	echo "Verifing the last location of the disk...."
     if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) iflag=fullblock status=none 2>/dev/null \
-        | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
-                VRFYFAIL='1'
+        | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' && $PROCFAIL == '0' ]]; then
+                PROCFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
-        break
+        return 1
     fi
 
 	echo ""
     echo "${PCNTOFSECTOR}% of ${CLIENTDISK} has been verified."
-	if [[ $VRFYFAIL == '0' ]]; then
+	if [[ $PROCFAIL == '0' ]]; then
 	echo "Test passed successfully!"
+	return 0
 	else
 	echo "Test failed."
+	return 1
 	fi
 }
 
