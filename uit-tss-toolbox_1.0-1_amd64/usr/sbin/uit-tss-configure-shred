@@ -391,16 +391,16 @@ function randdisk {
 	echo -e "\r\033[1A\033[0KWriting to section ${i}/${RANDSECTIONS}"
 
 	RANDCOUNT1=$(shuf -i 1-${RANDCOUNT} -n 1)
-    RANDSKIP1=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} ))
+   RANDSKIP1=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} / 2 ))
     dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT1} seek=${RANDSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
 
 
 	RANDCOUNT2=$(shuf -i 1-${RANDCOUNT} -n 1)
-    RANDSKIP2=$(( ${RANDSKIP1} + $(shuf -i 1-$(( ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} ))
+    RANDSKIP2=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} + ${DISKRANDAMOUNT} - ${DISKRNADAMOUNT} / ${RNADDIVPERSEC} )) -n 1) + ${a} ))
     dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT2} seek=${RANDSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
 
 	i=$(( ${i} + 1 ))
-	a=$(( ${a} + ${RANDSECTIONS} ))
+	a=$(( ${a} + ${DISKRANDAMOUNT} ))
 
 	done
 
@@ -441,16 +441,16 @@ function zerodisk {
 	echo -e "\r\033[1A\033[0KWriting to section ${i}/${ZEROSECTIONS}"
 
 	ZEROCOUNT1=$(shuf -i 1-${ZEROCOUNT} -n 1)
-    ZEROSKIP1=$(( $(shuf -i 1-$(( ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} ))
+   ZEROSKIP1=$(( $(shuf -i 1-$(( ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} / 2 ))
     dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT1} seek=${ZEROSKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
 
 
 	ZEROCOUNT2=$(shuf -i 1-${ZEROCOUNT} -n 1)
-    ZEROSKIP2=$(( ${ZEROSKIP1} + $(shuf -i 1-$(( ${DISKZEROAMOUNT} - ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} ))
+    ZEROSKIP2=$(( $(shuf -i 1-$(( ${DISKZEROAMOUNT} + ${DISKZEROAMOUNT} - ${DISKZEROAMOUNT} / ${ZERODIVPERSEC} )) -n 1) + ${a} ))
     dd if=/dev/zero bs=${ZEROBS} count=${ZEROCOUNT2} seek=${ZEROSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
 
 	i=$(( ${i} + 1 ))
-	a=$(( ${a} + ${ZEROSECTIONS} ))
+	a=$(( ${a} + ${DISKZEROAMOUNT} ))
 
 	done
 
@@ -517,7 +517,7 @@ function vrfydisk {
 	echo -e "\r\033[1A\033[0KVerifying section ${i}/${VRFYSECTIONS}"
 
 	VRFYCOUNT1=$(shuf -i 1-${VRFYCOUNT} -n 1)
-    VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
+   VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} / 2 ))
     if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
                 VRFYFAIL='1'
@@ -527,7 +527,7 @@ function vrfydisk {
 
 
 	VRFYCOUNT2=$(shuf -i 1-${VRFYCOUNT} -n 1)
-    VRFYSKIP2=$(( ${VRFYSKIP1} + $(shuf -i 1-$(( ${DISKVRFYAMOUNT} - ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
+    VRFYSKIP2=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} + ${DISKVRFYAMOUNT} - ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
     if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=${VRFYSKIP2} iflag=fullblock status=none \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
                 VRFYFAIL='1'
@@ -536,11 +536,11 @@ function vrfydisk {
     fi
 
 	i=$(( ${i} + 1 ))
-	a=$(( ${a} + ${VRFYSECTIONS} ))
+	a=$(( ${a} + ${DISKVRFYAMOUNT} ))
 
 	done
 
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=1000 skip=$(( ${DISKSIZEMB} - 1000 )) iflag=fullblock status=none \
+    if [[ $(dd if=/dev/${CLIENTDISK} count=1000000 skip=$(( $(cat /sys/block/${CLIENTDISK}/size) - 1000000 )) iflag=fullblock status=none \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' && $VRFYFAIL == '0' ]]; then
                 VRFYFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
