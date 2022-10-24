@@ -379,19 +379,25 @@ function writedisk {
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
 
-	if [[ "$SOURCE" == 'zero' ]]; then
+	if [[ "$WMODE" == 'zero' ]]; then
 		SOURCE='/dev/null'
 		BITS='null bits'
 	fi
 
-	if [[ "$SOURCE" == 'random' ]]; then
+	if [[ "$WMODE" == 'random' ]]; then
 		SOURCE='/dev/urandom'
 		BITS='random bits'
 	fi
 
-	if [[ "$SOURCE" == 'pattern' || "$SOURCE" == 'char' ]]
-		SOURCE=$(/usr/bin/yes "${CHAR}")
-		BITS="${CHAR}'s"
+	if [[ "$WMODE" == 'pattern' || "$WMODE" == 'char' ]]
+		if [[ -z $CHAR ]]; then
+			SOURCE=$(/usr/bin/yes "${PATTERN}")
+			BITS="${PATTERN}'s"
+		fi
+		if [[ -z $PATTERN ]]; then
+			SOURCE=$(/usr/bin/yes "${CHAR}")
+			BITS="${CHAR}'s"
+		fi
 	fi
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
