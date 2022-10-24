@@ -435,10 +435,8 @@ function zerodisk {
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of null bits...."
 	echo ""
-	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of null bits...."
 		/usr/bin/pv < /dev/zero > /dev/${CLIENTDISK}
 		return 0
 	fi
