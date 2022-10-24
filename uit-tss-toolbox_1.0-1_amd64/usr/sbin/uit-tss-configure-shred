@@ -229,12 +229,8 @@ function intro {
 	      * This is usually under "System Configuration" or "Storage" in BIOS.
 	      * Every Dell is in RAID mode by default. 
 	      * If you reset BIOS, make sure you change SATA mode after the reset.
-	      
-	*** WARNING *** After pressing Enter, the system will enter hibernate mode.
-	This is normal. Please wake up the system after it hibernates. *** WARNING ***
-	'
+
 	read -p "Please remove the thumb drive and press Enter...."
-	echo -n mem > /sys/power/state
 	clear
 }
 
@@ -518,7 +514,7 @@ function vrfydisk {
 
 	VRFYCOUNT1=$(shuf -i 1-${VRFYCOUNT} -n 1)
    VRFYSKIP1=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} / 2 ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none \
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT1} skip=${VRFYSKIP1} iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
                 VRFYFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
@@ -528,7 +524,7 @@ function vrfydisk {
 
 	VRFYCOUNT2=$(shuf -i 1-${VRFYCOUNT} -n 1)
     VRFYSKIP2=$(( $(shuf -i 1-$(( ${DISKVRFYAMOUNT} + ${DISKVRFYAMOUNT} - ${DISKVRFYAMOUNT} / ${VRFYDIVPERSEC} )) -n 1) + ${a} ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=${VRFYSKIP2} iflag=fullblock status=none \
+    if [[ $(dd if=/dev/${CLIENTDISK} bs=${VRFYBS} count=${VRFYCOUNT2} skip=${VRFYSKIP2} iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${VRFYCHAR}]; echo $?) == '0' ]]; then
                 VRFYFAIL='1'
                 echo "Bad bits found on device ${CLIENTDISK}."
@@ -562,6 +558,12 @@ function secerase {
 	SSD_REGEX='sd.*'
 	NVME_REGEX='nvme.*'
 	SCSI_REGEX='hd.*'
+	
+	echo '*** WARNING *** After pressing Enter, the system will enter hibernate mode.
+	This is normal. Please wake up the system after it hibernates. *** WARNING ***
+	'
+	read -p "Please press Enter...."
+	echo -n mem > /sys/power/state
 
 	echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
 
