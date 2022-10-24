@@ -228,8 +228,8 @@ function intro {
 	   * Make sure SATA mode is in AHCI mode and not RAID mode.
 	      * This is usually under "System Configuration" or "Storage" in BIOS.
 	      * Every Dell is in RAID mode by default. 
-	      * If you reset BIOS, make sure you change SATA mode after the reset.
-
+	      * If you reset BIOS, make sure you change SATA mode after the reset.'
+	echo ""
 	read -p "Please remove the thumb drive and press Enter...."
 	clear
 }
@@ -242,7 +242,8 @@ function modeselect {
 
 	echo ""
 	echo "1 NIST SP 800-88 (Default)
-	-Mixture of modes"
+	-Secure Erase
+	-Verification"
 
 	echo ""
 	echo "2 Zero Mode + Quick Verify
@@ -392,7 +393,7 @@ function randdisk {
 
 
 	RANDCOUNT2=$(shuf -i 1-${RANDCOUNT} -n 1)
-    RANDSKIP2=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} + ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDIVPERSEC} )) -n 1) + ${a} ))
+    RANDSKIP2=$(( $(shuf -i 1-$(( ${DISKRANDAMOUNT} + ${DISKRANDAMOUNT} - ${DISKRANDAMOUNT} / ${RANDDIVPERSEC} )) -n 1) + ${a} ))
     dd if=/dev/urandom bs=${RANDBS} count=${RANDCOUNT2} seek=${RANDSKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none &>/dev/null
 
 	i=$(( ${i} + 1 ))
@@ -415,7 +416,6 @@ function zerodisk {
 	ZEROBS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKZEROAMOUNT=$(( ${DISKSIZEMB} / ${ZEROSECTIONS} ))
-	PCNTOFSECTOR='50'
 	a='0'
 	i='0'
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
