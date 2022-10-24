@@ -794,42 +794,47 @@ function schneier {
 	echo ""
 
 	echo ""
-	echo "[1/7] Writing a pass of 1's to ${CLIENTDISK}"
-	SELCHAR='1'
-	charfull
+	echo "Step [1/7]: "
+	PCNTOFSECTOR='100'
+	SELBIT='1'
+	chardisk
 
 	echo ""
-	echo "[2/7] Writing a pass of 0's to ${CLIENTDISK}"
-	zerofull
+	echo "Step [2/7]: "
+	PCNTOFSECTOR='100'
+	zerodisk
 
 	echo ""
-	echo "[3/7] Writing a stream of random characters to ${CLIENTDISK}."
-	randfull
+	echo "Step [3/7]: "
+	PCNTOFSECTOR='100'
+	randdisk
 
 	echo ""
-	echo "[4/7] Writing a stream of random characters to ${CLIENTDISK}."
-	randfull
+	echo "Step [4/7]: "
+	PCNTOFSECTOR='100'
+	randdisk
 
 	echo ""
-	echo "[5/7] Writing a stream of random characters to ${CLIENTDISK}."
-	randfull
+	echo "Step [5/7]: "
+	PCNTOFSECTOR='100'
+	randdisk
 
 	echo ""
-	echo "[6/7] Writing a stream of random characters to ${CLIENTDISK}."
-	randfull
+	echo "Step [6/7]: "
+	PCNTOFSECTOR='100'
+	randdisk
 
 	echo ""
-	echo "[7/7] Writing a stream of random characters to ${CLIENTDISK}."
-	randfull
-
-	echo ""
-	echo ""
-	echo "The drive ${CLIENTDISK} is erased using Schneier's method."
+	echo "Step [7/7]: "
+	PCNTOFSECTOR='100'
+	randdisk
 }
 
 
 
 function gutmann {
+	randbit
+	
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in Gutmann mode."
@@ -837,7 +842,6 @@ function gutmann {
 
 	echo ""
 	echo "[1/35] Writing a pass of a random bit (${RANDOMBIT1}) to ${CLIENTDISK}"
-	randbit
 	SELCHAR=${RANDBIT}
 	charfull
 
@@ -978,14 +982,10 @@ function verify {
 	-Longest, verifies every bit on the disk"
 	echo ""
 	echo "2 Very fast verification
-	-10 divisions, 5GB verified"
+	-1000 divisions, 10% verified"
 	echo ""
 	echo "3 Medium verification
-	-10 divisions, 20GB verified"
-	echo ""
-	echo "4 Other (Manual Specification)"
-	echo ""
-	read -n 1 -p "Select mode [1-4]: " VRFYSELECT
+	-1000 divisions, 50% verified"
 	echo ""
 	case $VRFYSELECT in
 	1)
@@ -997,9 +997,6 @@ function verify {
 	3)
 	VRFYMODE='medium'
 	;;
-	4)
-	VRFYMODE='custom'
-	;;
 	*)
 	echo ""
 	echo ""
@@ -1008,6 +1005,21 @@ function verify {
 	verify
 	;;
 	esac
+	if [[ $VRFYMODE == 'full' ]]; then
+	PCNTOFSECTOR='100'
+	VRFYCHAR=0
+	vrfydisk
+	fi
+	if [[ $VRFYMODE == 'fast' ]]; then
+	PCNTOFSECTOR='10'
+	VRFYCHAR=0
+	vrfydisk
+	fi
+	if [[ $VRFYMODE == 'medium' ]]; then
+	PCNTOFSECTOR='50'
+	VRFYCHAR=0
+	vrfydisk
+	fi
 }
 
 
@@ -1043,7 +1055,7 @@ function execute {
 	fi
 	
 	if [[ $MODE == 'verify' ]]; then
-	echo -n ""
+	verify
 	fi
 }
 
