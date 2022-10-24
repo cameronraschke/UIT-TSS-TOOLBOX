@@ -203,7 +203,8 @@ SCSI_REGEX='hd.*'
 function intro {
 	clear
 	echo ""
-	echo -e "\nWelcome to UIT-TSS-SHRED by Cameron Raschke.\n"
+	echo -e "Welcome to UIT-TSS-SHRED by Cameron Raschke."
+	echo ""
 	echo "Press CTRL + C at any time to exit"
 	echo "If you have exited and want to restart UIT-TSS-SHRED, press CTRL + D"
 	echo ""
@@ -513,16 +514,20 @@ function chardisk {
 
 
 function vrfydisk {
-	VRFYSECTIONS='1000'
-	VRFYDIVPERSEC='2'
-	VRFYBS='1M'
+	# Generic variables
+	SECTIONS='1000'
+	DIVPERSEC='2'
+	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
-	DISKVRFYAMOUNT=$(( ${DISKSIZEMB} / ${VRFYSECTIONS} ))
+	#DISKAMOUNT=$(( ${DISKSIZEMB} / ${SECTIONS} ))
+	SECTIONSIZE=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	a='0'
 	i='0'
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	VRFYWRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
-	VRFYCOUNT=$(( ${DISKVRFYAMOUNT} / 100 * ${PCNTOFSECTOR} / 2 ))
+	WRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
+	COUNT=$(( ${SECTIONSIZE} / 100 * ${PCNTOFSECTOR} / 2 ))
+
+	# VRFY Variables
 	VRFYFAIL='0'
 
 	if [[ -z $VRFYCHAR ]]; then
@@ -534,9 +539,9 @@ function vrfydisk {
 	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		DISKVERIFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${VRFYCHAR}]" | head -1)
+		DISKVRFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${VRFYCHAR}]" | head -1)
 
-		if [[ -z $DISKVERIFY ]]; then
+		if [[ -z $DISKVRFY ]]; then
         	echo "The drive ${CLIENTDISK} is completely and securely wiped."
 			VRFYFAIL='0'
 			return 0
@@ -614,12 +619,14 @@ function secerase {
 		SECERASEFAIL=0
 		/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 		/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
+		/usr/sbin/hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
+		/usr/sbin/hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
 	fi
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		SECERASEFAIL=0
-		/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=1 --namespace-id=1 &>/dev/null
-		/usr/sbin/nvme format /dev/${CLIENTDISK} --ses=2 --namespace-id=1 &>/dev/null
+		/usr/sbin/nvme format /dev/${CLIENTDISK:0:-2} --ses=1 --namespace-id=1 &>/dev/null
+		/usr/sbin/nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
 	fi
 	
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
