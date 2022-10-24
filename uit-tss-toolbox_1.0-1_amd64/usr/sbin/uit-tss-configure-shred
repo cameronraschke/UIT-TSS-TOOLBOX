@@ -724,7 +724,7 @@ function dod {
 	echo ""
 	PCNTOFSECTOR='100'
 	VRFYCHAR=${RANDBIT}
-	vrfyfull
+	vrfydisk
 }
 
 
@@ -738,41 +738,51 @@ function rcmp {
 	echo ""
 
 	echo ""
-	echo "[1/8] Writing a pass of 0's to ${CLIENTDISK}"
-	zerofull
+	echo "Step [1/8]: "
+	PCNTOFSECTOR='100'
+	zerodisk
 
 	echo ""
-	echo "[2/8] Writing a pass of 1's to ${CLIENTDISK}"
-	SELCHAR='1'
-	charfull
+	echo "Step [2/8]: "
+	PCNTOFSECTOR='100'
+	SELBIT='1'
+	chardisk
 
 	echo ""
-	echo "[3/8] Writing a pass of 0's to ${CLIENTDISK}"
-	zerofull
-
-	echo ""
-	echo "[4/8] Writing a pass of 1's to ${CLIENTDISK}"
-	SELCHAR='1'
-	charfull
-
-	echo ""
-	echo "[5/8] Writing a pass of 0's to ${CLIENTDISK}"
-	zerofull
-
-	echo ""
-	echo "[6/8] Writing a pass of 1's to ${CLIENTDISK}"
-	SELCHAR='1'
-	charfull
-
-	echo ""
-	echo "[7/8] Writing a pass of a random bit (${RANDOMBIT}) to ${CLIENTDISK}"
-	SELCHAR=${RANDBIT}
-	charfull
+	echo "Step [3/8]: "
+	PCNTOFSECTOR='100'
+	zerodisk
 	
 	echo ""
-	echo "[8/8] Verifying disk - checking ${CLIENTDISK} for the random bit (${RANDOMBIT})'s...."
+	echo "Step [4/8]: "
+	PCNTOFSECTOR='100'
+	SELBIT='1'
+	chardisk
+
+	echo ""
+	echo "Step [5/8]: "
+	PCNTOFSECTOR='100'
+	zerodisk
+
+	echo ""
+	echo "Step [6/8]: "
+	PCNTOFSECTOR='100'
+	SELBIT='1'
+	chardisk
+
+	echo ""
+	echo "Step [7/8]: "
+	echo ""
+	PCNTOFSECTOR='100'
+	SELBIT=${RANDBIT}
+	chardisk
+	
+	echo ""
+	echo "Step [8/8]: "
+	echo ""
+	PCNTOFSECTOR='100'
 	VRFYCHAR=${RANDBIT}
-	vrfyfull
+	vrfydisk
 }
 
 
