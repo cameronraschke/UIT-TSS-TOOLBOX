@@ -312,6 +312,10 @@ function modeselect {
 	MODE='verify'
 	RMODE='Verify Mode'
 	;;
+	8)
+	MODE='unlock'
+	RMODE='Unlock Mode'
+	;;
 	*)
 	modeselect
 	;;
@@ -552,6 +556,22 @@ function secerase {
 
 	if [[ $SECERASEFAIL == '1' ]]; then
 		echo "No compatible SATA or NVME drive is detected. Can't use Secure Erase...."
+	fi
+}
+
+
+function secunlock {
+	SSD_REGEX='sd.*'
+	NVME_REGEX='nvme.*'
+	SCSI_REGEX='hd.*'
+
+	echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
+
+	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
+		/usr/sbin/hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
+		/usr/sbin/hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
+	else
+		echo "No compatible SATA drive is detected. Can't unlock drive ${CLIENTDISK}...."
 	fi
 }
 
@@ -1041,6 +1061,10 @@ function execute {
 			VRFYCHAR=0
 			vrfydisk
 		fi
+	fi
+
+	if [[ $MODE == 'unlock' ]]; then
+		secunlock
 	fi
 }
 
