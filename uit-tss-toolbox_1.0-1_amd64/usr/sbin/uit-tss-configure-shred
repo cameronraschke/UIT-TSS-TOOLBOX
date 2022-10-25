@@ -377,30 +377,24 @@ function writedisk {
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
-	a='0'
-	i='0'
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
-
+	a='0'
+	i='0'
+	
 	if [[ "$WMODE" == 'zero' ]]; then
-		SOURCE='/dev/null'
+		SOURCE='cat /dev/null'
 		BITS='null bits'
 	fi
 
 	if [[ "$WMODE" == 'random' ]]; then
-		SOURCE='/dev/urandom'
+		SOURCE='cat /dev/urandom'
 		BITS='random bits'
 	fi
 
-	if [[ "$WMODE" == 'pattern' || "$WMODE" == 'char' ]]
-		if [[ -z $CHAR ]]; then
-			SOURCE=$(/usr/bin/yes "${PATTERN}")
-			BITS="${PATTERN}'s"
-		fi
-		if [[ -z $PATTERN ]]; then
-			SOURCE=$(/usr/bin/yes "${CHAR}")
-			BITS="${CHAR}'s"
-		fi
+	if [[ "$WMODE" == 'char' ]]
+		SOURCE="/usr/bin/yes \"${CHAR}\""
+		BITS="${PATTERN}'s"
 	fi
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
@@ -408,8 +402,8 @@ function writedisk {
 	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-	/usr/bin/pv < ${SOURCE} > /dev/${CLIENTDISK}
-	return 0
+		/usr/bin/pv < ${SOURCE} > /dev/${CLIENTDISK}
+		return 0
 	fi
 	
 	while [[ $i -lt $SECTIONS ]]; do
@@ -418,12 +412,12 @@ function writedisk {
 
 	COUNT1=$(shuf -i 1-${COUNT} -n 1)
 	SKIP1=$(( $(shuf -i 1-$(( ${DISKAMOUNT} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
-    dd if=${SOURCE} bs=${BS} count=${COUNT1} seek=${SKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+    ${SOURCE} | dd bs=${BS} count=${COUNT1} seek=${SKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 
 	COUNT2=$(shuf -i 1-${COUNT} -n 1)
     SKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} ))
-    dd if=${SOURCE} bs=${BS} count=${COUNT2} seek=${SKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+    ${SOURCE} | dd bs=${BS} count=${COUNT2} seek=${SKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 	i=$(( ${i} + 1 ))
 	a=$(( ${a} + ${SECTIONSIZEMB} ))
@@ -432,9 +426,9 @@ function writedisk {
 
 	echo ""
 	echo "[1/2] Completely filling the first sector"
-    dd if=${SOURCE} bs=${BS} count=${SECTIONSIZEMB} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+    ${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 	echo -e "\r\033[1A\033[0K[2/2] Completely filling the last sector"
-	dd if=${SOURCE} bs=${BS} count=${SECTIONSIZEMB} seek=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+	${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 }
 
 
@@ -461,11 +455,9 @@ function vrfydisk {
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		FULLVRFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${CHAR}]" | head -1)
-
 		if [[ -z $FULLVRFY ]]; then
         	echo "The drive ${CLIENTDISK} is completely and securely wiped."
 			PROCFAIL='0'
-			return 0
 		else
 			echo "Bad bits found on device ${CLIENTDISK}. Test has failed."
 			PROCFAIL='1'
@@ -540,8 +532,6 @@ function secerase {
 		SECERASEFAIL=0
 		/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 		/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
-		/usr/sbin/hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
-		/usr/sbin/hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
 	fi
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
@@ -565,6 +555,7 @@ function secunlock {
 	NVME_REGEX='nvme.*'
 	SCSI_REGEX='hd.*'
 
+	echo ""
 	echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
 
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
@@ -610,33 +601,36 @@ function nist {
 	echo "Step [1/3]: "
 	echo ""
 	PCNTOFSECTOR='25'
-	randdisk
+	WMODE='random'
+	writedisk
 	
 	echo ""
 	echo "Step [2/3]: "
 	echo ""
 	secerase
+	secunlock
 	
 	echo ""
 	echo "Step [3/3]: "
 	echo ""
 	PCNTOFSECTOR='50'
-	VRFYCHAR='0'
+	CHAR='0'
 	vrfydisk
 
-	if [[ $VRFYFAIL == '1' ]]; then
+	if [[ $PROCFAIL == '1' ]]; then
 		echo ""
 		echo ""
 		echo "Step [1/2]: "
 		echo ""
 		PCNTOFSECTOR='100'
-		zerodisk
+		WMODE='zero'
+		writedisk
 
 		echo ""
 		echo "Step [2/2]: "
 		echo ""
 		PCNTOFSECTOR='100'
-		VRFYCHAR='0'
+		CHAR='0'
 		vrfydisk
 	fi
 }
@@ -653,12 +647,13 @@ function zero {
 	echo "Step [1/2]: "
 	echo ""
 	PCNTOFSECTOR='100'
-	zerodisk
+	WMODE='zero'
+	writedisk
 	
 	echo ""
 	echo "Step: [2/2]: "
 	PCNTOFSECTOR='10'
-	VRFYCHAR='0'
+	CHAR='0'
 	vrfydisk
 }
 
@@ -675,42 +670,45 @@ function dod {
 	echo ""
 	echo "Step [1/6]: "
 	echo ""
+	WMODE='zero'
 	PCNTOFSECTOR='100'
-	zerodisk
+	writedisk
 	
 	echo ""
 	echo "Step [2/6]: "
 	echo ""
 	PCNTOFSECTOR='100'
-	VRFYCHAR='0'
+	CHAR='0'
 	vrfydisk
 
 	echo ""
 	echo "Step [3/6]: "
 	echo ""
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR='1'
-	chardisk
+	CHAR='1'
+	writedisk
 	
 	echo ""
 	echo "Step [4/6]: "
 	echo ""
 	PCNTOFSECTOR='100'
-	VRFYCHAR='1'
+	CHAR='1'
 	vrfydisk
 
 	echo ""
 	echo "Step [5/6]: "
 	echo ""
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELBIT=${RANDBIT}
-	chardisk
+	CHAR="${RANDBIT}"
+	writedisk
 	
 	echo ""
 	echo "Step [6/6]: "
 	echo ""
 	PCNTOFSECTOR='100'
-	VRFYCHAR=${RANDBIT}
+	CHAR=${RANDBIT}
 	vrfydisk
 }
 
