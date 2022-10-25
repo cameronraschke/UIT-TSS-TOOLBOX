@@ -411,7 +411,7 @@ function writedisk {
 	echo -e "\r\033[1A\033[0KWriting to section ${i}/${SECTIONS}"
 
 	COUNT1=$(shuf -i 1-${COUNT} -n 1)
-	SKIP1=$(( $(shuf -i 1-$(( ${DISKAMOUNT} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
+	SKIP1=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
     ${SOURCE} | dd bs=${BS} count=${COUNT1} seek=${SKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 
