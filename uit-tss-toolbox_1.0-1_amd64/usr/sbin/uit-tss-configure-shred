@@ -375,7 +375,6 @@ function writedisk {
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	a='0'
 	i='0'
-	WRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
 
@@ -445,7 +444,6 @@ function vrfydisk {
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	a='0'
 	i='0'
-	WRITESIZE=$(( ${DISKSIZEGB} / 4 + 1 ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
 
