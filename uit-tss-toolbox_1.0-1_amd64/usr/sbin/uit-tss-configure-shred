@@ -395,7 +395,7 @@ function writedisk {
 	fi
 	
 	if [[ "$WMODE" == 'zero' ]]; then
-		SOURCE='cat /dev/null'
+		SOURCE='cat /dev/zero'
 		BITS='null bits'
 	fi
 
@@ -404,9 +404,15 @@ function writedisk {
 		BITS='random bits'
 	fi
 
+	if [[ "$WMODE" == 'randbit' ]]; then
+		randbit
+		SOURCE="/usr/bin/yes \"${RANDBIT}\""
+		BITS="a random bit (${RANDBIT})"
+	fi
+
 	if [[ "$WMODE" == 'char' ]]; then
 		SOURCE="/usr/bin/yes \"${CHAR}\""
-		BITS="${CHAR}'s"
+		BITS="\"${CHAR}\""
 	fi
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
@@ -414,18 +420,17 @@ function writedisk {
 	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		/usr/bin/pv < ${SOURCE} > /dev/${CLIENTDISK}
+		${SOURCE} | (pv > /dev/${CLIENTDISK})
 		return 0
 	fi
 	
-	while [[ $i -lt $SECTIONS ]]; do
+	while [[ $i -le $SECTIONS ]]; do
 
 		echo -e "\r\033[1A\033[0KWriting to section ${i}/${SECTIONS}"
 
 		COUNT1=$(shuf -i 1-${COUNT} -n 1)
 		SKIP1=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
     	${SOURCE} | dd bs=${BS} count=${COUNT1} seek=${SKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-
 
 		COUNT2=$(shuf -i 1-${COUNT} -n 1)
    		SKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} ))
@@ -441,6 +446,15 @@ function writedisk {
     ${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 	echo -e "\r\033[1A\033[0K[2/2] Completely filling the last sector"
 	${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+
+	echo ""
+	if [[ $PROCFAIL == '0' ]]; then
+		echo "${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten."
+		return 0
+		else
+		echo "Write failed."
+		return 1
+	fi
 }
 
 
@@ -481,7 +495,7 @@ function vrfydisk {
 		fi
 	fi
 	
-	while [[ $i -lt $SECTIONS && $PROCFAIL == '0' ]]; do
+	while [[ $i -le $SECTIONS && $PROCFAIL == '0' ]]; do
 
 		echo -e "\r\033[1A\033[0KVerifying section ${i}/${SECTIONS}"
 
@@ -544,18 +558,20 @@ function secerase {
 	NVME_REGEX='nvme.*'
 	SCSI_REGEX='hd.*'
 
-	echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
+	
 
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
-		SECERASEFAIL=0
+		echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
 		/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 		/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
+		SECERASEFAIL=0
 	fi
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-		SECERASEFAIL=0
+		echo "Using Secure Erase on ${CLIENTDISK:0:-2}. This can take a while, please keep the device powered on...."
 		/usr/sbin/nvme format /dev/${CLIENTDISK:0:-2} --ses=1 --namespace-id=1 &>/dev/null
 		/usr/sbin/nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
+		SECERASEFAIL=0
 	fi
 	
 	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
@@ -664,8 +680,8 @@ function zero {
 	echo ""
 	echo "Step [1/2]: "
 	echo ""
-	PCNTOFSECTOR='100'
 	WMODE='zero'
+	PCNTOFSECTOR='100'
 	writedisk
 	
 	echo ""
