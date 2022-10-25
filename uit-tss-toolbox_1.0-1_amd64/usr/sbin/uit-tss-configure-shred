@@ -456,10 +456,11 @@ function writedisk {
 	done
 
 	echo ""
-	echo "[1/2] Completely filling the first sector"
+	echo "[1/2] Completely filling the first sector...."
     ${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
-	echo -e "\r\033[1A\033[0K[2/2] Completely filling the last sector"
-	${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+	echo "[2/2] Completely filling the last sector...."
+	${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) of=/dev/${CLIENTDISK} \
+		iflag=fullblock status=none 2>/dev/null
 
 	echo ""
 	if [[ $PROCFAIL == '0' ]]; then
@@ -547,7 +548,8 @@ function vrfydisk {
 
 	echo ""
 	echo "Verifing the last location of the disk...."
-    if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) iflag=fullblock status=none 2>/dev/null \
+    if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) \
+		iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' && $PROCFAIL == '0' ]]; then
             PROCFAIL='1'
             echo "Bad bits found on device ${CLIENTDISK}."
@@ -613,7 +615,7 @@ function secunlock {
 		echo "${CLIENTDISK} is successfully unlocked."
 	else
 		echo ""
-		echo "No compatible SATA drive is detected. Can't unlock drive ${CLIENTDISK}...."
+		echo "No SATA drive is detected. Can't unlock drive ${CLIENTDISK}...."
 	fi
 }
 
@@ -659,7 +661,6 @@ function nist {
 	echo "Step [2/3]: "
 	echo ""
 	secerase
-	secunlock
 	
 	echo ""
 	echo "Step [3/3]: "
