@@ -381,6 +381,18 @@ function writedisk {
 	PROCFAIL='0'
 	a='0'
 	i='0'
+
+	if [[ -z $CHAR ]]; then
+		CHAR='0'
+	fi
+
+	if [[ -z $WMODE ]]; then
+		WMODE='zero'
+	fi
+
+	if [[ -z $PCNTOFSECTOR ]]; then
+		CHAR='0'
+	fi
 	
 	if [[ "$WMODE" == 'zero' ]]; then
 		SOURCE='cat /dev/null'
@@ -392,9 +404,9 @@ function writedisk {
 		BITS='random bits'
 	fi
 
-	if [[ "$WMODE" == 'char' ]]
+	if [[ "$WMODE" == 'char' ]]; then
 		SOURCE="/usr/bin/yes \"${CHAR}\""
-		BITS="${PATTERN}'s"
+		BITS="${CHAR}'s"
 	fi
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
@@ -408,19 +420,19 @@ function writedisk {
 	
 	while [[ $i -lt $SECTIONS ]]; do
 
-	echo -e "\r\033[1A\033[0KWriting to section ${i}/${SECTIONS}"
+		echo -e "\r\033[1A\033[0KWriting to section ${i}/${SECTIONS}"
 
-	COUNT1=$(shuf -i 1-${COUNT} -n 1)
-	SKIP1=$(( $(shuf -i 1-$(( ${DISKAMOUNT} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
-    ${SOURCE} | dd bs=${BS} count=${COUNT1} seek=${SKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+		COUNT1=$(shuf -i 1-${COUNT} -n 1)
+		SKIP1=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
+    	${SOURCE} | dd bs=${BS} count=${COUNT1} seek=${SKIP1} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
 
-	COUNT2=$(shuf -i 1-${COUNT} -n 1)
-    SKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} ))
-    ${SOURCE} | dd bs=${BS} count=${COUNT2} seek=${SKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+		COUNT2=$(shuf -i 1-${COUNT} -n 1)
+   		SKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} ))
+    	${SOURCE} | dd bs=${BS} count=${COUNT2} seek=${SKIP2} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 
-	i=$(( ${i} + 1 ))
-	a=$(( ${a} + ${SECTIONSIZEMB} ))
+		i=$(( ${i} + 1 ))
+		a=$(( ${a} + ${SECTIONSIZEMB} ))
 
 	done
 
@@ -446,7 +458,11 @@ function vrfydisk {
 	PROCFAIL='0'
 
 	if [[ -z $CHAR ]]; then
-	CHAR='0'
+		CHAR='0'
+	fi
+
+	if [[ -z $PCNTOFSECTOR ]]; then
+		CHAR='0'
 	fi
 
 	echo "Looking for non-${CHAR}'s on ${CLIENTDISK}...."
@@ -467,55 +483,57 @@ function vrfydisk {
 	
 	while [[ $i -lt $SECTIONS && $PROCFAIL == '0' ]]; do
 
-	echo -e "\r\033[1A\033[0KVerifying section ${i}/${SECTIONS}"
+		echo -e "\r\033[1A\033[0KVerifying section ${i}/${SECTIONS}"
 
-	COUNT1=$(shuf -i 1-${COUNT} -n 1)
-	SKIP1=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP1} iflag=fullblock status=none 2>/dev/null \
-        | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
-                PROCFAIL='1'
-                echo "Bad bits found on device ${CLIENTDISK}."
-        return 1
-    fi
+		COUNT1=$(shuf -i 1-${COUNT} -n 1)
+		SKIP1=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
+    	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP1} iflag=fullblock status=none 2>/dev/null \
+        	| grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
+            	PROCFAIL='1'
+            	echo "Bad bits found on device ${CLIENTDISK}."
+        		return 1
+    	fi
 
-	COUNT2=$(shuf -i 1-${COUNT} -n 1)
-    SKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} ))
-    if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT2} skip=${SKIP2} iflag=fullblock status=none 2>/dev/null \
-        | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
-                PROCFAIL='1'
-                echo "Bad bits found on device ${CLIENTDISK}."
-        return 1
-    fi
+		COUNT2=$(shuf -i 1-${COUNT} -n 1)
+    	SKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} ))
+    	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT2} skip=${SKIP2} iflag=fullblock status=none 2>/dev/null \
+        	| grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
+            	PROCFAIL='1'
+            	echo "Bad bits found on device ${CLIENTDISK}."
+        		return 1
+    	fi
 
-	i=$(( ${i} + 1 ))
-	a=$(( ${a} + ${SECTIONSIZEMB} ))
+		i=$(( ${i} + 1 ))
+		a=$(( ${a} + ${SECTIONSIZEMB} ))
 
 	done
 
+	echo ""
 	echo "Verifing the first location of the disk...."
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=0 iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' && $PROCFAIL == '0' ]]; then
-                PROCFAIL='1'
-                echo "Bad bits found on device ${CLIENTDISK}."
-        return 1
+            PROCFAIL='1'
+            echo "Bad bits found on device ${CLIENTDISK}."
+        	return 1
     fi
 
+	echo ""
 	echo "Verifing the last location of the disk...."
     if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' && $PROCFAIL == '0' ]]; then
-                PROCFAIL='1'
-                echo "Bad bits found on device ${CLIENTDISK}."
-        return 1
+            PROCFAIL='1'
+            echo "Bad bits found on device ${CLIENTDISK}."
+        	return 1
     fi
 
 	echo ""
     echo "${PCNTOFSECTOR}% of ${CLIENTDISK} has been verified."
 	if [[ $PROCFAIL == '0' ]]; then
-	echo "Test passed successfully!"
-	return 0
-	else
-	echo "Test failed."
-	return 1
+		echo "Test passed successfully!"
+		return 0
+		else
+		echo "Test failed."
+		return 1
 	fi
 }
 
