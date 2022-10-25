@@ -291,26 +291,12 @@ function modeselect {
 	-Unlock disk previously locked by this program"
 
 	echo ""
-	read -n1 -p "Choose [1-7] " MODESELECT
+	read -n1 -p "Choose [1-9]: " MODESELECT
 	echo ""
 
 	case $MODESELECT in
 	1)
-	SSD_REGEX='sd.*'
-	NVME_REGEX='nvme.*'
-	SCSI_REGEX='hd.*'
-
-	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
-		MODE='zero'
-		RMODE='Zero Mode'
-	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-		MODE='nist'
-		RMODE='NIST 800-88r1 Mode'
-	else
-		MODE='zero'
-		RMODE='Zero Mode'
-		echo "No compatible drive can be found, defaulting to Zero Mode."
-	fi
+	MODE='autodetect'
 	;;
 	2)
 	MODE='nist'
@@ -362,6 +348,10 @@ function modeselect {
 
 
 function diskselect {
+	SSD_REGEX='sd.*'
+	NVME_REGEX='nvme.*'
+	SCSI_REGEX='hd.*'
+
 	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
 	clear
 	echo ""
@@ -388,6 +378,19 @@ function diskselect {
         exit 1
         fi
     done
+
+	if [[ $MODE == 'autodetect' ]]; then
+		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
+			MODE='zero'
+			RMODE='Zero Mode'
+		elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
+			MODE='nist'
+			RMODE='NIST 800-88r1 Mode'
+		else
+			MODE='zero'
+			RMODE='Zero Mode'
+		fi
+	fi
 }
 
 
