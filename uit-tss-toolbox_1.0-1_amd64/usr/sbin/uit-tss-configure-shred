@@ -372,6 +372,10 @@ function randbit {
 	RANDBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
 }
 
+function randpattern {
+	RANDPATTERN=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 8)
+}
+
 
 
 function writedisk {
@@ -412,6 +416,12 @@ function writedisk {
 		randbit
 		SOURCE="/usr/bin/yes \"${RANDBIT}\""
 		BITS="a random bit (${RANDBIT})"
+	fi
+
+	if [[ "$WMODE" == 'randpattern' ]]; then
+		randpattern
+		SOURCE="/usr/bin/yes \"${RANDPATTERN}\""
+		BITS="a random bit (${RANDPATTERN})"
 	fi
 
 	if [[ "$WMODE" == 'char' ]]; then
@@ -701,7 +711,6 @@ function zero {
 
 
 function dod {
-	randbit
 	
 	clear
 	echo ""
@@ -755,7 +764,6 @@ function dod {
 
 
 function rcmp {
-	randbit
 
 	clear
 	echo ""
@@ -814,11 +822,13 @@ function rcmp {
 	PCNTOFSECTOR='100'
 	CHAR="${RANDBIT}"
 	vrfydisk
+
 }
 
 
 
 function schneier {
+
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in Schneier mode."
@@ -866,162 +876,54 @@ function schneier {
 	WMODE='rand'
 	PCNTOFSECTOR='100'
 	writedisk
+
 }
 
 
 
 function gutmann {
+	COUNT='0'
+	GUTMANNARRAY=(01010101 10101010 10010010 01001001 00100100 00000000 00010001 00100010)
+	GUTMANNARRAY+=(00110011 01000100 01010101 01100110 01110111 10001000 10011001 10101010)
+	GUTMANNARRAY+=(10111011 11001100 11011101 11101110 11111111 10010010 01001001 00100100)
+	GUTMANNARRAY+=(01101101 10110110 11011011)
 
 	clear
 	echo ""
 	echo "UIT-TSS-SHRED running in Gutmann mode."
 	echo ""
 
-	randbit
-	echo ""
-	echo "[1/35] Writing a pass of a random bit (${RANDOMBIT1}) to ${CLIENTDISK}"
-	WMODE='randbit'
-	PCNTOFSECTOR='100'
-	writedisk
+	
+	while [[ $COUNT -le 35 ]]; do 
 
-	randbit
-	echo "[2/35] Writing a pass of a random bit (${RANDOMBIT2}) to ${CLIENTDISK}"
-	WMODE='randbit'
-	PCNTOFSECTOR='100'
-	writedisk
+		if [[ $COUNT -le 4 ]]; then
+			echo ""
+			echo "[${COUNT}/35] Writing \"${RANDOMPATTERN}\" to ${CLIENTDISK}"
+			WMODE='randpattern'
+			PCNTOFSECTOR='100'
+			writedisk
+		fi
 
-	randbit
-	echo "[3/35] Writing a pass of a random bit (${RANDOMBIT3}) to ${CLIENTDISK}"
-	WMODE='randbit'
-	PCNTOFSECTOR='100'
-	writedisk
+		if [[ $COUNT -le 31 && $COUNT -gt 4 ]]; then
+			WMODE='char'
+			PCNTOFSECTOR='100'
+			for i in ${GUTMANNARRAY[@]}; do
+				RANDNUM=$(shuf -i 1-26 -n 1)
+				CHAR=${GUTMANARRAY[$RANDNUM]}
+			done
+			echo "[${COUNT}/35] Writing pattern ${CHAR} to ${CLIENTDISK}"
+			writedisk
+		fi
 
-	randbit
-	echo "[4/35] Writing a pass of a random bit (${RANDOMBIT4}) to ${CLIENTDISK}"
-	WMODE='randbit'
-	PCNTOFSECTOR='100'
-	writedisk
+		if [[ $COUNT -gt 31 ]]; then
+			echo ""
+			echo "[${COUNT}/35] Writing \"${RANDOMPATTERN}\" to ${CLIENTDISK}"
+			WMODE='randpattern'
+			PCNTOFSECTOR='100'
+			writedisk
+		fi
 
-	echo "[5/35] Writing pattern 01010101 to ${CLIENTDISK}"
-	WMODE='char'
-	PCNTOFSECTOR='100'
-	CHAR='01010101'
-	writedisk
-
-	echo "[6/35] Writing pattern 10101010 to ${CLIENTDISK}"
-	WMODE='char'
-	PCNTOFSECTOR='100'
-	CHAR='10101010'
-	writedisk
-
-	echo "[7/35] Writing pattern 10010010 to ${CLIENTDISK}"
-	WMODE='char'
-	PCNTOFSECTOR='100'
-	CHAR='10010010'
-	writedisk
-
-	echo "[8/35] Writing pattern 01001001 to ${CLIENTDISK}"
-	WMODE='char'
-	PCNTOFSECTOR='100'
-	CHAR='01001001'
-	writedisk
-
-	echo "[9/35] Writing pattern 00100100 to ${CLIENTDISK}"
-	WMODE='char'
-	PCNTOFSECTOR='100'
-	CHAR='00100100'
-	writedisk
-
-	echo "[10/35] Writing pattern 00000000 to ${CLIENTDISK}"
-	WMODE='char'
-	PCNTOFSECTOR='100'
-	CHAR='00000000'
-	writedisk
-
-	echo "[11/35] Writing pattern 00010001 to ${CLIENTDISK}"
-	WMODE='char'
-	PCNTOFSECTOR='100'
-	CHAR='00010001'
-	writedisk
-
-	echo "[12/35] Writing pattern 00100010 to ${CLIENTDISK}"
-	WMODE='char'
-	PCNTOFSECTOR='100'
-	CHAR='00100010'
-	writedisk
-
-	echo "[13/35] Writing pattern 00110011 to ${CLIENTDISK}"
-	/usr/bin/yes "00110011" | (pv > /dev/${CLIENTDISK})
-
-	echo "[14/35] Writing pattern 01000100 to ${CLIENTDISK}"
-	/usr/bin/yes "01000100" | (pv > /dev/${CLIENTDISK})
-
-	echo "[15/35] Writing pattern 01010101 to ${CLIENTDISK}"
-	/usr/bin/yes "01010101" | (pv > /dev/${CLIENTDISK})
-
-	echo "[16/35] Writing pattern 01100110 to ${CLIENTDISK}"
-	/usr/bin/yes "01100110" | (pv > /dev/${CLIENTDISK})
-
-	echo "[17/35] Writing pattern 01110111 to ${CLIENTDISK}"
-	/usr/bin/yes "01110111" | (pv > /dev/${CLIENTDISK})
-
-	echo "[18/35] Writing pattern 10001000 to ${CLIENTDISK}"
-	/usr/bin/yes "10001000" | (pv > /dev/${CLIENTDISK})
-
-	echo "[19/35] Writing pattern 10011001 to ${CLIENTDISK}"
-	/usr/bin/yes "10011001" | (pv > /dev/${CLIENTDISK})
-
-	echo "[20/35] Writing pattern 10101010 to ${CLIENTDISK}"
-	/usr/bin/yes "10101010" | (pv > /dev/${CLIENTDISK})
-
-	echo "[21/35] Writing pattern 10111011 to ${CLIENTDISK}"
-	/usr/bin/yes "10111011" | (pv > /dev/${CLIENTDISK})
-
-	echo "[22/35] Writing pattern 11001100 to ${CLIENTDISK}"
-	/usr/bin/yes "11001100" | (pv > /dev/${CLIENTDISK})
-
-	echo "[23/35] Writing pattern 11011101 to ${CLIENTDISK}"
-	/usr/bin/yes "11011101" | (pv > /dev/${CLIENTDISK})
-
-	echo "[24/35] Writing pattern 11101110 to ${CLIENTDISK}"
-	/usr/bin/yes "11101110" | (pv > /dev/${CLIENTDISK})
-
-	echo "[25/35] Writing pattern 11111111 to ${CLIENTDISK}"
-	/usr/bin/yes "11111111" | (pv > /dev/${CLIENTDISK})
-
-	echo "[26/35] Writing pattern 10010010 to ${CLIENTDISK}"
-	/usr/bin/yes "10010010" | (pv > /dev/${CLIENTDISK})
-
-	echo "[27/35] Writing pattern 01001001 to ${CLIENTDISK}"
-	/usr/bin/yes "01001001" | (pv > /dev/${CLIENTDISK})
-
-	echo "[28/35] Writing pattern 00100100 to ${CLIENTDISK}"
-	/usr/bin/yes "00100100" | (pv > /dev/${CLIENTDISK})
-
-	echo "[29/35] Writing pattern 01101101 to ${CLIENTDISK}"
-	/usr/bin/yes "01101101" | (pv > /dev/${CLIENTDISK})
-
-	echo "[30/35] Writing pattern 10110110 to ${CLIENTDISK}"
-	/usr/bin/yes "10110110" | (pv > /dev/${CLIENTDISK})
-
-	echo "[31/35] Writing pattern 11011011 to ${CLIENTDISK}"
-	/usr/bin/yes "11011011" | (pv > /dev/${CLIENTDISK})
-
-	randbit
-	echo "[32/35] Writing a pass of a random bit (${RANDBIT}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
-
-	randbit
-	echo "[33/35] Writing a pass of a random bit (${RANDBIT}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
-
-	randbit
-	echo "[34/35] Writing a pass of a random bit (${RANDBIT}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
-
-	randbit
-	echo "[35/35] Writing a pass of a random bit (${RANDBIT}) to ${CLIENTDISK}"
-	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
+	done
 
 	echo ""
 	echo ""
