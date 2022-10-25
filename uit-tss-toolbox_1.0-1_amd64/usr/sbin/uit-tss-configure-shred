@@ -1007,31 +1007,31 @@ function execute {
 	start_time=$SECONDS
 	
 	if [[ $MODE == 'nist' ]]; then
-	nist
+		nist
 	fi
 
 	if [[ $MODE == 'zero' ]]; then
-	zero
+		zero
 	fi
 
 	if [[ $MODE == 'dod' ]]; then
-	dod
+		dod
 	fi
 
 	if [[ $MODE == 'rcmp' ]]; then
-	rcmp
+		rcmp
 	fi
 	
 	if [[ $MODE == 'gutmann' ]]; then
-	gutmann
+		gutmann
 	fi
 	
 	if [[ $MODE == 'schneier' ]]; then
-	schneier
+		schneier
 	fi
 	
 	if [[ $MODE == 'verify' ]]; then
-
+		verify
 	fi
 
 	if [[ $MODE == 'unlock' ]]; then
