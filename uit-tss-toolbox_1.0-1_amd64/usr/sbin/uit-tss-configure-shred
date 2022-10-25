@@ -280,7 +280,7 @@ function modeselect {
 	-Different types of verification"
 
 	echo ""
-	echo "7 Unlock
+	echo "8 Unlock
 	-Unlock disk previously locked by this program"
 
 	echo ""
@@ -953,7 +953,7 @@ function verify {
 	-1000 divisions, 10% verified"
 
 	echo ""
-	read -p -n 1 "Please select [1-3]: "
+	read -p -n 1 "Please select [1-3]: " VRFYSELECT
 	echo ""
 
 	case $VRFYSELECT in
@@ -975,21 +975,28 @@ function verify {
 	;;
 	esac
 
+	clear
+	echo ""
+	echo "Mode is ${VRFYMODE}"
+	echo ""
+	read -p -n 1 "Which character would you like to verify?: " CHAR
+	echo ""
+
 	if [[ $VRFYMODE == 'full' ]]; then
 		PCNTOFSECTOR='100'
-		CHAR='0'
+		CHAR=${CHAR}
 		vrfydisk
 	fi
 
 	if [[ $VRFYMODE == 'medium' ]]; then
 		PCNTOFSECTOR='50'
-		CHAR='0'
+		CHAR=${CHAR}
 		vrfydisk
 	fi
 
 	if [[ $VRFYMODE == 'fast' ]]; then
 		PCNTOFSECTOR='10'
-		CHAR='0'
+		CHAR=${CHAR}
 		vrfydisk
 	fi
 }
