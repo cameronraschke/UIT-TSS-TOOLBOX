@@ -1031,7 +1031,7 @@ function execute {
 	fi
 	
 	if [[ $MODE == 'verify' ]]; then
-
+		verify
 	fi
 
 	if [[ $MODE == 'unlock' ]]; then
