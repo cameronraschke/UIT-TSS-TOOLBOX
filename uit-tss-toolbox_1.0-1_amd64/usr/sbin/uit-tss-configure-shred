@@ -300,14 +300,16 @@ function modeselect {
 	NVME_REGEX='nvme.*'
 	SCSI_REGEX='hd.*'
 
-	if [[ ${CLIENTDISK} =~ $SSD_REGEX ]]; then
+	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
 		MODE='zero'
 		RMODE='Zero Mode'
-	fi
-
-	if [[ ${CLIENTDISK} =~ $NVME_REGEX ]]; then
+	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		MODE='nist'
 		RMODE='NIST 800-88r1 Mode'
+	else
+		MODE='zero'
+		RMODE='Zero Mode'
+		echo "No compatible drive can be found, defaulting to Zero Mode."
 	fi
 	;;
 	2)
