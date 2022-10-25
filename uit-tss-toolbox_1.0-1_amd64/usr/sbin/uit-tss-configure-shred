@@ -724,50 +724,58 @@ function rcmp {
 
 	echo ""
 	echo "Step [1/8]: "
+	WMODE='zero'
 	PCNTOFSECTOR='100'
-	zerodisk
+	writedisk
 
 	echo ""
 	echo "Step [2/8]: "
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELBIT='1'
-	chardisk
+	CHAR='1'
+	writedisk
 
 	echo ""
 	echo "Step [3/8]: "
+	WMODE='zero'
 	PCNTOFSECTOR='100'
-	zerodisk
+	writedisk
 	
 	echo ""
 	echo "Step [4/8]: "
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELBIT='1'
-	chardisk
+	CHAR='1'
+	writedisk
 
 	echo ""
 	echo "Step [5/8]: "
+	WMODE='zero'
 	PCNTOFSECTOR='100'
-	zerodisk
+	writedisk
 
 	echo ""
 	echo "Step [6/8]: "
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELBIT='1'
-	chardisk
+	CHAR='1'
+	writedisk
 
 	echo ""
 	echo "Step [7/8]: "
 	echo ""
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELBIT=${RANDBIT}
-	chardisk
+	CHAR="${RANDBIT}"
+	writedisk
 	
 	echo ""
 	echo "Step [8/8]: "
 	echo ""
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	VRFYCHAR=${RANDBIT}
-	vrfydisk
+	CHAR="${RANDBIT}"
+	writedisk
 }
 
 
@@ -780,39 +788,46 @@ function schneier {
 
 	echo ""
 	echo "Step [1/7]: "
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELBIT='1'
-	chardisk
+	CHAR='1'
+	writedisk
 
 	echo ""
 	echo "Step [2/7]: "
+	WMODE='zero'
 	PCNTOFSECTOR='100'
-	zerodisk
+	writedisk
 
 	echo ""
 	echo "Step [3/7]: "
+	WMODE='rand'
 	PCNTOFSECTOR='100'
-	randdisk
+	writedisk
 
 	echo ""
 	echo "Step [4/7]: "
+	WMODE='rand'
 	PCNTOFSECTOR='100'
-	randdisk
+	writedisk
 
 	echo ""
 	echo "Step [5/7]: "
+	WMODE='rand'
 	PCNTOFSECTOR='100'
-	randdisk
+	writedisk
 
 	echo ""
 	echo "Step [6/7]: "
+	WMODE='rand'
 	PCNTOFSECTOR='100'
-	randdisk
+	writedisk
 
 	echo ""
 	echo "Step [7/7]: "
+	WMODE='rand'
 	PCNTOFSECTOR='100'
-	randdisk
+	writedisk
 }
 
 
@@ -827,67 +842,79 @@ function gutmann {
 	randbit
 	echo ""
 	echo "[1/35] Writing a pass of a random bit (${RANDOMBIT1}) to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR=${RANDBIT}
-	chardisk
+	CHAR="${RANDBIT}"
+	writedisk
 
 	randbit
 	echo "[2/35] Writing a pass of a random bit (${RANDOMBIT2}) to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR=${RANDBIT}
-	chardisk
+	CHAR="${RANDBIT}"
+	writedisk
 
 	randbit
 	echo "[3/35] Writing a pass of a random bit (${RANDOMBIT3}) to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR=${RANDBIT}
-	chardisk
+	CHAR="${RANDBIT}"
+	writedisk
 
 	randbit
 	echo "[4/35] Writing a pass of a random bit (${RANDOMBIT4}) to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR=${RANDBIT}
-	chardisk
+	CHAR="${RANDBIT}"
+	writedisk
 
 	echo "[5/35] Writing pattern 01010101 to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR='01010101'
-	chardisk
+	CHAR='01010101'
+	writedisk
 
 	echo "[6/35] Writing pattern 10101010 to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR='10101010'
-	chardisk
+	CHAR='10101010'
+	writedisk
 
 	echo "[7/35] Writing pattern 10010010 to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR='10010010'
-	chardisk
+	CHAR='10010010'
+	writedisk
 
 	echo "[8/35] Writing pattern 01001001 to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR='01001001'
-	chardisk
+	CHAR='01001001'
+	writedisk
 
 	echo "[9/35] Writing pattern 00100100 to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR='00100100'
-	chardisk
+	CHAR='00100100'
+	writedisk
 
 	echo "[10/35] Writing pattern 00000000 to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR='00000000'
-	chardisk
+	CHAR='00000000'
+	writedisk
 
 	echo "[11/35] Writing pattern 00010001 to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR='00010001'
-	chardisk
+	CHAR='00010001'
+	writedisk
 
 	echo "[12/35] Writing pattern 00100010 to ${CLIENTDISK}"
+	WMODE='char'
 	PCNTOFSECTOR='100'
-	SELCHAR='00100010'
-	chardisk
+	CHAR='00100010'
+	writedisk
 
 	echo "[13/35] Writing pattern 00110011 to ${CLIENTDISK}"
 	/usr/bin/yes "00110011" | (pv > /dev/${CLIENTDISK})
@@ -947,19 +974,19 @@ function gutmann {
 	/usr/bin/yes "11011011" | (pv > /dev/${CLIENTDISK})
 
 	randbit
-	echo "[32/35] Writing a pass of a random bit (${RANDOMBIT5}) to ${CLIENTDISK}"
+	echo "[32/35] Writing a pass of a random bit (${RANDBIT}) to ${CLIENTDISK}"
 	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 
 	randbit
-	echo "[33/35] Writing a pass of a random bit (${RANDOMBIT6}) to ${CLIENTDISK}"
+	echo "[33/35] Writing a pass of a random bit (${RANDBIT}) to ${CLIENTDISK}"
 	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 
 	randbit
-	echo "[34/35] Writing a pass of a random bit (${RANDOMBIT7}) to ${CLIENTDISK}"
+	echo "[34/35] Writing a pass of a random bit (${RANDBIT}) to ${CLIENTDISK}"
 	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 
 	randbit
-	echo "[35/35] Writing a pass of a random bit (${RANDOMBIT8}) to ${CLIENTDISK}"
+	echo "[35/35] Writing a pass of a random bit (${RANDBIT}) to ${CLIENTDISK}"
 	/usr/bin/yes "${RANDOMBIT}" | (pv > /dev/${CLIENTDISK})
 
 	echo ""
@@ -1010,6 +1037,33 @@ function verify {
 	verify
 	;;
 	esac
+
+	if [[ $VRFYMODE == 'full' ]]; then
+		PCNTOFSECTOR='100'
+		CHAR='0'
+		vrfydisk
+	fi
+
+	if [[ $VRFYMODE == 'medium' ]]; then
+		PCNTOFSECTOR='50'
+		CHAR='0'
+		vrfydisk
+	fi
+
+	if [[ $VRFYMODE == 'fast' ]]; then
+		PCNTOFSECTOR='10'
+		CHAR='0'
+		vrfydisk
+	fi
+}
+
+function unlock {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in ${RMODE}"
+	echo ""
+	
+	secunlock
 }
 
 
@@ -1042,27 +1096,10 @@ function execute {
 	
 	if [[ $MODE == 'verify' ]]; then
 
-		if [[ $VRFYMODE == 'full' ]]; then
-			PCNTOFSECTOR='100'
-			VRFYCHAR=0
-			vrfydisk
-		fi
-	
-		if [[ $VRFYMODE == 'medium' ]]; then
-			PCNTOFSECTOR='50'
-			VRFYCHAR=0
-			vrfydisk
-		fi
-
-		if [[ $VRFYMODE == 'fast' ]]; then
-			PCNTOFSECTOR='10'
-			VRFYCHAR=0
-			vrfydisk
-		fi
 	fi
 
 	if [[ $MODE == 'unlock' ]]; then
-		secunlock
+		unlock
 	fi
 }
 
