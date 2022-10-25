@@ -280,7 +280,11 @@ function modeselect {
 	-Different types of verification"
 
 	echo ""
-	read -n1 -p "Choose [1-8] " MODESELECT
+	echo "7 Unlock
+	-Unlock disk previously locked by this program"
+
+	echo ""
+	read -n1 -p "Choose [1-7] " MODESELECT
 	echo ""
 
 	case $MODESELECT in
@@ -595,7 +599,10 @@ function secunlock {
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		/usr/sbin/hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
 		/usr/sbin/hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
+		echo ""
+		echo "${CLIENTDISK} is successfully unlocked."
 	else
+		echo ""
 		echo "No compatible SATA drive is detected. Can't unlock drive ${CLIENTDISK}...."
 	fi
 }
@@ -733,9 +740,8 @@ function dod {
 	echo ""
 	echo "Step [5/6]: "
 	echo ""
-	WMODE='char'
+	WMODE='randbit'
 	PCNTOFSECTOR='100'
-	CHAR="${RANDBIT}"
 	writedisk
 	
 	echo ""
@@ -798,18 +804,16 @@ function rcmp {
 	echo ""
 	echo "Step [7/8]: "
 	echo ""
-	WMODE='char'
+	WMODE='randbit'
 	PCNTOFSECTOR='100'
-	CHAR="${RANDBIT}"
 	writedisk
 	
 	echo ""
 	echo "Step [8/8]: "
 	echo ""
-	WMODE='char'
 	PCNTOFSECTOR='100'
 	CHAR="${RANDBIT}"
-	writedisk
+	vrfydisk
 }
 
 
@@ -876,30 +880,26 @@ function gutmann {
 	randbit
 	echo ""
 	echo "[1/35] Writing a pass of a random bit (${RANDOMBIT1}) to ${CLIENTDISK}"
-	WMODE='char'
+	WMODE='randbit'
 	PCNTOFSECTOR='100'
-	CHAR="${RANDBIT}"
 	writedisk
 
 	randbit
 	echo "[2/35] Writing a pass of a random bit (${RANDOMBIT2}) to ${CLIENTDISK}"
-	WMODE='char'
+	WMODE='randbit'
 	PCNTOFSECTOR='100'
-	CHAR="${RANDBIT}"
 	writedisk
 
 	randbit
 	echo "[3/35] Writing a pass of a random bit (${RANDOMBIT3}) to ${CLIENTDISK}"
-	WMODE='char'
+	WMODE='randbit'
 	PCNTOFSECTOR='100'
-	CHAR="${RANDBIT}"
 	writedisk
 
 	randbit
 	echo "[4/35] Writing a pass of a random bit (${RANDOMBIT4}) to ${CLIENTDISK}"
-	WMODE='char'
+	WMODE='randbit'
 	PCNTOFSECTOR='100'
-	CHAR="${RANDBIT}"
 	writedisk
 
 	echo "[5/35] Writing pattern 01010101 to ${CLIENTDISK}"
