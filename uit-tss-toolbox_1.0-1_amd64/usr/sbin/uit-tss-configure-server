@@ -1,0 +1,100 @@
+#!/bin/bash
+
+INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/[[:space:]]//g')
+
+function initialize {
+    clear
+    echo ""
+    echo "Initializing UIT-TSS-CONFIGURE-SERVER by Cameron Raschke"
+    echo ""
+
+    read -p "Press Enter to continue...."
+
+    echo ""
+    echo "Setting all interfaces down"
+    for i in $INTERFACES; do
+    ip link set down $i
+    done
+
+    echo ""
+    echo "Flushing all IP addresses"
+    for i in $INTERFACES; do
+    ip addr flush dev $i
+    done
+
+    echo ""
+    echo "Removing all interfaces from bonds and bridges"
+    for i in $INTERFACES; do
+    ip link set dev $i nomaster
+    done
+
+    echo ""
+    echo "Flushing all routes"
+    ip route flush table main
+}
+
+function intro {
+	clear
+	echo ""
+	echo "Welcome to UIT-TSS-CONFIGURE-SERVER by Cameron Raschke."
+	echo ""
+	echo "Press CTRL + C at any time to exit"
+	echo ""
+	echo ""
+	echo ""
+	echo "| |    | |  | |     | |"
+	echo "| |    | |  | |_____| |"
+	echo "| |    | |  | |_____| |"
+	echo "| |____| |  | |     | |"
+	echo "\________/  | |     | |"
+	echo ""
+	echo "------------------------------"
+	echo ""
+    echo "Checklist:
+	-Physical connections
+	   * Make sure the server has power and ethernet attached.
+       * Make sure the server has two interfaces connected - one for WAN, one for LAN.
+	-Storage
+	   * Make sure the server has over 100GB of free storage on the root drive.
+    -Data
+       * Backup the images to the server once it has been configured."
+	read -p "Press Enter to continue...."
+	clear
+}
+
+function ifselect {
+    echo "Which interface is your WAN port?"
+    echo $INTERFACES
+
+    echo "Which interface is your LAN port?"
+    echo $INTERFACES
+}
+
+function ifconf {
+    echo "Configuring networking"
+}
+
+funciton firewall {
+    cat <<'EOF' > /root/firewall.sh
+    iptables -P INPUT DROP
+    iptables -P FORWARD DROP
+    iptables -P OUTPUT DROP
+
+    iptables 
+}
+
+function pkginstall {
+    echo "Installing necessary packages"
+}
+
+function pkgconf {
+    echo "Configuring Samba"
+}
+
+function pkgrestart {
+
+}
+
+function writescripts {
+
+}

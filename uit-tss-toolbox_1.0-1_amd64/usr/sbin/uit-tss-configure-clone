@@ -219,14 +219,6 @@ echo "Configuring audio..."
 echo "Done."
 echo ""
 
-echo "Configuring email..."
-#/usr/bin/chmod 600 /etc/postfix/sasl_passwd &>/dev/null
-#/usr/bin/chown root:root /etc/postfix/sasl_passwd &>/dev/null
-#/usr/sbin/postmap /etc/postfix/sasl_passwd &>/dev/null
-#/usr/sbin/postfix reload &>/dev/null
-echo "Done."
-echo ""
-
 echo "Changing font..."
 /usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz
 echo "Done."
@@ -261,7 +253,6 @@ echo '
 | |____| |  | |     | |
 \________/  | |     | |
 '
-	sleep 1
 	echo ""
 	echo "------------------------------"
 	echo ""
