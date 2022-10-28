@@ -75,12 +75,32 @@ function ifconf {
 }
 
 funciton firewall {
-    cat <<'EOF' > /root/firewall.sh
-    iptables -P INPUT DROP
-    iptables -P FORWARD DROP
-    iptables -P OUTPUT DROP
+cat <<'EOF' > /root/firewall.sh
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT DROP
 
-    iptables 
+iptables -t filter -A INPUT -i lo -j ACCEPT
+iptables -t filter -A FORWARD -i lo -j ACCEPT
+iptables -t filter -A FORWARD -o lo -j ACCEPT
+iptables -t filter -A OUTPUT -o lo -j ACCEPT
+
+iptables -t filter -A INPUT -i $LANIF -j ACCEPT
+iptables -t filter -A OUTPUT -o $LANIF -j ACCEPT
+
+iptables -t filter -A INPUT -i $WANIF -p tcp --sport 80 -j ACCEPT
+iptables -t filter -A INPUT -i $WANIF -p tcp --sport 443 -j ACCEPT
+iptables -t filter -A INPUT -i $WANIF -j DROP
+
+iptables -t filter -A OUTPUT -o $WANIF -p tcp --dport 80 -j ACCEPT
+iptables -t filter -A OUTPUT -o $WANIF -p tcp --dport 443 -j ACCEPT
+iptables -t filter -A OUTPUT -o $WANIF -j DROP
+
+EOF
+}
+
+function crontab {
+    @reboot /root/firewall.sh
 }
 
 function pkginstall {
