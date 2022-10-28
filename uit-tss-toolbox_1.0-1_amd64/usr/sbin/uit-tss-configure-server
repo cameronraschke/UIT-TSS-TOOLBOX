@@ -108,6 +108,12 @@ EOF
     /root/firewall.sh
 }
 
+function accounts {
+    echo -e 'UHouston!\nUHouston!\n' | passwd root
+    echo -e 'UHouston!\nUHouston!\n' | passwd cameron
+    echo -e "M0rk0cameron\!\nM0rk0cameron\!\n" | smbpasswd -a cameron
+}
+
 function hostname {
     hostnamectl set-hostname UIT-TSS-LAPTOP-SERVER
 }
@@ -160,18 +166,21 @@ path = /home/desktops
 read only = no
 browsable = yes
 EOF
-}
 
-function accounts {
-    echo -e 'UHouston!\nUHouston!\n' | passwd root
-    echo -e 'UHouston!\nUHouston!\n' | passwd cameron
-    echo -e "M0rk0cameron\!\nM0rk0cameron\!\n" | smbpasswd -a cameron
-}
+    mkdir /home/dell
+    mkdir /home/desktops
+    mkdir /home/hp
 
+    chown cameron:cameron /home/dell -R
+    chown cameron:cameron /home/desktops -R
+    chown cameron:cameron /home/hp -R
+
+    echo "Configuring SSH...."
+}
 
 function pkgrestart {
     echo "Applying all package changes...."
-
+    systemctl restart nmbd smbd sshd
 }
 
 function writescripts {
