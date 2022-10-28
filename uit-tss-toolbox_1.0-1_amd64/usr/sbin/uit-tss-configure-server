@@ -184,7 +184,10 @@ function pkgrestart {
 }
 
 function writescripts {
-
+echo "Creating SMB Status script"
+echo "watch -n 0.5 'smbstatus --verbose'" > /root/smbstatus.sh
+chown root:root /root/smbstatus.sh
+chmod 700 /root/smbstatus.sh
 }
 
 function terminate {
