@@ -1,6 +1,8 @@
 #!/bin/bash
 
 INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/[[:space:]]//g')
+LANIP='10.0.0.1'
+LANSUBNET='24'
 
 function initialize {
     clear
@@ -88,33 +90,95 @@ iptables -t filter -A OUTPUT -o lo -j ACCEPT
 iptables -t filter -A INPUT -i $LANIF -j ACCEPT
 iptables -t filter -A OUTPUT -o $LANIF -j ACCEPT
 
+iptables -t filter -A INPUT -i $WANIF -p udp --sport 53 -j ACCEPT
 iptables -t filter -A INPUT -i $WANIF -p tcp --sport 80 -j ACCEPT
 iptables -t filter -A INPUT -i $WANIF -p tcp --sport 443 -j ACCEPT
+iptables -t filter -A INPUT -i $WANIF -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -t filter -A INPUT -i $WANIF -j DROP
 
+iptables -t filter -A OUTPUT -o $WANIF -p udp --dport 53 -j ACCEPT
 iptables -t filter -A OUTPUT -o $WANIF -p tcp --dport 80 -j ACCEPT
 iptables -t filter -A OUTPUT -o $WANIF -p tcp --dport 443 -j ACCEPT
 iptables -t filter -A OUTPUT -o $WANIF -j DROP
 
 EOF
+
+    chown root:root /root/firewall.sh
+    chmod 700 /root/firewall.sh
+    /root/firewall.sh
+}
+
+function hostname {
+    hostnamectl set-hostname UIT-TSS-LAPTOP-SERVER
 }
 
 function crontab {
-    @reboot /root/firewall.sh
+    echo -n "@reboot /root/firewall.sh" > /etc/cron.d/00-firewall
 }
 
 function pkginstall {
-    echo "Installing necessary packages"
+    echo "Updating and upgrading all packages...."
+    apt update -y
+    apt upgrade -y
+    echo "Installing necessary packages...."
+    apt install dnsmasq samba iftop iotop iptables chpasswd -y
 }
 
 function pkgconf {
-    echo "Configuring Samba"
+    echo "Configuring Samba...."
+cat <<'EOF' > /etc/samba/smb.conf
+[global]
+workgroup=WORKGROUP
+server string = %h server (Samba, Ubuntu)
+interfaces = ${LANIP}/${LANSUBNET} $LANIF
+bind interfaces only = yes
+log file = /var/log/samba/log.%m
+max log size = 1000
+logging = file
+panic action = /usr/share/samba/panic-action %d
+server role = standalone server
+obey pam restrictions = yes
+unix password sync = yes
+passwd program = /usr/bin/passwd %u
+passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+pam password change = yes
+map to guest = bad user
+usershare allow guests = no
+
+[dell]
+path = /home/dell
+read only = no
+browsable = yes
+
+[hp]
+path = /home/hp
+read only = no
+browsable = yes
+
+[desktops]
+path = /home/desktops
+read only = no
+browsable = yes
+EOF
 }
 
+function accounts {
+    echo -e 'UHouston!\nUHouston!\n' | passwd root
+    echo -e 'UHouston!\nUHouston!\n' | passwd cameron
+    echo -e "M0rk0cameron\!\nM0rk0cameron\!\n" | smbpasswd -a cameron
+}
+
+
 function pkgrestart {
+    echo "Applying all package changes...."
 
 }
 
 function writescripts {
 
+}
+
+function terminate {
+    read -p "Press Enter to reboot...."
+    reboot
 }
