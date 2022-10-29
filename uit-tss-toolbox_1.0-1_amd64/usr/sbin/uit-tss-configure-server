@@ -205,7 +205,7 @@ EOF
 
 function pkgrestart {
     echo "Applying all package changes...."
-    systemctl restart nmbd smbd ssh
+    systemctl restart nmbd smbd ssh dnsmasq
 }
 
 function writescripts {
@@ -219,3 +219,4 @@ function terminate {
     read -p "Press Enter to reboot...."
     reboot
 }
+
