@@ -200,8 +200,7 @@ dhcp-option=6,10.0.0.1
 dhcp-option=15,.uit
 dhcp-range=10.0.0.5,10.0.0.254,255.255.255.0,2m
 dhcp-sequential-ip
-EOF
-    
+EOF   
 }
 
 function pkgrestart {
