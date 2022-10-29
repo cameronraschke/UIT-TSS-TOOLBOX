@@ -128,6 +128,9 @@ function pkginstall {
     apt upgrade -y
     echo "Installing necessary packages...."
     apt install dnsmasq samba iftop iotop iptables chpasswd -y
+    echo "Enabling new packages...."
+    systemctl enable nmbd smbd dnsmasq
+    systemctl stop dnsmasq
 }
 
 function pkgconf {
@@ -136,8 +139,8 @@ cat <<'EOF' > /etc/samba/smb.conf
 [global]
 workgroup = WORKGROUP
 server string = Samba Server
-interfaces = ${LANIP}/${LANSUBNET} $LANIF
-socket address = $LANIP
+interfaces = ${LANIP}/${LANSUBNET} ${LANIF}
+socket address = ${LANIP}
 bind interfaces only = yes
 log file = /var/log/samba/log.%m
 max log size = 50
@@ -179,6 +182,26 @@ EOF
     chown cameron:cameron /home/hp -R
 
     echo "Configuring SSH...."
+    sed -i 's/#ListenAddress 0.0.0.0/ListenAddress 10.0.0.1/g' /etc/ssh/sshd_config
+    sed -i 's/#AddressFamily any/AddressFamily inet/g' /etc/ssh/sshd_config
+
+    echo "Configuring dnsmasq...."
+cat <<'EOF' > /etc/dnsmasq.conf
+port=53
+no-resolv
+listen-address=${LANIP}
+bogus-priv
+strict-order
+interface=${LANIF}
+bind-interfaces
+
+dhcp-option=1,255.255.255.0
+dhcp-option=6,10.0.0.1
+dhcp-option=15,.uit
+dhcp-range=10.0.0.5,10.0.0.254,255.255.255.0,2m
+dhcp-sequential-ip
+EOF
+    
 }
 
 function pkgrestart {
