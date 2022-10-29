@@ -431,19 +431,6 @@ function terminate {
 	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
 	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 	UPDATE=$(cat /root/laptop-image-update.txt)
-	echo "From: UIT-TSS-CLONE@cameronraschke.com
-To: clone-status@cameronraschke.com
-Subject: Computer Successfully Reimaged
-
-Hello,
-
-A computer has been reimaged from the server ${SERVERDNS} using the image ${SMBPATH}, \
-which was last updated on ${UPDATE}. Today, ${TODAY} computers have been reimaged, \
-with this reimage taking ${TIME}.
-
-Thank you,
-Cameron" | sendmail -t
-	echo "Sent."
 	echo ""
 	echo "This computer has been reimaged from the server ${SERVERDNS} using the image \
 ${SMBPATH}, which was last updated on ${UPDATE}. Today, ${TODAY} computers have been \
@@ -459,19 +446,6 @@ reimaged, with this reimage taking ${TIME}."
 	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
 	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 	UPDATE=$(cat /root/laptop-image-update.txt)
-	echo "From: UIT-TSS-CLONE@cameronraschke.com
-To: clone-status@cameronraschke.com
-Subject: Computer Image Successfully Saved
-
-Hello,
-
-The image ${SMBPATH} has been successfully updated and saved to the server ${SERVERDNS}. \
-The process took ${TIME} to complete. ${SMBPATH} was last updated on ${UPDATE}. \
-Today, ${TODAY} computers have been reimaged.
-
-Thank you,
-Cameron" | sendmail -t
-	echo "Sent."
 	echo ""
 	echo "The image ${SMBPATH} has been successfully updated and saved to the server ${SERVERDNS}. \
 The process took ${TIME} to complete. ${SMBPATH} was last updated on ${UPDATE}. \
@@ -479,6 +453,7 @@ Today, ${TODAY} computers have been reimaged."
 	ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
 		/home/cameron/laptop-image-update.txt' &>/dev/null
 	fi
+	
 	echo ""
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	read -p "Process has finished. Press Enter to reboot..."

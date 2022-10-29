@@ -168,7 +168,7 @@ read only = no
 browsable = yes
 EOF
 
-    echo -e "M0rk0cameron\!\nM0rk0cameron\!\n" | smbpasswd -a cameron
+    echo -e 'UHouston!\nUHouston!\n' | smbpasswd -a cameron
 
     mkdir /home/dell
     mkdir /home/desktops
@@ -183,7 +183,7 @@ EOF
 
 function pkgrestart {
     echo "Applying all package changes...."
-    systemctl restart nmbd smbd sshd
+    systemctl restart nmbd smbd ssh
 }
 
 function writescripts {
