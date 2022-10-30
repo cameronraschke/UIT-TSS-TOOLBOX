@@ -308,10 +308,10 @@ EOF
     kubectl create namespace prod
     kubectl create namespace dev
 
-    kubectl create deployment nginx-prod --image=nginx --replicas=4 --port 80 --namespace prod
+    kubectl create deployment nginx-prod --image=nginx --replicas=4 --namespace prod
     kubectl get deployment nginx-prod --namespace prod
 
-    kubectl create service nodeport nginx-nodeport-prod --namespace prod --tcp 80:80
+    kubectl expose deployment nginx-prod --port=80 --target-port 80 --type LoadBalancer --external-ip 10.0.0.2 --namespace prod
     kubectl get service nginx-nginx-node-port --namespace prod
 
     
