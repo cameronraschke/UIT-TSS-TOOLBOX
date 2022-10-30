@@ -221,15 +221,59 @@ function kubernetes {
     CTRNAME='uit-tss-laptop-server'
 
     swapoff -a
-    apt install containerd -y
+
+    modprobe overlay
+    modprobe br_netfilter
+
+    tee /etc/sysctl.d/kubernetes.conf <<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+    sysctl --system
+
+    apt install -y curl gnupg2 software-properties-common apt-transport-https ca-certificates
+
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.gpg
+
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+    apt update -y
+
+    apt install -y containerd.io
+    containerd config default | sudo tee /etc/containerd/config.toml >/dev/null 2>&1
+    sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+    systemctl restart containerd
+    systemctl enable containerd
+
     apt install ipvsadm -y
-    curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] \
-        https://apt.kubernetes.io/ kubernetes-xenial main" \
-        | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+    apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-jammy main"
     apt update -y
     apt install -y kubelet kubeadm kubectl
     apt-mark hold kubelet kubeadm kubectl
+
+    kubeadm init --control-plane-endpoint=10.0.0.2
+
+    mkdir -p $HOME/.kube
+    cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    chown $(id -u):$(id -g) $HOME/.kube/config
+
+    kubectl cluster-info
+    kubectl get nodes
+
+    curl https://projectcalico.docs.tigera.io/manifests/calico.yaml -O
+    kubectl apply -f calico.yaml
+    kubectl get pods
+    kubectl get nodes
+
+    kubectl create deployment nginx-app --image=nginx --replicas=4
+    kubectl get deployment nginx-app
+    kubectl expose deployment nginx-app --type=NodePort --port=80
+
+    
 
     kubectl drain ${K8SNODE} --delete-emptydir-data --force --ignore-daemonsets
 
