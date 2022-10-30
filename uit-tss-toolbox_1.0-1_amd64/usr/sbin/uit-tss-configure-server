@@ -250,11 +250,11 @@ function kubernetes {
         --apiserver-advertise-address=${LANIP} \
         --node-name ${K8SNODE}
 
-        kubeadm init \
-        --control-plane-endpoint 10.0.0.2 \
-        --pod-network-cidr 192.168.1.1/24 \
-        --apiserver-advertise-address=10.0.0.2 \
-        --node-name uit-tss-laptop-server
+        #kubeadm init \
+        #--control-plane-endpoint 10.0.0.2 \
+        #--pod-network-cidr 192.168.1.1/24 \
+        #--apiserver-advertise-address=10.0.0.2 \
+        #--node-name uit-tss-laptop-server
 
         #kubeadm join 10.0.0.2:6443 --token 8goh09.6qoe3ov0eyqxhsvx \
         #--discovery-token-ca-cert-hash sha256:3f9b1d7bd8b91e41f8fe6fa1e8a486b979dee804df22e408875295ce48979cab 
