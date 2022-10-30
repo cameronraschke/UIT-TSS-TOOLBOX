@@ -218,6 +218,9 @@ chmod 700 /root/smbstatus.sh
 }
 
 function kubernetes {
+    CTRNAME='uit-tss-laptop-server'
+
+    swapoff –a
     apt install containerd -y
     curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
     echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] \
@@ -240,7 +243,8 @@ function kubernetes {
     kubeadm init \
         --control-plane-endpoint ${LANIP} \
         --pod-network-cidr 192.168.1.1/24 \
-        --apiserver-advertise-address=${LANIP}
+        --apiserver-advertise-address=${LANIP} \
+        --node-name ${K8SNODE}
 
     mkdir -p $HOME/.kube
     sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -251,8 +255,30 @@ function kubernetes {
     kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
 
     kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+    
+    mkdir /root/k8s
 
-cat <<'EOF' > /root/deployment.yaml
+cat <<'EOF' > /root/k8s/dev-namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: development
+  labels:
+    name: development
+EOF
+kubectl create -f /root/k8s/dev-namespace.yaml
+
+cat <<'EOF' > /root/k8s/prod-namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    name: production
+EOF
+kubectl create -f /root/k8s/prod-namespace.yaml
+
+cat <<'EOF' > /root/k8s/nginx-deployment-dev.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -261,7 +287,7 @@ spec:
   selector:
     matchLabels:
       app: nginx
-  replicas: 2
+  replicas: 4
   template:
     metadata:
       labels:
@@ -269,26 +295,36 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.16.1 # Update the version of nginx from 1.14.2 to 1.16.1
+        image: nginx:1.16.1
         ports:
         - containerPort: 80
 EOF
-kubectl apply -f /root/deployment.yaml
+kubectl apply -f /root/k8s/nginx-deployment.yaml --namespace=development
 
-cat <<'EOF' > /root/memory-limits.yaml
-apiVersion: v1
-kind: LimitRange
+cat <<'EOF' > /root/k8s/nginx-deployment-prod.yaml
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: mem-limit-range
+  name: nginx-deployment
 spec:
-  limits:
-  - default:
-      memory: 512Mi
-    defaultRequest:
-      memory: 256Mi
-    type: Container
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.16.1
+        ports:
+        - containerPort: 80
 EOF
-    kubectl apply -f /root/memory-limits.yaml
+kubectl apply -f /root/k8s/nginx-deployment.yaml --namespace=production
+
+
 
 
 
