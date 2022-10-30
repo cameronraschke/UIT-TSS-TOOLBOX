@@ -520,7 +520,7 @@ spec:
         ports:
         - containerPort: 80
 EOF
-kubectl apply -f /root/k8s/nginx-deployment.yaml --namespace=development
+kubectl apply -f /root/k8s/nginx-deployment-dev.yaml --namespace=development
 
 cat <<'EOF' > /root/k8s/nginx-deployment-prod.yaml
 apiVersion: apps/v1
@@ -543,7 +543,7 @@ spec:
         ports:
         - containerPort: 80
 EOF
-kubectl apply -f /root/k8s/nginx-deployment.yaml --namespace=production
+kubectl apply -f /root/k8s/nginx-deployment-prod.yaml --namespace=production
 
 
 
