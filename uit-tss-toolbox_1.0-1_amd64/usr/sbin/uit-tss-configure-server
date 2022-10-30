@@ -308,14 +308,11 @@ EOF
     kubectl create namespace prod
     kubectl create namespace dev
 
-    kubectl create deployment nginx-prod --image=nginx --replicas=4 --port ${K8SPORT} --namespace prod
+    kubectl create deployment nginx-prod --image=nginx --replicas=4 --port 80 --namespace prod
     kubectl get deployment nginx-prod --namespace prod
 
-    kubectl expose deployment nginx-prod --type=ClusterIP --name=nginx-cluster-ip --namespace prod
-    kubectl get service nginx-cluster-ip --namespace prod
-
-    kubectl expose deployment nginx-prod --type=NodePort --port=80 --target-port=80 --name nginx-node-port --namespace prod
-    kubectl get service nginx-cluster-ip --namespace prod
+    kubectl create service nodeport nginx-nodeport-prod --namespace prod --tcp 80:80
+    kubectl get service nginx-nginx-node-port --namespace prod
 
     
     
