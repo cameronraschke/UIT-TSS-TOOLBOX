@@ -295,6 +295,8 @@ EOF
     cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     chown $(id -u):$(id -g) $HOME/.kube/config
 
+    kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+
     kubectl cluster-info
     kubectl get nodes
 
@@ -306,12 +308,17 @@ EOF
     kubectl create namespace prod
     kubectl create namespace dev
 
-    kubectl create deployment nginx-app --image=nginx --replicas=4
-    kubectl get deployment nginx-app
-    kubectl expose deployment nginx-app --type=NodePort --port=80
+    kubectl create deployment nginx-app --image=nginx --replicas=4 --port ${K8SPORT} --namespace=prod
+    kubectl get deployment nginx-app --namespace prod
 
+    kubectl expose deployment nginx-app --type=ClusterIP --name=nginx-cluster-ip --namespace=prod
 
+    kubectl expose deployment nginx-app --type=NodePort --port=80 --namespace prod
 
+    kubectl expose deployment nginx-app  --type=LoadBalancer  --name=nginx-service-loadbalancer
+
+    
+    
 
 
 
