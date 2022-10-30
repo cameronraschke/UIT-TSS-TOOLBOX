@@ -276,12 +276,6 @@ EOF
 
     kubectl delete node ${K8SNODE}
 
-    kubeadm init \
-        --control-plane-endpoint ${LANIP} \
-        --pod-network-cidr 192.168.1.1/24 \
-        --apiserver-advertise-address=${LANIP} \
-        --node-name ${K8SNODE}
-
     mkdir -p $HOME/.kube
     sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     sudo chown $(id -u):$(id -g) $HOME/.kube/config
@@ -289,7 +283,6 @@ EOF
     export KUBECONFIG=/etc/kubernetes/admin.conf
 
     kubeadm init --control-plane-endpoint=${LANIP}
-    kubeadm init --control-plane-endpoint=10.0.0.2
 
     mkdir -p $HOME/.kube
     cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -314,8 +307,6 @@ EOF
     kubectl expose deployment nginx-prod --port=80 --target-port 80 --type LoadBalancer --external-ip 10.0.0.2 --namespace prod
     kubectl get service nginx-prod --namespace prod
 
-    
-    
 
 
 
