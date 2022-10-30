@@ -220,7 +220,7 @@ chmod 700 /root/smbstatus.sh
 function kubernetes {
     CTRNAME='uit-tss-laptop-server'
 
-    swapoff –a
+    swapoff -a
     apt install containerd -y
     curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
     echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] \
