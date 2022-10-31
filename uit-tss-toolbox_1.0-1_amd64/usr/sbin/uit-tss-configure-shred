@@ -319,7 +319,11 @@ function modeselect {
 	-Unlocks disk previously locked by this program"
 
 	echo ""
-	read -n1 -p "Choose [1-9]: " MODESELECT
+	echo "0 Remove Running SATA Disk
+	-Makes the selected SATA drive hot-swappable"
+
+	echo ""
+	read -n1 -p "Choose [0-9]: " MODESELECT
 	echo ""
 
 	case $MODESELECT in
@@ -357,6 +361,10 @@ function modeselect {
 	9)
 	MODE='unlock'
 	RMODE='Unlock Mode'
+	;;
+	0)
+	MODE='remove'
+	RMODE='Remove Mode'
 	;;
 	*)
 	modeselect
@@ -674,7 +682,9 @@ function secunlock {
 
 
 
-function iorem {
+function ioremove {
+	echo ""
+	echo "Removing disk ${CLIENTDISK}"
 	sync
 	sleep 10
 	sync
@@ -687,12 +697,22 @@ function iorem {
 	umount /dev/${CLIENTDISK}
 	hdparm -Y /dev/${CLIENTDISK}
 	echo 1 > /sys/block/${CLIENTDISK}/device/delete
+	sleep 1
+	echo ""
+	echo "You can now remove the drive ${CLIENTDISK}...."
 }
 
 
 
 function iorefresh {
+	echo ""
+	echo "Refreshing I/O"
 	echo "1" > /sys/class/fc_host/host/issue_lip
+	echo ""
+	echo "Check lsblk to see if your drive has been added: "
+	echo ""
+	lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
+	echo ""
 }
 
 
@@ -1095,6 +1115,17 @@ function unlock {
 	secunlock
 }
 
+function remove {
+	clear
+	echo ""
+	echo "UIT-TSS-SHRED running in ${RMODE}
+	echo ""
+
+	ioremove
+
+	iorefresh
+}
+
 
 function execute {
 	start_time=$SECONDS
@@ -1129,6 +1160,10 @@ function execute {
 
 	if [[ $MODE == 'unlock' ]]; then
 		unlock
+	fi
+
+	if [[ $MODE == 'remove' ]]; then
+		remove
 	fi
 }
 
