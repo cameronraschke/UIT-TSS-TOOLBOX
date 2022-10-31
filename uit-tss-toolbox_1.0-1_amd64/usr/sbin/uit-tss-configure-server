@@ -64,19 +64,19 @@ function intro {
 	clear
 }
 
-function ifselect {
+function ifconf {
     echo "Which interface is your WAN port?"
     echo $INTERFACES
+    $WANIF
 
     echo "Which interface is your LAN port?"
     echo $INTERFACES
-}
+    $LANIF
 
-function ifconf {
     echo "Configuring networking"
 }
 
-funciton firewall {
+function firewall {
 cat <<'EOF' > /root/firewall.sh
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
@@ -127,10 +127,13 @@ function pkginstall {
     apt update -y
     apt upgrade -y
     echo "Installing necessary packages...."
-    apt install dnsmasq samba iftop iotop iptables chpasswd -y
+    apt install iftop iotop iptables chpasswd -y
+    apt install samba -y 
+    systemctl stop smbd nmbd
+    apt install dnsmasq -y
+    systemctl stop dnsmasq
     echo "Enabling new packages...."
     systemctl enable nmbd smbd dnsmasq
-    systemctl stop dnsmasq
 }
 
 function pkgconf {
@@ -181,9 +184,12 @@ EOF
     chown cameron:cameron /home/desktops -R
     chown cameron:cameron /home/hp -R
 
+    systemctl restart nmbd smbd
+
     echo "Configuring SSH...."
     sed -i 's/#ListenAddress 0.0.0.0/ListenAddress 10.0.0.1/g' /etc/ssh/sshd_config
     sed -i 's/#AddressFamily any/AddressFamily inet/g' /etc/ssh/sshd_config
+    systemctl restart ssh
 
     echo "Configuring dnsmasq...."
 cat <<'EOF' > /etc/dnsmasq.conf
@@ -200,14 +206,11 @@ dhcp-option=6,10.0.0.1
 dhcp-option=15,.uit
 dhcp-range=10.0.0.5,10.0.0.254,255.255.255.0,2m
 dhcp-sequential-ip
-EOF   
+EOF
+
+    systemctl restart dnsmasq
 
 apt autoremove -y
-}
-
-function pkgrestart {
-    echo "Applying all package changes...."
-    systemctl restart nmbd smbd ssh dnsmasq
 }
 
 function writescripts {
