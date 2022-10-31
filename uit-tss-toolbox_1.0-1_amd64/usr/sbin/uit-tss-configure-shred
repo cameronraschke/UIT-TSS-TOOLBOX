@@ -1000,11 +1000,19 @@ function verify {
 	-Longest, verifies every bit on the disk"
 
 	echo ""
-	echo "2 Medium verification
+	echo "2 Moderate verification
+	-1000 divisions, 75% verified"
+
+	echo ""
+	echo "3 Medium verification
 	-1000 divisions, 50% verified"
 
 	echo ""
-	echo "3 Very fast verification
+	echo "4 Fast verification
+	-1000 divisions, 25% verified"
+
+	echo ""
+	echo "5 Very fast verification
 	-1000 divisions, 10% verified"
 
 	echo ""
@@ -1016,10 +1024,16 @@ function verify {
 	VRFYMODE='full'
 	;;
 	2)
-	VRFYMODE='medium'
+	VRFYMODE='moderate'
 	;;
 	3)
+	VRFYMODE='medium'
+	;;
+	4)
 	VRFYMODE='fast'
+	;;
+	5)
+	VRFYMODE='vfast'
 	;;
 	*)
 	echo ""
@@ -1042,6 +1056,12 @@ function verify {
 		vrfydisk
 	fi
 
+	if [[ $VRFYMODE == 'moderate' ]]; then
+		PCNTOFSECTOR='75'
+		CHAR=${CHAR}
+		vrfydisk
+	fi
+
 	if [[ $VRFYMODE == 'medium' ]]; then
 		PCNTOFSECTOR='50'
 		CHAR=${CHAR}
@@ -1049,6 +1069,12 @@ function verify {
 	fi
 
 	if [[ $VRFYMODE == 'fast' ]]; then
+		PCNTOFSECTOR='25'
+		CHAR=${CHAR}
+		vrfydisk
+	fi
+
+	if [[ $VRFYMODE == 'vfast' ]]; then
 		PCNTOFSECTOR='10'
 		CHAR=${CHAR}
 		vrfydisk
