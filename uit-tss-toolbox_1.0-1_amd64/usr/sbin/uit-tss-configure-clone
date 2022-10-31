@@ -318,23 +318,8 @@ function diskselect {
 }
 
 function serverselect {
-	echo ""
-	echo "Do you want to use server Mickey [1] or Minnie [2]?"
-	read -n1 -p "Choose [1,2] " HOSTTYPE
-	echo ""
-	case $HOSTTYPE in
-	1)
 	SERVER='10.0.0.1'
 	SERVERDNS='mickey.uit'
-	;;
-	2)
-	SERVER='10.0.0.2'
-	SERVERDNS='minnie.uit'
-	;;
-	*)
-	serverselect
-	;;
-	esac
 }
 
 function clientselect {
