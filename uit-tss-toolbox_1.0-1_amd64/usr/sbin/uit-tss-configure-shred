@@ -528,7 +528,15 @@ function writedisk {
 
 
 function vrfydisk {
-	SECTIONS='1000'
+	
+	if [[ -z $SECTIONS ]]; then
+		SECTIONS='1000'
+	fi
+
+	if [[ -z $PCNTOFSECTOR ]]; then
+		PCNTOFSECTOR='100'
+	fi
+
 	DIVPERSEC='2'
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
@@ -540,10 +548,6 @@ function vrfydisk {
 	PROCFAIL='0'
 
 	if [[ -z $CHAR ]]; then
-		CHAR='0'
-	fi
-
-	if [[ -z $PCNTOFSECTOR ]]; then
 		CHAR='0'
 	fi
 
@@ -644,7 +648,7 @@ function secerase {
 	fi
 
 	if [[ $SECERASEFAIL == '1' ]]; then
-		echo "No compatible SATA or NVME drive is detected. Can't use Secure Erase...."
+		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase...."
 	fi
 }
 
@@ -664,7 +668,7 @@ function secunlock {
 		echo "${CLIENTDISK} is successfully unlocked."
 	else
 		echo ""
-		echo "No SATA drive is detected. Can't unlock drive ${CLIENTDISK}...."
+		echo "No compatible SATA drive is selected. Can't unlock drive ${CLIENTDISK}...."
 	fi
 }
 
@@ -1055,18 +1059,21 @@ function verify {
 	fi
 
 	if [[ $VRFYMODE == 'moderate' ]]; then
+		SECTIONS='10000'
 		PCNTOFSECTOR='75'
 		CHAR=${CHAR}
 		vrfydisk
 	fi
 
 	if [[ $VRFYMODE == 'medium' ]]; then
+		SECTIONS='5000'
 		PCNTOFSECTOR='50'
 		CHAR=${CHAR}
 		vrfydisk
 	fi
 
 	if [[ $VRFYMODE == 'fast' ]]; then
+		SECTIONS='2500'
 		PCNTOFSECTOR='25'
 		CHAR=${CHAR}
 		vrfydisk
