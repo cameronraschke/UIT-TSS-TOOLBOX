@@ -365,15 +365,13 @@ function modeselect {
 	modeselect
 	;;
 	esac
-	
-	if [[ $MODE == 'nist' ]]; then
+
 	echo ""
 	echo '*** WARNING *** After pressing Enter, the system will enter hibernate mode.
 	This is normal. Please wake up the system after it hibernates. *** WARNING ***'
 	echo ""
 	read -p "Please press Enter...."
 	echo -n mem > /sys/power/state
-	fi
 }
 
 
@@ -632,8 +630,6 @@ function secerase {
 	NVME_REGEX='nvme.*'
 	SCSI_REGEX='hd.*'
 
-	
-
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
 		/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
@@ -719,6 +715,7 @@ function nist {
 	echo "Step [2/3]: "
 	echo ""
 	secerase
+	secunlock
 	
 	echo ""
 	echo "Step [3/3]: "
