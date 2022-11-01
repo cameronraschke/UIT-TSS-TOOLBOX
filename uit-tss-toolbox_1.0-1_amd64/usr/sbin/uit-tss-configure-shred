@@ -1118,7 +1118,7 @@ function unlock {
 function remove {
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in ${RMODE}
+	echo "UIT-TSS-SHRED running in ${RMODE}"
 	echo ""
 
 	ioremove
