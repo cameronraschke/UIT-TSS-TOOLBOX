@@ -131,6 +131,9 @@ sshpass
 kbd
 procps
 dosfstools
+efibootmgr
+efivar
+ntfs-3g
 EOF
 
 mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
@@ -178,6 +181,7 @@ echo "Configurating Kernel..."
 /usr/sbin/sysctl -w "kernel.kptr_restrict=1" &>/dev/null
 /usr/sbin/sysctl -w "vm.mmap_min_addr=65536" &>/dev/null
 /usr/sbin/sysctl -p &>/dev/null
+modprobe efivars
 echo "Done."
 echo ""
  
