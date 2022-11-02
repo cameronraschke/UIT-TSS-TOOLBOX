@@ -296,6 +296,10 @@ EOF
     kubectl create namespace prod
     kubectl create namespace dev
 
+    #mkdir -p /opt/k8s/
+    #mkdir -p /opt/k8s/nginx/
+    #kubectl create configmap nginxconfigmap --from-file=/opt/k8s/nginx/default.conf
+
     kubectl create deployment nginx-prod --image=nginx --replicas=4 --namespace prod
     kubectl get deployment nginx-prod --namespace prod
 
