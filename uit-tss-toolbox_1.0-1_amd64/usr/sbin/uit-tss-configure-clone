@@ -94,7 +94,6 @@ live-boot
 live-config
 live-config-systemd
 systemd-sysv
-network-manager
 openssl
 less
 iproute2
@@ -144,19 +143,19 @@ echo "UHouston!" > /root/.ssh_passwd
 chown root:root /root/.ssh_passwd
 chmod 600 /root/.ssh_passwd
 
-/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6=1"
-/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6=1"
-/usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2"
-/usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2"
-/usr/sbin/sysctl -w "net.ipv4.ip_forward=0"
-/usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1"
-/usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1"
-/usr/sbin/sysctl -p
+/usr/sbin/sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
+/usr/sbin/sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
+/usr/sbin/sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
+/usr/sbin/sysctl --quiet --write "net.ipv4.conf.all.rp_filter=2"
+/usr/sbin/sysctl --quiet --write "net.ipv4.ip_forward=0"
+/usr/sbin/sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
+/usr/sbin/sysctl --quiet --write  "net.ipv6.conf.default.forwarding=1"
+/usr/sbin/sysctl --load
 
-/usr/sbin/sysctl -w "kernel.printk=2 4 1 2"
-/usr/sbin/sysctl -w "kernel.kptr_restrict=1"
-/usr/sbin/sysctl -w "vm.mmap_min_addr=65536"
-/usr/sbin/sysctl -p
+/usr/sbin/sysctl --quiet --write "kernel.printk=2 4 1 2"
+/usr/sbin/sysctl --quiet --write "kernel.kptr_restrict=1"
+/usr/sbin/sysctl --quiet --write "vm.mmap_min_addr=65536"
+/usr/sbin/sysctl --load
 
 echo "uit-tss-clone.cameronraschke.com" > /etc/hostname
 echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/motd
@@ -182,33 +181,31 @@ echo ""
 
 echo ""
 echo "Configurating Kernel..."
-sysctl -w "kernel.printk=2 4 1 2"
-sysctl -w "kernel.kptr_restrict=1"
-sysctl -w "vm.mmap_min_addr=65536"
-sysctl -p
+sysctl --quiet --write "kernel.printk=2 4 1 2"
+sysctl --quiet --write "kernel.kptr_restrict=1"
+sysctl --quiet --write "vm.mmap_min_addr=65536"
+sysctl --load
 modprobe efivars
 echo "Done."
 
 echo ""
 echo "Configuring networking..."
-sysctl -w "net.ipv6.conf.all.disable_ipv6=1"
-sysctl -w "net.ipv6.conf.default.disable_ipv6=1"
-sysctl -w "net.ipv4.conf.default.rp_filter=2"
-sysctl -w "net.ipv4.conf.all.rp_filter=2"
-sysctl -w "net.ipv4.ip_forward=0"
-sysctl -w "net.ipv6.conf.all.forwarding=1"
-sysctl -w "net.ipv6.conf.default.forwarding=1"
-sysctl -p
+sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
+sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
+sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
+sysctl --quiet --write "net.ipv4.conf.all.rp_filter=2"
+sysctl --quiet --write "net.ipv4.ip_forward=0"
+sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
+sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
+sysctl --load
 
 local a="0"
 local b="1"
-for i in $(nmcli -t -f DEVICE device | grep '^e.*'); do
-nmcli connection modify "${i}" connection.interface-name "eth${a}" connection.id "Wired connection ${b}"
-nmcli connection modify "Wired connection ${b}" ipv4.method auto
-nmcli connection modify "Wired connection ${b}" ipv6.method disabled
-nmcli connection up "Wired connection ${b}"
-a=$(( $a + 1 ))
-b=$(( $b + 1 ))
+INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/lo//g' | sed 's/w.*//g' | sed 's/[[:space:]]//g')
+for iface in $INTERFACES; do
+	ip link set "${iface}" up
+	dhclient -r
+	dhclient -4 "${iface}"
 done
 
 nmcli radio wifi off
