@@ -957,36 +957,13 @@ Please make a backup if necessary."
 	clear
 }
 
+
+
 function execute {
 	SECONDS=0
 	start_time=$SECONDS
-	mkdir /home/partimag
-	/usr/bin/umount /home/partimag &>/dev/null
-	/usr/bin/mount -t cifs -o user=${USER} -o password=${PASS} //${SERVER}/${SMBPATH} /home/partimag
-	if [[ $cloneMode == "restoredisk" ]]; then
-	clear
-	echo ""
-	echo "Restoring disk ${CLIENTDISK}...."
-	sleep 1
-	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
-		--verbose -k1 --skip-check-restorable-r ${cloneMode} ${IMAGENAME} ${CLIENTDISK}
-	fi
-	if [[ $cloneMode == "savedisk" ]]; then
-	clear
-	echo ""
-	echo "Saving disk ${CLIENTDISK}...."
-	sleep 1
-	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
-		--verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${IMAGENAME} ${CLIENTDISK}
-	fi
-}
 
 
-
-
-function execute {
-	start_time=$SECONDS
-	
 	if [[ $shredMode == 'nist' ]]; then
 		nistMode_Shred
 	fi
@@ -1018,12 +995,36 @@ function execute {
 	if [[ $shredMode == 'unlock' ]]; then
 		unlockMode_Shred
 	fi
+	shredElapsed=$(( SECONDS - start_time ))
+
+	SECONDS=0
+	start_time=$SECONDS
+	mkdir /home/partimag
+	/usr/bin/umount /home/partimag &>/dev/null
+	/usr/bin/mount -t cifs -o user=${USER} -o password=${PASS} //${SERVER}/${SMBPATH} /home/partimag
+	if [[ $MODE == "restoredisk" ]]; then
+	clear
+	echo ""
+	echo "Restoring disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
+		--verbose -k1 --skip-check-restorable-r ${MODE} ${IMAGENAME} ${CLIENTDISK}
+	fi
+	if [[ $MODE == "savedisk" ]]; then
+	clear
+	echo ""
+	echo "Saving disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
+		--verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${MODE} ${IMAGENAME} ${CLIENTDISK}
+	fi
+	cloneElapsed=$(( SECONDS - start_time ))
 }
 
 
 
 function terminate {
-	elapsed=$(( SECONDS - start_time ))
+	elapsed=$(( cloneElapsed + shredElapsed ))
 	echo ""
 	echo ""
 	echo ""
