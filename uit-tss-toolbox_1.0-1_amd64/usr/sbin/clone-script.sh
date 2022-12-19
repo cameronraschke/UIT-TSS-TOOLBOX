@@ -73,7 +73,9 @@ function intro {
 
 	clear
 	echo ""
-	echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n"
+    echo ""
+	echo "Welcome to UIT-TSS-CLONE by Cameron Raschke."
+    echo ""
 	echo "Press CTRL + C at any time to exit"
 	echo "If you have exited and want to restart UIT-TSS-CLONE, press CTRL + D"
 	echo ""
@@ -156,16 +158,16 @@ function diskselect {
 		echo ""
 		echo "The selected disk is ${CLIENTDISK}"
 		read -n1 -p "Press 1 to continue or 2 to reselect a disk: " DISKCONF
+	    echo ""
 	if [[ $DISKCONF != 1 ]]; then
 		echo ""
 		echo "Reselecting disk...."
 		diskselect
 	fi
 	else
-	echo ""
-	echo ""
-	echo "Invalid selection."
-	diskselect
+	    echo ""
+	    echo "Invalid selection."
+	    diskselect
 	fi
 }
 
