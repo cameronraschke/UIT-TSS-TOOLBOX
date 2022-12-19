@@ -133,10 +133,6 @@ function advEraseMode {
 	-Unlocks disk previously locked by this program"
 
 	echo ""
-	echo "0 Remove Running SATA Disk
-	-Makes the selected SATA drive hot-swappable"
-
-	echo ""
 	read -n1 -p "Choose [0-9]: " MODESELECT
 	echo ""
 
@@ -176,10 +172,6 @@ function advEraseMode {
 	9)
 	MODE='unlock'
 	RMODE='Unlock Mode'
-	;;
-	0)
-	MODE='remove'
-	RMODE='Remove Mode'
 	;;
 	*)
 	modeselect
@@ -298,18 +290,18 @@ function writedisk {
 
 	if [[ "$WMODE" == 'randbit' ]]; then
 		randbit
-		SOURCE="/usr/bin/yes \"${RANDBIT}\""
+		SOURCE="yes \"${RANDBIT}\""
 		BITS="a random bit (${RANDBIT})"
 	fi
 
 	if [[ "$WMODE" == 'randpattern' ]]; then
 		randpattern
-		SOURCE="/usr/bin/yes \"${RANDPATTERN}\""
+		SOURCE="yes \"${RANDPATTERN}\""
 		BITS="a random bit (${RANDPATTERN})"
 	fi
 
 	if [[ "$WMODE" == 'char' ]]; then
-		SOURCE="/usr/bin/yes \"${CHAR}\""
+		SOURCE="yes \"${CHAR}\""
 		BITS="\"${CHAR}\""
 	fi
 
@@ -387,7 +379,7 @@ function vrfydisk {
 	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		FULLVRFY=$(/usr/bin/pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${CHAR}]" | head -1)
+		FULLVRFY=$(pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${CHAR}]" | head -1)
 		if [[ -z $FULLVRFY ]]; then
         	echo "The drive ${CLIENTDISK} is completely and securely wiped."
 			PROCFAIL='0'
@@ -462,15 +454,15 @@ function secerase {
 
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
-		/usr/sbin/hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
-		/usr/sbin/hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
+		hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
+		hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
 		SECERASEFAIL=0
 	fi
 	
 	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		echo "Using Secure Erase on ${CLIENTDISK:0:-2}. This can take a while, please keep the device powered on...."
-		/usr/sbin/nvme format /dev/${CLIENTDISK:0:-2} --ses=1 --namespace-id=1 &>/dev/null
-		/usr/sbin/nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
+		nvme format /dev/${CLIENTDISK:0:-2} --ses=1 --namespace-id=1 &>/dev/null
+		nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
 		SECERASEFAIL=0
 	fi
 	
@@ -493,8 +485,8 @@ function secunlock {
 	echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
 
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
-		/usr/sbin/hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
-		/usr/sbin/hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
+		hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
+		hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
 		echo ""
 		echo "${CLIENTDISK} is successfully unlocked."
 	else
@@ -938,17 +930,6 @@ function unlock {
 	secunlock
 }
 
-function remove {
-	clear
-	echo ""
-	echo "UIT-TSS-SHRED running in ${RMODE}"
-	echo ""
-
-	ioremove
-
-	iorefresh
-}
-
 
 function execute {
 	start_time=$SECONDS
@@ -988,4 +969,38 @@ function execute {
 	if [[ $MODE == 'remove' ]]; then
 		remove
 	fi
+}
+
+
+
+function terminate {
+	elapsed=$(( SECONDS - start_time ))
+	TIME=$(eval "echo $(date -ud "@$elapsed" +'$((%s/3600/24)) days %H hours and %M minutes')")
+	echo ""
+	echo ""
+	echo "--------------------"
+	echo ""
+	play /root/oven.mp3 &> /dev/null
+	echo "Process has finished in ${TIME}."
+
+	if [[ TERMINATEVAR != "1" ]]
+		echo "$elapsed"
+	fi
+
+	echo ""
+	read -n 1 -t 60 -p "Press 1 to shutdown or 2 to run again: " TERMINATEOPT
+	echo ""
+
+	case $TERMINATEOPT in
+	1)
+	poweroff
+	;;
+	2)
+	logout
+	;;
+	*)
+	terminate
+	local TERMINATEVAR=1
+	;;
+	esac
 }
