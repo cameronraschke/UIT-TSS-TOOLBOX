@@ -169,55 +169,7 @@ mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
 	--output-document=/opt/UIT-TSS-CLONE/config/includes.chroot/root/oven.mp3
 
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
-#!/bin/bash
 
-clear
-echo ""
-echo -e "Welcome to UIT-TSS-TOOLBOX by Cameron Raschke."
-echo ""
-
-echo ""
-echo "Configurating Kernel..."
-sysctl --quiet --write "kernel.printk=2 4 1 2"
-sysctl --quiet --write "kernel.kptr_restrict=1"
-sysctl --quiet --write "vm.mmap_min_addr=65536"
-sysctl --load
-modprobe efivars
-echo "Done."
-
-echo ""
-echo "Configuring networking..."
-sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
-sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
-sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
-sysctl --quiet --write "net.ipv4.conf.all.rp_filter=2"
-sysctl --quiet --write "net.ipv4.ip_forward=0"
-sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
-sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
-sysctl --load
-
-local a="0"
-local b="1"
-INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/lo//g' | sed 's/w.*//g' | sed 's/[[:space:]]//g')
-for iface in $INTERFACES; do
-	ip link set "${iface}" up
-	dhclient -r
-	dhclient -4 "${iface}"
-done
-
-echo "Done."
-echo ""
-
-if [ ! -f /root/.ssh/id_rsa ]; then
-	ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N ""
-fi
-sshpass -f /root/.ssh_passwd ssh-copy-id \
-	-o "StrictHostKeyChecking=no" cameron@mickey.uit
-scp cameron@mickey.uit:/home/cameron/clone-script.sh /home
-chmod 755 /home/clone-script.sh
-/home/clone-script.sh
-EOF
 
 (cd /opt/UIT-TSS-CLONE && \
 	lb build)
