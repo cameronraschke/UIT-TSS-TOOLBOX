@@ -74,7 +74,7 @@ function appSelect {
 
 
 function basicEraseMode {
-	MODE='autodetect'
+	shredMode='autodetect'
 	RMODE='Autodetect'
 }
 
@@ -138,39 +138,39 @@ function advEraseMode {
 
 	case $MODESELECT in
 	1)
-	MODE='autodetect'
+	shredMode='autodetect'
 	RMODE='Autodetect'
 	;;
 	2)
-	MODE='nist'
+	shredMode='nist'
 	RMODE='NIST 800-88r1 Mode'
 	;;
 	3)
-	MODE='zero'
+	shredMode='zero'
 	RMODE='Zero Mode'
 	;;
 	4)
-	MODE='dod'
+	shredMode='dod'
 	RMODE='DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5 Mode'
 	;;
 	5)
-	MODE='rcmp'
+	shredMode='rcmp'
 	RMODE='RCMP TSSIT OPS-II/VSITR Mode'
 	;;
 	6)
-	MODE='schneier'
+	shredMode='schneier'
 	RMODE='Schneier Mode'
 	;;
 	7)
-	MODE='gutmann'
+	shredMode='gutmann'
 	RMODE='Gutmann Mode'
 	;;
 	8)
-	MODE='verify'
+	shredMode='verify'
 	RMODE='Verify Mode'
 	;;
 	9)
-	MODE='unlock'
+	shredMode='unlock'
 	RMODE='Unlock Mode'
 	;;
 	*)
@@ -226,15 +226,15 @@ function diskselect {
 	    diskselect
 	fi
 
-	if [[ $MODE == 'autodetect' ]]; then
+	if [[ $shredMode == 'autodetect' ]]; then
 		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
-			MODE='zero'
+			shredMode='zero'
 			RMODE='Zero Mode'
 		elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-			MODE='nist'
+			shredMode='nist'
 			RMODE='NIST 800-88r1 Mode'
 		else
-			MODE='zero'
+			shredMode='zero'
 			RMODE='Zero Mode'
 		fi
 	fi
@@ -497,45 +497,10 @@ function secunlock {
 
 
 
-function ioremove {
-	echo ""
-	echo "Removing disk ${CLIENTDISK}"
-	sync
-	sleep 10
-	sync
-	sleep 10
-	echo 1 > /proc/sys/vm/drop_caches
-	echo 2 > /proc/sys/vm/drop_caches
-	echo 3 > /proc/sys/vm/drop_caches
-	hdparm -F /dev/${CLIENTDISK}
-	blockdev -flushbufs /dev/${CLIENTDISK}
-	umount /dev/${CLIENTDISK}
-	hdparm -Y /dev/${CLIENTDISK}
-	echo 1 > /sys/block/${CLIENTDISK}/device/delete
-	sleep 1
-	echo ""
-	echo "You can now remove the drive ${CLIENTDISK}...."
-}
-
-
-
-function iorefresh {
-	echo ""
-	echo "Refreshing I/O"
-	echo "1" > /sys/class/fc_host/host/issue_lip
-	echo ""
-	echo "Check lsblk to see if your drive has been added: "
-	echo ""
-	lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11
-	echo ""
-}
-
-
-
 function nist {
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in default mode."
+	echo "UIT-TSS-TOOLBOX running in default mode."
 	echo ""
 
 	echo ""
@@ -581,7 +546,7 @@ function nist {
 function zero {
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in zero mode."
+	echo "UIT-TSS-TOOLBOX running in zero mode."
 	echo ""
 
 	echo ""
@@ -604,7 +569,7 @@ function dod {
 	
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in DOD 5220.22-M mode."
+	echo "UIT-TSS-TOOLBOX running in DOD 5220.22-M mode."
 	echo ""
 
 	echo ""
@@ -657,7 +622,7 @@ function rcmp {
 
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in RCMP TSSIT OPS-II mode."
+	echo "UIT-TSS-TOOLBOX running in RCMP TSSIT OPS-II mode."
 	echo ""
 
 	echo ""
@@ -721,7 +686,7 @@ function schneier {
 
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in Schneier mode."
+	echo "UIT-TSS-TOOLBOX running in Schneier mode."
 	echo ""
 
 	echo ""
@@ -780,7 +745,7 @@ function gutmann {
 
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in Gutmann mode."
+	echo "UIT-TSS-TOOLBOX running in Gutmann mode."
 	echo ""
 
 	
@@ -825,7 +790,7 @@ function gutmann {
 function verify {
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in Verify Mode."
+	echo "UIT-TSS-TOOLBOX running in Verify Mode."
 	echo ""
 	
 	echo ""
@@ -924,49 +889,137 @@ function verify {
 function unlock {
 	clear
 	echo ""
-	echo "UIT-TSS-SHRED running in ${RMODE}"
+	echo "UIT-TSS-TOOLBOX running in ${RMODE}"
 	echo ""
 	
 	secunlock
 }
 
+function serverselect {
+	SERVER='10.0.0.1'
+	SERVERDNS='mickey.uit'
+}
+
+function clientselect {
+	echo ""
+	echo "Would you like to run this for HP laptops [1], Dell laptops [2], or Dell desktops [3]?"
+	read -n1 -p "Choose [1,2,3] " CLIENTTYPE
+	echo ""
+	case $CLIENTTYPE in
+	1)
+	SMBPATH='hp'
+	IMAGENAME='2022Fall-HP'
+	;;
+	2)
+	SMBPATH='dell'
+	IMAGENAME='2022Fall-Dell'
+	;;
+	3)
+	SMBPATH='desktops'
+	IMAGENAME='2022Spring-Win10Desktops'
+	;;
+	*)
+	clientselect
+	;;
+	esac
+}
+
+function confirm {
+	echo ""
+	echo ""
+	echo ""
+	echo "------------------------------"
+	echo ""
+	echo "Default settings:"
+	echo "Server type: Samba"
+	echo "User: ${USER}"
+	echo "Password: ${PASS}"
+	echo "Hostname prefix: ${HOSTNAME}"
+	echo ""
+	echo ""
+	echo "Custom settings:"
+	echo "Mode is: ${cloneMode}"
+	echo "Server is: ${SERVER}/${SERVERDNS}"
+	echo "Samba path is: //${SERVERDNS}/${SMBPATH}"
+	echo "Image name is: ${IMAGENAME}"
+	echo "Client disk: ${CLIENTDISK}"
+	echo ""
+		if [[ $cloneMode == "savedisk" ]]; then
+		echo "Saving an image will overwrite the previous image stored on the server. \
+Please make a backup if necessary."
+		fi
+		if [[ $cloneMode == "restoredisk" ]]; then
+		echo "Restoring an image will overwrite the client's hard drive. \
+Please make a backup if necessary."
+		fi
+	echo ""
+	read -p "Press Enter to continue or CTRL + C to exit...."
+	clear
+}
+
+function execute {
+	SECONDS=0
+	start_time=$SECONDS
+	mkdir /home/partimag
+	/usr/bin/umount /home/partimag &>/dev/null
+	/usr/bin/mount -t cifs -o user=${USER} -o password=${PASS} //${SERVER}/${SMBPATH} /home/partimag
+	if [[ $cloneMode == "restoredisk" ]]; then
+	clear
+	echo ""
+	echo "Restoring disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
+		--verbose -k1 --skip-check-restorable-r ${cloneMode} ${IMAGENAME} ${CLIENTDISK}
+	fi
+	if [[ $cloneMode == "savedisk" ]]; then
+	clear
+	echo ""
+	echo "Saving disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
+		--verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${IMAGENAME} ${CLIENTDISK}
+	fi
+}
+
+
+
 
 function execute {
 	start_time=$SECONDS
 	
-	if [[ $MODE == 'nist' ]]; then
+	if [[ $shredMode == 'nist' ]]; then
 		nist
 	fi
 
-	if [[ $MODE == 'zero' ]]; then
+	if [[ $shredMode == 'zero' ]]; then
 		zero
 	fi
 
-	if [[ $MODE == 'dod' ]]; then
+	if [[ $shredMode == 'dod' ]]; then
 		dod
 	fi
 
-	if [[ $MODE == 'rcmp' ]]; then
+	if [[ $shredMode == 'rcmp' ]]; then
 		rcmp
 	fi
 	
-	if [[ $MODE == 'gutmann' ]]; then
+	if [[ $shredMode == 'gutmann' ]]; then
 		gutmann
 	fi
 	
-	if [[ $MODE == 'schneier' ]]; then
+	if [[ $shredMode == 'schneier' ]]; then
 		schneier
 	fi
 	
-	if [[ $MODE == 'verify' ]]; then
+	if [[ $shredMode == 'verify' ]]; then
 		verify
 	fi
 
-	if [[ $MODE == 'unlock' ]]; then
+	if [[ $shredMode == 'unlock' ]]; then
 		unlock
 	fi
 
-	if [[ $MODE == 'remove' ]]; then
+	if [[ $shredMode == 'remove' ]]; then
 		remove
 	fi
 }
@@ -983,24 +1036,45 @@ function terminate {
 	play /root/oven.mp3 &> /dev/null
 	echo "Process has finished in ${TIME}."
 
-	if [[ TERMINATEVAR != "1" ]]
-		echo "$elapsed"
+}
+
+function terminate {
+	elapsed=$(( SECONDS - start_time ))
+	echo ""
+	echo ""
+	echo ""
+	if [[ $cloneMode == "restoredisk" ]]; then
+	ssh cameron@mickey.uit 'echo "UIT-TSS-CLONE" >> /home/cameron/laptop-reimage-count.today.txt' &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
+	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
+	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
+	UPDATE=$(cat /root/laptop-image-update.txt)
+	echo ""
+	echo "This computer has been reimaged from the server \"${SERVERDNS}\" using the image \
+\"${SMBPATH}\", which was last updated on ${UPDATE}. Today, ${TODAY} computers have been \
+reimaged, with this reimage taking ${TIME}."
 	fi
-
+	
+	if [[ $cloneMode == "savedisk" ]]; then
+	elapsed=$(( SECONDS - start_time ))
+	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt \
+		/root/laptop-reimage-count.today.txt &>/dev/null
+	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt \
+		/root/laptop-image-update.txt &>/dev/null
+	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
+	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
+	UPDATE=$(cat /root/laptop-image-update.txt)
 	echo ""
-	read -n 1 -t 60 -p "Press 1 to shutdown or 2 to run again: " TERMINATEOPT
+	echo "The image \"${SMBPATH}\" has been successfully updated and saved to the server \"${SERVERDNS}\". \
+The process took ${TIME} to complete. \"${SMBPATH}\" was last updated on ${UPDATE}. \
+Today, ${TODAY} computers have been reimaged."
+	ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
+		/home/cameron/laptop-image-update.txt' &>/dev/null
+	fi
+	
 	echo ""
-
-	case $TERMINATEOPT in
-	1)
-	poweroff
-	;;
-	2)
-	logout
-	;;
-	*)
-	terminate
-	local TERMINATEVAR=1
-	;;
-	esac
+	/usr/bin/play /root/oven.mp3 &> /dev/null
+	read -p "Process has finished. Press Enter to reboot..."
+	reboot
 }
