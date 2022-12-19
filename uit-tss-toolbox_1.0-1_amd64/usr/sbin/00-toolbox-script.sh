@@ -4,65 +4,16 @@ SSD_REGEX='sd.*'
 NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'
 
-
-function initialize {
-	INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/[[:space:]]//g')
-    clear
-    echo ""
-    echo "Initializing UIT-TSS-TOOLBOX by Cameron Raschke"
-    echo ""
-
-    echo ""
-    echo "Setting all interfaces down"
-    for i in $INTERFACES; do
-        ip link set down $i
-    done
-
-    echo ""
-    echo "Flushing all IP addresses"
-    for i in $INTERFACES; do
-        ip addr flush dev $i
-    done
-
-    echo ""
-    echo "Removing all interfaces from bonds and bridges"
-    for i in $INTERFACES; do
-        ip link set dev $i nomaster
-    done
-
-    echo ""
-    echo "Flushing all routes"
-    ip route flush table main
-
-	echo ""
-	echo "Configuring Kernel..."
-	iptables -P INPUT DROP &>/dev/null
-	iptables -P FORWARD DROP &>/dev/null
-	iptables -P OUTPUT DROP &>/dev/null
-	sysctl -w "net.ipv6.conf.all.disable_ipv6=1" &>/dev/null
-	sysctl -w "net.ipv6.conf.default.disable_ipv6=1" &>/dev/null
-	sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
-	sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
-	sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
-	sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
-	sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
-	sysctl -w "kernel.printk=2 4 1 2" &>/dev/null
-	sysctl -w "kernel.kptr_restrict=1" &>/dev/null
-	sysctl -w "vm.mmap_min_addr=65536" &>/dev/null
-	sysctl -p &>/dev/null
-	echo "Done."
-	echo ""
- 
 	echo "Configuring audio..."
-	amixer sset Master 100% &>/dev/null
-	amixer set Master unmute &>/dev/null
-	amixer sset Speakers 100% &>/dev/null
-	amixer set Speakers unmute &>/dev/null
+	/usr/bin/amixer sset Master 100% &>/dev/null
+	/usr/bin/amixer set Master unmute &>/dev/null
+	/usr/bin/amixer sset Speakers 100% &>/dev/null
+	/usr/sbin/amixer set Speakers unmute &>/dev/null
 	echo "Done."
 	echo ""
 
 	echo "Configuring font..."
-	setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz
+	/usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz
 	echo "Done."
 	echo ""
 
@@ -71,7 +22,41 @@ function initialize {
 	clear
 }
 
-
-function appselect {
+function intro {
     echo ""
+	echo "Welcome to UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu)"
+	echo ""
+	echo "Press CTRL + C at any time to exit UIT-TSS-TOOLBOX"
+	echo "If you have exited UIT-TSS-TOOLBOX and you want to restart it, press CTRL + D"
+	echo ""
+	echo ""
+	echo ""
+	echo "| |    | |  | |     | |"
+	echo "| |    | |  | |_____| |"
+	echo "| |    | |  | |_____| |"
+	echo "| |____| |  | |     | |"
+	echo "\________/  | |     | |"
+	echo ""
+	echo "------------------------------"
+	echo ""
+	echo 'Checklist:
+	-General best practices
+	   * Sanitize laptops with cleaner before imaging them.
+	   * Reset BIOS to default/factory settings before imaging.
+	-Physical connections
+	   * Make sure that power and ethernet are plugged in to the client.
+	   
+	-Dells
+	   * Make sure SATA mode is in AHCI mode and not RAID mode.
+	      * This is usually under "System Configuration" or "Storage" in BIOS.
+	      * Every Dell is in RAID mode by default. 
+	      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
+	-If Erasing
+	    * Do not use Secure Erase on USB drives or drives connected over USB.
+	      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase.'
+	echo ""
+	read -p "Please remove the thumb drive and press Enter...."
+	clear
+}
+
 }

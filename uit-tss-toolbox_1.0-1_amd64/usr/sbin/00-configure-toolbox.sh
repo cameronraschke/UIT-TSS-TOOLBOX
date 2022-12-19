@@ -57,24 +57,24 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 		--uefi-secure-boot enable \
 		--updates true)
 
-cat <<'EOF' > /opt/UIT-TSS-SHRED/config/bootloaders/isolinux/isolinux.cfg
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/bootloaders/isolinux/isolinux.cfg
 UI vesamenu.c32
 
 MENU TITLE Boot Menu
 DEFAULT linux
         TIMEOUT 1
         MENU RESOLUTION 640 480
-        SAY Now booting into UIT-TSS-SHRED by Cameron Raschke
+        SAY Now booting into UIT-TSS-TOOLBOX by Cameron Raschke
 label linux
-        menu label UIT-TSS-SHRED by Cameron Raschke
+        menu label UIT-TSS-TOOLBOX by Cameron Raschke
         menu default
         linux /live/vmlinuz
         initrd /live/initrd.img
         append @APPEND_LIVE@
 EOF
 
-rm -r /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/*
-cat <<'EOF' > /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/grub.cfg
+rm -r /opt/UIT-TSS-TOOLBOX/config/bootloaders/grub-pc/*
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/bootloaders/grub-pc/grub.cfg
 insmod part_gpt
 insmod part_msdos
 insmod fat
@@ -84,7 +84,7 @@ set default="0"
 set timeout=0
 set timeout_style=hidden
 
-menuentry "UIT-TSS-SHRED by Cameron Raschke" {
+menuentry "UIT-TSS-TOOLBOX by Cameron Raschke" {
         linux @KERNEL_LIVE@ @APPEND_LIVE@
         initrd @INITRD_LIVE@
 }
@@ -150,19 +150,19 @@ echo "UHouston!" > /root/.ssh_passwd
 chown root:root /root/.ssh_passwd
 chmod 600 /root/.ssh_passwd
 
-/usr/sbin/sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
-/usr/sbin/sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
-/usr/sbin/sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
-/usr/sbin/sysctl --quiet --write "net.ipv4.conf.all.rp_filter=2"
-/usr/sbin/sysctl --quiet --write "net.ipv4.ip_forward=0"
-/usr/sbin/sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
-/usr/sbin/sysctl --quiet --write  "net.ipv6.conf.default.forwarding=1"
-/usr/sbin/sysctl --load
+sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
+sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
+sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
+sysctl --quiet --write "net.ipv4.conf.all.rp_filter=2"
+sysctl --quiet --write "net.ipv4.ip_forward=0"
+sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
+sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
+sysctl --load
 
-/usr/sbin/sysctl --quiet --write "kernel.printk=2 4 1 2"
-/usr/sbin/sysctl --quiet --write "kernel.kptr_restrict=1"
-/usr/sbin/sysctl --quiet --write "vm.mmap_min_addr=65536"
-/usr/sbin/sysctl --load
+sysctl --quiet --write "kernel.printk=2 4 1 2"
+sysctl --quiet --write "kernel.kptr_restrict=1"
+sysctl --quiet --write "vm.mmap_min_addr=65536"
+sysctl --load
 
 echo "uit-tss-toolbox.cameronraschke.com" > /etc/hostname
 echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/motd
@@ -176,8 +176,8 @@ mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
 	--output-document=/opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/oven.mp3
 
-mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root
-touch /opt/UIT-TSS-SHRED/config/includes.chroot/root/.bash_profile
+mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root
+touch /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
 
 cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
 #!/bin/bash
@@ -193,7 +193,6 @@ sysctl --quiet --write "kernel.printk=2 4 1 2"
 sysctl --quiet --write "kernel.kptr_restrict=1"
 sysctl --quiet --write "vm.mmap_min_addr=65536"
 sysctl --load
-modprobe efivars
 echo "Done."
 
 echo ""
@@ -207,8 +206,6 @@ sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
 sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
 sysctl --load
 
-local a="0"
-local b="1"
 INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/lo//g' | sed 's/w.*//g' | sed 's/[[:space:]]//g')
 for iface in $INTERFACES; do
 	ip link set "${iface}" up
@@ -217,14 +214,31 @@ for iface in $INTERFACES; do
 done
 
 echo "Done."
-echo ""
 
+echo ""
+echo "Configuring audio..."
+/usr/bin/amixer sset Master 100%
+/usr/bin/amixer set Master unmute
+/usr/bin/amixer sset Speakers 100%
+/usr/sbin/amixer set Speakers unmute
+echo "Done."
+
+echo ""
+echo "Changing font..."
+/usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz
+echo "Done."
+
+echo ""
+echo "Configuring SSH..."
 if [ ! -f /root/.ssh/id_rsa ]; then
-	ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N ""
+ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N ""
 fi
 sshpass -f /root/.ssh_passwd ssh-copy-id \
 	-o "StrictHostKeyChecking=no" cameron@mickey.uit
 scp cameron@mickey.uit:/home/cameron/toolbox-script.sh /home
+echo "Done."
+
+sleep 1
 chmod 755 /home/toolbox-script.sh
 /home/toolbox-script.sh
 EOF
