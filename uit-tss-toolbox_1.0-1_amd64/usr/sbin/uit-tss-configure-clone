@@ -144,19 +144,19 @@ echo "UHouston!" > /root/.ssh_passwd
 chown root:root /root/.ssh_passwd
 chmod 600 /root/.ssh_passwd
 
-/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6=1" &>/dev/null
-/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6=1" &>/dev/null
-/usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
-/usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
-/usr/sbin/sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
-/usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
-/usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1" &>/dev/null
-/usr/sbin/sysctl -p &>/dev/null
+/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6=1"
+/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6=1"
+/usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2"
+/usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2"
+/usr/sbin/sysctl -w "net.ipv4.ip_forward=0"
+/usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1"
+/usr/sbin/sysctl -w  "net.ipv6.conf.default.forwarding=1"
+/usr/sbin/sysctl -p
 
-/usr/sbin/sysctl -w "kernel.printk=2 4 1 2" &>/dev/null
-/usr/sbin/sysctl -w "kernel.kptr_restrict=1" &>/dev/null
-/usr/sbin/sysctl -w "vm.mmap_min_addr=65536" &>/dev/null
-/usr/sbin/sysctl -p &>/dev/null
+/usr/sbin/sysctl -w "kernel.printk=2 4 1 2"
+/usr/sbin/sysctl -w "kernel.kptr_restrict=1"
+/usr/sbin/sysctl -w "vm.mmap_min_addr=65536"
+/usr/sbin/sysctl -p
 
 echo "uit-tss-clone.cameronraschke.com" > /etc/hostname
 echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/motd
@@ -176,44 +176,51 @@ cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
 #!/bin/bash
 
 clear
-echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n"
+echo ""
+echo -e "Welcome to UIT-TSS-TOOLBOX by Cameron Raschke."
+echo ""
 
 echo ""
 echo "Configurating Kernel..."
-sysctl -w "kernel.printk=2 4 1 2" &>/dev/null
-sysctl -w "kernel.kptr_restrict=1" &>/dev/null
-sysctl -w "vm.mmap_min_addr=65536" &>/dev/null
-sysctl -p &>/dev/null
-modprobe efivars &>/dev/null
+sysctl -w "kernel.printk=2 4 1 2"
+sysctl -w "kernel.kptr_restrict=1"
+sysctl -w "vm.mmap_min_addr=65536"
+sysctl -p
+modprobe efivars
 echo "Done."
+
 echo ""
-
 echo "Configuring networking..."
-sysctl -w "net.ipv6.conf.all.disable_ipv6=1" &>/dev/null
-sysctl -w "net.ipv6.conf.default.disable_ipv6=1" &>/dev/null
-sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
-sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
-sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
-sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
-sysctl -w "net.ipv6.conf.default.forwarding=1" &>/dev/null
-sysctl -p &>/dev/null
+sysctl -w "net.ipv6.conf.all.disable_ipv6=1"
+sysctl -w "net.ipv6.conf.default.disable_ipv6=1"
+sysctl -w "net.ipv4.conf.default.rp_filter=2"
+sysctl -w "net.ipv4.conf.all.rp_filter=2"
+sysctl -w "net.ipv4.ip_forward=0"
+sysctl -w "net.ipv6.conf.all.forwarding=1"
+sysctl -w "net.ipv6.conf.default.forwarding=1"
+sysctl -p
 
-nmcli connection modify "$(nmcli -t -f DEVICE device | grep '^e.*')" \
-	connection.interface-name "eth0" connection.id "Wired connection 1" &>/dev/null
-nmcli connection modify "Wired connection 1" ipv4.method auto &>/dev/null
-nmcli connection modify "Wired connection 1" ipv6.method disabled &>/dev/null
-nmcli connection modify "Wired connection 1" 802-3-ethernet.mac-address \
-	"$(cat /sys/class/net/e*/address)" &>/dev/null
-nmcli radio wifi off &>/dev/null
-nmcli connection up "Wired connection 1" &>/dev/null
+local a="0"
+local b="1"
+for i in $(nmcli -t -f DEVICE device | grep '^e.*'); do
+nmcli connection modify "${i}" connection.interface-name "eth${a}" connection.id "Wired connection ${b}"
+nmcli connection modify "Wired connection ${b}" ipv4.method auto
+nmcli connection modify "Wired connection ${b}" ipv6.method disabled
+nmcli connection up "Wired connection ${b}"
+a=$(( $a + 1 ))
+b=$(( $b + 1 ))
+done
+
+nmcli radio wifi off
+
 echo "Done."
 echo ""
 
 if [ ! -f /root/.ssh/id_rsa ]; then
-	ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
+	ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N ""
 fi
 sshpass -f /root/.ssh_passwd ssh-copy-id \
-	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
+	-o "StrictHostKeyChecking=no" cameron@mickey.uit
 scp cameron@mickey.uit:/home/cameron/clone-script.sh /home
 chmod 755 /home/clone-script.sh
 /home/clone-script.sh
