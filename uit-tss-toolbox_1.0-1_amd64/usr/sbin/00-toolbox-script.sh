@@ -69,6 +69,7 @@ function appSelect {
 		echo "${RED}Please enter a valid number [1-3].${CLEAR}"
 		sleep 0.5
 		appSelect
+	fi
 }
 
 
@@ -958,12 +959,58 @@ Please make a backup if necessary."
 }
 
 
+function cloneExec {
+	mkdir /home/partimag
+	/usr/bin/umount /home/partimag &>/dev/null
+	/usr/bin/mount -t cifs -o user=${USER} -o password=${PASS} //${SERVER}/${SMBPATH} /home/partimag
+	if [[ $MODE == "restoredisk" ]]; then
+	clear
+	echo ""
+	echo "Restoring disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
+		--verbose -k1 --skip-check-restorable-r ${MODE} ${IMAGENAME} ${CLIENTDISK}
+	fi
+	if [[ $MODE == "savedisk" ]]; then
+	clear
+	echo ""
+	echo "Saving disk ${CLIENTDISK}...."
+	sleep 1
+	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
+		--verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${MODE} ${IMAGENAME} ${CLIENTDISK}
+	fi
+}
+
+
 
 function execute {
+	if [[ $APPSELECT == "EC" ]]; then
+		SECONDS=0
+		start_time=$SECONDS
+		basicEraseMode_Shred
+		shredElapsed=$(( SECONDS - start_time))
+		SECONDS=0
+		start_time=$SECONDS
+		cloneExec
+		cloneElapsed=$(( SECONDS - start_time))
+	fi
+	elif [[ $APPSELECT == "E" ]]; then
+		SECONDS=0
+		start_time=$SECONDS
+		advEraseMode_Shred
+	elif [[ $APPSELECT == "C" ]]; then
+		SECONDS=0
+		start_time=$SECONDS
+		cloneExec
+		cloneElapsed=$(( SECONDS - start_time))
+	else
+		echo "${RED}Error - Incorrect app selected.${CLEAR}"
+	fi
+
+
+if [[ $APPSELECT == "EC" || $APPSELECT == "E" ]]; then
 	SECONDS=0
 	start_time=$SECONDS
-
-
 	if [[ $shredMode == 'nist' ]]; then
 		nistMode_Shred
 	fi
@@ -996,29 +1043,12 @@ function execute {
 		unlockMode_Shred
 	fi
 	shredElapsed=$(( SECONDS - start_time ))
+fi
 
-	SECONDS=0
-	start_time=$SECONDS
-	mkdir /home/partimag
-	/usr/bin/umount /home/partimag &>/dev/null
-	/usr/bin/mount -t cifs -o user=${USER} -o password=${PASS} //${SERVER}/${SMBPATH} /home/partimag
-	if [[ $MODE == "restoredisk" ]]; then
-	clear
-	echo ""
-	echo "Restoring disk ${CLIENTDISK}...."
-	sleep 1
-	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
-		--verbose -k1 --skip-check-restorable-r ${MODE} ${IMAGENAME} ${CLIENTDISK}
-	fi
-	if [[ $MODE == "savedisk" ]]; then
-	clear
-	echo ""
-	echo "Saving disk ${CLIENTDISK}...."
-	sleep 1
-	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
-		--verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${MODE} ${IMAGENAME} ${CLIENTDISK}
-	fi
-	cloneElapsed=$(( SECONDS - start_time ))
+
+if [[ $APPSELECT == "EC" || $APPSELECT == "C" ]]; then
+
+
 }
 
 
@@ -1063,3 +1093,6 @@ Today, ${TODAY} computers have been reimaged."
 	read -p "Process has finished. Press Enter to reboot..."
 	reboot
 }
+
+intro
+appSelect
