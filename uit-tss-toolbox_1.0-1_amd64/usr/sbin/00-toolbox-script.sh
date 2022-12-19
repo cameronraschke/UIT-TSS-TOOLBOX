@@ -73,14 +73,14 @@ function appSelect {
 
 
 
-function basicEraseMode {
+function basicEraseMode_Shred {
 	shredMode='autodetect'
 	RMODE='Autodetect'
 }
 
 
 
-function advEraseMode {
+function advEraseMode_Shred {
 	echo ""
 	echo "Please choose an erase mode:"
 	echo ""
@@ -181,7 +181,7 @@ function advEraseMode {
 
 
 
-function diskselect {
+function diskSelect {
 	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
 	DISKSIZES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
 	CLIENTDISK=""
@@ -217,13 +217,13 @@ function diskselect {
 	if [[ $DISKCONF != 1 ]]; then
 		echo ""
 		echo "Reselecting disk...."
-		diskselect
+		diskSelect
 	fi
 	else
 	    echo ""
 	    echo "${RED}Invalid selection.${CLEAR}"
 		sleep 0.5
-	    diskselect
+	    diskSelect
 	fi
 
 	if [[ $shredMode == 'autodetect' ]]; then
@@ -242,19 +242,19 @@ function diskselect {
 
 
 
-function randbit {
+function randBit_Shred {
 	RANDBIT=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 1)
 }
 
 
 
-function randpattern {
+function randPattern_Shred {
 	RANDPATTERN=$(cat /dev/urandom | xxd -plain | head -1 | cut -c 8)
 }
 
 
 
-function writedisk {
+function writeDisk_Shred {
 	SECTIONS='1000'
 	DIVPERSEC='2'
 	BS='1M'
@@ -288,14 +288,14 @@ function writedisk {
 		BITS='random bits'
 	fi
 
-	if [[ "$WMODE" == 'randbit' ]]; then
-		randbit
+	if [[ "$WMODE" == 'randBit_Shred' ]]; then
+		randBit_Shred
 		SOURCE="yes \"${RANDBIT}\""
 		BITS="a random bit (${RANDBIT})"
 	fi
 
-	if [[ "$WMODE" == 'randpattern' ]]; then
-		randpattern
+	if [[ "$WMODE" == 'randPattern_Shred' ]]; then
+		randPattern_Shred
 		SOURCE="yes \"${RANDPATTERN}\""
 		BITS="a random bit (${RANDPATTERN})"
 	fi
@@ -350,7 +350,7 @@ function writedisk {
 
 
 
-function vrfydisk {
+function vrfyDisk_Shred {
 	
 	if [[ -z $SECTIONS ]]; then
 		SECTIONS='1000'
@@ -447,7 +447,7 @@ function vrfydisk {
 
 
 
-function secerase {
+function secErase_Shred {
 	SSD_REGEX='sd.*'
 	NVME_REGEX='nvme.*'
 	SCSI_REGEX='hd.*'
@@ -476,7 +476,7 @@ function secerase {
 }
 
 
-function secunlock {
+function secUnlock_Shred {
 	SSD_REGEX='sd.*'
 	NVME_REGEX='nvme.*'
 	SCSI_REGEX='hd.*'
@@ -497,7 +497,7 @@ function secunlock {
 
 
 
-function nist {
+function nistMode_Shred {
 	clear
 	echo ""
 	echo "UIT-TSS-TOOLBOX running in default mode."
@@ -508,20 +508,20 @@ function nist {
 	echo ""
 	PCNTOFSECTOR='25'
 	WMODE='random'
-	writedisk
+	writeDisk_Shred
 	
 	echo ""
 	echo "Step [2/3]: "
 	echo ""
-	secerase
-	secunlock
+	secErase_Shred
+	secUnlock_Shred
 	
 	echo ""
 	echo "Step [3/3]: "
 	echo ""
 	PCNTOFSECTOR='50'
 	CHAR='0'
-	vrfydisk
+	vrfyDisk_Shred
 
 	if [[ $PROCFAIL == '1' ]]; then
 		echo ""
@@ -530,20 +530,20 @@ function nist {
 		echo ""
 		PCNTOFSECTOR='100'
 		WMODE='zero'
-		writedisk
+		writeDisk_Shred
 
 		echo ""
 		echo "Step [2/2]: "
 		echo ""
 		PCNTOFSECTOR='100'
 		CHAR='0'
-		vrfydisk
+		vrfyDisk_Shred
 	fi
 }
 
 
 
-function zero {
+function zeroMode_Shred {
 	clear
 	echo ""
 	echo "UIT-TSS-TOOLBOX running in zero mode."
@@ -554,18 +554,18 @@ function zero {
 	echo ""
 	WMODE='zero'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 	
 	echo ""
 	echo "Step: [2/2]: "
 	PCNTOFSECTOR='10'
 	CHAR='0'
-	vrfydisk
+	vrfyDisk_Shred
 }
 
 
 
-function dod {
+function dodMode_Shred {
 	
 	clear
 	echo ""
@@ -577,14 +577,14 @@ function dod {
 	echo ""
 	WMODE='zero'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 	
 	echo ""
 	echo "Step [2/6]: "
 	echo ""
 	PCNTOFSECTOR='100'
 	CHAR='0'
-	vrfydisk
+	vrfyDisk_Shred
 
 	echo ""
 	echo "Step [3/6]: "
@@ -592,33 +592,33 @@ function dod {
 	WMODE='char'
 	PCNTOFSECTOR='100'
 	CHAR='1'
-	writedisk
+	writeDisk_Shred
 	
 	echo ""
 	echo "Step [4/6]: "
 	echo ""
 	PCNTOFSECTOR='100'
 	CHAR='1'
-	vrfydisk
+	vrfyDisk_Shred
 
 	echo ""
 	echo "Step [5/6]: "
 	echo ""
-	WMODE='randbit'
+	WMODE='randBit_Shred'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 	
 	echo ""
 	echo "Step [6/6]: "
 	echo ""
 	PCNTOFSECTOR='100'
 	CHAR=${RANDBIT}
-	vrfydisk
+	vrfyDisk_Shred
 }
 
 
 
-function rcmp {
+function rcmpMode_Shred {
 
 	clear
 	echo ""
@@ -629,60 +629,60 @@ function rcmp {
 	echo "Step [1/8]: "
 	WMODE='zero'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [2/8]: "
 	WMODE='char'
 	PCNTOFSECTOR='100'
 	CHAR='1'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [3/8]: "
 	WMODE='zero'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 	
 	echo ""
 	echo "Step [4/8]: "
 	WMODE='char'
 	PCNTOFSECTOR='100'
 	CHAR='1'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [5/8]: "
 	WMODE='zero'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [6/8]: "
 	WMODE='char'
 	PCNTOFSECTOR='100'
 	CHAR='1'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [7/8]: "
 	echo ""
-	WMODE='randbit'
+	WMODE='randBit_Shred'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 	
 	echo ""
 	echo "Step [8/8]: "
 	echo ""
 	PCNTOFSECTOR='100'
 	CHAR="${RANDBIT}"
-	vrfydisk
+	vrfyDisk_Shred
 
 }
 
 
 
-function schneier {
+function schneierMode_Shred {
 
 	clear
 	echo ""
@@ -694,43 +694,43 @@ function schneier {
 	WMODE='char'
 	PCNTOFSECTOR='100'
 	CHAR='1'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [2/7]: "
 	WMODE='zero'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [3/7]: "
 	WMODE='rand'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [4/7]: "
 	WMODE='rand'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [5/7]: "
 	WMODE='rand'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [6/7]: "
 	WMODE='rand'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 
 	echo ""
 	echo "Step [7/7]: "
 	WMODE='rand'
 	PCNTOFSECTOR='100'
-	writedisk
+	writeDisk_Shred
 
 }
 
@@ -754,9 +754,9 @@ function gutmann {
 		if [[ $COUNT -le 4 ]]; then
 			echo ""
 			echo "[${COUNT}/35] Writing \"${RANDOMPATTERN}\" to ${CLIENTDISK}"
-			WMODE='randpattern'
+			WMODE='randPattern_Shred'
 			PCNTOFSECTOR='100'
-			writedisk
+			writeDisk_Shred
 		fi
 
 		if [[ $COUNT -le 31 && $COUNT -gt 4 ]]; then
@@ -767,15 +767,15 @@ function gutmann {
 				CHAR=${GUTMANARRAY[$RANDNUM]}
 			done
 			echo "[${COUNT}/35] Writing pattern ${CHAR} to ${CLIENTDISK}"
-			writedisk
+			writeDisk_Shred
 		fi
 
 		if [[ $COUNT -gt 31 ]]; then
 			echo ""
 			echo "[${COUNT}/35] Writing \"${RANDOMPATTERN}\" to ${CLIENTDISK}"
-			WMODE='randpattern'
+			WMODE='randPattern_Shred'
 			PCNTOFSECTOR='100'
-			writedisk
+			writeDisk_Shred
 		fi
 
 	done
@@ -787,7 +787,7 @@ function gutmann {
 
 
 
-function verify {
+function verifyMode_Shred {
 	clear
 	echo ""
 	echo "UIT-TSS-TOOLBOX running in Verify Mode."
@@ -842,7 +842,7 @@ function verify {
 	echo ""
 	echo "Incorrect input selected, please try again"
 	sleep 1
-	verify
+	verifyMode_Shred
 	;;
 	esac
 
@@ -855,44 +855,44 @@ function verify {
 	if [[ $VRFYMODE == 'full' ]]; then
 		PCNTOFSECTOR='100'
 		CHAR=${CHAR}
-		vrfydisk
+		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'moderate' ]]; then
 		SECTIONS='10000'
 		PCNTOFSECTOR='75'
 		CHAR=${CHAR}
-		vrfydisk
+		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'medium' ]]; then
 		SECTIONS='5000'
 		PCNTOFSECTOR='50'
 		CHAR=${CHAR}
-		vrfydisk
+		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'fast' ]]; then
 		SECTIONS='2500'
 		PCNTOFSECTOR='25'
 		CHAR=${CHAR}
-		vrfydisk
+		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'vfast' ]]; then
 		PCNTOFSECTOR='10'
 		CHAR=${CHAR}
-		vrfydisk
+		vrfyDisk_Shred
 	fi
 }
 
-function unlock {
+function unlockMode_Shred {
 	clear
 	echo ""
 	echo "UIT-TSS-TOOLBOX running in ${RMODE}"
 	echo ""
 	
-	secunlock
+	secUnlock_Shred
 }
 
 function serverselect {
@@ -988,19 +988,19 @@ function execute {
 	start_time=$SECONDS
 	
 	if [[ $shredMode == 'nist' ]]; then
-		nist
+		nistMode_Shred
 	fi
 
 	if [[ $shredMode == 'zero' ]]; then
-		zero
+		zeroMode_Shred
 	fi
 
 	if [[ $shredMode == 'dod' ]]; then
-		dod
+		dodMode_Shred
 	fi
 
 	if [[ $shredMode == 'rcmp' ]]; then
-		rcmp
+		rcmpMode_Shred
 	fi
 	
 	if [[ $shredMode == 'gutmann' ]]; then
@@ -1008,35 +1008,19 @@ function execute {
 	fi
 	
 	if [[ $shredMode == 'schneier' ]]; then
-		schneier
+		schneierMode_Shred
 	fi
 	
 	if [[ $shredMode == 'verify' ]]; then
-		verify
+		verifyMode_Shred
 	fi
 
 	if [[ $shredMode == 'unlock' ]]; then
-		unlock
-	fi
-
-	if [[ $shredMode == 'remove' ]]; then
-		remove
+		unlockMode_Shred
 	fi
 }
 
 
-
-function terminate {
-	elapsed=$(( SECONDS - start_time ))
-	TIME=$(eval "echo $(date -ud "@$elapsed" +'$((%s/3600/24)) days %H hours and %M minutes')")
-	echo ""
-	echo ""
-	echo "--------------------"
-	echo ""
-	play /root/oven.mp3 &> /dev/null
-	echo "Process has finished in ${TIME}."
-
-}
 
 function terminate {
 	elapsed=$(( SECONDS - start_time ))
