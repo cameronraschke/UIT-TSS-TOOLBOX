@@ -993,7 +993,6 @@ function execute {
 		start_time=$SECONDS
 		cloneExec
 		cloneElapsed=$(( SECONDS - start_time))
-	fi
 	elif [[ $APPSELECT == "E" ]]; then
 		SECONDS=0
 		start_time=$SECONDS
@@ -1044,11 +1043,6 @@ if [[ $APPSELECT == "EC" || $APPSELECT == "E" ]]; then
 	fi
 	shredElapsed=$(( SECONDS - start_time ))
 fi
-
-
-if [[ $APPSELECT == "EC" || $APPSELECT == "C" ]]; then
-
-
 }
 
 
