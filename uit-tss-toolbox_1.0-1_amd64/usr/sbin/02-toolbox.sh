@@ -1,22 +1,31 @@
 #!/bin/bash
 
-if [ ! -f /opt/live-build.deb ]; then
-/usr/bin/apt purge live-build -y
-/usr/bin/wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb \
+function confirmDelete {
+    read -n1 -p "Are you sure you want to delete the old directory? [y/n]: " CONFIRM
+    if [[ $CONFIRM == "y" ]]; then
+        return
+    elif [[ $CONFIRM == "n" ]]; then
+        exit 1
+    else
+        confirmDelete
+    fi
+}
+
+apt purge live-build -y
+wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb \
 	--output-document=/opt/debian-live.deb
-/usr/bin/apt install /opt/debian-live.deb -y
-fi
+apt install /opt/debian-live.deb -y
 
-/usr/bin/apt install dosfstools -y
+apt install dosfstools -y
 
-rm -r /opt/UIT-TSS-CLONE/
-mkdir /opt/UIT-TSS-CLONE/
+rm -r /opt/UIT-TSS-TOOLBOX/
+mkdir /opt/UIT-TSS-TOOLBOX/
 
-( cd /opt/UIT-TSS-CLONE/ && \
+( cd /opt/UIT-TSS-TOOLBOX/ && \
 
 	lb clean && \
 
-	/usr/bin/lb config \
+	lb config \
 		--apt apt \
 		--apt-recommends true \
 		--apt-secure true \
@@ -25,7 +34,7 @@ mkdir /opt/UIT-TSS-CLONE/
 		--archive-areas 'main' \
 		--binary-filesystem fat32 \
 		--binary-images iso-hybrid \
-		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-CLONE \
+		--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-TOOLBOX \
 			timezone=America/Chicago locales=en_US.UTF-8" \
 		--bootloaders "grub-efi syslinux" \
 		--chroot-filesystem squashfs \
@@ -35,61 +44,53 @@ mkdir /opt/UIT-TSS-CLONE/
 		--debian-installer-distribution bullseye \
 		--distribution bullseye \
 		--debootstrap-options "--variant=minbase --arch=amd64" \
-		--hdd-label UIT-TSS-CLONE \
-		--image-name UIT-TSS-CLONE \
+		--hdd-label UIT-TSS-TOOLBOX \
+		--image-name UIT-TSS-TOOLBOX \
 		--initramfs live-boot \
 		--initsystem systemd \
-		--iso-application UIT-TSS-CLONE \
+		--iso-application UIT-TSS-TOOLBOX \
 		--iso-preparer "Cameron Raschke caraschke@uh.edu" \
 		--iso-publisher "Cameron Raschke caraschke@uh.edu" \
-		--iso-volume UIT-TSS-CLONE \
+		--iso-volume UIT-TSS-TOOLBOX \
 		--mode debian \
 		--system live \
 		--uefi-secure-boot enable \
 		--updates true)
 
-mkdir -p /opt/UIT-TSS-CLONE/config/bootloaders
-cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-CLONE/config/bootloaders
-cp -r /usr/share/live/build/bootloaders/grub-pc /opt/UIT-TSS-CLONE/config/bootloaders
-rm -r /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/*
-
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/isolinux/isolinux.cfg
+cat <<'EOF' > /opt/UIT-TSS-SHRED/config/bootloaders/isolinux/isolinux.cfg
 UI vesamenu.c32
 
 MENU TITLE Boot Menu
 DEFAULT linux
-        TIMEOUT 10
+        TIMEOUT 1
         MENU RESOLUTION 640 480
-        SAY Now booting into UIT-TSS-CLONE by Cameron Raschke
+        SAY Now booting into UIT-TSS-SHRED by Cameron Raschke
 label linux
-        menu label UIT-TSS-CLONE by Cameron Raschke
+        menu label UIT-TSS-SHRED by Cameron Raschke
         menu default
         linux /live/vmlinuz
         initrd /live/initrd.img
         append @APPEND_LIVE@
 EOF
 
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/bootloaders/grub-pc/grub.cfg
+rm -r /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/*
+cat <<'EOF' > /opt/UIT-TSS-SHRED/config/bootloaders/grub-pc/grub.cfg
 insmod part_gpt
 insmod part_msdos
 insmod fat
 insmod iso9660
-insmod gfxterm
-
-set gfxmode=800x600
-terminal_output gfxterm
 
 set default="0"
 set timeout=0
 set timeout_style=hidden
 
-menuentry "UIT-TSS-CLONE by Cameron Raschke" {
+menuentry "UIT-TSS-SHRED by Cameron Raschke" {
         linux @KERNEL_LIVE@ @APPEND_LIVE@
         initrd @INITRD_LIVE@
 }
 EOF
 
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/package-lists/live.list.chroot
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/package-lists/live.list.chroot
 live-boot
 live-config
 live-config-systemd
@@ -133,10 +134,16 @@ dosfstools
 efibootmgr
 efivar
 ntfs-3g
+iptables
+hdparm
+util-linux
+nvme-cli
+coreutils
+pv
 EOF
 
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
 touch /root/.ssh_passwd
 echo "UHouston!" > /root/.ssh_passwd
@@ -157,21 +164,22 @@ chmod 600 /root/.ssh_passwd
 /usr/sbin/sysctl --quiet --write "vm.mmap_min_addr=65536"
 /usr/sbin/sysctl --load
 
-echo "uit-tss-clone.cameronraschke.com" > /etc/hostname
-echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/motd
-echo -e "\nWelcome to UIT-TSS-CLONE by Cameron Raschke.\n" > /etc/issue.net
+echo "uit-tss-toolbox.cameronraschke.com" > /etc/hostname
+echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/motd
+echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/issue.net
 echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 EOF
 
-chmod 777 /opt/UIT-TSS-CLONE/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+chmod 777 /opt/UIT-TSS-TOOLBOX/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
-mkdir -p /opt/UIT-TSS-CLONE/config/includes.chroot/root/
+mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
-	--output-document=/opt/UIT-TSS-CLONE/config/includes.chroot/root/oven.mp3
+	--output-document=/opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/oven.mp3
 
-chmod 755 /opt/UIT-TSS-CLONE/config/includes.chroot/root/clone-script.sh
+mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root
+touch /opt/UIT-TSS-SHRED/config/includes.chroot/root/.bash_profile
 
-cat <<'EOF' > /opt/UIT-TSS-CLONE/config/includes.chroot/root/.bash_profile
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
 #!/bin/bash
 
 clear
@@ -208,8 +216,6 @@ for iface in $INTERFACES; do
 	dhclient -4 "${iface}"
 done
 
-nmcli radio wifi off
-
 echo "Done."
 echo ""
 
@@ -218,10 +224,7 @@ if [ ! -f /root/.ssh/id_rsa ]; then
 fi
 sshpass -f /root/.ssh_passwd ssh-copy-id \
 	-o "StrictHostKeyChecking=no" cameron@mickey.uit
-scp cameron@mickey.uit:/home/cameron/clone-script.sh /home
-chmod 755 /home/clone-script.sh
-/home/clone-script.sh
+scp cameron@mickey.uit:/home/cameron/toolbox-script.sh /home
+chmod 755 /home/toolbox-script.sh
+/home/toolbox-script.sh
 EOF
-
-(cd /opt/UIT-TSS-CLONE && \
-	lb build)

@@ -150,13 +150,5 @@ mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root/
 mkdir -p /opt/UIT-TSS-SHRED/config/includes.chroot/root
 touch /opt/UIT-TSS-SHRED/config/includes.chroot/root/.bash_profile
 
-initialize
-intro
-modeselect
-diskselect
-execute
-terminate
-EOF
-
 (cd /opt/UIT-TSS-SHRED && \
 	lb build)

@@ -13,36 +13,6 @@ function intro {
 	echo "Done."
 	echo ""
 
-	echo "Configuring networking..."
-	/usr/sbin/sysctl -w "net.ipv6.conf.all.disable_ipv6=1" &>/dev/null
-	/usr/sbin/sysctl -w "net.ipv6.conf.default.disable_ipv6=1" &>/dev/null
-	/usr/sbin/sysctl -w "net.ipv4.conf.default.rp_filter=2" &>/dev/null
-	/usr/sbin/sysctl -w "net.ipv4.conf.all.rp_filter=2" &>/dev/null
-	/usr/sbin/sysctl -w "net.ipv4.ip_forward=0" &>/dev/null
-	/usr/sbin/sysctl -w "net.ipv6.conf.all.forwarding=1" &>/dev/null
-	/usr/sbin/sysctl -w "net.ipv6.conf.default.forwarding=1" &>/dev/null
-	/usr/sbin/sysctl -p &>/dev/null
-
-	/usr/bin/nmcli connection modify "$(nmcli -t -f DEVICE device | grep '^e.*')" \
-		connection.interface-name "eth0" connection.id "Wired connection 1" &>/dev/null
-	/usr/bin/nmcli connection modify "Wired connection 1" ipv4.method auto &>/dev/null
-	/usr/bin/nmcli connection modify "Wired connection 1" ipv6.method disabled &>/dev/null
-	/usr/bin/nmcli connection modify "Wired connection 1" 802-3-ethernet.mac-address \
-		"$(cat /sys/class/net/e*/address)" &>/dev/null
-	/usr/bin/nmcli radio wifi off &>/dev/null
-	/usr/bin/nmcli connection up "Wired connection 1" &>/dev/null
-	echo "Done."
-	echo ""
-
-	echo "Configuring SSH..."
-	if [ ! -f /root/.ssh/id_rsa ]; then
-		/usr/bin/ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
-	fi
-	/usr/bin/sshpass -f /root/.ssh_passwd ssh-copy-id \
-		-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
-	echo "Done."
-	echo ""
-
 	echo "Configuring audio..."
 	/usr/bin/amixer sset Master 100% &>/dev/null
 	/usr/bin/amixer set Master unmute &>/dev/null
