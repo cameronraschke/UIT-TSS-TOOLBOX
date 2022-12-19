@@ -212,7 +212,7 @@ local b="1"
 INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/lo//g' | sed 's/w.*//g' | sed 's/[[:space:]]//g')
 for iface in $INTERFACES; do
 	ip link set "${iface}" up
-	dhclient -r
+	dhclient -r "${iface}"
 	dhclient -4 "${iface}"
 done
 
