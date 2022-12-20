@@ -41,6 +41,12 @@ function intro {
 	      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset.'
 	echo ""
 	read -p "Please remove the thumb drive and press Enter...."
+	clear
+}
+
+
+
+function powerWarning {
 	echo ""
 	echo '*** WARNING *** After pressing Enter, the system will enter hibernate mode.
 	This is normal. Please wake up the system after it hibernates. *** WARNING ***'
@@ -60,9 +66,11 @@ function appSelect {
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
+		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
+		powerWarning
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
@@ -501,7 +509,7 @@ function secUnlock_Shred {
 function nistMode_Shred {
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in default mode."
+	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
 	echo ""
 
 	echo ""
@@ -547,7 +555,7 @@ function nistMode_Shred {
 function zeroMode_Shred {
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in zero mode."
+	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
 	echo ""
 
 	echo ""
@@ -570,7 +578,7 @@ function dodMode_Shred {
 	
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in DOD 5220.22-M mode."
+	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
 	echo ""
 
 	echo ""
@@ -623,7 +631,7 @@ function rcmpMode_Shred {
 
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in RCMP TSSIT OPS-II mode."
+	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
 	echo ""
 
 	echo ""
@@ -687,7 +695,7 @@ function schneierMode_Shred {
 
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in Schneier mode."
+	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
 	echo ""
 
 	echo ""
@@ -746,7 +754,7 @@ function gutmann {
 
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in Gutmann mode."
+	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
 	echo ""
 
 	
@@ -791,7 +799,7 @@ function gutmann {
 function verifyMode_Shred {
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in Verify Mode."
+	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
 	echo ""
 	
 	echo ""
@@ -903,16 +911,16 @@ function clientselect_Clone {
 	echo ""
 	case $CLIENTTYPE in
 	1)
-	SMBPATH='hp'
-	IMAGENAME='2022Fall-HP'
+	sambaPath='hp'
+	cloneImgName='2022Fall-HP'
 	;;
 	2)
-	SMBPATH='dell'
-	IMAGENAME='2022Fall-Dell'
+	sambaPath='dell'
+	cloneImgName='2022Fall-Dell'
 	;;
 	3)
-	SMBPATH='desktops'
-	IMAGENAME='2022Spring-Win10Desktops'
+	sambaPath='desktops'
+	cloneImgName='2022Spring-Win10Desktops'
 	;;
 	*)
 	clientselect
@@ -955,66 +963,69 @@ Please make a backup if necessary."
 
 
 function execute_Clone {
+	SECONDS=0
+	start_time=$SECONDS
 	sambaUser="cameron"
 	sambaPassword="UHouston!"
 	sambaServer="10.0.0.1"
 	sambaDNS="mickey.uit"
 	mkdir /home/partimag
 	/usr/bin/umount /home/partimag &>/dev/null
-	/usr/bin/mount -t cifs -o user=${USER} -o password=${PASS} //${SERVER}/${SMBPATH} /home/partimag
+	/usr/bin/mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
 	if [[ $MODE == "restoredisk" ]]; then
-	clear
-	echo ""
-	echo "Restoring disk ${CLIENTDISK}...."
-	sleep 1
-	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
-		--verbose -k1 --skip-check-restorable-r ${MODE} ${IMAGENAME} ${CLIENTDISK}
+		clear
+		echo ""
+		echo "Restoring disk ${CLIENTDISK}...."
+		sleep 1
+		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
+			--verbose -k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $MODE == "savedisk" ]]; then
-	clear
-	echo ""
-	echo "Saving disk ${CLIENTDISK}...."
-	sleep 1
-	/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
-		--verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${MODE} ${IMAGENAME} ${CLIENTDISK}
+		clear
+		echo ""
+		echo "Saving disk ${CLIENTDISK}...."
+		sleep 1
+		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
+			--verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
+	cloneElapsed=$(( SECONDS - start_time))
 }
 
 function execute_Shred {
 	if [[ $APPSELECT == "EC" || $APPSELECT == "E" ]]; then
 		SECONDS=0
 		start_time=$SECONDS
-	if [[ $shredMode == 'nist' ]]; then
-		nistMode_Shred
-	fi
+		if [[ $shredMode == 'nist' ]]; then
+			nistMode_Shred
+		fi
 
-	if [[ $shredMode == 'zero' ]]; then
-		zeroMode_Shred
-	fi
+		if [[ $shredMode == 'zero' ]]; then
+			zeroMode_Shred
+		fi
 
-	if [[ $shredMode == 'dod' ]]; then
-		dodMode_Shred
-	fi
+		if [[ $shredMode == 'dod' ]]; then
+			dodMode_Shred
+		fi
 
-	if [[ $shredMode == 'rcmp' ]]; then
-		rcmpMode_Shred
-	fi
+		if [[ $shredMode == 'rcmp' ]]; then
+			rcmpMode_Shred
+		fi
 	
-	if [[ $shredMode == 'gutmann' ]]; then
-		gutmann
-	fi
+		if [[ $shredMode == 'gutmann' ]]; then
+			gutmann
+		fi
 	
-	if [[ $shredMode == 'schneier' ]]; then
-		schneierMode_Shred
-	fi
+		if [[ $shredMode == 'schneier' ]]; then
+			schneierMode_Shred
+		fi
 	
-	if [[ $shredMode == 'verify' ]]; then
-		verifyMode_Shred
-	fi
+		if [[ $shredMode == 'verify' ]]; then
+			verifyMode_Shred
+		fi
 
-	if [[ $shredMode == 'unlock' ]]; then
-		unlockMode_Shred
-	fi
+		if [[ $shredMode == 'unlock' ]]; then
+			unlockMode_Shred
+		fi
 		shredElapsed=$(( SECONDS - start_time ))
 	fi
 }
@@ -1023,32 +1034,18 @@ function execute_Shred {
 function execute {
 	if [[ $APPSELECT == "EC" ]]; then
 		clientselect_Clone
-		SECONDS=0
-		start_time=$SECONDS
 		basicEraseMode_Shred
 		execute_Shred
-		shredElapsed=$(( SECONDS - start_time))
-		SECONDS=0
-		start_time=$SECONDS
 		execute_Clone
-		cloneElapsed=$(( SECONDS - start_time))
 	elif [[ $APPSELECT == "E" ]]; then
-		SECONDS=0
-		start_time=$SECONDS
 		advEraseMode_Shred
 		execute_Shred
-		shredElapsed=$(( SECONDS - start_time))
 	elif [[ $APPSELECT == "C" ]]; then
-		SECONDS=0
-		start_time=$SECONDS
+		clientselect_Clone
 		cloneExec
-		cloneElapsed=$(( SECONDS - start_time))
 	else
-		echo "${RED}Error - Incorrect app selected.${CLEAR}"
+		echo "${RED}Error - Invalid application selected.${CLEAR}"
 	fi
-
-
-
 }
 
 
