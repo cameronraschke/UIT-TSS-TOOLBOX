@@ -212,7 +212,7 @@ for iface in $INTERFACES; do
 	ip link set "${iface}" up
 	dhclient -r "${iface}"
 	dhclient -4 "${iface}"
-done
+done &>/dev/null
 
 echo "Done."
 
