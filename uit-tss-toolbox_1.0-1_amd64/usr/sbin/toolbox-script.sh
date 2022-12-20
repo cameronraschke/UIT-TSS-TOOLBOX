@@ -76,7 +76,7 @@ function appSelect {
 	echo ""
 	echo -n "Would you like to ${BOLD}erase and clone ${BLUE}[1]${RESET}, ${BOLD}only erase (advanced) ${BLUE}[2]${RESET}"
 	echo ", or ${BOLD}only clone ${BLUE}[3]${RESET}?"
-	read -n 1 -p "${BOLD}Please enter ${BLUE}[1-3]${RESET}${BOLD}: ${RESET}" APPSELECT
+	read -n 1 -p "Please enter ${BOLD}${BLUE}[1-3]${RESET}: " APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
