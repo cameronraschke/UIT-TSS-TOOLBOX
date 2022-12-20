@@ -48,6 +48,7 @@ function intro {
 
 function powerWarning {
 	echo ""
+	echo ""
 	echo '*** WARNING *** After pressing Enter, the system will enter hibernate mode.
 	This is normal. Please wake up the system after it hibernates. *** WARNING ***'
 	echo ""
@@ -457,50 +458,40 @@ function vrfyDisk_Shred {
 
 
 function secErase_Shred {
-	SSD_REGEX='sd.*'
-	NVME_REGEX='nvme.*'
-	SCSI_REGEX='hd.*'
-
+	echo ""
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
 		hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
 		hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
-		SECERASEFAIL=0
-	fi
-	
-	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
+	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		echo "Using Secure Erase on ${CLIENTDISK:0:-2}. This can take a while, please keep the device powered on...."
 		nvme format /dev/${CLIENTDISK:0:-2} --ses=1 --namespace-id=1 &>/dev/null
 		nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
-		SECERASEFAIL=0
-	fi
-	
-	if [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-		SECERASEFAIL=1
-	fi
-
-	if [[ $SECERASEFAIL == '1' ]]; then
-		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase...."
+	elif [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
+		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}...."
+	else
+		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}...."
 	fi
 }
 
 
 function secUnlock_Shred {
-	SSD_REGEX='sd.*'
-	NVME_REGEX='nvme.*'
-	SCSI_REGEX='hd.*'
-
 	echo ""
-	echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
-
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
+		echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
 		hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
 		hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
 		echo ""
 		echo "${CLIENTDISK} is successfully unlocked."
+	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
+		echo ""
+		echo "Only SATA drives can be unlocked. Failed to unlock ${CLIENTDISK:0:-2}. Continuing...."
+	elif [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
+		echo ""
+		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}...."
 	else
 		echo ""
-		echo "No compatible SATA drive is selected. Can't unlock drive ${CLIENTDISK}...."
+		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}...."
 	fi
 }
 
