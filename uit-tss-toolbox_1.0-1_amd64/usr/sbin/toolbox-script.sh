@@ -31,7 +31,9 @@ function intro {
 	echo "------------------------------"
 	echo ""
 	echo "Checklist:"
-	echo -e "${UNDERLINE}${BOLD}-General best practices${RESET}"
+	${UNDERLINE}${BOLD}
+	echo "-General best practices"
+	${RESET}
 	echo "   * Sanitize laptops with cleaner before imaging them."
 	echo "   * Reset BIOS to default/factory settings before imaging."
 	echo -e "${UNDERLINE}${BOLD}-Physical connections${RESET}"
