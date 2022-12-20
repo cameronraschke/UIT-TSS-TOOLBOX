@@ -239,7 +239,7 @@ function diskSelect {
 	echo ""
 	if [[ $CLIENTDISK =~ nvme* || $CLIENTDISK =~ sd* ]]; then
 		echo ""
-		echo "The selected disk is ${CLIENTDISK}"
+		echo "The selected disk is ${UNDERLINE}${CLIENTDISK}${RESET}"
 		read -n 1 -p "Press 1 to continue or 2 to reselect a disk: " DISKCONF
 	    echo ""
 	if [[ $DISKCONF != 1 ]]; then
@@ -330,7 +330,8 @@ function writeDisk_Shred {
 	
 	while [[ $i -le $SECTIONS ]]; do
 
-		echo -e "\r\033[1A\033[0KWriting to section ${i}/${SECTIONS}"
+		echo -e "Writing to section ${i}/${SECTIONS}"
+		tput cuu1
 
 		COUNT1=$(shuf -i 1-${COUNT} -n 1)
 		SKIP1=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
