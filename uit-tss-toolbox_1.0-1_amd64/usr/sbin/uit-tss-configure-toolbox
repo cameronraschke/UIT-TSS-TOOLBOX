@@ -185,7 +185,7 @@ EOF
 
 	clear
 	echo ""
-	echo -e "Welcome to UIT-TSS-TOOLBOX by Cameron Raschke."
+	echo "Welcome to UIT-TSS-TOOLBOX by Cameron Raschke."
 	echo ""
 
 	echo ""
