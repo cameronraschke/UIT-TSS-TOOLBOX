@@ -352,6 +352,7 @@ function writeDisk_Shred {
 
 	done
 
+	echo ""
 	echo "Completely filling the first sector...."
     ${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 	echo "Completely filling the last sector...."
