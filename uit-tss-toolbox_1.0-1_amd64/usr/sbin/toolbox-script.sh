@@ -1048,33 +1048,33 @@ function terminate {
 	echo ""
 	echo ""
 	if [[ $cloneMode == "restoredisk" ]]; then
-	ssh cameron@mickey.uit 'echo "UIT-TSS-CLONE" >> /home/cameron/laptop-reimage-count.today.txt' &>/dev/null
-	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
-	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
-	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
-	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
-	UPDATE=$(cat /root/laptop-image-update.txt)
-	echo ""
-	echo "This computer has been reimaged from the server \"${SERVERDNS}\" using the image \
-\"${SMBPATH}\", which was last updated on ${UPDATE}. Today, ${TODAY} computers have been \
-reimaged, with this reimage taking ${TIME}."
+		ssh cameron@mickey.uit 'echo "UIT-TSS-CLONE" >> /home/cameron/laptop-reimage-count.today.txt' &>/dev/null
+		scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
+		scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
+		TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
+		TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
+		UPDATE=$(cat /root/laptop-image-update.txt)
+		echo ""
+		echo -ne "This computer has been reimaged from the server \"${SERVERDNS}\" using the image"
+		echo -ne "\"${SMBPATH}\", which was last updated on ${UPDATE}. Today, ${TODAY} computers have been"
+		echo "reimaged, with this reimage taking ${TIME}."
 	fi
 	
 	if [[ $cloneMode == "savedisk" ]]; then
-	elapsed=$(( SECONDS - start_time ))
-	scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt \
-		/root/laptop-reimage-count.today.txt &>/dev/null
-	scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt \
-		/root/laptop-image-update.txt &>/dev/null
-	TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
-	TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
-	UPDATE=$(cat /root/laptop-image-update.txt)
-	echo ""
-	echo "The image \"${SMBPATH}\" has been successfully updated and saved to the server \"${SERVERDNS}\". \
-The process took ${TIME} to complete. \"${SMBPATH}\" was last updated on ${UPDATE}. \
-Today, ${TODAY} computers have been reimaged."
-	ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
-		/home/cameron/laptop-image-update.txt' &>/dev/null
+		elapsed=$(( SECONDS - start_time ))
+		scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt \
+			/root/laptop-reimage-count.today.txt &>/dev/null
+		scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt \
+			/root/laptop-image-update.txt &>/dev/null
+		TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
+		TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
+		UPDATE=$(cat /root/laptop-image-update.txt)
+		echo ""
+		echo -ne "The image \"${SMBPATH}\" has been successfully updated and saved to the server \"${SERVERDNS}\"."
+		echo -ne "The process took ${TIME} to complete. \"${SMBPATH}\" was last updated on ${UPDATE}."
+		echo -e "Today, ${TODAY} computers have been reimaged."
+		ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
+			/home/cameron/laptop-image-update.txt' &>/dev/null
 	fi
 	
 	echo ""
