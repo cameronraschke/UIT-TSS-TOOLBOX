@@ -11,14 +11,14 @@ function selectdisk {
         echo "These are the current disks and their sizes:"
         echo "${DISKNAMES}"
 
-        if [[ ! -f /opt/UIT-TSS-SHRED/UIT-TSS-SHRED-amd64.hybrid.iso ]]; then
+        if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
         echo ""
-        echo "ISO file does not exist. Please run uit-tss-configure-shred."
+        echo "ISO file does not exist. Please run uit-tss-configure-toolbox."
         fi
 
         if [[ $DISKCHECK =~ sd.* ]]; then
         echo ""
-        echo "Which USB drive do you want to flash with the shred ISO?"
+        echo "Which USB drive do you want to flash with the toolbox ISO?"
                 PS3="Select a drive: "
                 select ISODISK in $DISKCHECK
                 do        
@@ -42,7 +42,7 @@ function execute {
         echo "Making FAT filesystem on ${ISODISK}"
         mkfs.vfat -I -F 32 /dev/${ISODISK} &>/dev/null
         echo "Writing ISO to ${ISODISK}, this may take a while..."
-        /usr/bin/pv < /opt/UIT-TSS-SHRED/UIT-TSS-SHRED-amd64.hybrid.iso > /dev/${ISODISK}
+        /usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${ISODISK}
         echo "Creating new label on disk ${ISODISK}: UITTSSSHRED"
         fatlabel /dev/${ISODISK} "UITTSSSHRED" &>/dev/null
         fatlabel /dev/${ISODISK}1 "UITTSSSHRED" &>/dev/null
