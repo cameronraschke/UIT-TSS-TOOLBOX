@@ -894,6 +894,21 @@ function unlockMode_Shred {
 }
 
 function clientselect_Clone {
+	echo -n "Are you ${BOLD} restoring${RESET} (server -> client) ${BLUE}${BOLD}[1]${RESET} or "
+	echo "${BOLD}saving${RESET} (client -> server) ${BLUE}${BOLD}[2]${RESET} an image?"
+	read -n1 -p "Enter ${BOLD}${BLUE}[1-2]${RESET} " cloneMode
+	case $cloneMode in
+		1)
+			cloneMode="restoredisk"
+		;;
+		2)
+			cloneMode="savedisk"
+		;;
+		*)
+			echo "${BOLD}${RED}Error - Invalid input${RESET}"
+		;;
+	esac
+	
 	echo ""
 	echo -n "Are you cloning ${BOLD}HP laptops ${BLUE}[1]${RESET}, "
 	echo -n "${BOLD}Dell laptops ${BLUE}[2]${RESET}, "
@@ -965,7 +980,7 @@ function execute_Clone {
 	mkdir /home/partimag
 	/usr/bin/umount /home/partimag &>/dev/null
 	/usr/bin/mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
-	if [[ $MODE == "restoredisk" ]]; then
+	if [[ $cloneMode == "restoredisk" ]]; then
 		clear
 		echo ""
 		echo "Restoring disk ${CLIENTDISK}...."
@@ -973,7 +988,7 @@ function execute_Clone {
 		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
-	if [[ $MODE == "savedisk" ]]; then
+	if [[ $cloneMode == "savedisk" ]]; then
 		clear
 		echo ""
 		echo "Saving disk ${CLIENTDISK}...."
