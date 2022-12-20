@@ -428,14 +428,14 @@ function vrfyDisk_Shred {
 	done
 
 	echo ""
-	echo "[1/2] Verifing the first sector of the disk...."
+	echo "Verifing the first sector of the disk...."
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=0 iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' && $PROCFAIL == '0' ]]; then
             PROCFAIL='1'
             echo "Bad bits found on device ${CLIENTDISK}."
         	return 1
     fi
-	echo "[2/2] Verifing the last sector of the disk...."
+	echo "Verifing the last sector of the disk...."
     if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) \
 		iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' && $PROCFAIL == '0' ]]; then
@@ -473,6 +473,7 @@ function secErase_Shred {
 		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}...."
 	fi
 }
+
 
 
 function secUnlock_Shred {
