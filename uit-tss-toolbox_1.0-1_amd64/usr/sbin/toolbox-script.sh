@@ -1034,7 +1034,7 @@ function execute {
 		execute_Shred
 	elif [[ $APPSELECT == "C" ]]; then
 		clientselect_Clone
-		cloneExec
+		execute_Clone
 	else
 		echo "${RED}Error - Invalid application selected.${CLEAR}"
 	fi
