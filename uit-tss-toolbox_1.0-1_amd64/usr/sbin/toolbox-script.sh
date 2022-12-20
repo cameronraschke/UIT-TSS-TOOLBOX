@@ -246,12 +246,9 @@ function diskSelect {
 	echo ""
 	echo ""
 	if [[ $CLIENTDISK =~ nvme* || $CLIENTDISK =~ sd* ]]; then
-		echo ""
 		echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
 		read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to continue or ${BOLD}${BLUE}[2]${RESET} to reselect a disk: " DISKCONF
-	    echo ""
 	if [[ $DISKCONF != 1 ]]; then
-		echo ""
 		echo "Reselecting disk...."
 		diskSelect
 	fi
