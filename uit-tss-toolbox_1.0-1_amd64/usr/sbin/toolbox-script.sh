@@ -899,7 +899,7 @@ function clientselect_Clone {
 	echo -n "Are you cloning ${BOLD}HP laptops ${BLUE}[1]${RESET}, "
 	echo -n "${BOLD}Dell laptops ${BLUE}[2]${RESET}, "
 	echo "or ${BOLD}Dell desktops ${BLUE}[3]${RESET}?"
-	read -n1 -p "${BOLD}Choose ${BLUE}[1-3]${RESET} " CLIENTTYPE
+	read -n1 -p "Enter ${BOLD}${BLUE}[1-3]${RESET} " CLIENTTYPE
 	echo ""
 	case $CLIENTTYPE in
 	1)
