@@ -5,7 +5,7 @@ NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'
 RED=$(tput setaf 1)
 CLEAR=$(tput sgr0)
-UNDERLINE=$(tput smul)
+BLUE=$(tput setaf 4)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 cloneElapsed="0"
@@ -33,20 +33,20 @@ function intro {
 	echo "------------------------------"
 	echo ""
 	echo "Checklist:"
-	echo "${UNDERLINE}${BOLD}-General best practices${RESET} "
+	echo "${BOLD}-General best practices${RESET} "
 	echo "   * Sanitize laptops with cleaner before imaging them."
 	echo "   * Reset BIOS to default/factory settings before imaging."
-	echo "${UNDERLINE}${BOLD}-Physical connections${RESET} "
+	echo "${BOLD}-Physical connections${RESET} "
 	echo "   * Make sure that power and ethernet are plugged in to the client."
 	echo "   * Do not use Secure Erase on USB drives or drives connected over USB."
 	echo "      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase."
-	echo "${UNDERLINE}${BOLD}-Dells${RESET} "
+	echo "${BOLD}-Dells${RESET} "
 	echo "   * Make sure SATA mode is in AHCI mode and not RAID mode."
 	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	read -p "Please remove the thumb drive and press Enter...."
+	read -p "${BOLD}${BLUE}Please remove the thumb drive and press Enter....${RESET}"
 	clear
 }
 
@@ -55,8 +55,8 @@ function intro {
 function powerWarning {
 	echo ""
 	echo ""
-	echo "${BOLD}${UNDERLINE}${RED}*** WARNING ***${RESET} After pressing Enter, the system will enter hibernate mode.
-	This is normal. Please wake up the system after it hibernates. ${BOLD}${UNDERLINE}${RED}*** WARNING ***${RESET}"
+	echo "${BOLD}${RED}*** WARNING ***${RESET} After pressing Enter, the system will enter hibernate mode.
+	This is normal. Please wake up the system after it hibernates. ${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
 	read -p "Please press Enter...."
 	echo -n mem > /sys/power/state
@@ -68,8 +68,8 @@ function powerWarning {
 function appSelect {
 	clear
 	echo ""
-	echo -n "Would you like to ${UNDERLINE}erase and clone${RESET} [1], ${UNDERLINE}only erase${RESET} (advanced) [2]"
-	echo ", or ${UNDERLINE}only clone${RESET} [3]?"
+	echo -n "Would you like to ${BOLD}${BLUE}erase and clone${RESET} [1], ${BOLD}${BLUE}only erase${RESET} (advanced) [2]"
+	echo ", or ${BOLD}${BLUE}only clone${RESET} [3]?"
 	read -n 1 -p "Please enter [1-3]: " APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
@@ -83,7 +83,7 @@ function appSelect {
 		APPSELECT="C"
 		ACTION="clone"
 	else
-		echo "${RED}Please enter a valid number [1-3].${CLEAR}"
+		echo "${BOLD}${RED}Please enter a valid number [1-3].${CLEAR}"
 		sleep 0.5
 		appSelect
 	fi
@@ -112,54 +112,54 @@ function basicEraseMode_Shred {
 
 function advEraseMode_Shred {
 	echo ""
-	echo "Please choose an erase mode:"
+	echo "Please choose an erase mode: "
 	echo ""
 
 	echo ""
-	echo "[1] ${UNDERLINE}Autodetect${RESET} (Default)
+	echo "${BOLD}${BLUE}[1] Autodetect${RESET} (Default)
 	-NIST 800-88r1 or Zero Mode depending on drive
 	-Best trade off between security and speed"
 
 	echo ""
-	echo "[2] ${UNDERLINE}NIST 800-88r1${RESET}
+	echo "${BOLD}${BLUE}[2] NIST 800-88r1${RESET}
 	-Fastest for NVME
 	-Secure Erase
 	-Verification"
 
 	echo ""
-	echo "[3] ${UNDERLINE}Zero Mode + Quick Verify${RESET}
+	echo "${BOLD}${BLUE}[3] Zero Mode + Quick Verify${RESET}
 	-One pass of zeroes
 	-Quick verification step"
 	
 	echo ""
-	echo "[4] ${UNDERLINE}DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5${RESET}
+	echo "${BOLD}${BLUE}[4] DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5${RESET}
 	-Writes a pass of zeroes, then ones, then a random bit
 	-3 passes, 3 verifications"
 
 	echo ""
-	echo "[5] ${UNDERLINE}RCMP TSSIT OPS-II/VSITR${RESET}
+	echo "${BOLD}${BLUE}[5] RCMP TSSIT OPS-II/VSITR${RESET}
 	-Alternates passes between 0's and 1's 6 times
 	-Writes random bit, verifies random bit"
 
 	echo ""
-	echo "[6] ${UNDERLINE}Schneier${RESET}
+	echo "${BOLD}${BLUE}[6] Schneier${RESET}
 	-A pass of 1's then a pass of 0's
 	-Five passes of a random stream of characters"
 
 	echo ""
-	echo "[7] ${UNDERLINE}Gutmann${RESET}
+	echo "${BOLD}${BLUE}[7] Gutmann${RESET}
 	-Four random character passes
 	-27 predefined pattern passes
 	-Four random character passes"
 	
 	echo ""
-	echo "[8] ${UNDERLINE}Verify Only${RESET}
+	echo "${BOLD}${BLUE}[8] Verify Only${RESET}
 	-Does not write data
 	-Different levels of verification
 	-Chooses a character to verify"
 
 	echo ""
-	echo "[9] ${UNDERLINE}Unlock${RESET}
+	echo "${BOLD}${BLUE}[9] Unlock${RESET}
 	-Unlocks disk previously locked by this program"
 
 	echo ""
@@ -241,7 +241,7 @@ function diskSelect {
 	echo ""
 	if [[ $CLIENTDISK =~ nvme* || $CLIENTDISK =~ sd* ]]; then
 		echo ""
-		echo "The selected disk is ${UNDERLINE}${CLIENTDISK}${RESET}"
+		echo "The selected disk is ${BOLD}${BLUE}${CLIENTDISK}${RESET}"
 		read -n 1 -p "Press 1 to continue or 2 to reselect a disk: " DISKCONF
 	    echo ""
 	if [[ $DISKCONF != 1 ]]; then
@@ -251,7 +251,7 @@ function diskSelect {
 	fi
 	else
 	    echo ""
-	    echo "${RED}Invalid selection.${CLEAR}"
+	    echo "${BOLD}${RED}Invalid selection.${CLEAR}"
 		sleep 0.5
 	    diskSelect
 	fi
@@ -356,10 +356,10 @@ function writeDisk_Shred {
 
 	echo ""
 	if [[ $PROCFAIL == '0' ]]; then
-		echo "${BOLD}${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten.${RESET}"
+		echo "${BOLD}Success! ${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten.${RESET}"
 		return 0
 		else
-		echo "Write failed."
+		echo "${BOLD}${RED}Write failed.${RESET}"
 		return 1
 	fi
 }
@@ -397,10 +397,10 @@ function vrfyDisk_Shred {
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		FULLVRFY=$(pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${CHAR}]" | head -1)
 		if [[ -z $FULLVRFY ]]; then
-        	echo "The drive ${CLIENTDISK} is completely and securely wiped."
+        	echo "${BOLD}The drive ${CLIENTDISK} is completely and securely wiped.${RESET}"
 			PROCFAIL='0'
 		else
-			echo "Bad bits found on device ${CLIENTDISK}. Test has failed."
+			echo "${BOLD}${RED}Bad bits found on device ${CLIENTDISK}. Test has failed.${RESET}"
 			PROCFAIL='1'
 			return 1
 		fi
@@ -408,7 +408,8 @@ function vrfyDisk_Shred {
 	
 	while [[ $i -le $SECTIONS && $PROCFAIL == '0' ]]; do
 
-		echo -e "\r\033[1A\033[0KVerifying section ${i}/${SECTIONS}"
+		echo "Verifying section ${i}/${SECTIONS}"
+		tput cuu1
 
 		COUNT1=$(shuf -i 1-${COUNT} -n 1)
 		SKIP1=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
@@ -473,9 +474,9 @@ function secErase_Shred {
 		nvme format /dev/${CLIENTDISK:0:-2} --ses=1 --namespace-id=1 &>/dev/null
 		nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
 	elif [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}...."
+		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}. Continuing...."
 	else
-		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}...."
+		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}. Continuing...."
 	fi
 }
 
@@ -490,9 +491,9 @@ function secUnlock_Shred {
 	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		echo "Only SATA drives can be unlocked. Failed to unlock ${CLIENTDISK:0:-2}. Continuing...."
 	elif [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}...."
+		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}. Continuing...."
 	else
-		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}...."
+		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}. Continuing...."
 	fi
 }
 
@@ -501,22 +502,22 @@ function secUnlock_Shred {
 function nistMode_Shred {
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}.${RESET}"
 	echo ""
 
 	echo ""
-	echo "Step [1/3]: "
+	echo "${BOLD}Step [1/3]: ${RESET}"
 	PCNTOFSECTOR='25'
 	WMODE='random'
 	writeDisk_Shred
 	
 	echo ""
-	echo "Step [2/3]: "
+	echo "${BOLD}Step [2/3]: ${RESET}"
 	secErase_Shred
 	secUnlock_Shred
 	
 	echo ""
-	echo "Step [3/3]: "
+	echo "${BOLD}Step [3/3]: ${RESET}"
 	PCNTOFSECTOR='50'
 	CHAR='0'
 	vrfyDisk_Shred
