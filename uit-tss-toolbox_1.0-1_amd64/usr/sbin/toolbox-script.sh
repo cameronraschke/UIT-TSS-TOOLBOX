@@ -59,7 +59,7 @@ function powerWarning {
 	tput reset
 	COLS=$(tput cols)
 	ROWS=$(tput lines)
-	tput cup $(( $COLS / 2 )) $(( $ROWS / 2 ))
+	tput cup $(( $ROWS / 2 )) $(( $COLS / 2 ))
 	echo "${BOLD}${RED}*** WARNING ***${RESET} After pressing Enter, the system will enter hibernate mode."
 	echo "This is normal. Please wake up the system after it hibernates. ${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
