@@ -19,16 +19,19 @@ function intro {
     echo ""
 	echo "${BOLD}Welcome to UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu)${RESET}"
 	echo ""
-	echo "Press CTRL + C at any time to exit UIT-TSS-TOOLBOX"
-	echo "If you have exited UIT-TSS-TOOLBOX and you want to restart it, press CTRL + D"
+	echo "${BOLD}Press ${BLUE}CTRL + C${RESET}${BOLD} at any time to exit UIT-TSS-TOOLBOX${RESET}"
+	echo "${BOLD}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BLUE}CTRL + D${RESET}"
 	echo ""
 	echo ""
 	echo ""
+	tput setaf 1
+	tput bold
 	echo "| |    | |  | |     | |"
 	echo "| |    | |  | |_____| |"
 	echo "| |    | |  | |_____| |"
 	echo "| |____| |  | |     | |"
 	echo "\________/  | |     | |"
+	tput sgr0
 	echo ""
 	echo "------------------------------"
 	echo ""
