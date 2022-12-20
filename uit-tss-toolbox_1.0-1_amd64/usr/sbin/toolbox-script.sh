@@ -230,13 +230,13 @@ function diskSelect {
 	echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
 	while read -r line; do
 		a=$(( $a + 1 ))
-		echo "$a $line"
+		echo "${BOLD}${BLUE}[$a]${RESET} $line"
 	done < <(echo "${BOLD}$DISKSIZES${RESET}")
 	echo ""
 	for i in ${DISKNAMES}; do
 		DISKARR+=( "$i" )
 	done
-	read -n 1 -p "Select a disk: " CLIENTDISK
+	read -n 1 -p "Select a disk ${BOLD}${BLUE}[1-$a]${RESET}: " CLIENTDISK
 	for i in ${!DISKARR[@]}; do
 		n=$(( $n + 1 ))
 		if [[ $n == $CLIENTDISK ]]; then
@@ -248,7 +248,7 @@ function diskSelect {
 	if [[ $CLIENTDISK =~ nvme* || $CLIENTDISK =~ sd* ]]; then
 		echo ""
 		echo "The selected disk is ${BOLD}${BLUE}${CLIENTDISK}${RESET}"
-		read -n 1 -p "Press 1 to continue or 2 to reselect a disk: " DISKCONF
+		read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to continue or ${BOLD}${BLUE}[2]${RESET} to reselect a disk: " DISKCONF
 	    echo ""
 	if [[ $DISKCONF != 1 ]]; then
 		echo ""
