@@ -49,7 +49,7 @@ function intro {
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	read -p "${BOLD}Please remove the thumb drive and press Enter....${RESET}"
+	read -p "${BOLD}Please remove the thumb drive and press ${BLUE}Enter${RESET}${BOLD}....${RESET}"
 	clear
 }
 
@@ -77,9 +77,9 @@ function powerWarning {
 function appSelect {
 	clear
 	echo ""
-	echo -n "Would you like to ${BOLD}erase and clone [1]${RESET}, ${BOLD}only erase (advanced) [2]${RESET}"
-	echo ", or ${BOLD}only clone [3]${RESET}?"
-	read -n 1 -p "${BOLD}Please enter [1-3]: ${RESET}" APPSELECT
+	echo -n "Would you like to ${BOLD}erase and clone ${BLUE}[1]${RESET}, ${BOLD}only erase (advanced) ${BLUE}[2]${RESET}"
+	echo ", or ${BOLD}only clone ${BLUE}[3]${RESET}?"
+	read -n 1 -p "${BOLD}Please enter ${BLUE}[1-3]${RESET}${BOLD}: ${RESET}" APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
