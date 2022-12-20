@@ -899,6 +899,7 @@ function clientselect_Clone {
 	echo "${BOLD}saving${RESET} (client -> server) ${BLUE}${BOLD}[2]${RESET} an image?"
 	read -n1 -p "Enter ${BOLD}${BLUE}[1-2]${RESET} " cloneMode
 	echo ""
+	echo ""
 	case $cloneMode in
 		1)
 			cloneMode="restoredisk"
