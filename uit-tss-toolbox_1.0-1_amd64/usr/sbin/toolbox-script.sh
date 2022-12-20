@@ -978,7 +978,6 @@ function execute_Clone {
 	sambaServer="10.0.0.1"
 	sambaDNS="mickey.uit"
 	umount /home/partimag &>/dev/null
-	rm -r /home/partimag
 	mkdir /home/partimag
 	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
