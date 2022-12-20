@@ -17,7 +17,7 @@ function intro {
 	clear
 	echo "${RESET}"
     echo ""
-	echo "Welcome to UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu)"
+	echo "${BOLD}Welcome to UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu)${RESET}"
 	echo ""
 	echo "Press CTRL + C at any time to exit UIT-TSS-TOOLBOX"
 	echo "If you have exited UIT-TSS-TOOLBOX and you want to restart it, press CTRL + D"
