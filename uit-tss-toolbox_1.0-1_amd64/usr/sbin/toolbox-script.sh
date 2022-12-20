@@ -896,11 +896,6 @@ function unlockMode_Shred {
 	secUnlock_Shred
 }
 
-function serverselect_Clone {
-	SERVER='10.0.0.1'
-	SERVERDNS='mickey.uit'
-}
-
 function clientselect_Clone {
 	echo ""
 	echo "Would you like to run this for HP laptops [1], Dell laptops [2], or Dell desktops [3]?"
@@ -960,6 +955,10 @@ Please make a backup if necessary."
 
 
 function execute_Clone {
+	sambaUser="cameron"
+	sambaPassword="UHouston!"
+	sambaServer="10.0.0.1"
+	sambaDNS="mickey.uit"
 	mkdir /home/partimag
 	/usr/bin/umount /home/partimag &>/dev/null
 	/usr/bin/mount -t cifs -o user=${USER} -o password=${PASS} //${SERVER}/${SMBPATH} /home/partimag
@@ -1023,6 +1022,7 @@ function execute_Shred {
 
 function execute {
 	if [[ $APPSELECT == "EC" ]]; then
+		clientselect_Clone
 		SECONDS=0
 		start_time=$SECONDS
 		basicEraseMode_Shred
