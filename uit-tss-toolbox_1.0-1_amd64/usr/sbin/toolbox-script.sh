@@ -460,7 +460,6 @@ function vrfyDisk_Shred {
 
 
 function secErase_Shred {
-	echo ""
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
 		hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
@@ -479,21 +478,16 @@ function secErase_Shred {
 
 
 function secUnlock_Shred {
-	echo ""
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
 		hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
 		hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
-		echo ""
 		echo "${CLIENTDISK} is successfully unlocked."
 	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-		echo ""
 		echo "Only SATA drives can be unlocked. Failed to unlock ${CLIENTDISK:0:-2}. Continuing...."
 	elif [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-		echo ""
 		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}...."
 	else
-		echo ""
 		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}...."
 	fi
 }
@@ -508,20 +502,17 @@ function nistMode_Shred {
 
 	echo ""
 	echo "Step [1/3]: "
-	echo ""
 	PCNTOFSECTOR='25'
 	WMODE='random'
 	writeDisk_Shred
 	
 	echo ""
 	echo "Step [2/3]: "
-	echo ""
 	secErase_Shred
 	secUnlock_Shred
 	
 	echo ""
 	echo "Step [3/3]: "
-	echo ""
 	PCNTOFSECTOR='50'
 	CHAR='0'
 	vrfyDisk_Shred
@@ -530,14 +521,12 @@ function nistMode_Shred {
 		echo ""
 		echo ""
 		echo "Step [1/2]: "
-		echo ""
 		PCNTOFSECTOR='100'
 		WMODE='zero'
 		writeDisk_Shred
 
 		echo ""
 		echo "Step [2/2]: "
-		echo ""
 		PCNTOFSECTOR='100'
 		CHAR='0'
 		vrfyDisk_Shred
