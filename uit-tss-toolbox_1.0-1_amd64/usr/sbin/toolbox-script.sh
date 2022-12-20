@@ -1074,8 +1074,8 @@ function terminate {
 		TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 		UPDATE=$(cat /root/laptop-image-update.txt)
 		echo ""
-		echo -ne "This computer has been erased and reimaged from the server \"${sambaDNS}\" using the image"
-		echo -ne "\"${sambaPath}\", which was last updated on ${UPDATE}. Today, ${TODAY} computers have been"
+		echo -ne "This computer has been erased and reimaged from the server \"${sambaDNS}\" using the image "
+		echo -ne "\"${sambaPath}\", which was last updated on ${UPDATE}. Today, ${TODAY} computers have been "
 		echo "reimaged, with this reimage taking ${TIME}."
 	fi
 	
