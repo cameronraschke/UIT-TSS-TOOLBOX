@@ -231,7 +231,7 @@ function diskSelect {
 	while read -r line; do
 		a=$(( $a + 1 ))
 		echo "${BOLD}${BLUE}[$a]${RESET} $line"
-	done < <(echo "${BOLD}$DISKSIZES${RESET}")
+	done < <(echo "${BOLD}${DISKSIZES}${RESET}")
 	echo ""
 	for i in ${DISKNAMES}; do
 		DISKARR+=( "$i" )
