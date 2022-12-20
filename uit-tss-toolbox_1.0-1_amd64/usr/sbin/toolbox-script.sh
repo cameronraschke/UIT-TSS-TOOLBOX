@@ -72,7 +72,7 @@ function powerWarning {
 	COLS=$(tput cols)
 	ROWS=$(tput lines)
 	for i in $(seq 1 4); do
-		tput cup $(( ROWS / 2 )) $(( (COLS / 2) - (length${i}) ))
+		tput cup $(( COLS / 2 )) $(( (ROWS / 2) - (length${i}) ))
 		echo "${BOLD}"
 		echo "$str${i}"
 		echo "${RESET}"
