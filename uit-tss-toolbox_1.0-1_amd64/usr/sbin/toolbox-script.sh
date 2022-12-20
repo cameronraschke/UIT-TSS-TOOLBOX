@@ -63,7 +63,7 @@ function powerWarning {
 	echo "${BOLD}This is normal. Please wake up the system after it hibernates.${RESET}"
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
-	read -p "Please press ${BOLD}Enter${BLUE}...."
+	read -p "Please press ${BOLD}${BLUE}Enter${RESET}...."
 	tput reset
 	echo -n mem > /sys/power/state
 	tput reset
