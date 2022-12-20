@@ -9,6 +9,7 @@ CLEAR=$(tput sgr0)
 
 
 function intro {
+	clear
     echo ""
 	echo "Welcome to UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu)"
 	echo ""
@@ -77,6 +78,18 @@ function appSelect {
 function basicEraseMode_Shred {
 	shredMode='autodetect'
 	RMODE='Autodetect'
+	if [[ $shredMode == 'autodetect' ]]; then
+		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
+			shredMode='zero'
+			RMODE='Zero Mode'
+		elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
+			shredMode='nist'
+			RMODE='NIST 800-88r1 Mode'
+		else
+			shredMode='zero'
+			RMODE='Zero Mode'
+		fi
+	fi
 }
 
 
@@ -225,19 +238,6 @@ function diskSelect {
 	    echo "${RED}Invalid selection.${CLEAR}"
 		sleep 0.5
 	    diskSelect
-	fi
-
-	if [[ $shredMode == 'autodetect' ]]; then
-		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
-			shredMode='zero'
-			RMODE='Zero Mode'
-		elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-			shredMode='nist'
-			RMODE='NIST 800-88r1 Mode'
-		else
-			shredMode='zero'
-			RMODE='Zero Mode'
-		fi
 	fi
 }
 
@@ -896,12 +896,12 @@ function unlockMode_Shred {
 	secUnlock_Shred
 }
 
-function serverselect {
+function serverselect_Clone {
 	SERVER='10.0.0.1'
 	SERVERDNS='mickey.uit'
 }
 
-function clientselect {
+function clientselect_Clone {
 	echo ""
 	echo "Would you like to run this for HP laptops [1], Dell laptops [2], or Dell desktops [3]?"
 	read -n1 -p "Choose [1,2,3] " CLIENTTYPE
@@ -925,7 +925,7 @@ function clientselect {
 	esac
 }
 
-function confirm {
+function confirm_Clone {
 	echo ""
 	echo ""
 	echo ""
@@ -959,7 +959,7 @@ Please make a backup if necessary."
 }
 
 
-function cloneExec {
+function execute_Clone {
 	mkdir /home/partimag
 	/usr/bin/umount /home/partimag &>/dev/null
 	/usr/bin/mount -t cifs -o user=${USER} -o password=${PASS} //${SERVER}/${SMBPATH} /home/partimag
@@ -981,35 +981,10 @@ function cloneExec {
 	fi
 }
 
-
-
-function execute {
-	if [[ $APPSELECT == "EC" ]]; then
+function execute_Shred {
+	if [[ $APPSELECT == "EC" || $APPSELECT == "E" ]]; then
 		SECONDS=0
 		start_time=$SECONDS
-		basicEraseMode_Shred
-		shredElapsed=$(( SECONDS - start_time))
-		SECONDS=0
-		start_time=$SECONDS
-		cloneExec
-		cloneElapsed=$(( SECONDS - start_time))
-	elif [[ $APPSELECT == "E" ]]; then
-		SECONDS=0
-		start_time=$SECONDS
-		advEraseMode_Shred
-	elif [[ $APPSELECT == "C" ]]; then
-		SECONDS=0
-		start_time=$SECONDS
-		cloneExec
-		cloneElapsed=$(( SECONDS - start_time))
-	else
-		echo "${RED}Error - Incorrect app selected.${CLEAR}"
-	fi
-
-
-if [[ $APPSELECT == "EC" || $APPSELECT == "E" ]]; then
-	SECONDS=0
-	start_time=$SECONDS
 	if [[ $shredMode == 'nist' ]]; then
 		nistMode_Shred
 	fi
@@ -1041,8 +1016,39 @@ if [[ $APPSELECT == "EC" || $APPSELECT == "E" ]]; then
 	if [[ $shredMode == 'unlock' ]]; then
 		unlockMode_Shred
 	fi
-	shredElapsed=$(( SECONDS - start_time ))
-fi
+		shredElapsed=$(( SECONDS - start_time ))
+	fi
+}
+
+
+function execute {
+	if [[ $APPSELECT == "EC" ]]; then
+		SECONDS=0
+		start_time=$SECONDS
+		basicEraseMode_Shred
+		execute_Shred
+		shredElapsed=$(( SECONDS - start_time))
+		SECONDS=0
+		start_time=$SECONDS
+		execute_Clone
+		cloneElapsed=$(( SECONDS - start_time))
+	elif [[ $APPSELECT == "E" ]]; then
+		SECONDS=0
+		start_time=$SECONDS
+		advEraseMode_Shred
+		execute_Shred
+		shredElapsed=$(( SECONDS - start_time))
+	elif [[ $APPSELECT == "C" ]]; then
+		SECONDS=0
+		start_time=$SECONDS
+		cloneExec
+		cloneElapsed=$(( SECONDS - start_time))
+	else
+		echo "${RED}Error - Incorrect app selected.${CLEAR}"
+	fi
+
+
+
 }
 
 
@@ -1090,3 +1096,6 @@ Today, ${TODAY} computers have been reimaged."
 
 intro
 appSelect
+diskSelect
+execute
+terminate

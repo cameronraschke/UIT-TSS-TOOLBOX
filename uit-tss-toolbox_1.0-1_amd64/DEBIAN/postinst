@@ -2,3 +2,5 @@
 
 /usr/bin/chmod 700 /usr/sbin/uit-tss-*
 /usr/bin/chown root:root /usr/sbin/uit-tss-*
+/usr/bin/mv /usr/sbin/toolbox-script.sh /home/cameron
+/usr/bin/chown cameron:cameron /home/cameron/toolbox-script.sh
