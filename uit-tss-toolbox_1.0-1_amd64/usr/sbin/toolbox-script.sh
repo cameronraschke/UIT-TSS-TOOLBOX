@@ -14,6 +14,7 @@ shredElapsed="0"
 
 function intro {
 	clear
+	echo "${RESET}"
     echo ""
 	echo "Welcome to UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu)"
 	echo ""
@@ -31,16 +32,14 @@ function intro {
 	echo "------------------------------"
 	echo ""
 	echo "Checklist:"
-	${UNDERLINE}${BOLD}
-	echo "-General best practices"
-	${RESET}
+	echo -e "${UNDERLINE}General best practices${RESET}"
 	echo "   * Sanitize laptops with cleaner before imaging them."
 	echo "   * Reset BIOS to default/factory settings before imaging."
-	echo -e "${UNDERLINE}${BOLD}-Physical connections${RESET}"
+	echo -e "${UNDERLINE}Physical connections${RESET}"
 	echo "   * Make sure that power and ethernet are plugged in to the client."
 	echo "   * Do not use Secure Erase on USB drives or drives connected over USB."
 	echo "      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase."
-	echo -e "${UNDERLINE}${BOLD}-Dells${RESET}"
+	echo -e "${UNDERLINE}Dells${RESET}"
 	echo "   * Make sure SATA mode is in AHCI mode and not RAID mode."
 	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
 	echo "      * Every Dell is in RAID mode by default."
