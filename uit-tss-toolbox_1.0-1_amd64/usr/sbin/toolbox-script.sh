@@ -5,6 +5,8 @@ NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'
 RED=$(tput setaf 1)
 CLEAR=$(tput sgr0)
+cloneElapsed="0"
+shredElapsed="0"
 
 
 
@@ -1055,7 +1057,7 @@ function terminate {
 		TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 		UPDATE=$(cat /root/laptop-image-update.txt)
 		echo ""
-		echo -ne "This computer has been reimaged from the server \"${SERVERDNS}\" using the image"
+		echo -ne "This computer has been erased and reimaged from the server \"${SERVERDNS}\" using the image"
 		echo -ne "\"${SMBPATH}\", which was last updated on ${UPDATE}. Today, ${TODAY} computers have been"
 		echo "reimaged, with this reimage taking ${TIME}."
 	fi
@@ -1072,7 +1074,7 @@ function terminate {
 		echo ""
 		echo -ne "The image \"${SMBPATH}\" has been successfully updated and saved to the server \"${SERVERDNS}\"."
 		echo -ne "The process took ${TIME} to complete. \"${SMBPATH}\" was last updated on ${UPDATE}."
-		echo -e "Today, ${TODAY} computers have been reimaged."
+		echo -e "Today, ${TODAY} computers have been reimaged and/or erased."
 		ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
 			/home/cameron/laptop-image-update.txt' &>/dev/null
 	fi
