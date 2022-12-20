@@ -243,6 +243,9 @@ EOF
 	chmod 755 /home/toolbox-script.sh
 	/home/toolbox-script.sh
 EOF
+
+	(cd /opt/UIT-TSS-TOOLBOX
+	lb build)
 }
 
 confirmDelete
