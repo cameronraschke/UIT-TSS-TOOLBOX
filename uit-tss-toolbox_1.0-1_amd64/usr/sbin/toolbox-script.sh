@@ -329,7 +329,6 @@ function writeDisk_Shred {
 	fi
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
-	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -362,7 +361,7 @@ function writeDisk_Shred {
 
 	echo ""
 	if [[ $PROCFAIL == '0' ]]; then
-		echo "${BOLD}Success! ${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten.${RESET}"
+		echo "Success! ${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten."
 		return 0
 		else
 		echo "${BOLD}${RED}Write failed.${RESET}"
@@ -397,8 +396,6 @@ function vrfyDisk_Shred {
 	fi
 
 	echo "Looking for non-${CHAR}'s on ${CLIENTDISK}...."
-	echo ""
-	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		FULLVRFY=$(pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${CHAR}]" | head -1)
@@ -457,7 +454,6 @@ function vrfyDisk_Shred {
         	return 1
     fi
 
-	echo ""
     echo "${PCNTOFSECTOR}% of ${CLIENTDISK} has been verified."
 	if [[ $PROCFAIL == '0' ]]; then
 		echo "Test passed successfully!"
@@ -985,6 +981,7 @@ function execute_Clone {
 			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
+	return
 }
 
 function execute_Shred {
@@ -1024,6 +1021,7 @@ function execute_Shred {
 		fi
 		shredElapsed=$(( SECONDS - start_time ))
 	fi
+	return
 }
 
 
