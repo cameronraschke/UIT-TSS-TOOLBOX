@@ -5,6 +5,8 @@ NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'
 RED=$(tput setaf 1)
 CLEAR=$(tput sgr0)
+UNDERLINE=$(tput smul)
+BOLD=$(tput bold)
 cloneElapsed="0"
 shredElapsed="0"
 
@@ -28,19 +30,19 @@ function intro {
 	echo ""
 	echo "------------------------------"
 	echo ""
-	echo 'Checklist:
-	-General best practices
+	echo "Checklist:
+	${UNDERLINE}${BOLD}-General best practices${RESET}
 	   * Sanitize laptops with cleaner before imaging them.
 	   * Reset BIOS to default/factory settings before imaging.
-	-Physical connections
+	${UNDERLINE}${BOLD}-Physical connections${RESET}
 	   * Make sure that power and ethernet are plugged in to the client.
 	   * Do not use Secure Erase on USB drives or drives connected over USB.
 	      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase.
-	-Dells
+	${UNDERLINE}${BOLD}-Dells${RESET}
 	   * Make sure SATA mode is in AHCI mode and not RAID mode.
-	      * This is usually under "System Configuration" or "Storage" in BIOS.
+	      * This is usually under \"System Configuration\" or \"Storage\" in BIOS.
 	      * Every Dell is in RAID mode by default. 
-	      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset.'
+	      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
 	read -p "Please remove the thumb drive and press Enter...."
 	clear
@@ -51,8 +53,8 @@ function intro {
 function powerWarning {
 	echo ""
 	echo ""
-	echo '*** WARNING *** After pressing Enter, the system will enter hibernate mode.
-	This is normal. Please wake up the system after it hibernates. *** WARNING ***'
+	echo "${BOLD}${UNDERLINE}${RED}*** WARNING ***${RESET} After pressing Enter, the system will enter hibernate mode.
+	This is normal. Please wake up the system after it hibernates. ${BOLD}${UNDERLINE}${RED}*** WARNING ***${RESET}"
 	echo ""
 	read -p "Please press Enter...."
 	echo -n mem > /sys/power/state
@@ -64,7 +66,8 @@ function powerWarning {
 function appSelect {
 	clear
 	echo ""
-	echo "Would you like to erase and clone [1], only erase (advanced) [2], or only clone [3]?"
+	echo -n "Would you like to ${UNDERLINE}erase and clone${RESET} [1], ${UNDERLINE}only erase${RESET} (advanced) [2]"
+	echo ", or ${UNDERLINE}only clone${RESET} [3]?"
 	read -n 1 -p "Please enter [1-3]: " APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
@@ -111,50 +114,50 @@ function advEraseMode_Shred {
 	echo ""
 
 	echo ""
-	echo "1 Autodetect mode (Default)
+	echo "[1] ${UNDERLINE}Autodetect${RESET} (Default)
 	-NIST 800-88r1 or Zero Mode depending on drive
 	-Best trade off between security and speed"
 
 	echo ""
-	echo "2 NIST 800-88r1 Mode
+	echo "[2] ${UNDERLINE}NIST 800-88r1${RESET}
 	-Fastest for NVME
 	-Secure Erase
 	-Verification"
 
 	echo ""
-	echo "3 Zero Mode + Quick Verify
+	echo "[3] ${UNDERLINE}Zero Mode + Quick Verify${RESET}
 	-One pass of zeroes
 	-Quick verification step"
 	
 	echo ""
-	echo "4 DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5
+	echo "[4] ${UNDERLINE}DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5${RESET}
 	-Writes a pass of zeroes, then ones, then a random bit
 	-3 passes, 3 verifications"
 
 	echo ""
-	echo "5 RCMP TSSIT OPS-II/VSITR
+	echo "[5] ${UNDERLINE}RCMP TSSIT OPS-II/VSITR${RESET}
 	-Alternates passes between 0's and 1's 6 times
 	-Writes random bit, verifies random bit"
 
 	echo ""
-	echo "6 Schneier
+	echo "[6] ${UNDERLINE}Schneier${RESET}
 	-A pass of 1's then a pass of 0's
 	-Five passes of a random stream of characters"
 
 	echo ""
-	echo "7 Gutmann
+	echo "[7] ${UNDERLINE}Gutmann${RESET}
 	-Four random character passes
 	-27 predefined pattern passes
 	-Four random character passes"
 	
 	echo ""
-	echo "8 Verify Only
+	echo "[8] ${UNDERLINE}Verify Only${RESET}
 	-Does not write data
 	-Different levels of verification
 	-Chooses a character to verify"
 
 	echo ""
-	echo "9 Unlock
+	echo "[9] ${UNDERLINE}Unlock${RESET}
 	-Unlocks disk previously locked by this program"
 
 	echo ""
@@ -319,7 +322,6 @@ function writeDisk_Shred {
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
 	echo ""
-	echo ""
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -343,7 +345,6 @@ function writeDisk_Shred {
 
 	done
 
-	echo ""
 	echo "Completely filling the first sector...."
     ${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=0 of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 	echo "Completely filling the last sector...."
@@ -352,7 +353,7 @@ function writeDisk_Shred {
 
 	echo ""
 	if [[ $PROCFAIL == '0' ]]; then
-		echo "${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten."
+		echo "${BOLD}${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten.${RESET}"
 		return 0
 		else
 		echo "Write failed."
