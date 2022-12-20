@@ -30,19 +30,19 @@ function intro {
 	echo ""
 	echo "------------------------------"
 	echo ""
-	echo "Checklist:
-	${UNDERLINE}${BOLD}-General best practices${RESET}
-	   * Sanitize laptops with cleaner before imaging them.
-	   * Reset BIOS to default/factory settings before imaging.
-	${UNDERLINE}${BOLD}-Physical connections${RESET}
-	   * Make sure that power and ethernet are plugged in to the client.
-	   * Do not use Secure Erase on USB drives or drives connected over USB.
-	      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase.
-	${UNDERLINE}${BOLD}-Dells${RESET}
-	   * Make sure SATA mode is in AHCI mode and not RAID mode.
-	      * This is usually under \"System Configuration\" or \"Storage\" in BIOS.
-	      * Every Dell is in RAID mode by default. 
-	      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
+	echo "Checklist:"
+	echo "${UNDERLINE}${BOLD}-General best practices${RESET}"
+	echo "   * Sanitize laptops with cleaner before imaging them."
+	echo "   * Reset BIOS to default/factory settings before imaging."
+	echo "${UNDERLINE}${BOLD}-Physical connections${RESET}"
+	echo "   * Make sure that power and ethernet are plugged in to the client."
+	echo "   * Do not use Secure Erase on USB drives or drives connected over USB."
+	echo "      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase."
+	echo "${UNDERLINE}${BOLD}-Dells${RESET}"
+	echo "   * Make sure SATA mode is in AHCI mode and not RAID mode."
+	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
+	echo "      * Every Dell is in RAID mode by default."
+	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
 	read -p "Please remove the thumb drive and press Enter...."
 	clear
