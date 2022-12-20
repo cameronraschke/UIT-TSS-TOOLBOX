@@ -57,27 +57,13 @@ function intro {
 
 function powerWarning {
 	tput reset
-	local str1="*** WARNING ***"
-	local length1=${#str1}
-
-	local str2="After pressing Enter, the system will enter hibernate mode."
-	local length2=${#str2}
-
-	local str3="This is normal. Please wake up the system after it hibernates."
-	local length3=${#str3}
-
-	local str4="*** WARNING ***"
-	local length4=${#str4}
-
-	COLS=$(tput cols)
-	ROWS=$(tput lines)
-	for i in $(seq 1 4); do
-		tput cup $(( (COLS / 2) - (length${i}) )) $(( ROWS / 2 ))
-		echo "${BOLD}"
-		echo "$str${i}"
-		echo "${RESET}"
-	done
-	read -p "Please press Enter...."
+	echo ""
+	echo "${BOLD}${RED}*** WARNING ***${RESET}"
+	echo "${BOLD}After pressing Enter, the system will enter hibernate mode.${RESET}"
+	echo "${BOLD}This is normal. Please wake up the system after it hibernates.${RESET}"
+	echo "${BOLD}${RED}*** WARNING ***${RESET}"
+	echo ""
+	read -p "Please press ${BOLD}Enter${BLUE}...."
 	tput reset
 	echo -n mem > /sys/power/state
 	tput reset
