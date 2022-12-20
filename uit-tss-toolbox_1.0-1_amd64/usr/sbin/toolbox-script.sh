@@ -60,12 +60,11 @@ function powerWarning {
 	COLS=$(tput cols)
 	ROWS=$(tput lines)
 	tput cup $(( $ROWS / 2 )) $(( $COLS / 2 ))
-	tput sc
 	echo "${BOLD}${RED}*** WARNING ***${RESET} After pressing Enter, the system will enter hibernate mode."
-	tput rc
+	tput cup $(( $ROWS / 2 - 1 )) $(( $COLS / 2 ))
 	echo "This is normal. Please wake up the system after it hibernates. ${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
-	tput rc
+	tput cup $(( $ROWS / 2 - 2 )) $(( $COLS / 2 ))
 	read -p "Please press Enter...."
 	tput reset
 	echo -n mem > /sys/power/state
