@@ -900,8 +900,10 @@ function unlockMode_Shred {
 
 function clientselect_Clone {
 	echo ""
-	echo "Would you like to run this for HP laptops [1], Dell laptops [2], or Dell desktops [3]?"
-	read -n1 -p "Choose [1,2,3] " CLIENTTYPE
+	echo -n "Are you cloning ${BOLD}HP laptops ${BLUE}[1]${RESET}, "
+	echo -n "${BOLD}Dell laptops ${BLUE}[2]${RESET}, "
+	echo "or ${BOLD}Dell desktops ${BLUE}[3]${RESET}?"
+	read -n1 -p "${BOLD}Choose ${BLUE}[1-3]${RESET} " CLIENTTYPE
 	echo ""
 	case $CLIENTTYPE in
 	1)
@@ -972,7 +974,7 @@ function execute_Clone {
 		echo "Restoring disk ${CLIENTDISK}...."
 		sleep 1
 		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
-			--verbose -k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
+			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $MODE == "savedisk" ]]; then
 		clear
@@ -980,7 +982,7 @@ function execute_Clone {
 		echo "Saving disk ${CLIENTDISK}...."
 		sleep 1
 		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
-			--verbose --skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
+			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
 }
