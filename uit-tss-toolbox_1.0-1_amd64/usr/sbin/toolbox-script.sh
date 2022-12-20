@@ -7,6 +7,7 @@ RED=$(tput setaf 1)
 CLEAR=$(tput sgr0)
 UNDERLINE=$(tput smul)
 BOLD=$(tput bold)
+RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
@@ -32,14 +33,14 @@ function intro {
 	echo "------------------------------"
 	echo ""
 	echo "Checklist:"
-	echo -e "${UNDERLINE}${BOLD}-General best practices${RESET} "
+	echo "${UNDERLINE}${BOLD}-General best practices${RESET} "
 	echo "   * Sanitize laptops with cleaner before imaging them."
 	echo "   * Reset BIOS to default/factory settings before imaging."
-	echo -e "${UNDERLINE}${BOLD}-Physical connections${RESET} "
+	echo "${UNDERLINE}${BOLD}-Physical connections${RESET} "
 	echo "   * Make sure that power and ethernet are plugged in to the client."
 	echo "   * Do not use Secure Erase on USB drives or drives connected over USB."
 	echo "      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase."
-	echo -e "${UNDERLINE}${BOLD}-Dells${RESET} "
+	echo "${UNDERLINE}${BOLD}-Dells${RESET} "
 	echo "   * Make sure SATA mode is in AHCI mode and not RAID mode."
 	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
 	echo "      * Every Dell is in RAID mode by default."
