@@ -894,6 +894,7 @@ function unlockMode_Shred {
 }
 
 function clientselect_Clone {
+	echo ""
 	echo -n "Are you ${BOLD} restoring${RESET} (server -> client) ${BLUE}${BOLD}[1]${RESET} or "
 	echo "${BOLD}saving${RESET} (client -> server) ${BLUE}${BOLD}[2]${RESET} an image?"
 	read -n1 -p "Enter ${BOLD}${BLUE}[1-2]${RESET} " cloneMode
@@ -908,7 +909,7 @@ function clientselect_Clone {
 			echo "${BOLD}${RED}Error - Invalid input${RESET}"
 		;;
 	esac
-	
+
 	echo ""
 	echo -n "Are you cloning ${BOLD}HP laptops ${BLUE}[1]${RESET}, "
 	echo -n "${BOLD}Dell laptops ${BLUE}[2]${RESET}, "
