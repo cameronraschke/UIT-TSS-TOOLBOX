@@ -224,11 +224,11 @@ function diskSelect {
 	local DISKARR=()
 	echo ""
 	echo ""
-	echo "Which disk do you want to ${ACTION}?"
+	echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
 	while read -r line; do
 		a=$(( $a + 1 ))
 		echo "$a $line"
-	done < <(echo "$DISKSIZES")
+	done < <(echo "${BOLD}$DISKSIZES${RESET}")
 	echo ""
 	for i in ${DISKNAMES}; do
 		DISKARR+=( "$i" )
