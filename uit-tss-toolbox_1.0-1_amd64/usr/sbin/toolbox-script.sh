@@ -49,17 +49,19 @@ function intro {
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	read -p "${BOLD}${BLUE}Please remove the thumb drive and press Enter....${RESET}"
+	read -p "${BOLD}Please remove the thumb drive and press Enter....${RESET}"
 	clear
 }
 
 
 
 function powerWarning {
-	echo ""
-	echo ""
-	echo "${BOLD}${RED}*** WARNING ***${RESET} After pressing Enter, the system will enter hibernate mode.
-	This is normal. Please wake up the system after it hibernates. ${BOLD}${RED}*** WARNING ***${RESET}"
+	tput reset
+	COLS=$(tput cols)
+	ROWS=$(tput lines)
+	tput cup $(( $COLS / 2 )) $(( $ROWS / 2 ))
+	echo "${BOLD}${RED}*** WARNING ***${RESET} After pressing Enter, the system will enter hibernate mode."
+	echo "This is normal. Please wake up the system after it hibernates. ${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
 	read -p "Please press Enter...."
 	echo -n mem > /sys/power/state
@@ -73,7 +75,7 @@ function appSelect {
 	echo ""
 	echo -n "Would you like to ${BOLD}${BLUE}erase and clone [1]${RESET}, ${BOLD}${BLUE}only erase (advanced) [2]${RESET}"
 	echo ", or ${BOLD}${BLUE}only clone [3]${RESET}?"
-	read -n 1 -p "Please enter [1-3]: " APPSELECT
+	read -n 1 -p "${BOLD}Please enter [1-3]: ${RESET}" APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
