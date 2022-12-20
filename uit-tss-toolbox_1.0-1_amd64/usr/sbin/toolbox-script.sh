@@ -71,8 +71,8 @@ function powerWarning {
 function appSelect {
 	clear
 	echo ""
-	echo -n "Would you like to ${BOLD}${BLUE}erase and clone${RESET} [1], ${BOLD}${BLUE}only erase${RESET} (advanced) [2]"
-	echo ", or ${BOLD}${BLUE}only clone${RESET} [3]?"
+	echo -n "Would you like to ${BOLD}${BLUE}erase and clone [1]${RESET}, ${BOLD}${BLUE}only erase (advanced) [2]${RESET}"
+	echo ", or ${BOLD}${BLUE}only clone [3]${RESET}?"
 	read -n 1 -p "Please enter [1-3]: " APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
