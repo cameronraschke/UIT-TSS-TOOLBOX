@@ -64,8 +64,9 @@ function powerWarning {
 	echo "This is normal. Please wake up the system after it hibernates. ${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
 	read -p "Please press Enter...."
+	tput reset
 	echo -n mem > /sys/power/state
-	clear
+	tput reset
 }
 
 
