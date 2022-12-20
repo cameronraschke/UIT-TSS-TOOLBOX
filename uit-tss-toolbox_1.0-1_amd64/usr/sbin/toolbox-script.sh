@@ -359,7 +359,6 @@ function writeDisk_Shred {
 	${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) of=/dev/${CLIENTDISK} \
 		iflag=fullblock status=none 2>/dev/null
 
-	echo ""
 	if [[ $PROCFAIL == '0' ]]; then
 		echo "Success! ${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten."
 		return 0
