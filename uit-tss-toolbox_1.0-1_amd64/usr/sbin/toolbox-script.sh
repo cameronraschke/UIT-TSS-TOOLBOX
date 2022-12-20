@@ -920,15 +920,15 @@ function clientselect_Clone {
 	case $CLIENTTYPE in
 	1)
 	sambaPath='hp'
-	cloneImgName='2022Fall-HP'
+	cloneImgName='2023Spring-HP'
 	;;
 	2)
 	sambaPath='dell'
-	cloneImgName='2022Fall-Dell'
+	cloneImgName='2023-SpringDell'
 	;;
 	3)
 	sambaPath='desktops'
-	cloneImgName='2022Spring-Win10Desktops'
+	cloneImgName='2022Fall-Win10Desktops'
 	;;
 	*)
 	clientselect
@@ -1075,7 +1075,7 @@ function terminate {
 		UPDATE=$(cat /root/laptop-image-update.txt)
 		echo ""
 		echo -ne "This computer has been erased and reimaged from the server \"${sambaDNS}\" using the image "
-		echo -ne "\"${sambaPath}\", which was last updated on ${UPDATE}. Today, ${TODAY} computers have been "
+		echo -ne "\"${cloneImgName}\", which was last updated on ${UPDATE}. Today, ${TODAY} computers have been "
 		echo "reimaged, with this reimage taking ${TIME}."
 	fi
 	
@@ -1089,8 +1089,8 @@ function terminate {
 		TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 		UPDATE=$(cat /root/laptop-image-update.txt)
 		echo ""
-		echo -ne "The image \"${sambaPath}\" has been successfully updated and saved to the server \"${sambaDNS}\"."
-		echo -ne "The process took ${TIME} to complete. \"${sambaPath}\" was last updated on ${UPDATE}."
+		echo -ne "The image \"${cloneImgName}\" has been successfully updated and saved to the server \"${sambaDNS}\"."
+		echo -ne "The process took ${TIME} to complete. \"${cloneImgName}\" was last updated on ${UPDATE}."
 		echo -e "Today, ${TODAY} computers have been reimaged and/or erased."
 		ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
 			/home/cameron/laptop-image-update.txt' &>/dev/null
