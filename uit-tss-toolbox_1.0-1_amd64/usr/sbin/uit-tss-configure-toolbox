@@ -148,6 +148,7 @@ util-linux
 nvme-cli
 coreutils
 pv
+postfix
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
