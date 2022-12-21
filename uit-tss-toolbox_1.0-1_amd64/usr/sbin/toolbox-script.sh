@@ -1060,13 +1060,12 @@ function execute_Shred {
 
 
 function execute {
-	if [[ $cloneMode == "savedisk" ]]; then
-		if [[ $APPSELECT == "C" || $APPSELECT == "CE" ]]; then
-			echo "${RED}Cannot shred device and save its image.${RESET}"
-			read -p "Please press enter to restart UIT-TSS-TOOLBOX."
-			exit 1
-		fi
+	if [[ $cloneMode == "savedisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
+		echo "${RED}Cannot shred device and save its image.${RESET}"
+		read -p "Please press enter to restart UIT-TSS-TOOLBOX."
+		exit 1
 	fi
+
 	if [[ $APPSELECT == "EC" ]]; then
 		clientselect_Clone
 		basicEraseMode_Shred
@@ -1090,9 +1089,11 @@ function terminate_Restore {
 	ssh cameron@mickey.uit "echo ${elapsed} >> /home/cameron/image-count-today.txt"
 	scp cameron@mickey.uit:/home/cameron/image-count-today.txt /root/image-count-today.txt
 	scp cameron@mickey.uit:/home/cameron/image-update.txt /root/image-update.txt
+
 	if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
 		terminateAction="erased and cloned"
 	fi
+
 	if [[ $cloneMode == "restoredisk" && $APPSELECT == "C" ]]; then
 		terminateAction="cloned"
 	fi
@@ -1114,12 +1115,13 @@ function terminate {
 	echo ""
 	echo ""
 
-	if [[ $cloneMode == "restoredisk" ]]; then
+	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
 		terminate_Restore &>/dev/null
 		echo ""
 		exitMessage=$(echo -ne "The computer with tag# ${tagNum} (MAC: ${etherAddr}) has been ${terminateAction} from the "
 		echo -ne "server \"${sambaDNS}\" using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. "
 		echo "Today, ${imageNumToday} computers have been reimaged, with this computer taking ${totalTime}.")
+		echo "${exitMessage}"
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
@@ -1135,7 +1137,7 @@ function terminate {
 	fi
 	
 	echo ""
-	read -p "Process has finished. Press Enter to reboot..."
+	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to reboot..."
 	reboot
 }
 
