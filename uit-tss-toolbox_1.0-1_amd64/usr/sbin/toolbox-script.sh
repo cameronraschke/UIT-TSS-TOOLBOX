@@ -1107,11 +1107,9 @@ function terminate_Restore {
 function terminate {
 	etherAddr=$(cat /sys/class/net/enp1s0/address)
 	/usr/bin/play /root/oven.mp3 &> /dev/null
+	tput reset
 	echo ""
-	echo ""
-	echo "--------------------"
-	echo ""
-	read -p "${BOLD}Please enter the tag number followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
+	read -p "${BOLD}Process has finished. Please enter the tag number followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 	ssh cameron@mickey.uit "echo ${tagNum} ${etherAddr} >> /home/cameron/computer-database.txt"
 	echo ""
 	echo ""
