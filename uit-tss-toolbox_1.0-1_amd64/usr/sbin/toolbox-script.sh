@@ -1089,8 +1089,7 @@ function terminate_Restore {
 	ssh cameron@mickey.uit "echo ${elapsed} >> /home/cameron/image-count-today.txt"
 	scp cameron@mickey.uit:/home/cameron/image-count-today.txt /root/image-count-today.txt
 	scp cameron@mickey.uit:/home/cameron/image-update.txt /root/image-update.txt
-	ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} ELAPSED:${totalTime}>> /home/cameron/computer-database.txt"
-	scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
+
 
 	if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
 		terminateAction="erased and cloned"
@@ -1104,8 +1103,11 @@ function terminate_Restore {
 	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 	imageUpdate=$(cat /root/image-update.txt)
 	imageCount=$(cat /root/computer-database.txt | grep "${tagNum}" | wc -l)
-	imageAvgTime=$(for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "${ELAPSED:.*}" | sed 's/ELAPSED://g' 
-	| sed 's/[[:space:]]//g'); do i=$(( i + i )); echo $i; done)
+
+	ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} ELAPSED:${totalTime}>> /home/cameron/computer-database.txt"
+	scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
+	imageAvgTime=$(z=0; for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "${ELAPSED.*}" | sed 's/ELAPSED://g' 
+	| sed 's/[[:space:]]//g'); do z=$(( z + i )); echo $z; done | tail -n 1)
 }
 
 
