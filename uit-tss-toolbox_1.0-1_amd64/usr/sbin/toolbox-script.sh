@@ -1106,7 +1106,7 @@ function terminate_Restore {
 
 	ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} ELAPSED:${elapsed}>> /home/cameron/computer-database.txt"
 	scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
-	imageAvgTimeSec=$(z=0; for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "${ELAPSED.*}" | sed 's/ELAPSED://g' 
+	imageAvgTimeSec=$(z=0; for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "ELAPSED.*" | sed 's/ELAPSED://g' 
 	| sed 's/[[:space:]]//g'); do z=$(( z + i )); echo $z; done | tail -n 1)
 	imageAvgTime=$(eval "echo $(date -ud "@$imgAvgTimeSec" +'%M minutes')")
 }
