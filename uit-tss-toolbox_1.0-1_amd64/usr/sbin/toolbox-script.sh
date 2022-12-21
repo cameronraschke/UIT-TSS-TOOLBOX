@@ -1060,10 +1060,12 @@ function execute_Shred {
 
 
 function execute {
-	if [[ $cloneMode == "savedisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
-		echo "${RED}Cannot shred device and save its image.${RESET}"
-		read -p "Please press enter to restart UIT-TSS-TOOLBOX."
-		exit 1
+	if [[ $cloneMode == "savedisk" ]]; then
+		if [[ $APPSELECT == "C" || $APPSELECT == "CE" ]]; then
+			echo "${RED}Cannot shred device and save its image.${RESET}"
+			read -p "Please press enter to restart UIT-TSS-TOOLBOX."
+			exit 1
+		fi
 	fi
 	if [[ $APPSELECT == "EC" ]]; then
 		clientselect_Clone
@@ -1114,12 +1116,14 @@ function terminate {
 	echo ""
 	echo ""
 
-	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
-		terminate_Restore &>/dev/null
-		echo ""
-		exitMessage=$(echo -ne "The computer with tag# ${tagNum} (MAC: ${etherAddr}) has been ${terminateAction} from the "
-		echo -ne "server \"${sambaDNS}\" using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. "
-		echo "Today, ${imageNumToday} computers have been reimaged, with this computer taking ${totalTime}.")
+	if [[ $cloneMode == "restoredisk" ]]; then
+		if [[ $APPSELECT == "C" || $APPSELECT == "CE" ]]; then
+			terminate_Restore &>/dev/null
+			echo ""
+			exitMessage=$(echo -ne "The computer with tag# ${tagNum} (MAC: ${etherAddr}) has been ${terminateAction} from the "
+			echo -ne "server \"${sambaDNS}\" using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. "
+			echo "Today, ${imageNumToday} computers have been reimaged, with this computer taking ${totalTime}.")
+		fi
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
