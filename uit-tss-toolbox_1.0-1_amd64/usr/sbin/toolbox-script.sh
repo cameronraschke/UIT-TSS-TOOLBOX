@@ -72,9 +72,8 @@ function powerWarning {
 function exitMessage {
 	lines=$(tput lines)
 	tput reset
-	tput cup $(( lines - 4 ))
+	tput cup $(( lines - 5 ))
 	echo "${BOLD}Press ${BLUE}CTRL + C${RESET}${BOLD} at any time to exit UIT-TSS-TOOLBOX${RESET}"
-	tput cud
 	echo "${BOLD}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BLUE}CTRL + D${RESET}"
 	tput cup 0 0
 }
