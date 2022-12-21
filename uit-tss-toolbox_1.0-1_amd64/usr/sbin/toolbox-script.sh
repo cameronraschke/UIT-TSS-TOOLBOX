@@ -1003,7 +1003,7 @@ function execute_Clone {
 			tput sc
 			info
 			tput rc
-		done
+		done &
 		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
@@ -1012,7 +1012,7 @@ function execute_Clone {
 			tput sc
 			info
 			tput rc
-		done
+		done &
 		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
 			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
