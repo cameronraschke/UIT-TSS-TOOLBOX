@@ -1060,39 +1060,54 @@ function execute {
 
 
 
-function terminate {
+function terminate_Restore {
 	elapsed=$(( cloneElapsed + shredElapsed ))
+	ssh cameron@mickey.uit "echo ${elapsed} >> /home/cameron/image-count-today.txt"
+	scp cameron@mickey.uit:/home/cameron/image-count-today.txt /root/image-count-today.txt
+	scp cameron@mickey.uit:/home/cameron/image-update.txt /root/image-update.txt
+	if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
+		terminateAction="erased and cloned"
+	fi
+	if [[ $cloneMode == "restoredisk" && $APPSELECT == "C" ]]; then
+		terminateAction="cloned"
+	fi
+}
+
+
+
+function terminate {
+	etherAddr=$(cat /sys/class/net/enp1s0/address)
+	echo ""
+	read -p "${BOLD}Please enter the tag number and press ${BLUE}Enter${RESET}${BOLD}: " tagNum
+	ssh cameron@mickey.uit "echo ${tagNum} ${etherAddr} >> /home/cameron/computer-database.txt"
+	echo ""
+	imageNumToday=$(cat /root/image-count-today.txt | wc -l)
+	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
+	imageUpdate=$(cat /root/image-update.txt)
+	
 	echo ""
 	echo ""
+	echo "--------------------"
 	echo ""
-	if [[ $cloneMode == "restoredisk" ]]; then
-		ssh cameron@mickey.uit 'echo "UIT-TSS-CLONE" >> /home/cameron/laptop-reimage-count.today.txt' &>/dev/null
-		scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt /root/laptop-reimage-count.today.txt &>/dev/null
-		scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt /root/laptop-image-update.txt &>/dev/null
-		TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
-		TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
-		UPDATE=$(cat /root/laptop-image-update.txt)
+
+	if [[ $cloneMode == "restoredisk" ]]
+		terminate_Restore &>/dev/null
 		echo ""
-		echo -ne "This computer has been erased and reimaged from the server \"${sambaDNS}\" using the image "
-		echo -ne "\"${cloneImgName}\", which was last updated on ${UPDATE}. Today, ${TODAY} computers have been "
-		echo "reimaged, with this reimage taking ${TIME}."
+		echo -ne "The computer ${tagNum} (${etherAddr}) has been ${terminateAction} from the server \"${sambaDNS}\" "
+		echo -ne "using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. Today, ${imageNumToday} "
+		echo "computers have been reimaged, with this computer taking ${totalTime}."
 	fi
 	
-	if [[ $cloneMode == "savedisk" ]]; then
+	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		elapsed=$(( SECONDS - start_time ))
-		scp cameron@mickey.uit:/home/cameron/laptop-reimage-count.today.txt \
-			/root/laptop-reimage-count.today.txt &>/dev/null
-		scp cameron@mickey.uit:/home/cameron/laptop-image-update.txt \
-			/root/laptop-image-update.txt &>/dev/null
-		TODAY=$(cat /root/laptop-reimage-count.today.txt | wc -l)
-		TIME=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
-		UPDATE=$(cat /root/laptop-image-update.txt)
+		scp cameron@mickey.uit:/home/cameron/image-count-today.txt /root/reimage-count-today.txt &>/dev/null
+		scp cameron@mickey.uit:/home/cameron/image-update.txt /root/image-update.txt &>/dev/null
 		echo ""
 		echo -ne "The image \"${cloneImgName}\" has been successfully updated and saved to the server \"${sambaDNS}\"."
-		echo -ne "The process took ${TIME} to complete. \"${cloneImgName}\" was last updated on ${UPDATE}."
-		echo -e "Today, ${TODAY} computers have been reimaged and/or erased."
+		echo -ne "The process took ${totalTime} to complete. \"${cloneImgName}\" was last updated on ${imageUpdate}."
+		echo -e "Today, ${imageNumToday} computers have been reimaged and/or erased."
 		ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
-			/home/cameron/laptop-image-update.txt' &>/dev/null
+			/home/cameron/image-update.txt' &>/dev/null
 	fi
 	
 	echo ""
