@@ -1110,7 +1110,7 @@ function terminate {
 	if [[ $cloneMode == "restoredisk" ]]; then
 		terminate_Restore &>/dev/null
 		echo ""
-		echo -ne "The computer ${tagNum} (${etherAddr}) has been ${terminateAction} from the server \"${sambaDNS}\" "
+		echo -ne "The computer with tag# ${tagNum} (${etherAddr}) has been ${terminateAction} from the server \"${sambaDNS}\" "
 		echo -ne "using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. Today, ${imageNumToday} "
 		echo "computers have been reimaged, with this computer taking ${totalTime}."
 	fi
