@@ -1090,7 +1090,7 @@ function terminate {
 	echo "--------------------"
 	echo ""
 
-	if [[ $cloneMode == "restoredisk" ]]
+	if [[ $cloneMode == "restoredisk" ]]; then
 		terminate_Restore &>/dev/null
 		echo ""
 		echo -ne "The computer ${tagNum} (${etherAddr}) has been ${terminateAction} from the server \"${sambaDNS}\" "
