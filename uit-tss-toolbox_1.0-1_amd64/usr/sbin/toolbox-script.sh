@@ -13,6 +13,22 @@ cloneElapsed="0"
 shredElapsed="0"
 
 
+function info {
+	if [[ $ACTION != "" ]]; then
+		echo "The selected mode is ${BOLD}${ACTION}${RESET}"
+	fi
+
+	if [[ $CLIENTDISK != "" ]]; then
+		echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
+	fi
+
+	if [[ $cloneMode != "" ]]; then
+		echo "The selected clone mode is ${BOLD}${cloneMode}${RESET}"
+	fi
+
+	echo ""
+}
+
 
 function exitMessage {
 	lines=$(tput lines)
@@ -22,6 +38,7 @@ function exitMessage {
 	echo "${DIM}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BOLD}${BLUE}CTRL + D${RESET}"
 	tput cup 0 0
 	echo ""
+	info
 }
 
 
@@ -234,8 +251,6 @@ function diskSelect {
 	local n="0"
 	local DISKARR=()
 	exitMessage
-	echo "Selected mode is ${BOLD}${ACTION}${RESET}"
-	echo ""
 	echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
 	while read -r line; do
 		a=$(( $a + 1 ))
@@ -897,9 +912,6 @@ function unlockMode_Shred {
 
 function clientselect_Clone {
 	exitMessage
-	echo "The selected mode is ${BOLD}${ACTION}${RESET}"
-	echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
-	echo ""
 	echo -n "Are you ${BOLD} restoring${RESET} (server -> client) ${BLUE}${BOLD}[1]${RESET} or "
 	echo "${BOLD}saving${RESET} (client -> server) ${BLUE}${BOLD}[2]${RESET} an image?"
 	read -n1 -p "Enter ${BOLD}${BLUE}[1-2]${RESET} " cloneMode
@@ -918,10 +930,6 @@ function clientselect_Clone {
 	esac
 
 	exitMessage
-	echo "The selected mode is ${BOLD}${ACTION}${RESET}"
-	echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
-	echo "The selected clone mode is ${cloneMode}"
-	echo ""
 	echo -n "Are you cloning ${BOLD}HP laptops ${BLUE}[1]${RESET}, "
 	echo -n "${BOLD}Dell laptops ${BLUE}[2]${RESET}, "
 	echo "or ${BOLD}Dell desktops ${BLUE}[3]${RESET}?"
@@ -991,18 +999,20 @@ function execute_Clone {
 	mkdir /home/partimag
 	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
-		clear
-		echo ""
-		echo "Restoring disk ${CLIENTDISK}...."
-		sleep 1
+		while true; do
+			tput sc
+			info
+			tput rc
+		done
 		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $cloneMode == "savedisk" ]]; then
-		clear
-		echo ""
-		echo "Saving disk ${CLIENTDISK}...."
-		sleep 1
+		while true; do
+			tput sc
+			info
+			tput rc
+		done
 		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
 			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
