@@ -189,21 +189,29 @@ touch /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
 cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
 #!/bin/bash
 
-clear
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BLUE=$(tput setaf 4)
+BOLD=$(tput bold)
+DIM=$(tput dim)
+RESET=$(tput sgr0)
+
+tput reset
 echo ""
-echo "Welcome to UIT-TSS-TOOLBOX by Cameron Raschke."
+echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
+echo "${BOLD}${RED}Go coogs!!${RESET}"
 echo ""
 
 echo ""
-echo "Configurating Kernel..."
+echo "${BOLD}Configuring Kernel....${RESET}"
 sysctl --quiet --write "kernel.printk=2 4 1 2"
 sysctl --quiet --write "kernel.kptr_restrict=1"
 sysctl --quiet --write "vm.mmap_min_addr=65536"
 sysctl --quiet --load
-echo "Done."
+echo "${GREEN}Done.${RESET}"
 
 echo ""
-echo "Configuring networking..."
+echo "${BOLD}Configuring networking....${RESET}"
 sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
 sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
 sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
@@ -220,20 +228,7 @@ for iface in $INTERFACES; do
 	dhclient -4 "${iface}"
 done &>/dev/null
 
-echo "Done."
-
-echo ""
-echo "Configuring audio..."
-/usr/bin/amixer sset Master 100% &>/dev/null
-/usr/bin/amixer set Master unmute &>/dev/null
-/usr/bin/amixer sset Speakers 100% &>/dev/null
-/usr/sbin/amixer set Speakers unmute &>/dev/null
-echo "Done."
-
-echo ""
-echo "Changing font..."
-/usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz &>/dev/null
-echo "Done."
+echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "Configuring SSH..."
@@ -243,7 +238,20 @@ fi
 sshpass -f /root/.ssh_passwd ssh-copy-id \
 	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
 scp cameron@mickey.uit:/home/cameron/toolbox-script.sh /home &>/dev/null
-echo "Done."
+echo "${GREEN}Done.${RESET}"
+
+echo ""
+echo "${BOLD}Configuring audio...${RESET}"
+/usr/bin/amixer sset Master 100% &>/dev/null
+/usr/bin/amixer set Master unmute &>/dev/null
+/usr/bin/amixer sset Speakers 100% &>/dev/null
+/usr/sbin/amixer set Speakers unmute &>/dev/null
+echo "${GREEN}Done.${RESET}"
+
+echo ""
+echo "${BOLD}Changing font...${RESET}"
+/usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz &>/dev/null
+echo "${GREEN}Done.${RESET}"
 
 sleep 1
 chmod 755 /home/toolbox-script.sh

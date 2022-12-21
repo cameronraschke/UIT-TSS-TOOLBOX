@@ -4,7 +4,7 @@ SSD_REGEX='sd.*'
 NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'
 RED=$(tput setaf 1)
-CLEAR=$(tput sgr0)
+GREEN=$(tput setaf 2)
 BLUE=$(tput setaf 4)
 BOLD=$(tput bold)
 DIM=$(tput dim)
@@ -116,7 +116,7 @@ function appSelect {
 		ACTION="clone"
 	else
 		echo ""
-		echo "${BOLD}${RED}Please enter a valid number [1-3].${CLEAR}"
+		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
 		sleep 0.5
 		appSelect
 	fi
@@ -275,7 +275,7 @@ function diskSelect {
 		:
 	else
 	    echo ""
-	    echo "${BOLD}${RED}Invalid selection.${CLEAR}"
+	    echo "${BOLD}${RED}Invalid selection.${RESET}"
 		sleep 0.5
 	    diskSelect
 	fi
@@ -1070,7 +1070,7 @@ function execute {
 		clientselect_Clone
 		execute_Clone
 	else
-		echo "${RED}Error - Invalid application selected.${CLEAR}"
+		echo "${RED}Error - Invalid application selected.${RESET}"
 	fi
 }
 
@@ -1087,23 +1087,24 @@ function terminate_Restore {
 	if [[ $cloneMode == "restoredisk" && $APPSELECT == "C" ]]; then
 		terminateAction="cloned"
 	fi
+
+	imageNumToday=$(cat /root/image-count-today.txt | wc -l)
+	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
+	imageUpdate=$(cat /root/image-update.txt)
 }
 
 
 
 function terminate {
 	etherAddr=$(cat /sys/class/net/enp1s0/address)
-	echo ""
-	read -p "${BOLD}Please enter the tag number and press ${BLUE}Enter${RESET}${BOLD}: " tagNum
-	ssh cameron@mickey.uit "echo ${tagNum} ${etherAddr} >> /home/cameron/computer-database.txt"
-	echo ""
-	imageNumToday=$(cat /root/image-count-today.txt | wc -l)
-	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
-	imageUpdate=$(cat /root/image-update.txt)
-	
+	/usr/bin/play /root/oven.mp3 &> /dev/null
 	echo ""
 	echo ""
 	echo "--------------------"
+	echo ""
+	read -p "${BOLD}Please enter the tag number followed by ${BLUE}Enter${RESET}${BOLD}: " tagNum
+	ssh cameron@mickey.uit "echo ${tagNum} ${etherAddr} >> /home/cameron/computer-database.txt"
+	echo ""
 	echo ""
 
 	if [[ $cloneMode == "restoredisk" ]]; then
@@ -1127,7 +1128,6 @@ function terminate {
 	fi
 	
 	echo ""
-	/usr/bin/play /root/oven.mp3 &> /dev/null
 	read -p "Process has finished. Press Enter to reboot..."
 	reboot
 }
