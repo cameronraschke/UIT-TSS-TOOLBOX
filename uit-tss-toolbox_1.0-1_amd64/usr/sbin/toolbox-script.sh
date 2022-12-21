@@ -999,7 +999,7 @@ function execute_Clone {
 	mkdir /home/partimag
 	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
-		while true; do
+		while sleep 1; do
 			tput sc
 			info
 			tput rc
@@ -1008,7 +1008,7 @@ function execute_Clone {
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $cloneMode == "savedisk" ]]; then
-		while true; do
+		while sleep 1; do
 			tput sc
 			info
 			tput rc
