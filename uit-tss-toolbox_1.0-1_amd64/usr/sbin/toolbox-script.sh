@@ -50,7 +50,7 @@ function intro {
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
 	read -p "${BOLD}Please remove the thumb drive and press ${BLUE}Enter${RESET}${BOLD}....${RESET}"
-	clear
+	tput reset
 }
 
 
@@ -69,10 +69,18 @@ function powerWarning {
 	tput reset
 }
 
-
+function exitMessage {
+	lines=$(tput lines)
+	tput reset
+	tput cup $(( lines - 4 ))
+	echo "${BOLD}Press ${BLUE}CTRL + C${RESET}${BOLD} at any time to exit UIT-TSS-TOOLBOX${RESET}"
+	tput cud
+	echo "${BOLD}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BLUE}CTRL + D${RESET}"
+	tput cup 0 0
+}
 
 function appSelect {
-	clear
+	exitMessage
 	echo ""
 	echo -n "Would you like to ${BOLD}erase and clone ${BLUE}[1]${RESET}, ${BOLD}only erase (advanced) ${BLUE}[2]${RESET}"
 	echo ", or ${BOLD}only clone ${BLUE}[3]${RESET}?"
@@ -89,6 +97,7 @@ function appSelect {
 		APPSELECT="C"
 		ACTION="clone"
 	else
+		echo ""
 		echo "${BOLD}${RED}Please enter a valid number [1-3].${CLEAR}"
 		sleep 0.5
 		appSelect
@@ -226,6 +235,7 @@ function diskSelect {
 	local n="0"
 	local DISKARR=()
 	echo ""
+	echo "Selected mode is ${ACTION}"
 	echo ""
 	echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
 	while read -r line; do
@@ -245,15 +255,8 @@ function diskSelect {
 	done
 	echo ""
 	echo ""
-	if [[ $CLIENTDISK =~ nvme* || $CLIENTDISK =~ sd* ]]; then
-		echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
-		read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to continue or ${BOLD}${BLUE}[2]${RESET} to reselect a disk: " DISKCONF
-		echo ""
-	if [[ $DISKCONF != 1 ]]; then
-		echo ""
-		echo "Reselecting disk...."
-		diskSelect
-	fi
+	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
+		:
 	else
 	    echo ""
 	    echo "${BOLD}${RED}Invalid selection.${CLEAR}"
@@ -894,6 +897,8 @@ function unlockMode_Shred {
 }
 
 function clientselect_Clone {
+	echo ""
+	echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
 	echo ""
 	echo -n "Are you ${BOLD} restoring${RESET} (server -> client) ${BLUE}${BOLD}[1]${RESET} or "
 	echo "${BOLD}saving${RESET} (client -> server) ${BLUE}${BOLD}[2]${RESET} an image?"
