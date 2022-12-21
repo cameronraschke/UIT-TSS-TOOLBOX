@@ -1089,6 +1089,8 @@ function terminate_Restore {
 	ssh cameron@mickey.uit "echo ${elapsed} >> /home/cameron/image-count-today.txt"
 	scp cameron@mickey.uit:/home/cameron/image-count-today.txt /root/image-count-today.txt
 	scp cameron@mickey.uit:/home/cameron/image-update.txt /root/image-update.txt
+	ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} ELAPSED:${totalTime}>> /home/cameron/computer-database.txt"
+	scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
 
 	if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
 		terminateAction="erased and cloned"
@@ -1101,6 +1103,9 @@ function terminate_Restore {
 	imageNumToday=$(cat /root/image-count-today.txt | wc -l)
 	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 	imageUpdate=$(cat /root/image-update.txt)
+	imageCount=$(cat /root/computer-database.txt | grep "${tagNum}" | wc -l)
+	imageAvgTime=$(for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "${ELAPSED:.*}" | sed 's/ELAPSED://g' 
+	| sed 's/[[:space:]]//g'); do i=$(( i + i )); echo $i; done)
 }
 
 
@@ -1111,7 +1116,6 @@ function terminate {
 	tput reset
 	echo ""
 	read -p "${BOLD}Process has finished. Please enter the tag number followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
-	ssh cameron@mickey.uit "echo ${tagNum} ${etherAddr} >> /home/cameron/computer-database.txt"
 	echo ""
 	echo ""
 
@@ -1120,7 +1124,8 @@ function terminate {
 		echo ""
 		exitMessage=$(echo -ne "The computer with tag# ${tagNum} (MAC: ${etherAddr}) has been ${terminateAction} from the "
 		echo -ne "server \"${sambaDNS}\" using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. "
-		echo "Today, ${imageNumToday} computers have been reimaged, with this computer taking ${totalTime}.")
+		echo -ne "Today, ${imageNumToday} computers have been reimaged, with this computer taking ${totalTime}. "
+		echo "This computer has been reimaged ${imageCount} times, with an average of ${imageAvgTime} taken to image it.")
 		echo "${exitMessage}"
 	fi
 	
@@ -1137,7 +1142,7 @@ function terminate {
 	fi
 	
 	echo ""
-	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to reboot..."
+	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to reboot...${RESET}"
 	reboot
 }
 
