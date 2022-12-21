@@ -1111,7 +1111,7 @@ function terminate {
 	echo ""
 	echo "--------------------"
 	echo ""
-	read -p "${BOLD}Please enter the tag number followed by ${BLUE}Enter${RESET}${BOLD}: " tagNum
+	read -p "${BOLD}Please enter the tag number followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 	ssh cameron@mickey.uit "echo ${tagNum} ${etherAddr} >> /home/cameron/computer-database.txt"
 	echo ""
 	echo ""
