@@ -21,14 +21,14 @@ function exitMessage {
 	echo "${DIM}Press ${BOLD}${BLUE}CTRL + C${RESET}${DIM} at any time to exit UIT-TSS-TOOLBOX${RESET}"
 	echo "${DIM}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BOLD}${BLUE}CTRL + D${RESET}"
 	tput cup 0 0
+	echo ""
 }
 
 
 
 function intro {
-	exitMessage
 	echo "${RESET}"
-    echo ""
+	exitMessage
 	echo "${BOLD}Welcome to UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu)${RESET}"
 	echo ""
 	echo ""
@@ -66,7 +66,6 @@ function intro {
 
 function powerWarning {
 	exitMessage
-	echo ""
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo "${BOLD}After pressing Enter, the system will enter hibernate mode.${RESET}"
 	echo "${BOLD}This is normal. Please wake up the system after it hibernates.${RESET}"
@@ -82,7 +81,6 @@ function powerWarning {
 
 function appSelect {
 	exitMessage
-	echo ""
 	echo -n "Would you like to ${BOLD}erase and clone ${BLUE}[1]${RESET}, ${BOLD}only erase (advanced) ${BLUE}[2]${RESET}"
 	echo ", or ${BOLD}only clone ${BLUE}[3]${RESET}?"
 	read -n 1 -p "${BOLD}Please enter ${BLUE}[1-3]${RESET}${BOLD}: ${RESET}" APPSELECT
@@ -236,7 +234,6 @@ function diskSelect {
 	local n="0"
 	local DISKARR=()
 	exitMessage
-	echo ""
 	echo "Selected mode is ${BOLD}${ACTION}${RESET}"
 	echo ""
 	echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
@@ -900,8 +897,7 @@ function unlockMode_Shred {
 
 function clientselect_Clone {
 	exitMessage
-	echo ""
-	echo "Selected mode is ${BOLD}${ACTION}${RESET}"
+	echo "The selected mode is ${BOLD}${ACTION}${RESET}"
 	echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
 	echo ""
 	echo -n "Are you ${BOLD} restoring${RESET} (server -> client) ${BLUE}${BOLD}[1]${RESET} or "
@@ -921,6 +917,11 @@ function clientselect_Clone {
 		;;
 	esac
 
+	exitMessage
+	echo "The selected mode is ${BOLD}${ACTION}${RESET}"
+	echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
+	echo "The selected clone mode is ${cloneMode}"
+	echo ""
 	echo -n "Are you cloning ${BOLD}HP laptops ${BLUE}[1]${RESET}, "
 	echo -n "${BOLD}Dell laptops ${BLUE}[2]${RESET}, "
 	echo "or ${BOLD}Dell desktops ${BLUE}[3]${RESET}?"
