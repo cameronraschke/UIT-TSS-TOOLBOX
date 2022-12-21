@@ -52,8 +52,8 @@ function intro {
 	echo ""
 	echo ""
 	echo ""
-	tput setaf 1
 	tput bold
+	tput setaf 1
 	echo "| |    | |  | |     | |"
 	echo "| |    | |  | |_____| |"
 	echo "| |    | |  | |_____| |"
@@ -248,29 +248,43 @@ function diskSelect {
 	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
 	DISKSIZES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
 	CLIENTDISK=""
+	diskNums="0"
 	local DISKCONF=""
 	local a="0"
 	local n="0"
 	local DISKARR=()
 	exitMessage
-	echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
-	while read -r line; do
-		a=$(( $a + 1 ))
-		echo "${BOLD}${BLUE}[${a}]${RESET} $line"
-	done < <(echo "${BOLD}${DISKSIZES}${RESET}")
-	echo ""
 	for i in ${DISKNAMES}; do
+		diskNums=$(( diskNums + 1 ))
 		DISKARR+=( "$i" )
 	done
-	read -n 1 -p "Select a disk ${BOLD}${BLUE}[1-$a]${RESET}: " CLIENTDISK
-	for i in ${!DISKARR[@]}; do
-		n=$(( $n + 1 ))
-		if [[ $n == $CLIENTDISK ]]; then
+	if [[ $diskNums == "1" ]]; then
+		for i in ${!DISKARR[@]}; do
 			CLIENTDISK=${DISKARR[$i]}
+		done
+		echo "The disk ${BOLD}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
+		read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to confirm" DISKCONF
+		if [[ $DISKCONF != "1" ]]; then
+			echo "${BOLD}${RED}Reselecting disk.${RESET}"
+			diskSelect
 		fi
-	done
-	echo ""
-	echo ""
+	else
+		echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
+		while read -r line; do
+			a=$(( $a + 1 ))
+			echo "${BOLD}${BLUE}[${a}]${RESET} $line"
+		done < <(echo "${BOLD}${DISKSIZES}${RESET}")
+		echo ""
+		read -n 1 -p "Select a disk ${BOLD}${BLUE}[1-$a]${RESET}: " CLIENTDISK
+		for i in ${!DISKARR[@]}; do
+			n=$(( $n + 1 ))
+			if [[ $n == $CLIENTDISK ]]; then
+				CLIENTDISK=${DISKARR[$i]}
+			fi
+		done
+		echo ""
+		echo ""
+	fi
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
 		:
 	else
