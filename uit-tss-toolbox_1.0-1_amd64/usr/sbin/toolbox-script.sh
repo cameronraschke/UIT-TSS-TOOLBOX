@@ -1104,7 +1104,7 @@ function terminate_Restore {
 	imageUpdate=$(cat /root/image-update.txt)
 	imageCount=$(cat /root/computer-database.txt | grep "${tagNum}" | wc -l)
 
-	ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} ELAPSED:${totalTime}>> /home/cameron/computer-database.txt"
+	ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} ELAPSED:${elapsed}>> /home/cameron/computer-database.txt"
 	scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
 	imageAvgTime=$(z=0; for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "${ELAPSED.*}" | sed 's/ELAPSED://g' 
 	| sed 's/[[:space:]]//g'); do z=$(( z + i )); echo $z; done | tail -n 1)
