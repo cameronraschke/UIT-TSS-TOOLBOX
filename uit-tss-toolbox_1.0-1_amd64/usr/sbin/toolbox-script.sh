@@ -1058,6 +1058,9 @@ function execute_Shred {
 
 
 function execute {
+	if [[ $cloneMode == "savedisk" ]] && { [[ $APPSELECT == "E" ]] || [[ $APPSELECT == "CE" ]]; }; then
+		exit 1
+	fi
 	if [[ $APPSELECT == "EC" ]]; then
 		clientselect_Clone
 		basicEraseMode_Shred
@@ -1107,12 +1110,12 @@ function terminate {
 	echo ""
 	echo ""
 
-	if [[ $cloneMode == "restoredisk" ]]; then
+	if [[ $cloneMode == "restoredisk" ]] && { [[ $APPSELECT == "C" ]] || [[ $APPSELECT == "CE" ]]; }; then
 		terminate_Restore &>/dev/null
 		echo ""
-		echo -ne "The computer with tag# ${tagNum} (${etherAddr}) has been ${terminateAction} from the server \"${sambaDNS}\" "
-		echo -ne "using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. Today, ${imageNumToday} "
-		echo "computers have been reimaged, with this computer taking ${totalTime}."
+		exitMessage=$(echo -ne "The computer with tag# ${tagNum} (MAC: ${etherAddr}) has been ${terminateAction} from the "
+		echo -ne "server \"${sambaDNS}\" using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. "
+		echo "Today, ${imageNumToday} computers have been reimaged, with this computer taking ${totalTime}.")
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
