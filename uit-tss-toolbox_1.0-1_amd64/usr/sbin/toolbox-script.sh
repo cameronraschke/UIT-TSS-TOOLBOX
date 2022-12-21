@@ -1117,13 +1117,11 @@ function terminate {
 	echo ""
 
 	if [[ $cloneMode == "restoredisk" ]]; then
-		if [[ $APPSELECT == "C" || $APPSELECT == "CE" ]]; then
-			terminate_Restore &>/dev/null
-			echo ""
-			exitMessage=$(echo -ne "The computer with tag# ${tagNum} (MAC: ${etherAddr}) has been ${terminateAction} from the "
-			echo -ne "server \"${sambaDNS}\" using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. "
-			echo "Today, ${imageNumToday} computers have been reimaged, with this computer taking ${totalTime}.")
-		fi
+		terminate_Restore &>/dev/null
+		echo ""
+		exitMessage=$(echo -ne "The computer with tag# ${tagNum} (MAC: ${etherAddr}) has been ${terminateAction} from the "
+		echo -ne "server \"${sambaDNS}\" using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. "
+		echo "Today, ${imageNumToday} computers have been reimaged, with this computer taking ${totalTime}.")
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
