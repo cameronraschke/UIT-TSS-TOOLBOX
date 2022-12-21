@@ -897,6 +897,7 @@ function unlockMode_Shred {
 }
 
 function clientselect_Clone {
+	exitMessage
 	echo ""
 	echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
 	echo ""
