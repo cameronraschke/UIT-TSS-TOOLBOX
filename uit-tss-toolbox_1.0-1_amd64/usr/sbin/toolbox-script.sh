@@ -901,6 +901,7 @@ function unlockMode_Shred {
 function clientselect_Clone {
 	exitMessage
 	echo ""
+	echo "Selected mode is ${BOLD}${ACTION}${RESET}"
 	echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
 	echo ""
 	echo -n "Are you ${BOLD} restoring${RESET} (server -> client) ${BLUE}${BOLD}[1]${RESET} or "
