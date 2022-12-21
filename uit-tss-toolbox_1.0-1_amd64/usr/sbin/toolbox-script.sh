@@ -7,20 +7,29 @@ RED=$(tput setaf 1)
 CLEAR=$(tput sgr0)
 BLUE=$(tput setaf 4)
 BOLD=$(tput bold)
+DIM=$(tput dim)
 RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
 
 
+function exitMessage {
+	lines=$(tput lines)
+	tput reset
+	tput cup $(( lines - 5 ))
+	echo "${DIM}Press ${BOLD}${BLUE}CTRL + C${RESET}${DIM} at any time to exit UIT-TSS-TOOLBOX${RESET}"
+	echo "${DIM}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BOLD}${BLUE}CTRL + D${RESET}"
+	tput cup 0 0
+}
+
+
+
 function intro {
-	clear
+	exitMessage
 	echo "${RESET}"
     echo ""
 	echo "${BOLD}Welcome to UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu)${RESET}"
-	echo ""
-	echo "${BOLD}Press ${BLUE}CTRL + C${RESET}${BOLD} at any time to exit UIT-TSS-TOOLBOX${RESET}"
-	echo "${BOLD}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BLUE}CTRL + D${RESET}"
 	echo ""
 	echo ""
 	echo ""
@@ -56,7 +65,7 @@ function intro {
 
 
 function powerWarning {
-	tput reset
+	exitMessage
 	echo ""
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo "${BOLD}After pressing Enter, the system will enter hibernate mode.${RESET}"
@@ -69,14 +78,7 @@ function powerWarning {
 	tput reset
 }
 
-function exitMessage {
-	lines=$(tput lines)
-	tput reset
-	tput cup $(( lines - 5 ))
-	echo "${BOLD}Press ${BLUE}CTRL + C${RESET}${BOLD} at any time to exit UIT-TSS-TOOLBOX${RESET}"
-	echo "${BOLD}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BLUE}CTRL + D${RESET}"
-	tput cup 0 0
-}
+
 
 function appSelect {
 	exitMessage
