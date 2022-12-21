@@ -1001,12 +1001,14 @@ function execute_Clone {
 	mkdir -p /home/partimag
 	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
+		tput reset
 		info
 		sleep 1
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $cloneMode == "savedisk" ]]; then
+		tput reset
 		info
 		sleep 1
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
