@@ -233,8 +233,9 @@ function diskSelect {
 	local a="0"
 	local n="0"
 	local DISKARR=()
+	exitMessage
 	echo ""
-	echo "Selected mode is ${ACTION}"
+	echo "Selected mode is ${BOLD}${ACTION}${RESET}"
 	echo ""
 	echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
 	while read -r line; do
