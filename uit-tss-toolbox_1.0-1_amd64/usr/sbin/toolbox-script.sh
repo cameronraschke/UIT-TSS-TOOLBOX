@@ -33,11 +33,11 @@ function info {
 function exitMessage {
 	lines=$(tput lines)
 	tput reset
-	tput cup $(( lines - 7 ))
+	tput cup $(( lines - 5 ))
 	echo "${DIM}Press ${BOLD}${BLUE}CTRL + C${RESET}${DIM} at any time to exit UIT-TSS-TOOLBOX${RESET}"
 	echo "${DIM}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BOLD}${BLUE}CTRL + D${RESET}"
 	echo ""
-	echo echo "${DIM}UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu). ${RED}Go coogs!!${RESET}"
+	echo "${DIM}UIT-TSS-TOOLBOX by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"
 	tput cup 0 0
 	echo ""
 	info
