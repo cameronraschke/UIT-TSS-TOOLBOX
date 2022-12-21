@@ -11,6 +11,7 @@ DIM=$(tput dim)
 RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
+RESTORED="0"
 
 
 function info {
@@ -999,22 +1000,24 @@ function execute_Clone {
 	mkdir -p /home/partimag
 	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
-		while sleep 1; do
+		while [[ $RESTORED == 0 ]]; do
 			tput sc
 			info
 			tput rc
 		done &
 		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
+		RESTORED="1"
 	fi
 	if [[ $cloneMode == "savedisk" ]]; then
-		while sleep 1; do
+		while [[ $RESTORED == 0 ]]; do
 			tput sc
 			info
 			tput rc
 		done &
 		/usr/sbin/ocs-sr --nogui --language en_US.UTF-8 --postaction command --user-mode beginner \
 			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
+		RESTORED="1"
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
 	return
