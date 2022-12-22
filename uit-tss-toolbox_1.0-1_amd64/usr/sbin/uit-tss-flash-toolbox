@@ -11,9 +11,14 @@ DIM=$(tput dim)
 RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
+ACTION="burn an ISO to"
+
+if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
+        echo ""
+        echo "${BOLD}${RED}ISO file does not exist. Please run uit-tss-configure-toolbox.${RESET}"
+fi
 
 function diskSelect {
-
         DISKNAMES=$(for ISODISK in /sys/block/*;
                 do if udevadm info --query=property --path=${ISODISK} | grep -q ^ID_BUS=usb;
                 then ISODISK=$(echo ${ISODISK} | grep -o 'sd.*');
@@ -41,7 +46,7 @@ function diskSelect {
 			diskSelect
 		fi
 	else
-		echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
+		echo "Which disk do you want to ${ACTION}?"
 		while read -r line; do
 			a=$(( $a + 1 ))
 			echo "${BOLD}${BLUE}[${a}]${RESET} $line"
@@ -57,8 +62,8 @@ function diskSelect {
 		echo ""
 		echo ""
 	fi
-        
-	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
+
+	if [[ $CLIENTDISK =~ ${SSD_REGEX} ]]; then
 		:
 	else
 	    echo ""
@@ -67,10 +72,7 @@ function diskSelect {
 	    diskSelect
 	fi
 
-        if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
-                echo ""
-                echo "ISO file does not exist. Please run uit-tss-configure-toolbox."
-        fi
+
 }
 
 function execute {
