@@ -1,36 +1,73 @@
 #!/bin/bash
 
-function selectdisk {
-        DISKNAMES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
-        DISKCHECK=$(for ISODISK in /sys/block/*;
+SSD_REGEX='sd.*'
+NVME_REGEX='nvme.*'
+SCSI_REGEX='hd.*'
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BLUE=$(tput setaf 4)
+BOLD=$(tput bold)
+DIM=$(tput dim)
+RESET=$(tput sgr0)
+cloneElapsed="0"
+shredElapsed="0"
+
+function diskSelect {
+
+        usbDrives=$(for ISODISK in /sys/block/*;
                 do if udevadm info --query=property --path=${ISODISK} | grep -q ^ID_BUS=usb;
                 then ISODISK=$(echo ${ISODISK} | grep -o 'sd.*');
                 echo ${ISODISK}; fi; done)
+        CLIENTDISK=""
+	diskNums="0"
+	local DISKCONF=""
+	local a="0"
+	local n="0"
+	local DISKARR=()
+	exitMessage
+	for i in ${DISKNAMES}; do
+		diskNums=$(( diskNums + 1 ))
+		DISKARR+=( "$i" )
+	done
+	if [[ $diskNums == "1" ]]; then
+		for i in ${!DISKARR[@]}; do
+			CLIENTDISK=${DISKARR[$i]}
+		done
+		echo "The disk ${BOLD}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
+		read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to confirm" DISKCONF
+		if [[ $DISKCONF != "1" ]]; then
+			echo "${BOLD}${RED}Reselecting disk.${RESET}"
+			diskSelect
+		fi
+	else
+		echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
+		while read -r line; do
+			a=$(( $a + 1 ))
+			echo "${BOLD}${BLUE}[${a}]${RESET} $line"
+		done < <(echo "${BOLD}${DISKSIZES}${RESET}")
+		echo ""
+		read -n 1 -p "Select a disk ${BOLD}${BLUE}[1-$a]${RESET}: " CLIENTDISK
+		for i in ${!DISKARR[@]}; do
+			n=$(( $n + 1 ))
+			if [[ $n == $CLIENTDISK ]]; then
+				CLIENTDISK=${DISKARR[$i]}
+			fi
+		done
+		echo ""
+		echo ""
+	fi
+	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
+		:
+	else
+	    echo ""
+	    echo "${BOLD}${RED}Invalid selection.${RESET}"
+		sleep 0.5
+	    diskSelect
+	fi
 
         if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
                 echo ""
                 echo "ISO file does not exist. Please run uit-tss-configure-toolbox."
-        fi
-
-        echo ""
-        echo "These are the current USB disks and their sizes:"
-        echo "${DISKNAMES}"
-
-        if [[ $DISKCHECK =~ sd.* ]]; then
-                echo ""
-                echo "Which USB drive do you want to flash with the toolbox ISO?"
-                PS3="Select a drive: "
-                       select ISODISK in $DISKCHECK; do        
-                        echo ""
-                        echo "$(lsblk /dev/${ISODISK} -o NAME,SIZE,MOUNTPOINT)"
-                        echo ""
-                        read -p "All data on ${ISODISK} will be deleted. Press Enter to confirm...."
-                        break
-                done
-        else
-                echo ""
-                echo "Invalid block device or no USB drive found. Exiting...."
-                exit 1
         fi
 }
 
@@ -52,5 +89,5 @@ function execute {
         fi
 }
 
-selectdisk
+diskSelect
 execute
