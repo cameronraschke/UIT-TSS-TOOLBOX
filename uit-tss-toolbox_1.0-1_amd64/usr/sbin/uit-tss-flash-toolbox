@@ -7,49 +7,48 @@ function selectdisk {
                 then ISODISK=$(echo ${ISODISK} | grep -o 'sd.*');
                 echo ${ISODISK}; fi; done)
 
-        echo ""
-        echo "These are the current disks and their sizes:"
-        echo "${DISKNAMES}"
-
         if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
-        echo ""
-        echo "ISO file does not exist. Please run uit-tss-configure-toolbox."
+                echo ""
+                echo "ISO file does not exist. Please run uit-tss-configure-toolbox."
         fi
 
-        if [[ $DISKCHECK =~ sd.* ]]; then
         echo ""
-        echo "Which USB drive do you want to flash with the toolbox ISO?"
+        echo "These are the current USB disks and their sizes:"
+        echo "${DISKNAMES}"
+
+        if [[ $DISKCHECK =~ sd.* ]]; then
+                echo ""
+                echo "Which USB drive do you want to flash with the toolbox ISO?"
                 PS3="Select a drive: "
-                select ISODISK in $DISKCHECK
-                do        
-                echo ""
-                echo "$(lsblk /dev/${ISODISK} -o NAME,SIZE,MOUNTPOINT)"
-                echo ""
-                read -p "All data on ${ISODISK} will be deleted. Press Enter to confirm...."
-                break
+                       select ISODISK in $DISKCHECK; do        
+                        echo ""
+                        echo "$(lsblk /dev/${ISODISK} -o NAME,SIZE,MOUNTPOINT)"
+                        echo ""
+                        read -p "All data on ${ISODISK} will be deleted. Press Enter to confirm...."
+                        break
                 done
         else
-        echo ""
-        echo "Invalid block device or no USB drive found. Exiting...."
-        exit 1
+                echo ""
+                echo "Invalid block device or no USB drive found. Exiting...."
+                exit 1
         fi
 }
 
 function execute {
         if [[ ! -z ${ISODISK} && $DISKCHECK =~ sd.* ]]; then
-        echo "Unmounting ${ISODISK}"
-        umount /dev/${ISODISK} &>/dev/null
-        echo "Making FAT filesystem on ${ISODISK}"
-        mkfs.vfat -I -F 32 /dev/${ISODISK} &>/dev/null
-        echo "Writing ISO to ${ISODISK}, this may take a while..."
-        /usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${ISODISK}
-        echo "Creating new label on disk ${ISODISK}: UITTSSSHRED"
-        fatlabel /dev/${ISODISK} "UITTSSSHRED" &>/dev/null
-        fatlabel /dev/${ISODISK}1 "UITTSSSHRED" &>/dev/null
+                echo "Unmounting ${ISODISK}"
+                umount /dev/${ISODISK} &>/dev/null
+                echo "Making FAT filesystem on ${ISODISK}"
+                mkfs.vfat -I -F 32 /dev/${ISODISK} &>/dev/null
+                echo "Writing ISO to ${ISODISK}, this may take a while..."
+                /usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${ISODISK}
+                echo "Creating new label on disk ${ISODISK}: UITTOOLBX"
+                fatlabel /dev/${ISODISK} "UITTOOLBX" &>/dev/null
+                fatlabel /dev/${ISODISK}1 "UITTOOLBX" &>/dev/null
         else
-        echo ""
-        echo "Invalid block device or no USB drive found. Exiting...."
-        exit 1
+                echo ""
+                echo "Invalid block device or no USB drive found. Exiting...."
+                exit 1
         fi
 }
 
