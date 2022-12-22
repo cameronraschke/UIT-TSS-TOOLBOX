@@ -254,10 +254,12 @@ function diskSelect {
 	local n="0"
 	local DISKARR=()
 	exitMessage
+
 	for i in ${DISKNAMES}; do
 		diskNums=$(( diskNums + 1 ))
 		DISKARR+=( "$i" )
 	done
+
 	if [[ $diskNums == "1" ]]; then
 		for i in ${!DISKARR[@]}; do
 			CLIENTDISK=${DISKARR[$i]}
@@ -285,6 +287,7 @@ function diskSelect {
 		echo ""
 		echo ""
 	fi
+	
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
 		:
 	else
