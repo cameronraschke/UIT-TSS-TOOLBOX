@@ -23,6 +23,7 @@ function diskSelect {
                 do if udevadm info --query=property --path=${ISODISK} | grep -q ^ID_BUS=usb;
                 then ISODISK=$(echo ${ISODISK} | grep -o 'sd.*');
                 echo ${ISODISK}; fi; done)
+	DISKSIZES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
         CLIENTDISK=""
 	diskNums="0"
 	local DISKCONF=""
