@@ -1157,7 +1157,7 @@ function terminate {
 		ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
 			/home/cameron/image-update.txt' &>/dev/null
 	fi
-	
+
 	echo ""
 	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to reboot...${RESET}"
 	reboot
