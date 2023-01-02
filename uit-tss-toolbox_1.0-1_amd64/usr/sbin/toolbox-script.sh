@@ -1196,13 +1196,6 @@ function execute {
 		APPSELECT="CE"
 		sambaPath='dell'
 		cloneImgName='2023Spring-Dell'
-	elif [[ $menuOption == "3" ]]; then
-		cloneMode=""
-		APPSELECT=""
-		sambaPath=""
-		cloneImgName=""
-	else
-		intro
 	fi
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
