@@ -168,11 +168,11 @@ function intro {
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	echo "${BOLD}If you are cloning (server -> client) a laptop, choose from the list:${RESET}"
-	echo "   ${BOLD}${BLUE}[1]${RESET}${BOLD} HP Laptops${RESET}"
-	echo "   ${BOLD}${BLUE}[2]${RESET}${BOLD} Dell Laptops${RESET}"
-	echo "   ${BOLD}${BLUE}[3]${RESET}${BOLD} More options${RESET}"
-	read -n 1 -p "${BOLD}Enter ${BLUE}[1-3]${RESET}${BOLD}:${RESET} " menuOption
+	#echo "${BOLD}If you are cloning (server -> client) a laptop, choose from the list:${RESET}"
+	#echo "   ${BOLD}${BLUE}[1]${RESET}${BOLD} HP Laptops${RESET}"
+	#echo "   ${BOLD}${BLUE}[2]${RESET}${BOLD} Dell Laptops${RESET}"
+	#echo "   ${BOLD}${BLUE}[3]${RESET}${BOLD} More options${RESET}"
+	read -p "${BOLD}Enter ${BLUE}[1-3]${RESET}${BOLD}:${RESET} "
 	tput reset
 }
 
