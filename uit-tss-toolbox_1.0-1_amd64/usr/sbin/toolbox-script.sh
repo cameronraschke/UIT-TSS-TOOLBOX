@@ -184,9 +184,9 @@ function powerWarning {
 	echo ""
 	read -p "Please press ${BOLD}${BLUE}Enter${RESET}...."
 	tput reset
-	echo -n mem > /sys/power/state
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		--execute="UPDATE laptopstats SET rebooted = 'yes' WHERE uuid = '${UUID}';"
+	echo -n mem > /sys/power/state
 	tput reset
 }
 
@@ -201,19 +201,19 @@ function appSelect {
 		APPSELECT="EC"
 		ACTION="erase and clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE uuid = '${UUID}';"
+			--execute="UPDATE laptopstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
 		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE uuid = '${UUID}';"
+			--execute="UPDATE laptopstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
 		powerWarning
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE uuid = '${UUID}';"
+			--execute="UPDATE laptopstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
 	else
 		echo ""
 		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
@@ -1250,7 +1250,7 @@ function terminate {
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	tput reset
 	echo ""
-	read -p "${BOLD}Process has finished. Please enter the tag number followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
+	read -p "${BOLD}Process has finished. Please enter the ${BLUE}tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 	if [[ $tagNum =~ $regex ]]; then
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 			UPDATE laptopstats SET tagnumber = ${tagNum} WHERE uuid = '${UUID}';"
@@ -1266,10 +1266,16 @@ function terminate {
 	if [[ $cloneMode == "restoredisk" ]]; then
 		terminate_Restore &>/dev/null
 		echo ""
-		exitMessage=$(echo -ne "The computer with tag# ${tagNum} (MAC: ${etherAddr}) has been ${terminateAction} from the "
-		echo -ne "server \"${sambaDNS}\" using the image \"${cloneImgName}\", which was last updated on ${imageUpdate}. "
-		echo -ne "Today, ${imageNumToday} computers have been reimaged, with this computer taking ${totalTime}. "
-		echo "This computer has been reimaged ${imageCount} times, with an average of ${imageAvgTime} taken to image it.")
+		exitMessage=$(echo "Tag#: ${tagNum}"
+		echo "MAC: ${etherAddr}"
+		echo "Action: ${terminateAction}"
+		echo "Server: \"${sambaDNS}\""
+		echo "Image: \"${cloneImgName}\""
+		echo "Image last updated: ${imageUpdate}";
+		echo "Laptops imaged/erased today: ${imageNumToday}"
+		echo "Time taken: ${totalTime}"
+		echo "Average time taken: ${imageAvgTime}"
+		echo "Times ${tagNum} has been reimaged: ${imageCount}")
 		echo "${exitMessage}"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 			UPDATE laptopstats SET timestotal = timestotal + 1 WHERE tagnumber = ${tagNum};"
