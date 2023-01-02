@@ -1145,6 +1145,8 @@ function execute_Clone {
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
 	return
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+			UPDATE laptopstats SET imagetime = ${cloneElapsed} WHERE uuid = '${UUID}';"
 }
 
 function execute_Shred {
@@ -1183,6 +1185,8 @@ function execute_Shred {
 			unlockMode_Shred
 		fi
 		shredElapsed=$(( SECONDS - start_time ))
+		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+			UPDATE laptopstats SET erasetime = ${shredElapsed} WHERE uuid = '${UUID}';"
 	fi
 	return
 }
