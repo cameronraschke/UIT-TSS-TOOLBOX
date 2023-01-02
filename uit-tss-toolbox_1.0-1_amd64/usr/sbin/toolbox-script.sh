@@ -48,8 +48,8 @@ function exitMessage {
 function intro {
 	echo "${RESET}"
 	exitMessage
-	echo "${BOLD}Welcome to UIT-TSS-TOOLBOX by Cameron Raschke (caraschke@uh.edu)${RESET}"
-	echo ""
+	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
+	echo "${BOLD}${RED}Go coogs!!${RESET}"
 	echo ""
 	echo ""
 	tput bold
@@ -77,10 +77,11 @@ function intro {
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	echo "${BOLD}If you are restoring (server -> client) an HP laptop, press ${BLUE}[1]${RESET}${BOLD}."
-	echo "${BOLD}If you are restoring (server -> client) a Dell laptop, press ${BLUE}[2]${RESET}${BOLD}."
-	echo "${BOLD}For more options, press ${BLUE}[3]${RESET}${BOLD}."
-	read -n 1 -p "${BOLD}Enter ${BLUE}[1-3]${RESET}${BOLD}....${RESET}" menuOption
+	echo "${BOLD}If you are cloning (server -> client) a laptop, choose from the list:${RESET}"
+	echo "   ${BOLD}${BLUE}[1]${RESET}${BOLD} HP Laptops${RESET}"
+	echo "   ${BOLD}${BLUE}[2]${RESET}${BOLD} Dell Laptops${RESET}"
+	echo "   ${BOLD}${BLUE}[3]${RESET}${BOLD} More options${RESET}"
+	read -n 1 -p "${BOLD}Enter ${BLUE}[1-3]${RESET}${BOLD}:${RESET} " menuOption
 	tput reset
 }
 
@@ -1090,6 +1091,13 @@ function execute {
 		APPSELECT="CE"
 		sambaPath='dell'
 		cloneImgName='2023Spring-Dell'
+	elif [[ $menuOption == "3" ]]; then
+		cloneMode=""
+		APPSELECT=""
+		sambaPath=""
+		cloneImgName=""
+	else
+		intro
 	fi
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
