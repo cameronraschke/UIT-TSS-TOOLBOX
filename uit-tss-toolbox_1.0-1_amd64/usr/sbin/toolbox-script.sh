@@ -420,8 +420,8 @@ function writeDisk_Shred {
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET disksizegb = ${DISKSIZEGB}; WHERE id = SCOPE_IDENTITY();"
+	#####mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		######--execute="UPDATE laptopstats; SET disksizegb = ${DISKSIZEGB}; WHERE id = SCOPE_IDENTITY();"
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
@@ -469,7 +469,7 @@ function writeDisk_Shred {
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET diskpcnt = ${PCNTOFSECTOR}; WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET diskpcnt = ${PCNTOFSECTOR} WHERE id = SCOPE_IDENTITY();"
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -1121,8 +1121,8 @@ function execute_Clone {
 	sambaServer="10.0.0.1"
 	sambaDNS="mickey.uit"
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET totaltime = '${elapsed}', sambauser='${sambaUser}', \
-			server = '${sambaDNS}/${sambaServer}'; WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET totaltime = '${elapsed}', sambauser='${sambaUser}', \
+			server = '${sambaDNS}/${sambaServer}' WHERE id = SCOPE_IDENTITY();"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
@@ -1225,7 +1225,7 @@ function execute {
 function terminate_Restore {
 	elapsed=$(( cloneElapsed + shredElapsed ))
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET totaltime = ${elapsed}; WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET totaltime = ${elapsed} WHERE id = SCOPE_IDENTITY();"
 
 
 	if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
@@ -1280,16 +1280,16 @@ function terminate {
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		imgupdate=$(date --iso)
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats; SET imgupdate = ; WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET imgupdate = ${imgupdate} WHERE id = SCOPE_IDENTITY();"
 			
 		elapsed=$(( SECONDS - start_time ))
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats; SET totaltime = ${elapsed}; WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET totaltime = ${elapsed} WHERE id = SCOPE_IDENTITY();"
 
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats; SET timestotal = timestotal + 1; WHERE tagnumber = ${tagNum};"
+			UPDATE laptopstats SET timestotal = timestotal + 1 WHERE tagnumber = ${tagNum};"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats; SET timesclonedtotal = timesclonedtotal + 1; WHERE tagnumber = ${tagNum};"
+			UPDATE laptopstats SET timesclonedtotal = timesclonedtotal + 1 WHERE tagnumber = ${tagNum};"
 
 		echo ""
 		echo -ne "The image \"${cloneImgName}\" has been successfully updated and saved to the server \"${sambaDNS}\"."
