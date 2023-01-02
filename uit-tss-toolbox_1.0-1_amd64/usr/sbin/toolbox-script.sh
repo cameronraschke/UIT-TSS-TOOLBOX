@@ -1264,7 +1264,7 @@ function terminate {
 	echo ""
 	echo ""
 
-	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
+	if [[ $cloneMode == "restoredisk" ]]; then
 		terminate_Restore &>/dev/null
 		echo ""
 		exitMessage=$(echo -ne "The computer with tag# ${tagNum} (MAC: ${etherAddr}) has been ${terminateAction} from the "
