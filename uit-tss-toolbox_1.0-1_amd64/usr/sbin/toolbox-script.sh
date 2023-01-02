@@ -182,7 +182,7 @@ function powerWarning {
 	tput reset
 	echo -n mem > /sys/power/state
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET rebooted = 'yes' WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET rebooted = 'yes' WHERE id = @@identity;"
 	tput reset
 }
 
@@ -197,19 +197,19 @@ function appSelect {
 		APPSELECT="EC"
 		ACTION="erase and clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE id = @@identity;"
 		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE id = @@identity;"
 		powerWarning
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE id = @@identity;"
 	else
 		echo ""
 		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
@@ -338,7 +338,7 @@ function advEraseMode_Shred {
 	esac
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET mode = ${RMODE} WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET mode = ${RMODE} WHERE id = @@identity;"
 }
 
 
@@ -397,7 +397,7 @@ function diskSelect {
 	fi
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET disk = ${CLIENTDISK} WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET disk = ${CLIENTDISK} WHERE id = @@identity;"
 }
 
 
@@ -421,7 +421,7 @@ function writeDisk_Shred {
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET disksizegb = ${DISKSIZEGB} WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET disksizegb = ${DISKSIZEGB} WHERE id = @@identity;"
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
@@ -469,7 +469,7 @@ function writeDisk_Shred {
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET diskpcnt = ${PCNTOFSECTOR} WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET diskpcnt = ${PCNTOFSECTOR} WHERE id = @@identity;"
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -1122,7 +1122,7 @@ function execute_Clone {
 	sambaDNS="mickey.uit"
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		--execute="UPDATE laptopstats SET totaltime = '${elapsed}', sambauser='${sambaUser}', \
-			server = '${sambaDNS}/${sambaServer}' WHERE id = SCOPE_IDENTITY();"
+			server = '${sambaDNS}/${sambaServer}' WHERE id = @@identity;"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
@@ -1225,7 +1225,7 @@ function execute {
 function terminate_Restore {
 	elapsed=$(( cloneElapsed + shredElapsed ))
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET totaltime = ${elapsed} WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET totaltime = ${elapsed} WHERE id = @@identity;"
 
 
 	if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
@@ -1280,11 +1280,11 @@ function terminate {
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		imgupdate=$(date --iso)
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET imgupdate = ${imgupdate} WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET imgupdate = ${imgupdate} WHERE id = @@identity;"
 			
 		elapsed=$(( SECONDS - start_time ))
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET totaltime = ${elapsed} WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET totaltime = ${elapsed} WHERE id = @@identity;"
 
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 			UPDATE laptopstats SET timestotal = timestotal + 1 WHERE tagnumber = ${tagNum};"
