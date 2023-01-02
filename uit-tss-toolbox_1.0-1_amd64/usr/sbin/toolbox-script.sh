@@ -1060,6 +1060,9 @@ function execute_Clone {
 	sambaPassword='UHouston!'
 	sambaServer="10.0.0.1"
 	sambaDNS="mickey.uit"
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		--execute="UPDATE laptopstats; SET totaltime = '${elapsed}', sambauser='${sambaUser}', \
+			server = '${sambaDNS}/${sambaServer}'; WHERE id = SCOPE_IDENTITY();"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag

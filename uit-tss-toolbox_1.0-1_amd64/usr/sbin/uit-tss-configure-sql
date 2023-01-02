@@ -50,6 +50,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptops" --execute="CR
 	timesclonedweek VARCHAR(150) NOT NULL, \
 	timesclonedmonth VARCHAR(150) NOT NULL, \
 	PRIMARY KEY (id) );"
+
 mysql --user="laptops" --password="UHouston!" --database="laptops" --execute="CREATE TABLE serverstats(\
 	title VARCHAR(150) NOT NULL, \
 	avgtimeall VARCHAR(150) NOT NULL, \
