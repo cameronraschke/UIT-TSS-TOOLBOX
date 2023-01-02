@@ -49,6 +49,40 @@ function intro {
 	etherAddr=$(cat /sys/class/net/enp1s0/address)
 	UUID=$(cat /proc/sys/kernel/random/uuid)
 	DATE=$(date --iso)
+
+	echo "${RESET}"
+	exitMessage
+	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
+	echo "${BOLD}${RED}Go coogs!!${RESET}"
+	echo ""
+	echo ""
+	tput bold
+	tput setaf 1
+	echo "| |    | |  | |     | |"
+	echo "| |    | |  | |_____| |"
+	echo "| |    | |  | |_____| |"
+	echo "| |____| |  | |     | |"
+	echo "\________/  | |     | |"
+	tput sgr0
+	echo ""
+	echo "------------------------------"
+	echo ""
+	echo "Checklist:"
+	echo "${BOLD}-General best practices${RESET} "
+	echo "   * Sanitize laptops with cleaner before imaging them."
+	echo "   * Reset BIOS to default/factory settings before imaging."
+	echo "${BOLD}-Physical connections${RESET} "
+	echo "   * Make sure that power and ethernet are plugged in to the client."
+	echo "   * Do not use Secure Erase on USB drives or drives connected over USB."
+	echo "      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase."
+	echo "${BOLD}-Dells${RESET} "
+	echo "   * Make sure SATA mode is in AHCI mode and not RAID mode."
+	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
+	echo "      * Every Dell is in RAID mode by default."
+	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
+	echo ""
+	read -p "${BOLD}Please remove the thumb drive and press ${BLUE}Enter${RESET}${BOLD}....${RESET} "
+
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="INSERT INTO laptopstats(\
 	tagnumber, \
 	uuid, \
@@ -93,7 +127,7 @@ function intro {
 	timesclonedweek, \
 	timesclonedmonth) \
 	VALUES (\
-	'0000000', \
+	'000000', \
 	'${UUID}', \
 	'${etherAddr}', \
 	'${DATE}'
@@ -136,39 +170,6 @@ function intro {
 	'0', \
 	'0', \
 	'0');"
-
-	echo "${RESET}"
-	exitMessage
-	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
-	echo "${BOLD}${RED}Go coogs!!${RESET}"
-	echo ""
-	echo ""
-	tput bold
-	tput setaf 1
-	echo "| |    | |  | |     | |"
-	echo "| |    | |  | |_____| |"
-	echo "| |    | |  | |_____| |"
-	echo "| |____| |  | |     | |"
-	echo "\________/  | |     | |"
-	tput sgr0
-	echo ""
-	echo "------------------------------"
-	echo ""
-	echo "Checklist:"
-	echo "${BOLD}-General best practices${RESET} "
-	echo "   * Sanitize laptops with cleaner before imaging them."
-	echo "   * Reset BIOS to default/factory settings before imaging."
-	echo "${BOLD}-Physical connections${RESET} "
-	echo "   * Make sure that power and ethernet are plugged in to the client."
-	echo "   * Do not use Secure Erase on USB drives or drives connected over USB."
-	echo "      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase."
-	echo "${BOLD}-Dells${RESET} "
-	echo "   * Make sure SATA mode is in AHCI mode and not RAID mode."
-	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
-	echo "      * Every Dell is in RAID mode by default."
-	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
-	echo ""
-	read -p "${BOLD}Press ${BLUE}Enter${RESET}${BOLD}....${RESET} "
 	tput reset
 }
 
@@ -1245,12 +1246,20 @@ function terminate_Restore {
 
 
 function terminate {
+	local regex="[[:digit:]]{6}"
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	tput reset
 	echo ""
 	read -p "${BOLD}Process has finished. Please enter the tag number followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
-	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+	if [[ $tagNum =~ $regex ]]; then
+		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 			UPDATE laptopstats SET tagnumber = ${tagNum} WHERE uuid = '${UUID}';"
+	else
+		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
+		sleep 0.5
+		terminate
+	fi
+
 	echo ""
 	echo ""
 
