@@ -134,6 +134,7 @@ function intro {
 	'0', \
 	'0', \
 	'0', \
+	'0', \
 	'0');"
 
 	echo "${RESET}"
