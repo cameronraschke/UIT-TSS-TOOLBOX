@@ -1186,17 +1186,17 @@ function execute_Shred {
 
 
 function execute {
-	if [[ $menuOption == "1" ]]; then
-		cloneMode="restoredisk"
-		APPSELECT="CE"
-		sambaPath='hp'
-		cloneImgName='2023Spring-HP'
-	elif [[ $menuOption == "2" ]]; then
-		cloneMode="restoredisk"
-		APPSELECT="CE"
-		sambaPath='dell'
-		cloneImgName='2023Spring-Dell'
-	fi
+#	if [[ $menuOption == "1" ]]; then
+#		cloneMode="restoredisk"
+#		APPSELECT="CE"
+#		sambaPath='hp'
+#		cloneImgName='2023Spring-HP'
+#	elif [[ $menuOption == "2" ]]; then
+#		cloneMode="restoredisk"
+#		APPSELECT="CE"
+#		sambaPath='dell'
+#		cloneImgName='2023Spring-Dell'
+#	fi
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
 		echo "${RED}Cannot shred device and save its image.${RESET}"
@@ -1241,8 +1241,8 @@ function terminate_Restore {
 		-s -N --execute="SELECT * FROM laptopstats")
 	imageCount=$(${imageCount} | wc -l)
 
-	ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} DATE:$(date --iso) APP:${APPSELECT} ELAPSED:${elapsed}>> /home/cameron/computer-database.txt"
-	scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
+	#ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} DATE:$(date --iso) APP:${APPSELECT} ELAPSED:${elapsed}>> /home/cameron/computer-database.txt"
+	#scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
 	#imageAvgTimeSec=$(z=0; for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "ELAPSED.*" | 
 		#sed 's/ELAPSED://g' | sed 's/[[:space:]]//g'); do z=$(( z + i )); echo $z; done | tail -n 1)
 		#imageAvgTime=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
