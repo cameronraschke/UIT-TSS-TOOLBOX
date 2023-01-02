@@ -1234,8 +1234,8 @@ function terminate_Restore {
 	imageCount=$(${imageCount} | wc -l)
 
 	imageAvgTimeSec=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT 'totaltime' FROM laptopstats WHERE tagnumber = ${tagNum};")
-	imageAvgTimeSec=$(z=0; for i in $(${imageAvgTimeSec}); do z=$(( z + i )); echo $z; done | tail -n 1)
+		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
+	imageAvgTimeSec=$(z=0; for i in ${imageAvgTimeSec}; do z=$(( z + i )); echo $z; done | tail -n 1)
 	imageAvgTime=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
 }
 
