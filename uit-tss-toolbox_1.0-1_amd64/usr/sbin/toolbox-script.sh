@@ -46,30 +46,88 @@ function exitMessage {
 
 
 function intro {
-	etherAddr=etherAddr=$(cat /sys/class/net/enp1s0/address)
+	etherAddr=$(cat /sys/class/net/enp1s0/address)
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="INSERT INTO laptopstats(\
 	tagnumber, \
 	etheraddress, \
 	rebooted, \
 	action, \
+	mode, \
+	disk, \
+	disksizegb, \
+	diskpcnt, \
 	server, \
 	sambauser, \
 	cloneimg, \
 	imgupdate, \
+	erasepattern, \
 	totaltime, \
 	erasetime, \
-	imagetime) \
+	imagetime, \
+	avgtimeall, \
+	avgtimetoday, \
+	avgtimeweek, \
+	avgtimemonth, \
+	avgtimeeraseall, \
+	avgtimeerasetoday, \
+	avgtimeeraseweek, \
+	avgtimeerasemonth, \
+	avgtimecloneall, \
+	avgtimecloneday, \
+	avgtimecloneweek, \
+	avgtimeclonemonth, \
+	timestotal, \
+	timestoday, \
+	timestweek, \
+	timesmonth, \
+	timeserasedtotal, \
+	timeserasedday, \
+	timeserasedweek, \
+	timeserasedmonth, \
+	timesclonedtotal, \
+	timesclonedday, \
+	timesclonedweek, \
+	timesclonedmonth, \
 	VALUES (\
-	0, \
-	${etherAddr}, \
-	no, \
-	0, \
-	0, \
-	0, \
-	0, \
-	0, \
-	0, \
-	0, \
+	'0', \
+	'${etherAddr}', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
+	'0', \
 	0);"
 
 	echo "${RESET}"
