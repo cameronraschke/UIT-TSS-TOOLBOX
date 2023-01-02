@@ -1242,6 +1242,8 @@ function terminate_Restore {
 	imageAvgTimeSec=$(z=0; for i in ${imageAvgTimeSec}; do z=$(( z + i )) && x=$(( x + 1 )); echo $z; done | tail -n 1;
 		imageAvgTimeSec=$(( imgAvgTimeSec / $x )))
 	imageAvgTime=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+		UPDATE laptopstats SET avgtimeall = '${imageAvgTime}' WHERE tagnumber = ${tagNum};"
 }
 
 
