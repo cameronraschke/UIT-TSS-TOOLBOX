@@ -46,6 +46,7 @@ function exitMessage {
 
 
 function intro {
+	etherAddr=etherAddr=$(cat /sys/class/net/enp1s0/address)
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="INSERT INTO laptopstats(\
 	tagnumber, \
 	etheraddress, \
@@ -59,8 +60,8 @@ function intro {
 	imagetime) \
 	VALUES (\
 	0, \
-	0, \
-	0, \
+	${etherAddr}, \
+	no, \
 	0, \
 	0, \
 	0, \
@@ -121,7 +122,7 @@ function powerWarning {
 	tput reset
 	echo -n mem > /sys/power/state
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET rebooted = 1; WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats; SET rebooted = 'yes'; WHERE id = SCOPE_IDENTITY();"
 	tput reset
 }
 
@@ -136,19 +137,19 @@ function appSelect {
 		APPSELECT="EC"
 		ACTION="erase and clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET action = ${ACTION}; WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats; SET action = ${ACTION}; WHERE id = SCOPE_IDENTITY();"
 		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET action = ${ACTION}; WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats; SET action = ${ACTION}; WHERE id = SCOPE_IDENTITY();"
 		powerWarning
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET action = ${ACTION}; WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats; SET action = ${ACTION}; WHERE id = SCOPE_IDENTITY();"
 	else
 		echo ""
 		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
@@ -275,6 +276,9 @@ function advEraseMode_Shred {
 	modeselect
 	;;
 	esac
+
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		--execute="UPDATE laptopstats; SET mode = ${RMODE}; WHERE id = SCOPE_IDENTITY();"
 }
 
 
@@ -331,6 +335,9 @@ function diskSelect {
 		sleep 0.5
 	    diskSelect
 	fi
+
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		--execute="UPDATE laptopstats; SET disk = ${CLIENTDISK}; WHERE id = SCOPE_IDENTITY();"
 }
 
 
@@ -353,6 +360,8 @@ function writeDisk_Shred {
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		--execute="UPDATE laptopstats; SET disksizegb = ${DISKSIZEGB}; WHERE id = SCOPE_IDENTITY();"
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
@@ -399,6 +408,8 @@ function writeDisk_Shred {
 	fi
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		--execute="UPDATE laptopstats; SET diskpcnt = ${PCNTOFSECTOR}; WHERE id = SCOPE_IDENTITY();"
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -1049,8 +1060,6 @@ function execute_Clone {
 	sambaPassword='UHouston!'
 	sambaServer="10.0.0.1"
 	sambaDNS="mickey.uit"
-	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET totaltime = ${elapsed}; WHERE id = SCOPE_IDENTITY();"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
@@ -1178,7 +1187,7 @@ function terminate_Restore {
 	imageUpdate=$(cat /root/image-update.txt)
 	imageCount=$(cat /root/computer-database.txt | grep "${tagNum}" | wc -l)
 	imageCount=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="FROM nagios.host WHERE name='$host'")
+		-s -N --execute="FROM nagios.host WHERE name='$host'")
 
 	ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} DATE:$(date --iso) APP:${APPSELECT} ELAPSED:${elapsed}>> /home/cameron/computer-database.txt"
 	scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
@@ -1190,7 +1199,6 @@ function terminate_Restore {
 
 
 function terminate {
-	etherAddr=$(cat /sys/class/net/enp1s0/address)
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	tput reset
 	echo ""
@@ -1207,12 +1215,13 @@ function terminate {
 		echo "This computer has been reimaged ${imageCount} times, with an average of ${imageAvgTime} taken to image it.")
 		echo "${exitMessage}"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats; SET timestoday = timestoday + 1; WHERE tagnumber = ${tagNum}; \
-			UPDATE laptopstats; SET timesclonedday = timesclonedday + 1; WHERE tagnumber = ${tagNum}"
+			UPDATE laptopstats; SET timestotal = timestotal + 1; WHERE tagnumber = ${tagNum};"
+		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+			UPDATE laptopstats; SET timesclonedtotal = timesclonedtotal + 1; WHERE tagnumber = ${tagNum};"
 
 		if [[ $APPSELECT == "CE" ]]; then
-			mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-				--execute="UPDATE timeserasedday; SET timestoday = timeserasedday + 1; WHERE tagnumber = ${tagNum};"
+			mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+				UPDATE laptopstats; SET timeserasedtotal = timeserasedtotal + 1; WHERE tagnumber = ${tagNum};"
 		fi
 	fi
 	
@@ -1227,8 +1236,9 @@ function terminate {
 		ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
 			/home/cameron/image-update.txt' &>/dev/null
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats; SET timestoday = timestoday + 1; WHERE tagnumber = ${tagNum}; \
-			UPDATE laptopstats; SET timesclonedday = timesclonedday + 1; WHERE tagnumber = ${tagNum}"
+			UPDATE laptopstats; SET timestotal = timestotal + 1; WHERE tagnumber = ${tagNum};"
+		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+			UPDATE laptopstats; SET timesclonedtotal = timesclonedtotal + 1; WHERE tagnumber = ${tagNum};"
 	fi
 
 	echo ""

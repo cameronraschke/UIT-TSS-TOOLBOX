@@ -13,10 +13,15 @@ mysql --user="laptops" --password="UHouston!" --database="laptops" --execute="CR
 	etheraddress VARCHAR(150) NOT NULL, \
 	rebooted VARCHAR(150) NOT NULL, \
 	action VARCHAR(150) NOT NULL, \
+	mode VARCHAR(150) NOT NULL, \
+	disk VARCHAR(150) NOT NULL, \
+	disksizegb VARCHAR(150) NOT NULL, \
+	diskpcnt VARCHAR(150) NOT NULL, \
 	server VARCHAR(150) NOT NULL, \
 	sambauser VARCHAR(150) NOT NULL, \
 	cloneimg VARCHAR(150) NOT NULL, \
 	imageupdatetime VARCHAR(150) NOT NULL, \
+	erasepattern VARCHAR(150) NOT NULL, \
 	totaltime VARCHAR(150) NOT NULL, \
 	erasetime VARCHAR(150) NOT NULL, \
 	imagetime VARCHAR(150) NOT NULL, \
