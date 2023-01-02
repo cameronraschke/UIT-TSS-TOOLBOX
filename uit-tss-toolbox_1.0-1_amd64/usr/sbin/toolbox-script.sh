@@ -87,7 +87,7 @@ function intro {
 	timesclonedtotal, \
 	timesclonedday, \
 	timesclonedweek, \
-	timesclonedmonth, \
+	timesclonedmonth) \
 	VALUES (\
 	'0', \
 	'${etherAddr}', \
@@ -128,7 +128,7 @@ function intro {
 	'0', \
 	'0', \
 	'0', \
-	0);"
+	'0');"
 
 	echo "${RESET}"
 	exitMessage
