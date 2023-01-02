@@ -12,8 +12,6 @@ function confirmDelete {
 }
 confirmDelete
 
-sqlPass='UHouston!'
-
 apt install mysql-server -y
 mysqld --initialize-insecure
 

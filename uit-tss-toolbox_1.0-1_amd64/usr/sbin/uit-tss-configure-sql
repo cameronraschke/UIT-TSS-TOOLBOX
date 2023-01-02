@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#apt install mysql-server -y
+#mysqld --initialize-insecure
+#sed -i 's/^bind-address.*$/bind-address=0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+
 mysql --user="root" --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'UHouston\!';"
 
 mysql --user="root" --password="UHouston!" --execute="CREATE USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"

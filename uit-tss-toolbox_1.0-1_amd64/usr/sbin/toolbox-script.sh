@@ -1246,7 +1246,7 @@ function terminate_Restore {
 
 
 function terminate {
-	local regex="[[:digit:]]{6}"
+	local regex="^[[:digit:]]{6}$"
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	tput reset
 	echo ""
