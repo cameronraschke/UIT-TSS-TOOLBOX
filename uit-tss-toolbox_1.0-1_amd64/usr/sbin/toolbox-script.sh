@@ -1247,7 +1247,7 @@ function terminate {
 	echo ""
 	read -p "${BOLD}Process has finished. Please enter the tag number followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats SET tagnumber = ${tagNum} WHERE uuid = ${UUID};"
+			UPDATE laptopstats SET tagnumber = ${tagNum} WHERE uuid = '${UUID}';"
 	echo ""
 	echo ""
 
