@@ -1144,9 +1144,9 @@ function execute_Clone {
 			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
-	return
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 			UPDATE laptopstats SET imagetime = ${cloneElapsed} WHERE uuid = '${UUID}';"
+	return
 }
 
 function execute_Shred {
