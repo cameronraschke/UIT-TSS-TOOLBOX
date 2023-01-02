@@ -77,7 +77,10 @@ function intro {
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	read -p "${BOLD}Please remove the thumb drive and press ${BLUE}Enter${RESET}${BOLD}....${RESET}"
+	echo "${BOLD}If you are restoring (server -> client) an HP laptop, press ${BLUE}[1]${RESET}${BOLD}."
+	echo "${BOLD}If you are restoring (server -> client) a Dell laptop, press ${BLUE}[2]${RESET}${BOLD}."
+	echo "${BOLD}For more options, press ${BLUE}[3]${RESET}${BOLD}."
+	read -n 1 -p "${BOLD}Enter ${BLUE}[1-3]${RESET}${BOLD}....${RESET}" menuOption
 	tput reset
 }
 
@@ -961,7 +964,7 @@ function clientselect_Clone {
 	;;
 	2)
 	sambaPath='dell'
-	cloneImgName='2023-SpringDell'
+	cloneImgName='2023Spring-Dell'
 	;;
 	3)
 	sambaPath='desktops'
@@ -1077,6 +1080,18 @@ function execute_Shred {
 
 
 function execute {
+	if [[ $menuOption == "1" ]]; then
+		cloneMode="restoredisk"
+		APPSELECT="CE"
+		sambaPath='hp'
+		cloneImgName='2023Spring-HP'
+	elif [[ $menuOption == "2" ]]; then
+		cloneMode="restoredisk"
+		APPSELECT="CE"
+		sambaPath='dell'
+		cloneImgName='2023Spring-Dell'
+	fi
+
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
 		echo "${RED}Cannot shred device and save its image.${RESET}"
 		read -p "Please press enter to restart UIT-TSS-TOOLBOX."
