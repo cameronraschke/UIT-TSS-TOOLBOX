@@ -168,10 +168,6 @@ function intro {
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	#echo "${BOLD}If you are cloning (server -> client) a laptop, choose from the list:${RESET}"
-	#echo "   ${BOLD}${BLUE}[1]${RESET}${BOLD} HP Laptops${RESET}"
-	#echo "   ${BOLD}${BLUE}[2]${RESET}${BOLD} Dell Laptops${RESET}"
-	#echo "   ${BOLD}${BLUE}[3]${RESET}${BOLD} More options${RESET}"
 	read -p "${BOLD}Enter ${BLUE}[1-3]${RESET}${BOLD}:${RESET} "
 	tput reset
 }
@@ -1193,17 +1189,6 @@ function execute_Shred {
 
 
 function execute {
-#	if [[ $menuOption == "1" ]]; then
-#		cloneMode="restoredisk"
-#		APPSELECT="CE"
-#		sambaPath='hp'
-#		cloneImgName='2023Spring-HP'
-#	elif [[ $menuOption == "2" ]]; then
-#		cloneMode="restoredisk"
-#		APPSELECT="CE"
-#		sambaPath='dell'
-#		cloneImgName='2023Spring-Dell'
-#	fi
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
 		echo "${RED}Cannot shred device and save its image.${RESET}"
@@ -1245,14 +1230,13 @@ function terminate_Restore {
 
 	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
 	imageCount=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT * FROM laptopstats")
+		-s -N --execute="SELECT * FROM laptopstats;")
 	imageCount=$(${imageCount} | wc -l)
 
-	#ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} DATE:$(date --iso) APP:${APPSELECT} ELAPSED:${elapsed}>> /home/cameron/computer-database.txt"
-	#scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
-	#imageAvgTimeSec=$(z=0; for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "ELAPSED.*" | 
-		#sed 's/ELAPSED://g' | sed 's/[[:space:]]//g'); do z=$(( z + i )); echo $z; done | tail -n 1)
-		#imageAvgTime=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
+	imageAvgTimeSec=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		-s -N --execute="SELECT 'totaltime' FROM laptopstats WHERE tagnumber = ${tagNum};")
+	imageAvgTimeSec=$(z=0; for i in $(${imageAvgTimeSec}); do z=$(( z + i )); echo $z; done | tail -n 1)
+	imageAvgTime=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
 }
 
 
