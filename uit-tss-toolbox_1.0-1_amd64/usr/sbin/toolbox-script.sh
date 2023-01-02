@@ -182,7 +182,7 @@ function powerWarning {
 	tput reset
 	echo -n mem > /sys/power/state
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET rebooted = 'yes'; WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET rebooted = 'yes' WHERE id = SCOPE_IDENTITY();"
 	tput reset
 }
 
@@ -197,19 +197,19 @@ function appSelect {
 		APPSELECT="EC"
 		ACTION="erase and clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats; SET action = ${ACTION}; WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE id = SCOPE_IDENTITY();"
 		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats; SET action = ${ACTION}; WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE id = SCOPE_IDENTITY();"
 		powerWarning
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats; SET action = ${ACTION}; WHERE id = SCOPE_IDENTITY();"
+			--execute="UPDATE laptopstats SET action = ${ACTION} WHERE id = SCOPE_IDENTITY();"
 	else
 		echo ""
 		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
@@ -338,7 +338,7 @@ function advEraseMode_Shred {
 	esac
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET mode = ${RMODE}; WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET mode = ${RMODE} WHERE id = SCOPE_IDENTITY();"
 }
 
 
@@ -397,7 +397,7 @@ function diskSelect {
 	fi
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats; SET disk = ${CLIENTDISK}; WHERE id = SCOPE_IDENTITY();"
+		--execute="UPDATE laptopstats SET disk = ${CLIENTDISK} WHERE id = SCOPE_IDENTITY();"
 }
 
 
@@ -420,8 +420,8 @@ function writeDisk_Shred {
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	#####mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		######--execute="UPDATE laptopstats; SET disksizegb = ${DISKSIZEGB}; WHERE id = SCOPE_IDENTITY();"
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		--execute="UPDATE laptopstats SET disksizegb = ${DISKSIZEGB} WHERE id = SCOPE_IDENTITY();"
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
@@ -1267,13 +1267,13 @@ function terminate {
 		echo "This computer has been reimaged ${imageCount} times, with an average of ${imageAvgTime} taken to image it.")
 		echo "${exitMessage}"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats; SET timestotal = timestotal + 1; WHERE tagnumber = ${tagNum};"
+			UPDATE laptopstats SET timestotal = timestotal + 1 WHERE tagnumber = ${tagNum};"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats; SET timesclonedtotal = timesclonedtotal + 1; WHERE tagnumber = ${tagNum};"
+			UPDATE laptopstats SET timesclonedtotal = timesclonedtotal + 1 WHERE tagnumber = ${tagNum};"
 
 		if [[ $APPSELECT == "CE" ]]; then
 			mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-				UPDATE laptopstats; SET timeserasedtotal = timeserasedtotal + 1; WHERE tagnumber = ${tagNum};"
+				UPDATE laptopstats SET timeserasedtotal = timeserasedtotal + 1 WHERE tagnumber = ${tagNum};"
 		fi
 	fi
 	
