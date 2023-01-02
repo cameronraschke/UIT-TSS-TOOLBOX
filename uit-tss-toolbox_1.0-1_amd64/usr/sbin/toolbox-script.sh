@@ -168,7 +168,7 @@ function intro {
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	read -p "${BOLD}Enter ${BLUE}[1-3]${RESET}${BOLD}:${RESET} "
+	read -p "${BOLD}Press ${BLUE}Enter${RESET}${BOLD}....:${RESET} "
 	tput reset
 }
 
