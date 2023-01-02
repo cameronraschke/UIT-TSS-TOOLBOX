@@ -16,13 +16,19 @@ sqlPass='UHouston!'
 
 apt install mysql-server -y
 mysqld --initialize-insecure
+
+sed -i 's/^bind-address.*$/bind-address=0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+
+systemctl restart mysql mysqld
+
 mysql --user="root" --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'UHouston\!';"
 
-mysql --user="root" --password="$sqlPass" --execute="CREATE USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"
-mysql --user="root" --password="$sqlPass" --execute="GRANT ALL ON *.* TO 'laptops'@'%' WITH GRANT OPTION;"
+mysql --user="root" --password="UHouston!" --execute="CREATE USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"
+mysql --user="root" --password="UHouston!" --execute="ALTER USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"
+mysql --user="root" --password="UHouston!" --execute="GRANT ALL ON *.* TO 'laptops'@'%' WITH GRANT OPTION;"
 
-mysql --user="laptops" --execute="CREATE DATABASE laptops;"
-mysql --user="laptops" --database="laptops" --execute="CREATE TABLE laptopstats(\
+mysql --user="laptops" --password="UHouston!" --execute="CREATE DATABASE laptops;"
+mysql --user="laptops" --password="UHouston!" --database="laptops" --execute="CREATE TABLE laptopstats(\
 	tagnumber VARCHAR(150) NOT NULL, \
 	etheraddress VARCHAR(150) NOT NULL, \
 	action VARCHAR(150) NOT NULL, \
@@ -31,23 +37,57 @@ mysql --user="laptops" --database="laptops" --execute="CREATE TABLE laptopstats(
 	totaltime VARCHAR(150) NOT NULL, \
 	erasetime VARCHAR(150) NOT NULL, \
 	imagetime VARCHAR(150) NOT NULL, \
-	avgtotaltime VARCHAR(150) NOT NULL, \
-	avgerasetime VARCHAR(150) NOT NULL, \
-	avgclonetime VARCHAR(150) NOT NULL, \
-	timestotal VARCHAR(150) NOT NULL, \
-	timeserased VARCHAR(150) NOT NULL, \
-	timescloned VARCHAR(150) NOT NULL, \
-	PRIMARY KEY (tagnumber) );"
-mysql --user="laptops" --database="laptops" --execute="CREATE TABLE serverstats(\
-	title VARCHAR(150) NOT NULL, \
+	avgtimeall VARCHAR(150) NOT NULL, \
 	avgtimetoday VARCHAR(150) NOT NULL, \
 	avgtimeweek VARCHAR(150) NOT NULL, \
 	avgtimemonth VARCHAR(150) NOT NULL, \
+	avgtimeeraseall VARCHAR(150) NOT NULL, \
+	avgtimeerasetoday VARCHAR(150) NOT NULL, \
+	avgtimeeraseweek VARCHAR(150) NOT NULL, \
+	avgtimeerasemonth VARCHAR(150) NOT NULL, \
+	avgtimecloneall VARCHAR(150) NOT NULL, \
+	avgtimecloneday VARCHAR(150) NOT NULL, \
+	avgtimecloneweek VARCHAR(150) NOT NULL, \
+	avgtimeclonemonth VARCHAR(150) NOT NULL, \
+	timestotal VARCHAR(150) NOT NULL, \
+	timestoday VARCHAR(150) NOT NULL, \
+	timestweek VARCHAR(150) NOT NULL, \
+	timesmonth VARCHAR(150) NOT NULL, \
+	timeserasedtotal VARCHAR(150) NOT NULL, \
+	timeserasedday VARCHAR(150) NOT NULL, \
+	timeserasedweek VARCHAR(150) NOT NULL, \
+	timeserasedmonth VARCHAR(150) NOT NULL, \
+	timesclonedtotal VARCHAR(150) NOT NULL, \
+	timesclonedday VARCHAR(150) NOT NULL, \
+	timesclonedweek VARCHAR(150) NOT NULL, \
+	timesclonedmonth VARCHAR(150) NOT NULL, \
+	PRIMARY KEY (tagnumber) );"
+mysql --user="laptops" --password="UHouston!" --database="laptops" --execute="CREATE TABLE serverstats(\
+	title VARCHAR(150) NOT NULL, \
 	avgtimeall VARCHAR(150) NOT NULL, \
-	amounttoday VARCHAR(150) NOT NULL, \
-	amountweek VARCHAR(150) NOT NULL, \
-	amountmonth VARCHAR(150) NOT NULL, \
-	amountall VARCHAR(150) NOT NULL, \
+	avgtimetoday VARCHAR(150) NOT NULL, \
+	avgtimeweek VARCHAR(150) NOT NULL, \
+	avgtimemonth VARCHAR(150) NOT NULL, \
+	avgtimeeraseall VARCHAR(150) NOT NULL, \
+	avgtimeerasetoday VARCHAR(150) NOT NULL, \
+	avgtimeeraseweek VARCHAR(150) NOT NULL, \
+	avgtimeerasemonth VARCHAR(150) NOT NULL, \
+	avgtimecloneall VARCHAR(150) NOT NULL, \
+	avgtimecloneday VARCHAR(150) NOT NULL, \
+	avgtimecloneweek VARCHAR(150) NOT NULL, \
+	avgtimeclonemonth VARCHAR(150) NOT NULL, \
+	timestotal VARCHAR(150) NOT NULL, \
+	timestoday VARCHAR(150) NOT NULL, \
+	timestweek VARCHAR(150) NOT NULL, \
+	timesmonth VARCHAR(150) NOT NULL, \
+	timeserasedtotal VARCHAR(150) NOT NULL, \
+	timeserasedday VARCHAR(150) NOT NULL, \
+	timeserasedweek VARCHAR(150) NOT NULL, \
+	timeserasedmonth VARCHAR(150) NOT NULL, \
+	timesclonedtotal VARCHAR(150) NOT NULL, \
+	timesclonedday VARCHAR(150) NOT NULL, \
+	timesclonedweek VARCHAR(150) NOT NULL, \
+	timesclonedmonth VARCHAR(150) NOT NULL, \
 	PRIMARY KEY (title) );"
 
 apt purge live-build -y
