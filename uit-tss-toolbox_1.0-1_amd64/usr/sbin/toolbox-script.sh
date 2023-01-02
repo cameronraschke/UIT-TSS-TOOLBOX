@@ -1236,18 +1236,16 @@ function terminate_Restore {
 		terminateAction="cloned"
 	fi
 
-	imageNumToday=$(cat /root/image-count-today.txt | wc -l)
 	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
-	imageUpdate=$(cat /root/image-update.txt)
-	imageCount=$(cat /root/computer-database.txt | grep "${tagNum}" | wc -l)
 	imageCount=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="FROM nagios.host WHERE name='$host'")
+		-s -N --execute="SELECT * FROM laptopstats")
+	imageCount=$(${imageCount} | wc -l)
 
 	ssh cameron@mickey.uit "echo TAG:${tagNum} MAC:${etherAddr} DATE:$(date --iso) APP:${APPSELECT} ELAPSED:${elapsed}>> /home/cameron/computer-database.txt"
 	scp cameron@mickey.uit:/home/cameron/computer-database.txt /root/computer-database.txt
-	imageAvgTimeSec=$(z=0; for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "ELAPSED.*" | 
-	sed 's/ELAPSED://g' | sed 's/[[:space:]]//g'); do z=$(( z + i )); echo $z; done | tail -n 1)
-	imageAvgTime=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
+	#imageAvgTimeSec=$(z=0; for i in $(cat /root/computer-database.txt | grep "${tagNum}" | grep -oP "ELAPSED.*" | 
+		#sed 's/ELAPSED://g' | sed 's/[[:space:]]//g'); do z=$(( z + i )); echo $z; done | tail -n 1)
+		#imageAvgTime=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
 }
 
 
