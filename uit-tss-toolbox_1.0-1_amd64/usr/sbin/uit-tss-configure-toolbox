@@ -12,6 +12,44 @@ function confirmDelete {
 }
 confirmDelete
 
+sqlPass='UHouston!'
+
+apt install mysql-server -y
+mysqld --initialize-insecure
+mysql --user="root" --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'UHouston\!';"
+
+mysql --user="root" --password="$sqlPass" --execute="CREATE USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"
+mysql --user="root" --password="$sqlPass" --execute="GRANT ALL ON *.* TO 'laptops'@'%' WITH GRANT OPTION;"
+
+mysql --user="laptops" --execute="CREATE DATABASE laptops;"
+mysql --user="laptops" --database="laptops" --execute="CREATE TABLE laptopstats(\
+	tagnumber VARCHAR(150) NOT NULL, \
+	etheraddress VARCHAR(150) NOT NULL, \
+	action VARCHAR(150) NOT NULL, \
+	server VARCHAR(150) NOT NULL, \
+	cloneimg VARCHAR(150) NOT NULL, \
+	totaltime VARCHAR(150) NOT NULL, \
+	erasetime VARCHAR(150) NOT NULL, \
+	imagetime VARCHAR(150) NOT NULL, \
+	avgtotaltime VARCHAR(150) NOT NULL, \
+	avgerasetime VARCHAR(150) NOT NULL, \
+	avgclonetime VARCHAR(150) NOT NULL, \
+	timestotal VARCHAR(150) NOT NULL, \
+	timeserased VARCHAR(150) NOT NULL, \
+	timescloned VARCHAR(150) NOT NULL, \
+	PRIMARY KEY (tagnumber) );"
+mysql --user="laptops" --database="laptops" --execute="CREATE TABLE serverstats(\
+	title VARCHAR(150) NOT NULL, \
+	avgtimetoday VARCHAR(150) NOT NULL, \
+	avgtimeweek VARCHAR(150) NOT NULL, \
+	avgtimemonth VARCHAR(150) NOT NULL, \
+	avgtimeall VARCHAR(150) NOT NULL, \
+	amounttoday VARCHAR(150) NOT NULL, \
+	amountweek VARCHAR(150) NOT NULL, \
+	amountmonth VARCHAR(150) NOT NULL, \
+	amountall VARCHAR(150) NOT NULL, \
+	PRIMARY KEY (title) );"
+
 apt purge live-build -y
 wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb \
 	--output-document=/opt/debian-live.deb
@@ -149,6 +187,7 @@ nvme-cli
 coreutils
 pv
 postfix
+mysql-client
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
