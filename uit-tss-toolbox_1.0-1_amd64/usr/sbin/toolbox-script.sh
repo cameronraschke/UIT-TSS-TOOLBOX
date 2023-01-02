@@ -1233,22 +1233,28 @@ function terminate_Restore {
 		terminateAction="cloned"
 	fi
 
-	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
-	imageCount=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};" | wc -l )
-
-	imageAvgTimeSec=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
-	imageAvgTimeSec=$(z=0; for i in ${imageAvgTimeSec}; do z=$(( z + i )) && x=$(( x + 1 )); echo $z; done | tail -n 1;
-		imageAvgTimeSec=$(( imgAvgTimeSec / $x )))
-	imageAvgTime=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
-	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimeall = '${imageAvgTime}' WHERE tagnumber = ${tagNum};"
+	
 }
 
 
 
 function terminate {
+	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
+
+	TimesSeconds=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
+
+	totalTimesSeconds=$(z=0; for i in ${TimesSeconds}; do z=$(( z + i )); echo $z; done | tail -n 1)
+
+	imageCount=$(${totalTimeSec} | wc -l )
+
+	imageAvgTimeSec=$(( totalTimesSeconds / imageCount ))
+
+	imageAvgTimeMins=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
+
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+		UPDATE laptopstats SET avgtimeall = '${imageAvgTimeMins}' WHERE tagnumber = ${tagNum};"
+
 	local regex="^[[:digit:]]{6}$"
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	tput reset
@@ -1285,7 +1291,7 @@ function terminate {
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 			UPDATE laptopstats SET timesclonedtotal = timesclonedtotal + 1 WHERE tagnumber = ${tagNum};"
 
-		if [[ $APPSELECT == "CE" ]]; then
+		if [[ $APPSELECT == "EC" ]]; then
 			mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 				UPDATE laptopstats SET timeserasedtotal = timeserasedtotal + 1 WHERE tagnumber = ${tagNum};"
 		fi
