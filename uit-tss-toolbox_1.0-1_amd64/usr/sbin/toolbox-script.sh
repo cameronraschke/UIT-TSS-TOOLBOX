@@ -55,6 +55,7 @@ function intro {
 	server, \
 	sambauser, \
 	cloneimg, \
+	imgupdate, \
 	totaltime, \
 	erasetime, \
 	imagetime) \
@@ -62,6 +63,7 @@ function intro {
 	0, \
 	${etherAddr}, \
 	no, \
+	0, \
 	0, \
 	0, \
 	0, \
@@ -1173,8 +1175,6 @@ function terminate_Restore {
 	elapsed=$(( cloneElapsed + shredElapsed ))
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		--execute="UPDATE laptopstats; SET totaltime = ${elapsed}; WHERE id = SCOPE_IDENTITY();"
-	scp cameron@mickey.uit:/home/cameron/image-count-today.txt /root/image-count-today.txt
-	scp cameron@mickey.uit:/home/cameron/image-update.txt /root/image-update.txt
 
 
 	if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
@@ -1229,19 +1229,23 @@ function terminate {
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
+		imgupdate=$(date --iso)
+		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+			--execute="UPDATE laptopstats; SET imgupdate = ; WHERE id = SCOPE_IDENTITY();"
+			
 		elapsed=$(( SECONDS - start_time ))
-		scp cameron@mickey.uit:/home/cameron/image-count-today.txt /root/reimage-count-today.txt &>/dev/null
-		scp cameron@mickey.uit:/home/cameron/image-update.txt /root/image-update.txt &>/dev/null
-		echo ""
-		echo -ne "The image \"${cloneImgName}\" has been successfully updated and saved to the server \"${sambaDNS}\"."
-		echo -ne "The process took ${totalTime} to complete. \"${cloneImgName}\" was last updated on ${imageUpdate}."
-		echo -e "Today, ${imageNumToday} computers have been reimaged and/or erased."
-		ssh cameron@mickey.uit 'echo "$(TZ='America/Chicago' date "+%A, %B %d at %I:%M%p")" > \
-			/home/cameron/image-update.txt' &>/dev/null
+		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+			--execute="UPDATE laptopstats; SET totaltime = ${elapsed}; WHERE id = SCOPE_IDENTITY();"
+
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 			UPDATE laptopstats; SET timestotal = timestotal + 1; WHERE tagnumber = ${tagNum};"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 			UPDATE laptopstats; SET timesclonedtotal = timesclonedtotal + 1; WHERE tagnumber = ${tagNum};"
+
+		echo ""
+		echo -ne "The image \"${cloneImgName}\" has been successfully updated and saved to the server \"${sambaDNS}\"."
+		echo -ne "The process took ${totalTime} to complete. \"${cloneImgName}\" was last updated on ${imageUpdate}."
+		echo -e "Today, ${imageNumToday} computers have been reimaged and/or erased."
 	fi
 
 	echo ""

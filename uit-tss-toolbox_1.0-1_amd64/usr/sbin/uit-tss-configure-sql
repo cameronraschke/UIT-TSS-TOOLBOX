@@ -20,7 +20,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptops" --execute="CR
 	server VARCHAR(150) NOT NULL, \
 	sambauser VARCHAR(150) NOT NULL, \
 	cloneimg VARCHAR(150) NOT NULL, \
-	imageupdatetime VARCHAR(150) NOT NULL, \
+	imgupdate VARCHAR(150) NOT NULL, \
 	erasepattern VARCHAR(150) NOT NULL, \
 	totaltime VARCHAR(150) NOT NULL, \
 	erasetime VARCHAR(150) NOT NULL, \
