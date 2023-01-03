@@ -102,7 +102,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 		AND date = '${DATE}';"
 
 
-	# Overall times today
+	# Overall times
 	totalTimesSeconds=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}';")
 
@@ -115,7 +115,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	imageAvgTimeMinsToday=$(echo "$(( imageAvgTimeSecToday / 60 )) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimetoday = '${imageAvgTimeMinsToday}' WHERE tagnumber = '${tagNum}';"
+		UPDATE laptopstats SET avgtimetoday = '${imageAvgTimeSecToday}' WHERE tagnumber = '${tagNum}';"
 
 
 	# Overall erase times today
