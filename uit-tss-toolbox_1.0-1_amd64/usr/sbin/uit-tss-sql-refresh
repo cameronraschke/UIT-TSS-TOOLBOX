@@ -13,7 +13,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	
 	totaltime=$(( erasetime + imagetime ))
     mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="UPDATE laptopstats SET totaltime = '${totaltime}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}';"
+		-s -N --execute="UPDATE laptopstats SET totaltime = '${totaltime}' WHERE tagnumber = '${tagNum}';"
 	
 
 	# Average image and erase time today
