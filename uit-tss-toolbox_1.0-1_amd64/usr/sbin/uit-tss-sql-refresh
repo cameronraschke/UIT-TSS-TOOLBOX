@@ -2,7 +2,7 @@
 
 for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT tagnumber FROM laptopstats;"); do
-	function sqlUpdateTimes {
+
 	# Update totaltime
 	erasetime=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}';")
@@ -136,7 +136,5 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 		UPDATE laptopstats SET timesclonedday = '${timesToday}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
 		AND (mode = 'erase and clone' OR mode = 'clone');"
-
-}
 
 done
