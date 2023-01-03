@@ -47,13 +47,14 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimetoday = '${TimesMinutes}' WHERE tagnumber = ${tagNum};"
+		UPDATE laptopstats SET avgtimetoday = '${TimesMinutes}' WHERE tagnumber = ${tagNum} AND date = '${DATE}';"
 
 
 
     # Average erase time overall
     sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT erasetime FROM laptopstats WHERE mode = 'erase and clone' OR mode = 'erase';")
+		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}' \
+		AND (mode = 'erase and clone' OR mode = 'erase');")
 
 	linecount=$(echo "${sqlstatement}" | wc -l )
 
@@ -64,8 +65,10 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimecloneall = '${TimesMinutes}' WHERE mode = 'erase and clone' OR mode = 'erase';"
+		UPDATE laptopstats SET avgtimeerasetoday = '${TimesMinutes}' WHERE tagnumber = '${tagNum}' \
+		AND (mode = 'erase and clone' OR mode = 'erase');"
 	
+
 
 	# Average erase time today
     sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
@@ -117,7 +120,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimecloneday = '${TimesMinutes}' WHERE tagnumber = '${tagNum}' \
-		AND date = '${DATE}';"
+		UPDATE laptopstats SET avgtimecloneday = '${TimesMinutes}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
+		AND (mode = 'erase and clone' OR mode = 'clone');"
 
 done
