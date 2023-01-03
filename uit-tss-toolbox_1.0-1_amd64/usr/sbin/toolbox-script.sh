@@ -1242,7 +1242,7 @@ function sqlUpdateTimes {
 
 	totalCountToday=$(${TimesSecondsToday} | wc -l )
 
-	totalTimesSecondsToday=$(z=0; for i in ${TimesSecondsToday}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	totalTimesSeconds=$(z=0; for i in ${TimesSecondsToday}; do z=$(( z + i )); echo $z; done | tail -n 1)
 
 	imageAvgTimeSecToday=$(( totalTimesSecondsToday / totalCount ))
 
