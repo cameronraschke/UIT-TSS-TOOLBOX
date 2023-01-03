@@ -2,7 +2,7 @@
 DATE=$(date --iso)
 
 mysql --user="laptops" --password="UHouston!" --database="laptops" --html --execute="\
-    SELECT DISTINCT id,tagnumber,date,etheraddress,action,mode,cloneimg,timestotal,avgtimeall \
+    SELECT tagnumber,date,etheraddress,action,mode,cloneimg,timestotal,avgtimeall \
     FROM laptopstats;" > /mnt/uit-tss-laptop-job-report-$(date --iso).html
 
     sed -i 's/tagnumber/Tag\ Number/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
@@ -16,7 +16,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptops" --html --exec
 
 
     mysql --user="laptops" --password="UHouston!" --database="laptops" --html --execute="\
-    SELECT DISTINCT id,tagnumber,date,etheraddress,action,mode,cloneimg,timestotal,avgtimeall \
+    SELECT tagnumber,date,etheraddress,action,mode,cloneimg,timestotal,avgtimeall \
     FROM laptopstats WHERE date = ${DATE};" > /mnt/uit-tss-laptop-daily-report-$(date --iso).html
 
     sed -i 's/tagnumber/Tag\ Number/g' /mnt/uit-tss-laptop-daily-report-$(date --iso).html
