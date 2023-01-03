@@ -1068,19 +1068,19 @@ function clientselect_Clone {
 	sambaPath='hp'
 	cloneImgName='2023Spring-HP'
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats cloneimg = '${cloneImgName}' WHERE uuid = '${UUID}';"
+		--execute="UPDATE laptopstats SET cloneimg = '${cloneImgName}' WHERE uuid = '${UUID}';"
 	;;
 	2)
 	sambaPath='dell'
 	cloneImgName='2023Spring-Dell'
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats cloneimg = '${cloneImgName}' WHERE uuid = '${UUID}';"
+		--execute="UPDATE laptopstats SET cloneimg = '${cloneImgName}' WHERE uuid = '${UUID}';"
 	;;
 	3)
 	sambaPath='desktops'
 	cloneImgName='2022Fall-Win10Desktops'
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats cloneimg = '${cloneImgName}' WHERE uuid = '${UUID}';"
+		--execute="UPDATE laptopstats SET cloneimg = '${cloneImgName}' WHERE uuid = '${UUID}';"
 	;;
 	*)
 	clientselect
