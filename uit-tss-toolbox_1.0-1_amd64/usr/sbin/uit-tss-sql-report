@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mysql --user="laptops" --password="UHouston!" --database="laptops" --html --execute="\
-    SELECT id,tagnumber,date,etheraddress,action,mode,cloneimg,imgupdate,avgtimeall,totaltime,erasetime,imagetime \
+    SELECT DISTINCT id,tagnumber,date,etheraddress,action,mode,cloneimg,imgupdate,timestotal,avgtimeall,avgtimeeraseall,avgtimecloneall \
     FROM laptopstats;" > /mnt/uit-tss-laptop-job-report-$(date --iso).html
 
     sed -i 's/tagnumber/Tag\ Number/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
@@ -9,9 +9,9 @@ mysql --user="laptops" --password="UHouston!" --database="laptops" --html --exec
     sed -i 's/etheraddress/MAC\ Address/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
     sed -i 's/action/Action/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
     sed -i 's/mode/Mode/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/cloneimg/Clone\ Image\ Name/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/cloneimg/Image\ Name/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
     sed -i 's/imgupdate/Image\ Last\ Updated/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/timestotal/Total\ Jobs\ Ran/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
     sed -i 's/avgtimeall/Average\ Time\ To\ Complete/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/totaltime/Job\ Total\ Time/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
     sed -i 's/erasetime/Job\ Total\ Erase\ Time/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
     sed -i 's/imagetime/Job\ Total\ Clone\ Time/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
