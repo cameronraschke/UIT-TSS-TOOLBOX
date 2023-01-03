@@ -20,9 +20,9 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
 
-	linecount=$(echo ${sqlstatement} | wc -l )
+	linecount=$(echo "${sqlstatement}" | wc -l )
 
-	totaltime=$(echo ${sqlstatement} | tail -n 1)
+	totaltime=$(echo "${sqlstatement}" | tail -n 1)
 
 	TimesSeconds=$((totaltime / linecount))
 
