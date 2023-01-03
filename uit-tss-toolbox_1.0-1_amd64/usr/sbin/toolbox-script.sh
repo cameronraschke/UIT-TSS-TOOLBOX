@@ -11,6 +11,7 @@ DIM=$(tput dim)
 RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
+DATE=$(date --iso)
 
 
 function info {
