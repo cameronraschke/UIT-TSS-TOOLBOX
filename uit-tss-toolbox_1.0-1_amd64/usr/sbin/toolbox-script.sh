@@ -1265,7 +1265,7 @@ function sqlUpdateTimes {
 
 	avgTimeEraseToday=$(( avgTimeEraseToday / timesToday ))
 
-	avgTimeEraseTodayMins=$(echo "$((avgTimeEraseToday / 60 )) minutes")
+	avgTimeEraseTodayMins=$(echo "$(( avgTimeEraseToday / 60 )) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 		UPDATE laptopstats SET avgtimeerasetoday = '${avgTimeEraseTodayMins}' WHERE tagnumber = '${tagNum}' \
@@ -1291,7 +1291,7 @@ function sqlUpdateTimes {
 
 	# Average overall clone time
 	avgTimeClone=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT erasetime FROM laptopstats WHERE mode = 'erase and clone' OR mode = 'clone';")
+		-s -N --execute="SELECT imagetime FROM laptopstats WHERE mode = 'erase and clone' OR mode = 'clone';")
 
 	times=$(${avgTimeClone} | wc -l )
 
@@ -1308,8 +1308,8 @@ function sqlUpdateTimes {
 
 	# Average clone time today
 	avgTimeCloneToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
-		AND (mode = 'erase and clone' OR mode = 'erase');")
+		-s -N --execute="SELECT imagetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
+		AND (mode = 'erase and clone' OR mode = 'clone');")
 
 	times=$(${avgTimeClone} | wc -l )
 
@@ -1323,15 +1323,41 @@ function sqlUpdateTimes {
 		UPDATE laptopstats SET avgtimecloneday = '${avgTimeCloneTodayMins}' WHERE tagnumber = '${tagNum}' \
 		AND date = '${DATE}';"
 
-	
+
+	# Overall times today
+	timesToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
+
+	timesToday=$(${timesToday} | wc -l )
+
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+		UPDATE laptopstats SET timestoday = '${timesToday}' WHERE tagnumber = '${tagNum}' \
+		AND date = '${DATE}';"
 
 
-	
-	
-	
-	timestoday
-	timeserasedday
-	timesclonedday
+	# Overall erase times today
+	timesToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
+		AND (mode = 'erase and clone' OR mode = 'erase');")
+
+	timesToday=$(${timesToday} | wc -l )
+
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+		UPDATE laptopstats SET timeserasedday = '${timesToday}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
+		AND (mode = 'erase and clone' OR mode = 'erase');"
+
+
+	# Overall clone times today
+	timesToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		-s -N --execute="SELECT imagetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
+		AND (mode = 'erase and clone' OR mode = 'clone');")
+
+	timesToday=$(${timesToday} | wc -l )
+
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+		UPDATE laptopstats SET timesclonedday = '${timesToday}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
+		AND (mode = 'erase and clone' OR mode = 'clone');"
+
 }
 
 function terminate {
