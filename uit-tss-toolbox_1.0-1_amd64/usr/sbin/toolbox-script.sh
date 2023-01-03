@@ -1236,6 +1236,17 @@ function execute {
 }
 
 function sqlUpdateTimes {
+	# Update totaltime
+	erasetime=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}';")
+	erasetime=$(z=0; for i in ${erasetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	imagetime=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}';")
+	imagetime=$(z=0; for i in ${imagetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	
+	totaltime=$(( erasetime + imagetime ))
+	echo totaltime
+
 	# Average image and erase time today
 	TimesSecondsToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
