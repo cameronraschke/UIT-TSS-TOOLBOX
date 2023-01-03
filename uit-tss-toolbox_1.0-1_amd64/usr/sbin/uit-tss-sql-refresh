@@ -17,20 +17,19 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	
 
 	# Average image and erase time today
-	TimesSecondsToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+	totalTimesSeconds=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
 
-	totalCount=$(echo ${TimesSecondsToday} | wc -l )
+	totalCount=$(echo ${totalTimesSeconds} | wc -l )
 
-	totalTimesSeconds=$(z=0; for i in ${TimesSecondsToday}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	totalTimesSeconds=$(z=0; for i in ${totalTimesSeconds}; do z=$(( z + i )); echo $z; done | tail -n 1)
 
 	imageAvgTimeSecToday=$(( totalTimesSeconds / totalCount ))
 
 	imageAvgTimeMinsToday=$(echo "$(( imageAvgTimeSecToday / 60 )) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimetoday = '${imageAvgTimeMinsToday}' WHERE tagnumber = '${tagNum}' \
-		AND date = '${DATE}';"
+		UPDATE laptopstats SET avgtimetoday = '${imageAvgTimeMinsToday}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}';"
 	
 
 	# Average erase time today
