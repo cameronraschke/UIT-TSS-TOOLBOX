@@ -12,11 +12,13 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	imagetime=$(z=0; for i in ${imagetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
 	
 	totaltime=$(( erasetime + imagetime ))
-	echo totaltime
+    mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		-s -N --execute="UPDATE laptopstats SET totaltime = '${totaltime}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
+	
 
 	# Average image and erase time today
 	TimesSecondsToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
+		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}';")
 
 	totalCount=$(echo ${TimesSecondsToday} | wc -l )
 
