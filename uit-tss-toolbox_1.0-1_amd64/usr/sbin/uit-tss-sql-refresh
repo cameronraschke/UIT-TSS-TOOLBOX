@@ -24,7 +24,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 	TimesSeconds=$(echo ${TimesSeconds} | tail -n 1)
 
-	TimesSeconds=$(echo $(( TimesSeconds / totalCount )))
+	TimesSeconds=$(echo "$(( TimesSeconds / totalCount ))")
 
 	TimesMinutes=$(echo "$((TimesSeconds / 60 )) minutes")
 
