@@ -4,14 +4,14 @@ mysql --user="laptops" --password="UHouston!" --database="laptops" --html --exec
     SELECT id,tagnumber,date,etheraddress,action,mode,cloneimg,imgupdate,avgtimeall,totaltime,erasetime,imagetime \
     FROM laptopstats;" > /mnt/uit-tss-laptop-job-report-$(date --iso).html
 
-    sed -i 's/tagnumber/Tag\ Number/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/date/Date/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/tagnumber/Tag\ Number/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/date/Date/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
     sed -i 's/etheraddress/MAC\ Address/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/action/Action/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/mode/Mode/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/cloneimg/Clone\ Image\ Name/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/imgupdate/Image\ Last\ Updated/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/avgtimeall/Average\ Time\ To\ Complete/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/totaltime/Job\ Total\ Time/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/erasetime/Job\ Total\ Erase\ Time/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
-    sed -i 's/imagetime/Job\ Total\ Clone\ Time/' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/action/Action/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/mode/Mode/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/cloneimg/Clone\ Image\ Name/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/imgupdate/Image\ Last\ Updated/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/avgtimeall/Average\ Time\ To\ Complete/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/totaltime/Job\ Total\ Time/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/erasetime/Job\ Total\ Erase\ Time/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
+    sed -i 's/imagetime/Job\ Total\ Clone\ Time/g' /mnt/uit-tss-laptop-job-report-$(date --iso).html
