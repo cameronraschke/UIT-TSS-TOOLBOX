@@ -395,7 +395,7 @@ function diskSelect {
 	
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
+			--execute="UPDATE laptopstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';" &
 	else
 	    echo ""
 	    echo "${BOLD}${RED}Invalid selection.${RESET}"
