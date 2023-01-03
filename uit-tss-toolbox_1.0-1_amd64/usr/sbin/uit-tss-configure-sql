@@ -58,7 +58,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptops" --execute="CR
 	PRIMARY KEY (id) );"
 
 mysql --user="laptops" --password="UHouston!" --database="laptops" --execute="CREATE TABLE serverstats(\
-	title VARCHAR(150) NOT NULL, \
+	id int NOT NULL AUTO_INCREMENT, \
 	avgtimeall VARCHAR(150) NOT NULL, \
 	avgtimetoday VARCHAR(150) NOT NULL, \
 	avgtimeweek VARCHAR(150) NOT NULL, \
@@ -83,4 +83,4 @@ mysql --user="laptops" --password="UHouston!" --database="laptops" --execute="CR
 	timesclonedday VARCHAR(150) NOT NULL, \
 	timesclonedweek VARCHAR(150) NOT NULL, \
 	timesclonedmonth VARCHAR(150) NOT NULL, \
-	PRIMARY KEY (title) );"
+	PRIMARY KEY (id) );"

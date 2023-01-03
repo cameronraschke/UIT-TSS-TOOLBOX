@@ -1244,6 +1244,9 @@ function terminate {
 	echo ""
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
+		imgupdate='2023-01-03'
+		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+			--execute="UPDATE laptopstats SET imgupdate = '${imgupdate}' WHERE uuid = '${UUID}';"
 
 		if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
 			terminateAction="erased and cloned"
@@ -1278,7 +1281,7 @@ function terminate {
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		imgupdate=$(date --iso)
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET imgupdate = ${imgupdate} WHERE uuid = '${UUID}';"
+			--execute="UPDATE laptopstats SET imgupdate = '${imgupdate}' WHERE uuid = '${UUID}';"
 
 		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
 		echo "Server: \"${sambaDNS}\""
