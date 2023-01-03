@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mysql --user="laptops" --password="UHouston!" --database="laptops" --html --execute="\
+    SELECT id,tagnumber,date,etheraddress,action,mode,cloneimg,totaltime,erasetime,imagetime,uuid \
+    FROM laptopstats;" > /mnt/uit-tss-laptop-report$(date --iso).html
