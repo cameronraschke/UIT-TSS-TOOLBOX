@@ -1294,8 +1294,6 @@ function terminate {
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 			--execute="UPDATE laptopstats SET timesclonedtotal = timesclonedtotal + 1 WHERE tagnumber = '${tagNum}';"
 	fi
-
-	/usr/sbin/uit-tss-sql-refresh &>/dev/null
 	
 	echo ""
 	echo "${exitMessage}"
