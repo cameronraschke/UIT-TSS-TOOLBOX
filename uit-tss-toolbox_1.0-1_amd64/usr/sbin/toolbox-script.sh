@@ -1245,7 +1245,7 @@ function sqlUpdateTimes {
 
 	totalTimesSeconds=$(z=0; for i in ${TimesSecondsToday}; do z=$(( z + i )); echo $z; done | tail -n 1)
 
-	imageAvgTimeSecToday=$(( totalTimesSecondsToday / totalCount ))
+	imageAvgTimeSecToday=$(( totalTimesSeconds / totalCount ))
 
 	imageAvgTimeMinsToday=$(echo "$(( imageAvgTimeSecToday / 60 )) minutes")
 
