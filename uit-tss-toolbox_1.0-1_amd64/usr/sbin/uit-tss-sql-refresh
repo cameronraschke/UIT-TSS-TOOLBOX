@@ -17,14 +17,14 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
     
 
 
-	TimesSeconds=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
 
-	totalCount=$(echo ${TimesSeconds} | wc -l )
+	linecount=$(echo ${sqlstatement} | wc -l )
 
-	TimesSeconds=$(echo ${TimesSeconds} | tail -n 1)
+	totaltime=$(echo ${sqlstatement} | tail -n 1)
 
-	TimesSeconds=$(($TimesSeconds / $totalCount))
+	TimesSeconds=$((totaltime / linecount))
 
 	#TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
 
