@@ -18,13 +18,13 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 
 	TimesSeconds=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
+		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};" | tail -n 1)
 
 	totalCount=$(echo ${TimesSeconds} | wc -l )
 
-	totalTimesSeconds=$(echo ${TimesSeconds} | tail -n 1)
+	TimesSeconds=$(echo ${TimesSeconds} | )
 
-	imageAvgTimeSec=$(( totalTimesSeconds / totalCount ))
+	imageAvgTimeSec=$(( TimesSeconds / totalCount ))
 
 	imageAvgTimeMins=$(echo "$((imageAvgTimeSec / 60 )) minutes")
 
