@@ -22,14 +22,14 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 	totalCount=$(echo ${TimesSeconds} | wc -l )
 
-	totalTimesSeconds=$(z=0; for i in ${TimesSeconds}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	totalTimesSeconds=$(${TimesSeconds} tail -n 1)
 
 	imageAvgTimeSec=$(( totalTimesSeconds / totalCount ))
 
 	imageAvgTimeMins=$(echo "$((imageAvgTimeSec / 60 )) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimeall = '${imageAvgTimeSec}' WHERE tagnumber = ${tagNum};"
+		UPDATE laptopstats SET avgtimeall = '${imageAvgTimeMins}' WHERE tagnumber = ${tagNum};"
 
 
 
