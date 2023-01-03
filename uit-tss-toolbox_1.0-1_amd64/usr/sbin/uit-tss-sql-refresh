@@ -102,9 +102,9 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 		AND date = '${DATE}';"
 
 
-	# Overall times
+	# Overall times today
 	totalTimesSeconds=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}';")
+		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
 
 	totalCount=$(echo ${totalTimesSeconds} | wc -l )
 
