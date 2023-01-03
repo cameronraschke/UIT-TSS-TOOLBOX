@@ -29,7 +29,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	imageAvgTimeMins=$(echo "$((imageAvgTimeSec / 60 )) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimeall = '${imageAvgTimeMins}' WHERE tagnumber = ${tagNum};"
+		UPDATE laptopstats SET avgtimeall = '${imageAvgTimeSec}' WHERE tagnumber = ${tagNum};"
 
 
 
