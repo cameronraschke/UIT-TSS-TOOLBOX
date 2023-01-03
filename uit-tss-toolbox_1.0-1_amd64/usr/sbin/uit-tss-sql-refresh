@@ -65,7 +65,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimeerasetoday = '${TimesMinutes}' WHERE tagnumber = '${tagNum}' \
+		UPDATE laptopstats SET avgtimeeraseall = '${TimesMinutes}' WHERE tagnumber = '${tagNum}' \
 		AND (mode = 'erase and clone' OR mode = 'erase');"
 	
 
