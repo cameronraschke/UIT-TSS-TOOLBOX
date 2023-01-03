@@ -22,7 +22,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 	totalCount=$(echo ${TimesSeconds} | wc -l )
 
-	totalTimesSeconds=$(echo ${TimesSeconds} tail -n 1)
+	totalTimesSeconds=$(echo ${TimesSeconds} | tail -n 1)
 
 	imageAvgTimeSec=$(( totalTimesSeconds / totalCount ))
 
