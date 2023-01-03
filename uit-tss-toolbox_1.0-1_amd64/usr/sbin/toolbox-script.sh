@@ -1238,7 +1238,7 @@ function execute {
 
 function sqlUpdateTimes {
 	TimesSecondsToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
+		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
 
 	totalCountToday=$(${TimesSecondsToday} | wc -l )
 
@@ -1249,7 +1249,7 @@ function sqlUpdateTimes {
 	imageAvgTimeMinsToday=$(echo "$((imageAvgTimeSecToday / 60 )) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimetoday = '${imageAvgTimeMinsTodayToday}' WHERE tagnumber = ${tagNum} AND date = ${DATE};"
+		UPDATE laptopstats SET avgtimetoday = '${imageAvgTimeMinsToday}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}';"
 	
 	avgtimeweek
 	avgtimemonth
