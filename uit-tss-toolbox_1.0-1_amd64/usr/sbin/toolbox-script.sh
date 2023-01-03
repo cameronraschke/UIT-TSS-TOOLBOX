@@ -1241,7 +1241,7 @@ function sqlUpdateTimes {
 	TimesSecondsToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}0';")
 
-	totalCount=$(${TimesSecondsToday} | wc -l )
+	totalCount=$(echo ${TimesSecondsToday} | wc -l )
 
 	totalTimesSeconds=$(z=0; for i in ${TimesSecondsToday}; do z=$(( z + i )); echo $z; done | tail -n 1)
 
@@ -1259,7 +1259,7 @@ function sqlUpdateTimes {
 		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}0' \
 		AND (mode = 'erase and clone' OR mode = 'erase');")
 
-	timesToday=$(${avgTimeEraseToday} | wc -l )
+	timesToday=$(echo ${avgTimeEraseToday} | wc -l )
 
 	avgTimeEraseToday=$(z=0; for i in ${avgTimeEraseToday}; do z=$(( z + i )); echo $z; done | tail -n 1)
 
@@ -1276,7 +1276,7 @@ function sqlUpdateTimes {
 	avgTimeErase=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT erasetime FROM laptopstats WHERE mode = 'erase and clone' OR mode = 'erase';")
 
-	times=$(${avgTimeErase} | wc -l )
+	times=$(echo ${avgTimeErase} | wc -l )
 
 	avgTimeErase=$(z=0; for i in ${avgTimeErase}; do z=$(( z + i )); echo $z; done | tail -n 1)
 
@@ -1293,7 +1293,7 @@ function sqlUpdateTimes {
 	avgTimeClone=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT imagetime FROM laptopstats WHERE mode = 'erase and clone' OR mode = 'clone';")
 
-	times=$(${avgTimeClone} | wc -l )
+	times=$(echo ${avgTimeClone} | wc -l )
 
 	avgTimeClone=$(z=0; for i in ${avgTimeClone}; do z=$(( z + i )); echo $z; done | tail -n 1)
 
@@ -1311,7 +1311,7 @@ function sqlUpdateTimes {
 		-s -N --execute="SELECT imagetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}0' \
 		AND (mode = 'erase and clone' OR mode = 'clone');")
 
-	times=$(${avgTimeClone} | wc -l )
+	times=$(echo ${avgTimeClone} | wc -l )
 
 	avgTimeCloneToday=$(z=0; for i in ${avgTimeCloneToday}; do z=$(( z + i )); echo $z; done | tail -n 1)
 
@@ -1328,7 +1328,7 @@ function sqlUpdateTimes {
 	timesToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}0';")
 
-	timesToday=$(${timesToday} | wc -l )
+	timesToday=$(echo ${timesToday} | wc -l )
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 		UPDATE laptopstats SET timestoday = '${timesToday}' WHERE tagnumber = '${tagNum}' \
@@ -1340,7 +1340,7 @@ function sqlUpdateTimes {
 		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}0' \
 		AND (mode = 'erase and clone' OR mode = 'erase');")
 
-	timesToday=$(${timesToday} | wc -l )
+	timesToday=$(echo ${timesToday} | wc -l )
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 		UPDATE laptopstats SET timeserasedday = '${timesToday}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}0' \
@@ -1352,7 +1352,7 @@ function sqlUpdateTimes {
 		-s -N --execute="SELECT imagetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}0' \
 		AND (mode = 'erase and clone' OR mode = 'clone');")
 
-	timesToday=$(${timesToday} | wc -l )
+	timesToday=$(echo ${timesToday} | wc -l )
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 		UPDATE laptopstats SET timesclonedday = '${timesToday}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}0' \
