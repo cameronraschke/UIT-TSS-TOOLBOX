@@ -1241,7 +1241,7 @@ function sqlUpdateTimes {
 	TimesSecondsToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
 
-	totalCountToday=$(${TimesSecondsToday} | wc -l )
+	totalCount=$(${TimesSecondsToday} | wc -l )
 
 	totalTimesSeconds=$(z=0; for i in ${TimesSecondsToday}; do z=$(( z + i )); echo $z; done | tail -n 1)
 
