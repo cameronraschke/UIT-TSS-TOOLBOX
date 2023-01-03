@@ -1146,7 +1146,7 @@ function execute_Clone {
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats SET imagetime = ${cloneElapsed} WHERE uuid = '${UUID}';"
+			UPDATE laptopstats SET imagetime = '${cloneElapsed}' WHERE uuid = '${UUID}';"
 	return
 }
 
@@ -1187,7 +1187,7 @@ function execute_Shred {
 		fi
 		shredElapsed=$(( SECONDS - start_time ))
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats SET erasetime = ${shredElapsed} WHERE uuid = '${UUID}';"
+			UPDATE laptopstats SET erasetime = '${shredElapsed}' WHERE uuid = '${UUID}';"
 	fi
 	return
 }
@@ -1218,7 +1218,7 @@ function execute {
 
 	elapsed=$(( cloneElapsed + shredElapsed ))
 
-	totalTime=$(eval "echo $(date -ud "@$elapsed" +'%M minutes')")
+	imageAvgTimeMins=$(echo "$((elapsed / 60 )) minutes")
 
 	TimesSeconds=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
@@ -1229,30 +1229,48 @@ function execute {
 
 	imageAvgTimeSec=$(( totalTimesSeconds / totalCount ))
 
-	imageAvgTimeMins=$(eval "echo $(date -ud "@$imageAvgTimeSec" +'%M minutes')")
+	imageAvgTimeMins=$(echo "$((imageAvgTimeSec / 60 )) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
 		UPDATE laptopstats SET avgtimeall = '${imageAvgTimeMins}' WHERE tagnumber = ${tagNum};"
 
 }
 
+function sqlUpdateTimes {
+	TimesSecondsToday=$(mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
 
+	totalCountToday=$(${TimesSecondsToday} | wc -l )
 
-function terminate_Restore {
+	totalTimesSecondsToday=$(z=0; for i in ${TimesSecondsToday}; do z=$(( z + i )); echo $z; done | tail -n 1)
+
+	imageAvgTimeSecToday=$(( totalTimesSecondsToday / totalCount ))
+
+	imageAvgTimeMinsToday=$(echo "$((imageAvgTimeSecToday / 60 )) minutes")
+
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
+		UPDATE laptopstats SET avgtimetoday = '${imageAvgTimeMinsTodayToday}' WHERE tagnumber = ${tagNum} AND date = ${DATE};"
 	
-	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET totaltime = ${elapsed} WHERE uuid = '${UUID}';"
-
-	if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
-		terminateAction="erased and cloned"
-	fi
-
-	if [[ $cloneMode == "restoredisk" && $APPSELECT == "C" ]]; then
-		terminateAction="cloned"
-	fi
+	avgtimeweek
+	avgtimemonth
+	avgtimeeraseall
+	avgtimeerasetoday
+	avgtimeeraseweek
+	avgtimeerasemonth
+	avgtimecloneall
+	avgtimecloneday
+	avgtimecloneweek
+	avgtimeclonemonth
+	timestoday
+	timestweek
+	timesmonth
+	timeserasedday
+	timeserasedweek
+	timeserasedmonth
+	timesclonedday
+	timesclonedweek
+	timesclonedmonth
 }
-
-
 
 function terminate {
 	local regex="^[[:digit:]]{6}$"
@@ -1262,7 +1280,7 @@ function terminate {
 	read -p "${BOLD}Process has finished. Please enter the ${BLUE}tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 	if [[ $tagNum =~ $regex ]]; then
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats SET tagnumber = ${tagNum} WHERE uuid = '${UUID}';"
+			UPDATE laptopstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}';"
 	else
 		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
 		sleep 0.5
@@ -1272,37 +1290,50 @@ function terminate {
 	echo ""
 	echo ""
 
-	if [[ $cloneMode == "restoredisk" ]]; then
-		terminate_Restore &>/dev/null
-		echo ""
+	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
+		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+			--execute="UPDATE laptopstats SET totaltime = '${elapsed}' WHERE uuid = '${UUID}';"
+
+		if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
+			terminateAction="erased and cloned"
+		fi
+
+		if [[ $cloneMode == "restoredisk" && $APPSELECT == "C" ]]; then
+			terminateAction="cloned"
+		fi
+
 		exitMessage=$(echo "Tag#: ${tagNum}"
 		echo "MAC: ${etherAddr}"
 		echo "Action: ${terminateAction}"
 		echo "Server: \"${sambaDNS}\""
 		echo "Image: \"${cloneImgName}\""
 		echo "Image last updated: ${imageUpdate}";
-		echo "Laptops imaged/erased today: ${imageNumToday}"
+		echo "Computers imaged/erased today: ${imageNumToday}"
 		echo "Time taken: ${totalTime}"
 		echo "Average time taken: ${imageAvgTime}"
 		echo "Times ${tagNum} has been reimaged: ${totalCount}")
-		echo "${exitMessage}"
 
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 			--execute="UPDATE laptopstats SET timestotal = timestotal + 1 WHERE tagnumber = '${tagNum}';"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 			--execute="UPDATE laptopstats SET timesclonedtotal = timesclonedtotal + 1 WHERE tagnumber = '${tagNum}';"
-		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET timeserasedtotal = timeserasedtotal + 1 WHERE tagnumber = '${tagNum}';"
+
+		if [[ $APPSELECT == "EC" ]]; then
+			mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
+				--execute="UPDATE laptopstats SET timeserasedtotal = timeserasedtotal + 1 WHERE tagnumber = '${tagNum}';"
+		fi
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		imgupdate=$(date --iso)
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 			--execute="UPDATE laptopstats SET imgupdate = ${imgupdate} WHERE uuid = '${UUID}';"
-		echo ""
-		echo -ne "The image \"${cloneImgName}\" has been successfully updated and saved to the server \"${sambaDNS}\"."
-		echo -ne "The process took ${totalTime} to complete. \"${cloneImgName}\" was last updated on ${imageUpdate}."
-		echo -e "Today, ${imageNumToday} computers have been reimaged and/or erased."
+
+		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
+		echo "Server: \"${sambaDNS}\""
+		echo "Time taken: ${totalTime}"
+		echo "Last updated on: ${imageUpdate}"
+		echo "Computers imaged/erased today: ${imageNumToday}")
 
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
 			--execute="UPDATE laptopstats SET timestotal = timestotal + 1 WHERE tagnumber = '${tagNum}';"
@@ -1310,6 +1341,10 @@ function terminate {
 			--execute="UPDATE laptopstats SET timesclonedtotal = timesclonedtotal + 1 WHERE tagnumber = '${tagNum}';"
 	fi
 
+	sqlUpdateTimes
+	
+	echo ""
+	echo "${exitMessage}"
 	echo ""
 	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to reboot...${RESET}"
 	reboot
