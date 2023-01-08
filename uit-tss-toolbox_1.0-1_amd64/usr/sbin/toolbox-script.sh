@@ -83,92 +83,50 @@ function intro {
 	echo ""
 	read -p "${BOLD}Please remove the thumb drive and press ${BLUE}Enter${RESET}${BOLD}....${RESET} "
 
-	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="INSERT INTO laptopstats(\
-	tagnumber, \
+	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="INSERT INTO jobstats(\
 	uuid, \
+	tagnumber, \
 	etheraddress, \
 	date, \
 	action, \
-	mode, \
 	disk, \
+	alldisks, \
 	disksizegb, \
-	rebooted, \
-	diskpcnt, \
-	server, \
-	sambauser, \
-	cloneimg, \
-	imgupdate, \
-	erasepattern, \
-	totaltime, \
-	erasetime, \
-	imagetime, \
-	avgtimeall, \
-	avgtimetoday, \
-	avgtimeweek, \
-	avgtimemonth, \
-	avgtimeeraseall, \
-	avgtimeerasetoday, \
-	avgtimeeraseweek, \
-	avgtimeerasemonth, \
-	avgtimecloneall, \
-	avgtimecloneday, \
-	avgtimecloneweek, \
-	avgtimeclonemonth, \
-	timestotal, \
-	timestoday, \
-	timestweek, \
-	timesmonth, \
-	timeserasedtotal, \
-	timeserasedday, \
-	timeserasedweek, \
-	timeserasedmonth, \
-	timesclonedtotal, \
-	timesclonedday, \
-	timesclonedweek, \
-	timesclonedmonth) \
+	alldisksizegb, \
+	reboot, \
+	clone_master, \
+	erase_mode, \
+	erase_diskpercent, \
+	clone_server, \
+	clone_sambauser, \
+	clone_image, \
+	clone_imageupdate, \
+	erase_pattern, \
+	all_totaltime, \
+	erase_time, \
+	clone_time) \
 	VALUES (\
-	'000000', \
 	'${UUID}', \
+	'000000', \
 	'${etherAddr}', \
 	'${DATE}', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0', \
-	'0');"
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A');"
 	tput reset
 }
 

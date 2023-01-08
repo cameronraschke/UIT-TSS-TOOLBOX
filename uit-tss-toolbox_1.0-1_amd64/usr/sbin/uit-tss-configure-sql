@@ -16,7 +16,6 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	uuid VARCHAR(150) NOT NULL, \
 	tagnumber VARCHAR(150) NOT NULL, \
 	etheraddress VARCHAR(150) NOT NULL, \
-	clone_master VARCHAR(150) NOT NULL, \
 	date VARCHAR(150) NOT NULL, \
 	action VARCHAR(150) NOT NULL, \
 	disk VARCHAR(150) NOT NULL, \
@@ -24,6 +23,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	disksizegb VARCHAR(150) NOT NULL, \
 	alldisksizegb VARCHAR(150) NOT NULL, \
 	reboot VARCHAR(150) NOT NULL, \
+	clone_master VARCHAR(150) NOT NULL, \
 	erase_mode VARCHAR(150) NOT NULL, \
 	erase_diskpercent VARCHAR(150) NOT NULL, \
 	clone_server VARCHAR(150) NOT NULL, \
@@ -33,7 +33,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	erase_pattern VARCHAR(150) NOT NULL, \
 	all_totaltime VARCHAR(150) NOT NULL, \
 	erase_time VARCHAR(150) NOT NULL, \
-	clone_time VARCHAR(150) NOT NULL,
+	clone_time VARCHAR(150) NOT NULL, \
 	PRIMARY KEY (uuid) );"
 
 
