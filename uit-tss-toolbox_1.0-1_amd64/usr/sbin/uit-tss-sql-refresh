@@ -1,25 +1,25 @@
 #!/bin/bash
 
 for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT DISTINCT tagnumber FROM jobstats;"); do
+		-s -N --execute="SELECT tagnumber FROM jobstats;"); do
 
 	# Update totaltime
 	erasetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}';")
+		-s -N --execute="SELECT erase_time FROM jobstats WHERE tagnumber = '${tagNum}';")
 	erasetime=$(z=0; for i in ${erasetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
 	imagetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT imagetime FROM laptopstats WHERE tagnumber = '${tagNum}';")
+		-s -N --execute="SELECT clone_time FROM jobstats WHERE tagnumber = '${tagNum}';")
 	imagetime=$(z=0; for i in ${imagetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
 	
 	totaltime=$(( erasetime + imagetime ))
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="UPDATE laptopstats SET totaltime = '${totaltime}' WHERE tagnumber = '${tagNum}';"
-    
+		-s -N --execute="UPDATE clientstats SET all_time = '${totaltime}' WHERE tagnumber = '${tagNum}';"
+
 
 
     # Average image and erase time overall
 	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum};")
+		-s -N --execute="SELECT all_time FROM clientstats WHERE tagnumber = ${tagNum};")
 
 	linecount=$(echo "${sqlstatement}" | wc -l )
 
@@ -30,97 +30,6 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimeall = '${TimesMinutes}' WHERE tagnumber = ${tagNum};"
-
-
-
-	# Average image and erase time today
-    sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT totaltime FROM laptopstats WHERE tagnumber = ${tagNum} AND date = '${DATE}';")
-
-	linecount=$(echo "${sqlstatement}" | wc -l )
-
-	totaltime=$(echo "${sqlstatement}" | tail -n 1)
-
-	TimesSeconds=$((totaltime / linecount))
-
-	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
-
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimetoday = '${TimesMinutes}' WHERE tagnumber = ${tagNum} AND date = '${DATE}';"
-
-
-
-    # Average erase time overall
-    sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}' \
-		AND (mode = 'erase and clone' OR mode = 'erase');")
-
-	linecount=$(echo "${sqlstatement}" | wc -l )
-
-	totaltime=$(echo "${sqlstatement}" | tail -n 1)
-
-	TimesSeconds=$((totaltime / linecount))
-
-	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
-
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimeeraseall = '${TimesMinutes}' WHERE tagnumber = '${tagNum}' \
-		AND (mode = 'erase and clone' OR mode = 'erase');"
-	
-
-
-	# Average erase time today
-    sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT erasetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
-		AND (mode = 'erase and clone' OR mode = 'erase');")
-
-	linecount=$(echo "${sqlstatement}" | wc -l )
-
-	totaltime=$(echo "${sqlstatement}" | tail -n 1)
-
-	TimesSeconds=$((totaltime / linecount))
-
-	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
-
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimeerasetoday = '${TimesMinutes}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
-		AND (mode = 'erase and clone' OR mode = 'erase');"
-
-
-
-	# Average clone time overall
-    sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT imagetime FROM laptopstats WHERE mode = 'erase and clone' OR mode = 'clone';")
-
-	linecount=$(echo "${sqlstatement}" | wc -l )
-
-	totaltime=$(echo "${sqlstatement}" | tail -n 1)
-
-	TimesSeconds=$((totaltime / linecount))
-
-	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
-
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimecloneall = '${TimesMinutes}' WHERE tagnumber = ${tagNum};"
-
-
-	
-	# Average clone time today
-    sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT imagetime FROM laptopstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
-		AND (mode = 'erase and clone' OR mode = 'clone');")
-
-	linecount=$(echo "${sqlstatement}" | wc -l )
-
-	totaltime=$(echo "${sqlstatement}" | tail -n 1)
-
-	TimesSeconds=$((totaltime / linecount))
-
-	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
-
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE laptopstats SET avgtimecloneday = '${TimesMinutes}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}' \
-		AND (mode = 'erase and clone' OR mode = 'clone');"
+		UPDATE jobstats SET all_avgtime = '${TimesMinutes}' WHERE tagnumber = ${tagNum};"
 
 done

@@ -45,6 +45,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	tagnumber VARCHAR(150) NOT NULL, \
 	all_lastdate VARCHAR(150) NOT NULL, \
 	all_lastuuid VARCHAR(150) NOT NULL, \
+	all_time VARCHAR(150) NOT NULL, \
 	all_avgtime VARCHAR(150) NOT NULL, \
 	all_avgtimetoday VARCHAR(150) NOT NULL, \
 	erase_avgtime VARCHAR(150) NOT NULL, \
@@ -69,3 +70,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	clone_avgtime VARCHAR(150) NOT NULL, \
 	erase_avgtime VARCHAR(150) NOT NULL, \
 	PRIMARY KEY (id) );"
+
+cat <<'EOF' > /etc/cron.d/01-clientstats
+
+EOF
