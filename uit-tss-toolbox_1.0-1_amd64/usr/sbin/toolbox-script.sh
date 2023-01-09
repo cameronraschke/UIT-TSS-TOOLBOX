@@ -1199,7 +1199,7 @@ function execute {
 	fi
 
 	if [[ $APPSELECT == "EC" ]]; then
-		if [[ -n $cloneMode ]]; then
+		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
 		fi
 		basicEraseMode_Shred
@@ -1209,7 +1209,7 @@ function execute {
 		advEraseMode_Shred
 		execute_Shred
 	elif [[ $APPSELECT == "C" ]]; then
-		if [[ -n $cloneMode ]]; then
+		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
 		fi
 		execute_Clone
