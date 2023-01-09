@@ -1220,8 +1220,19 @@ function execute {
 }
 
 
+function totaltime {
+	totalElapsed=$(( shredElapsed + cloneElapsed ))
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE jobstats SET all_totaltime = '${totalElapsed}' WHERE uuid = '${UUID}';"
+		
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}';"
+}
+
 
 function terminate {
+	tput reset
+	totaltime
 	local regex="^[[:digit:]]{6}$"
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	tput reset
@@ -1256,7 +1267,7 @@ function terminate {
 		echo "Action: ${terminateAction}"
 		echo "Server: \"${sambaDNS}\""
 		echo "Image: \"${cloneImgName}\""
-		echo "Image last updated: ${imageUpdate}";
+		#echo "Image last updated: ${imageUpdate}";
 		#echo "Computers imaged/erased today: ${imageNumToday}"
 		#echo "Time taken: ${totalTime}"
 		#echo "Times ${tagNum} has been reimaged: ${totalCount}"
