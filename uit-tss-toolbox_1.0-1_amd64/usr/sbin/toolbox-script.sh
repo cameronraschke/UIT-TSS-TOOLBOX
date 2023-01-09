@@ -1295,11 +1295,19 @@ function main {
 				--execute="UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}';"
 		sambaPath="hp"
 		cloneImgName="2023Spring-HP"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
 		shredMode="autodetect"
 		RMODE="autodetect"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
 		sambaUser="cameron"
 		sambaPassword="UHouston!"
+		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}', \
+				server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
 	else
