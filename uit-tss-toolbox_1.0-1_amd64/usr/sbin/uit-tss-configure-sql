@@ -5,6 +5,8 @@
 #sed -i 's/^bind-address.*$/bind-address=0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 #systemctl restart mysql
 
+#mysql -u doadmin --password='AVNS_ncJzgkTeIG6wBd4OSQs' -h 'db-mysql-nyc1-21857-do-user-11961075-0.b.db.ondigitalocean.com' -P 25060 -D defaultdb
+
 mysql --user="root" --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'UHouston\!';"
 
 mysql --user="root" --password="UHouston!" --execute="CREATE USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"
