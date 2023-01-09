@@ -1295,7 +1295,7 @@ function terminate {
 
 function main {
 	intro
-	if [[ $mainMenuOpt == "1"]]; then
+	if [[$mainMenuOpt == "1"]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
