@@ -147,7 +147,7 @@ function intro {
 function powerWarning {
 	exitMessage
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
-	echo "${BOLD}After pressing Enter, the system will enter hibernate mode.${RESET}"
+	echo "${BOLD}After pressing ${BLUE}[1]${RESET}${BOLD}, the system will enter hibernate mode.${RESET}"
 	echo "${BOLD}This is normal. Please wake up the system after it hibernates.${RESET}"
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
@@ -232,60 +232,61 @@ function advEraseMode_Shred {
 	echo ""
 
 	echo ""
-	echo "${BOLD}${BLUE}[1] Autodetect${RESET} (Default)
+	echo "${BOLD}${BLUE}[1]${RESET} ${BOLD}Autodetect${RESET} (Default)
 	-NIST 800-88r1 or Zero Mode depending on drive
 	-Best trade off between security and speed"
 
 	echo ""
-	echo "${BOLD}${BLUE}[2] NIST 800-88r1${RESET}
+	echo "${BOLD}${BLUE}[2]${RESET} ${BOLD}NIST 800-88r1${RESET}
 	-Fastest for NVME
 	-Secure Erase
 	-Verification"
 
 	echo ""
-	echo "${BOLD}${BLUE}[3] Zero Mode + Quick Verify${RESET}
+	echo "${BOLD}${BLUE}[3]${RESET} ${BOLD}Zero Mode + Quick Verify${RESET}
 	-One pass of zeroes
 	-Quick verification step"
 	
 	echo ""
-	echo "${BOLD}${BLUE}[4] DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5${RESET}
+	echo "${BOLD}${BLUE}[4]${RESET} ${BOLD}DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5${RESET}
 	-Writes a pass of zeroes, then ones, then a random bit
 	-3 passes, 3 verifications"
 
 	echo ""
-	echo "${BOLD}${BLUE}[5] RCMP TSSIT OPS-II/VSITR${RESET}
+	echo "${BOLD}${BLUE}[5]${RESET} ${BOLD}RCMP TSSIT OPS-II/VSITR${RESET}
 	-Alternates passes between 0's and 1's 6 times
 	-Writes random bit, verifies random bit"
 
 	echo ""
-	echo "${BOLD}${BLUE}[6] Schneier${RESET}
+	echo "${BOLD}${BLUE}[6]${RESET} ${BOLD}Schneier${RESET}
 	-A pass of 1's then a pass of 0's
 	-Five passes of a random stream of characters"
 
 	echo ""
-	echo "${BOLD}${BLUE}[7] Gutmann${RESET}
+	echo "${BOLD}${BLUE}[7]${RESET} ${BOLD}Gutmann${RESET}
 	-Four random character passes
 	-27 predefined pattern passes
 	-Four random character passes"
 	
 	echo ""
-	echo "${BOLD}${BLUE}[8] Verify Only${RESET}
+	echo "${BOLD}${BLUE}[8]${RESET} ${BOLD}Verify Only${RESET}
 	-Does not write data
 	-Different levels of verification
 	-Chooses a character to verify"
 
 	echo ""
-	echo "${BOLD}${BLUE}[9] Unlock${RESET}
+	echo "${BOLD}${BLUE}[9]${RESET} ${BOLD}Unlock${RESET}
 	-Unlocks disk previously locked by this program"
 
 	echo ""
-	read -n1 -p "Choose [0-9]: " MODESELECT
+	read -n1 -p "${BOLD}Choose ${BLUE}[0-9]${RESET}${BOLD}:${RESET} " MODESELECT
 	echo ""
 
 	case $MODESELECT in
 	1)
 	shredMode='autodetect'
 	RMODE='Autodetect'
+	basicEraseMode_Shred
 	;;
 	2)
 	shredMode='nist'
