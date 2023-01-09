@@ -101,8 +101,6 @@ function exitMessage {
 
 
 function intro {
-
-
 	echo "${RESET}"
 	exitMessage
 	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
@@ -134,9 +132,12 @@ function intro {
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	read -n 1 -p "${BOLD}Please remove the thumb drive and press ${BLUE}any button${RESET}${BOLD} to continue....${RESET} "
+	echo "${BOLD}Please remove the thumb drive and press one select one of the following keys:${RESET} "
+	echo "   ${BLUE}[1]${RESET} ${BOLD}Clone an HP laptop${RESET}"
+	echo "   ${BLUE}[2]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
+	echo "${DIM}Other options coming soon....${RESET} "
+	read -n 1 -p "Select [1,2]: " mainMenuOpt
 
-	
 	tput reset
 }
 
@@ -1251,10 +1252,10 @@ function terminate {
 		echo "Server: \"${sambaDNS}\""
 		echo "Image: \"${cloneImgName}\""
 		echo "Image last updated: ${imageUpdate}";
-		echo "Computers imaged/erased today: ${imageNumToday}"
-		echo "Time taken: ${totalTime}"
-		echo "Average time taken: ${imageAvgTime}"
-		echo "Times ${tagNum} has been reimaged: ${totalCount}")
+		#echo "Computers imaged/erased today: ${imageNumToday}"
+		#echo "Time taken: ${totalTime}"
+		#echo "Times ${tagNum} has been reimaged: ${totalCount}"
+		)
 
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE tagnumber = '${tagNum}';"
@@ -1272,9 +1273,10 @@ function terminate {
 
 		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
 		echo "Server: \"${sambaDNS}\""
-		echo "Time taken: ${totalTime}"
+		#echo "Time taken: ${totalTime}"
 		echo "Last updated on: ${imageUpdate}"
-		echo "Computers imaged/erased today: ${imageNumToday}")
+		#echo "Computers imaged/erased today: ${imageNumToday}"
+		)
 
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE tagnumber = '${tagNum}';"
