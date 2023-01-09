@@ -1269,7 +1269,7 @@ function terminate {
 		echo "Image: \"${cloneImgName}\""
 		#echo "Image last updated: ${imageUpdate}";
 		#echo "Computers imaged/erased today: ${imageNumToday}"
-		#echo "Time taken: ${totalTime}"
+		echo "Total time taken: ${totalElapsed}"
 		#echo "Times ${tagNum} has been reimaged: ${totalCount}"
 		)
 
@@ -1289,7 +1289,7 @@ function terminate {
 
 		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
 		echo "Server: \"${sambaDNS}\""
-		#echo "Time taken: ${totalTime}"
+		echo "Total time taken: ${totalElapsed}"
 		echo "Last updated on: ${imageUpdate}"
 		#echo "Computers imaged/erased today: ${imageNumToday}"
 		)
