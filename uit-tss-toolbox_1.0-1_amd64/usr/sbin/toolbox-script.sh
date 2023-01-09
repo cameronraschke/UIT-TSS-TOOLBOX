@@ -1194,8 +1194,8 @@ function execute_Shred {
 
 function execute {
 
-	if [[ $cloneMode == "savedisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
-		echo "${RED}Cannot shred device and save its image.${RESET}"
+	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
+		echo "${RED}Cannot erase device and save its image.${RESET}"
 		read -p "Please press enter to restart UIT-TSS-TOOLBOX."
 		exit 1
 	fi
