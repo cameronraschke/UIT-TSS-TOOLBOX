@@ -151,7 +151,7 @@ function powerWarning {
 	echo "${BOLD}This is normal. Please wake up the system after it hibernates.${RESET}"
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
-	read -n 1 -p "Please press ${BOLD}${BLUE}[1]${RESET} ${BOLD}or ${BLUE}[2]${RESET} ${BOLD}to skip....s${RESET} " restartBool
+	read -n 1 -p "Please press ${BOLD}${BLUE}[1]${RESET} ${BOLD}or ${BLUE}[2]${RESET} ${BOLD}to skip....${RESET} " restartBool
 	if [[ $restartBool == "1" ]]; then
 		tput reset
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
@@ -1199,7 +1199,9 @@ function execute {
 	fi
 
 	if [[ $APPSELECT == "EC" ]]; then
-		clientselect_Clone
+		if [[ -n $cloneMode ]]; then
+			clientselect_Clone
+		fi
 		basicEraseMode_Shred
 		execute_Shred
 		execute_Clone
@@ -1207,7 +1209,9 @@ function execute {
 		advEraseMode_Shred
 		execute_Shred
 	elif [[ $APPSELECT == "C" ]]; then
-		clientselect_Clone
+		if [[ -n $cloneMode ]]; then
+			clientselect_Clone
+		fi
 		execute_Clone
 	else
 		echo "${RED}Error - Invalid application selected.${RESET}"
