@@ -1277,8 +1277,17 @@ function terminate {
 
 
 
-intro
-appSelect
-diskSelect
-execute
-terminate
+function main {
+	intro
+	if [[ $mainMenuOpt == "1"]]; then
+
+		execute
+	else
+		appSelect
+		diskSelect
+		execute
+		terminate
+	fi
+}
+
+main
