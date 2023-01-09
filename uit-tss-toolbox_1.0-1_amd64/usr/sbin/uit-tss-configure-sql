@@ -70,7 +70,3 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	clone_avgtime VARCHAR(150) NOT NULL, \
 	erase_avgtime VARCHAR(150) NOT NULL, \
 	PRIMARY KEY (id) );"
-
-cat <<'EOF' > /etc/cron.d/01-clientstats
-
-EOF
