@@ -1273,11 +1273,11 @@ function terminate {
 		)
 
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE tagnumber = '${tagNum}';"
+			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}';"
 
 		if [[ $APPSELECT == "EC" ]]; then
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET erase_completed = 'Yes' WHERE tagnumber = '${tagNum}';"
+			--execute="UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}';"
 		fi
 	fi
 	
@@ -1294,7 +1294,10 @@ function terminate {
 		)
 
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE tagnumber = '${tagNum}';"
+			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}';"
+		
+		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+			--execute="UPDATE jobstats SET clone_master = 'Yes' WHERE uuid = '${UUID}';"
 	fi
 
 	
