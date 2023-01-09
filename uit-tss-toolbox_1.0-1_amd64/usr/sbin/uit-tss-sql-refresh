@@ -3,6 +3,33 @@
 for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT tagnumber FROM jobstats;"); do
 
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE clientstats SET tagnumber = '${tagNum}' WHERE tagnumber = 0;"
+
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		If(SELECT tagnumber FROM clientstats WHERE tagnumber = '${tagNum}')
+    		Update MY_TABLE
+     		Set tagnumber = '${tagNum}'
+    		Where ID = ${tagNum}
+		ELSE
+			INSERT INTO jobstats(\
+			tagnumber, \
+			all_lastdate, \
+			all_lastuuid, \
+			all_time, \
+			all_avgtime, \
+			all_avgtimetoday, \
+			erase_avgtime, \
+			erase_avgtimetoday, \
+			clone_avgtime, \
+			clone_avgtimetoday, \
+			all_jobs, \
+			all_jobstoday, \
+			erase_jobs, \
+			erase_jobstoday, \
+			clone_jobs, \
+			clone_jobstoday)"
+
 	# Update totaltime
 	erasetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT erase_time FROM jobstats WHERE tagnumber = '${tagNum}';")
@@ -30,6 +57,6 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
 
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE jobstats SET all_avgtime = '${TimesMinutes}' WHERE tagnumber = ${tagNum};"
+		UPDATE clientstats SET all_avgtime = '${TimesMinutes}' WHERE tagnumber = ${tagNum};"
 
 done
