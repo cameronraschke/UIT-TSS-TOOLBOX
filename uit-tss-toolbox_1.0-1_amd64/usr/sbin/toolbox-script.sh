@@ -28,6 +28,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	alldisks, \
 	disksizegb, \
 	reboot, \
+	clone_mode, \
 	clone_master, \
 	erase_mode, \
 	erase_diskpercent, \
@@ -51,6 +52,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	'N/A', \
 	'0', \
 	'No', \
+	'N/A', \
 	'No', \
 	'N/A', \
 	'0', \
@@ -1175,6 +1177,7 @@ function execute_Shred {
 }
 
 
+
 function execute {
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "C" || $APPSELECT == "CE") ]]; then
@@ -1280,14 +1283,31 @@ function terminate {
 function main {
 	intro
 	if [[ $mainMenuOpt == "1"]]; then
-
+		APPSELECT="EC"
+		ACTION="erase and clone"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+		CLIENTDISK='nvme0n1'
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
+		cloneMode="restoredisk"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}';"
+		sambaPath="hp"
+		cloneImgName="2023Spring-HP"
+		shredMode="autodetect"
+		RMODE="autodetect"
+		sambaUser="cameron"
+		sambaPassword="UHouston!"
+		sambaDNS="mickey.uit"
+		powerWarning
 		execute
 	else
 		appSelect
 		diskSelect
 		execute
-		terminate
 	fi
+	terminate
 }
 
 main

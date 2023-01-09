@@ -26,6 +26,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	alldisks VARCHAR(150) NOT NULL, \
 	disksizegb VARCHAR(150) NOT NULL, \
 	reboot VARCHAR(150) NOT NULL, \
+	clone_mode VARCHAR(150) NOT NULL, \
 	clone_master VARCHAR(150) NOT NULL, \
 	erase_mode VARCHAR(150) NOT NULL, \
 	erase_diskpercent VARCHAR(150) NOT NULL, \
