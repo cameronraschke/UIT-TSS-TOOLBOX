@@ -74,7 +74,7 @@ function diskSelect {
 }
 
 function execute {
-        if [[ ! -z $ISODISK && -z $CLIENTDISK && $DISKCHECK =~ sd.* ]]; then
+        if [[ $CLIENTDISK =~ sd.* ]]; then
                 echo "Unmounting ${CLIENTDISK}"
                 umount /dev/${CLIENTDISK} &>/dev/null
                 echo "Making FAT filesystem on ${CLIENTDISK}"
