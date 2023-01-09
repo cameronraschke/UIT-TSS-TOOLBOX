@@ -22,6 +22,8 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	etheraddress, \
 	date, \
 	action, \
+	clone_completed, \
+	erase_completed, \
 	disk, \
 	alldisks, \
 	disksizegb, \
@@ -43,11 +45,13 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	'${etherAddr}', \
 	'${DATE}', \
 	'N/A', \
+	'No', \
+	'No', \
 	'N/A', \
 	'N/A', \
 	'0', \
-	'N/A', \
-	'N/A', \
+	'No', \
+	'No', \
 	'N/A', \
 	'0', \
 	'N/A', \
@@ -1240,13 +1244,11 @@ function terminate {
 		echo "Times ${tagNum} has been reimaged: ${totalCount}")
 
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE clientstats SET all_jobs = all_jobs + 1 WHERE tagnumber = '${tagNum}';"
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE clientstats SET clone_jobs = clone_jobs + 1 WHERE tagnumber = '${tagNum}';"
+			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE tagnumber = '${tagNum}';"
 
 		if [[ $APPSELECT == "EC" ]]; then
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE clientstats SET erase_jobs = erase_jobs + 1 WHERE tagnumber = '${tagNum}';"
+		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+			--execute="UPDATE jobstats SET erase_completed = 'Yes' WHERE tagnumber = '${tagNum}';"
 		fi
 	fi
 	
@@ -1262,9 +1264,7 @@ function terminate {
 		echo "Computers imaged/erased today: ${imageNumToday}")
 
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET all_jobs = all_jobs + 1 WHERE tagnumber = '${tagNum}';"
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET clone_jobs = clone_jobs + 1 WHERE tagnumber = '${tagNum}';"
+			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE tagnumber = '${tagNum}';"
 	fi
 
 	

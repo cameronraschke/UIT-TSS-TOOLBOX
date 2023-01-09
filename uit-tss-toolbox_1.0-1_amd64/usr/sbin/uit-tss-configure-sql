@@ -11,13 +11,15 @@ mysql --user="root" --password="UHouston!" --execute="CREATE USER 'laptops'@'%' 
 mysql --user="root" --password="UHouston!" --execute="ALTER USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"
 mysql --user="root" --password="UHouston!" --execute="GRANT ALL ON *.* TO 'laptops'@'%' WITH GRANT OPTION;"
 
-mysql --user="laptops" --password="UHouston!" --execute="CREATE DATABASE laptopDB;"
+mysql --user="laptop" --password="UHouston!" --execute="CREATE DATABASE laptops;"
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE jobstats(\
 	uuid VARCHAR(150) NOT NULL, \
 	tagnumber VARCHAR(150) NOT NULL, \
 	etheraddress VARCHAR(150) NOT NULL, \
 	date VARCHAR(150) NOT NULL, \
 	action VARCHAR(150) NOT NULL, \
+	clone_completed VARCHAR(150) NOT NULL, \
+	erase_completed VARCHAR(150) NOT NULL, \
 	disk VARCHAR(150) NOT NULL, \
 	alldisks VARCHAR(150) NOT NULL, \
 	disksizegb VARCHAR(150) NOT NULL, \
@@ -38,6 +40,8 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE clientstats(\
 	tagnumber VARCHAR(150) NOT NULL, \
+	all_lastdate VARCHAR(150) NOT NULL, \
+	all_lastuuid VARCHAR(150) NOT NULL, \
 	all_avgtime VARCHAR(150) NOT NULL, \
 	all_avgtimetoday VARCHAR(150) NOT NULL, \
 	erase_avgtime VARCHAR(150) NOT NULL, \
@@ -54,11 +58,11 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE serverstats(\
-	date VARCHAR(150) NOT NULL, \
+	id int NOT NULL AUTO_INCREMENT, \
 	all_jobs VARCHAR(150) NOT NULL, \
 	clone_jobs VARCHAR(150) NOT NULL, \
 	erase_jobs VARCHAR(150) NOT NULL, \
 	all_avgtime VARCHAR(150) NOT NULL, \
 	clone_avgtime VARCHAR(150) NOT NULL, \
 	erase_avgtime VARCHAR(150) NOT NULL, \
-	PRIMARY KEY (date) );"
+	PRIMARY KEY (id) );"
