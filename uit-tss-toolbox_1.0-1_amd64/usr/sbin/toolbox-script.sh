@@ -12,6 +12,54 @@ RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
+etherAddr=$(cat /sys/class/net/enp1s0/address)
+UUID=$(cat /proc/sys/kernel/random/uuid)
+DATE=$(date --iso)
+
+mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="INSERT INTO jobstats(\
+	uuid, \
+	tagnumber, \
+	etheraddress, \
+	date, \
+	action, \
+	disk, \
+	alldisks, \
+	disksizegb, \
+	reboot, \
+	clone_master, \
+	erase_mode, \
+	erase_diskpercent, \
+	clone_server, \
+	clone_sambauser, \
+	clone_image, \
+	clone_imageupdate, \
+	erase_pattern, \
+	all_totaltime, \
+	erase_time, \
+	clone_time) \
+	VALUES (\
+	'${UUID}', \
+	'000000', \
+	'${etherAddr}', \
+	'${DATE}', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'0', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'0', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'N/A', \
+	'0', \
+	'0', \
+	'0');"
+
+
 
 function info {
 	if [[ $ACTION != "" ]]; then
@@ -46,9 +94,7 @@ function exitMessage {
 
 
 function intro {
-	etherAddr=$(cat /sys/class/net/enp1s0/address)
-	UUID=$(cat /proc/sys/kernel/random/uuid)
-	DATE=$(date --iso)
+
 
 	echo "${RESET}"
 	exitMessage
@@ -83,50 +129,7 @@ function intro {
 	echo ""
 	read -p "${BOLD}Please remove the thumb drive and press ${BLUE}Enter${RESET}${BOLD}....${RESET} "
 
-	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="INSERT INTO jobstats(\
-	uuid, \
-	tagnumber, \
-	etheraddress, \
-	date, \
-	action, \
-	disk, \
-	alldisks, \
-	disksizegb, \
-	alldisksizegb, \
-	reboot, \
-	clone_master, \
-	erase_mode, \
-	erase_diskpercent, \
-	clone_server, \
-	clone_sambauser, \
-	clone_image, \
-	clone_imageupdate, \
-	erase_pattern, \
-	all_totaltime, \
-	erase_time, \
-	clone_time) \
-	VALUES (\
-	'${UUID}', \
-	'000000', \
-	'${etherAddr}', \
-	'${DATE}', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A');"
+	
 	tput reset
 }
 
@@ -142,7 +145,7 @@ function powerWarning {
 	read -p "Please press ${BOLD}${BLUE}Enter${RESET}...."
 	tput reset
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET rebooted = 'yes' WHERE uuid = '${UUID}';"
+		--execute="UPDATE jobstats SET reboot = 'yes' WHERE uuid = '${UUID}';"
 	echo -n mem > /sys/power/state
 	tput reset
 }
@@ -158,19 +161,19 @@ function appSelect {
 		APPSELECT="EC"
 		ACTION="erase and clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+			--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
 		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+			--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
 		powerWarning
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+			--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
 	else
 		echo ""
 		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
@@ -197,7 +200,7 @@ function basicEraseMode_Shred {
 		fi
 	fi
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET mode = '${RMODE}' WHERE uuid = '${UUID}';"
+		--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
 }
 
 
@@ -301,7 +304,7 @@ function advEraseMode_Shred {
 	esac
 
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET mode = '${RMODE}' WHERE uuid = '${UUID}';"
+		--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
 }
 
 
@@ -352,7 +355,7 @@ function diskSelect {
 	
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';" &
+			--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';" &
 	else
 	    echo ""
 	    echo "${BOLD}${RED}Invalid selection.${RESET}"
@@ -382,7 +385,7 @@ function writeDisk_Shred {
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET disksizegb = ${DISKSIZEGB} WHERE uuid = '${UUID}';"
+		--execute="UPDATE jobstats SET disksizegb = ${DISKSIZEGB} WHERE uuid = '${UUID}';"
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
@@ -430,7 +433,7 @@ function writeDisk_Shred {
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET diskpcnt = ${PCNTOFSECTOR} WHERE uuid = '${UUID}';"
+		--execute="UPDATE jobstats SET erase_diskpercent = ${PCNTOFSECTOR} WHERE uuid = '${UUID}';"
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -1026,19 +1029,19 @@ function clientselect_Clone {
 	sambaPath='hp'
 	cloneImgName='2023Spring-HP'
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET cloneimg = '${cloneImgName}' WHERE uuid = '${UUID}';"
+		--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
 	;;
 	2)
 	sambaPath='dell'
 	cloneImgName='2023Spring-Dell'
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET cloneimg = '${cloneImgName}' WHERE uuid = '${UUID}';"
+		--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
 	;;
 	3)
 	sambaPath='desktops'
 	cloneImgName='2022Fall-Win10Desktops'
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats SET cloneimg = '${cloneImgName}' WHERE uuid = '${UUID}';"
+		--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
 	;;
 	*)
 	clientselect
@@ -1088,7 +1091,7 @@ function execute_Clone {
 	sambaServer="10.0.0.1"
 	sambaDNS="mickey.uit"
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-		--execute="UPDATE laptopstats sambauser='${sambaUser}', \
+		--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}', \
 		server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
@@ -1109,7 +1112,7 @@ function execute_Clone {
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
 	mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats SET imagetime = '${cloneElapsed}' WHERE uuid = '${UUID}';"
+			UPDATE jobstats SET clone_time = '${cloneElapsed}' WHERE uuid = '${UUID}';"
 	return
 }
 
@@ -1150,7 +1153,7 @@ function execute_Shred {
 		fi
 		shredElapsed=$(( SECONDS - start_time ))
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats SET erasetime = '${shredElapsed}' WHERE uuid = '${UUID}';"
+			UPDATE jobstats SET erase_time = '${shredElapsed}' WHERE uuid = '${UUID}';"
 	fi
 	return
 }
@@ -1191,7 +1194,7 @@ function terminate {
 	read -p "${BOLD}Process has finished. Please enter the ${BLUE}tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 	if [[ $tagNum =~ $regex ]]; then
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" --execute="\
-			UPDATE laptopstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}';"
+			UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}';"
 	else
 		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
 		sleep 0.5
@@ -1202,9 +1205,8 @@ function terminate {
 	echo ""
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
-		imgupdate='2023-01-03'
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET imgupdate = '${imgupdate}' WHERE uuid = '${UUID}';"
+			--execute="UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}';"
 
 		if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
 			terminateAction="erased and cloned"
@@ -1226,20 +1228,20 @@ function terminate {
 		echo "Times ${tagNum} has been reimaged: ${totalCount}")
 
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET timestotal = timestotal + 1 WHERE tagnumber = '${tagNum}';"
+			--execute="UPDATE clientstats SET all_jobs = all_jobs + 1 WHERE tagnumber = '${tagNum}';"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET timesclonedtotal = timesclonedtotal + 1 WHERE tagnumber = '${tagNum}';"
+			--execute="UPDATE clientstats SET clone_jobs = clone_jobs + 1 WHERE tagnumber = '${tagNum}';"
 
 		if [[ $APPSELECT == "EC" ]]; then
 			mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-				--execute="UPDATE laptopstats SET timeserasedtotal = timeserasedtotal + 1 WHERE tagnumber = '${tagNum}';"
+				--execute="UPDATE clientstats SET erase_jobs = erase_jobs + 1 WHERE tagnumber = '${tagNum}';"
 		fi
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		imgupdate=$(date --iso)
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET imgupdate = '${imgupdate}' WHERE uuid = '${UUID}';"
+			--execute="UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}';"
 
 		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
 		echo "Server: \"${sambaDNS}\""
@@ -1248,10 +1250,11 @@ function terminate {
 		echo "Computers imaged/erased today: ${imageNumToday}")
 
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET timestotal = timestotal + 1 WHERE tagnumber = '${tagNum}';"
+			--execute="UPDATE jobstats SET all_jobs = all_jobs + 1 WHERE tagnumber = '${tagNum}';"
 		mysql --user="laptops" --password="UHouston!" --database="laptops" --host="10.0.0.1" \
-			--execute="UPDATE laptopstats SET timesclonedtotal = timesclonedtotal + 1 WHERE tagnumber = '${tagNum}';"
+			--execute="UPDATE jobstats SET clone_jobs = clone_jobs + 1 WHERE tagnumber = '${tagNum}';"
 	fi
+
 	
 	echo ""
 	echo "${exitMessage}"
