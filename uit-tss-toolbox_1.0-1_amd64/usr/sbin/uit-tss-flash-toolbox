@@ -19,10 +19,10 @@ if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
 fi
 
 function diskSelect {
-        DISKNAMES=$(for ISODISK in /sys/block/*;
-                do if udevadm info --query=property --path=${ISODISK} | grep -q ^ID_BUS=usb;
-                then ISODISK=$(echo ${ISODISK} | grep -o 'sd.*');
-                echo ${ISODISK}; fi; done)
+    DISKNAMES=$(for ISODISK in /sys/block/*;
+        do if udevadm info --query=property --path=${ISODISK} | grep -q ^ID_BUS=usb;
+        then ISODISK=$(echo ${ISODISK} | grep -o 'sd.*');
+        echo ${ISODISK}; fi; done)
 	DISKSIZES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
         CLIENTDISK=""
 	diskNums="0"
@@ -63,30 +63,19 @@ function diskSelect {
 		echo ""
 		echo ""
 	fi
-
-	if [[ $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		:
-	else
-	    echo ""
-	    echo "${BOLD}${RED}Invalid selection.${RESET}"
-		sleep 0.5
-	    diskSelect
-	fi
-
-
 }
 
 function execute {
-        if [[ ! -z ${ISODISK} && $DISKCHECK =~ sd.* ]]; then
-                echo "Unmounting ${ISODISK}"
-                umount /dev/${ISODISK} &>/dev/null
-                echo "Making FAT filesystem on ${ISODISK}"
-                mkfs.vfat -I -F 32 /dev/${ISODISK} &>/dev/null
-                echo "Writing ISO to ${ISODISK}, this may take a while..."
-                /usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${ISODISK}
-                echo "Creating new label on disk ${ISODISK}: UITTOOLBX"
-                fatlabel /dev/${ISODISK} "UITTOOLBX" &>/dev/null
-                fatlabel /dev/${ISODISK}1 "UITTOOLBX" &>/dev/null
+        if [[ ! -z $ISODISK && -z $CLIENTDISK && $DISKCHECK =~ sd.* ]]; then
+                echo "Unmounting ${CLIENTDISK}"
+                umount /dev/${CLIENTDISK} &>/dev/null
+                echo "Making FAT filesystem on ${CLIENTDISK}"
+                mkfs.vfat -I -F 32 /dev/${CLIENTDISK} &>/dev/null
+                echo "Writing ISO to ${CLIENTDISK}, this may take a while..."
+                /usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${CLIENTDISK}
+                echo "Creating new label on disk ${CLIENTDISK}: UITTOOLBX"
+                fatlabel /dev/${CLIENTDISK} "UITTOOLBX" &>/dev/null
+                fatlabel /dev/${CLIENTDISK}1 "UITTOOLBX" &>/dev/null
         else
                 echo ""
                 echo "Invalid block device or no USB drive found. Exiting...."
