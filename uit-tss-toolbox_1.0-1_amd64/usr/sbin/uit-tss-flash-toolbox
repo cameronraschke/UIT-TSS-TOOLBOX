@@ -32,7 +32,7 @@ function diskSelect {
 	local DISKARR=()
 
 	for i in ${DISKNAMES}; do
-		diskNums=$(( DISKNAMES + 1 ))
+		diskNums=$(( diskNums + 1 ))
 		DISKARR+=( "$i" )
 	done
 
