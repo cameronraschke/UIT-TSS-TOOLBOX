@@ -11,7 +11,7 @@ mysql --user="root" --password="UHouston!" --execute="CREATE USER 'laptops'@'%' 
 mysql --user="root" --password="UHouston!" --execute="ALTER USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"
 mysql --user="root" --password="UHouston!" --execute="GRANT ALL ON *.* TO 'laptops'@'%' WITH GRANT OPTION;"
 
-mysql --user="laptop" --password="UHouston!" --execute="CREATE DATABASE laptops;"
+mysql --user="laptops" --password="UHouston!" --execute="CREATE DATABASE laptopDB;"
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE jobstats(\
 	uuid VARCHAR(150) NOT NULL, \
 	tagnumber VARCHAR(150) NOT NULL, \

@@ -12,7 +12,7 @@ RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
-etherAddr=$(cat /sys/class/net/enp1s0/address)
+etherAddr=$(cat /sys/class/net/e*/address | tail -n 1)
 UUID=$(cat /proc/sys/kernel/random/uuid)
 DATE=$(date --iso)
 
@@ -127,7 +127,7 @@ function intro {
 	echo "      * Every Dell is in RAID mode by default."
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
-	read -p "${BOLD}Please remove the thumb drive and press ${BLUE}Enter${RESET}${BOLD}....${RESET} "
+	read -n 1 -p "${BOLD}Please remove the thumb drive and press ${BLUE}any button${RESET}${BOLD} to continue....${RESET} "
 
 	
 	tput reset
@@ -142,12 +142,24 @@ function powerWarning {
 	echo "${BOLD}This is normal. Please wake up the system after it hibernates.${RESET}"
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
-	read -p "Please press ${BOLD}${BLUE}Enter${RESET}...."
-	tput reset
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		--execute="UPDATE jobstats SET reboot = 'yes' WHERE uuid = '${UUID}';"
-	echo -n mem > /sys/power/state
-	tput reset
+	read -n 1 -p "Please press ${BOLD}${BLUE}[1]${RESET} ${BOLD}or ${BLUE}[2]${RESET} ${BOLD}to skip....s${RESET} " restartBool
+	if [[restartBool == "1"]]; then
+		tput reset
+		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+			--execute="UPDATE jobstats SET reboot = 'yes' WHERE uuid = '${UUID}';"
+		echo -n mem > /sys/power/state
+		tput reset
+	elif [[restartBool == "2"]]; then
+		tput reset
+		echo "${BOLD}${RED}*** WARNING ***${RESET}"
+		echo "${BOLD}It is dangerous to skip this step.${RESET}"
+		echo "${BOLD}${RED}*** WARNING ***${RESET}"
+		echo ""
+		read -p "Press ${BOLD}${BLUE}Enter${RESET}${BOLD} to NOT reset (DANGEROUS)....${RESET} "
+		tput reset
+	else
+		powerWarning
+	fi
 }
 
 
