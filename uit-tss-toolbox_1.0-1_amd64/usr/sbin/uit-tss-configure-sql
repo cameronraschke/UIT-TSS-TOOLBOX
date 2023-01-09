@@ -54,11 +54,11 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE serverstats(\
-	id int NOT NULL AUTO_INCREMENT, \
+	date VARCHAR(150) NOT NULL, \
 	all_jobs VARCHAR(150) NOT NULL, \
 	clone_jobs VARCHAR(150) NOT NULL, \
 	erase_jobs VARCHAR(150) NOT NULL, \
 	all_avgtime VARCHAR(150) NOT NULL, \
 	clone_avgtime VARCHAR(150) NOT NULL, \
 	erase_avgtime VARCHAR(150) NOT NULL, \
-	PRIMARY KEY (id) );"
+	PRIMARY KEY (date) );"
