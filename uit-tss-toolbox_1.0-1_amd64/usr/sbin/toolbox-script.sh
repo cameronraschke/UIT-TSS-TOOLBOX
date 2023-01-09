@@ -16,6 +16,7 @@ etherAddr=$(cat /sys/class/net/e*/address | tail -n 1)
 UUID=$(cat /proc/sys/kernel/random/uuid)
 DATE=$(date --iso)
 
+tput reset
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="INSERT INTO jobstats(\
 	uuid, \
 	tagnumber, \
@@ -63,8 +64,8 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	'N/A', \
 	'0', \
 	'0', \
-	'0');"
-
+	'0');" &>/dev/null
+tput reset
 
 
 function info {
