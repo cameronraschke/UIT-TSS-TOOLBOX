@@ -42,31 +42,31 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE clientstats(\
-	tagnumber VARCHAR(150) NOT NULL, \
-	all_lastdate VARCHAR(150) NOT NULL, \
-	all_lastuuid VARCHAR(150) NOT NULL, \
-	all_time VARCHAR(150) NOT NULL, \
-	all_avgtime VARCHAR(150) NOT NULL, \
-	all_avgtimetoday VARCHAR(150) NOT NULL, \
-	erase_avgtime VARCHAR(150) NOT NULL, \
-	erase_avgtimetoday VARCHAR(150) NOT NULL, \
-	clone_avgtime VARCHAR(150) NOT NULL, \
-	clone_avgtimetoday VARCHAR(150) NOT NULL, \
-	all_jobs VARCHAR(150) NOT NULL, \
-	all_jobstoday VARCHAR(150) NOT NULL, \
-	erase_jobs VARCHAR(150) NOT NULL, \
-	erase_jobstoday VARCHAR(150) NOT NULL, \
-	clone_jobs VARCHAR(150) NOT NULL, \
-	clone_jobstoday VARCHAR(150) NOT NULL, \
+	tagnumber VARCHAR(150) NOT NULL DEFAULT '0', \
+	all_lastdate VARCHAR(150) NOT NULL DEFAULT '0', \
+	all_lastuuid VARCHAR(150) NOT NULL DEFAULT '0', \
+	all_time VARCHAR(150) NOT NULL DEFAULT '0', \
+	all_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+	all_avgtimetoday VARCHAR(150) NOT NULL DEFAULT '0', \
+	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+	erase_avgtimetoday VARCHAR(150) NOT NULL DEFAULT '0', \
+	clone_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+	clone_avgtimetoday VARCHAR(150) NOT NULL DEFAULT '0', \
+	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+	all_jobstoday VARCHAR(150) NOT NULL DEFAULT '0', \
+	erase_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+	erase_jobstoday VARCHAR(150) NOT NULL DEFAULT '0', \
+	clone_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+	clone_jobstoday VARCHAR(150) NOT NULL DEFAULT '0', \
 	PRIMARY KEY (tagnumber) );"
 
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE serverstats(\
 	id int NOT NULL AUTO_INCREMENT, \
-	all_jobs VARCHAR(150) NOT NULL, \
-	clone_jobs VARCHAR(150) NOT NULL, \
-	erase_jobs VARCHAR(150) NOT NULL, \
-	all_avgtime VARCHAR(150) NOT NULL, \
-	clone_avgtime VARCHAR(150) NOT NULL, \
-	erase_avgtime VARCHAR(150) NOT NULL, \
+	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+	clone_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+	erase_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+	all_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+	clone_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
 	PRIMARY KEY (id) );"
