@@ -152,13 +152,13 @@ function powerWarning {
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
 	read -n 1 -p "Please press ${BOLD}${BLUE}[1]${RESET} ${BOLD}or ${BLUE}[2]${RESET} ${BOLD}to skip....s${RESET} " restartBool
-	if [[restartBool == "1"]]; then
+	if [[ $restartBool == "1" ]]; then
 		tput reset
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 			--execute="UPDATE jobstats SET reboot = 'yes' WHERE uuid = '${UUID}';"
 		echo -n mem > /sys/power/state
 		tput reset
-	elif [[restartBool == "2"]]; then
+	elif [[ $restartBool == "2" ]]; then
 		tput reset
 		echo "${BOLD}${RED}*** WARNING ***${RESET}"
 		echo "${BOLD}It is dangerous to skip this step.${RESET}"
@@ -1295,7 +1295,7 @@ function terminate {
 
 function main {
 	intro
-	if [[$mainMenuOpt == "1"]]; then
+	if [[ $mainMenuOpt == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
