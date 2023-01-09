@@ -84,6 +84,7 @@ function info {
 }
 
 
+
 function exitMessage {
 	lines=$(tput lines)
 	tput reset
@@ -1008,6 +1009,8 @@ function verifyMode_Shred {
 	fi
 }
 
+
+
 function unlockMode_Shred {
 	clear
 	echo ""
@@ -1016,6 +1019,8 @@ function unlockMode_Shred {
 	
 	secUnlock_Shred
 }
+
+
 
 function clientselect_Clone {
 	exitMessage
@@ -1067,6 +1072,8 @@ function clientselect_Clone {
 	esac
 }
 
+
+
 function confirm_Clone {
 	echo ""
 	echo ""
@@ -1101,6 +1108,7 @@ Please make a backup if necessary."
 }
 
 
+
 function execute_Clone {
 	SECONDS=0
 	start_time=$SECONDS
@@ -1133,6 +1141,8 @@ function execute_Clone {
 			UPDATE jobstats SET clone_time = '${cloneElapsed}' WHERE uuid = '${UUID}';"
 	return
 }
+
+
 
 function execute_Shred {
 	if [[ $APPSELECT == "EC" || $APPSELECT == "E" ]]; then
