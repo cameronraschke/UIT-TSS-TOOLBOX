@@ -19,10 +19,10 @@ if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
 fi
 
 function diskSelect {
-    DISKNAMES=$(for ISODISK in /sys/block/*;
-        do if udevadm info --query=property --path=${ISODISK} | grep -q ^ID_BUS=usb;
-        then ISODISK=$(echo ${ISODISK} | grep -o 'sd.*');
-        echo ${ISODISK}; fi; done)
+    DISKNAMES=$(for i in /sys/block/*;
+        do if udevadm info --query=property --path=${i} | grep -q ^ID_BUS=usb;
+        then i=$(echo ${i} | grep -o 'sd.*');
+        echo ${i}; fi; done)
 	DISKSIZES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
         CLIENTDISK=""
 	diskNums="0"
@@ -32,7 +32,7 @@ function diskSelect {
 	local DISKARR=()
 
 	for i in ${DISKNAMES}; do
-		diskNums=$(( diskNums + 1 ))
+		diskNums=$(( DISKNAMES + 1 ))
 		DISKARR+=( "$i" )
 	done
 
@@ -47,7 +47,7 @@ function diskSelect {
 			diskSelect
 		fi
 	else
-		echo "Which disk do you want to ${ACTION}?"
+		echo "Which disk do you want to flash?"
 		while read -r line; do
 			a=$(( $a + 1 ))
 			echo "${BOLD}${BLUE}[${a}]${RESET} $line"
