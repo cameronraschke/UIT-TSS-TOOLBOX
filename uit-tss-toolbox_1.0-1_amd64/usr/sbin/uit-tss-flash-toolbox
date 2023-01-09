@@ -65,10 +65,10 @@ function diskSelect {
 	fi
 	
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		echo $CLIENTDISK
+		:
 	else
 	    echo ""
-	    echo "${BOLD}${RED}Invalid selection.${RESET}"
+	    echo "${BOLD}${RED}Invalid selection: ${CLIENTDISK}${RESET}"
 		sleep 0.5
 	    diskSelect
 	fi	
