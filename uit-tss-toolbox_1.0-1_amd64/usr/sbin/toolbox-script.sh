@@ -134,8 +134,9 @@ function intro {
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
 	echo "${BOLD}Please remove the thumb drive and press one select one of the following keys:${RESET} "
-	echo "   ${BLUE}[1]${RESET} ${BOLD}Clone an HP laptop${RESET}"
-	echo "   ${BLUE}[2]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
+	echo "   ${BLUE}[1]${RESET} ${BOLD}Clone (server -> laptop) an HP laptop${RESET}"
+	echo "   ${BLUE}[2]${RESET} ${BOLD}Save (laptop -> server) an HP laptop${RESET}"
+	echo "   ${BLUE}[3]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
 	echo "${DIM}Other options coming soon....${RESET} "
 	read -n 1 -p "Select [1,2]: " mainMenuOpt
 
@@ -1335,6 +1336,29 @@ function main {
 				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}', \
 				server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		powerWarning
+		execute
+	elif [[ $mainMenuOpt == "2" ]]; then
+		APPSELECT="C"
+		ACTION="clone"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+		CLIENTDISK='nvme0n1'
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
+		cloneMode="savedisk"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}';"
+		sambaPath="hp"
+		cloneImgName="2023Spring-HP"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
+		sambaUser="cameron"
+		sambaPassword="UHouston!"
+		sambaServer="10.0.0.1"
+		sambaDNS="mickey.uit"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}', \
+				server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		execute
 	else
 		appSelect
