@@ -6,6 +6,6 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
     FROM jobstats;" > /mnt/uit-tss-laptop-report-${date}.html
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
-    SELECT tagnumber,date,etheraddress,action,all_totaltime,erase_time,clone_time,clone_image,\
+    SELECT tagnumber,date,etheraddress,action,all_totaltime,clone_image,\
     clone_mode,clone_completed,erase_mode,erase_completed \
     FROM jobstats WHERE date = '${date}';" > /mnt/uit-tss-laptop-daily-report-${date}.html
