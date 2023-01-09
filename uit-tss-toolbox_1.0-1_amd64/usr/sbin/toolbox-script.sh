@@ -1221,7 +1221,7 @@ function execute {
 
 
 function totaltime {
-	totalElapsed=$(( shredElapsed + cloneElapsed ))
+	totalElapsed=$(echo $(( (shredElapsed + cloneElapsed) / 60 )) minutes)
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
 		UPDATE jobstats SET all_totaltime = '${totalElapsed}' WHERE uuid = '${UUID}';"
 		
