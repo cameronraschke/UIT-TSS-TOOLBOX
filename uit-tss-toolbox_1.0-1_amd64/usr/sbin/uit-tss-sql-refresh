@@ -100,9 +100,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT all_time FROM clientstats WHERE tagnumber = ${tagNum};")
 
-	totaltimetoday=$(echo "${sqlstatement}" | tail -n 1)
-
-	TimesSeconds=$((totaltimetoday / linecount))
+	TimesSeconds=$((totaltimetoday / linecounttoday))
 
 	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
 
