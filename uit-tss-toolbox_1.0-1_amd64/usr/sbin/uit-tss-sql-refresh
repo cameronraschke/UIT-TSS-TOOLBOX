@@ -13,7 +13,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
     			WHERE tagnumber = '${tagNum}';"
 		else
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="\
-				INSERT INTO clientstats(\
+				INSERT INTO clientstats(
 				tagnumber, \
 				all_lastdate, \
 				all_lastuuid, \
