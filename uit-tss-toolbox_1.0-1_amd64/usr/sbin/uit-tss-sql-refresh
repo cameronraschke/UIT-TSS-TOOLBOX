@@ -32,7 +32,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 				erase_jobstoday, \
 				clone_jobs, \
 				clone_jobstoday);"
-	done
+	fi
 
 	# Update totaltime
 	erasetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
