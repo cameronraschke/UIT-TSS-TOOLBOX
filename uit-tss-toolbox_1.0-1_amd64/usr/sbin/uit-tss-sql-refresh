@@ -65,7 +65,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
     # Average image and erase time overall
 	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT all_time FROM clientstats WHERE tagnumber = ${tagNum};")
+		-s -N --execute="SELECT all_time FROM jobstats WHERE tagnumber = ${tagNum};")
 
 	linecount=$(echo "${sqlstatement}" | wc -l )
 
