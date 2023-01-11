@@ -70,16 +70,16 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 
 	# Update total time today
-	erasetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+	erasetimetoday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT erase_time FROM jobstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
-	erasetime=$(z=0; for i in ${erasetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
-	imagetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+	erasetimetoday=$(z=0; for i in ${erasetimetoday}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	imagetimetoday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT clone_time FROM jobstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
-	imagetime=$(z=0; for i in ${imagetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	imagetimetoday=$(z=0; for i in ${imagetimetoday}; do z=$(( z + i )); echo $z; done | tail -n 1)
 	
-	totaltime=$(( erasetime + imagetime ))
+	totaltimetoday=$(( erasetimetoday + imagetimetoday ))
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="UPDATE clientstats SET all_time = '${totaltime}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}';"
+		-s -N --execute="UPDATE clientstats SET all_time = '${totaltimetoday}' WHERE tagnumber = '${tagNum}' AND date = '${DATE}';"
 	
 
     # Average image and erase time overall
@@ -100,9 +100,9 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT all_time FROM clientstats WHERE tagnumber = ${tagNum} AND date = '${DATE}';")
 
-	totaltime=$(echo "${sqlstatement}" | tail -n 1)
+	totaltimetoday=$(echo "${sqlstatement}" | tail -n 1)
 
-	TimesSeconds=$((totaltime / linecount))
+	TimesSeconds=$((totaltimetoday / linecount))
 
 	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
 
