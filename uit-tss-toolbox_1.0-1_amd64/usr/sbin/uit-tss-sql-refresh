@@ -1,4 +1,5 @@
 #!/bin/bash
+DATE=$(date --iso)
 
 for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT tagnumber FROM jobstats;"); do
@@ -49,7 +50,13 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 				'0');"
 		fi
 
-	# Update totaltime
+
+	#Update linecount
+	linecount=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="SELECT tagnumber FROM jobstats WHERE tagnumber = '${tagNum}';" | wc -l )
+
+
+	# Update total time
 	erasetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT erase_time FROM jobstats WHERE tagnumber = '${tagNum}';")
 	erasetime=$(z=0; for i in ${erasetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
@@ -60,11 +67,20 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	totaltime=$(( erasetime + imagetime ))
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="UPDATE clientstats SET all_time = '${totaltime}' WHERE tagnumber = '${tagNum}';"
+
+
+	# Update total time today
+	erasetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="SELECT erase_time FROM jobstats WHERE tagnumber = '${tagNum}' AND date = ${DATE};")
+	erasetime=$(z=0; for i in ${erasetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	imagetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="SELECT clone_time FROM jobstats WHERE tagnumber = '${tagNum}' AND date = ${DATE};")
+	imagetime=$(z=0; for i in ${imagetime}; do z=$(( z + i )); echo $z; done | tail -n 1)
 	
-	linecount=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT tagnumber FROM jobstats WHERE tagnumber = '${tagNum}';" | wc -l )
-
-
+	totaltime=$(( erasetime + imagetime ))
+    mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="UPDATE clientstats SET all_time = '${totaltime}' WHERE tagnumber = '${tagNum}' AND date = ${DATE};"
+	
 
     # Average image and erase time overall
 	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
@@ -78,5 +94,36 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
 		UPDATE clientstats SET all_avgtime = '${TimesMinutes}' WHERE tagnumber = ${tagNum};"
+
+
+    # Average image and erase time today
+	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="SELECT all_time FROM clientstats WHERE tagnumber = ${tagNum} AND date = ${DATE};")
+
+	totaltime=$(echo "${sqlstatement}" | tail -n 1)
+
+	TimesSeconds=$((totaltime / linecount))
+
+	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
+
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE clientstats SET all_avgtimetoday = '${TimesMinutes}' WHERE tagnumber = ${tagNum} AND date = ${DATE};"
+
+
+	# Update total jobs
+	erasejobs=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="SELECT erase_completed FROM jobstats WHERE tagnumber = '${tagNum}';")
+	erasejobs=$(z=0; for i in ${erasejobs}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE clientstats SET erase_jobs = '${erasejobs}' WHERE tagnumber = ${tagNum};"
+	imagejobs=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="SELECT clone_completed FROM jobstats WHERE tagnumber = '${tagNum}';")
+	imagejobs=$(z=0; for i in ${imagejobs}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE clientstats SET image_jobs = '${imagejobs}' WHERE tagnumber = ${tagNum};"
+	
+	totaljobs=$(( erasejobs + imagejobs ))
+    mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="UPDATE clientstats SET all_jobs = '${totaljobs}' WHERE tagnumber = '${tagNum}';"
 
 done
