@@ -157,7 +157,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 	# Update date
 	sqldate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT date FROM jobstats WHERE tagnumber = ${tagNum} ORDER BY date ASC;" | head -n 1)
+		-s -N --execute="SELECT date FROM jobstats WHERE tagnumber = ${tagNum} ORDER BY date DESC;" | head -n 1)
 
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="UPDATE clientstats SET all_lastdate = '${sqldate}' WHERE tagnumber = '${tagNum}';"
