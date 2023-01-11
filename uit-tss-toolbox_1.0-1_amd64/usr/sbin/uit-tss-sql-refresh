@@ -46,7 +46,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 				'0', \
 				'0', \
 				'0', \
-				'0', \);"
+				'0');"
 		fi
 
 	# Update totaltime
