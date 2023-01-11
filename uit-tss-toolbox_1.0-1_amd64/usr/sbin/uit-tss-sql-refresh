@@ -116,13 +116,13 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	erasejobs=$(z=0; for i in ${erasejobs}; do z=$(( z + i )); echo $z; done | tail -n 1)
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
 		UPDATE clientstats SET erase_jobs = '${erasejobs}' WHERE tagnumber = ${tagNum};"
-	imagejobs=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+	clonejobs=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT clone_completed FROM jobstats WHERE tagnumber = '${tagNum}';")
-	imagejobs=$(z=0; for i in ${imagejobs}; do z=$(( z + i )); echo $z; done | tail -n 1)
+	clonejobs=$(z=0; for i in ${clonejobs}; do z=$(( z + i )); echo $z; done | tail -n 1)
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE clientstats SET image_jobs = '${imagejobs}' WHERE tagnumber = ${tagNum};"
+		UPDATE clientstats SET clone_jobs = '${clonejobs}' WHERE tagnumber = ${tagNum};"
 	
-	totaljobs=$(( erasejobs + imagejobs ))
+	totaljobs=$(( erasejobs + clonejobs ))
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="UPDATE clientstats SET all_jobs = '${totaljobs}' WHERE tagnumber = '${tagNum}';"
 
