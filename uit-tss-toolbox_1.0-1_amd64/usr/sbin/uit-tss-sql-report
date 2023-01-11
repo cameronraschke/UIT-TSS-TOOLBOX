@@ -1,11 +1,11 @@
 #!/bin/bash
 date=$(date --iso)
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
-    SELECT tagnumber,date,etheraddress,action,all_totaltime,erase_time,clone_time,clone_image,\
-    clone_mode,clone_completed,erase_mode,erase_completed \
-    FROM jobstats;" > /mnt/uit-tss-laptop-report-${date}.html
-
-mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT tagnumber,date,etheraddress,action,all_totaltime,clone_image,\
     clone_mode,clone_completed,erase_mode,erase_completed \
-    FROM jobstats WHERE date = '${date}';" > /mnt/uit-tss-laptop-daily-report-${date}.html
+    FROM jobstats WHERE date = '${date}';" > /mnt/uit-tss-laptop-daily-job-report-${date}.html
+
+mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
+    SELECT tagnumber,all_lastdate,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,\
+    clone_jobs,erase_jobs \
+    FROM jobstats;" > /mnt/uit-tss-laptop-report-${date}.html
