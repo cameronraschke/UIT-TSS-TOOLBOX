@@ -8,7 +8,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 	for i in ${exists}; do
 
-		if [[ $exists == $tagNum ]]
+		if [[ $exists == $tagNum ]]; then
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="\
     			UPDATE clientstats \
      			SET tagnumber = '${tagNum}' \
