@@ -6,8 +6,6 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	exists=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="\
 		SELECT tagnumber FROM clientstats WHERE tagnumber = '${tagNum}';")
 
-	for i in ${exists}; do
-
 		if [[ $exists == $tagNum ]]; then
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="\
     			UPDATE clientstats \
@@ -32,7 +30,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 				erase_jobstoday, \
 				clone_jobs, \
 				clone_jobstoday);"
-	fi
+		fi
 
 	# Update totaltime
 	erasetime=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
