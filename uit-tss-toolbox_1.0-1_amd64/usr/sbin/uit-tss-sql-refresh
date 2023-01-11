@@ -60,14 +60,15 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	totaltime=$(( erasetime + imagetime ))
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="UPDATE clientstats SET all_time = '${totaltime}' WHERE tagnumber = '${tagNum}';"
+	
+	linecount=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="SELECT tagnumber FROM jobstats WHERE tagnumber = '${tagNum}';" | wc -l )
 
 
 
     # Average image and erase time overall
 	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT all_totaltime FROM jobstats WHERE tagnumber = ${tagNum};")
-
-	linecount=$(echo "${sqlstatement}" | wc -l )
+		-s -N --execute="SELECT all_time FROM clientstats WHERE tagnumber = ${tagNum};")
 
 	totaltime=$(echo "${sqlstatement}" | tail -n 1)
 
