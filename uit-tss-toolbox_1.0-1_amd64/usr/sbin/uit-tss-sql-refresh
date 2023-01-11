@@ -85,6 +85,20 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 		UPDATE clientstats SET all_avgtime = '${TimesMinutes}' WHERE tagnumber = '${tagNum}';"
 
 
+    # Average clone and erase time overall
+	sqlstatement=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="SELECT clone_time FROM clientstats WHERE tagnumber = ${tagNum};")
+
+	totaltime=$(echo "${sqlstatement}" | tail -n 1)
+
+	TimesSeconds=$((totaltime / linecount))
+
+	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
+
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE clientstats SET clone_avgtime = '${TimesMinutes}' WHERE tagnumber = '${tagNum}';"
+
+
 	# Update total time today
 	erasetimetoday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT erase_time FROM jobstats WHERE tagnumber = '${tagNum}' AND date = '${DATE}';")
@@ -106,10 +120,10 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 		TimesSeconds=$((totaltimetoday / linecounttoday))
 	fi
 
-	TimesMinutes=$(echo "$((TimesSeconds / 60)) minutes")
+	TimesMinutesToday=$(echo "$((TimesSeconds / 60)) minutes")
 
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="UPDATE clientstats SET all_avgtimetoday = '${totaltimetoday}' WHERE tagnumber = '${tagNum}';"
+		-s -N --execute="UPDATE clientstats SET all_avgtimetoday = '${TimesMinutesToday}' WHERE tagnumber = '${tagNum}';"
 
 
 	# Update total jobs
