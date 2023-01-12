@@ -1209,9 +1209,10 @@ function execute {
 		execute_Shred
 		execute_Clone
 	elif [[ $APPSELECT == "E" ]]; then
-		if [[ ! -z shredMode ]]; then
+		if [[ -z $shredMode ]]; then
 			advEraseMode_Shred
 		fi
+		basicEraseMode_Shred
 		execute_Shred
 	elif [[ $APPSELECT == "C" ]]; then
 		if [[ -z $cloneMode ]]; then
