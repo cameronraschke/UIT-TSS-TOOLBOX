@@ -70,3 +70,20 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	clone_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
 	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
 	PRIMARY KEY (id) );"
+
+	INSERT INTO serverstats(
+			laptop_count, \
+			all_jobs, \
+			clone_jobs, \
+			erase_jobs, \
+			all_avgtime, \
+			clone_avgtime, \
+			erase_avgtime)
+			VALUES (
+			'0', \
+			'0', \
+			'0', \
+			'0', \
+			'0', \
+			'0', \
+			'0');"
