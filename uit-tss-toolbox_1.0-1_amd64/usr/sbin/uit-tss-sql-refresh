@@ -165,15 +165,17 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 		-s -N --execute="UPDATE clientstats SET all_lastdate = '${sqldate}' WHERE tagnumber = '${tagNum}';"
 
 	# Update device type
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE clientstats SET device_type = 'HP' WHERE clone_image LIKE '%HP' AND tagnumber = '${tagNum}';"
-
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE clientstats SET device_type = 'Dell' WHERE clone_image LIKE '%HP' AND tagnumber = '${tagNum}';"
+	for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		SELECT tagnumber FROM jobstats WHERE clone_image LIKE '%HP' AND tagnumber = '${tagNum}';"); do 
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+				UPDATE clientstats SET device_type = 'HP' WHERE tagnumber = '${i}';"
+	done
 	
-	totaljobs=$(( erasejobs + clonejobs ))
-    mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="UPDATE clientstats SET all_jobs = '${totaljobs}' WHERE tagnumber = '${tagNum}';"
+	for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		SELECT tagnumber FROM jobstats WHERE clone_image LIKE '%Dell' AND tagnumber = '${tagNum}';"); do 
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+				UPDATE clientstats SET device_type = 'Dell' WHERE tagnumber = '${i}';"
+	done
 
 done
 
