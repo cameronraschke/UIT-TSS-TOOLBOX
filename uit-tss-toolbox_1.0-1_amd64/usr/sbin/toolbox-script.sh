@@ -1399,7 +1399,7 @@ function main {
 				server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
-	elif [[ $mainMenuOpt == "3" ]]; then
+	elif [[ $mainMenuOpt == "4" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
