@@ -1304,6 +1304,21 @@ function terminate {
 			--execute="UPDATE jobstats SET clone_master = 'Yes' WHERE uuid = '${UUID}';"
 	fi
 
+	if [[ $APPSELECT == "E" ]]; then
+
+		if [[ $cloneMode == "erase" && $APPSELECT == "E" ]]; then
+			terminateAction="erased"
+		fi
+
+		exitMessage=$(echo "Tag#: ${tagNum}"
+		echo "MAC: ${etherAddr}"
+		echo "Action: ${terminateAction}"
+		echo "Total time taken: ${totalElapsed}"
+		)
+		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+			--execute="UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}';"
+	fi
+
 	
 	echo ""
 	echo "${exitMessage}"
