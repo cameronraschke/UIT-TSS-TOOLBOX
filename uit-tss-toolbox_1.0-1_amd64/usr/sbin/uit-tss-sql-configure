@@ -62,6 +62,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE serverstats(\
 	id int NOT NULL AUTO_INCREMENT, \
+	laptop_count VARCHAR(150) NOT NULL DEFAULT '0', \
 	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
 	clone_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
 	erase_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
