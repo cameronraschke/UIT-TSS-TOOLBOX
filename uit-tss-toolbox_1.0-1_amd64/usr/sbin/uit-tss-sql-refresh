@@ -225,6 +225,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	linecount=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT tagnumber FROM clientstats;")
 	linecount=$(for i in ${linecount}; do i=$(( i + 1 )); echo $i; done | tail -n 1)
-
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE serverstats SET laptop_count = '${linecount}';"
 
 done
