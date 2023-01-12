@@ -41,6 +41,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE clientstats(\
 	tagnumber VARCHAR(150) NOT NULL DEFAULT '0', \
+	device_type VARCHAR(150) NOT NULL DEFAULT '0', \
 	all_lastdate VARCHAR(150) NOT NULL DEFAULT '0', \
 	all_lastuuid VARCHAR(150) NOT NULL DEFAULT '0', \
 	all_time VARCHAR(150) NOT NULL DEFAULT '0', \

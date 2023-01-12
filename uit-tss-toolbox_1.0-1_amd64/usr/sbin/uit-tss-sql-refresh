@@ -16,6 +16,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="\
 				INSERT INTO clientstats(
 				tagnumber, \
+				device_type, \
 				all_lastdate, \
 				all_lastuuid, \
 				all_time, \
@@ -33,6 +34,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 				clone_jobstoday)
 				VALUES (
 				'${tagNum}', \
+				'0', \
 				'0', \
 				'0', \
 				'0', \
@@ -161,6 +163,17 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="UPDATE clientstats SET all_lastdate = '${sqldate}' WHERE tagnumber = '${tagNum}';"
+
+	# Update device type
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE clientstats SET device_type = 'HP' WHERE clone_image LIKE '%HP' AND tagnumber = '${tagNum}';"
+
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE clientstats SET device_type = 'Dell' WHERE clone_image LIKE '%HP' AND tagnumber = '${tagNum}';"
+	
+	totaljobs=$(( erasejobs + clonejobs ))
+    mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+		-s -N --execute="UPDATE clientstats SET all_jobs = '${totaljobs}' WHERE tagnumber = '${tagNum}';"
 
 done
 

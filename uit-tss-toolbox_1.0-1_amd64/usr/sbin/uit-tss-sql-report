@@ -6,6 +6,6 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
     FROM jobstats ORDER BY date DESC;" > /mnt/uit-tss-laptop-job-report-${DATE}.html
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
-    SELECT tagnumber,all_lastdate,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,\
+    SELECT tagnumber,all_lastdate,device_type,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,\
     clone_jobs,erase_jobs \
     FROM clientstats ORDER BY all_lastdate DESC;" > /mnt/uit-tss-laptop-report-${DATE}.html
