@@ -1425,6 +1425,8 @@ function main {
 		RMODE="autodetect"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 				--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET clone_image = 'Erase Only N/A' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "5" ]]; then
