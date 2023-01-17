@@ -1423,10 +1423,11 @@ function main {
 		CLIENTDISK='nvme0n1'
 		shredMode="autodetect"
 		RMODE="autodetect"
+		manufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 				--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_image = 'Erase Only N/A' WHERE uuid = '${UUID}';"
+				--execute="UPDATE jobstats SET clone_image = '$manufacturer' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "5" ]]; then
