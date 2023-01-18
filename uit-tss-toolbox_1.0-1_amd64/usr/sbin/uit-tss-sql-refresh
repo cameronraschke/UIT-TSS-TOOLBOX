@@ -191,27 +191,27 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 		UPDATE serverstats SET laptop_count = '${linecount}';"
 
 	# all_avgtime
-	data=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+	allAvgTime=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT all_avgtime FROM clientstats WHERE NOT all_avgtime = '0';" | grep -P '[0-9]'); do \
 		z=$(( z + i )); echo $z; done | tail -n 1)
-	data=$(( data / linecount ))
+	allAvgTime=$(( allAvgTime / linecount ))
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET all_avgtime = '${data} minutes';"
+		UPDATE serverstats SET all_avgtime = '${allAvgTime} minutes';"
 
 	# clone_avgtime
-	data=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+	cloneAvgTime=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT clone_avgtime FROM clientstats WHERE NOT clone_avgtime = '0';" | grep -P '[0-9]'); do \
 		z=$(( z + i )); echo $z; done | tail -n 1)
-	data=$(( data / linecount ))
+	cloneAvgTime=$(( cloneAvgTime / linecount ))
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET clone_avgtime = '${data} minutes';"
+		UPDATE serverstats SET clone_avgtime = '${cloneAvgTime} minutes';"
 
 	# erase_avgtime
-	data=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+	eraseAvgTime=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT erase_avgtime FROM clientstats WHERE NOT erase_avgtime = '0';" | grep -P '[0-9]'); do \
 		z=$(( z + i )); echo $z; done | tail -n 1)
-	data=$(( data / linecount ))
+	eraseAvgTime=$(( eraseAvgTime / linecount ))
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET erase_avgtime = '${data} minutes';"
+		UPDATE serverstats SET erase_avgtime = '${eraseAvgTime} minutes';"
 
 done
