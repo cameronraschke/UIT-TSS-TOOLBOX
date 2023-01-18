@@ -73,6 +73,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	PRIMARY KEY (date) );"
 
 	INSERT INTO serverstats(
+			date, \
 			laptop_count, \
 			last_image_update, \
 			all_jobs, \
@@ -83,8 +84,9 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 			erase_avgtime)
 			VALUES (
 			'N/A', \
-			'0', \
 			'N/A', \
+			'0', \
+			'0', \
 			'0', \
 			'0', \
 			'0', \
