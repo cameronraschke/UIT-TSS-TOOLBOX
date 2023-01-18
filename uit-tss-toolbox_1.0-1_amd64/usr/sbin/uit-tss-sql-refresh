@@ -216,20 +216,20 @@ done
 		UPDATE serverstats SET all_avgtime = '${allAvgTime} minutes';"
 	
 	# clone_jobs
-	linecount=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+	clonejobs=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT clone_jobs FROM clientstats WHERE NOT tagnumber = '000000';"); do \
 		z=$(( z + i )); echo $z; done | tail -n 1)
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET clone_jobs = '${linecount}';"
+		UPDATE serverstats SET clone_jobs = '${clonejobs}';"
 
 	# erase_jobs
-	linecount=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+	erasejobs=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT erase_jobs FROM clientstats WHERE NOT tagnumber = '000000';"); do \
 		z=$(( z + i )); echo $z; done | tail -n 1)
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET erase_jobs = '${linecount}';"
+		UPDATE serverstats SET erase_jobs = '${erasejobs}';"
 
 	# all_jobs
-	linecount=$(( clone_jobs + erase_jobs ))
+	linecount=$(( clonejobs + erasejobs ))
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
 		UPDATE serverstats SET all_jobs = '${linecount}';"
