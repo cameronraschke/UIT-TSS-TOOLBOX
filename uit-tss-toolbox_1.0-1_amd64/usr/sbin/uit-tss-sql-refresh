@@ -190,7 +190,7 @@ done
 
 	# all_avgtime
 	lc_allavgtime=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000' AND NOT all_avgtime = '0 minutes\
+		-s -N --execute="SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000' AND NOT all_avgtime = '0 minutes' \
 		AND NOT erase_avgtime = '0 minutes';"); do \
 		z=$(( z + 1 )); echo $z; done | tail -n 1)
 	allAvgTime=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
