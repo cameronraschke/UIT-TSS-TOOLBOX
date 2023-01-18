@@ -73,6 +73,9 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	PRIMARY KEY (date) );"
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="\
+DROP TABLE serverstats;"
+
+mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="\
 	INSERT INTO serverstats(
 			date, \
 			laptop_count, \
