@@ -11,65 +11,66 @@ mysql --user="root" --password="UHouston!" --execute="CREATE USER 'laptops'@'%' 
 mysql --user="root" --password="UHouston!" --execute="ALTER USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"
 mysql --user="root" --password="UHouston!" --execute="GRANT ALL ON *.* TO 'laptops'@'%' WITH GRANT OPTION;"
 
-mysql --user="laptops" --password="UHouston!" --execute="CREATE DATABASE laptops;"
-mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE jobstats(\
-	uuid VARCHAR(150) NOT NULL, \
-	tagnumber VARCHAR(150) NOT NULL, \
-	etheraddress VARCHAR(150) NOT NULL, \
-	date VARCHAR(150) NOT NULL, \
-	action VARCHAR(150) NOT NULL, \
-	clone_completed VARCHAR(150) NOT NULL, \
-	erase_completed VARCHAR(150) NOT NULL, \
-	disk VARCHAR(150) NOT NULL, \
-	alldisks VARCHAR(150) NOT NULL, \
-	disksizegb VARCHAR(150) NOT NULL, \
-	reboot VARCHAR(150) NOT NULL, \
-	clone_mode VARCHAR(150) NOT NULL, \
-	clone_master VARCHAR(150) NOT NULL, \
-	erase_mode VARCHAR(150) NOT NULL, \
-	erase_diskpercent VARCHAR(150) NOT NULL, \
-	clone_server VARCHAR(150) NOT NULL, \
-	clone_sambauser VARCHAR(150) NOT NULL, \
-	clone_image VARCHAR(150) NOT NULL, \
-	clone_imageupdate VARCHAR(150) NOT NULL, \
-	erase_pattern VARCHAR(150) NOT NULL, \
-	all_totaltime VARCHAR(150) NOT NULL, \
-	erase_time VARCHAR(150) NOT NULL, \
-	clone_time VARCHAR(150) NOT NULL, \
-	PRIMARY KEY (uuid) );"
+# mysql --user="laptops" --password="UHouston!" --execute="CREATE DATABASE laptops;"
+# mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE jobstats(\
+# 	uuid VARCHAR(150) NOT NULL, \
+# 	tagnumber VARCHAR(150) NOT NULL, \
+# 	etheraddress VARCHAR(150) NOT NULL, \
+# 	date VARCHAR(150) NOT NULL, \
+# 	action VARCHAR(150) NOT NULL, \
+# 	clone_completed VARCHAR(150) NOT NULL, \
+# 	erase_completed VARCHAR(150) NOT NULL, \
+# 	disk VARCHAR(150) NOT NULL, \
+# 	alldisks VARCHAR(150) NOT NULL, \
+# 	disksizegb VARCHAR(150) NOT NULL, \
+# 	reboot VARCHAR(150) NOT NULL, \
+# 	clone_mode VARCHAR(150) NOT NULL, \
+# 	clone_master VARCHAR(150) NOT NULL, \
+# 	erase_mode VARCHAR(150) NOT NULL, \
+# 	erase_diskpercent VARCHAR(150) NOT NULL, \
+# 	clone_server VARCHAR(150) NOT NULL, \
+# 	clone_sambauser VARCHAR(150) NOT NULL, \
+# 	clone_image VARCHAR(150) NOT NULL, \
+# 	clone_imageupdate VARCHAR(150) NOT NULL, \
+# 	erase_pattern VARCHAR(150) NOT NULL, \
+# 	all_totaltime VARCHAR(150) NOT NULL, \
+# 	erase_time VARCHAR(150) NOT NULL, \
+# 	clone_time VARCHAR(150) NOT NULL, \
+# 	PRIMARY KEY (uuid) );"
 
 
-mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE clientstats(\
-	tagnumber VARCHAR(150) NOT NULL DEFAULT '0', \
-	device_type VARCHAR(150) NOT NULL DEFAULT '0', \
-	all_lastdate VARCHAR(150) NOT NULL DEFAULT '0', \
-	all_lastuuid VARCHAR(150) NOT NULL DEFAULT '0', \
-	all_time VARCHAR(150) NOT NULL DEFAULT '0', \
-	all_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
-	all_avgtimetoday VARCHAR(150) NOT NULL DEFAULT '0', \
-	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
-	erase_avgtimetoday VARCHAR(150) NOT NULL DEFAULT '0', \
-	clone_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
-	clone_avgtimetoday VARCHAR(150) NOT NULL DEFAULT '0', \
-	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
-	all_jobstoday VARCHAR(150) NOT NULL DEFAULT '0', \
-	erase_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
-	erase_jobstoday VARCHAR(150) NOT NULL DEFAULT '0', \
-	clone_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
-	clone_jobstoday VARCHAR(150) NOT NULL DEFAULT '0', \
-	PRIMARY KEY (tagnumber) );"
+# mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE clientstats(\
+# 	tagnumber VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	device_type VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	all_lastdate VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	all_lastuuid VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	all_time VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	all_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	all_avgtimetoday VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	erase_avgtimetoday VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	clone_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	clone_avgtimetoday VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	all_jobstoday VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	erase_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	erase_jobstoday VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	clone_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	clone_jobstoday VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	PRIMARY KEY (tagnumber) );"
 
 
-mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE serverstats(\
-	id int NOT NULL AUTO_INCREMENT, \
-	laptop_count VARCHAR(150) NOT NULL DEFAULT '0', \
-	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
-	clone_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
-	erase_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
-	all_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
-	clone_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
-	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
-	PRIMARY KEY (id) );"
+# mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE serverstats(\
+# 	id int NOT NULL AUTO_INCREMENT, \
+# 	laptop_count VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	last_image_update VARCHAR(150) NOT NULL DEFAULT 'N/A', \
+# 	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	clone_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	erase_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	all_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	clone_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+# 	PRIMARY KEY (id) );"
 
 	INSERT INTO serverstats(
 			laptop_count, \
