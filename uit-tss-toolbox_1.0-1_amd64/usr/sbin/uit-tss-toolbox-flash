@@ -48,6 +48,7 @@ function diskSelect {
 	else
 		echo "Which disk do you want to ${BOLD}flash${RESET}?"
 		lsblk
+		echo ""
 		while read -r line; do
 			a=$(( $a + 1 ))
 			echo "${BOLD}${BLUE}[${a}]${RESET} $line"
