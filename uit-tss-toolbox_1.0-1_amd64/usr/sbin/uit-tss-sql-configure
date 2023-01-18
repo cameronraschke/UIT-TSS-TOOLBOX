@@ -89,5 +89,4 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 			'0', \
 			'0', \
 			'0', \
-			'0', \
 			'0');"
