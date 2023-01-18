@@ -1252,6 +1252,8 @@ function terminate {
 
 	echo ""
 	echo ""
+	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
+	--execute="SELECT last_image_update FROM serverstats WHERE id = '1';")
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
@@ -1288,7 +1290,7 @@ function terminate {
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		imgupdate=$(date --iso)
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}';"
+			--execute="UPDATE serverstats SET last_image_update = '${imgupdate}';"
 
 		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
 		echo "Server: \"${sambaDNS}\""

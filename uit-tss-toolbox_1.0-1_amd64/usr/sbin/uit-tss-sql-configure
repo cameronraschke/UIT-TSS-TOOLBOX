@@ -73,6 +73,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 
 	INSERT INTO serverstats(
 			laptop_count, \
+			last_image_update, \
 			all_jobs, \
 			clone_jobs, \
 			erase_jobs, \
@@ -81,6 +82,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 			erase_avgtime)
 			VALUES (
 			'0', \
+			'N/A', \
 			'0', \
 			'0', \
 			'0', \
