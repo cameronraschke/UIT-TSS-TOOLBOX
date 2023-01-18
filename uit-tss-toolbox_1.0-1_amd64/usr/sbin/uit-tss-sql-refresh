@@ -191,35 +191,10 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 	# all_avgtime
 	data=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT all_avgtime FROM clientstats;"); do z=$(( z + 1 )); echo $z; done | tail -n 1)
+		-s -N --execute="SELECT all_avgtime FROM clientstats WHERE NOT all_avgtime = '0';" | grep -oP [0-9]); do \
+		z=$(( z + i )); echo $z; done | tail -n 1)
 	data=$(( data / linecount ))
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
 		UPDATE serverstats SET all_avgtime = '${data} minutes';"
-
-	# erase_avgtime
-	data=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT erase_avgtime FROM clientstats;"); do z=$(( z + 1 )); echo $z; done | tail -n 1)
-	data=$(( data / linecount ))
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET erase_avgtime = '${data} minutes';"
-
-	# clone_avgtime
-	data=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT clone_avgtime FROM clientstats;"); do z=$(( z + 1 )); echo $z; done | tail -n 1)
-	data=$(( data / linecount ))
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET clone_avgtime = '${data} minutes';"
-
-	# clone_jobs
-	data=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT clone_jobs FROM clientstats;"); do z=$(( z + 1 )); echo $z; done | tail -n 1)
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET clone_jobs = '${data}';"
-
-	# erase_jobs
-	data=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT erase_jobs FROM clientstats;"); do z=$(( z + 1 )); echo $z; done | tail -n 1)
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET erase_jobs = '${data}';"
 
 done
