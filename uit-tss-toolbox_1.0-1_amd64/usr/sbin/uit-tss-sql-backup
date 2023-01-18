@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mysqldump --user="laptops" --password="UHouston!" --host="10.0.0.1" laptopDB > /mnt/laptopDB.sql
+mysqldump --user="laptops" --password="UHouston!" --host="10.0.0.1" laptopDB > /mnt/laptopDB-$(date).sql
 #sshpass -f /root/.ssh_passwd ssh-copy-id -o "StrictHostKeyChecking=no" laptopsql@p2.plutomail.io
 scp /mnt/laptopDB.sql laptopsql@p2.plutomail.io:/home/laptopsql
 
