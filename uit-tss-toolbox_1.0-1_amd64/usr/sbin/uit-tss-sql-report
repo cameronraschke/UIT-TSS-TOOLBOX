@@ -3,13 +3,13 @@ DATE=$(date --iso)
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT tagnumber,date,etheraddress,disk,action,all_totaltime,clone_time,clone_image,clone_master,clone_imageupdate,\
     clone_mode,clone_completed,erase_time,erase_mode,erase_completed \
-    FROM jobstats ORDER BY date DESC;" > /opt/uit-tss-laptop-job-report-$(date --iso).html
+    FROM jobstats ORDER BY date DESC;" > /mnt/uit-tss-laptop-job-report-$(date --iso).html
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT tagnumber,all_lastdate,device_type,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,\
     clone_jobs,erase_jobs \
-    FROM clientstats ORDER BY all_lastdate DESC;" > /opt/uit-tss-laptop-report-$(date --iso).html
+    FROM clientstats ORDER BY all_lastdate DESC;" > /mnt/uit-tss-laptop-report-$(date --iso).html
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT laptop_count,all_jobs,clone_jobs,erase_jobs,all_avgtime,clone_avgtime,erase_avgtime \
-    FROM serverstats;" > /opt/uit-tss-server-report-$(date --iso).html
+    FROM serverstats;" > /mnt/uit-tss-server-report-$(date --iso).html

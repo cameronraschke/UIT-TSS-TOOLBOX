@@ -181,6 +181,9 @@ done
 
 ##### ----- serverstats ----- #####
 
+	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+		UPDATE serverstats SET date = '$(date --iso)';"
+
 	# total laptops
 	linecount=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000';"); do \
