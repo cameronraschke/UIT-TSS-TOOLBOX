@@ -229,7 +229,7 @@ done
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
 		UPDATE serverstats SET erase_jobs = '${linecount}';"
 
-	# total_jobs
-	total_jobs=$(( clone_jobs + erase_jobs ))
+	# all_jobs
+	linecount=$(( clone_jobs + erase_jobs ))
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET total_jobs = '${total_jobs}';"
+		UPDATE serverstats SET all_jobs = '${linecount}';"
