@@ -1253,7 +1253,7 @@ function terminate {
 	echo ""
 	echo ""
 	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT last_image_update FROM serverstats WHERE id = '1';")
+	--execute="SELECT last_image_update FROM serverstats WHERE date = '$(date --iso)';")
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
