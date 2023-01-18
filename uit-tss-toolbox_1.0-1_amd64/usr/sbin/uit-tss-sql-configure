@@ -60,17 +60,17 @@ mysql --user="root" --password="UHouston!" --execute="GRANT ALL ON *.* TO 'lapto
 # 	PRIMARY KEY (tagnumber) );"
 
 
-# mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE serverstats(\
-# 	id int NOT NULL AUTO_INCREMENT, \
-# 	laptop_count VARCHAR(150) NOT NULL DEFAULT '0', \
-# 	last_image_update VARCHAR(150) NOT NULL DEFAULT 'N/A', \
-# 	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
-# 	clone_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
-# 	erase_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
-# 	all_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
-# 	clone_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
-# 	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
-# 	PRIMARY KEY (id) );"
+mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE serverstats(\
+	date VARCHAR(150) NOT NULL DEFAULT 'N/A', \
+	laptop_count VARCHAR(150) NOT NULL DEFAULT '0', \
+	last_image_update VARCHAR(150) NOT NULL DEFAULT 'N/A', \
+	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+	clone_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+	erase_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
+	all_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+	clone_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
+	PRIMARY KEY (date) );"
 
 	INSERT INTO serverstats(
 			laptop_count, \
@@ -82,6 +82,7 @@ mysql --user="root" --password="UHouston!" --execute="GRANT ALL ON *.* TO 'lapto
 			clone_avgtime, \
 			erase_avgtime)
 			VALUES (
+			'N/A', \
 			'0', \
 			'N/A', \
 			'0', \
