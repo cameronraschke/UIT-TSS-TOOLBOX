@@ -1,1 +1,2 @@
 */10 * * * * root /usr/sbin/uit-tss-sql-backup
+* * * * * root /usr/sbin/uit-tss-sql-refresh
