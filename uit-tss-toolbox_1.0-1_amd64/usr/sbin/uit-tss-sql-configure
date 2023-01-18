@@ -61,7 +61,7 @@ mysql --user="root" --password="UHouston!" --execute="GRANT ALL ON *.* TO 'lapto
 
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="CREATE TABLE serverstats(\
-	date VARCHAR(150) NOT NULL DEFAULT 'N/A', \
+	date VARCHAR(150) NOT NULL DEFAULT '$(date --iso)', \
 	laptop_count VARCHAR(150) NOT NULL DEFAULT '0', \
 	last_image_update VARCHAR(150) NOT NULL DEFAULT 'N/A', \
 	all_jobs VARCHAR(150) NOT NULL DEFAULT '0', \
@@ -72,6 +72,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 	erase_avgtime VARCHAR(150) NOT NULL DEFAULT '0', \
 	PRIMARY KEY (date) );"
 
+mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="\
 	INSERT INTO serverstats(
 			date, \
 			laptop_count, \
@@ -83,7 +84,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="C
 			clone_avgtime, \
 			erase_avgtime)
 			VALUES (
-			'N/A', \
+			'$(date --iso)', \
 			'N/A', \
 			'0', \
 			'0', \
