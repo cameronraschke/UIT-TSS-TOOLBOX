@@ -11,4 +11,5 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
     FROM clientstats ORDER BY all_lastdate DESC;" > /opt/uit-tss-laptop-report-$(date --iso).html
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
-    SELECT * FROM serverstats;" > /opt/uit-tss-server-report-$(date --iso).html
+    SELECT laptop_count,all_jobs,clone_jobs,erase_jobs,all_avgtime,clone_avgtime,erase_avgtime \
+    FROM serverstats;" > /opt/uit-tss-server-report-$(date --iso).html
