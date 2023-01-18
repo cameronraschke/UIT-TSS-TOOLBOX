@@ -180,8 +180,6 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 done
 
 ##### ----- serverstats ----- #####
-for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT tagnumber FROM clientstats;"); do
 
 	# total laptops
 	linecount=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
@@ -223,5 +221,3 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	eraseAvgTime=$(( eraseAvgTime / lc_eraseavgtime ))
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
 		UPDATE serverstats SET erase_avgtime = '${eraseAvgTime} minutes';"
-
-done
