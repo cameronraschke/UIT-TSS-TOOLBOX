@@ -1307,10 +1307,7 @@ function terminate {
 	fi
 
 	if [[ $APPSELECT == "E" ]]; then
-
-		if [[ $cloneMode == "erase" && $APPSELECT == "E" ]]; then
-			terminateAction="erased"
-		fi
+		terminateAction="erased"
 
 		exitMessage=$(echo "Tag#: ${tagNum}"
 		echo "MAC: ${etherAddr}"
@@ -1435,32 +1432,11 @@ function main {
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "5" ]]; then
-		APPSELECT="C"
-		ACTION="clone"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
-		CLIENTDISK='nvme0n1'
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
-		cloneMode="savedisk"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}';"
-		sambaPath="hp"
-		cloneImgName="2023Spring-HP"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
-		sambaUser="cameron"
-		sambaPassword="UHouston!"
-		sambaServer="10.0.0.1"
-		sambaDNS="mickey.uit"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}', \
-				server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
-		execute
-	else
 		appSelect
 		diskSelect
 		execute
+	else
+		exit 1
 	fi
 	terminate
 }
