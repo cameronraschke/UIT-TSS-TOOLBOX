@@ -1316,6 +1316,12 @@ function terminate {
 		)
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 			--execute="UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}';"
+
+		echo ""
+		echo "${exitMessage}"
+		echo ""
+		read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to shutdown...${RESET}"
+		poweroff
 	fi
 
 	
