@@ -138,8 +138,9 @@ function intro {
 	echo "   ${BLUE}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a SMALL Dell laptop${RESET}"
 	echo "   ${BLUE}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
 	echo "   ${BLUE}[4]${RESET} ${BOLD}Simple erase NVME${RESET}"
-	echo "   ${BLUE}[5]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
-	read -n 1 -p "Select [1-4]: " mainMenuOpt
+	echo "   ${BLUE}[5]${RESET} ${BOLD}Simple erase SATA${RESET}"
+	echo "   ${BLUE}[6]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
+	read -n 1 -p "Select [1-6]: " mainMenuOpt
 
 	tput reset
 }
@@ -1438,6 +1439,23 @@ function main {
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "5" ]]; then
+		APPSELECT="E"
+		ACTION="erase"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+		CLIENTDISK='sda'
+		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+			--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
+		shredMode="autodetect"
+		RMODE="autodetect"
+		manufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
+				--execute="UPDATE jobstats SET clone_image = '${manufacturer}' WHERE uuid = '${UUID}';"
+		powerWarning
+		execute
+	elif [[ $mainMenuOpt == "6" ]]; then
 		appSelect
 		diskSelect
 		execute
