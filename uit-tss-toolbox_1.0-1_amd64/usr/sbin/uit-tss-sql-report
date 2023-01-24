@@ -21,5 +21,6 @@ UNION
 (SELECT tagnumber,all_lastdate,device_type,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,\
     clone_jobs,erase_jobs
 FROM clientstats
+INTO OUTFILE '/mnt/uit-tss-laptop-report-$(date --iso).csv'
 FIELDS ENCLOSED BY '"' TERMINATED BY ';' ESCAPED BY '"'
-LINES TERMINATED BY '\r\n');" > /mnt/uit-tss-laptop-report-$(date --iso).csv
+LINES TERMINATED BY '\r\n');"
