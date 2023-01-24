@@ -14,13 +14,4 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
     SELECT laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,all_avgtime,clone_avgtime,erase_avgtime \
     FROM serverstats;" > /mnt/uit-tss-server-report-$(date --iso).html
 
-mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="\
-(SELECT 'Tag Number','Last Job Date','Manufacturer','Clone and Erase Avg Time','Erase Avg Time','Clone Avg Time','All Jobs',\
-    'Clone Jobs','Erase Jobs')
-UNION 
-(SELECT tagnumber,all_lastdate,device_type,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,\
-    clone_jobs,erase_jobs
-FROM clientstats
-INTO OUTFILE '/mnt/uit-tss-laptop-report-$(date --iso).csv'
-FIELDS ENCLOSED BY '"' TERMINATED BY ';' ESCAPED BY '"'
-LINES TERMINATED BY '\r\n');"
+mysqldump --user="laptops" --password="UHouston!" -t  -T/mnt/uit-tss-laptop-report-$(date --iso).csv laptopDB clientstats; --fields-terminated-by=','
