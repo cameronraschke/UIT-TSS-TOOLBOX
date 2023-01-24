@@ -13,5 +13,3 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,all_avgtime,clone_avgtime,erase_avgtime \
     FROM serverstats;" > /mnt/uit-tss-server-report-$(date --iso).html
-
-echo 'SELECT * FROM clientstats' | mysql --user="laptops" --password="UHouston!" -B laptopDB > /mnt/uit-tss-laptop-report-$(date --iso).txt
