@@ -14,4 +14,4 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
     SELECT laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,all_avgtime,clone_avgtime,erase_avgtime \
     FROM serverstats;" > /mnt/uit-tss-server-report-$(date --iso).html
 
-mysqldump --user="laptops" --password="UHouston!" -t  -T/mnt/uit-tss-laptop-report-$(date --iso).csv laptopDB clientstats; --fields-terminated-by=','
+mysqldump --user="laptops" --password="UHouston!" -t  -T/mnt/ laptopDB clientstats; --fields-terminated-by=','
