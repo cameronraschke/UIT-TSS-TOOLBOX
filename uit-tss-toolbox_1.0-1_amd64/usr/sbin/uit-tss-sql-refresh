@@ -2,7 +2,7 @@
 DATE=$(date --iso)
 
 for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT tagnumber FROM jobstats;"); do
+		-s -N --execute="SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000';"); do
 
 	exists=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="\
 		SELECT tagnumber FROM clientstats WHERE tagnumber = '${tagNum}';")
