@@ -17,7 +17,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 				INSERT INTO clientstats(
 				tagnumber, \
 				device_type, \
-				all_lastdate, \
+				last_job_date, \
 				all_lastuuid, \
 				all_time, \
 				all_avgtime, \
@@ -35,23 +35,23 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 				clone_jobstoday)
 				VALUES (
 				'${tagNum}', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0', \
-				'0');"
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A', \
+				'N/A');"
 		fi
 
 	# Update Disk in Clientstats
@@ -170,7 +170,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 		-s -N --execute="SELECT date FROM jobstats WHERE tagnumber = '${tagNum}' ORDER BY date DESC;" | head -n 1)
 
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="UPDATE clientstats SET all_lastdate = '${sqldate}' WHERE tagnumber = '${tagNum}';"
+		-s -N --execute="UPDATE clientstats SET last_job_date = '${sqldate}' WHERE tagnumber = '${tagNum}';"
 
 	# Update device type
 	for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
