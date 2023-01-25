@@ -217,9 +217,9 @@ done
 	eraseAvgTime=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT erase_avgtime FROM clientstats WHERE NOT erase_avgtime = '0 minutes' AND disk LIKE 'nvme0%';" | grep -P '[0-9]'); do \
 		z=$(( z + i )); echo $z; done | tail -n 1)
-	eraseAvgTime=$(( eraseAvgTime / lc_eraseavgtime ))
+	nvmeeraseAvgTime=$(( eraseAvgTime / lc_eraseavgtime ))
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET nvme_erase_avgtime = '${eraseAvgTime} minutes';"
+		UPDATE serverstats SET nvme_erase_avgtime = '${nvmeeraseAvgTime} minutes';"
 
 	# ssd_erase_avgtime
 	lc_eraseavgtime=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
@@ -228,14 +228,9 @@ done
 	eraseAvgTime=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="SELECT erase_avgtime FROM clientstats WHERE NOT erase_avgtime = '0 minutes' AND disk LIKE 'sd%';" | grep -P '[0-9]'); do \
 		z=$(( z + i )); echo $z; done | tail -n 1)
-	eraseAvgTime=$(( eraseAvgTime / lc_eraseavgtime ))
+	ssderaseAvgTime=$(( eraseAvgTime / lc_eraseavgtime ))
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET ssd_erase_avgtime = '${eraseAvgTime} minutes';"
-
-	# all_avgtime
-	allAvgTime=$(( cloneAvgTime + eraseAvgTime ))
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE serverstats SET all_avgtime = '${allAvgTime} minutes';"
+		UPDATE serverstats SET ssd_erase_avgtime = '${ssderaseAvgTime} minutes';"
 	
 	# clone_jobs
 	clonejobs=$(z=0; for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
