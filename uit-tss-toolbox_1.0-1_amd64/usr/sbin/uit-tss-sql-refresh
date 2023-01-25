@@ -159,7 +159,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 		-s -N --execute="SELECT IF (clone_completed = 'Yes', 1, 0) FROM jobstats WHERE tagnumber = '${tagNum}';")
 	clonejobs=$(z=0; for i in ${clonejobs}; do z=$(( z + i )); echo $z; done | tail -n 1)
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE clientstats SET clone_jobs = '${clonejobs}' WHERE tagnumber = ${tagNum};"
+		UPDATE clientstats SET clone_jobs = '${clonejobs}' WHERE tagnumber = '${tagNum}';"
 	
 	totaljobs=$(( erasejobs + clonejobs ))
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
@@ -167,7 +167,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 
 	# Update date
 	sqldate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		-s -N --execute="SELECT date FROM jobstats WHERE tagnumber = ${tagNum} ORDER BY date DESC;" | head -n 1)
+		-s -N --execute="SELECT date FROM jobstats WHERE tagnumber = '${tagNum}' ORDER BY date DESC;" | head -n 1)
 
     mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 		-s -N --execute="UPDATE clientstats SET all_lastdate = '${sqldate}' WHERE tagnumber = '${tagNum}';"
