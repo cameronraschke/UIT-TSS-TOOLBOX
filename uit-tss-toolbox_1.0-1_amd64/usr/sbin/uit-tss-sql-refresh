@@ -31,9 +31,11 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 				erase_jobs, \
 				erase_jobstoday, \
 				clone_jobs, \
+				'disk', \
 				clone_jobstoday)
 				VALUES (
 				'${tagNum}', \
+				'0', \
 				'0', \
 				'0', \
 				'0', \
