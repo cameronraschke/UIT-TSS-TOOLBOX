@@ -84,10 +84,12 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --execute="\
 			erase_jobs, \
 			all_avgtime, \
 			clone_avgtime, \
-			erase_avgtime)
+			nvme_erase_avgtime, \
+			ssd_erase_avgtime)
 			VALUES (
 			'$(date --iso)', \
 			'N/A', \
+			'0', \
 			'0', \
 			'0', \
 			'0', \
