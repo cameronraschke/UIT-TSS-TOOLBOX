@@ -56,7 +56,7 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 	for i in $(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="\
 	SELECT disk FROM jobstats WHERE tagnumber = '${tagNum}';"); do
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-			UPDATE jobstats SET disk = '${i}' WHERE tagnumber = '${tagNum}';"
+			UPDATE clientstats SET disk = '${i}' WHERE tagnumber = '${tagNum}';"
 	done
 
 	#Update linecount
