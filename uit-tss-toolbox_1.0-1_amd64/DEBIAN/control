@@ -4,6 +4,6 @@ Version: 1.0-1
 Section: utils
 Priority: optional
 Architecture: amd64
-Maintainer: Cameron Raschke <cameron@cameronraschke.com>
-Description: UIT-TSS-TOOLBOX includes two four programs: UIT-TSS-CONFIGURE-CLONE, UIT-TSS-CONFIGURE-SHRED, UIT-TSS-FLASH-CLONE, and UIT-TSS-FLASH-SHRED.
+Maintainer: Cameron Raschke <caraschke@uh.edu>
+Description: UIT-TSS-TOOLBOX.
 Pre-Depends: wget

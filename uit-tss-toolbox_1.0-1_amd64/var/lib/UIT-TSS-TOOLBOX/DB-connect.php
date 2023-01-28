@@ -13,6 +13,4 @@ if ($conn -> connect_errno) {
   exit();
 }
 
-$time = date('Y-m-d H:i:s', time());
-
 ?>
