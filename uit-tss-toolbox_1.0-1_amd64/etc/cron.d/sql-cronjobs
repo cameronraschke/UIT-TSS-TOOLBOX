@@ -1,2 +1,2 @@
-*/10 * * * * root /usr/sbin/uit-tss-sql-backup
-* * * * * root /usr/sbin/uit-tss-sql-refresh
+*/10 * * * * root php /var/lib/uit-tss-sql-backup.php
+* * * * * root php /var/lib/uit-tss-sql-refresh.php
