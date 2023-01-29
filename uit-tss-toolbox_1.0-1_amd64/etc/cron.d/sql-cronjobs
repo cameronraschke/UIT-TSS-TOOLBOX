@@ -1,2 +1,3 @@
 */10 * * * * root /usr/sbin/uit-tss-sql-backup
-* * * * * root php /var/lib/uit-tss-sql-refresh
+* * * * * root /usr/sbin/uit-tss-sql-refresh
+*/10 * * * * root /usr/sbin/uit-tss-sql-report > /opt/Laptop-Report-$(date --iso).html
