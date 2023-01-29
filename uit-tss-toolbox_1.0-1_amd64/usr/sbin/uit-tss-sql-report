@@ -169,24 +169,24 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
                 $clone_completed = $row['clone_completed'];
                 $erase_time = $row['erase_time'];
                 $erase_mode = $row['erase_mode'];
-                $erase_completed = $row['erase_completed']
+                $erase_completed = $row['erase_completed'];
 
                 echo "<tr>";
-                echo "<td>$tagnumber</td>"
-                echo "<td>$date</td>"
-                echo "<td>$etheraddress</td>"
-                echo "<td>$disk</td>"
-                echo "<td>$action</td>"
-                echo "<td>$all_totaltime</td>"
-                echo "<td>$clone_time</td>"
-                echo "<td>$clone_image</td>"
-                echo "<td>$clone_master</td>"
-                echo "<td>$clone_imageupdate</td>"
-                echo "<td>$clone_mode</td>"
-                echo "<td>$clone_completed</td>"
-                echo "<td>$erase_time</td>"
-                echo "<td>$erase_mode</td>"
-                echo "<td>$erase_completed</td>"
+                echo "<td>$tagnumber</td>";
+                echo "<td>$date</td>";
+                echo "<td>$etheraddress</td>";
+                echo "<td>$disk</td>";
+                echo "<td>$action</td>";
+                echo "<td>$all_totaltime</td>";
+                echo "<td>$clone_time</td>";
+                echo "<td>$clone_image</td>";
+                echo "<td>$clone_master</td>";
+                echo "<td>$clone_imageupdate</td>";
+                echo "<td>$clone_mode</td>";
+                echo "<td>$clone_completed</td>";
+                echo "<td>$erase_time</td>";
+                echo "<td>$erase_mode</td>";
+                echo "<td>$erase_completed</td>";
                 echo "</tr>";
             }
             echo "</table>";
@@ -196,5 +196,5 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
 </html>
 
 <?php
-$mysqli->close();
+$conn->close();
 ?>

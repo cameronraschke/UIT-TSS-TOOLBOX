@@ -193,5 +193,5 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
     $conn->query($sql);
 }
 
-$mysqli->close();
+$conn->close();
 ?>
