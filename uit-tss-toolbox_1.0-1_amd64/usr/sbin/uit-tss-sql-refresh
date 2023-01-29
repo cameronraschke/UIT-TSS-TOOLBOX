@@ -45,14 +45,9 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $sql = "UPDATE clientstats SET erase_time = '" . $row['erase_time'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
         # Avg. Times
-        $sql = "SELECT $eraseTime DIV $eraseLineCount AS erase_avgtime";
-        $results = $conn->query($sql);
-        while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-            $avgTimeSec = $row['erase_avgtime'];
-            $avgTimeMin = $row['erase_avgtime'] / 60 . " minutes";
-            $sql = "UPDATE clientstats SET erase_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
-            $conn->query($sql);
-        }
+        $avgTimeSec = $eraseTime / $eraseLineCount;
+        $avgTimeMin = $avgTimeSec / 60 . " minutes";
+        $sql = "UPDATE clientstats SET erase_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
     }
 
     # Clone times
@@ -60,21 +55,16 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
     $results = $conn->query($sql);
     $cloneLineCount = mysqli_num_rows($results);
     # Update total clone jobs
-    $sql = "UPDATE clientstats SET erase_jobs = '$cloneLineCount' WHERE tagnumber = '$tagNum'";
+    $sql = "UPDATE clientstats SET clone_jobs = '$cloneLineCount' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $cloneTime = $row['clone_time'];
         $sql = "UPDATE clientstats SET clone_time = '" . $row['clone_time'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
         # Avg. Times
-        $sql = "SELECT $cloneTime DIV $cloneLineCount AS clone_avgtime";
-        $results = $conn->query($sql);
-        while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-            $avgTimeSec = $row['clone_avgtime'];
-            $avgTimeMin = $row['clone_avgtime'] / 60 . " minutes";
-            $sql = "UPDATE clientstats SET clone_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
-            $conn->query($sql);
-        }
+        $avgTimeSec = $cloneTime / $cloneLineCount;
+        $avgTimeMin = $avgTimeSec / 60 . " minutes";
+        $sql = "UPDATE clientstats SET clone_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
     }
 
     # All (clone + erase) times
@@ -89,14 +79,9 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $sql = "UPDATE clientstats SET all_time = '" . $row['all_time'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
         # Avg. Times
-        $sql = "SELECT $allTime DIV $allLineCount AS all_avgtime";
-        $results = $conn->query($sql);
-        while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-            $avgTimeSec = $row['all_avgtime'];
-            $avgTimeMin = $row['all_avgtime'] / 60 . " minutes";
-            $sql = "UPDATE clientstats SET all_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
-            $conn->query($sql);
-        }
+        $avgTimeSec = $allTime / $allLineCount;
+        $avgTimeMin = $avgTimeSec / 60 . " minutes";
+        $sql = "UPDATE clientstats SET all_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
         # Dates
         $sql = "SELECT date FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY date DESC LIMIT 1";
         $results = $conn->query($sql);
@@ -119,7 +104,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 
 
 ##### serverstats #####
-# Update date of report
+# Update date of report, create new report if none exist for today
 $sql = "SELECT date FROM serverstats WHERE date = '$date'";
 $results = $conn->query($sql);
 while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
