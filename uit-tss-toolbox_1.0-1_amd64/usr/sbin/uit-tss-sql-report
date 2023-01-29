@@ -44,6 +44,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
             border-bottom: 2px solid #BE77D6;
             margin: 2% 2% 2% 2%;
+            overflow: auto;
         }
         .servertable {
             display: flex;
