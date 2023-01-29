@@ -1,16 +1,8 @@
 #!/usr/bin/php
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
-DATE=$(date --iso)
-mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
-    SELECT tagnumber,date,etheraddress,disk,action,all_totaltime,clone_time,clone_image,clone_master,clone_imageupdate,\
-    clone_mode,clone_completed,erase_time,erase_mode,erase_completed \
-    FROM jobstats ORDER BY date DESC;" > /mnt/uit-tss-laptop-job-report-$(date --iso).html
 
-mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
-    SELECT tagnumber,device_type,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,\
-    clone_jobs,erase_jobs \
-    FROM clientstats ORDER BY last_job_date DESC;" > /mnt/uit-tss-laptop-report-$(date --iso).html
+
 
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime \
@@ -56,6 +48,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
             border-bottom: 2px solid #BE77D6;
             margin: 2% 2% 2% 2%;
+            overflow: auto;
         }
 
         .styled-table {
@@ -133,7 +126,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
 </head>
     <body>
         <?php
-            echo "<div class=\"clienttable\">";
+            /* echo "<div class=\"clienttable\">";
             echo "<table class=\"styled-table\"";
             echo "<tr>";
             echo "<th>Tag Number</th>";
@@ -190,6 +183,50 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
                 echo "<td>$erase_completed</td>";
                 echo "</tr>";
             }
+            echo "</table>";
+            echo "</div>"; */
+
+            echo "<div class=\"clienttable\">";
+            echo "<table class=\"styled-table\"";
+            echo "<tr>";
+            echo "<th>Tag Number</th>";
+            echo "<th>Device Type</th>";
+            echo "<th>Last Job Date</th>";
+            echo "<th>All Jobs Avg. Time</th>";
+            echo "<th>Erase Jobs Avg. Time</th>";
+            echo "<th>Clone Jobs Avg. Time</th>";
+            echo "<th>Total Jobs</th>";
+            echo "<th>Erase Jobs</th>";
+            echo "<th>Clone Jobs</th>";
+            echo "</tr>";
+
+            $sql = "SELECT tagnumber,device_type,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs FROM clientstats";
+            $results = $conn->query($sql);
+            while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+                $tagnumber = $row['tagnumber'];
+                $device_type = $row['device_type'];
+                $last_job_date = $row['last_job_date'];
+                $all_avgtime = $row['all_avgtime'];
+                $erase_avgtime = $row['erase_avgtime'];
+                $clone_avgtime = $row['clone_avgtime'];
+                $all_jobs = $row['all_jobs'];
+                $erase_jobs = $row['erase_jobs'];
+                $clone_jobs = ['clone_jobs'];
+                
+                echo "<tr>";
+                echo "<td>$tagnumber</td>";
+                echo "<td>$device_type</td>";
+                echo "<td>$last_job_date</td>";
+                echo "<td>$all_avgtime</td>";
+                echo "<td>$erase_avgtime</td>";
+                echo "<td>$clone_avgtime</td>";
+                echo "<td>$all_jobs</td>";
+                echo "<td>$erase_jobs</td>";
+                echo "<td>$clone_jobs</td>";
+                echo "</tr>";
+
+            }
+
             echo "</table>";
             echo "</div>";
         ?>
