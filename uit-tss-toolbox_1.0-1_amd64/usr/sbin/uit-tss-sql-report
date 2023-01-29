@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/php
+<?php
+include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 DATE=$(date --iso)
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT tagnumber,date,etheraddress,disk,action,all_totaltime,clone_time,clone_image,clone_master,clone_imageupdate,\
@@ -13,3 +15,177 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime \
     FROM serverstats;" > /mnt/uit-tss-server-report-$(date --iso).html
+?>
+
+<html>
+    <head>
+        <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 1em;
+            content-align: center;
+            font-family: sans-serif;
+        }
+
+        .styled-form2 input[type=submit] {
+            padding: 8px 10px;
+        }
+
+        .clienttable,
+        .infotable {
+            position: relative;
+            display: flex;
+            width: 50%;
+            height: auto;
+            top: 10%;
+            left: 35%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            border-bottom: 2px solid #BE77D6;
+            margin: 2% 2% 2% 2%;
+        }
+        .servertable {
+            display: flex;
+            position: absolute;
+            width: 25%;
+            height: auto;
+            top: 17%;
+            left: 5%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            border-bottom: 2px solid #BE77D6;
+            margin: 2% 2% 2% 2%;
+        }
+
+        .styled-table {
+            position: relative;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .styled-table thead tr {
+            background-color: #BE77D6;
+            color: #ffffff;
+            text-align: left;
+        }
+        .styled-table th,
+        .styled-table td {
+            padding: 12px 15px;
+        }
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+        .styled-table tr:nth-child(odd) td{
+            background-color: #F2F2F2;
+        }
+
+        .styled-form {
+            position: relative;
+            width: 100%;
+            margin: 5px 5px 5px 5px;
+            padding: 20px 20px;
+        }
+        .styled-form input[type=text] {
+            padding: 12px 20px;
+            margin: 2% 2% 10% 2%;
+            width: 80%;
+            border: 1px solid gray;
+        }
+        .styled-form input[type=text]:focus {
+            border: 1px solid black;
+        }
+        .styled-form select {
+            padding: 5px 10px;
+            margin: 2% 2% 2% 2%;
+            border: 1px solid gray;
+        }
+        .styled-form select:focus {
+            border: 1px solid black;
+        }
+        .styled-form input[type=date] {
+            padding: 5px 10px;
+            margin: 2% 2% 2% 2%;
+            width: 50%;
+            border: 1px solid gray;
+        }
+        .styled-form input[type=date]:focus {
+            border: 1px solid black;
+        }
+        .styled-form input[type=submit] {
+            padding: 8px 10px;
+            width: 25%;
+            margin: 8% 65% 5% 35%;
+        }
+        .menubar {
+            position: relative;
+            width: 100%;
+            top: 0%;
+            background-color: #EBDDEF;
+            padding: 1% 5%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .menubar button {
+            padding: 8px 10px;
+            margin: 1% 1% 1% 1%;
+        }
+</style>
+</head>
+    <body>
+        <?php
+            echo "<div class=\"clienttable\">";
+            echo "<table class=\"styled-table\"";
+            echo "<tr>";
+            echo "<th>Tag Number</th>";
+            echo "<th>Date</th>";
+            echo "<th>Ethernet Address</th>";
+            echo "<th>Disk</th>";
+            echo "<th>Action</th>";
+            echo "<th>Total Time</th>";
+            echo "<th>Clone Time</th>";
+            echo "<th>Clone Image</th>";
+            echo "<th>Clone Master</th>";
+            echo "<th>Last Image Update</th>";
+            echo "<th>Clone Mode</th>";
+            echo "<th>Clone Completed</th>";
+            echo "<th>Erase Time</th>";
+            echo "<th>Erase Mode</th>";
+            echo "<th>Erase Completed</th>";
+            echo "</tr>";
+            $sql = "SELECT tagnumber,date,etheraddress,disk,action,all_totaltime,clone_time,clone_image,clone_master,clone_imageupdate,";
+            $sql .= "clone_mode,clone_completed,erase_time,erase_mode,erase_completed FROM jobstats";
+            $results = $conn->query($sql);
+            while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+                $tagnumber = $row['tagnumber'];
+                $date = $row['date'];
+                $etheraddress = $row['etheraddress'];
+                $disk = $row['disk'];
+                $action = $row['action'];
+                $all_totaltime = $row['all_totaltime'];
+                $clone_time = $row['clone_time'];
+                $clone_image = $row['clone_image'];
+                $clone_master = $row['clone_master'];
+                $clone_imageupdate = $row['clone_imageupdate'];
+                $clone_mode = $row['clone_mode'];
+                $clone_completed = $row['clone_completed'];
+                $erase_time = $row['erase_time'];
+                $erase_mode = $row['erase_mode'];
+                $erase_completed = $row['erase_completed']
+
+                echo "<tr>";
+                echo "<td>$tagnumber</td>"
+                echo "<td>$date</td>"
+                echo "<td>$etheraddress</td>"
+                echo "<td>$disk</td>"
+                echo "<td>$action</td>"
+                echo "<td>$all_totaltime</td>"
+                echo "</tr>";
+            }
+            echo "</table>";
+            echo "</div>";
+        ?>
+</body>
+</html>
+
+<?php
+$mysqli->close();
+?>

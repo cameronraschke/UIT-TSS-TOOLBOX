@@ -1,5 +1,4 @@
-#!/usr/bin/php
-<?php
+#!/bin/bash
 DATE=$(date --iso)
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT tagnumber,date,etheraddress,disk,action,all_totaltime,clone_time,clone_image,clone_master,clone_imageupdate,\
@@ -14,5 +13,3 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
     SELECT laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime \
     FROM serverstats;" > /mnt/uit-tss-server-report-$(date --iso).html
-
-?>
