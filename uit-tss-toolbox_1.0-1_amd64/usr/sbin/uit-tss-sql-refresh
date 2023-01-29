@@ -7,26 +7,28 @@ $time = date('Y-m-d H:i:s', time());
 
 ##### clientstats #####
 $sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
-#Update linecount
 $results = $conn->query($sql);
-$lineCount = mysqli_num_rows($results);
-while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+$i = $results->fetch_all(MYSQLI_ASSOC);
+foreach ($i as $key => $value) {
+    unset($tagNum);
     global $tagNum;
-    $tagNum = $row['tagnumber'];
-    $sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '$tagNum' LIMIT 1";
-    $results = $conn->query($sql);
+    $tagNum = $value['tagnumber'];
+    echo "Working on laptop: " . $tagNum . PHP_EOL;
 
-    if ($row['tagnumber'] !== $tagNum) {
-        $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,all_time,";
-        $sql .= "all_avgtime,all_avgtimetoday,erase_avgtime,erase_avgtimetoday,clone_avgtime,clone_avgtimetoday,";
-        $sql .= "all_jobs,all_jobstoday,erase_jobs,erase_jobstoday,clone_jobs,disk,clone_jobstoday)";
-        $sql .= " VALUES ('" . $row['tagnumber'] . "','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A',";
-        $sql .= "'N/A','N/A','N/A','N/A','N/A')";
+    $sql = "SELECT tagnumber FROM clientstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    $exists = mysqli_num_rows($results);
+    var_dump($exists);
+    if ($exists == "0") {
+        echo "Inserting laptop: " . $tagNum . PHP_EOL;
+        $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,all_time,all_avgtime,";
+        $sql .= "erase_time,erase_avgtime,clone_time,clone_avgtime,all_jobs,erase_jobs,clone_jobs,disk)";
+        $sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
         $conn->query($sql);
     }
 
     #Update disks
-    $sql = "SELECT disk FROM jobstats WHERE tagnumber = '" . $row['tagnumber'] . "'";
+    $sql = "SELECT disk FROM jobstats WHERE tagnumber = '$tagNum'";
     $disks = $conn->query($sql);
     while ($row = $disks->fetch_array(MYSQLI_ASSOC)) {
         $sql = "UPDATE clientstats SET disk = '" . $row['disk'] . "' WHERE tagnumber = '$tagNum'";
