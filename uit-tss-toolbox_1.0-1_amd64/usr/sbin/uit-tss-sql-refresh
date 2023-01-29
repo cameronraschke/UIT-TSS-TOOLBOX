@@ -18,7 +18,6 @@ foreach ($i as $key => $value) {
     $sql = "SELECT tagnumber FROM clientstats WHERE tagnumber = '$tagNum'";
     $results = $conn->query($sql);
     $exists = mysqli_num_rows($results);
-    var_dump($exists);
     if ($exists == "0") {
         echo "Inserting laptop: " . $tagNum . PHP_EOL;
         $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,all_time,all_avgtime,";
@@ -36,9 +35,14 @@ foreach ($i as $key => $value) {
     }
 
     # Erase times
-    $sql = "SELECT ROUND(SUM(erase_time), 2) AS erase_time FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
+    $sql = "SELECT erase_time FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
     $results = $conn->query($sql);
     $eraseLineCount = mysqli_num_rows($results);
+    if ($eraseLineCount == "0") {
+        $eraseLineCount = "1";
+    }
+    $sql = "SELECT ROUND(SUM(erase_time), 2) AS erase_time FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
+    $results = $conn->query($sql);
     # Update total erase jobs
     $sql = "UPDATE clientstats SET erase_jobs = '$eraseLineCount' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
@@ -53,9 +57,15 @@ foreach ($i as $key => $value) {
     }
 
     # Clone times
-    $sql = "SELECT ROUND(SUM(clone_time), 2) AS clone_time FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
+    
+    $sql = "SELECT clone_time FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
     $results = $conn->query($sql);
     $cloneLineCount = mysqli_num_rows($results);
+    if ($cloneLineCount == "0") {
+        $cloneLineCount = "1";
+    }
+    $sql = "SELECT ROUND(SUM(clone_time), 2) AS clone_time FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
+    $results = $conn->query($sql);
     # Update total clone jobs
     $sql = "UPDATE clientstats SET clone_jobs = '$cloneLineCount' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
@@ -70,9 +80,14 @@ foreach ($i as $key => $value) {
     }
 
     # All (clone + erase) times
-    $sql = "SELECT ROUND(SUM(erase_time + clone_time), 2) AS all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
+    $sql = "SELECT all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
     $results = $conn->query($sql);
     $allLineCount = mysqli_num_rows($results);
+    if ($allLineCount == "0") {
+        $allLineCount = "1";
+    }
+    $sql = "SELECT ROUND(SUM(erase_time + clone_time), 2) AS all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
+    $results = $conn->query($sql);
     # Update total jobs
     $sql = "UPDATE clientstats SET erase_jobs = '$eraseLineCount' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
