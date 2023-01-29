@@ -57,27 +57,28 @@ foreach ($i as $key => $value) {
     }
 
     # Clone times
-    
     $sql = "SELECT clone_time FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
     $results = $conn->query($sql);
     $cloneLineCount = mysqli_num_rows($results);
-    if ($cloneLineCount == "0") {
-        $cloneLineCount = "1";
-    }
     $sql = "SELECT ROUND(SUM(clone_time), 2) AS clone_time FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
     $results = $conn->query($sql);
+    $i = $results->fetch_all(MYSQLI_ASSOC);
+    foreach($i as $key => $value) {
+        $cloneTime = $value['clone_time'];
+    }
     # Update total clone jobs
     $sql = "UPDATE clientstats SET clone_jobs = '$cloneLineCount' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-        $cloneTime = $row['clone_time'];
-        $sql = "UPDATE clientstats SET clone_time = '" . $row['clone_time'] . "' WHERE tagnumber = '$tagNum'";
+
+    if ($cloneLineCount >= "1" && $cloneTime >= "1") {
+        $sql = "UPDATE clientstats SET clone_time = '$cloneTime' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
         # Avg. Times
         $avgTimeSec = $cloneTime / $cloneLineCount;
         $avgTimeMin = $avgTimeSec / 60 . " minutes";
         $sql = "UPDATE clientstats SET clone_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
     }
+
 
     # All (clone + erase) times
     $sql = "SELECT all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
