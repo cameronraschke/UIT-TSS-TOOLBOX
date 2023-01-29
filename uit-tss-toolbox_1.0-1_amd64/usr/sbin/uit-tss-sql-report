@@ -1,12 +1,6 @@
 #!/usr/bin/php
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
-
-
-
-mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
-    SELECT laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime \
-    FROM serverstats;" > /mnt/uit-tss-server-report-$(date --iso).html
 ?>
 
 <html>
@@ -72,43 +66,6 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
             background-color: #F2F2F2;
         }
 
-        .styled-form {
-            position: relative;
-            width: 100%;
-            margin: 5px 5px 5px 5px;
-            padding: 20px 20px;
-        }
-        .styled-form input[type=text] {
-            padding: 12px 20px;
-            margin: 2% 2% 10% 2%;
-            width: 80%;
-            border: 1px solid gray;
-        }
-        .styled-form input[type=text]:focus {
-            border: 1px solid black;
-        }
-        .styled-form select {
-            padding: 5px 10px;
-            margin: 2% 2% 2% 2%;
-            border: 1px solid gray;
-        }
-        .styled-form select:focus {
-            border: 1px solid black;
-        }
-        .styled-form input[type=date] {
-            padding: 5px 10px;
-            margin: 2% 2% 2% 2%;
-            width: 50%;
-            border: 1px solid gray;
-        }
-        .styled-form input[type=date]:focus {
-            border: 1px solid black;
-        }
-        .styled-form input[type=submit] {
-            padding: 8px 10px;
-            width: 25%;
-            margin: 8% 65% 5% 35%;
-        }
         .menubar {
             position: relative;
             width: 100%;
@@ -200,7 +157,8 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
             echo "<th>Clone Jobs</th>";
             echo "</tr>";
 
-            $sql = "SELECT tagnumber,device_type,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs FROM clientstats";
+            $sql = "SELECT tagnumber,device_type,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs";
+            $sql .= " FROM clientstats WHERE NOT tagnumber = '000000'";
             $results = $conn->query($sql);
             while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
                 $tagnumber = $row['tagnumber'];
@@ -227,6 +185,46 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
 
             }
 
+            echo "</table>";
+            echo "</div>";
+
+            echo "<div class=\"servertable\">";
+            echo "<table class=\"styled-table\"";
+            echo "<tr>";
+            echo "<th>Laptop Count</th>";
+            echo "<th>Last Image Update</th>";
+            echo "<th>Total Jobs</th>";
+            echo "<th>Erase Jobs</th>";
+            echo "<th>Clone Jobs</th>";
+            echo "<th>Clone Avg. Time</th>";
+            echo "<th>NVME Avg. Erase Time</th>";
+            echo "<th>SSD Avg. Erase Time</th>";
+            echo "</tr>";
+
+            $sql = "SELECT laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime FROM serverstats";
+            $results = $conn->query($sql);
+            while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+                $laptop_count = $row['laptop_count'];
+                $last_image_update = $row['last_image_update'];
+                $all_jobs = $row['all_jobs'];
+                $erase_jobs = $row['erase_jobs'];
+                $clone_jobs = $row['clone_jobs'];
+                $clone_avgtime = $row['clone_avgtime'];
+                $nvme_erase_avgtime = $row['clone_avgtime'];
+                $ssd_erase_avgtime = $row['clone_avgtime'];
+
+                echo "<tr>";
+                echo "<td>$laptop_count</td>";
+                echo "<td>$last_image_update</td>";
+                echo "<td>$all_jobs</td>";
+                echo "<td>$erase_jobs</td>";
+                echo "<td>$clone_jobs</td>";
+                echo "<td>$clone_avgtime</td>";
+                echo "<td>$nvme_erase_avgtime</td>";
+                echo "<td>$ssd_erase_avgtime</td>";
+                echo "</tr>";
+            }
+            
             echo "</table>";
             echo "</div>";
         ?>
