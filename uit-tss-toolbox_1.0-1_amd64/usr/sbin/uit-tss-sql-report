@@ -211,7 +211,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --exe
                 $clone_avgtime = $row['clone_avgtime'];
                 $all_jobs = $row['all_jobs'];
                 $erase_jobs = $row['erase_jobs'];
-                $clone_jobs = ['clone_jobs'];
+                $clone_jobs = $row['clone_jobs'];
                 
                 echo "<tr>";
                 echo "<td>$tagnumber</td>";
