@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 DATE=$(date --iso)
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --html --execute="\
