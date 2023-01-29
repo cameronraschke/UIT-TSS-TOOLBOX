@@ -117,5 +117,33 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 
 
 ##### serverstats #####
+# Update date of report
+$sql = "SELECT date FROM serverstats";
+$results = $conn->query($sql);
+while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    if ($date !== $row['date']) {
+        $sql = "INSERT INTO serverstats(date,laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,";
+        $sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime) VALUES ('$date',";
+        $sql .= "'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A')";
+        $conn->query($sql);
+    }
+}
 
+# Update laptop count
+$sql = "SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000'";
+$laptopCount = mysqli_num_rows($sql);
+$sql = "UPDATE serverstats SET laptop_count = '$laptopCount' WHERE date = '$date'";
+$conn->query($sql);
+
+# Update clone_avgtime
+$sql = "SELECT ROUND(SUM(clone_avgtime), 2) AS clone_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT clone_avgtime = '0 minutes'";
+$cloneLineCount = mysqli_num_rows($sql);
+$results = $conn->query($sql);
+while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    $cloneAvgTime = $row['clone_avgtime'] / $cloneLineCount;
+    $sql = "UPDATE serverstats SET clone_avgtime = '$cloneAvgTime minutes' WHERE date = '$date'";
+    $conn->query($sql);
+}
+
+$mysqli->close();
 ?>
