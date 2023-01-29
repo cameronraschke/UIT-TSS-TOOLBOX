@@ -95,6 +95,20 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
             $sql = "UPDATE clientstats SET all_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
             $conn->query($sql);
         }
+        # Dates
+        $sql = "SELECT date FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY date DESC LIMIT 1";
+        $results = $conn->query($sql);
+        while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+            $sql = "UPDATE clientstats SET last_job_date = '".$row['date']."' WHERE tagnumber = '$tagNum'"
+            $conn->query($sql);
+        }
+        # Device Type
+        $sql = "SELECT tagnumber FROM jobstats WHERE clone_image LIKE '%HP' AND tagnumber = '$tagNum'";
+        $results = $conn->query($sql);
+        while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+            $sql = "UPDATE clientstats SET device_type = 'HP' WHERE tagnumber = '$tagNum'"
+            $conn->query($sql);
+        }
     }
 
     
