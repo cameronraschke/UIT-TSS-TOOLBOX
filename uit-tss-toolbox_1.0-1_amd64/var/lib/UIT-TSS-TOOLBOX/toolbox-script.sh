@@ -15,6 +15,7 @@ shredElapsed="0"
 etherAddr=$(cat /sys/class/net/e*/address | tail -n 1)
 UUID=$(cat /proc/sys/kernel/random/uuid)
 DATE=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="SELECT date FROM serverstats ORDER BY date DESC LIMIT 1")
+TIME=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="SELECT time FROM serverstats ORDER BY date DESC LIMIT 1")
 
 tput reset
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="INSERT INTO jobstats(\
@@ -22,6 +23,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	tagnumber, \
 	etheraddress, \
 	date, \
+	time, \
 	action, \
 	clone_completed, \
 	erase_completed, \
@@ -46,6 +48,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	'000000', \
 	'${etherAddr}', \
 	'${DATE}', \
+	'${TIME}', \
 	'N/A', \
 	'No', \
 	'No', \
