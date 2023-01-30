@@ -41,8 +41,9 @@ foreach ($i as $key => $value) {
     $sql = "SELECT ROUND(SUM(erase_time), 2) AS erase_time FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
+    $eraseTime = 0;
     foreach($i as $key => $value) {
-        $eraseTime = $value['erase_time'];
+        $eraseTime = $eraseTime + $value['erase_time'];
     }
     # Update total erase jobs
     $sql = "UPDATE clientstats SET erase_jobs = '$eraseLineCount' WHERE tagnumber = '$tagNum'";
@@ -65,8 +66,9 @@ foreach ($i as $key => $value) {
     $sql = "SELECT ROUND(SUM(clone_time), 2) AS clone_time FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
+    $cloneTime = 0;
     foreach($i as $key => $value) {
-        $cloneTime = $value['clone_time'];
+        $cloneTime = $cloneTime + $value['clone_time'];
     }
     # Update total clone jobs
     $sql = "UPDATE clientstats SET clone_jobs = '$cloneLineCount' WHERE tagnumber = '$tagNum'";
@@ -90,8 +92,9 @@ foreach ($i as $key => $value) {
     $sql = "SELECT ROUND(SUM(erase_time + clone_time), 2) AS all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
+    $allTime = 0;
     foreach($i as $key => $value) {
-        $allTime = $value['all_time'];
+        $allTime = $allTime + $value['all_time'];
     }
     # Update total jobs
     $sql = "UPDATE clientstats SET all_jobs = '$allLineCount' WHERE tagnumber = '$tagNum'";
@@ -182,7 +185,7 @@ foreach($i as $key => $value) {
 }
 if ($nvmeEraseLineCount >= 1) {
     $avgTimeSec = round($nvmeEraseAvgTime / $nvmeEraseLineCount);
-    $avgTimeMin = round($avgTimeSec / 60) . " minutes";
+    $avgTimeMin = round($avgTimeSec) . " minutes";
     $sql = "UPDATE serverstats SET nvme_erase_avgtime = '$nvmeEraseAvgTime minutes' WHERE date = '$date'";
     $conn->query($sql);
 }
