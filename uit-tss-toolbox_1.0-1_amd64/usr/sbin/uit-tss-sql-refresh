@@ -48,11 +48,10 @@ foreach ($i as $key => $value) {
     # Update total erase jobs
     $sql = "UPDATE clientstats SET erase_jobs = '$eraseLineCount' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
-
+    # Avg. Times
     if ($eraseLineCount >= 1) {
         $sql = "UPDATE clientstats SET erase_time = '$eraseTime' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
-        # Avg. Times
         $avgTimeSec = round($eraseTime / $eraseLineCount);
         $avgTimeMin = round($avgTimeSec / 60) . " minutes";
         $sql = "UPDATE clientstats SET erase_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
@@ -73,11 +72,10 @@ foreach ($i as $key => $value) {
     # Update total clone jobs
     $sql = "UPDATE clientstats SET clone_jobs = '$cloneLineCount' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
-
+    # Avg. Times
     if ($cloneLineCount >= 1) {
         $sql = "UPDATE clientstats SET clone_time = '$cloneTime' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
-        # Avg. Times
         $avgTimeSec = round($cloneTime / $cloneLineCount);
         $avgTimeMin = round($avgTimeSec / 60) . " minutes";
         $sql = "UPDATE clientstats SET clone_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
@@ -103,7 +101,6 @@ foreach ($i as $key => $value) {
     if ($allLineCount >= 1) {
         $sql = "UPDATE clientstats SET all_time = '$allTime' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
-        # Avg. Times
         $avgTimeSec = round($allTime / $allLineCount);
         $avgTimeMin = round($avgTimeSec / 60) . " minutes";
         $sql = "UPDATE clientstats SET all_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
