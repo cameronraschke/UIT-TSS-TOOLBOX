@@ -5,7 +5,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
-$sql = "UPDATE serverstats SET time = $time WHERE date = $date";
+$sql = "UPDATE serverstats SET time = '$time' WHERE date = '$date'";
 $conn->query($sql);
 
 ##### clientstats #####
