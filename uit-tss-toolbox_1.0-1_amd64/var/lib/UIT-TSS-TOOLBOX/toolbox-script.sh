@@ -1137,8 +1137,11 @@ function execute_Clone {
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
+	sgdisk -d 1 /dev/${CLIENTDISK}p1
+	sgdisk -n 1:1MiB:+30GiB /dev/${CLIENTDISK}
 	mkfs.ntfs --fast --force /dev/${CLIENTDISK}
-	mount /dev/${CLIENTDISK} /home/partimag
+	mkfs.ntfs --fast --force /dev/${CLIENTDISK}p1
+	mount /dev/${CLIENTDISK}p1 /home/partimag
 	rsync -a --progress ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
