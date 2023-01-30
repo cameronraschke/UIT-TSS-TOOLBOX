@@ -685,7 +685,11 @@ function zeroMode_Shred {
 	echo "Step [1/2]: "
 	echo ""
 	WMODE='zero'
-	PCNTOFSECTOR='100'
+	if [[ zeroQuick = "1" ]]; then
+		PCNTOFSECTOR='20'
+	else
+		PCNTOFSECTOR='100'
+	fi
 	writeDisk_Shred
 	
 	echo ""
