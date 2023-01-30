@@ -1216,6 +1216,9 @@ function execute {
 		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
 		fi
+		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
+			zeroQuick="1"
+		fi
 		basicEraseMode_Shred
 		execute_Shred
 		execute_Clone
