@@ -1136,7 +1136,7 @@ function execute_Clone {
 			UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
-	wipefs /dev/${CLIENTDISK}
+	wipefs --all /dev/${CLIENTDISK}
 	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
 	(
 		echo o
