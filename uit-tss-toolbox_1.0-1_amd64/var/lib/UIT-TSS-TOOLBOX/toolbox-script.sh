@@ -1137,8 +1137,16 @@ function execute_Clone {
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
-	sgdisk -d 1 /dev/${CLIENTDISK}p1
-	sgdisk -n 1:1MiB:+30GiB /dev/${CLIENTDISK}
+	(
+		echo o
+		echo n
+		echo p
+		echo 1
+		echo 
+		echo +30G
+		echo
+		echo w
+	) | fdisk
 	mkfs.ntfs --fast --force /dev/${CLIENTDISK}
 	mkfs.ntfs --fast --force /dev/${CLIENTDISK}p1
 	mount /dev/${CLIENTDISK}p1 /home/partimag
