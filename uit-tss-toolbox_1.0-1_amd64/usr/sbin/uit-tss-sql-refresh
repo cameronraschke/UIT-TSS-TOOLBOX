@@ -229,12 +229,7 @@ if ($cloneJobsLineCount >= 1) {
 }
 
 # Update all_jobs
-$sql = "SELECT ROUND(SUM(erase_jobs + clone_jobs), 2) AS all_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND (erase_jobs > 1 OR clone_jobs > 1)";
-$i = $conn->query($sql);
-$allJobsLineCount = 0;
-foreach($i as $key => $value) {
-    $allJobsLineCount = $allJobsLineCount + $value['all_jobs'];
-}
+$allJobsLineCount = $eraseJobsLineCount + $cloneJobsLineCount;
 if ($allJobsLineCount >= 1) {
     $sql = "UPDATE serverstats SET all_jobs = '$allJobsLineCount' WHERE date = '$date'";
     $conn->query($sql);
