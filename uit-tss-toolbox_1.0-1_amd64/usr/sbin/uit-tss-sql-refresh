@@ -122,7 +122,7 @@ foreach ($i as $key => $value) {
     $i = $results->fetch_all(MYSQLI_ASSOC);
     foreach($i as $key => $value) {
         $deviceType = $value['clone_image'];
-        if (preg_match('/.*HP.*/',$deviceType,$matches)) {
+        if (preg_match('/HP/',$deviceType,$matches)) {
             $sql = "UPDATE clientstats SET device_type = 'HP' WHERE tagnumber = '$tagNum'";
             $conn->query($sql);
         } else {
