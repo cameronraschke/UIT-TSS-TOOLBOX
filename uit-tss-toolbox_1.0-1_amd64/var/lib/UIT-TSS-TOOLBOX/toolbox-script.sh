@@ -1238,7 +1238,7 @@ function execute {
 function totaltime {
 	totalElapsed=$(echo $(( (shredElapsed + cloneElapsed) / 60 )) minutes)
 	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE jobstats SET all_totaltime = '${totalElapsed}' WHERE uuid = '${UUID}';"
+		UPDATE jobstats SET all_time = '${totalElapsed}' WHERE uuid = '${UUID}';"
 }
 
 
@@ -1262,7 +1262,7 @@ function terminate {
 	echo ""
 	echo ""
 	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT last_image_update FROM serverstats WHERE date = '$(date --iso)';")
+	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
@@ -1369,8 +1369,9 @@ function main {
 		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}', \
-				server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+				clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "2" ]]; then
@@ -1397,8 +1398,9 @@ function main {
 		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}', \
-				server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+				clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "3" ]]; then
@@ -1425,8 +1427,9 @@ function main {
 		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}', \
-				server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
+			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
+				clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "4" ]]; then
