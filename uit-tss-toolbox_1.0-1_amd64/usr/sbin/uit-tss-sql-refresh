@@ -117,7 +117,7 @@ foreach ($i as $key => $value) {
     $conn->query($sql);
     }
     # Device Type
-    $sql = "SELECT clone_image FROM jobstats WHERE tagnumber = '$tagNum'";
+    $sql = "SELECT clone_image FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY date DESC LIMIT 1";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
     foreach($i as $key => $value) {
