@@ -1136,22 +1136,8 @@ function execute_Clone {
 			UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
-	wipefs --all /dev/${CLIENTDISK}
-	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
-	(
-		echo o
-		echo n
-		echo p
-		echo 1
-		echo 
-		echo +30G
-		echo
-		echo w
-	) | fdisk /dev/${CLIENTDISK}
-	mkfs.ntfs --fast --force /dev/${CLIENTDISK}
-	mkfs.ntfs --fast --force /dev/${CLIENTDISK}p1
-	mount /dev/${CLIENTDISK}p1 /home/partimag
-	rsync -a --progress ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
+	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
+	#rsync -a --progress ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
 		info
