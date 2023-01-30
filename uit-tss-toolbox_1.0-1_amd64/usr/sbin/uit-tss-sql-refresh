@@ -211,7 +211,7 @@ if ($ssdEraseLineCount >= 1) {
 }
 
 # Update erase_jobs
-$sql = "SELECT erase_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND erase_completed = 'Yes'";
+$sql = "SELECT erase_jobs FROM clientstats WHERE NOT tagnumber = '000000'";
 $results = $conn->query($sql);
 $eraseJobsLineCount = mysqli_num_rows($results);
 $results = $conn->query($sql);
@@ -221,7 +221,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 }
 
 # Update clone_jobs
-$sql = "SELECT clone_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND clone_completed = 'Yes'";
+$sql = "SELECT clone_jobs FROM clientstats WHERE NOT tagnumber = '000000'";
 $results = $conn->query($sql);
 $cloneJobsLineCount = mysqli_num_rows($results);
 $results = $conn->query($sql);
@@ -231,7 +231,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 }
 
 # Update all_jobs
-$sql = "SELECT ROUND(SUM(erase_jobs + clone_jobs), 2) AS all_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
+$sql = "SELECT ROUND(SUM(erase_jobs + clone_jobs), 2) AS all_jobs FROM clientstats WHERE NOT tagnumber = '000000'";
 $results = $conn->query($sql);
 while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
     $allJobsCount = $row['all_jobs'];
