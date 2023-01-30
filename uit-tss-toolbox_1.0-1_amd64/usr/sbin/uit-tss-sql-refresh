@@ -238,5 +238,17 @@ if ($allJobsLineCount >= 1) {
     $conn->query($sql);
 }
 
+# Update last_image_update
+$sql = "SELECT date from jobstats where clone_master = 'Yes' ORDER BY date DESC LIMIT 1";
+$results = $conn->query($sql);
+$i = $results->fetch_all(MYSQLI_ASSOC);
+foreach($i as $key => $value) {
+    $lastImageUpdate = $value['date'];
+}
+if (!empty($lastImageUpdate)) {
+    $sql = "UPDATE serverstats SET last_image_update = '$lastImageUpdate' WHERE date = '$date'";
+    $conn->query($sql);
+}
+
 $conn->close();
 ?>
