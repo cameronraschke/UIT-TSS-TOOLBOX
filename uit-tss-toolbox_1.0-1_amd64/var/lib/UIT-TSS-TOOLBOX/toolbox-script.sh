@@ -216,6 +216,7 @@ function basicEraseMode_Shred {
 	RMODE='Autodetect'
 	if [[ $shredMode == 'autodetect' ]]; then
 		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
+			zeroQuick = "1"
 			shredMode='zero'
 			RMODE='Zero Mode'
 		elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
