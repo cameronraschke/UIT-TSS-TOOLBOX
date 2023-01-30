@@ -137,6 +137,7 @@ foreach ($i as $key => $value) {
 
 
 ##### serverstats #####
+echo "Updating serverstats" . PHP_EOL;
 # Update date of report, create new report if none exist for today
 $sql = "SELECT date FROM serverstats WHERE date = '$date'";
 $results = $conn->query($sql);
