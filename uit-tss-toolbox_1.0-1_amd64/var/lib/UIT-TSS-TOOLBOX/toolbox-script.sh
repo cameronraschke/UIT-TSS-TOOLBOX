@@ -1132,7 +1132,7 @@ function execute_Clone {
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 			--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-			clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+			UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
@@ -1372,7 +1372,7 @@ function main {
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-				clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+				UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "2" ]]; then
@@ -1401,7 +1401,7 @@ function main {
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-				clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+				UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "3" ]]; then
@@ -1430,7 +1430,7 @@ function main {
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
 				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
 			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-				clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+				UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "4" ]]; then
