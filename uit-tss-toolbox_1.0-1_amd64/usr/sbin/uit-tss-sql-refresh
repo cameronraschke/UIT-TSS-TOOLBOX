@@ -193,18 +193,25 @@ if ($nvmeEraseLineCount >= 1) {
 }
 
 # Update ssd_erase_avgtime
-$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS ssd_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'sd%'";
+$sql = "SELECT erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'sd%'";
 $results = $conn->query($sql);
 $ssdEraseLineCount = mysqli_num_rows($results);
+$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS ssd_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'sd%'";
 $results = $conn->query($sql);
-while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-    $ssdEraseAvgTime = $row['ssd_erase_avgtime'] / $ssdEraseLineCount;
-    $sql = "UPDATE serverstats SET ssd_erase_avgtime = '$ssdEraseAvgTime minutes' WHERE date = '$date'";
+$i = $results->fetch_all(MYSQLI_ASSOC);
+$ssdEraseAvgTime = 0;
+foreach($i as $key => $value) {
+    $ssdEraseAvgTime = $ssdEraseAvgTime + $value['ssd_erase_avgtime'];
+}
+if ($ssdEraseLineCount >= 1) {
+    $avgTimeSec = round($ssdEraseAvgTime / $ssdEraseLineCount);
+    $avgTimeMin = round($avgTimeSec) . " minutes";
+    $sql = "UPDATE serverstats SET ssd_erase_avgtime = '$avgTimeMin' WHERE date = '$date'";
     $conn->query($sql);
 }
 
 # Update erase_jobs
-$sql = "SELECT erase_jobs FROM clientstats WHERE NOT tagnumber = '000000'";
+$sql = "SELECT erase_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND erase_completed = 'Yes'";
 $results = $conn->query($sql);
 $eraseJobsLineCount = mysqli_num_rows($results);
 $results = $conn->query($sql);
@@ -214,7 +221,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 }
 
 # Update clone_jobs
-$sql = "SELECT clone_jobs FROM clientstats WHERE NOT tagnumber = '000000'";
+$sql = "SELECT clone_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND clone_completed = 'Yes'";
 $results = $conn->query($sql);
 $cloneJobsLineCount = mysqli_num_rows($results);
 $results = $conn->query($sql);
@@ -224,7 +231,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 }
 
 # Update all_jobs
-$sql = "SELECT ROUND(SUM(erase_jobs + clone_jobs), 2) AS all_jobs FROM clientstats WHERE NOT tagnumber = '000000'";
+$sql = "SELECT ROUND(SUM(erase_jobs + clone_jobs), 2) AS all_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
 $results = $conn->query($sql);
 while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
     $allJobsCount = $row['all_jobs'];
