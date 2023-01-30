@@ -115,7 +115,6 @@ foreach ($i as $key => $value) {
     }
     $sql = "UPDATE clientstats SET last_job_date = '$lastDate' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
-    }
     # Device Type
     $sql = "SELECT clone_image FROM jobstats WHERE tagnumber = '$tagNum'";
     $results = $conn->query($sql);
@@ -130,6 +129,7 @@ foreach ($i as $key => $value) {
             $conn->query($sql);
         }
     }
+}
 
 
 
