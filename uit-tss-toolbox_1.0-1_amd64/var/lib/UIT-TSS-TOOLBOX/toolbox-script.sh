@@ -686,7 +686,7 @@ function zeroMode_Shred {
 	echo "Step [1/2]: "
 	echo ""
 	WMODE='zero'
-	if [[ zeroQuick = "1" ]]; then
+	if [[ $zeroQuick = "1" ]]; then
 		PCNTOFSECTOR='20'
 	else
 		PCNTOFSECTOR='100'
@@ -1215,9 +1215,6 @@ function execute {
 	if [[ $APPSELECT == "EC" ]]; then
 		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
-		fi
-		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
-			zeroQuick="1"
 		fi
 		basicEraseMode_Shred
 		execute_Shred
