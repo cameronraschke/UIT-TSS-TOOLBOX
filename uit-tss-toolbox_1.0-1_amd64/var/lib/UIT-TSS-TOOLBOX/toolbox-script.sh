@@ -1130,7 +1130,8 @@ function execute_Clone {
 		server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
-	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
+	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
+	rsync -a --progress ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
 		info
