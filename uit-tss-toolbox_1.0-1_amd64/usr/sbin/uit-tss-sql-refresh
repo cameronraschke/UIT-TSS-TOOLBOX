@@ -181,14 +181,14 @@ $nvmeEraseLineCount = mysqli_num_rows($results);
 $sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS nvme_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'nvme0%'";
 $results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
-$nvmeEraseAvgTime = "0";
+$nvmeEraseAvgTime = 0;
 foreach($i as $key => $value) {
     $nvmeEraseAvgTime = $nvmeEraseAvgTime + $value['nvme_erase_avgtime'];
 }
 if ($nvmeEraseLineCount >= 1) {
     $avgTimeSec = round($nvmeEraseAvgTime / $nvmeEraseLineCount);
     $avgTimeMin = round($avgTimeSec) . " minutes";
-    $sql = "UPDATE serverstats SET nvme_erase_avgtime = '$nvmeEraseAvgTime minutes' WHERE date = '$date'";
+    $sql = "UPDATE serverstats SET nvme_erase_avgtime = '$avgTimeMin' WHERE date = '$date'";
     $conn->query($sql);
 }
 
