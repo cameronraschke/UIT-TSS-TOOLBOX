@@ -40,7 +40,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	clone_image, \
 	clone_imageupdate, \
 	erase_pattern, \
-	all_totaltime, \
+	all_time, \
 	erase_time, \
 	clone_time) \
 	VALUES (\
