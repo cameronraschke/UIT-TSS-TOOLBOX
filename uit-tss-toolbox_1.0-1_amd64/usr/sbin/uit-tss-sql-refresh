@@ -175,9 +175,11 @@ if ($cloneLineCount >= 1) {
 
 
 # Update nvme_erase_avgtime
-$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS nvme_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'nvme0%'";
+$sql = "SELECT erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'nvme0%'";
 $results = $conn->query($sql);
 $nvmeEraseLineCount = mysqli_num_rows($results);
+$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS nvme_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'nvme0%'";
+$results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
 $nvmeEraseAvgTime = "0";
 foreach($i as $key => $value) {
