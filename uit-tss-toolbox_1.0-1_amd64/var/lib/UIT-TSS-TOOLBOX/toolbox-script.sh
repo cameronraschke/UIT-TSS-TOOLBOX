@@ -14,7 +14,7 @@ shredElapsed="0"
 
 etherAddr=$(cat /sys/class/net/e*/address | tail -n 1)
 UUID=$(cat /proc/sys/kernel/random/uuid)
-DATE=$(date --iso)
+DATE=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="SELECT date FROM serverstats ORDER BY date DESC LIMIT 1")
 
 tput reset
 mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="INSERT INTO jobstats(\
