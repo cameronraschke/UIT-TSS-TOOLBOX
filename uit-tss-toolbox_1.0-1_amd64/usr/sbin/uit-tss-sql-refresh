@@ -215,7 +215,7 @@ $sql = "SELECT erase_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND er
 $results = $conn->query($sql);
 $eraseJobsLineCount = mysqli_num_rows($results);
 if ($eraseJobsLineCount >= 1) {
-    $sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLineCount'";
+    $sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLineCount' WHERE date = '$date'";
     $conn->query($sql);
 }
 
@@ -224,16 +224,19 @@ $sql = "SELECT clone_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND cl
 $results = $conn->query($sql);
 $cloneJobsLineCount = mysqli_num_rows($results);
 if ($cloneJobsLineCount >= 1) {
-    $sql = "UPDATE serverstats SET erase_jobs = '$cloneJobsLineCount'";
+    $sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLineCount' WHERE date = '$date'";
     $conn->query($sql);
 }
 
 # Update all_jobs
-$sql = "SELECT ROUND(SUM(erase_jobs + clone_jobs), 2) AS all_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND (erase_time > 1 OR clone_time > 1)";
-$results = $conn->query($sql);
-$allJobsLineCount = mysqli_num_rows($results);
+$sql = "SELECT ROUND(SUM(erase_jobs + clone_jobs), 2) AS all_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND (erase_jobs > 1 OR clone_jobs > 1)";
+$i = $conn->query($sql);
+$allJobsLineCount = 0;
+foreach($i as $key => $value) {
+    $allJobsLineCount = $allJobsLineCount + $value['all_jobs'];
+}
 if ($allJobsLineCount >= 1) {
-    $sql = "UPDATE serverstats SET erase_jobs = '$allJobsLineCount'";
+    $sql = "UPDATE serverstats SET all_jobs = '$allJobsLineCount' WHERE date = '$date'";
     $conn->query($sql);
 }
 
