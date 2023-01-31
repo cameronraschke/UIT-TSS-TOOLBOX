@@ -1125,9 +1125,9 @@ Please make a backup if necessary."
 
 function execute_Clone {
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} ]]; then
-		$PARTDISK = "${CLIENTDISK}p1"
+		PARTDISK="${CLIENTDISK}p1"
 	elif [[ $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		$PARTDISK = "${CLIENTDISK}1"
+		PARTDISK="${CLIENTDISK}1"
 	fi
 	SECONDS=0
 	start_time=$SECONDS
