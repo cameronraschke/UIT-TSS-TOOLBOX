@@ -35,23 +35,23 @@ for tagNum in $(mysql --user="laptops" --password="UHouston!" --database="laptop
 				clone_jobstoday)
 				VALUES (
 				'${tagNum}', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A', \
-				'N/A');"
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT, \
+				DEFAULT);"
 		fi
 
 	# Update Disk in Clientstats

@@ -47,23 +47,23 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	'${etherAddr}', \
 	'${DATE}', \
 	'${TIME}', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT', \
-	'DEFAULT');" &>/dev/null
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT);" &>/dev/null
 tput reset
 
 
