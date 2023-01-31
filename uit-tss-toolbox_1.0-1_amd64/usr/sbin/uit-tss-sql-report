@@ -157,7 +157,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
             echo "<th>Clone Jobs</th>";
             echo "</tr>";
 
-            $sql = "SELECT * FROM clientstats WHERE NOT tagnumber = '000000'";
+            $sql = "SELECT * FROM clientstats WHERE NOT tagnumber = '000000' ORDER BY date DESC";
             $results = $conn->query($sql);
             while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
                 $tagnumber = $row['tagnumber'];
@@ -201,7 +201,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
             echo "<th>SSD Avg. Erase Time</th>";
             echo "</tr>";
 
-            $sql = "SELECT * FROM serverstats";
+            $sql = "SELECT * FROM serverstats ORDER BY date DESC";
             $results = $conn->query($sql);
             while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
                 $date = $row['date'];
