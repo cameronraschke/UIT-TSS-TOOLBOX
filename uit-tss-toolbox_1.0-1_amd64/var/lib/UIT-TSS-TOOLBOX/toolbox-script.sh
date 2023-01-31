@@ -1124,13 +1124,13 @@ Please make a backup if necessary."
 
 
 function execute_Clone {
-	if [[ $CLIENTDISK =~ ${NVME_REGEX} ]]; then
-		PARTDISK="${CLIENTDISK}p2"
-		WINDISK="${CLIENTDISK}p1"
-	elif [[ $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		PARTDISK="${CLIENTDISK}2"
-		WINDISK="${CLIENTDISK}1"
-	fi
+	# if [[ $CLIENTDISK =~ ${NVME_REGEX} ]]; then
+	# 	PARTDISK="${CLIENTDISK}p2"
+	# 	WINDISK="${CLIENTDISK}p1"
+	# elif [[ $CLIENTDISK =~ ${SSD_REGEX} ]]; then
+	# 	PARTDISK="${CLIENTDISK}2"
+	# 	WINDISK="${CLIENTDISK}1"
+	# fi
 	SECONDS=0
 	start_time=$SECONDS
 	sambaUser="cameron"
@@ -1143,37 +1143,37 @@ function execute_Clone {
 			UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
-	wipefs --all /dev/${CLIENTDISK}
-	fdisk /dev/${CLIENTDISK} <<-EOF
-	g
-	n
-	1
-	2048
-	+100G
-	w
-	EOF
-	fdisk /dev/${CLIENTDISK} <<-EOF
-	g
-	n
-	2
-	2048
-	+100G
-	w
-	EOF
-	partprobe /dev/${CLIENTDISK}
-	partprobe /dev/${PARTDISK}
-	mkfs.ntfs --quick --force /dev/${PARTDISK}
-	mount /dev/${PARTDISK} /home/partimag
-	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
-	rsync -a --progress ${sambaUser}@${sambaServer}:/home/${sambaPath}/${cloneImgName} /home/partimag
+	# wipefs --all /dev/${CLIENTDISK}
+	# fdisk /dev/${CLIENTDISK} <<-EOF
+	# g
+	# n
+	# 1
+	# 2048
+	# +100G
+	# w
+	# EOF
+	# fdisk /dev/${CLIENTDISK} <<-EOF
+	# g
+	# n
+	# 2
+	# 2048
+	# +100G
+	# w
+	# EOF
+	# partprobe /dev/${CLIENTDISK}
+	# partprobe /dev/${PARTDISK}
+	# mkfs.ntfs --quick --force /dev/${PARTDISK}
+	# mount /dev/${PARTDISK} /home/partimag
+	mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
+	#rsync -a --progress ${sambaUser}@${sambaServer}:/home/${sambaPath}/${cloneImgName} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
 		info
 		sleep 1
-		usr/sbin/ocs-sr --change-geometry auto --load-geometry-from-edd --resize-partition --clone-hidden-data -k1 --skip-check-restorable-r --postaction command --from-part-in-img ${PARTDISK} restoreparts ${cloneImgName} ${WINDISK}
+		#usr/sbin/ocs-sr --change-geometry auto --load-geometry-from-edd --resize-partition --clone-hidden-data -k1 --skip-check-restorable-r --postaction command --from-part-in-img ${PARTDISK} restoreparts ${cloneImgName} ${WINDISK}
 
-		#usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
-		#	-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
+		usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
+			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $cloneMode == "savedisk" ]]; then
 		tput reset
