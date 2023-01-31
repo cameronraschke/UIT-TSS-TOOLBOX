@@ -13,9 +13,9 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 #mysql --user="root" --password="UHouston!" --execute="ALTER USER 'laptops'@'%' IDENTIFIED BY 'UHouston\!';"
 #mysql --user="root" --password="UHouston!" --execute="GRANT ALL ON *.* TO 'laptops'@'%' WITH GRANT OPTION;"
 
-$conn->query("CREATE TABLE clientstats (tagnumber VARCHAR(150) NOT NULL DEFAULT '000000',device_type VARCHAR(150) NOT NULL DEFAULT 'N/A',last_job_date VARCHAR(150) NOT NULL DEFAULT 'N/A',all_lastuuid VARCHAR(150) NOT NULL DEFAULT 'N/A',all_time VARCHAR(150) NOT NULL DEFAULT 'N/A',all_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',erase_time VARCHAR(150) NOT NULL DEFAULT 'N/A',erase_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_time VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',all_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',erase_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',disk VARCHAR(150) NOT NULL DEFAULT 'N/A',time VARCHAR(150) NOT NULL DEFAULT 'N/A',PRIMARY KEY(tagnumber) )");
+#$conn->query("CREATE TABLE clientstats (tagnumber VARCHAR(150) NOT NULL DEFAULT '000000',device_type VARCHAR(150) NOT NULL DEFAULT 'N/A',last_job_date VARCHAR(150) NOT NULL DEFAULT 'N/A',all_lastuuid VARCHAR(150) NOT NULL DEFAULT 'N/A',all_time VARCHAR(150) NOT NULL DEFAULT 'N/A',all_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',erase_time VARCHAR(150) NOT NULL DEFAULT 'N/A',erase_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_time VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',all_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',erase_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',disk VARCHAR(150) NOT NULL DEFAULT 'N/A',time VARCHAR(150) NOT NULL DEFAULT 'N/A',PRIMARY KEY(tagnumber) )");
 
-$conn->query("CREATE TABLE serverstats (date VARCHAR(150) NOT NULL DEFAULT 'N/A',laptop_count VARCHAR(150) NOT NULL DEFAULT 'N/A',last_image_update VARCHAR(150) NOT NULL DEFAULT 'N/A',all_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',erase_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',all_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',nvme_erase_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',ssd_erase_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A', PRIMARY KEY(date) )");
+#$conn->query("CREATE TABLE serverstats (date VARCHAR(150) NOT NULL DEFAULT 'N/A',laptop_count VARCHAR(150) NOT NULL DEFAULT 'N/A',last_image_update VARCHAR(150) NOT NULL DEFAULT 'N/A',all_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',erase_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',all_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',nvme_erase_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',ssd_erase_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A', PRIMARY KEY(date) )");
 
 $conn->query("ALTER TABLE jobstats DROP COLUMN 'alldisks'");
 
@@ -64,6 +64,8 @@ $conn->query("ALTER TABLE jobstats MODIFY COLUMN clone_image VARCHAR(150) NOT NU
 $conn->query("ALTER TABLE jobstats MODIFY COLUMN clone_imageupdate VARCHAR(150) NOT NULL DEFAULT 'N/A' AFTER clone_image");
 
 $conn->query("ALTER TABLE jobstats MODIFY COLUMN clone_sambauser VARCHAR(150) NOT NULL DEFAULT 'N/A' AFTER clone_imageupdate");
+
+$conn->query("ALTER TABLE serverstats ADD COLUMN time VARCHAR(150) NOT NULL DEFAULT 'N/A' AFTER date");
 
 $conn->close();
 ?>
