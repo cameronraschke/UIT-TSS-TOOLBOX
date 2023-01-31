@@ -1172,7 +1172,7 @@ function execute_Clone {
 		sleep 1
 		#usr/sbin/ocs-sr --change-geometry auto --load-geometry-from-edd --resize-partition --clone-hidden-data -k1 --skip-check-restorable-r --postaction command --from-part-in-img ${PARTDISK} restoreparts ${cloneImgName} ${WINDISK}
 
-		usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
+		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $cloneMode == "savedisk" ]]; then
