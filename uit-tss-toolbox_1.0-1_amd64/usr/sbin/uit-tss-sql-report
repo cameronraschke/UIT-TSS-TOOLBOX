@@ -157,7 +157,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
             echo "<th>Clone Jobs</th>";
             echo "</tr>";
 
-            $sql = "SELECT * FROM clientstats WHERE NOT tagnumber = '000000' ORDER BY date DESC";
+            $sql = "SELECT * FROM clientstats WHERE NOT tagnumber = '000000' ORDER BY last_job_date DESC";
             $results = $conn->query($sql);
             while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
                 $tagnumber = $row['tagnumber'];
