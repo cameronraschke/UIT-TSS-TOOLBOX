@@ -1124,7 +1124,7 @@ Please make a backup if necessary."
 
 
 function execute_Clone {
-	if [[ $CLIENTDISK =~ ${NVME_REGEX}; then
+	if [[ $CLIENTDISK =~ ${NVME_REGEX} ]]; then
 		$PARTDISK = "${CLIENTDISK}p1"
 	elif [[ $CLIENTDISK =~ ${SSD_REGEX} ]]; then
 		$PARTDISK = "${CLIENTDISK}1"
@@ -1148,7 +1148,6 @@ function execute_Clone {
 	1
 	2048
 	+30G
-	Y
 	w
 	EOF
 	partprobe /dev/${CLIENTDISK}
