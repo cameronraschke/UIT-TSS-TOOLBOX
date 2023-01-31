@@ -1125,9 +1125,11 @@ Please make a backup if necessary."
 
 function execute_Clone {
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} ]]; then
-		PARTDISK="${CLIENTDISK}p1"
+		PARTDISK="${CLIENTDISK}p2"
+		WINDISK="${CLIENTDISK}p1"
 	elif [[ $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		PARTDISK="${CLIENTDISK}1"
+		PARTDISK="${CLIENTDISK}2"
+		WINDISK="${CLIENTDISK}1"
 	fi
 	SECONDS=0
 	start_time=$SECONDS
@@ -1147,7 +1149,15 @@ function execute_Clone {
 	n
 	1
 	2048
-	+30G
+	+100G
+	w
+	EOF
+	fdisk /dev/${CLIENTDISK} <<-EOF
+	g
+	n
+	2
+	2048
+	+100G
 	w
 	EOF
 	partprobe /dev/${CLIENTDISK}
@@ -1155,13 +1165,12 @@ function execute_Clone {
 	mkfs.ntfs --quick --force /dev/${PARTDISK}
 	mount /dev/${PARTDISK} /home/partimag
 	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
-	rsync -a --progress ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
+	rsync -a --progress ${sambaUser}@${sambaServer}:/home/${sambaPath}/${cloneImgName} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
 		info
 		sleep 1
-		usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
-			--from-part ${PARTDISK} --resize-partition -k1 --skip-check-restorable-r restoreparts ${cloneImgName} ${CLIENTDISK}
+		usr/sbin/ocs-sr -e1 auto -e2 -t -r -j2 -c -k -scr -p cmd -f ${PARTDISK} restoreparts ${cloneImgName} ${WINDISK}
 
 		#usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
 		#	-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
