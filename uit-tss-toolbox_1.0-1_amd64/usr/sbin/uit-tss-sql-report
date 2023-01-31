@@ -157,8 +157,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
             echo "<th>Clone Jobs</th>";
             echo "</tr>";
 
-            $sql = "SELECT tagnumber,device_type,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs";
-            $sql .= " FROM clientstats WHERE NOT tagnumber = '000000'";
+            $sql = "SELECT * FROM clientstats WHERE NOT tagnumber = '000000'";
             $results = $conn->query($sql);
             while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
                 $tagnumber = $row['tagnumber'];
@@ -191,6 +190,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
             echo "<div class=\"servertable\">";
             echo "<table class=\"styled-table\"";
             echo "<tr>";
+            echo "<th>Date</th>";
             echo "<th>Laptop Count</th>";
             echo "<th>Last Image Update</th>";
             echo "<th>Total Jobs</th>";
@@ -201,9 +201,10 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
             echo "<th>SSD Avg. Erase Time</th>";
             echo "</tr>";
 
-            $sql = "SELECT laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime FROM serverstats";
+            $sql = "SELECT * FROM serverstats";
             $results = $conn->query($sql);
             while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+                $date = $row['date'];
                 $laptop_count = $row['laptop_count'];
                 $last_image_update = $row['last_image_update'];
                 $all_jobs = $row['all_jobs'];
@@ -214,6 +215,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
                 $ssd_erase_avgtime = $row['clone_avgtime'];
 
                 echo "<tr>";
+                echo "<td>$date</td>";
                 echo "<td>$laptop_count</td>";
                 echo "<td>$last_image_update</td>";
                 echo "<td>$all_jobs</td>";

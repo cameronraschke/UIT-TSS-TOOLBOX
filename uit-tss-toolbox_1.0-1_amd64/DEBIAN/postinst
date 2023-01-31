@@ -7,3 +7,4 @@
 /usr/bin/cp /var/lib/UIT-TSS-TOOLBOX/toolbox-script.sh /home/cameron
 /usr/bin/chown cameron:cameron /home/cameron/toolbox-script.sh
 chmod 600 /root/.ssh_passwd
+echo "" >> /etc/cron.d/sql-cronjobs
