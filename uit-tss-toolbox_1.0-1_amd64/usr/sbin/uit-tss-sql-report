@@ -211,8 +211,8 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
                 $erase_jobs = $row['erase_jobs'];
                 $clone_jobs = $row['clone_jobs'];
                 $clone_avgtime = $row['clone_avgtime'];
-                $nvme_erase_avgtime = $row['clone_avgtime'];
-                $ssd_erase_avgtime = $row['clone_avgtime'];
+                $nvme_erase_avgtime = $row['nvme_erase_avgtime'];
+                $ssd_erase_avgtime = $row['ssd_erase_avgtime'];
 
                 echo "<tr>";
                 echo "<td>$date</td>";
