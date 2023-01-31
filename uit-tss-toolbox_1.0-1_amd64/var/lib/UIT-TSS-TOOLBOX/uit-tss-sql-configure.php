@@ -17,9 +17,9 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 
 #$conn->query("CREATE TABLE serverstats (date VARCHAR(150) NOT NULL DEFAULT 'N/A',laptop_count VARCHAR(150) NOT NULL DEFAULT 'N/A',last_image_update VARCHAR(150) NOT NULL DEFAULT 'N/A',all_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',erase_jobs VARCHAR(150) NOT NULL DEFAULT 'N/A',all_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',clone_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',nvme_erase_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A',ssd_erase_avgtime VARCHAR(150) NOT NULL DEFAULT 'N/A', PRIMARY KEY(date) )");
 
-$conn->query("ALTER TABLE jobstats DROP COLUMN 'alldisks'");
+#$conn->query("ALTER TABLE jobstats DROP COLUMN 'alldisks'");
 
-$conn->query("ALTER TABLE jobstats DROP COLUMN 'erase_pattern'");
+#$conn->query("ALTER TABLE jobstats DROP COLUMN 'erase_pattern'");
 
 $conn->query("ALTER TABLE jobstats MODIFY COLUMN uuid VARCHAR(150) NOT NULL DEFAULT 'N/A' FIRST");
 
