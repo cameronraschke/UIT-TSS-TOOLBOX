@@ -28,7 +28,6 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	clone_completed, \
 	erase_completed, \
 	disk, \
-	alldisks, \
 	disksizegb, \
 	reboot, \
 	clone_mode, \
@@ -39,7 +38,6 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	clone_sambauser, \
 	clone_image, \
 	clone_imageupdate, \
-	erase_pattern, \
 	all_time, \
 	erase_time, \
 	clone_time) \
@@ -49,25 +47,23 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	'${etherAddr}', \
 	'${DATE}', \
 	'${TIME}', \
-	'N/A', \
-	'No', \
-	'No', \
-	'N/A', \
-	'N/A', \
-	'0', \
-	'No', \
-	'N/A', \
-	'No', \
-	'N/A', \
-	'0', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'N/A', \
-	'0', \
-	'0', \
-	'0');" &>/dev/null
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT', \
+	'DEFAULT');" &>/dev/null
 tput reset
 
 
