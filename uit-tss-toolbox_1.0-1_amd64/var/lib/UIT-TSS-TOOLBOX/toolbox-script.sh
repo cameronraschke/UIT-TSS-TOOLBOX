@@ -1146,6 +1146,8 @@ function execute_Clone {
 	Y
 	w
 	EOF
+	partprobe /dev/${CLIENTDISK}
+	partprobe /dev/${CLIENTDISK}p1
 	mkfs.ntfs --quick --force /dev/${CLIENTDISK}p1
 	mount /dev/${CLIENTDISK}p1 /home/partimag
 	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
