@@ -23,7 +23,7 @@ $conn->query("ALTER TABLE jobstats DROP COLUMN 'erase_pattern'");
 
 $conn->query("ALTER TABLE jobstats MODIFY COLUMN uuid VARCHAR(150) NOT NULL DEFAULT 'N/A' FIRST");
 
-$conn->query("ALTER TABLE jobstats MODIFY COLUMN tagnumber VARCHAR(150) NOT NULL DEFAULT 'N/A' AFTER uuid");
+$conn->query("ALTER TABLE jobstats MODIFY COLUMN tagnumber VARCHAR(150) NOT NULL DEFAULT '000000' AFTER uuid");
 
 $conn->query("ALTER TABLE jobstats MODIFY COLUMN etheraddress VARCHAR(150) NOT NULL DEFAULT 'N/A' AFTER tagnumber");
 
