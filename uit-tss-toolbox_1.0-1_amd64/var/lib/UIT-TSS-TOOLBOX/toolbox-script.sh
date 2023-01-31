@@ -553,8 +553,9 @@ function vrfyDisk_Shred {
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP1} iflag=fullblock status=none 2>/dev/null \
         	| grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
             	PROCFAIL='1'
-            	echo "Bad bits found on device ${CLIENTDISK}."
-        		return 1
+            	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
+				echo ""
+        		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
     	fi
 
 		COUNT2=$(shuf -i 1-${COUNT} -n 1)
@@ -562,8 +563,9 @@ function vrfyDisk_Shred {
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT2} skip=${SKIP2} iflag=fullblock status=none 2>/dev/null \
         	| grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
             	PROCFAIL='1'
-            	echo "Bad bits found on device ${CLIENTDISK}."
-        		return 1
+            	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
+				echo ""
+        		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
     	fi
 
 		i=$(( ${i} + 1 ))
@@ -693,11 +695,13 @@ function zeroMode_Shred {
 	fi
 	writeDisk_Shred
 	
-	echo ""
-	echo "Step: [2/2]: "
-	PCNTOFSECTOR='10'
-	CHAR='0'
-	vrfyDisk_Shred
+	if [[ $zeroQuick != "1" ]]; then
+		echo ""
+		echo "Step: [2/2]: "
+		PCNTOFSECTOR='10'
+		CHAR='0'
+		vrfyDisk_Shred
+	fi
 }
 
 
