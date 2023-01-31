@@ -1143,7 +1143,7 @@ function execute_Clone {
 			UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
-	wipefs /dev/${CLIENTDISK}
+	wipefs --all /dev/${CLIENTDISK}
 	fdisk /dev/${CLIENTDISK} <<-EOF
 	g
 	n
