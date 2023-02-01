@@ -15,7 +15,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
     $sql = "SELECT 'Tag Number','Device Type','Last Job Date','Average Time Erase+Clone','Average Time Erase','Average Time Clone','Total Jobs','Total Erase Jobs','Total Clone Jobs'
     UNION ALL
     SELECT tagnumber,device_type,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs
-    FROM clientstats ORDER BY last_job_date DESC INTO OUTFILE '/tmp/laptop-report-client.csv'
+    FROM clientstats ORDER BY 'last_job_date' DESC INTO OUTFILE '/tmp/laptop-report-client.csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\\n'";
