@@ -147,8 +147,8 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
     $sqldate = $row['date'];
 }
 if (empty($sqldate)) {
-    $sql = "INSERT INTO serverstats(date,laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,";
-    $sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime) VALUES ('$date',";
+    $sql = "INSERT INTO serverstats(date,time,laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,";
+    $sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime) VALUES ('$date','$time'";
     $sql .= "'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A')";
     $conn->query($sql);
 }
