@@ -5,7 +5,27 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
     $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time','NVME Avg. Erase Time','SSD Avg. Erase Time'
     UNION ALL
     SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime
-    FROM serverstats ORDER BY date DESC INTO OUTFILE '/tmp/laptop-report.csv'
+    FROM serverstats ORDER BY date DESC INTO OUTFILE '/tmp/laptop-report-server.csv'
+    FIELDS TERMINATED BY ','
+    ENCLOSED BY '\"'
+    LINES TERMINATED BY '\\n'";
+
+    $conn->query($sql);
+
+    $sql = "SELECT 'Tag Number','Device Type','Last Job Date','Average Time Erase+Clone','Average Time Erase','Average Time Clone','Total Jobs','Total Erase Jobs','Total Clone Jobs'
+    UNION ALL
+    SELECT tagnumber,device_type,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs
+    FROM clientstats ORDER BY last_job_date DESC INTO OUTFILE '/tmp/laptop-report-client.csv'
+    FIELDS TERMINATED BY ','
+    ENCLOSED BY '\"'
+    LINES TERMINATED BY '\\n'";
+
+    $conn->query($sql);
+
+    $sql = "SELECT 'Job UUID','Tag Number','MAC Address','Date','Time','Action','Rebooted','Disk','Disk Size (GB)','Total Time all Jobs (sec)','Erase Completed','Erase Mode','Time to Erase (sec)','Erase Disk %','Clone Completed','Clone Mode','Time to Clone (sec)','Master Laptop','Clone Server','Clone Image','Last Image Update','Samba User'
+    UNION ALL
+    SELECT *
+    FROM serverstats ORDER BY time DESC INTO OUTFILE '/tmp/laptop-report-job.csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\\n'";
