@@ -166,6 +166,9 @@ $conn->query($sql);
 
 
 # Update clone_avgtime
+$sql = "SELECT clone_time FROM jobstats WHERE clone_completed = 'Yes'";
+$results = $conn->query($sql);
+$cloneLineCount = mysqli_num_rows($results);
 $sql = "SELECT ROUND(SUM(clone_avgtime), 2) AS clone_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT clone_avgtime = '0 minutes'";
 $results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
