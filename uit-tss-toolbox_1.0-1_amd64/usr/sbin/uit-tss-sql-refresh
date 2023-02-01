@@ -174,7 +174,7 @@ foreach($i as $key => $value) {
     $cloneAvgTime = $cloneAvgTime + $value['clone_avgtime'];
 }
 if ($cloneLineCount >= 1) {
-    $avgTimeSec = round($cloneTime / $cloneLineCount);
+    $avgTimeSec = round($cloneAvgTime / $cloneLineCount);
     $avgTimeMin = round($avgTimeSec / 60) . " minutes";
     $sql = "UPDATE serverstats SET clone_avgtime = '$avgTimeMin' WHERE date = '$date'";
     $conn->query($sql);
