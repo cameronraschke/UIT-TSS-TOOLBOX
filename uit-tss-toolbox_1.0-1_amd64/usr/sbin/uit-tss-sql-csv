@@ -1,7 +1,13 @@
 #!/usr/bin/php
 <?php
+include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-root.php');
+
     $sql = "SELECT * FROM serverstats ORDER BY date DESC INTO OUTFILE '/root/report.csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\n'";
+
+    $conn->query($sql);
+
+$conn->close(); 
 ?>
