@@ -84,6 +84,9 @@ foreach ($i as $key => $value) {
 
 
     # All (clone + erase) times
+    $sql = "SELECT all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
+    $results = $conn->query($sql);
+    $allLineCount = mysqli_num_rows($results);
     $sql = "SELECT (ROUND(SUM(erase_time), 2) * $eraseLineCount) + (ROUND(SUM(clone_time), 2) * $cloneLineCount) / (ROUND(SUM(erase_time), 2) + ROUND(SUM(clone_time), 2)) AS all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
