@@ -87,7 +87,7 @@ foreach ($i as $key => $value) {
     $sql = "SELECT all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
     $results = $conn->query($sql);
     $allLineCount = mysqli_num_rows($results);
-    $sql = "SELECT ROUND(SUM(erase_time + clone_time), 2) AS all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
+    $sql = "SELECT (ROUND(SUM(erase_time), 2) * $eraseLineCount) + (ROUND(SUM(clone_time), 2) * $cloneLineCount) / (ROUND(SUM(erase_time), 2) + ROUND(SUM(clone_time), 2)) AS all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
     $allTime = 0;
@@ -148,7 +148,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 }
 if (empty($sqldate)) {
     $sql = "INSERT INTO serverstats(date,time,laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,";
-    $sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime) VALUES ('$date','$time'";
+    $sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime) VALUES ('$date','$time',";
     $sql .= "'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A')";
     $conn->query($sql);
 }
