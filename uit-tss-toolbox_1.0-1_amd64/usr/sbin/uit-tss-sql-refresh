@@ -85,12 +85,19 @@ foreach ($i as $key => $value) {
 
     # All (clone + erase) times
     $allLineCount = $cloneLineCount + $eraseLineCount;
-    $sql = "SELECT (ROUND(SUM(erase_time), 2) * $eraseLineCount) + (ROUND(SUM(clone_time), 2) * $cloneLineCount) / (ROUND(SUM(erase_time), 2) + ROUND(SUM(clone_time), 2)) AS all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
+    $sql = "SELECT ROUND(SUM(erase_time) + SUM(clone_time), 2) AS all_time FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
     $allTime = 0;
     foreach($i as $key => $value) {
         $allTime = $allTime + $value['all_time'];
+    }
+    $sql = "SELECT ROUND((SUM(erase_time) * $eraseLineCount) + (SUM(clone_time) * $cloneLineCount) / ($eraseLineCount + $cloneLineCount), 2) AS all_avgtime FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = 'Yes' OR clone_completed = 'Yes')";
+    $results = $conn->query($sql);
+    $i = $results->fetch_all(MYSQLI_ASSOC);
+    $allAvgTime = 0;
+    foreach($i as $key => $value) {
+        $allAvgTime = $allAvgTime + $value['all_avgtime'];
     }
     # Update total jobs
     $sql = "UPDATE clientstats SET all_jobs = '$allLineCount' WHERE tagnumber = '$tagNum'";
