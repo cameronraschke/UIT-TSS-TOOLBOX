@@ -24,7 +24,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 
     $conn->query($sql);
 
-    $sql = "SELECT 'Job UUID','Tag Number','MAC Address','Date','Time','Action','Rebooted','Disk','Disk Size (GB)','Total Time all Jobs (sec)','Erase Completed','Erase Mode','Time to Erase (sec)','Erase Disk %','Clone Completed','Clone Mode','Time to Clone (sec)','Master Laptop','Clone Server','Clone Image','Last Image Update','Samba User'
+    $sql = "SELECT 'Job UUID','Tag Number','MAC Address','Date','Time','Action','Rebooted','Disk','Disk Size (GB)','Total Time all Jobs','Erase Completed','Erase Mode','Time to Erase (sec)','Erase Disk %','Clone Completed','Clone Mode','Time to Clone (sec)','Master Laptop','Clone Server','Clone Image','Last Image Update','Samba User'
     UNION ALL
     SELECT *
     FROM jobstats ORDER BY time DESC 
