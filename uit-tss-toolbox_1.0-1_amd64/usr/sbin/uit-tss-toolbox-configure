@@ -14,7 +14,7 @@ confirmDelete
 
 apt purge live-build -y
 apt install live-build -y
-wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20220505_all.deb \
+wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20210407_all.deb \
 	--output-document=/opt/debian-live.deb
 apt install /opt/debian-live.deb -y
 
