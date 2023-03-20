@@ -151,6 +151,7 @@ pv
 postfix
 default-mysql-client
 dmidecode
+sshfs
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
