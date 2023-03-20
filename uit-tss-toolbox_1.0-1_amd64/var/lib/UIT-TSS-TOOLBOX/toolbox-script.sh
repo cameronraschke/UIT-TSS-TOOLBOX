@@ -1311,7 +1311,7 @@ function terminate {
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		imgupdate=$(date --iso)
 		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE serverstats SET last_image_update = '${imgupdate}';"
+			--execute="UPDATE serverstats SET last_image_update = '${imgupdate}' WHERE date = '${DATE}';"
 
 		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
 		echo "Server: \"${sambaDNS}\""
