@@ -1,7 +1,7 @@
 #!/bin/bash
 DATE=$(date --iso)
-mysqldump --user="laptops" --password="UHouston!" --host="10.0.0.1" laptopDB > /opt/hdd/laptopDB-${DATE}.sql
+mysqldump --user="laptops" --password="UHouston!" --host="10.0.0.1" laptopDB > /mnt/laptopDB-${DATE}.sql
 #sshpass -f /root/.ssh_passwd ssh-copy-id -o "StrictHostKeyChecking=no" laptopsql@p2.plutomail.io
-scp /opt/hdd/laptopDB-${DATE}.sql laptopsql@p2.plutomail.io:/home/laptopsql
+scp /mnt/laptopDB-${DATE}.sql laptopsql@p2.plutomail.io:/home/laptopsql
 
 #ssh laptopsql@p2.plutomail.io 'mysql -u doadmin --password="AVNS_ncJzgkTeIG6wBd4OSQs" -h private-db-mysql-nyc1-21857-do-user-11961075-0.b.db.ondigitalocean.com -P 25060 -D laptopDB < /home/laptopsql/laptopDB.sql'
