@@ -9,7 +9,7 @@ $time = date('Y-m-d H:i:s', time());
     UNION ALL
     SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime
     FROM serverstats ORDER BY date DESC 
-    INTO OUTFILE '/tmp/laptop-report-server".$time.".csv'
+    INTO OUTFILE '/tmp/laptop-report-server-".$time.".csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\\n'";
@@ -20,7 +20,7 @@ $time = date('Y-m-d H:i:s', time());
     UNION ALL
     SELECT tagnumber,device_type,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs
     FROM clientstats ORDER BY 'last_job_date' DESC 
-    INTO OUTFILE '/tmp/laptop-report-client".$time.".csv'
+    INTO OUTFILE '/tmp/laptop-report-client-".$time.".csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\\n'";
@@ -31,7 +31,7 @@ $time = date('Y-m-d H:i:s', time());
     UNION ALL
     SELECT *
     FROM jobstats ORDER BY time DESC 
-    INTO OUTFILE '/tmp/laptop-report-job".$time.".csv'
+    INTO OUTFILE '/tmp/laptop-report-job-".$time.".csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\\n'";
