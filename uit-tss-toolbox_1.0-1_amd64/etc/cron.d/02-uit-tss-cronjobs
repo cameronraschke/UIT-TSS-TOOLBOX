@@ -1,2 +1,3 @@
 */10 * * * * root /usr/sbin/uit-tss-sql-backup
-*/10 * * * * root /usr/sbin/uit-tss-sql-csv > /opt/Laptop-Report-$(date --iso).csv
+* */3 * * * root /usr/sbin/uit-tss-sql-csv
+* * * * * root mv /tmp/laptop-report-*.csv /mnt/
