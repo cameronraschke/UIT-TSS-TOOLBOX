@@ -1124,13 +1124,6 @@ Please make a backup if necessary."
 
 
 function execute_Clone {
-	# if [[ $CLIENTDISK =~ ${NVME_REGEX} ]]; then
-	# 	PARTDISK="${CLIENTDISK}p2"
-	# 	WINDISK="${CLIENTDISK}p1"
-	# elif [[ $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-	# 	PARTDISK="${CLIENTDISK}2"
-	# 	WINDISK="${CLIENTDISK}1"
-	# fi
 	SECONDS=0
 	start_time=$SECONDS
 	sambaUser="cameron"
@@ -1145,13 +1138,10 @@ function execute_Clone {
 	mkdir -p /home/partimag
 	sshfs -o allow_other,default_permissions ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
 	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
-	#rsync -a --progress ${sambaUser}@${sambaServer}:/home/${sambaPath}/${cloneImgName} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
 		info
 		sleep 1
-		#usr/sbin/ocs-sr --change-geometry auto --load-geometry-from-edd --resize-partition --clone-hidden-data -k1 --skip-check-restorable-r --postaction command --from-part-in-img ${PARTDISK} restoreparts ${cloneImgName} ${WINDISK}
-
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
@@ -1272,7 +1262,6 @@ function terminate {
 	fi
 
 	echo ""
-	echo ""
 	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
 	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
 
@@ -1293,7 +1282,7 @@ function terminate {
 		echo "Action: ${terminateAction}"
 		echo "Server: \"${sambaDNS}\""
 		echo "Image: \"${cloneImgName}\""
-		#echo "Image last updated: ${imageUpdate}";
+		echo "Image last updated: ${imgupdate}";
 		#echo "Computers imaged/erased today: ${imageNumToday}"
 		echo "Total time taken: ${totalElapsed}"
 		#echo "Times ${tagNum} has been reimaged: ${totalCount}"
