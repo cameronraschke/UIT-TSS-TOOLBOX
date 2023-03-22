@@ -402,8 +402,7 @@ function writeDisk_Shred {
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		--execute="UPDATE jobstats SET disksizegb = ${DISKSIZEGB} WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET disksizegb = '${DISKSIZEGB}' WHERE uuid = '${UUID};" | uit-tss-db
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
@@ -450,8 +449,7 @@ function writeDisk_Shred {
 	fi
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		--execute="UPDATE jobstats SET erase_diskpercent = ${PCNTOFSECTOR} WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET erase_diskpercent = '${PCNTOFSECTOR}' WHERE uuid = '${UUID}'" | uit-tss-db
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -1058,20 +1056,17 @@ function clientselect_Clone {
 	1)
 	sambaPath='hp'
 	cloneImgName='2023Spring-HP'
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	2)
 	sambaPath='dell'
 	cloneImgName='2023Spring-Dell'
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	3)
 	sambaPath='desktops'
 	cloneImgName='2022Fall-Win10Desktops'
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	*)
 	clientselect
@@ -1123,10 +1118,8 @@ function execute_Clone {
 	sambaPassword='UHouston!'
 	sambaServer="10.0.0.1"
 	sambaDNS="mickey.uit"
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-			UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
+	echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	sshfs -o allow_other,default_permissions ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
@@ -1146,8 +1139,7 @@ function execute_Clone {
 			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-			UPDATE jobstats SET clone_time = '${cloneElapsed}' WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET clone_time = '${cloneElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
 	return
 }
 
@@ -1189,8 +1181,7 @@ function execute_Shred {
 			unlockMode_Shred
 		fi
 		shredElapsed=$(( SECONDS - start_time ))
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-			UPDATE jobstats SET erase_time = '${shredElapsed}' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET erase_time = '${shredElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
 	fi
 	return
 }
@@ -1232,8 +1223,7 @@ function execute {
 
 function totaltime {
 	totalElapsed=$(echo $(( (shredElapsed + cloneElapsed) / 60 )) minutes)
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-		UPDATE jobstats SET all_time = '${totalElapsed}' WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET all_time = '${totalElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
 }
 
 
