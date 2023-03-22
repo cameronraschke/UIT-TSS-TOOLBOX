@@ -4,8 +4,6 @@
 /usr/bin/chown root:root /usr/sbin/uit-tss-*
 /usr/bin/chmod 700 /var/lib/UIT-TSS-TOOLBOX/ -R
 /usr/bin/chown root:root /var/lib/UIT-TSS-TOOLBOX/ -R
-/usr/bin/cp /var/lib/UIT-TSS-TOOLBOX/toolbox-script.sh /home/cameron/
-/usr/bin/chown cameron:cameron /home/cameron/toolbox-script.sh
 echo -e "\n" >> /etc/cron.d/01-uit-tss-cronjobs
 echo -e "\n" >> /etc/cron.d/02-uit-tss-cronjobs
 echo -e "\n" >> /etc/cron.d/03-uit-tss-cronjobs
