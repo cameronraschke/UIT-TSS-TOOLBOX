@@ -153,6 +153,9 @@ postfix
 default-mysql-client
 dmidecode
 sshfs
+php
+php-cli
+php-mysql
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
@@ -242,7 +245,7 @@ ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
 fi
 sshpass -f /root/.ssh_passwd ssh-copy-id \
 	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
-scp cameron@mickey.uit:/home/cameron/toolbox-script.sh /root &>/dev/null
+scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
 echo "${GREEN}Done.${RESET}"
 
 echo ""
@@ -259,8 +262,10 @@ echo "${BOLD}Changing font...${RESET}"
 echo "${GREEN}Done.${RESET}"
 
 sleep 1
-chmod 755 /root/toolbox-script.sh
-/root/toolbox-script.sh
+chmod 750 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
+chmod 750 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
+dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64
+dpkg -i /root/uit-tss-client_2.0-1_amd64.deb
 EOF
 (cd /opt/UIT-TSS-TOOLBOX
 lb build)

@@ -156,8 +156,7 @@ function powerWarning {
 	read -n 1 -p "Please press ${BOLD}${BLUE}[1]${RESET} ${BOLD}or ${BLUE}[2]${RESET} ${BOLD}to skip....${RESET} " restartBool
 	if [[ $restartBool == "1" ]]; then
 		tput reset
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET reboot = 'yes' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET reboot = 'yes' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo -n mem > /sys/power/state
 		tput reset
 	elif [[ $restartBool == "2" ]]; then
@@ -183,20 +182,17 @@ function appSelect {
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
 		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
 		powerWarning
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
 	else
 		echo ""
 		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
@@ -223,8 +219,7 @@ function basicEraseMode_Shred {
 			RMODE='Zero Mode'
 		fi
 	fi
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
 }
 
 
@@ -328,8 +323,7 @@ function advEraseMode_Shred {
 	;;
 	esac
 
-	mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-		--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
+	echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
 }
 
 
@@ -379,8 +373,7 @@ function diskSelect {
 	fi
 	
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';" &
+		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db &
 	else
 	    echo ""
 	    echo "${BOLD}${RED}Invalid selection.${RESET}"
@@ -1436,18 +1429,14 @@ function main {
 	elif [[ $mainMenuOpt == "4" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
 		CLIENTDISK='nvme0n1'
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
 		manufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_image = '${manufacturer}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "UPDATE jobstats SET clone_image = '${manufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "5" ]]; then
