@@ -10,3 +10,6 @@ echo -e "\n" >> /etc/cron.d/01-uit-tss-cronjobs
 echo -e "\n" >> /etc/cron.d/02-uit-tss-cronjobs
 echo -e "\n" >> /etc/cron.d/03-uit-tss-cronjobs
 cp -r /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/ /home/cameron
+chown cameron:cameron /home/cameron/uit-tss-client_2.0-1_amd64/ -R
+chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
+chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
