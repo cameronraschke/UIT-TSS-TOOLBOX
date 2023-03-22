@@ -1,0 +1,9 @@
+Package: uit-tss-toolbox
+Source: uit-tss-toolbox
+Version: 2.0-1
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Cameron Raschke <caraschke@uh.edu>
+Description: UIT-TSS-TOOLBOX.
+Pre-Depends: wget
