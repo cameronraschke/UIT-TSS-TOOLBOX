@@ -262,10 +262,9 @@ echo "${BOLD}Changing font...${RESET}"
 echo "${GREEN}Done.${RESET}"
 
 sleep 1
-chmod 750 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
-chmod 750 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
+chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
 dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64
-dpkg -i /root/uit-tss-client_2.0-1_amd64.deb
+dpkg --install /root/uit-tss-client_2.0-1_amd64.deb
 EOF
 (cd /opt/UIT-TSS-TOOLBOX
 lb build)
