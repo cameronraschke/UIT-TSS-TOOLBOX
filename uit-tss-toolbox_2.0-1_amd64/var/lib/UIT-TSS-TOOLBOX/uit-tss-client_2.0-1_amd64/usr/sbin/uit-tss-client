@@ -18,7 +18,7 @@ DATE=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --hos
 TIME=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="SELECT time FROM serverstats ORDER BY date DESC LIMIT 1")
 
 tput reset
-mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="INSERT INTO jobstats(\
+echo "INSERT INTO jobstats(\
 	uuid, \
 	tagnumber, \
 	etheraddress, \
@@ -63,7 +63,7 @@ mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0
 	DEFAULT, \
 	DEFAULT, \
 	DEFAULT, \
-	DEFAULT);" &>/dev/null
+	DEFAULT)" | uit-tss-db
 tput reset
 
 
