@@ -1309,7 +1309,8 @@ function terminate {
 		poweroff
 	fi
 
-	
+	echo ""
+	/usr/sbin/uit-tss-sql-refresh-client	
 	echo ""
 	echo "${exitMessage}"
 	echo ""
