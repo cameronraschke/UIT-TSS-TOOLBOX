@@ -1236,8 +1236,8 @@ function terminate {
 	echo ""
 	read -p "${BOLD}Process has finished. Please enter the ${BLUE}tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 	if [[ $tagNum =~ $regex ]]; then
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-			UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
+			export tagNum
 	else
 		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
 		sleep 0.5
@@ -1249,8 +1249,7 @@ function terminate {
 	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}'" | uit-tss-db
 
 		if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
 			terminateAction="erased and cloned"
@@ -1271,19 +1270,16 @@ function terminate {
 		#echo "Times ${tagNum} has been reimaged: ${totalCount}"
 		)
 
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
 
 		if [[ $APPSELECT == "EC" ]]; then
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
 		fi
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		imgupdate=$(date --iso)
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE serverstats SET last_image_update = '${imgupdate}' WHERE date = '${DATE}';"
+		echo "UPDATE serverstats SET last_image_update = '${imgupdate}' WHERE date = '${DATE}'" | uit-tss-db
 
 		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
 		echo "Server: \"${sambaDNS}\""
@@ -1292,11 +1288,8 @@ function terminate {
 		#echo "Computers imaged/erased today: ${imageNumToday}"
 		)
 
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}';"
-		
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET clone_master = 'Yes' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "UPDATE jobstats SET clone_master = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
 	fi
 
 	if [[ $APPSELECT == "E" ]]; then
@@ -1307,8 +1300,7 @@ function terminate {
 		echo "Action: ${terminateAction}"
 		echo "Total time taken: ${totalElapsed}"
 		)
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
 
 		echo ""
 		echo "${exitMessage}"
@@ -1332,88 +1324,67 @@ function main {
 	if [[ $mainMenuOpt == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
 		CLIENTDISK='nvme0n1'
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		cloneMode="restoredisk"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
 		sambaPath="hp"
 		cloneImgName="2023Spring-HP"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
 		sambaUser="cameron"
 		sambaPassword="UHouston!"
 		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-				UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "2" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
 		CLIENTDISK='nvme0n1'
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		cloneMode="restoredisk"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
 		sambaPath="dell"
 		cloneImgName="2023Spring-Dell"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
 		sambaUser="cameron"
 		sambaPassword="UHouston!"
 		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-				UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "3" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
 		CLIENTDISK='sda'
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		cloneMode="restoredisk"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
 		sambaPath="dell"
 		cloneImgName="2023Spring-Dell"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
 		sambaUser="cameron"
 		sambaPassword="UHouston!"
 		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}';"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" --execute="\
-				UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "4" ]]; then
@@ -1432,18 +1403,14 @@ function main {
 	elif [[ $mainMenuOpt == "5" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
 		CLIENTDISK='sda'
-		mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-			--execute="UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}';"
+		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
 		manufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}';"
-			mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" \
-				--execute="UPDATE jobstats SET clone_image = '${manufacturer}' WHERE uuid = '${UUID}';"
+			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "UPDATE jobstats SET clone_image = '${manufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "6" ]]; then
