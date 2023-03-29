@@ -5,7 +5,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
-    $sql = "SELECT 'uuid','tagnumber','etheraddress','date','time','action','reboot','disk','disksizegb','all_time','erase_completed','erase_mode','erase_time','erase_diskpercent','clone_completed','clone_mode','clone_time','clone_master','clone_server','clone_image','clone_imageupdate','clone_sambauser',''
+    $sql = "SELECT 'uuid','tagnumber','etheraddress','date','time','action','reboot','disk','disksizegb','all_time','erase_completed','erase_mode','erase_time','erase_diskpercent','clone_completed','clone_mode','clone_time','clone_master','clone_server','clone_image','clone_imageupdate','clone_sambauser'
     UNION ALL
     SELECT *
     FROM jobstats ORDER BY date DESC 
