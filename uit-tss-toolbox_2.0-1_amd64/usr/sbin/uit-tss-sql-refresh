@@ -162,6 +162,7 @@ if (empty($sqldate)) {
 $sql = "UPDATE serverstats SET time = '$time' WHERE date = '$date'";
 $conn->query($sql);
 
+
 # Update laptop count
 $sql = "SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000'";
 $results = $conn->query($sql);
