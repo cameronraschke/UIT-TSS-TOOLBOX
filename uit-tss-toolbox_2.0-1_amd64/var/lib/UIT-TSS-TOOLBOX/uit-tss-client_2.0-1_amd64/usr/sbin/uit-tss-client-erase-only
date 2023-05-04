@@ -136,6 +136,7 @@ function basicEraseMode_Shred {
 
 
 function advEraseMode_Shred {
+	tput reset
 	echo ""
 	echo "Please choose an erase mode: "
 	echo ""
@@ -414,10 +415,10 @@ function vrfyDisk_Shred {
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
-	a='0'
-	i='0'
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
+	local a='0'
+	local i='0'
 
 	if [[ -z $CHAR ]]; then
 		CHAR='0'
@@ -995,8 +996,7 @@ function terminate {
 
 	terminateAction="erased"
 
-	exitMessage=$(echo "Tag#: ${tagNum}"
-	echo "MAC: ${etherAddr}"
+	exitMessage=$(echo "MAC: ${etherAddr}"
 	echo "Action: ${terminateAction}"
 	echo "Total time taken: ${totalElapsed}"
 	)
@@ -1011,6 +1011,7 @@ function terminate {
 
 
 function main {
+	ACTION="erase"
 	intro
 	powerWarning
 	if [[ $mainMenuOpt == "1" ]]; then
