@@ -60,6 +60,8 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 			--uefi-secure-boot enable \
 			--updates true)
 
+chmod 755 /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
+
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-TOOLBOX/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/grub-pc /opt/UIT-TSS-TOOLBOX/config/bootloaders
