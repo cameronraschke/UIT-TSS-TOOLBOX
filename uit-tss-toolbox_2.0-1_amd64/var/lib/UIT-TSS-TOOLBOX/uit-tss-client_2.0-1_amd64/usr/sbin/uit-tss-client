@@ -685,7 +685,7 @@ function zeroMode_Shred {
 	echo ""
 	WMODE='zero'
 	if [[ $zeroQuick = "1" ]]; then
-		PCNTOFSECTOR='20'
+		PCNTOFSECTOR='50'
 	else
 		PCNTOFSECTOR='100'
 	fi
@@ -1313,6 +1313,10 @@ function terminate {
 
 		echo ""
 		echo "${exitMessage}"
+		echo ""
+		if [[ $PROCFAIL == '1' ]]; then
+			echo "${BOLD}${RED}Process failed - Bad bits found on device ${CLIENTDISK}!${RESET}"
+		fi
 		echo ""
 		read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to shutdown...${RESET}"
 		poweroff

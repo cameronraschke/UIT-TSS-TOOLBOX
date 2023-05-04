@@ -232,24 +232,24 @@ sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
 sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
 sysctl --quiet --load
 
-#INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/lo//g' | sed 's/w.*//g' | sed 's/[[:space:]]//g')
-#for iface in $INTERFACES; do
-#	ip link set "${iface}" up
-#	dhclient -r "${iface}"
-#	dhclient -4 "${iface}"
-#done &>/dev/null
+INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/lo//g' | sed 's/w.*//g' | sed 's/[[:space:]]//g')
+for iface in $INTERFACES; do
+	ip link set "${iface}" up
+	dhclient -r "${iface}"
+	dhclient -4 "${iface}"
+done &>/dev/null
 
 echo "${GREEN}Done.${RESET}"
 
-#echo ""
-#echo "${BOLD}Configuring SSH...${RESET}"
-#if [ ! -f /root/.ssh/id_rsa ]; then
-#ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
-#fi
-#sshpass -f /root/.ssh_passwd ssh-copy-id \
-#	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
-#scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
-#echo "${GREEN}Done.${RESET}"
+echo ""
+echo "${BOLD}Configuring SSH...${RESET}"
+if [ ! -f /root/.ssh/id_rsa ]; then
+ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
+fi
+sshpass -f /root/.ssh_passwd ssh-copy-id \
+	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
+scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
+echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Configuring audio...${RESET}"
@@ -266,15 +266,13 @@ echo "${GREEN}Done.${RESET}"
 
 sleep 1
 
-#dpkg --install /root/uit-tss-client_2.0-1_amd64.deb
-
-#/usr/sbin/uit-tss-client
-/usr/sbin/uit-tss-client-erase-only
-EOF
-
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/packages.chroot/
 chmod 755 /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
 dpkg-deb --build --root-owner-group /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64
-cp /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64.deb /opt/UIT-TSS-TOOLBOX/packages.chroot/
+dpkg --install /root/uit-tss-client_2.0-1_amd64.deb
+
+/usr/sbin/uit-tss-client
+EOF
+
 (cd /opt/UIT-TSS-TOOLBOX
 lb build)
