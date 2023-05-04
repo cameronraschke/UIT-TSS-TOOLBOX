@@ -272,7 +272,7 @@ sleep 1
 /usr/sbin/uit-tss-client-erase-only
 EOF
 
-mkdir -p /opt/UIT-TSS-TOOLBOX/packages.chroot/
+mkdir -p /opt/UIT-TSS-TOOLBOX/config/packages.chroot/
 chmod 755 /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
 dpkg-deb --build --root-owner-group /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64
 cp /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64.deb /opt/UIT-TSS-TOOLBOX/packages.chroot/
