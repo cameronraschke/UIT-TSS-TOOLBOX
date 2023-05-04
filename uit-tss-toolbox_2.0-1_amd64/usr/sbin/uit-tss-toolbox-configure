@@ -3,8 +3,7 @@
 function confirmDelete {
     read -n1 -p "Are you sure you want to delete the old directory? [y/n]: " CONFIRM
     if [[ $CONFIRM == "y" ]]; then
-        rm -r /opt/UIT-TSS-TOOLBOX
-		rm -r /var/lib/UIT-TSS-TOOLBOX
+        return
     elif [[ $CONFIRM == "n" ]]; then
         exit 1
     else
@@ -59,8 +58,6 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 			--system live \
 			--uefi-secure-boot enable \
 			--updates true)
-
-chmod 755 /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-TOOLBOX/config/bootloaders
@@ -183,7 +180,7 @@ sysctl --quiet --write "kernel.kptr_restrict=1"
 sysctl --quiet --write "vm.mmap_min_addr=65536"
 sysctl --quiet --load
 
-echo "uit-tss-toolbox" > /etc/hostname
+echo "uit-tss-toolbox.cameronraschke.com" > /etc/hostname
 echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/motd
 echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/issue.net
 echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
@@ -265,14 +262,12 @@ echo "${BOLD}Changing font...${RESET}"
 echo "${GREEN}Done.${RESET}"
 
 sleep 1
-
-mkdir -p /opt/UIT-TSS-TOOLBOX/config/packages.chroot/
-chmod 755 /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
-dpkg-deb --build --root-owner-group /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64
+chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
+chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
+dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64
 dpkg --install /root/uit-tss-client_2.0-1_amd64.deb
 
 /usr/sbin/uit-tss-client
 EOF
-
 (cd /opt/UIT-TSS-TOOLBOX
 lb build)
