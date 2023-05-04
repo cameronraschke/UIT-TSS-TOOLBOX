@@ -180,7 +180,7 @@ sysctl --quiet --write "kernel.kptr_restrict=1"
 sysctl --quiet --write "vm.mmap_min_addr=65536"
 sysctl --quiet --load
 
-echo "uit-tss-toolbox.cameronraschke.com" > /etc/hostname
+echo "uit-tss-toolbox" > /etc/hostname
 echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/motd
 echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/issue.net
 echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
