@@ -1010,12 +1010,14 @@ function terminate {
 
 	)
 
-	if [[ $PROCFAIL == '1' ]]; then
-		echo "${BOLD}${RED}Process failed - Bad bits found on device ${CLIENTDISK}!${RESET}"
-	fi
+
 
 	echo ""
 	echo "${exitMessage}"
+	echo ""
+	if [[ $PROCFAIL == '1' ]]; then
+		echo "${BOLD}${RED}Process failed - Bad bits found on device ${CLIENTDISK}!${RESET}"
+	fi
 	echo ""
 	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to shutdown...${RESET}"
 	poweroff
