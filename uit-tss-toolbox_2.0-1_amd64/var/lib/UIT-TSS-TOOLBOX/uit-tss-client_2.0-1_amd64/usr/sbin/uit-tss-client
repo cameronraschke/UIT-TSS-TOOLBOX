@@ -525,8 +525,10 @@ function vrfyDisk_Shred {
         	echo "${BOLD}The drive ${CLIENTDISK} is completely and securely wiped.${RESET}"
 			PROCFAIL='0'
 		else
-			echo "${BOLD}${RED}Bad bits found on device ${CLIENTDISK}. Test has failed.${RESET}"
-			PROCFAIL='1'
+            PROCFAIL='1'
+            echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
+			echo ""
+        	read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
 			return 1
 		fi
 	fi
@@ -544,6 +546,7 @@ function vrfyDisk_Shred {
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
         		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
+				return 1
     	fi
 
 		COUNT2=$(shuf -i 1-${COUNT} -n 1)
@@ -554,6 +557,7 @@ function vrfyDisk_Shred {
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
         		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
+				return 1
     	fi
 
 		i=$(( ${i} + 1 ))
@@ -565,17 +569,21 @@ function vrfyDisk_Shred {
 	echo "Verifing the first sector of the disk...."
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=0 iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' && $PROCFAIL == '0' ]]; then
-            PROCFAIL='1'
-            echo "Bad bits found on device ${CLIENTDISK}."
-        	return 1
+            	PROCFAIL='1'
+            	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
+				echo ""
+        		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
+				return 1
     fi
 	echo "Verifing the last sector of the disk...."
     if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) \
 		iflag=fullblock status=none 2>/dev/null \
         | grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' && $PROCFAIL == '0' ]]; then
-            PROCFAIL='1'
-            echo "Bad bits found on device ${CLIENTDISK}."
-        	return 1
+            	PROCFAIL='1'
+            	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
+				echo ""
+        		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
+				return 1
     fi
 
     echo "${PCNTOFSECTOR}% of ${CLIENTDISK} has been verified."
