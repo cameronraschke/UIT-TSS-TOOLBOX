@@ -82,7 +82,7 @@ function intro {
 	echo "${BOLD}Please remove the thumb drive and press one select one of the following keys:${RESET} "
 	echo "   ${BLUE}[1]${RESET} ${BOLD}Simple erase${RESET}"
 	echo "   ${BLUE}[2]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
-	read -n 1 -p "Select [1-3]: " mainMenuOpt
+	read -n 1 -p "Select [1-2]: " mainMenuOpt
 
 	tput reset
 }
@@ -849,7 +849,7 @@ function verifyMode_Shred {
 	-1000 divisions, 10% verified"
 
 	echo ""
-	read -n 1 -p "Please select [1-3]: " VRFYSELECT
+	read -n 1 -p "Please select [1-5]: " VRFYSELECT
 	echo ""
 
 	case $VRFYSELECT in
@@ -971,13 +971,13 @@ function execute_Shred {
 
 
 function execute {
-		if [[ $mainMenuOpt == "2" ]]; then
-			advEraseMode_Shred
-			execute_Shred
-		else
-			basicEraseMode_Shred
-			execute_Shred
-		fi
+	if [[ $mainMenuOpt == "2" ]]; then
+		advEraseMode_Shred
+		execute_Shred
+	else
+		basicEraseMode_Shred
+		execute_Shred
+	fi
 }
 
 
@@ -999,6 +999,7 @@ function terminate {
 	echo "MAC: ${etherAddr}"
 	echo "Action: ${terminateAction}"
 	echo "Total time taken: ${totalElapsed}"
+	)
 
 	echo ""
 	echo "${exitMessage}"

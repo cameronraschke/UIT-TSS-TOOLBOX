@@ -946,7 +946,7 @@ function verifyMode_Shred {
 	-1000 divisions, 10% verified"
 
 	echo ""
-	read -n 1 -p "Please select [1-3]: " VRFYSELECT
+	read -n 1 -p "Please select [1-5]: " VRFYSELECT
 	echo ""
 
 	case $VRFYSELECT in
