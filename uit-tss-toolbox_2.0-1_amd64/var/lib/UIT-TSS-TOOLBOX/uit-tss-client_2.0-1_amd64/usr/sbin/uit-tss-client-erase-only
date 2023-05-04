@@ -9,61 +9,12 @@ BLUE=$(tput setaf 4)
 BOLD=$(tput bold)
 DIM=$(tput dim)
 RESET=$(tput sgr0)
-cloneElapsed="0"
 shredElapsed="0"
 
 etherAddr=$(cat /sys/class/net/e*/address | tail -n 1)
 UUID=$(cat /proc/sys/kernel/random/uuid)
-DATE=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="SELECT date FROM serverstats ORDER BY date DESC LIMIT 1")
-TIME=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="SELECT time FROM serverstats ORDER BY date DESC LIMIT 1")
+DATE=$(date --iso)
 
-tput reset
-echo "INSERT INTO jobstats(\
-	uuid, \
-	tagnumber, \
-	etheraddress, \
-	date, \
-	time, \
-	action, \
-	clone_completed, \
-	erase_completed, \
-	disk, \
-	disksizegb, \
-	reboot, \
-	clone_mode, \
-	clone_master, \
-	erase_mode, \
-	erase_diskpercent, \
-	clone_server, \
-	clone_sambauser, \
-	clone_image, \
-	clone_imageupdate, \
-	all_time, \
-	erase_time, \
-	clone_time) \
-	VALUES (\
-	'${UUID}', \
-	'000000', \
-	'${etherAddr}', \
-	'${DATE}', \
-	'${TIME}', \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT)" | uit-tss-db
 tput reset
 
 
@@ -74,10 +25,6 @@ function info {
 
 	if [[ $CLIENTDISK != "" ]]; then
 		echo "The selected disk is ${BOLD}${CLIENTDISK}${RESET}"
-	fi
-
-	if [[ $cloneMode != "" ]]; then
-		echo "The selected clone mode is ${BOLD}${cloneMode}${RESET}"
 	fi
 
 	echo ""
@@ -133,13 +80,9 @@ function intro {
 	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
 	echo "${BOLD}Please remove the thumb drive and press one select one of the following keys:${RESET} "
-	echo "   ${BLUE}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} an HP laptop${RESET}"
-	echo "   ${BLUE}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a SMALL Dell laptop${RESET}"
-	echo "   ${BLUE}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
-	echo "   ${BLUE}[4]${RESET} ${BOLD}Simple erase NVME${RESET}"
-	echo "   ${BLUE}[5]${RESET} ${BOLD}Simple erase SATA${RESET}"
-	echo "   ${BLUE}[6]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
-	read -n 1 -p "Select [1-6]: " mainMenuOpt
+	echo "   ${BLUE}[1]${RESET} ${BOLD}Simple erase${RESET}"
+	echo "   ${BLUE}[2]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
+	read -n 1 -p "Select [1-3]: " mainMenuOpt
 
 	tput reset
 }
@@ -156,7 +99,6 @@ function powerWarning {
 	read -n 1 -p "Please press ${BOLD}${BLUE}[1]${RESET} ${BOLD}or ${BLUE}[2]${RESET} ${BOLD}to skip....${RESET} " restartBool
 	if [[ $restartBool == "1" ]]; then
 		tput reset
-		echo "UPDATE jobstats SET reboot = 'yes' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo -n mem > /sys/power/state
 		tput reset
 	elif [[ $restartBool == "2" ]]; then
@@ -174,41 +116,11 @@ function powerWarning {
 
 
 
-function appSelect {
-	exitMessage
-	echo -n "Would you like to ${BOLD}erase and clone ${BLUE}[1]${RESET}, ${BOLD}only erase (advanced) ${BLUE}[2]${RESET}"
-	echo ", or ${BOLD}only clone ${BLUE}[3]${RESET}?"
-	read -n 1 -p "${BOLD}Please enter ${BLUE}[1-3]${RESET}${BOLD}: ${RESET}" APPSELECT
-	if [[ $APPSELECT == "1" ]]; then
-		APPSELECT="EC"
-		ACTION="erase and clone"
-		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
-		powerWarning
-	elif [[ $APPSELECT == "2" ]]; then
-		APPSELECT="E"
-		ACTION="erase"
-		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
-		powerWarning
-	elif [[ $APPSELECT == "3" ]]; then
-		APPSELECT="C"
-		ACTION="clone"
-		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
-	else
-		echo ""
-		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
-		sleep 0.5
-		appSelect
-	fi
-}
-
-
-
 function basicEraseMode_Shred {
 	shredMode='autodetect'
 	RMODE='Autodetect'
 	if [[ $shredMode == 'autodetect' ]]; then
 		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
-			zeroQuick="1"
 			shredMode='zero'
 			RMODE='Zero Mode'
 		elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
@@ -219,7 +131,6 @@ function basicEraseMode_Shred {
 			RMODE='Zero Mode'
 		fi
 	fi
-	echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
 }
 
 
@@ -322,8 +233,6 @@ function advEraseMode_Shred {
 	modeselect
 	;;
 	esac
-
-	echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
 }
 
 
@@ -373,7 +282,7 @@ function diskSelect {
 	fi
 	
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db &
+		:
 	else
 	    echo ""
 	    echo "${BOLD}${RED}Invalid selection.${RESET}"
@@ -402,7 +311,6 @@ function writeDisk_Shred {
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	echo "UPDATE jobstats SET disksizegb = '${DISKSIZEGB}' WHERE uuid = '${UUID};" | uit-tss-db
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
@@ -418,7 +326,7 @@ function writeDisk_Shred {
 	fi
 
 	if [[ -z $PCNTOFSECTOR ]]; then
-		CHAR='0'
+		PCNTOFSECTOR='100'
 	fi
 	
 	if [[ "$WMODE" == 'zero' ]]; then
@@ -440,7 +348,7 @@ function writeDisk_Shred {
 	if [[ "$WMODE" == 'randPattern_Shred' ]]; then
 		randPattern_Shred
 		SOURCE="yes \"${RANDPATTERN}\""
-		BITS="a random bit (${RANDPATTERN})"
+		BITS="a random pattern (${RANDPATTERN})"
 	fi
 
 	if [[ "$WMODE" == 'char' ]]; then
@@ -449,7 +357,6 @@ function writeDisk_Shred {
 	fi
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
-	echo "UPDATE jobstats SET erase_diskpercent = '${PCNTOFSECTOR}' WHERE uuid = '${UUID}'" | uit-tss-db
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -484,7 +391,7 @@ function writeDisk_Shred {
 	if [[ $PROCFAIL == '0' ]]; then
 		echo "Success! ${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten."
 		return 0
-		else
+	else
 		echo "${BOLD}${RED}Write failed.${RESET}"
 		return 1
 	fi
@@ -639,7 +546,6 @@ function nistMode_Shred {
 	echo ""
 	echo "${BOLD}Step [2/3]: ${RESET}"
 	secErase_Shred
-	secUnlock_Shred
 	
 	echo ""
 	echo "${BOLD}Step [3/3]: ${RESET}"
@@ -675,20 +581,17 @@ function zeroMode_Shred {
 	echo "Step [1/2]: "
 	echo ""
 	WMODE='zero'
-	if [[ $zeroQuick = "1" ]]; then
-		PCNTOFSECTOR='20'
-	else
-		PCNTOFSECTOR='100'
+	CHAR='0'
+	if [[ $mainMenuOpt == "1" ]]; then
+		PCNTOFSECTOR='50'
 	fi
 	writeDisk_Shred
-	
-	if [[ $zeroQuick != "1" ]]; then
-		echo ""
-		echo "Step: [2/2]: "
-		PCNTOFSECTOR='10'
-		CHAR='0'
-		vrfyDisk_Shred
-	fi
+	echo ""
+	echo "Step: [2/2]: "
+	PCNTOFSECTOR='10'
+	CHAR='0'
+	vrfyDisk_Shred
+
 }
 
 
@@ -931,15 +834,15 @@ function verifyMode_Shred {
 
 	echo ""
 	echo "2 Moderate verification
-	-1000 divisions, 75% verified"
+	-10000 divisions, 75% verified"
 
 	echo ""
 	echo "3 Medium verification
-	-1000 divisions, 50% verified"
+	-5000 divisions, 50% verified"
 
 	echo ""
 	echo "4 Fast verification
-	-1000 divisions, 25% verified"
+	-2500 divisions, 25% verified"
 
 	echo ""
 	echo "5 Very fast verification
@@ -1027,126 +930,7 @@ function unlockMode_Shred {
 
 
 
-function clientselect_Clone {
-	exitMessage
-	echo -n "Are you ${BOLD} restoring${RESET} (server -> client) ${BLUE}${BOLD}[1]${RESET} or "
-	echo "${BOLD}saving${RESET} (client -> server) ${BLUE}${BOLD}[2]${RESET} an image?"
-	read -n1 -p "Enter ${BOLD}${BLUE}[1-2]${RESET} " cloneMode
-	echo ""
-	echo ""
-	case $cloneMode in
-		1)
-			cloneMode="restoredisk"
-		;;
-		2)
-			cloneMode="savedisk"
-		;;
-		*)
-			echo "${BOLD}${RED}Error - Invalid input${RESET}"
-		;;
-	esac
-
-	exitMessage
-	echo -n "Are you cloning ${BOLD}HP laptops ${BLUE}[1]${RESET}, "
-	echo -n "${BOLD}Dell laptops ${BLUE}[2]${RESET}, "
-	echo "or ${BOLD}Dell desktops ${BLUE}[3]${RESET}?"
-	read -n1 -p "Enter ${BOLD}${BLUE}[1-3]${RESET} " CLIENTTYPE
-	echo ""
-	case $CLIENTTYPE in
-	1)
-	sambaPath='hp'
-	cloneImgName='2023Spring-HP'
-	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
-	;;
-	2)
-	sambaPath='dell'
-	cloneImgName='2023Spring-Dell'
-	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
-	;;
-	3)
-	sambaPath='desktops'
-	cloneImgName='2022Fall-Win10Desktops'
-	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
-	;;
-	*)
-	clientselect
-	;;
-	esac
-}
-
-
-
-function confirm_Clone {
-	echo ""
-	echo ""
-	echo ""
-	echo "------------------------------"
-	echo ""
-	echo "Default settings:"
-	echo "Server type: Samba"
-	echo "User: ${USER}"
-	echo "Password: ${PASS}"
-	echo "Hostname prefix: ${HOSTNAME}"
-	echo ""
-	echo ""
-	echo "Custom settings:"
-	echo "Mode is: ${cloneMode}"
-	echo "Server is: ${SERVER}/${SERVERDNS}"
-	echo "Samba path is: //${SERVERDNS}/${SMBPATH}"
-	echo "Image name is: ${IMAGENAME}"
-	echo "Client disk: ${CLIENTDISK}"
-	echo ""
-		if [[ $cloneMode == "savedisk" ]]; then
-		echo "Saving an image will overwrite the previous image stored on the server. \
-Please make a backup if necessary."
-		fi
-		if [[ $cloneMode == "restoredisk" ]]; then
-		echo "Restoring an image will overwrite the client's hard drive. \
-Please make a backup if necessary."
-		fi
-	echo ""
-	read -p "Press Enter to continue or CTRL + C to exit...."
-	clear
-}
-
-
-
-function execute_Clone {
-	SECONDS=0
-	start_time=$SECONDS
-	sambaUser="cameron"
-	sambaPassword='UHouston!'
-	sambaServer="10.0.0.1"
-	sambaDNS="mickey.uit"
-	echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
-	echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
-	umount /home/partimag &>/dev/null
-	mkdir -p /home/partimag
-	sshfs -o allow_other,default_permissions ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
-	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
-	if [[ $cloneMode == "restoredisk" ]]; then
-		tput reset
-		info
-		sleep 1
-		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
-			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
-	fi
-	if [[ $cloneMode == "savedisk" ]]; then
-		tput reset
-		info
-		sleep 1
-		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
-			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
-	fi
-	cloneElapsed=$(( SECONDS - start_time))
-	echo "UPDATE jobstats SET clone_time = '${cloneElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
-	return
-}
-
-
-
 function execute_Shred {
-	if [[ $APPSELECT == "EC" || $APPSELECT == "E" ]]; then
 		SECONDS=0
 		start_time=$SECONDS
 		if [[ $shredMode == 'nist' ]]; then
@@ -1181,244 +965,62 @@ function execute_Shred {
 			unlockMode_Shred
 		fi
 		shredElapsed=$(( SECONDS - start_time ))
-		echo "UPDATE jobstats SET erase_time = '${shredElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
-	fi
 	return
 }
 
 
 
 function execute {
-
-	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
-		echo "${RED}Cannot erase device and save its image.${RESET}"
-		read -p "Please press enter to restart UIT-TSS-TOOLBOX."
-		exit 1
-	fi
-
-	if [[ $APPSELECT == "EC" ]]; then
-		if [[ -z $cloneMode ]]; then
-			clientselect_Clone
-		fi
-		basicEraseMode_Shred
-		execute_Shred
-		execute_Clone
-	elif [[ $APPSELECT == "E" ]]; then
-		if [[ -z $shredMode ]]; then
+		if [[ $mainMenuOpt == "2" ]]; then
 			advEraseMode_Shred
+			execute_Shred
+		else
+			basicEraseMode_Shred
+			execute_Shred
 		fi
-		basicEraseMode_Shred
-		execute_Shred
-	elif [[ $APPSELECT == "C" ]]; then
-		if [[ -z $cloneMode ]]; then
-			clientselect_Clone
-		fi
-		execute_Clone
-	else
-		echo "${RED}Error - Invalid application selected.${RESET}"
-	fi
-
 }
 
 
 function totaltime {
-	totalElapsed=$(echo $(( (shredElapsed + cloneElapsed) / 60 )) minutes)
-	echo "UPDATE jobstats SET all_time = '${totalElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
+	totalElapsed=$(echo $(( shredElapsed / 60 )) minutes)
 }
 
 
 function terminate {
 	tput reset
 	totaltime
-	local regex="^[[:digit:]]{6}$"
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	tput reset
 	echo ""
-	read -p "${BOLD}Process has finished. Please enter the ${BLUE}tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
-	if [[ $tagNum =~ $regex ]]; then
-		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
-			export tagNum
-	else
-		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
-		sleep 0.5
-		terminate
-	fi
 
-	echo ""
-	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
+	terminateAction="erased"
 
-	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
-		echo "UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}'" | uit-tss-db
+	exitMessage=$(echo "Tag#: ${tagNum}"
+	echo "MAC: ${etherAddr}"
+	echo "Action: ${terminateAction}"
+	echo "Total time taken: ${totalElapsed}"
 
-		if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
-			terminateAction="erased and cloned"
-		fi
-
-		if [[ $cloneMode == "restoredisk" && $APPSELECT == "C" ]]; then
-			terminateAction="cloned"
-		fi
-
-		exitMessage=$(echo "Tag#: ${tagNum}"
-		echo "MAC: ${etherAddr}"
-		echo "Action: ${terminateAction}"
-		echo "Server: \"${sambaDNS}\""
-		echo "Image: \"${cloneImgName}\""
-		echo "Image last updated: ${imgupdate}";
-		#echo "Computers imaged/erased today: ${imageNumToday}"
-		echo "Total time taken: ${totalElapsed}"
-		#echo "Times ${tagNum} has been reimaged: ${totalCount}"
-		)
-
-		echo "UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
-
-		if [[ $APPSELECT == "EC" ]]; then
-		echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
-		fi
-	fi
-	
-	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
-		imgupdate=$(date --iso)
-		echo "UPDATE serverstats SET last_image_update = '${imgupdate}' WHERE date = '${DATE}'" | uit-tss-db
-
-		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
-		echo "Server: \"${sambaDNS}\""
-		echo "Total time taken: ${totalElapsed}"
-		echo "Last updated on: ${imageUpdate}"
-		#echo "Computers imaged/erased today: ${imageNumToday}"
-		)
-
-		echo "UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
-		echo "UPDATE jobstats SET clone_master = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
-	fi
-
-	if [[ $APPSELECT == "E" ]]; then
-		terminateAction="erased"
-
-		exitMessage=$(echo "Tag#: ${tagNum}"
-		echo "MAC: ${etherAddr}"
-		echo "Action: ${terminateAction}"
-		echo "Total time taken: ${totalElapsed}"
-		)
-		echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
-
-		echo ""
-		echo "${exitMessage}"
-		echo ""
-		read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to shutdown...${RESET}"
-		poweroff
-	fi
-
-	echo ""
-	/usr/sbin/uit-tss-sql-refresh-client	
 	echo ""
 	echo "${exitMessage}"
 	echo ""
-	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to reboot...${RESET}"
-	reboot
+	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to shutdown...${RESET}"
+	poweroff
 }
 
 
 
 function main {
 	intro
+	powerWarning
 	if [[ $mainMenuOpt == "1" ]]; then
-		APPSELECT="EC"
-		ACTION="erase and clone"
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
-		CLIENTDISK='nvme0n1'
-			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
-		cloneMode="restoredisk"
-			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaPath="hp"
-		cloneImgName="2023Spring-HP"
-			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
-		shredMode="autodetect"
-		RMODE="autodetect"
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaUser="cameron"
-		sambaPassword="UHouston!"
-		sambaServer="10.0.0.1"
-		sambaDNS="mickey.uit"
-			echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
-		powerWarning
+		diskSelect
 		execute
 	elif [[ $mainMenuOpt == "2" ]]; then
-		APPSELECT="EC"
-		ACTION="erase and clone"
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
-		CLIENTDISK='nvme0n1'
-			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
-		cloneMode="restoredisk"
-			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaPath="dell"
-		cloneImgName="2023Spring-Dell"
-			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
-		shredMode="autodetect"
-		RMODE="autodetect"
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaUser="cameron"
-		sambaPassword="UHouston!"
-		sambaServer="10.0.0.1"
-		sambaDNS="mickey.uit"
-			echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
-		powerWarning
-		execute
-	elif [[ $mainMenuOpt == "3" ]]; then
-		APPSELECT="EC"
-		ACTION="erase and clone"
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
-		CLIENTDISK='sda'
-			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
-		cloneMode="restoredisk"
-			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaPath="dell"
-		cloneImgName="2023Spring-Dell"
-			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
-		shredMode="autodetect"
-		RMODE="autodetect"
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaUser="cameron"
-		sambaPassword="UHouston!"
-		sambaServer="10.0.0.1"
-		sambaDNS="mickey.uit"
-			echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
-		powerWarning
-		execute
-	elif [[ $mainMenuOpt == "4" ]]; then
-		APPSELECT="E"
-		ACTION="erase"
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
-		CLIENTDISK='nvme0n1'
-			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
-		shredMode="autodetect"
-		RMODE="autodetect"
-		manufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_image = '${manufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-		powerWarning
-		execute
-	elif [[ $mainMenuOpt == "5" ]]; then
-		APPSELECT="E"
-		ACTION="erase"
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
-		CLIENTDISK='sda'
-		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
-		shredMode="autodetect"
-		RMODE="autodetect"
-		manufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_image = '${manufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-		powerWarning
-		execute
-	elif [[ $mainMenuOpt == "6" ]]; then
-		appSelect
 		diskSelect
 		execute
 	else
+		echo "${RED}Invalid Selction${RESET}"
+		sleep 1
 		exit 1
 	fi
 	terminate

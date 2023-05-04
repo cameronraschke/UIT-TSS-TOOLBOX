@@ -418,7 +418,7 @@ function writeDisk_Shred {
 	fi
 
 	if [[ -z $PCNTOFSECTOR ]]; then
-		CHAR='0'
+		PCNTOFSECTOR='100'
 	fi
 	
 	if [[ "$WMODE" == 'zero' ]]; then
@@ -931,15 +931,15 @@ function verifyMode_Shred {
 
 	echo ""
 	echo "2 Moderate verification
-	-1000 divisions, 75% verified"
+	-10000 divisions, 75% verified"
 
 	echo ""
 	echo "3 Medium verification
-	-1000 divisions, 50% verified"
+	-5000 divisions, 50% verified"
 
 	echo ""
 	echo "4 Fast verification
-	-1000 divisions, 25% verified"
+	-2500 divisions, 25% verified"
 
 	echo ""
 	echo "5 Very fast verification
