@@ -1,3 +1,0 @@
-@hourly root rsync -a --delete /home/hp/ /mnt/
-@hourly root rsync -a --delete /home/dell/ /mnt/
-@hourly root rsync -a --delete /home/desktops/ /mnt/

@@ -1,3 +1,0 @@
-#!/bin/bash
-DATE=$(date --iso)
-mysqldump --user="laptops" --password="UHouston!" --host="10.0.0.1" laptopDB > /mnt/laptopDB-${DATE}.sql
