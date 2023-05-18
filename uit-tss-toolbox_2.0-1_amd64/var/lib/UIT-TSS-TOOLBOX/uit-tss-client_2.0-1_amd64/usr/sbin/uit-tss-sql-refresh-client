@@ -7,7 +7,7 @@ $time = date('Y-m-d H:i:s', time());
 
 ##### clientstats #####
 echo "Updating laptop: '" . $tagNum . "' in SQL database" . PHP_EOL;
-$sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '".getenv('tagNum')."'";
+$sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '".getenv('TAGNUMBER')."'";
 if (isset($sql)) {
 $results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
