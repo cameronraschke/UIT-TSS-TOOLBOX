@@ -6,14 +6,15 @@ $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
 ##### clientstats #####
-$sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '".$_ENV['tagNum']."'";
+echo "Updating laptop: '" . $tagNum . "' in SQL database" . PHP_EOL;
+$sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '".getenv('tagNum')."'";
+if (isset($sql)) {
 $results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
 foreach ($i as $key => $value) {
     unset($tagNum);
     global $tagNum;
     $tagNum = $value['tagnumber'];
-    echo "Updating laptop: '" . $tagNum . "' in SQL database" . PHP_EOL;
 
     $sql = "SELECT tagnumber FROM clientstats WHERE tagnumber = '$tagNum'";
     $results = $conn->query($sql);
@@ -138,6 +139,9 @@ foreach ($i as $key => $value) {
             $conn->query($sql);
         }
     }
+}
+} else {
+    echo "Cannot update this computer in the SQL database." . PHP_EOL;
 }
 
 $conn->close();
