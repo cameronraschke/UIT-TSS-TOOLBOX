@@ -1246,7 +1246,8 @@ function terminate {
 	read -p "${BOLD}Process has finished. Please enter the ${BLUE}tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
-			export TAGNUMBER=$tagNum
+		export TAGNUMBER=$tagNum
+		source /etc/environment
 	else
 		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
 		sleep 0.5
