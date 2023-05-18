@@ -403,7 +403,7 @@ function writeDisk_Shred {
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	echo "UPDATE jobstats SET disksizegb = '${DISKSIZEGB}' WHERE uuid = '${UUID};" | uit-tss-db
+	echo "UPDATE jobstats SET disksizegb = '${DISKSIZEGB}' WHERE uuid = '${UUID}'" | uit-tss-db
 	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
 	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
 	PROCFAIL='0'
