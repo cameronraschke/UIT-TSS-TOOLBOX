@@ -685,7 +685,7 @@ function zeroMode_Shred {
 	echo ""
 	WMODE='zero'
 	if [[ $zeroQuick = "1" ]]; then
-		PCNTOFSECTOR='50'
+		PCNTOFSECTOR='25'
 	else
 		PCNTOFSECTOR='100'
 	fi
