@@ -6,7 +6,7 @@ $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
 ##### clientstats #####
-$tag_txt = preg_replace('/[^0-9]/', '', file_get_contents('/root/tagnumber'))
+$tag_txt = preg_replace('/[^0-9]/', '', file_get_contents('/root/tagnumber'));
 echo "Updating laptop: '" . $tagNum . "' in SQL database" . PHP_EOL;
 $sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '".$tag_txt."'";
 if (isset($sql)) {
