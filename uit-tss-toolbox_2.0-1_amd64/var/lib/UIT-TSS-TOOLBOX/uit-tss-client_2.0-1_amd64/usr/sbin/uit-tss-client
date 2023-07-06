@@ -1393,14 +1393,23 @@ function main {
 	tFourCurrentSpeed=$(dmidecode -t4 | grep 'Current Speed' | sed 's/Current Speed: //' | sed 's/[[:space:]]//g')
 		echo "UPDATE jobstats SET cpu_currentspeed = '${tFourCurrentSpeed}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_cores = '${tFourCoreCount}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_threads = '${tFourThreadCount}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tTwentyTwoManufacturer=$(dmidecode -t22 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_manufacturer = '${tTwentyTwoManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_name = '${tTwentyTwoName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/Design Capacity: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET battery_capacity = '${tTwentyTwoCapacity}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tTwentyTwoVoltage=$(dmidecode -t22 | grep 'Design Voltage' | sed 's/Design Voltage: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET battery_voltage = '${tTwentyTwoVoltage}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET battery_serial = '${tTwentyTwoSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET battery_manufacturedate = '${tTwentyTwoManufactureDate}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tThirtyTwoBootStatus=$(dmidecode -t32 | grep 'Status' | sed 's/Status: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET boot_errors = '${tThirtyTwoBootStatus}' WHERE uuid = '${UUID}'" | uit-tss-db
 
 
 	intro
