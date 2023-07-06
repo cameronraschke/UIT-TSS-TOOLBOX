@@ -1446,7 +1446,7 @@ function main {
 		echo "UPDATE jobstats SET chassis_tag = '${tThreeAssetTag}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tThreePowerSupplyState=$(dmidecode -t3 | grep 'Power Supply State' | sed 's/Power Supply State: //' | sed 's/[[:space:]]//g')
 		echo "UPDATE jobstats SET chassis_psu = '${tThreePowerSupplyState}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourFamily=$(dmidecode -t4 | grep 'Family' | sed 's/Family: //' | sed 's/[[:space:]]//g')
+	tFourFamily=$(dmidecode -t4 | grep 'Family' | sed 's/Family: //g')
 		echo "UPDATE jobstats SET cpu_family = '${tFourFamily}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourManufacturer=$(dmidecode -t4 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
 		echo "UPDATE jobstats SET cpu_manufacturer = '${tFourManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
