@@ -1371,18 +1371,27 @@ function main {
 	tThreeManufacturer=$(dmidecode -t3 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
 		echo "UPDATE jobstats SET chassis_manufacturer = '${tThreeManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tThreeType=$(dmidecode -t3 | grep 'Type' | sed 's/Type: //' | sed 's/[[:space:]]//g')
-		echo "UPDATE jobstats SET chassis_manufacturer = '${tThreeManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "UPDATE jobstats SET chassis_type = '${tThreeType}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tThreeSerialNumber=$(dmidecode -t3 | grep 'Serial Number' | sed 's/Serial Number: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET chassis_serial = '${tThreeSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tThreeAssetTag=$(dmidecode -t3 | grep 'Asset Tag' | sed 's/Asset Tag: //' | sed 's/[[:space:]]//g')
-	tThreeBootState=$(dmidecode -t3 | grep 'Boot-up State' | sed 's/Boot-up State: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET chassis_tag = '${tThreeAssetTag}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tThreePowerSupplyState=$(dmidecode -t3 | grep 'Power Supply State' | sed 's/Power Supply State: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET chassis_psu = '${tThreePowerSupplyState}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourFamily=$(dmidecode -t4 | grep 'Family' | sed 's/Family: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_family = '${tFourFamily}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourManufacturer=$(dmidecode -t4 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_manufacturer = '${tFourManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourID=$(dmidecode -t4 | grep 'ID' | sed 's/ID: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_id = '${tFourID}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourVersion=$(dmidecode -t4 | grep 'Version' | sed 's/Version: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_version = '${tFourVersion}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourVoltage=$(dmidecode -t4 | grep 'Voltage' | sed 's/Voltage: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_voltage = '${tFourVoltage}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/Max Speed: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_maxspeed = '${tFourMaxSpeed}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourCurrentSpeed=$(dmidecode -t4 | grep 'Current Speed' | sed 's/Current Speed: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET cpu_currentspeed = '${tFourCurrentSpeed}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //' | sed 's/[[:space:]]//g')
 	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //' | sed 's/[[:space:]]//g')
 	tTwentyTwoManufacturer=$(dmidecode -t22 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
