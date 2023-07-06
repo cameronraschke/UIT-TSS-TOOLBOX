@@ -24,6 +24,40 @@ echo "INSERT INTO jobstats(\
 	etheraddress, \
 	date, \
 	time, \
+	bios_vendor, \
+	bios_version, \
+	bios_date, \
+	bios_revision, \
+	bios_firmware, \
+	system_manufacturer, \
+	system_productname, \
+	system_serial, \
+	system_uuid, \
+	system_sku, \
+	system_family, \
+	motherboard_manufacturer, \
+	motherboard_serial, \
+	chassis_manufacturer, \
+	chassis_type, \
+	chassis_serial, \
+	chassis_tag, \
+	chassis_psu, \
+	cpu_family, \
+	cpu_manufacturer, \
+	cpu_id, \
+	cpu_version, \
+	cpu_voltage, \
+	cpu_maxspeed, \
+	cpu_currentspeed, \
+	cpu_cores, \
+	cpu_threads, \
+	cpu_manufacturer, \
+	cpu_name, \
+	battery_capacity, \
+	battery_voltage, \
+	battery_serial, \
+	battery_manufacturedate, \
+	boot_errors, \
 	action, \
 	clone_completed, \
 	erase_completed, \
@@ -47,6 +81,33 @@ echo "INSERT INTO jobstats(\
 	'${etherAddr}', \
 	'${DATE}', \
 	'${TIME}', \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
 	DEFAULT, \
 	DEFAULT, \
 	DEFAULT, \
