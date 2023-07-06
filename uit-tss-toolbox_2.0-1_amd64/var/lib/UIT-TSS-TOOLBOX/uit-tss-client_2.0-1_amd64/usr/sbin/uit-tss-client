@@ -1586,8 +1586,8 @@ function main {
 		diskSelect
 		execute
 	elif [[ $mainMenuOpt == "0" ]]; then
-		hardwareData
 		enterTag
+		exit 0
 	else
 		exit 1
 	fi
