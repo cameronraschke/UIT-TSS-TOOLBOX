@@ -1334,6 +1334,66 @@ function terminate {
 
 
 function main {
+	#t0 = BIOS
+	#t1 = system
+	#t2 = Base Board/Motherboard
+	#t3 = Chassis
+	#t4 = Processor
+	#t22 = Battery
+	#t32 = Boot Status
+	tZeroVendor=$(dmidecode -t0 | grep 'Vendor' | sed 's/Vendor: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET bios_vendor = '${tZeroVendor}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tZeroBiosVersion=$(dmidecode -t0 | grep 'Version' | sed 's/Version: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET bios_version = '${tZeroBiosVersion}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tZeroBiosReleaseDate=$(dmidecode -t0 | grep 'Release Date' | sed 's/Release Date: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET bios_date = '${tZeroBiosReleaseDate}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tZeroBiosRevision=$(dmidecode -t0 | grep 'BIOS Revision' | sed 's/BIOS Revision: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET bios_revision = '${tZeroBiosRevision}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tZeroFirmwareRevision=$(dmidecode -t0 | grep 'Firmware Revision' | sed 's/Firmware Revision: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET bios_firmware = '${tZeroFirmwareRevision}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tOneManufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET system_manufacturer = '${tOneManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "UPDATE jobstats SET clone_image = '${tOneManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tOneProductName=$(dmidecode -t1 | grep 'Product Name' | sed 's/Product Name: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET system_productname = '${tOneProductName}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tOneSerialNumber=$(dmidecode -t1 | grep 'Serial Number' | sed 's/Serial Number: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET system_serial = '${tOneSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tOneUUID=$(dmidecode -t1 | grep 'UUID' | sed 's/UUID: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET system_uuid = '${tOneUUID}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tOneSKU=$(dmidecode -t1 | grep 'SKU Number' | sed 's/SKU Number: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET system_sku = '${tOneSKU}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tOneFamily=$(dmidecode -t1 | grep 'Family' | sed 's/Family: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET system_family = '${tOneFamily}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tTwoManufacturer=$(dmidecode -t2 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET motherboard_manufacturer = '${tTwoManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tTwoSerialNumber=$(dmidecode -t2 | grep 'Serial Number' | sed 's/Serial Number: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET motherboard_serial = '${tTwoSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tThreeManufacturer=$(dmidecode -t3 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET chassis_manufacturer = '${tThreeManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tThreeType=$(dmidecode -t3 | grep 'Type' | sed 's/Type: //' | sed 's/[[:space:]]//g')
+		echo "UPDATE jobstats SET chassis_manufacturer = '${tThreeManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
+	tThreeSerialNumber=$(dmidecode -t3 | grep 'Serial Number' | sed 's/Serial Number: //' | sed 's/[[:space:]]//g')
+	tThreeAssetTag=$(dmidecode -t3 | grep 'Asset Tag' | sed 's/Asset Tag: //' | sed 's/[[:space:]]//g')
+	tThreeBootState=$(dmidecode -t3 | grep 'Boot-up State' | sed 's/Boot-up State: //' | sed 's/[[:space:]]//g')
+	tThreePowerSupplyState=$(dmidecode -t3 | grep 'Power Supply State' | sed 's/Power Supply State: //' | sed 's/[[:space:]]//g')
+	tFourFamily=$(dmidecode -t4 | grep 'Family' | sed 's/Family: //' | sed 's/[[:space:]]//g')
+	tFourManufacturer=$(dmidecode -t4 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+	tFourID=$(dmidecode -t4 | grep 'ID' | sed 's/ID: //' | sed 's/[[:space:]]//g')
+	tFourVersion=$(dmidecode -t4 | grep 'Version' | sed 's/Version: //' | sed 's/[[:space:]]//g')
+	tFourVoltage=$(dmidecode -t4 | grep 'Voltage' | sed 's/Voltage: //' | sed 's/[[:space:]]//g')
+	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/Max Speed: //' | sed 's/[[:space:]]//g')
+	tFourCurrentSpeed=$(dmidecode -t4 | grep 'Current Speed' | sed 's/Current Speed: //' | sed 's/[[:space:]]//g')
+	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //' | sed 's/[[:space:]]//g')
+	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoManufacturer=$(dmidecode -t22 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/Design Capacity: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoVoltage=$(dmidecode -t22 | grep 'Design Voltage' | sed 's/Design Voltage: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //' | sed 's/[[:space:]]//g')
+	tThirtyTwoBootStatus=$(dmidecode -t32 | grep 'Status' | sed 's/Status: //' | sed 's/[[:space:]]//g')
+
+
 	intro
 	if [[ $mainMenuOpt == "1" ]]; then
 		APPSELECT="EC"
@@ -1409,9 +1469,7 @@ function main {
 			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
-		manufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
 			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_image = '${manufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "5" ]]; then
@@ -1422,9 +1480,8 @@ function main {
 		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
-		manufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
 			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_image = '${manufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
+
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "6" ]]; then
