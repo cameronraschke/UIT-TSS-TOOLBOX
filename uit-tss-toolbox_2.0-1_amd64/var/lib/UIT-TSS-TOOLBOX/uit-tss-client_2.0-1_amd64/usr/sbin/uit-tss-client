@@ -134,6 +134,8 @@ echo "INSERT INTO jobstats(\
 	DEFAULT)" | uit-tss-db
 tput reset
 
+
+
 function hardwareData {
 	#t0 = BIOS
 	#t1 = system
@@ -211,6 +213,8 @@ function hardwareData {
 	tThirtyTwoBootStatus=$(dmidecode -t32 | grep 'Status' | sed 's/Status: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET boot_errors = '${tThirtyTwoBootStatus}' WHERE uuid = '${UUID}'" | uit-tss-db
 }
+
+
 
 function info {
 	if [[ $ACTION != "" ]]; then
