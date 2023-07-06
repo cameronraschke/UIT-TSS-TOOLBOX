@@ -83,7 +83,7 @@ foreach ($i as $key => $value) {
     }
 
     #Update cpu_cores
-    $sql = "SELECT cpu_cores FROM jobstats WHERE tagnumber = '$tagNum'";
+    $sql = "SELECT cpu_cores FROM jobstats WHERE tagnumber = '$tagNum' AND not cpu_cores = 'N/A'";
     $results = $conn->query($sql);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $sql = "UPDATE clientstats SET cpu_cores = '" . $row['cpu_cores'] . "' WHERE tagnumber = '$tagNum'";
