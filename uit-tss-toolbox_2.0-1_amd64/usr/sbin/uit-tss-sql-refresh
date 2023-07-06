@@ -34,6 +34,70 @@ foreach ($i as $key => $value) {
         $conn->query($sql);
     }
 
+    #Update bios_date
+    $sql = "SELECT bios_date FROM jobstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET bios_date = '" . $row['bios_date'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update bios_version
+    $sql = "SELECT bios_version FROM jobstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET bios_version = '" . $row['bios_version'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update system_productname
+    $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET system_productname = '" . $row['system_productname'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update motherboard_serial
+    $sql = "SELECT motherboard_serial FROM jobstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET motherboard_serial = '" . $row['motherboard_serial'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update chassis_serial
+    $sql = "SELECT chassis_serial FROM jobstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update cpu_version
+    $sql = "SELECT cpu_version FROM jobstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET cpu_version = '" . $row['cpu_version'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update cpu_cores
+    $sql = "SELECT cpu_cores FROM jobstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET cpu_cores = '" . $row['cpu_cores'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update battery_manufacturedate
+    $sql = "SELECT battery_manufacturedate FROM jobstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET battery_manufacturedate = '" . $row['battery_manufacturedate'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
     # Erase times
     $sql = "SELECT erase_time FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
     $results = $conn->query($sql);
