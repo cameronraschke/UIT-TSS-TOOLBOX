@@ -1409,74 +1409,74 @@ function main {
 	#t4 = Processor
 	#t22 = Battery
 	#t32 = Boot Status
-	tZeroVendor=$(dmidecode -t0 | grep 'Vendor' | sed 's/Vendor: //' | sed 's/[[:space:]]//g')
+	tZeroVendor=$(dmidecode -t0 | grep 'Vendor' | sed 's/Vendor: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET bios_vendor = '${tZeroVendor}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tZeroBiosVersion=$(dmidecode -t0 | grep 'Version' | sed 's/Version: //' | sed 's/[[:space:]]//g')
+	tZeroBiosVersion=$(dmidecode -t0 | grep 'Version' | sed 's/Version: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET bios_version = '${tZeroBiosVersion}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tZeroBiosReleaseDate=$(dmidecode -t0 | grep 'Release Date' | sed 's/Release Date: //' | sed 's/[[:space:]]//g')
+	tZeroBiosReleaseDate=$(dmidecode -t0 | grep 'Release Date' | sed 's/Release Date: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET bios_date = '${tZeroBiosReleaseDate}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tZeroBiosRevision=$(dmidecode -t0 | grep 'BIOS Revision' | sed 's/BIOS Revision: //' | sed 's/[[:space:]]//g')
+	tZeroBiosRevision=$(dmidecode -t0 | grep 'BIOS Revision' | sed 's/BIOS Revision: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET bios_revision = '${tZeroBiosRevision}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tZeroFirmwareRevision=$(dmidecode -t0 | grep 'Firmware Revision' | sed 's/Firmware Revision: //' | sed 's/[[:space:]]//g')
+	tZeroFirmwareRevision=$(dmidecode -t0 | grep 'Firmware Revision' | sed 's/Firmware Revision: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET bios_firmware = '${tZeroFirmwareRevision}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tOneManufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+	tOneManufacturer=$(dmidecode -t1 | grep 'Manufacturer' | sed 's/Manufacturer: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET system_manufacturer = '${tOneManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "UPDATE jobstats SET clone_image = '${tOneManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tOneProductName=$(dmidecode -t1 | grep 'Product Name' | sed 's/Product Name: //' | sed 's/[[:space:]]//g')
+	tOneProductName=$(dmidecode -t1 | grep 'Product Name' | sed 's/Product Name: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET system_productname = '${tOneProductName}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tOneSerialNumber=$(dmidecode -t1 | grep 'Serial Number' | sed 's/Serial Number: //' | sed 's/[[:space:]]//g')
+	tOneSerialNumber=$(dmidecode -t1 | grep 'Serial Number' | sed 's/Serial Number: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET system_serial = '${tOneSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tOneUUID=$(dmidecode -t1 | grep 'UUID' | sed 's/UUID: //' | sed 's/[[:space:]]//g')
+	tOneUUID=$(dmidecode -t1 | grep 'UUID' | sed 's/UUID: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET system_uuid = '${tOneUUID}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tOneSKU=$(dmidecode -t1 | grep 'SKU Number' | sed 's/SKU Number: //' | sed 's/[[:space:]]//g')
+	tOneSKU=$(dmidecode -t1 | grep 'SKU Number' | sed 's/SKU Number: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET system_sku = '${tOneSKU}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tOneFamily=$(dmidecode -t1 | grep 'Family' | sed 's/Family: //' | sed 's/[[:space:]]//g')
+	tOneFamily=$(dmidecode -t1 | grep 'Family' | sed 's/Family: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET system_family = '${tOneFamily}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tTwoManufacturer=$(dmidecode -t2 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+	tTwoManufacturer=$(dmidecode -t2 | grep 'Manufacturer' | sed 's/Manufacturer: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET motherboard_manufacturer = '${tTwoManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tTwoSerialNumber=$(dmidecode -t2 | grep 'Serial Number' | sed 's/Serial Number: //' | sed 's/[[:space:]]//g')
+	tTwoSerialNumber=$(dmidecode -t2 | grep 'Serial Number' | sed 's/Serial Number: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET motherboard_serial = '${tTwoSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tThreeManufacturer=$(dmidecode -t3 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+	tThreeManufacturer=$(dmidecode -t3 | grep 'Manufacturer' | sed 's/Manufacturer: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET chassis_manufacturer = '${tThreeManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tThreeType=$(dmidecode -t3 | grep 'Type' | sed 's/Type: //' | sed 's/[[:space:]]//g')
+	tThreeType=$(dmidecode -t3 | grep 'Type' | sed 's/Type: //' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET chassis_type = '${tThreeType}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tThreeSerialNumber=$(dmidecode -t3 | grep 'Serial Number' | sed 's/Serial Number: //' | sed 's/[[:space:]]//g')
+	tThreeSerialNumber=$(dmidecode -t3 | grep 'Serial Number' | sed 's/Serial Number: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET chassis_serial = '${tThreeSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tThreeAssetTag=$(dmidecode -t3 | grep 'Asset Tag' | sed 's/Asset Tag: //' | sed 's/[[:space:]]//g')
+	tThreeAssetTag=$(dmidecode -t3 | grep 'Asset Tag' | sed 's/Asset Tag: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET chassis_tag = '${tThreeAssetTag}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tThreePowerSupplyState=$(dmidecode -t3 | grep 'Power Supply State' | sed 's/Power Supply State: //' | sed 's/[[:space:]]//g')
+	tThreePowerSupplyState=$(dmidecode -t3 | grep 'Power Supply State' | sed 's/Power Supply State: //g')
 		echo "UPDATE jobstats SET chassis_psu = '${tThreePowerSupplyState}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourFamily=$(dmidecode -t4 | grep 'Family' | sed 's/Family: //g')
+	tFourFamily=$(dmidecode -t4 | grep 'Family' | sed 's/Family: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET cpu_family = '${tFourFamily}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourManufacturer=$(dmidecode -t4 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+	tFourManufacturer=$(dmidecode -t4 | grep 'Manufacturer' | sed 's/Manufacturer: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET cpu_manufacturer = '${tFourManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourID=$(dmidecode -t4 | grep 'ID' | sed 's/ID: //' | sed 's/[[:space:]]//g')
+	tFourID=$(dmidecode -t4 | grep 'ID' | sed 's/ID: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET cpu_id = '${tFourID}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourVersion=$(dmidecode -t4 | grep 'Version' | sed 's/Version: //' | sed 's/[[:space:]]//g')
+	tFourVersion=$(dmidecode -t4 | grep 'Version' | sed 's/Version: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET cpu_version = '${tFourVersion}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourVoltage=$(dmidecode -t4 | grep 'Voltage' | sed 's/Voltage: //' | sed 's/[[:space:]]//g')
+	tFourVoltage=$(dmidecode -t4 | grep 'Voltage' | sed 's/Voltage: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET cpu_voltage = '${tFourVoltage}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/Max Speed: //' | sed 's/[[:space:]]//g')
+	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/Max Speed: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET cpu_maxspeed = '${tFourMaxSpeed}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourCurrentSpeed=$(dmidecode -t4 | grep 'Current Speed' | sed 's/Current Speed: //' | sed 's/[[:space:]]//g')
+	tFourCurrentSpeed=$(dmidecode -t4 | grep 'Current Speed' | sed 's/Current Speed: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET cpu_currentspeed = '${tFourCurrentSpeed}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //' | sed 's/[[:space:]]//g')
+	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET cpu_cores = '${tFourCoreCount}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //' | sed 's/[[:space:]]//g')
+	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET cpu_threads = '${tFourThreadCount}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tTwentyTwoManufacturer=$(dmidecode -t22 | grep 'Manufacturer' | sed 's/Manufacturer: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoManufacturer=$(dmidecode -t22 | grep 'Manufacturer' | sed 's/Manufacturer: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET battery_manufacturer = '${tTwentyTwoManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET battery_name = '${tTwentyTwoName}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/Design Capacity: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/Design Capacity: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET battery_capacity = '${tTwentyTwoCapacity}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tTwentyTwoVoltage=$(dmidecode -t22 | grep 'Design Voltage' | sed 's/Design Voltage: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoVoltage=$(dmidecode -t22 | grep 'Design Voltage' | sed 's/Design Voltage: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET battery_voltage = '${tTwentyTwoVoltage}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET battery_serial = '${tTwentyTwoSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //' | sed 's/[[:space:]]//g')
+	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET battery_manufacturedate = '${tTwentyTwoManufactureDate}' WHERE uuid = '${UUID}'" | uit-tss-db
-	tThirtyTwoBootStatus=$(dmidecode -t32 | grep 'Status' | sed 's/Status: //' | sed 's/[[:space:]]//g')
+	tThirtyTwoBootStatus=$(dmidecode -t32 | grep 'Status' | sed 's/Status: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET boot_errors = '${tThirtyTwoBootStatus}' WHERE uuid = '${UUID}'" | uit-tss-db
 
 
