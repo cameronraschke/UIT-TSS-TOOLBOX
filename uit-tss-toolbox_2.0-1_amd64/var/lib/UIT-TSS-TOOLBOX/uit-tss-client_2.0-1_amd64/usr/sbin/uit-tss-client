@@ -124,6 +124,14 @@ echo "INSERT INTO jobstats(\
 	DEFAULT, \
 	DEFAULT, \
 	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
 	DEFAULT)" | uit-tss-db
 tput reset
 
