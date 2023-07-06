@@ -288,7 +288,8 @@ function intro {
 	echo "   ${BLUE}[4]${RESET} ${BOLD}Simple erase NVME${RESET}"
 	echo "   ${BLUE}[5]${RESET} ${BOLD}Simple erase SATA${RESET}"
 	echo "   ${BLUE}[6]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
-	read -n 1 -p "Select [1-6]: " mainMenuOpt
+	echo "   ${BLUE}[0]${RESET} ${BOLD}Associate Hardware Data${RESET}"
+	read -n 1 -p "Select [0-6]: " mainMenuOpt
 
 	tput reset
 }
