@@ -220,7 +220,7 @@ function enterTag {
 	local regex="^[[:digit:]]{6}$"
 	tput reset
 	echo ""
-	read -p "${BOLD}Process has finished. Please enter the ${BLUE}tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
+	read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
