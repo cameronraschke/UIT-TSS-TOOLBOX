@@ -216,6 +216,24 @@ function hardwareData {
 
 
 
+function enterTag {
+	local regex="^[[:digit:]]{6}$"
+	tput reset
+	echo ""
+	read -p "${BOLD}Process has finished. Please enter the ${BLUE}tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
+	if [[ $tagNum =~ $regex ]]; then
+		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "${tagNum}" > /root/tagnumber
+		ssh cameron@mickey.uit 'echo UHouston! | sudo -S uit-tss-sql-refresh' &
+	else
+		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
+		sleep 0.5
+		terminate
+	fi
+}
+
+
+
 function info {
 	if [[ $ACTION != "" ]]; then
 		echo "The selected mode is ${BOLD}${ACTION}${RESET}"
@@ -250,6 +268,8 @@ function exitMessage {
 
 
 function intro {
+	tput reset
+	enterTag
 	echo "${RESET}"
 	exitMessage
 	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
@@ -1385,27 +1405,12 @@ function totaltime {
 	echo "UPDATE jobstats SET all_time = '${totalElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
 }
 
-function enterTag {
-	local regex="^[[:digit:]]{6}$"
-	tput reset
-	echo ""
-	read -p "${BOLD}Process has finished. Please enter the ${BLUE}tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
-	if [[ $tagNum =~ $regex ]]; then
-		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
-		echo "${tagNum}" > /root/tagnumber
-		ssh cameron@mickey.uit 'echo UHouston! | sudo -S uit-tss-sql-refresh'
-	else
-		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
-		sleep 0.5
-		terminate
-	fi
-}
+
 
 function terminate {
 	tput reset
 	totaltime
 	/usr/bin/play /root/oven.mp3 &> /dev/null
-	enterTag
 
 	echo ""
 	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
