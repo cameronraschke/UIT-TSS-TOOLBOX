@@ -11,6 +11,21 @@ date=$(date '+%Y-%m-%d %H:%M:%S')
 
 read -p "Please enter the ${BOLD}${BLUE}tagnumber${RESET}: " tagnumber
 read -p "Please enter the ${BOLD}${BLUE}location${RESET}: " location
+read -n 1 -p "Please enter the ${BOLD}${BLUE}condition${RESET} ${BOLD}${BLUE}[1] Functioning${RESET} ${BOLD}${BLUE}[2] Broken${RESET}: " condition
+
+if [[ $condition == "1" ]]; then
+    condition="functioning"
+    else
+    condition="broken"
+fi
+
+if [[ $condition == "broken" ]]; then
+    read -p "Please enter the ${BOLD}${BLUE}problem${RESET}: " problem
+    else
+    problem="N/A"
+fi
+
+
+
 chassisSerial=$(echo "SELECT chassis_serial FROM clientstats WHERE tagnumber = '${tagnumber}';" | mysql -N -pUHouston\! laptopDB)
-echo "INSERT INTO locations (tagnumber, chassis_serial, location, time) VALUES ('${tagnumber}', '${chassisSerial}', '${location}', '${date}')" | uit-tss-db
-echo "UPDATE locations SET location = '${location}' WHERE tagnumber = '${tagnumber}'" | uit-tss-db
+echo "INSERT INTO locations (tagnumber, chassis_serial, location, condition, problem, time) VALUES ('${tagnumber}', '${chassisSerial}', '${location}', '${condition}', '${problem}', '${date}')" | uit-tss-db
