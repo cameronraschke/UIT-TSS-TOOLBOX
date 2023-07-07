@@ -11,15 +11,16 @@ date=$(date '+%Y-%m-%d %H:%M:%S')
 
 read -p "Please enter the ${BOLD}${BLUE}tagnumber${RESET}: " tagnumber
 read -p "Please enter the ${BOLD}${BLUE}location${RESET}: " location
-read -n 1 -p "Please enter the ${BOLD}${BLUE}status${RESET} ${BOLD}${BLUE}[1] Functioning${RESET} ${BOLD}${BLUE}[2] Broken${RESET}: " status
+read -n 1 -p "Please enter the status${BOLD}${BLUE}${RESET} ${BOLD}${BLUE}[1] ${RESET}${BOLD}Functioning ${BOLD}${BLUE}[2] ${RESET}${BOLD}Broken${RESET}: " status
 
-if [[ $condition == "1" ]]; then
-    condition="functioning"
+if [[ $status == "1" ]]; then
+    status="functioning"
     else
-    condition="broken"
+    status="broken"
 fi
 
-if [[ $condition == "broken" ]]; then
+if [[ $status == "broken" ]]; then
+    echo ""
     read -p "Please enter the ${BOLD}${BLUE}problem${RESET}: " problem
     else
     problem="N/A"
