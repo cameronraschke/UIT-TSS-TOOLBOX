@@ -7,6 +7,7 @@ BOLD=$(tput bold)
 DIM=$(tput dim)
 RESET=$(tput sgr0)
 
+while true; do
 date=$(date '+%Y-%m-%d %H:%M:%S')
 
 read -p "Please enter the ${BOLD}${BLUE}tagnumber${RESET}: " tagnumber
@@ -26,7 +27,6 @@ if [[ $status == "broken" ]]; then
     problem="N/A"
 fi
 
-
-
 chassisSerial=$(echo "SELECT chassis_serial FROM clientstats WHERE tagnumber = '${tagnumber}';" | mysql -N -pUHouston\! laptopDB)
 echo "INSERT INTO locations (tagnumber, chassis_serial, location, status, problem, time) VALUES ('${tagnumber}', '${chassisSerial}', '${location}', '${status}', '${problem}', '${date}')" | uit-tss-db
+done
