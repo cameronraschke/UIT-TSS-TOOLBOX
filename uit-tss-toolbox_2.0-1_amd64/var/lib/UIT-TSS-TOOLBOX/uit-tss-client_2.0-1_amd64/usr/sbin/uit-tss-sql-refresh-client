@@ -22,8 +22,10 @@ foreach ($i as $key => $value) {
     $exists = mysqli_num_rows($results);
     if ($exists == "0") {
         $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,all_time,all_avgtime,";
-        $sql .= "erase_time,erase_avgtime,clone_time,clone_avgtime,all_jobs,erase_jobs,clone_jobs,disk)";
-        $sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
+        $sql .= "erase_time,erase_avgtime,clone_time,clone_avgtime,all_jobs,erase_jobs,clone_jobs,disk,";
+        $sql .= "system_productname,bios_date,bios_version,chassis_serial,motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate)";
+        $sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+        $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
         $conn->query($sql);
     }
 
@@ -139,6 +141,70 @@ foreach ($i as $key => $value) {
             $sql = "UPDATE clientstats SET device_type = 'Dell' WHERE tagnumber = '$tagNum'";
             $conn->query($sql);
         }
+    }
+    
+    #Update bios_date
+    $sql = "SELECT bios_date FROM jobstats WHERE tagnumber = '$tagNum' AND not bios_date = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET bios_date = '" . $row['bios_date'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update bios_version
+    $sql = "SELECT bios_version FROM jobstats WHERE tagnumber = '$tagNum' AND not bios_version = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET bios_version = '" . $row['bios_version'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update system_productname
+    $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum' AND not system_productname = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET system_productname = '" . $row['system_productname'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update motherboard_serial
+    $sql = "SELECT motherboard_serial FROM jobstats WHERE tagnumber = '$tagNum' AND not motherboard_serial = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET motherboard_serial = '" . $row['motherboard_serial'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update chassis_serial
+    $sql = "SELECT chassis_serial FROM jobstats WHERE tagnumber = '$tagNum' AND not chassis_serial = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update cpu_version
+    $sql = "SELECT cpu_version FROM jobstats WHERE tagnumber = '$tagNum' AND not cpu_version = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET cpu_version = '" . $row['cpu_version'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update cpu_cores
+    $sql = "SELECT cpu_cores FROM jobstats WHERE tagnumber = '$tagNum' AND not cpu_cores = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET cpu_cores = '" . $row['cpu_cores'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Update battery_manufacturedate
+    $sql = "SELECT battery_manufacturedate FROM jobstats WHERE tagnumber = '$tagNum' AND not battery_manufacturedate = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET battery_manufacturedate = '" . $row['battery_manufacturedate'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
     }
 }
 } else {
