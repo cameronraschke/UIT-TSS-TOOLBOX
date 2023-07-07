@@ -210,7 +210,7 @@ foreach ($i as $key => $value) {
 
 
 ### Location Table ###
-$sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
+$sql = "SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000'";
 $results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
     foreach ($i as $key => $value) {
@@ -224,7 +224,6 @@ $i = $results->fetch_all(MYSQLI_ASSOC);
         while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
             $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
             $conn->query($sql);
-        }
     }
 }
 
