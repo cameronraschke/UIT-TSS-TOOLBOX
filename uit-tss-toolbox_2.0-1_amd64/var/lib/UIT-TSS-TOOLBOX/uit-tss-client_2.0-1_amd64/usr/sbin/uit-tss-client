@@ -270,6 +270,7 @@ function exitMessage {
 function intro {
 	tput reset
 	enterTag
+	tput reset
 	echo "${RESET}"
 	exitMessage
 	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
