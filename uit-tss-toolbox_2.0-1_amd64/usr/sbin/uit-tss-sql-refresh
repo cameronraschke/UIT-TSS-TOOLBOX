@@ -216,19 +216,19 @@ $sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '".$tag_txt."'";
 if (isset($sql)) {
 $results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
-foreach ($i as $key => $value) {
-    unset($tagNum);
-    global $tagNum;
-    $tagNum = $value['tagnumber'];
+    foreach ($i as $key => $value) {
+        unset($tagNum);
+        global $tagNum;
+        $tagNum = $value['tagnumber'];
 
-    #Update Serial Numbers
-    $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
-    $disks = $conn->query($sql);
-    while ($row = $disks->fetch_array(MYSQLI_ASSOC)) {
-        $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
-        $conn->query($sql);
+        #Update Serial Numbers
+        $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
+        $results = $conn->query($sql);
+        while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+            $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
+            $conn->query($sql);
+        }
     }
-
 }
 
 
