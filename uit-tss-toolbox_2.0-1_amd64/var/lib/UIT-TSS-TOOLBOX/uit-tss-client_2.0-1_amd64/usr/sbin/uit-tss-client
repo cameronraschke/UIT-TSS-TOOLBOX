@@ -224,7 +224,7 @@ function enterTag {
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
-		/usr/sbin/uit-tss-sql-refresh-client &
+		/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
 	else
 		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
 		sleep 0.5
