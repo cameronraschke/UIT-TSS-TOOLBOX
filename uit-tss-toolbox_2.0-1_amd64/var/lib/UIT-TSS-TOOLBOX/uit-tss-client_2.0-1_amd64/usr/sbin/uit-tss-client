@@ -1412,7 +1412,7 @@ function terminate {
 	tput reset
 	totaltime
 	/usr/bin/play /root/oven.mp3 &> /dev/null
-
+	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
 	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
 	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
