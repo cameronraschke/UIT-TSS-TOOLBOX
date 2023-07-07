@@ -210,10 +210,7 @@ foreach ($i as $key => $value) {
 
 
 ### Location Table ###
-$tag_txt = preg_replace('/[^0-9]/', '', file_get_contents('/root/tagnumber'));
-echo "Updating laptop: '" . $tag_txt . "' in SQL database" . PHP_EOL;
-$sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '".$tag_txt."'";
-if (isset($sql)) {
+$sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
 $results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
     foreach ($i as $key => $value) {
