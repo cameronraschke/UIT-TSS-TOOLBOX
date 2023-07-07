@@ -27,6 +27,6 @@ if [[ $status == "broken" ]]; then
     problem="N/A"
 fi
 
-chassisSerial=$(echo "SELECT chassis_serial FROM clientstats WHERE tagnumber = '${tagnumber}';" | mysql -N -pUHouston\! laptopDB)
+chassisSerial=$(echo "SELECT chassis_serial FROM clientstats WHERE tagnumber = '${tagnumber}';" | mysql -N -pUHouston\! laptopDB) &>/dev/null
 echo "INSERT INTO locations (tagnumber, chassis_serial, location, status, problem, time) VALUES ('${tagnumber}', '${chassisSerial}', '${location}', '${status}', '${problem}', '${date}')" | uit-tss-db
 done
