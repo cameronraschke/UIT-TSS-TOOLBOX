@@ -1,0 +1,11 @@
+#!/usr/bin/php
+<?php
+include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+
+$stdin = fopen('php://stdin', 'r');
+$line = trim(fgets(STDIN));
+$conn->query($line);
+fclose($stdin);
+$conn->close();
+
+?>
