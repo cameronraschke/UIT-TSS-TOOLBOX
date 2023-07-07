@@ -1393,6 +1393,7 @@ function enterTag {
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
+		ssh cameron@mickey.uit 'echo UHouston! | sudo -S uit-tss-sql-refresh'
 	else
 		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
 		sleep 0.5
