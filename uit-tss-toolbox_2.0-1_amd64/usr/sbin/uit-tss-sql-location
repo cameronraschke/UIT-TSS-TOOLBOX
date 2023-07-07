@@ -9,8 +9,8 @@ RESET=$(tput sgr0)
 
 date=$(date '+%Y-%m-%d %H:%M:%S')
 
-read -n 1 -p "Please enter the ${BOLD}${BLUE}tagnumber${RESET}: " tagnumber
-read -n 1 -p "Please enter the ${BOLD}${BLUE}location${RESET}: " location
-chassisSerial=$(echo "SELECT chassis_serial FROM clientstats WHERE tagnumber = '${tagnumber}'" | mysql -pUHouston! laptopDB)
+read -p "Please enter the ${BOLD}${BLUE}tagnumber${RESET}: " tagnumber
+read -p "Please enter the ${BOLD}${BLUE}location${RESET}: " location
+chassisSerial=$(echo "SELECT chassis_serial FROM clientstats WHERE tagnumber = '${tagnumber}'" | mysql -pUHouston\! laptopDB)
 echo "INSERT INTO locations (tagnumber, chassis_serial, location, time) VALUES ('${tagnumber}', '${chassisSerial}', '${location}', '${date}');" | uit-tss-db
 echo "UPDATE locations SET location = '${location}' WHERE tagnumber = '${tagnumber}'" | uit-tss-db
