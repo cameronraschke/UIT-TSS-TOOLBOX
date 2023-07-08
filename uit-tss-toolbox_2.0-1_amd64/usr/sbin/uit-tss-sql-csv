@@ -5,14 +5,21 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
-    $sql = "SELECT 'Job UUID','Tag Number','MAC Address','Date','Time','BIOS Vendor','BIOS Version','BIOS Last Update','BIOS Revision','BIOS Firmware','System Manufacturer','System Product Name','System Serial Number','System UUID','System SKU','System Family','Motherboard Manufacturer','Motherboard Serial Number','Chassis Manufcaturer','Chassis Type','Chassis Serial','Chassis Tag','Chassis PSU State','CPU Family','CPU Manufacturer','CPU ID','CPU Version','CPU Voltage','CPU Max Speed','CPU Current Speed','CPU Cores','CPU Threads','Battery Manufacturer','Battery Name','Battery Capacity','Battery Voltage','Battery Serial Number','Battery Manufacture Date','Boot Errors','Action','Reboot','Disk','Disk Size (GB)','Total Time','Erase Successful','Erase Mode','Total Erase Time','Percent of Disk Erased','Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update','Samba User'
-    UNION ALL
-    SELECT *
-    FROM jobstats ORDER BY date DESC 
-    INTO OUTFILE '/tmp/laptop-report-job-".$date.".csv'
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '\"'
-    LINES TERMINATED BY '\\n'";
+    $sql = "SELECT 'Job UUID','Tag Number','MAC Address','Date','Time','BIOS Vendor','BIOS Version','BIOS Last Update',";
+    $sql .= "'BIOS Revision','BIOS Firmware','System Manufacturer','System Product Name','System Serial Number','System UUID',";
+    $sql .= "'System SKU','System Family','Motherboard Manufacturer','Motherboard Serial Number','Chassis Manufcaturer',";
+    $sql .= "'Chassis Type','Chassis Serial','Chassis Tag','Chassis PSU State','CPU Family','CPU Manufacturer','CPU ID',";
+    $sql .= "'CPU Version','CPU Voltage','CPU Max Speed','CPU Current Speed','CPU Cores','CPU Threads','Battery Manufacturer',";
+    $sql .= "'Battery Name','Battery Capacity','Battery Voltage','Battery Serial Number','Battery Manufacture Date','Boot Errors',";
+    $sql .= "'Action','Reboot','Disk','Disk Size (GB)','Total Time','Erase Successful','Erase Mode','Total Erase Time','Percent of Disk Erased',";
+    $sql .= "'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update','Samba User'";
+    $sql .= "UNION ALL ";
+    $sql .= "SELECT * ";
+    $sql .= "FROM jobstats ORDER BY date DESC ";
+    $sql .= "INTO OUTFILE '/tmp/laptop-report-job-".$date.".csv' ";
+    $sql .= "FIELDS TERMINATED BY ',' ";
+    $sql .= "ENCLOSED BY '\"' ";
+    $sql .= "LINES TERMINATED BY '\\n'";
 
     $conn->query($sql);
 
