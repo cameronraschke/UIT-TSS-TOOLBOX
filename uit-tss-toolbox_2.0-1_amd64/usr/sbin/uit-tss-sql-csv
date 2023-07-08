@@ -3,7 +3,7 @@
 include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 
 $date = date('Y-m-d',time());
-$time = date('Y-m-d H:i:s', time());
+$time = date('Y-m-d-His', time());
 
     $sql = "SELECT 'Job UUID','Tag Number','MAC Address','Date','Time','BIOS Vendor','BIOS Version','BIOS Last Update',";
     $sql .= "'BIOS Revision','BIOS Firmware','System Manufacturer','System Product Name','System Serial Number','System UUID',";
