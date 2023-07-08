@@ -44,6 +44,7 @@ $time = date('Y-m-d-His', time());
     LINES TERMINATED BY '\\n'";
 
     $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report'
+    UNION ALL
     SELECT *
     FROM clientstats ORDER BY 'time' DESC 
     INTO OUTFILE '/tmp/laptop-report-location-".$time.".csv'
