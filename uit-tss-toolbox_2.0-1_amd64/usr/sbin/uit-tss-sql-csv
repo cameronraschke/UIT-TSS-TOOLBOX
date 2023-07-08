@@ -45,7 +45,7 @@ $time = date('Y-m-d-His', time());
 
     $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report'
     SELECT *
-    FROM clientstats ORDER BY 'last_job_date' DESC 
+    FROM clientstats ORDER BY 'time' DESC 
     INTO OUTFILE '/tmp/laptop-report-location-".$time.".csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
