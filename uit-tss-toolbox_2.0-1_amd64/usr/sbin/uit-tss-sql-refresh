@@ -186,7 +186,7 @@ foreach ($i as $key => $value) {
         $lastUUID = $value['uuid'];
     }
 
-    $sql = "SELECT tagnumber FROM clientstats WHERE NOT bios_version = 'N/A' AND NOT bios_version = 'R71 Ver. 01.24.00'";
+    $sql = "SELECT tagnumber FROM clientstats WHERE NOT bios_version = 'N/A' OR NOT bios_version = 'R71 Ver. 01.24.00'";
     $results = $conn->query($sql);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $sql = "UPDATE clientstats SET needs_bios_update = 'yes' WHERE tagnumber = '$tagNum'";
