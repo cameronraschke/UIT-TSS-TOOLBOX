@@ -274,15 +274,6 @@ if ($totalCloneLineCount >= 1) {
     $conn->query($sql);
 }
 
-/* 
-$sql = "SELECT jobstats.tagnumber,jobstats.disk FROM jobstats INNER JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber WHERE jobstats.tagnumber = '$tagNum'";
-$results = $conn->query($sql);
-$i = $results->fetch_all(MYSQLI_ASSOC);
-foreach($i as $key => $value) {
-    $value['tagnumber'];
-    $value['disk'];
-} */
-
 # Update nvme_erase_avgtime
 $sql = "SELECT erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'nvme0%'";
 $results = $conn->query($sql);
