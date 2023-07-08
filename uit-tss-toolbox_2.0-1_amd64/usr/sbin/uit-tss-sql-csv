@@ -42,6 +42,8 @@ $time = date('Y-m-d-His', time());
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\\n'";
+    
+    $conn->query($sql);
 
     $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report'
     UNION ALL
