@@ -16,7 +16,7 @@ $time = date('Y-m-d-His', time());
     $sql .= "UNION ALL ";
     $sql .= "SELECT * ";
     $sql .= "FROM jobstats ORDER BY date DESC ";
-    $sql .= "INTO OUTFILE '/tmp/laptop-report-job-".$date.".csv' ";
+    $sql .= "INTO OUTFILE '/tmp/laptop-report-job-".$time.".csv' ";
     $sql .= "FIELDS TERMINATED BY ',' ";
     $sql .= "ENCLOSED BY '\"' ";
     $sql .= "LINES TERMINATED BY '\\n'";
@@ -27,7 +27,7 @@ $time = date('Y-m-d-His', time());
     UNION ALL
     SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime
     FROM serverstats ORDER BY date DESC 
-    INTO OUTFILE '/tmp/laptop-report-server-".$date.".csv'
+    INTO OUTFILE '/tmp/laptop-report-server-".$time.".csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\\n'";
@@ -38,7 +38,7 @@ $time = date('Y-m-d-His', time());
     UNION ALL
     SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,
     FROM clientstats ORDER BY 'last_job_date' DESC 
-    INTO OUTFILE '/tmp/laptop-report-client-".$date.".csv'
+    INTO OUTFILE '/tmp/laptop-report-client-".$time.".csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\\n'";
