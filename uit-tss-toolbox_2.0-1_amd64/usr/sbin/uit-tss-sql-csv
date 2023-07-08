@@ -43,6 +43,14 @@ $time = date('Y-m-d-His', time());
     ENCLOSED BY '\"'
     LINES TERMINATED BY '\\n'";
 
+    $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report'
+    SELECT *
+    FROM clientstats ORDER BY 'last_job_date' DESC 
+    INTO OUTFILE '/tmp/laptop-report-location-".$time.".csv'
+    FIELDS TERMINATED BY ','
+    ENCLOSED BY '\"'
+    LINES TERMINATED BY '\\n'";
+
     $conn->query($sql);
 
 $conn->close(); 
