@@ -34,7 +34,7 @@ $time = date('Y-m-d-His', time());
 
     $conn->query($sql);
 
-    $sql = "SELECT 'Tag Number','Chassis Serial Number','Chassis Serial','Device Manufacturer','Device Model','Last Job Date','Average Time for All Operations','Average Time to Erase','Average Time to Clone','Total Jobs','Total Erase Jobs','Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date'
+    $sql = "SELECT 'Tag Number','Chassis Serial Number','Device Manufacturer','Device Model','Last Job Date','Average Time for All Operations','Average Time to Erase','Average Time to Clone','Total Jobs','Total Erase Jobs','Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date'
     UNION ALL
     SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,battery_manufacturedate
     FROM clientstats ORDER BY 'last_job_date' DESC 
