@@ -28,24 +28,28 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 
 		lb config \
 			--apt apt \
+			--apt-options "--yes"\
 			--apt-recommends true \
 			--apt-secure true \
 			--apt-source-archives true \
 			--architecture amd64 \
-			--archive-areas 'main' \
+			--archive-areas 'main contrib non-free' \
 			--binary-filesystem fat32 \
 			--binary-images iso-hybrid \
-			--bootappend-live "boot=live live-media=removable toram username=root hostname=UIT-TSS-TOOLBOX \
+			--bootappend-live "iscsi=10.0.0.1;iqn.2023-07-09.uit:uit-tss-toolbox-iscsi \
+ 				boot=live toram username=root hostname=UIT-TSS-CLIENT \
 				timezone=America/Chicago locales=en_US.UTF-8" \
 			--bootloaders "grub-efi syslinux" \
 			--chroot-filesystem squashfs \
+			--color \
 			--compression gzip \
 			--clean \
 			--debian-installer live \
-			--debian-installer-distribution bullseye \
-			--distribution bullseye \
-			--debootstrap-options "--variant=minbase --arch=amd64" \
+			--debian-installer-distribution bookworm \
+			--distribution bookworm \
+			--debootstrap-options "--arch=amd64 --variant=minbase" \
 			--hdd-label UIT-TSS-TOOLBOX \
+			--hdd-size auto \
 			--image-name UIT-TSS-TOOLBOX \
 			--initramfs live-boot \
 			--initsystem systemd \
@@ -53,10 +57,12 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 			--iso-preparer "Cameron Raschke caraschke@uh.edu" \
 			--iso-publisher "Cameron Raschke caraschke@uh.edu" \
 			--iso-volume UIT-TSS-TOOLBOX \
+			--memtest none \
 			--mode debian \
 			--system live \
 			--uefi-secure-boot enable \
-			--updates true)
+			--updates true \
+			--zsync true)
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-TOOLBOX/config/bootloaders
