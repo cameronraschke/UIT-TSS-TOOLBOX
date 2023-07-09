@@ -36,7 +36,7 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 			--archive-areas 'main contrib non-free' \
 			--binary-filesystem fat32 \
 			--binary-images iso-hybrid \
-			--bootappend-live "iscsi=10.0.0.1;iqn.2023-07-09.uit:uit-tss-toolbox-iscsi \
+			--bootappend-live "iscsi=mickey.uit;iqn.2023-07-09.uit:uit-tss-toolbox-iscsi \
  				boot=live toram username=root hostname=UIT-TSS-CLIENT \
 				timezone=America/Chicago locales=en_US.UTF-8" \
 			--bootloaders "grub-efi syslinux" \
