@@ -161,6 +161,7 @@ sshfs
 php
 php-cli
 php-mysql
+httpfs2
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
