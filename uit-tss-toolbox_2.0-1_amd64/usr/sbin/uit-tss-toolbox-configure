@@ -13,8 +13,7 @@ function confirmDelete {
 confirmDelete
 
 apt purge live-build -y
-apt install live-build -y
-wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20210407_all.deb \
+wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20230502_all.deb \
 	--output-document=/opt/debian-live.deb
 apt install /opt/debian-live.deb -y
 
@@ -271,3 +270,5 @@ dpkg --install /root/uit-tss-client_2.0-1_amd64.deb
 EOF
 (cd /opt/UIT-TSS-TOOLBOX
 lb build)
+
+rm /opt/debian-live.deb
