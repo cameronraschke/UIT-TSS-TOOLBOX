@@ -36,7 +36,7 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 			--archive-areas 'main contrib non-free' \
 			--binary-filesystem fat32 \
 			--binary-images iso-hybrid \
-			--bootappend-live 'httpfs=http://10.10.0.2/live/live/filesystem.squashfs boot=live toram username=root hostname=UIT-TSS-CLIENT timezone=America/Chicago locales=en_US.UTF-8'
+			--bootappend-live 'httpfs=http://10.10.0.2/live/live/filesystem.squashfs boot=live toram username=root hostname=UIT-TSS-CLIENT timezone=America/Chicago locales=en_US.UTF-8' \
 			--bootloaders "grub-efi syslinux"
 			--chroot-filesystem squashfs \
 			--color \
