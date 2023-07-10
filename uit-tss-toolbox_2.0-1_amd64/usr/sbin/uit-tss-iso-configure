@@ -235,12 +235,12 @@ sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
 sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
 sysctl --quiet --load
 
-INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/lo//g' | sed 's/w.*//g' | sed 's/[[:space:]]//g')
-for iface in $INTERFACES; do
-	ip link set "${iface}" up
-	dhclient -r "${iface}"
-	dhclient -4 "${iface}"
-done &>/dev/null
+# INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/lo//g' | sed 's/w.*//g' | sed 's/[[:space:]]//g')
+# for iface in $INTERFACES; do
+# 	ip link set "${iface}" up
+# 	dhclient -r "${iface}"
+# 	dhclient -4 "${iface}"
+# done &>/dev/null
 
 echo "${GREEN}Done.${RESET}"
 
