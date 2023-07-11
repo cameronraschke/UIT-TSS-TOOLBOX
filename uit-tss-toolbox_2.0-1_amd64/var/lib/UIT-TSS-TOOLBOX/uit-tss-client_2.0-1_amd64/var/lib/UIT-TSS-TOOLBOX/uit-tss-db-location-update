@@ -1,0 +1,21 @@
+#!/usr/bin/php
+<?php
+include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+
+$stdin = fopen('php://stdin', 'r');
+$line = trim(fgets(STDIN));
+
+if (preg_match('/^begin.*/',$line)) {
+    $line = preg_replace('/[0-9]+/', '', $line);
+}
+
+if (preg_match('/^end.*/',$line)) {
+    $line = preg_replace('/[0-9]+/', '', $line);
+}
+
+$sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time)";
+$sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
+
+$conn->query($sql);
+
+?>
