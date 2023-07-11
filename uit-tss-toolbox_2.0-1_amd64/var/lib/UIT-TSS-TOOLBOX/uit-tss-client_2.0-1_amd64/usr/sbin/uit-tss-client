@@ -226,16 +226,18 @@ function enterTag {
 	tput reset
 	echo ""
 	
+	while true; do
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
 		/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
 		echo "begin,${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
-		terminate
+		return
 	else
 		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 		sleep 0.5
 	fi
+	done
 }
 
 
