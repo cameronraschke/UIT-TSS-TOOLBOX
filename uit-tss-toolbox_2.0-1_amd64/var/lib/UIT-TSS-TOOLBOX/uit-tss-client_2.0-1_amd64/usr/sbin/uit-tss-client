@@ -1,5 +1,10 @@
 #!/bin/bash
 
+cat <<'EOF' > /root/.ssh/config
+Host *
+	StrictHostKeyChecking=no
+EOF
+
 SSD_REGEX='sd.*'
 NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'
