@@ -8,14 +8,21 @@ $time = date('Y-m-d H:i:s', time());
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
 
-if (preg_match('/^begin.*/',$line)) {
-    $tagNum = preg_replace('/[^0-9]+/', '', $line);
+$arr = explode(',', $line);
+
+if ($arr[0] = "begin") {
+    $tagNum = $arr[1];
     $location = "Plugged in and booted on laptop table.";
 }
 
-if (preg_match('/^end.*/',$line)) {
-    $tagNum = preg_replace('/[^0-9]+/', '', $line);
+if ($arr[0] = "end") {
+    $tagNum = $arr[1];
     $location = "Finished work on laptop table.";
+}
+
+if ($arr[0] = "custom") {
+    $tagNum = $arr[1];
+    $location = $arr[2];
 }
 
 $sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time)";
