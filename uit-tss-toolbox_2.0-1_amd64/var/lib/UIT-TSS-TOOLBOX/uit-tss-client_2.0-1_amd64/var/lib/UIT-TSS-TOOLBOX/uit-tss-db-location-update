@@ -2,20 +2,32 @@
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 
+$date = date('Y-m-d',time());
+$time = date('Y-m-d H:i:s', time());
+
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
 
 if (preg_match('/^begin.*/',$line)) {
-    $line = preg_replace('/[0-9]+/', '', $line);
+    $tagNum = preg_replace('/[^0-9]+/', '', $line);
+    $location = "Plugged in and booted on laptop table.";
 }
 
 if (preg_match('/^end.*/',$line)) {
-    $line = preg_replace('/[0-9]+/', '', $line);
+    $tagNum = preg_replace('/[^0-9]+/', '', $line);
+    $location = "Finished work on laptop table.";
 }
 
 $sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time)";
-$sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
-
+$sql .= "VALUES ($tagNum,DEFAULT,$location,DEFAULT,DEFAULT,$time)";
 $conn->query($sql);
+
+#Update Serial Numbers
+$sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
+$results = $conn->query($sql);
+while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
+    $conn->query($sql);
+}
 
 ?>
