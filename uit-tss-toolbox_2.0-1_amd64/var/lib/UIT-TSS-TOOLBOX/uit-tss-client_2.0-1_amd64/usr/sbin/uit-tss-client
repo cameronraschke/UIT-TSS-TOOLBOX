@@ -225,16 +225,16 @@ function enterTag {
 	local regex="^[[:digit:]]{6}$"
 	tput reset
 	echo ""
-	read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
+	
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
 		/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
 		echo "begin,${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
-	else
-		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
-		sleep 0.5
 		terminate
+	else
+		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
+		sleep 0.5
 	fi
 }
 
@@ -1424,7 +1424,7 @@ function terminate {
 	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
 	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
 
-	read "Where will this laptop be stored?" location
+	read -p "Where will this laptop be stored?" location
 	echo "custom,${tagNum},${location}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
@@ -1497,8 +1497,8 @@ function terminate {
 	echo ""
 	echo "${exitMessage}"
 	echo ""
-	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to reboot...${RESET}"
-	reboot
+	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to shutdown...${RESET}"
+	poweroff
 }
 
 
