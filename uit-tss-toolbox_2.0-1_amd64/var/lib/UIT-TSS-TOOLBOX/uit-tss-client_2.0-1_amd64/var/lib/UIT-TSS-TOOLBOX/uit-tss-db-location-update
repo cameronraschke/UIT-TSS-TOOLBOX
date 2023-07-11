@@ -19,7 +19,7 @@ if (preg_match('/^end.*/',$line)) {
 }
 
 $sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time)";
-$sql .= "VALUES ($tagNum,DEFAULT,$location,DEFAULT,DEFAULT,$time)";
+$sql .= "VALUES ('$tagNum',DEFAULT,'$location',DEFAULT,DEFAULT,'$time')";
 $conn->query($sql);
 
 #Update Serial Numbers
