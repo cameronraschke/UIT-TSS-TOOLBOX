@@ -68,11 +68,11 @@ foreach ($i as $key => $value) {
         $conn->query($sql);
     }
 
-    #Update chassis_serial
-    $sql = "SELECT chassis_serial FROM jobstats WHERE tagnumber = '$tagNum' AND not chassis_serial = 'N/A' ORDER BY time desc LIMIT 1";
+    #Update chassis_serial and system_serial
+    $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND not system_serial = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-        $sql = "UPDATE clientstats SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE clientstats SET chassis_serial = '" . $row['system_serial'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
 
