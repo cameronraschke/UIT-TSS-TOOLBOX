@@ -1417,6 +1417,7 @@ function totaltime {
 function terminate {
 	tput reset
 	totaltime
+	sleep 1
 	echo "end,${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	echo "${BOLD}Process has finished!${RESET}"
@@ -1424,7 +1425,7 @@ function terminate {
 	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
 	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
 
-	read -p "Where will this laptop be stored?" location
+	read -p "Where will this laptop be stored? ${GREEN}${BOLD}Please Enter: ${RESET} " location
 	echo "custom,${tagNum},${location}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
