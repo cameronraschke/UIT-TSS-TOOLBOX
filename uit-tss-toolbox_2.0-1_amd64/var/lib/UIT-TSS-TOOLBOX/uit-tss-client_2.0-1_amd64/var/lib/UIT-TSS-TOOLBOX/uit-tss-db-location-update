@@ -10,17 +10,17 @@ $line = trim(fgets(STDIN));
 
 $arr = explode(',', $line);
 
-if ($arr[0] = "begin") {
+if ($arr[0] == "begin") {
     $tagNum = $arr[1];
     $location = "Plugged in and booted on laptop table.";
 }
 
-if ($arr[0] = "end") {
+if ($arr[0] == "end") {
     $tagNum = $arr[1];
     $location = "Finished work on laptop table.";
 }
 
-if ($arr[0] = "custom") {
+if ($arr[0] == "custom") {
     $tagNum = $arr[1];
     $location = $arr[2];
 }
