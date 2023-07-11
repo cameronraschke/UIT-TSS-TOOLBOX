@@ -230,6 +230,7 @@ function enterTag {
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
 		/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
+		echo "begin,${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 	else
 		echo "${BOLD}${RED}ERROR: Please enter a 6-digit tag number${RESET}"
 		sleep 0.5
@@ -1416,6 +1417,7 @@ function totaltime {
 function terminate {
 	tput reset
 	totaltime
+	echo "end,${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
