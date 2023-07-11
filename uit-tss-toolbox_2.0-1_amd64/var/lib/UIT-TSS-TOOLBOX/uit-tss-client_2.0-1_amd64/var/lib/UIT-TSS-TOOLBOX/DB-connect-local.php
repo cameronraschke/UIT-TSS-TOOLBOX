@@ -1,5 +1,5 @@
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+date_default_timezone_set('America/Chicago');
 
 $servername = '10.0.0.1';
 $username = 'laptops';
