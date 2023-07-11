@@ -10,6 +10,8 @@ cat <<'EOF' > /etc/systemd/timesyncd.conf
 NTP=10.10.0.1
 EOF
 
+timedatectl set-timezone "America/Chicago"
+
 /usr/bin/systemctl restart systemd-timesyncd
 
 SSD_REGEX='sd.*'
