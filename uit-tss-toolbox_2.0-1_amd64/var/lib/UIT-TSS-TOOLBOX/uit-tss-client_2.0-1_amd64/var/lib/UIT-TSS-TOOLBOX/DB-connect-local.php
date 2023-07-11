@@ -1,4 +1,6 @@
 <?php
+include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+
 $servername = '10.0.0.1';
 $username = 'laptops';
 $password = 'UHouston!';

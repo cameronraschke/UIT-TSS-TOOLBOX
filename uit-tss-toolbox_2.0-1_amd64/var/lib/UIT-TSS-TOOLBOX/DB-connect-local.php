@@ -1,4 +1,7 @@
+#!/usr/bin/php
 <?php
+date_default_timezone_set('America/Chicago');
+
 $servername = 'localhost';
 $username = 'laptops';
 $password = 'UHouston!';
