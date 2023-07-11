@@ -1605,7 +1605,6 @@ function main {
 		execute
 	elif [[ $mainMenuOpt == "0" ]]; then
 		enterTag
-		exit 0
 	else
 		exit 1
 	fi
