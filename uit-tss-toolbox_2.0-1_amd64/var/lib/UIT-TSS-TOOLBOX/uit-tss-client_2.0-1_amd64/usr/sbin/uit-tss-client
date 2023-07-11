@@ -5,6 +5,13 @@ Host *
 	StrictHostKeyChecking=no
 EOF
 
+cat <<'EOF' > /etc/systemd/timesyncd.conf
+[Time]
+NTP=10.10.0.1
+EOF
+
+/usr/bin/systemctl restart systemd-timesyncd
+
 SSD_REGEX='sd.*'
 NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'
