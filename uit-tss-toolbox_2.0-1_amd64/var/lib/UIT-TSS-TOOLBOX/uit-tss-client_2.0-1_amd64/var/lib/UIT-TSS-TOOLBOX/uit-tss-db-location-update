@@ -5,8 +5,8 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
-$default = "DEFAULT";
-$location = "DEFAULT";
+$default = "N/A";
+$location = "N/A";
 
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
