@@ -163,6 +163,7 @@ php-cli
 php-mysql
 httpfs2
 nfs-common
+smartmontools
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
@@ -242,6 +243,14 @@ sysctl --quiet --load
 # 	dhclient -r "${iface}"
 # 	dhclient -4 "${iface}"
 # done &>/dev/null
+
+echo "${GREEN}Done.${RESET}"
+
+echo ""
+echo "${BOLD}Running disk checks....${RESET}"
+for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
+	smartctl -t short -a /dev/${i} > /root/smartctl-data
+done
 
 echo "${GREEN}Done.${RESET}"
 

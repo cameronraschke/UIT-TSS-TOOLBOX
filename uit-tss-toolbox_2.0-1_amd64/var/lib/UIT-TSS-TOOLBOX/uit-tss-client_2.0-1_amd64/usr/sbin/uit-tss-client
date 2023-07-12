@@ -77,6 +77,7 @@ echo "INSERT INTO jobstats(\
 	erase_completed, \
 	disk, \
 	disksizegb, \
+	disk_model
 	reboot, \
 	clone_mode, \
 	clone_master, \
@@ -145,12 +146,14 @@ echo "INSERT INTO jobstats(\
 	DEFAULT, \
 	DEFAULT, \
 	DEFAULT, \
+	DEFAULT, \
 	DEFAULT)" | uit-tss-db
 tput reset
 
 
 
 function hardwareData {
+	### DMI Data
 	#t0 = BIOS
 	#t1 = system
 	#t2 = Base Board/Motherboard
@@ -226,6 +229,22 @@ function hardwareData {
 		echo "UPDATE jobstats SET battery_manufacturedate = '${tTwentyTwoManufactureDate}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tThirtyTwoBootStatus=$(dmidecode -t32 | grep 'Status' | sed 's/Status: //g' | sed 's/^[[:space:]]*//g')
 		echo "UPDATE jobstats SET boot_errors = '${tThirtyTwoBootStatus}' WHERE uuid = '${UUID}'" | uit-tss-db
+
+	###Disk Data
+	diskModel=$(cat /root/smartctl-data | grep '^Model Number: ' | sed 's/Model Number: *//g')
+		echo "modelnum,${UUID},${diskModel}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
+	diskSerial=$(cat /root/smartctl-data | grep '^Serial Number: ' | sed 's/Serial Number: *//g')
+		echo "serialnum,${UUID},${diskSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
+	diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
+		echo "firmware,${UUID},${diskFirmware}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
+	diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test results: ' | sed 's/SMART overall-health self-assessment test results: *//g')
+		echo "health,${UUID},${diskHealth}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
+	diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/Temperature: *//g')
+		echo "temp,${UUID},${diskTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
+	diskReads=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/Data Units Read: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
+		echo "reads,${UUID},${diskReads}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
+	diskWrites=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/Data Units Written: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
+		echo "writes,${UUID},${diskWrites}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
 }
 
 
