@@ -1,8 +1,9 @@
 #!/bin/bash
 
 function confirmDelete {
-    read -n1 -p "Are you sure you want to delete the old directory? [y/n]: " CONFIRM
+    read -n1 -p "Are you sure you want to delete the old directory and unmount /var/www/html/live? [y/n]: " CONFIRM
     if [[ $CONFIRM == "y" ]]; then
+		umount /var/www/html/live
         return
     elif [[ $CONFIRM == "n" ]]; then
         exit 1
@@ -297,3 +298,5 @@ EOF
 lb build)
 
 rm /opt/debian-live.deb
+
+mount /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso

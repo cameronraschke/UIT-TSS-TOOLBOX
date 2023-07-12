@@ -249,7 +249,7 @@ function hardwareData {
 		echo "serialnum,${UUID},${diskSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
 	diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
 		echo "firmware,${UUID},${diskFirmware}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
-	diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test results: ' | sed 's/SMART overall-health self-assessment test results: *//g')
+	diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test result: ' | sed 's/SMART overall-health self-assessment test result: *//g')
 		echo "health,${UUID},${diskHealth}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
 	diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/Temperature: *//g')
 		echo "temp,${UUID},${diskTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse-smartctl
