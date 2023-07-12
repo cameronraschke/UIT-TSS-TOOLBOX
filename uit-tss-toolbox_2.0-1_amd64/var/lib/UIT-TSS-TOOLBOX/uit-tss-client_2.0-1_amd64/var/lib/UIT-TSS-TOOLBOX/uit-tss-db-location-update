@@ -7,6 +7,7 @@ $time = date('Y-m-d H:i:s', time());
 
 $default = "N/A";
 $location = "N/A";
+$status = "functioning";
 
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
@@ -29,7 +30,7 @@ if ($arr[0] == "custom") {
 }
 
 $stmt = $conn->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssssss", $tagNum,$default,$location,$default,$default,$time);
+$stmt->bind_param("ssssss", $tagNum,$default,$location,$status,$default,$time);
 $stmt->execute();
 
 #Update Serial Numbers
