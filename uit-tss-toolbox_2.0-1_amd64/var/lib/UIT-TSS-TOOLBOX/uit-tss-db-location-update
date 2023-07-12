@@ -27,7 +27,7 @@ if ($arr[0] == "custom") {
     $tagNum = $arr[1];
     $location = $arr[2];
     $status = $arr[3];
-    $problem = $arr[3];
+    $problem = $arr[4];
 }
 
 $stmt = $conn->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
