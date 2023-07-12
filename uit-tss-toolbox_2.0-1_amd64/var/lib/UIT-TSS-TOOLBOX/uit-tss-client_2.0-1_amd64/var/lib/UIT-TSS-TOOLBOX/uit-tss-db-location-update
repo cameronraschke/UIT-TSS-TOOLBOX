@@ -25,14 +25,21 @@ if ($arr[0] == "custom") {
     $location = $arr[2];
 }
 
+$default = "DEFAULT";
+
 $sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time)";
-$sql .= "VALUES ('$tagNum',DEFAULT,'$location',DEFAULT,DEFAULT,'$time')";
-$conn->query($sql);
+$sql .= "VALUES (?, ?, ?, ?, ?, ?)";
+
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("s,s,s,s,s,s", $tagNum,$default,$location,$default,$default,$time);
+$stmt->execute();
 
 #Update Serial Numbers
 $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
-$results = $conn->query($sql);
-while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+$stmt = $mysqli->prepare($sql);
+$stmt->execute();
+$results = $stmt->get_result();
+while ($row = $results->fetch_assoc()) {
     $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
 }
