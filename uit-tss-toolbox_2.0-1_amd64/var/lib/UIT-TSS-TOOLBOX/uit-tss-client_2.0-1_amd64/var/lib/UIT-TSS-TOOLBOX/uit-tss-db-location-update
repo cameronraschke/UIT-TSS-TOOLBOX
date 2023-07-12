@@ -28,10 +28,8 @@ if ($arr[0] == "custom") {
     $location = $arr[2];
 }
 
-
-
 $stmt = $conn->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("s,s,s,s,s,s", $tagNum,$default,$location,$default,$default,$time);
+$stmt->bind_param("ssssss", $tagNum,$default,$location,$default,$default,$time);
 $stmt->execute();
 
 #Update Serial Numbers
