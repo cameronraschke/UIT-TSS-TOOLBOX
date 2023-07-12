@@ -1,0 +1,47 @@
+#!/usr/bin/php
+<?php
+include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+
+$date = date('Y-m-d',time());
+$time = date('Y-m-d H:i:s', time());
+
+$default = "N/A";
+$location = "N/A";
+
+$stdin = fopen('php://stdin', 'r');
+$line = trim(fgets(STDIN));
+
+$arr = explode('#', $line);
+
+if ($arr[0] == "begin") {
+    $tagNum = $arr[1];
+    $location = "Plugged in and booted on laptop table.";
+}
+
+if ($arr[0] == "end") {
+    $tagNum = $arr[1];
+    $location = "Finished work on laptop table.";
+}
+
+if ($arr[0] == "custom") {
+    $tagNum = $arr[1];
+    $location = $arr[2];
+    $status = $arr[3];
+    $problem = $arr[3];
+}
+
+$stmt = $conn->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("ssssss", $tagNum,$default,$location,$status,$problem,$time);
+$stmt->execute();
+
+#Update Serial Numbers
+$sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+$results = $stmt->get_result();
+while ($row = $results->fetch_assoc()) {
+    $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
+    $conn->query($sql);
+}
+
+?>

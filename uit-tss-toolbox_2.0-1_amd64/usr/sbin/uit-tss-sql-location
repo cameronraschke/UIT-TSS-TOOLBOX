@@ -14,21 +14,19 @@ echo ""
 echo ""
 read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagnumber
 read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
-read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${BLUE}[1] ${RESET}${BOLD}Functioning ${BOLD}${BLUE}[2] ${RESET}${BOLD}Broken${RESET}: " status
+read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
 
 if [[ $status == "1" ]]; then
     status="functioning"
-    else
-    status="broken"
-fi
-
-if [[ $status == "broken" ]]; then
+    problem="N/A"
+elif [[ $status == "2" ]]; then
     echo ""
-    read -p "Please enter the ${BOLD}${BLUE}problem${RESET}: " problem
-    else
+    status="broken"
+    read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}: " problem
+else
+    status="N/A"
     problem="N/A"
 fi
 
-chassisSerial=$(echo "SELECT chassis_serial FROM clientstats WHERE tagnumber = '${tagnumber}';" | mysql -N -pUHouston\! laptopDB &>/dev/null)
-echo "INSERT INTO locations (tagnumber, chassis_serial, location, status, problem, time) VALUES ('${tagnumber}', '${chassisSerial}', '${location}', '${status}', '${problem}', '${date}')" | uit-tss-db
+echo "custom#${tagnumber}#${location}#${status}#${problem}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 done
