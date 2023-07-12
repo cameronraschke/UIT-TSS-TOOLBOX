@@ -27,10 +27,7 @@ if ($arr[0] == "custom") {
 
 $default = "DEFAULT";
 
-$sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time)";
-$sql .= "VALUES (?, ?, ?, ?, ?, ?)";
-
-$stmt = $mysqli->prepare($sql);
+$stmt = $mysqli->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("s,s,s,s,s,s", $tagNum,$default,$location,$default,$default,$time);
 $stmt->execute();
 
