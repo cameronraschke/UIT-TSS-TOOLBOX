@@ -299,4 +299,4 @@ lb build)
 
 rm /opt/debian-live.deb
 
-mount /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso
+mount /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso /var/www/html/live
