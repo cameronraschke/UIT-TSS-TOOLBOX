@@ -287,13 +287,6 @@ dpkg --install /root/uit-tss-client_2.0-1_amd64.deb
 /usr/sbin/uit-tss-client
 EOF
 
-#mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.ssh
-#touch /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.ssh/config
-#cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.ssh/config
-#Host *
-#	StrictHostKeyChecking=no
-#EOF
-
 (cd /opt/UIT-TSS-TOOLBOX
 lb build)
 
