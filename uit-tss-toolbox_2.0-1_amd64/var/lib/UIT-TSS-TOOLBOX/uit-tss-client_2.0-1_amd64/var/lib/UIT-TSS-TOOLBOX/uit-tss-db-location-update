@@ -5,6 +5,9 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
+$default = "DEFAULT";
+$location = "DEFAULT";
+
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
 
@@ -25,7 +28,7 @@ if ($arr[0] == "custom") {
     $location = $arr[2];
 }
 
-$default = "DEFAULT";
+
 
 $stmt = $conn->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("s,s,s,s,s,s", $tagNum,$default,$location,$default,$default,$time);
