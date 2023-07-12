@@ -22,7 +22,7 @@ if [[ $status == "1" ]]; then
 elif [[ $status == "2" ]]; then
     echo ""
     status="broken"
-    read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}: " problem
+    read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
 else
     status="N/A"
     problem="N/A"
