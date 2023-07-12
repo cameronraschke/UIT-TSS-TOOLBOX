@@ -11,7 +11,7 @@ $location = "N/A";
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
 
-$arr = explode(',', $line);
+$arr = explode('#', $line);
 
 if ($arr[0] == "begin") {
     $tagNum = $arr[1];
