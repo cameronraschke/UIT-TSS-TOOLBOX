@@ -77,7 +77,13 @@ echo "INSERT INTO jobstats(\
 	erase_completed, \
 	disk, \
 	disksizegb, \
-	disk_model
+	disk_model, \
+	disk_serial, \
+	disk_firmware, \
+	disk_health, \
+	disk_temp, \
+	disk_reads, \
+	disk_writes, \
 	reboot, \
 	clone_mode, \
 	clone_master, \
@@ -96,6 +102,12 @@ echo "INSERT INTO jobstats(\
 	'${etherAddr}', \
 	'${DATE}', \
 	'${TIME}', \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
 	DEFAULT, \
 	DEFAULT, \
 	DEFAULT, \
