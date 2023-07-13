@@ -258,7 +258,7 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Running battery checks....${RESET}"
-upower -i /org/freedesktop/UPower/devices/battery_BAT0 > /root/battery-data
+#upower -i /org/freedesktop/UPower/devices/battery_BAT0 > /root/battery-data
 echo "${GREEN}Done.${RESET}"
 
 echo ""
