@@ -32,140 +32,7 @@ DATE=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --hos
 TIME=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="SELECT time FROM serverstats ORDER BY date DESC LIMIT 1")
 
 tput reset
-echo "INSERT INTO jobstats(\
-	uuid, \
-	tagnumber, \
-	etheraddress, \
-	date, \
-	time, \
-	bios_vendor, \
-	bios_version, \
-	bios_date, \
-	bios_revision, \
-	bios_firmware, \
-	system_manufacturer, \
-	system_productname, \
-	system_serial, \
-	system_uuid, \
-	system_sku, \
-	system_family, \
-	motherboard_manufacturer, \
-	motherboard_serial, \
-	chassis_manufacturer, \
-	chassis_type, \
-	chassis_serial, \
-	chassis_tag, \
-	chassis_psu, \
-	cpu_family, \
-	cpu_manufacturer, \
-	cpu_id, \
-	cpu_version, \
-	cpu_voltage, \
-	cpu_maxspeed, \
-	cpu_currentspeed, \
-	cpu_cores, \
-	cpu_threads, \
-	battery_manufacturer, \
-	battery_name, \
-	battery_capacity, \
-	battery_voltage, \
-	battery_serial, \
-	battery_manufacturedate, \
-	battery_health, \
-	battery_alarm, \
-	battery_charge_cycles, \
-	boot_errors, \
-	action, \
-	clone_completed, \
-	erase_completed, \
-	disk, \
-	disksizegb, \
-	disk_model, \
-	disk_serial, \
-	disk_firmware, \
-	disk_health, \
-	disk_temp, \
-	disk_reads, \
-	disk_writes, \
-	reboot, \
-	clone_mode, \
-	clone_master, \
-	erase_mode, \
-	erase_diskpercent, \
-	clone_server, \
-	clone_sambauser, \
-	clone_image, \
-	clone_imageupdate, \
-	all_time, \
-	erase_time, \
-	clone_time) \
-	VALUES (\
-	'${UUID}', \
-	'000000', \
-	'${etherAddr}', \
-	'${DATE}', \
-	'${TIME}', \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT, \
-	DEFAULT)" | uit-tss-db
+echo "init,${UUID},000000,${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
 tput reset
 
 
@@ -180,25 +47,25 @@ function hardwareData {
 	#t22 = Battery
 	#t32 = Boot Status
 	tZeroVendor=$(dmidecode --string bios-vendor)
-		echo "UPDATE jobstats SET bios_vendor = '${tZeroVendor}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,bios_vendor,${UUID},${tZeroVendor}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroBiosVersion=$(dmidecode --string bios-version)
-		echo "UPDATE jobstats SET bios_version = '${tZeroBiosVersion}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,bios_version,${UUID},${tZeroBiosVersion}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroBiosReleaseDate=$(dmidecode --string bios-release-date)
-		echo "UPDATE jobstats SET bios_date = '${tZeroBiosReleaseDate}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,bios_date,${UUID},${tZeroBiosReleaseDate}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroBiosRevision=$(dmidecode --string bios-revision)
-		echo "UPDATE jobstats SET bios_revision = '${tZeroBiosRevision}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,bios_revision,${UUID},${tZeroBiosRevision}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroFirmwareRevision=$(dmidecode --string firmware-revision)
-		echo "UPDATE jobstats SET bios_firmware = '${tZeroFirmwareRevision}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,bios_firmware,${UUID},${tZeroFirmwareRevision}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneManufacturer=$(dmidecode --string system-manufacturer)
-		echo "UPDATE jobstats SET system_manufacturer = '${tOneManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,system_manufacturer,${UUID},${tOneManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneProductName=$(dmidecode --string system-product-name)
-		echo "UPDATE jobstats SET system_productname = '${tOneProductName}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,system_productname,${UUID},${tOneProductName}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSerialNumber=$(dmidecode --string system-serial-number)
-		echo "UPDATE jobstats SET system_serial = '${tOneSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,system_serial,${UUID},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneUUID=$(dmidecode --string system-uuid)
-		echo "UPDATE jobstats SET system_uuid = '${tOneUUID}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,system_uuid,${UUID},${tOneUUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSKU=$(dmidecode --string system-sku-number)
-		echo "UPDATE jobstats SET system_sku = '${tOneSKU}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi,system_sku,${UUID},${tOneSKU}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneFamily=$(dmidecode --string system-family)
 		echo "UPDATE jobstats SET system_family = '${tOneFamily}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
