@@ -165,6 +165,7 @@ php-mysql
 httpfs2
 nfs-common
 smartmontools
+upower
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
@@ -253,6 +254,11 @@ for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
 	smartctl -t short -a /dev/${i} > /root/smartctl-data
 done
 
+echo "${GREEN}Done.${RESET}"
+
+echo ""
+echo "${BOLD}Running battery checks....${RESET}"
+upower -i /org/freedesktop/UPower/devices/battery_BAT0 > /root/battery-data
 echo "${GREEN}Done.${RESET}"
 
 echo ""
