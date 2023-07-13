@@ -131,5 +131,23 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$conn->query($sql);
 	}
 
+	$sql = "SELECT ROUND(SUM(disk_writes), 2) AS sum_disk_writes FROM clientstats WHERE not max_tbw = 'N/A'";
+	$results = $conn->query($sql);
+	$i = $results->fetch_all(MYSQLI_ASSOC);
+	foreach($i as $key => $value) {
+		$sumDiskWrites = $value['sum_disk_writes'];
+	}
+
+	$sql = "SELECT ROUND(SUM(disk_tbw), 2) AS sum_disk_tbw FROM clientstats WHERE not max_tbw = 'N/A'";
+	$results = $conn->query($sql);
+	$i = $results->fetch_all(MYSQLI_ASSOC);
+	foreach($i as $key => $value) {
+		$sumDiskTBW = $value['sum_disk_tbw'];
+	}
+
+	$pcntTBW = $sumDiskWrites / $sumDiskTBW;
+	$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
+	$conn->query($sql);
+
 $conn->close();
 ?>

@@ -186,6 +186,22 @@ foreach ($i as $key => $value) {
         $lastUUID = $value['uuid'];
     }
 
+    # TBW
+    $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum'";
+    $results = $conn->query($sql);
+    $i = $results->fetch_all(MYSQLI_ASSOC);
+    foreach($i as $key => $value) {
+        $diskModel = $value['diskModel'];
+        if ($diskModel == "SSDPEMKF256G8 NVMe INTEL 256GB") {
+            $sql = "UPDATE clientstats SET max_tbw = '72' WHERE disk_model = '$diskModel'";
+            $conn->query($sql);
+        }
+        if ($diskModel == "MTFDHBA256TCK-1AS1AABHA") {
+            $sql = "UPDATE clientstats SET max_tbw = '75' WHERE disk_model = '$diskModel'";
+            $conn->query($sql);
+        }
+    }
+
     # Update needs_bios_update
     $sql = "UPDATE clientstats SET needs_bios_update = 'yes' WHERE tagnumber = '$tagNum' AND NOT bios_version = 'N/A' AND NOT bios_version = 'R71 Ver. 01.24.00'";
     $conn->query($sql);
@@ -197,11 +213,11 @@ foreach ($i as $key => $value) {
     $sql = "UPDATE clientstats SET all_lastuuid = '$lastUUID' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
     # Device Type
-    $sql = "SELECT clone_image FROM jobstats WHERE tagnumber = '$tagNum'";
+    $sql = "SELECT system_manufacturer FROM jobstats WHERE tagnumber = '$tagNum'";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
     foreach($i as $key => $value) {
-        $deviceType = $value['clone_image'];
+        $deviceType = $value['system_manufacturer'];
         if (preg_match('/HP/',$deviceType,$matches)) {
             $sql = "UPDATE clientstats SET device_type = 'HP' WHERE tagnumber = '$tagNum'";
             $conn->query($sql);
