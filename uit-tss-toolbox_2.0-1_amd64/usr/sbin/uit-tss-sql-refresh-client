@@ -209,9 +209,13 @@ foreach ($i as $key => $value) {
         $conn->query($sql);
     }
 
-    # Update needs_bios_update
-    $sql = "UPDATE clientstats SET needs_bios_update = 'yes' WHERE tagnumber = '$tagNum' AND NOT bios_version = 'N/A' AND NOT bios_version = 'R71 Ver. 01.24.00'";
-    $conn->query($sql);
+    #Battery Health
+    $sql = "SELECT battery_health FROM jobstats WHERE tagnumber = '$tagNum' AND not battery_health = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET battery_health = '" . $row['battery_health'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
 
     # Update last_job_date
     $sql = "UPDATE clientstats SET last_job_date = '$lastDate' WHERE tagnumber = '$tagNum'";
