@@ -187,7 +187,7 @@ foreach ($i as $key => $value) {
     }
 
     # TBW
-    $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND NOT disk_model = 'N/A'";
+    $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND NOT disk_model = 'N/A' AND NOT disk_model = ''";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
     foreach($i as $key => $value) {
