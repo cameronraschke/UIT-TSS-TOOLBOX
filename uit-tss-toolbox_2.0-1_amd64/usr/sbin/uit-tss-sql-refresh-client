@@ -187,7 +187,7 @@ foreach ($i as $key => $value) {
     }
 
     # TBW
-    $sql = "SELECT disk_model FROM jobstats WHERE NOT disk_model = 'N/A' AND NOT disk_model = '' ";
+    $sql = "SELECT disk_model FROM jobstats WHERE NOT disk_model = 'N/A' AND NOT disk_model = ''";
     $results = $conn->query($sql);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $diskModel = $row['disk_model'];
@@ -195,10 +195,10 @@ foreach ($i as $key => $value) {
             $sql = "UPDATE clientstats SET max_tbw = '72' WHERE disk_model = '$diskModel'";
             $conn->query($sql);
         }
-        if ($diskModel == "MTFDHBA256TCK-1AS1AABHA") {
-            $sql = "UPDATE clientstats SET max_tbw = '75' WHERE disk_model = '$diskModel'";
-            $conn->query($sql);
-        }
+        #if ($diskModel == "MTFDHBA256TCK-1AS1AABHA") {
+        #    $sql = "UPDATE clientstats SET max_tbw = '75' WHERE disk_model = '$diskModel'";
+        #    $conn->query($sql);
+        #}
     }
 
     #Also TBW
