@@ -24,7 +24,7 @@ $time = date('Y-m-d-His', time());
 
     $conn->query($sql);
 
-    $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time','NVME Avg. Erase Time','SSD Avg. Erase Time'
+    $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time','NVME Avg. Erase Time','SSD Avg. Erase Time'
     UNION ALL
     SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime
     FROM serverstats ORDER BY date DESC 
