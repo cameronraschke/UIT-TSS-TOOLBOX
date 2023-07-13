@@ -190,7 +190,7 @@ foreach ($i as $key => $value) {
     $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND NOT disk_model = 'N/A' AND NOT disk_model = ''";
     $results = $conn->query($sql);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-        $diskModel = $row['diskModel'];
+        $diskModel = $row['disk_model'];
         if ($diskModel == "SSDPEMKF256G8 NVMe INTEL 256GB") {
             $sql = "UPDATE clientstats SET max_tbw = '72' WHERE disk_model = '$diskModel'";
             $conn->query($sql);
