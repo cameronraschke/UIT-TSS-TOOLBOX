@@ -229,13 +229,7 @@ foreach ($i as $key => $value) {
     $i = $results->fetch_all(MYSQLI_ASSOC);
     foreach($i as $key => $value) {
         $deviceType = $value['system_manufacturer'];
-        if (preg_match('/HP/',$deviceType,$matches)) {
-            $sql = "UPDATE clientstats SET device_type = 'HP' WHERE tagnumber = '$tagNum'";
-            $conn->query($sql);
-        } else {
-            $sql = "UPDATE clientstats SET device_type = 'Dell' WHERE tagnumber = '$tagNum'";
-            $conn->query($sql);
-        }
+        $sql = "UPDATE clientstats SET device_type = '$deviceType' WHERE tagnumber = '$tagNum'";
     }
 }
 
