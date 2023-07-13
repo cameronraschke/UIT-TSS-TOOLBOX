@@ -22,21 +22,22 @@ if ($arr[0] == "init") {
 
 if ($arr[0] == "disk") {
     $sql = "UPDATE jobstats SET '".$arr[1]."' = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
+    $conn->query($sql);
 }
 
 if ($arr[0] == "battery") {
-    $col = $arr[1];
-    $uuid = $arr[2];
-    $val = $arr[3];
-    $sql = "UPDATE jobstats SET $col = $val WHERE uuid = $uuid";
+    $sql = "UPDATE jobstats SET '".$arr[1]."' = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
+    $conn->query($sql);
 }
 
 if ($arr[0] == "memory") {
     $sql = "UPDATE jobstats SET '".$arr[1]."' = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
+    $conn->query($sql);
 }
 
 if ($arr[0] == "dmi") {
     $sql = "UPDATE jobstats SET '".$arr[1]."' = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
+    $conn->query($sql);
 }
 
 
