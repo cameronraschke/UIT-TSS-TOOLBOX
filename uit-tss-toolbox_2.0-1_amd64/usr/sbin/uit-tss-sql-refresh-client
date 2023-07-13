@@ -193,11 +193,11 @@ foreach ($i as $key => $value) {
     foreach($i as $key => $value) {
         $diskModel = $value['diskModel'];
         if ($diskModel == "SSDPEMKF256G8 NVMe INTEL 256GB") {
-            $sql = "UPDATE clientstats SET max_tbw = '72' WHERE disk_model = '$diskModel'";
+            $sql = "UPDATE jobstats SET max_tbw = '72' WHERE disk_model = '$diskModel'";
             $conn->query($sql);
         }
         if ($diskModel == "MTFDHBA256TCK-1AS1AABHA") {
-            $sql = "UPDATE clientstats SET max_tbw = '75' WHERE disk_model = '$diskModel'";
+            $sql = "UPDATE jobstats SET max_tbw = '75' WHERE disk_model = '$diskModel'";
             $conn->query($sql);
         }
     }
