@@ -193,13 +193,21 @@ foreach ($i as $key => $value) {
     foreach($i as $key => $value) {
         $diskModel = $value['diskModel'];
         if ($diskModel == "SSDPEMKF256G8 NVMe INTEL 256GB") {
-            $sql = "UPDATE jobstats SET max_tbw = '72' WHERE disk_model = '$diskModel'";
+            $sql = "UPDATE clientstats SET max_tbw = '72' WHERE disk_model = '$diskModel'";
             $conn->query($sql);
         }
         if ($diskModel == "MTFDHBA256TCK-1AS1AABHA") {
-            $sql = "UPDATE jobstats SET max_tbw = '75' WHERE disk_model = '$diskModel'";
+            $sql = "UPDATE clientstats SET max_tbw = '75' WHERE disk_model = '$diskModel'";
             $conn->query($sql);
         }
+    }
+
+    #Also TBW
+    $sql = "SELECT disk_writes FROM jobstats WHERE tagnumber = '$tagNum' AND NOT disk_writes = 'N/A' AND NOT disk_writes = '' ORDER BY time DESC LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET disk_writes = '" . $row['disk_writes'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
     }
 
     # Update needs_bios_update
