@@ -146,6 +146,9 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sumDiskTBW = $value['sum_disk_tbw'];
 	}
 
+	$sumDiskTBW = preg_replace("/[^0-9]/", "", $sumDiskTBW);
+	$sumDiskWrites = preg_replace("/[^0-9]/", "", $sumDiskWrites);
+
 	$pcntTBW = $sumDiskWrites / $sumDiskTBW;
 	$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
 	$conn->query($sql);
