@@ -16,4 +16,13 @@ if ($arr[0] == "disk") {
     $sql = "UPDATE jobstats SET '".$arr[1]."' = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
 }
 
+if ($arr[0] == "battery") {
+    $sql = "UPDATE jobstats SET '".$arr[1]."' = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
+}
+
+if ($arr[0] == "memory") {
+    $sql = "UPDATE jobstats SET '".$arr[1]."' = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
+}
+
+
 ?>
