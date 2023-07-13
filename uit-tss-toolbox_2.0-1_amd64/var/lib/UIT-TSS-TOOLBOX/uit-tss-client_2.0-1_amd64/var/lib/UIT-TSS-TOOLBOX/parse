@@ -12,46 +12,8 @@ $arr = explode(',', $line);
 
 $uuid = $arr[1];
 
-if ($arr[0] == "modelnum") {
-    $modelNum = $arr[2];
-    $sql = "UPDATE jobstats SET disk_model = '$modelNum' WHERE UUID = '$uuid'";
-    $conn->query($sql);
-}
-
-if ($arr[0] == "serialnum") {
-    $serialNum = $arr[2];
-    $sql = "UPDATE jobstats SET disk_serial = '$serialNum' WHERE UUID = '$uuid'";
-    $conn->query($sql);
-}
-
-if ($arr[0] == "firmware") {
-    $firmware = $arr[2];
-    $sql = "UPDATE jobstats SET disk_firmware = '$firmware' WHERE UUID = '$uuid'";
-    $conn->query($sql);
-}
-
-if ($arr[0] == "health") {
-    $diskHealth = $arr[2];
-    $sql = "UPDATE jobstats SET disk_health = '$diskHealth' WHERE UUID = '$uuid'";
-    $conn->query($sql);
-}
-
-if ($arr[0] == "temp") {
-    $diskHealth = $arr[2];
-    $sql = "UPDATE jobstats SET disk_temp = '$diskHealth' WHERE UUID = '$uuid'";
-    $conn->query($sql);
-}
-
-if ($arr[0] == "reads") {
-    $diskReads = $arr[2];
-    $sql = "UPDATE jobstats SET disk_reads = '$diskReads' WHERE UUID = '$uuid'";
-    $conn->query($sql);
-}
-
-if ($arr[0] == "writes") {
-    $diskWrites = $arr[2];
-    $sql = "UPDATE jobstats SET disk_writes = '$diskWrites' WHERE UUID = '$uuid'";
-    $conn->query($sql);
+if ($arr[0] == "disk") {
+    $sql = "UPDATE jobstats SET '".$arr[1]."' = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
 }
 
 ?>
