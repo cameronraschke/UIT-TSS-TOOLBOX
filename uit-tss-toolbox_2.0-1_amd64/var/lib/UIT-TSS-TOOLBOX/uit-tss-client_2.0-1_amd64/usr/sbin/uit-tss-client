@@ -71,6 +71,9 @@ echo "INSERT INTO jobstats(\
 	battery_voltage, \
 	battery_serial, \
 	battery_manufacturedate, \
+	battery_health, \
+	battery_alarm, \
+	battery_charge_cycles, \
 	boot_errors, \
 	action, \
 	clone_completed, \
@@ -102,6 +105,9 @@ echo "INSERT INTO jobstats(\
 	'${etherAddr}', \
 	'${DATE}', \
 	'${TIME}', \
+	DEFAULT, \
+	DEFAULT, \
+	DEFAULT, \
 	DEFAULT, \
 	DEFAULT, \
 	DEFAULT, \
