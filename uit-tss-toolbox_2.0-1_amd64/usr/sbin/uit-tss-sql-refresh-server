@@ -132,7 +132,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 
 	#TBW
-	$sql = "SELECT disk_tbw FROM clientstats WHERE NOT max_tbw = 'N/A'";
+	$sql = "SELECT ROUND(SUM(disk_tbw), 2) FROM clientstats WHERE NOT max_tbw = 'N/A'";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	foreach($i as $key => $value) {
