@@ -35,9 +35,9 @@ foreach ($i as $key => $value) {
         $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,";
         $sql .= "all_time,all_avgtime,erase_time,erase_avgtime,clone_time,clone_avgtime,all_jobs,erase_jobs,";
         $sql .= "clone_jobs,disk,disk_tbw,max_tbw,system_productname,bios_date,bios_version,chassis_serial,";
-        $sql .= "motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate,battery_health)";
+        $sql .= "motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate,battery_health,boot_time)";
         $sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-        $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
+        $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
         $conn->query($sql);
     }
 
@@ -227,6 +227,14 @@ foreach ($i as $key => $value) {
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET battery_health = '" . $row['battery_health'] . "' WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
+    #Boot Time
+    $sql = "SELECT boot_time FROM jobstats WHERE tagnumber = '$tagNum' AND not boot_time = 'N/A' ORDER BY time desc LIMIT 1";
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_assoc()) {
+        $sql = "UPDATE clientstats SET boot_time = '" . $row['boot_time'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
 
