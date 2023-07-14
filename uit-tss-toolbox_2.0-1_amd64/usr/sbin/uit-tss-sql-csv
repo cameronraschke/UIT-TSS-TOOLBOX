@@ -24,9 +24,9 @@ $time = date('Y-m-d-His', time());
 
     $conn->query($sql);
 
-    $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time','NVME Avg. Erase Time','SSD Avg. Erase Time','Average TBW Percent (100% is bad)'
+    $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time','NVME Avg. Erase Time','SSD Avg. Erase Time','Average Disk Wear Percent (100% is bad)','Average Boot Time'
     UNION ALL
-    SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt
+    SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,boot_time
     FROM serverstats ORDER BY date DESC 
     INTO OUTFILE '/tmp/laptop-report-server-".$time.".csv'
     FIELDS TERMINATED BY ','
@@ -37,9 +37,9 @@ $time = date('Y-m-d-His', time());
 
     $sql = "SELECT 'Tag Number','Chassis Serial Number','Device Manufacturer','Device Model','Last Job Date',";
     $sql .= "'Average Time for All Operations','Average Time to Erase','Average Time to Clone','Total Jobs (Erase and Clone Jobs)','Total Erase Jobs',";
-    $sql .= "'Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date','Battery Health (Current Max Charge %)','TBW (Terabytes Written)','Max TBW'";
+    $sql .= "'Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date','Battery Health (Current Max Charge %)','TBW (Terabytes Written)','Max TBW', 'Average Boot Time'";
     $sql .= "UNION ALL
-    SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,battery_manufacturedate,battery_health,disk_tbw,max_tbw
+    SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,battery_manufacturedate,battery_health,disk_tbw,max_tbw,boot_time
     FROM clientstats ORDER BY 'last_job_date' DESC 
     INTO OUTFILE '/tmp/laptop-report-client-".$time.".csv'
     FIELDS TERMINATED BY ','
