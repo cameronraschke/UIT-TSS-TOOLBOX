@@ -41,7 +41,7 @@ if ($arr[0] == "init") {
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $serialNum = $row['chassis_serial'];
-        $myfile = fopen("/tmp/systemserial.uit", "w") or die("Unable to open file!");
+        $myfile = fopen("/tmp/systemserial.uit", "w");
         fwrite($myfile, $serialNum);
         fclose($myfile);
     }
