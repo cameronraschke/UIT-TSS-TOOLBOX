@@ -39,8 +39,9 @@ if ($arr[0] == "init") {
 } elseif ($arr[0] == "checktag") {
     $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '" . $arr[1] . "'AND NOT chassis_serial = 'N/A' AND NOT chassis_serial = '' LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_assoc()) {
-        $serialNum = $row['chassis_serial'];
+    $i = $results->fetch_all(MYSQLI_ASSOC);
+    foreach ($i as $key => $value) {
+        $serialNum = $value['chassis_serial'];
         $myfile = fopen("/tmp/systemserial.uit", "w");
         fwrite($myfile, $serialNum);
         fclose($myfile);
