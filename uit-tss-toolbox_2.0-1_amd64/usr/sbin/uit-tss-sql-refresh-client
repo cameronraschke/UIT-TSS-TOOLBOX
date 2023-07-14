@@ -17,7 +17,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
     $sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
 }
 
-echo "Updating laptop: '" . $tag_txt . "' in SQL database" . PHP_EOL;
+
 if (isset($sql)) {
 $results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
@@ -25,7 +25,6 @@ foreach ($i as $key => $value) {
     unset($tagNum);
     global $tagNum;
     $tagNum = $value['tagnumber'];
-    $tagNum = $row['tagnumber'];
     echo "Working on laptop: " . $tagNum . PHP_EOL;
 
     $sql = "SELECT tagnumber FROM clientstats WHERE tagnumber = '$tagNum'";
