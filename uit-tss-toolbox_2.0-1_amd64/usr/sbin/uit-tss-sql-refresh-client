@@ -246,6 +246,7 @@ foreach ($i as $key => $value) {
         $sql = "UPDATE clientstats SET device_type = '$deviceType' WHERE tagnumber = '$tagNum'";
     }
 }
+}
 
 $conn->close();
 ?>
