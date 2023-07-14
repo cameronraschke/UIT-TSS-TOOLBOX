@@ -141,8 +141,12 @@ function hardwareData {
 		echo "battery,battery_charge_cycles,${UUID},${batChargeCycles}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Memory Data
-	memSerial=$(dmidecode --type memory | grep 'Serial Number' | sed 's/[[:space:]]+Serial Number: //g')
-	echo "memory,ram_serial,${UUID},${memSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	memSerial=$(dmidecode --type memory | grep Serial | sed 's/Serial Number: //g' | sed 's/[[:space:]]//g' | perl -p -e 's/\n/ /')
+		echo "memory,ram_serial,${UUID},${memSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	###Boot Times
+	bootTime=$(systemd-analyze | grep -oP '[0-9]+[0-9.]*(min|s)*' | head -n 1)
+		echo "boot,boot_time,${UUID},${bootTime}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 

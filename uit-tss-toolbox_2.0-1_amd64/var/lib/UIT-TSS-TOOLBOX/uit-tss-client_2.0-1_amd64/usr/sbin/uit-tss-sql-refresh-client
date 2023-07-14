@@ -23,9 +23,9 @@ foreach ($i as $key => $value) {
     if ($exists == "0") {
         $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,all_time,all_avgtime,";
         $sql .= "erase_time,erase_avgtime,clone_time,clone_avgtime,all_jobs,erase_jobs,clone_jobs,disk,";
-        $sql .= "system_productname,bios_date,bios_version,chassis_serial,motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate)";
+        $sql .= "system_productname,bios_date,bios_version,chassis_serial,motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate,boot_time)";
         $sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-        $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
+        $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
         $conn->query($sql);
     }
 
@@ -206,6 +206,16 @@ foreach ($i as $key => $value) {
         $sql = "UPDATE clientstats SET battery_manufacturedate = '" . $row['battery_manufacturedate'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
+
+    #Update boot_time
+    $sql = "SELECT ROUND(SUM(boot_time), 2) FROM jobstats WHERE tagnumber = '$tagNum' AND not boot_time = 'N/A'";
+    $results = $conn->query($sql);
+    $lineNums = mysqli_num_rows($results);
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+        $sql = "UPDATE clientstats SET boot_time = ROUND('" . $row['boot_time'] . "' / '" . $lineNums . "', 0) WHERE tagnumber = '$tagNum'";
+        $conn->query($sql);
+    }
+
 }
 } else {
     echo "Cannot update this computer in the SQL database." . PHP_EOL;
