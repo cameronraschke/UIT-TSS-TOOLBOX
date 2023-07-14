@@ -20,11 +20,12 @@ foreach ($i as $key => $value) {
     $exists = mysqli_num_rows($results);
     if ($exists == "0") {
         echo "Inserting laptop: " . $tagNum . PHP_EOL;
-        $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,all_time,all_avgtime,";
-        $sql .= "erase_time,erase_avgtime,clone_time,clone_avgtime,all_jobs,erase_jobs,clone_jobs,disk,";
-        $sql .= "system_productname,bios_date,bios_version,chassis_serial,motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate)";
+        $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,";
+        $sql .= "all_time,all_avgtime,erase_time,erase_avgtime,clone_time,clone_avgtime,all_jobs,erase_jobs,";
+        $sql .= "clone_jobs,disk,disk_tbw,max_tbw,system_productname,bios_date,bios_version,chassis_serial,";
+        $sql .= "motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate,battery_health)";
         $sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-        $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
+        $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
         $conn->query($sql);
     }
 
