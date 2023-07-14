@@ -5,10 +5,21 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
-##### clientstats #####
-$sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
-$results = $conn->query($sql);
-$i = $results->fetch_all(MYSQLI_ASSOC);
+$stdin = fopen('php://stdin', 'r');
+$line = trim(fgets(STDIN));
+fclose($STDOUT);
+
+
+if (preg_match("/[0-9]{6}/", $line)) {
+    $sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '$line'";
+    $results = $conn->query($sql);
+    $i = $results->fetch_assoc();
+} else {
+    $sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
+    $results = $conn->query($sql);
+    $i = $results->fetch_assoc();
+}
+
 foreach ($i as $key => $value) {
     unset($tagNum);
     global $tagNum;
@@ -31,8 +42,8 @@ foreach ($i as $key => $value) {
 
     #Update disks
     $sql = "SELECT disk FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time desc LIMIT 1";
-    $disks = $conn->query($sql);
-    while ($row = $disks->fetch_array(MYSQLI_ASSOC)) {
+    $results = $conn->query($sql);
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET disk = '" . $row['disk'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -40,7 +51,7 @@ foreach ($i as $key => $value) {
     #Update bios_date
     $sql = "SELECT bios_date FROM jobstats WHERE tagnumber = '$tagNum' AND not bios_date = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET bios_date = '" . $row['bios_date'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -48,7 +59,7 @@ foreach ($i as $key => $value) {
     #Update bios_version
     $sql = "SELECT bios_version FROM jobstats WHERE tagnumber = '$tagNum' AND not bios_version = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET bios_version = '" . $row['bios_version'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -56,7 +67,7 @@ foreach ($i as $key => $value) {
     #Update system_productname
     $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum' AND not system_productname = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET system_productname = '" . $row['system_productname'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -64,7 +75,7 @@ foreach ($i as $key => $value) {
     #Update motherboard_serial
     $sql = "SELECT motherboard_serial FROM jobstats WHERE tagnumber = '$tagNum' AND not motherboard_serial = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET motherboard_serial = '" . $row['motherboard_serial'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -72,7 +83,7 @@ foreach ($i as $key => $value) {
     #Update chassis_serial and system_serial
     $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND not system_serial = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET chassis_serial = '" . $row['system_serial'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -80,7 +91,7 @@ foreach ($i as $key => $value) {
     #Update cpu_version
     $sql = "SELECT cpu_version FROM jobstats WHERE tagnumber = '$tagNum' AND not cpu_version = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET cpu_version = '" . $row['cpu_version'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -88,7 +99,7 @@ foreach ($i as $key => $value) {
     #Update cpu_cores
     $sql = "SELECT cpu_cores FROM jobstats WHERE tagnumber = '$tagNum' AND not cpu_cores = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET cpu_cores = '" . $row['cpu_cores'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -96,7 +107,7 @@ foreach ($i as $key => $value) {
     #Update battery_manufacturedate
     $sql = "SELECT battery_manufacturedate FROM jobstats WHERE tagnumber = '$tagNum' AND not battery_manufacturedate = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET battery_manufacturedate = '" . $row['battery_manufacturedate'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -190,7 +201,7 @@ foreach ($i as $key => $value) {
     # TBW
     $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND NOT disk_model = 'N/A' AND NOT disk_model = ''";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $diskModel = $row['disk_model'];
         if ($diskModel == "SSDPEMKF256G8 NVMe INTEL 256GB") {
             $sql = "UPDATE clientstats SET max_tbw = '72' WHERE tagnumber = '$tagNum'";
@@ -205,7 +216,7 @@ foreach ($i as $key => $value) {
     #Also TBW
     $sql = "SELECT disk_writes FROM jobstats WHERE tagnumber = '$tagNum' AND NOT disk_writes = 'N/A' AND NOT disk_writes = '' ORDER BY time DESC LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET disk_tbw = '" . $row['disk_writes'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -213,7 +224,7 @@ foreach ($i as $key => $value) {
     #Battery Health
     $sql = "SELECT battery_health FROM jobstats WHERE tagnumber = '$tagNum' AND not battery_health = 'N/A' ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+    while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET battery_health = '" . $row['battery_health'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }

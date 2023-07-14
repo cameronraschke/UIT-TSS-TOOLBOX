@@ -7,6 +7,7 @@ $time = date('Y-m-d H:i:s', time());
 
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
+fclose($STDOUT);
 
 $arr = explode(',', $line);
 
