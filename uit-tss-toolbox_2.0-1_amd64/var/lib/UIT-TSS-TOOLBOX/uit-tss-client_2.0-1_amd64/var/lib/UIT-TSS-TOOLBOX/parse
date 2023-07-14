@@ -37,8 +37,8 @@ if ($arr[0] == "init") {
 } elseif ($arr[0] == "update") {
     system("ssh cameron@mickey.uit 'echo $arr[1] | uit-tss-sql-refresh-client'", $return);
 } elseif ($arr[0] == "checktag") {
-    $tagNum = $arr[1];
-    $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum' AND NOT tagnumber = '111111' AND NOT chassis_serial = 'N/A' AND NOT chassis_serial = NULL LIMIT 1";
+    $systemSerial = $arr[1];
+    $sql = "SELECT tagnumber FROM clientstats WHERE chassis_serial = '$systemSerial' AND NOT tagnumber = '111111' AND NOT chassis_serial = 'N/A' AND NOT chassis_serial = NULL LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $serialNum = $row['chassis_serial'];
