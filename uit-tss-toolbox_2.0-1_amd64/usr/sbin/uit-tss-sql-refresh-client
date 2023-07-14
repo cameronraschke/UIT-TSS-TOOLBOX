@@ -19,7 +19,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
     $results = $conn->query($sql);
 }
 
-while ($row = $results->fetch_assoc()) {
+while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC);) {
     $tagNum = $row['tagnumber'];
     echo "Working on laptop: " . $tagNum . PHP_EOL;
 
