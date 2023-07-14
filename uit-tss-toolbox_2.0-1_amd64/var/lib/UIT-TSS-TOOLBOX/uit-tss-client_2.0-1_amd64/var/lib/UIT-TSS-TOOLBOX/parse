@@ -34,6 +34,8 @@ if ($arr[0] == "init") {
 } elseif ($arr[0] == "boot") {
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
     $conn->query($sql);
+} elseif ($arr[0] == "update") {
+    system("echo $arr[1] | uit-tss-sql-refresh-client", $return);
 }
 
 

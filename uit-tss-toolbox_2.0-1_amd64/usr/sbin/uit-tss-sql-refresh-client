@@ -231,7 +231,7 @@ foreach ($i as $key => $value) {
     }
 
     #Update boot_time
-    $sql = "SELECT ROUND(SUM(boot_time), 2) FROM jobstats WHERE tagnumber = '$tagNum' AND not boot_time = 'N/A'";
+    $sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM jobstats WHERE tagnumber = '$tagNum' AND not boot_time = 'N/A'";
     $results = $conn->query($sql);
     $lineNums = mysqli_num_rows($results);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
