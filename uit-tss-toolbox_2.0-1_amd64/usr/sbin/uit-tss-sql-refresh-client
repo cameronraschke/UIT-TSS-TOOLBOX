@@ -13,13 +13,18 @@ global $tagNum;
 
 if (preg_match("/[0-9]{6}/", $line)) {
     $sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '$line'";
-    $results = $conn->query($sql);
 } else {
     $sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
-    $results = $conn->query($sql);
 }
 
-while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+echo "Updating laptop: '" . $tag_txt . "' in SQL database" . PHP_EOL;
+if (isset($sql)) {
+$results = $conn->query($sql);
+$i = $results->fetch_all(MYSQLI_ASSOC);
+foreach ($i as $key => $value) {
+    unset($tagNum);
+    global $tagNum;
+    $tagNum = $value['tagnumber'];
     $tagNum = $row['tagnumber'];
     echo "Working on laptop: " . $tagNum . PHP_EOL;
 
