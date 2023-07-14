@@ -155,6 +155,13 @@ function enterTag {
 	local regex="^[[:digit:]]{6}$"
 	tput reset
 	echo ""
+
+	echo "checktag,$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
+	while read line; do
+  		if [[ $line =~ $regex ]]; then
+			$tagNum = $line
+		fi
+	done < /tmp/systemserial.uit
 	
 	while true; do
 	if [[ $tagNum =~ $regex ]]; then
