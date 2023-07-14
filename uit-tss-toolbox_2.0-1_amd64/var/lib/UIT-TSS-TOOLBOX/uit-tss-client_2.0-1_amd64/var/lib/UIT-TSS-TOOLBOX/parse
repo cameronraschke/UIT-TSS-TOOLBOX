@@ -35,7 +35,7 @@ if ($arr[0] == "init") {
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
     $conn->query($sql);
 } elseif ($arr[0] == "update") {
-    system("echo $arr[1] | uit-tss-sql-refresh-client", $return);
+    system("ssh cameron@mickey.uit 'echo $arr[1] | uit-tss-sql-refresh-client'", $return);
 }
 
 
