@@ -157,12 +157,11 @@ function enterTag {
 	echo ""
 
 	echo "checktag,$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
-	sleep 1
 	while read line; do
-  		if [[ $line =~ $regex ]]; then
+		if [[ $line =~ $regex ]]; then
 			$tagNum = $line
 		fi
-	done < /tmp/systemserial.uit
+	done < <$(cat /tmp/tagnumber.uit)
 	
 	while true; do
 	if [[ $tagNum =~ $regex ]]; then
