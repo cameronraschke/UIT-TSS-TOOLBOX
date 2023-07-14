@@ -38,6 +38,7 @@ if ($arr[0] == "init") {
     system("ssh cameron@mickey.uit 'echo $arr[1] | uit-tss-sql-refresh-client'", $return);
 } elseif ($arr[0] == "checktag") {
     $sql = "SELECT system_serial FROM clientstats WHERE tagnumber = '" . $arr[1] . "'AND NOT system_serial = 'N/A' AND NOT system_serial = '' ORDER BY time DESC LIMIT 1";
+    $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $serialNum = $row['system_serial'];
         $myfile = fopen("/tmp/systemserial.uit", "w") or die("Unable to open file!");
