@@ -13,14 +13,14 @@ fclose($stdin);
 if (preg_match("/[0-9]{6}/", $line)) {
     $sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '$line'";
     $results = $conn->query($sql);
-    $i = $results->fetch_assoc();
+    $results = $results->fetch_assoc();
 } else {
     $sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
     $results = $conn->query($sql);
-    $i = $results->fetch_assoc();
+    $results = $results->fetch_assoc();
 }
 
-foreach ($i as $key => $value) {
+while ($row = $results->fetch_assoc()) {
     unset($tagNum);
     global $tagNum;
     $tagNum = $value['tagnumber'];
