@@ -9,7 +9,6 @@ $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
 fclose($stdin);
 
-unset($tagNum);
 global $tagNum;
 
 if (preg_match("/[0-9]{6}/", $line)) {
