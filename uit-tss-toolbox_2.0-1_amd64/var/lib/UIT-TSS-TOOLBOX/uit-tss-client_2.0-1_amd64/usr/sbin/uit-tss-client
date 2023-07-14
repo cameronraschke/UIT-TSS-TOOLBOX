@@ -157,7 +157,7 @@ function enterTag {
 	echo ""
 
 	echo "checktag,$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
-	$tagNum=$(cat /tmp/tagnumber.uit)
+	tagNum=$(cat /tmp/tagnumber.uit)
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
@@ -171,7 +171,6 @@ function enterTag {
 		/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
 		echo "begin,${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 	fi
-	done
 }
 
 
@@ -197,7 +196,8 @@ function info {
 function exitMessage {
 	lines=$(tput lines)
 	tput reset
-	tput cup $(( lines - 5 ))
+	tput cup $(( lines - 6 ))
+	echo "Tagnumber: ${tagNum}, System Serial Number: ${tOneSerialNumber}"
 	echo "${DIM}Press ${BOLD}${BLUE}CTRL + C${RESET}${DIM} at any time to exit UIT-TSS-TOOLBOX${RESET}"
 	echo "${DIM}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BOLD}${BLUE}CTRL + D${RESET}"
 	echo ""
