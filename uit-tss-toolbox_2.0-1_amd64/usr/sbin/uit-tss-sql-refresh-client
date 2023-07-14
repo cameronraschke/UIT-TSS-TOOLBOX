@@ -18,6 +18,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
 }
 
 
+
 if (isset($sql)) {
 $results = $conn->query($sql);
 $i = $results->fetch_all(MYSQLI_ASSOC);
