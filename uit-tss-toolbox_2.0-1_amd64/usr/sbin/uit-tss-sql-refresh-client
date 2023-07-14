@@ -13,11 +13,9 @@ fclose($stdin);
 if (preg_match("/[0-9]{6}/", $line)) {
     $sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '$line'";
     $results = $conn->query($sql);
-    $results = $results->fetch_assoc();
 } else {
     $sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
     $results = $conn->query($sql);
-    $results = $results->fetch_assoc();
 }
 
 while ($row = $results->fetch_assoc()) {
