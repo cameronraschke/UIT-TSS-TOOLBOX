@@ -1,9 +1,9 @@
 #!/bin/bash
 
-/usr/bin/chmod 700 /usr/sbin/uit-tss-*
-/usr/bin/chown root:root /usr/sbin/uit-tss-*
-/usr/bin/chmod 700 /var/lib/UIT-TSS-TOOLBOX/ -R
-/usr/bin/chown root:root /var/lib/UIT-TSS-TOOLBOX/ -R
+/usr/bin/chmod 750 /usr/sbin/uit-tss-*
+/usr/bin/chown root:uit /usr/sbin/uit-tss-*
+/usr/bin/chmod 750 /var/lib/UIT-TSS-TOOLBOX/ -R
+/usr/bin/chown root:uit /var/lib/UIT-TSS-TOOLBOX/ -R
 echo -e "\n" >> /etc/cron.d/01-uit-tss-cronjobs
 echo -e "\n" >> /etc/cron.d/02-uit-tss-cronjobs
 echo -e "\n" >> /etc/cron.d/03-uit-tss-cronjobs
