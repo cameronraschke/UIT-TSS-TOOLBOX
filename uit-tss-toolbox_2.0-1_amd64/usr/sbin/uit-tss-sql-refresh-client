@@ -26,6 +26,11 @@ if (preg_match("/[0-9]{6}/", $line)) {
 
 $stmt->execute();
 $results = $stmt->get_result();
+$arr = array();
+while ($row = mysqli_fetch_array($results)) {
+    $arr = $row;
+}
+
 if (isset($sql)) {
 foreach ($results as $row) {
     unset($tagNum);
@@ -47,9 +52,7 @@ foreach ($results as $row) {
     }
 
     #Update disks
-    $sql = "SELECT disk FROM jobstats WHERE tagnumber = ? ORDER BY time desc LIMIT 1";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $tagNum);
+    $stmt = $conn->prepare("SELECT disk FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time desc LIMIT 1");
     $stmt->execute();
     $results = $stmt->get_result();
     while ($row = $results->fetch_assoc()) {
