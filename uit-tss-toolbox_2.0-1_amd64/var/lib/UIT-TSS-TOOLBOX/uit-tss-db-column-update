@@ -25,4 +25,5 @@ $conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN bios_firmware VARCHAR(8) DEFAULT NULL";
 $conn->query($sql);
 
+$conn->close();
 ?>
