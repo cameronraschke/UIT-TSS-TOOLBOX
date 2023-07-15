@@ -61,7 +61,7 @@ $sql = "ALTER TABLE jobstats MODIFY COLUMN cpu_version VARCHAR(64) DEFAULT NULL"
 $conn->query($sql);
 
 
-$sql = "ALTER TABLE serverstats MODIFY COLUMN date DATE DEFAULT NULL";
+$sql = "ALTER TABLE serverstats MODIFY COLUMN date DATE";
 $conn->query($sql);
 $sql = "ALTER TABLE serverstats MODIFY COLUMN time DATETIME DEFAULT NULL";
 $conn->query($sql);
