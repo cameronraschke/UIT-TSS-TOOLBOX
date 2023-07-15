@@ -83,7 +83,7 @@ $sql = "ALTER TABLE serverstats MODIFY COLUMN nvme_erase_avgtime SMALLINT DEFAUL
 $conn->query($sql);
 $sql = "ALTER TABLE serverstats MODIFY COLUMN ssd_erase_avgtime SMALLINT DEFAULT NULL";
 $conn->query($sql);
-$sql = "ALTER TABLE serverstats MODIFY COLUMN tbw_percent TINYINT DEFAULT NULL";
+$sql = "ALTER TABLE serverstats MODIFY COLUMN tbw_pcnt TINYINT DEFAULT NULL";
 $conn->query($sql);
 $sql = "ALTER TABLE serverstats MODIFY COLUMN battery_health TINYINT DEFAULT NULL";
 $conn->query($sql);
