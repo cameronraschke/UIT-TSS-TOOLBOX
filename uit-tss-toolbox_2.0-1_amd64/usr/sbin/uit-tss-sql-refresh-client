@@ -29,7 +29,7 @@ $results = $stmt->get_result();
 if (isset($sql)) {
 foreach ($results as $row) {
     unset($tagNum);
-    $tagNum = $value['tagnumber'];
+    $tagNum = $row['tagnumber'];
     echo "Working on laptop: " . $tagNum . PHP_EOL;
 
     $sql = "SELECT tagnumber FROM clientstats WHERE tagnumber = '$tagNum'";
