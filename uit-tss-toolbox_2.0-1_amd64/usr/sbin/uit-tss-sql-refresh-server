@@ -45,7 +45,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$cloneAvgTime = $cloneAvgTime + $value['clone_avgtime'];
 	}
 	if ($totalCloneLineCount >= 1) {
-		$avgTimeMin = round($cloneAvgTime / $totalCloneLineCount) . " minutes";
+		$avgTimeMin = round($cloneAvgTime / $totalCloneLineCount);
 		$sql = "UPDATE serverstats SET clone_avgtime = '$avgTimeMin' WHERE date = '$date'";
 		$conn->query($sql);
 	}
@@ -63,7 +63,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 	if ($nvmeEraseLineCount >= 1) {
 		$avgTimeSec = round($nvmeEraseAvgTime / $nvmeEraseLineCount);
-		$avgTimeMin = round($avgTimeSec) . " minutes";
+		$avgTimeMin = round($avgTimeSec);
 		$sql = "UPDATE serverstats SET nvme_erase_avgtime = '$avgTimeMin' WHERE date = '$date'";
 		$conn->query($sql);
 	}
@@ -81,7 +81,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 	if ($ssdEraseLineCount >= 1) {
 		$avgTimeSec = round($ssdEraseAvgTime / $ssdEraseLineCount);
-		$avgTimeMin = round($avgTimeSec) . " minutes";
+		$avgTimeMin = round($avgTimeSec);
 		$sql = "UPDATE serverstats SET ssd_erase_avgtime = '$avgTimeMin' WHERE date = '$date'";
 		$conn->query($sql);
 	}

@@ -61,5 +61,35 @@ $sql = "ALTER TABLE jobstats MODIFY COLUMN cpu_version VARCHAR(64) DEFAULT NULL"
 $conn->query($sql);
 
 
+$sql = "ALTER TABLE serverstats MODIFY COLUMN date DATE DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN time DATETIME DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN laptop_count SMALLINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN last_image_update DATE DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN all_jobs MEDIUMINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN clone_jobs MEDIUMINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN erase_jobs MEDIUMINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN all_avgtime MEDIUMINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN clone_avgtime SMALLINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN nvme_erase_avgtime SMALLINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN ssd_erase_avgtime SMALLINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN tbw_percent TINYINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN battery_health TINYINT DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE serverstats MODIFY COLUMN boot_time SMALLINT DEFAULT NULL";
+$conn->query($sql);
+
+
 $conn->close();
 ?>
