@@ -12,22 +12,22 @@ fclose($stdin);
 global $tagNum;
 
 if (preg_match("/[0-9]{6}/", $line)) {
-    $sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '$line'";
+    $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $line);
 } else {
     $tagNumPlaceholder = "000000";
     $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $tagNumPlaceholder);
-
 }
 
 
 
-if (isset($sql)) {
 $stmt->execute();
 $results = $stmt->get_result();
-while ($row = $results->fetch_assoc()) {
-    $tagNum = $row['tagnumber'];
+if (isset($sql)) {
+foreach ($results as $row) {
     unset($tagNum);
     global $tagNum;
     $tagNum = $value['tagnumber'];
