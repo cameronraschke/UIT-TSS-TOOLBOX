@@ -29,7 +29,6 @@ $results = $stmt->get_result();
 if (isset($sql)) {
 foreach ($results as $row) {
     unset($tagNum);
-    global $tagNum;
     $tagNum = $value['tagnumber'];
     echo "Working on laptop: " . $tagNum . PHP_EOL;
 
