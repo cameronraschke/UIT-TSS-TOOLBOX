@@ -3,6 +3,9 @@
 include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 
 $sql = "UPDATE jobstats SET uuid = NULL WHERE uuid = 'N/A'";
+$conn->query($sql);
+$sql = "UPDATE jobstats SET uuid = NULL WHERE uuid = ''";
+$conn->query($sql);
 
 $sql = "ALTER TABLE jobstats MODIFY COLUMN uuid VARCHAR(36) DEFAULT NULL";
 $conn->query($sql);
@@ -37,6 +40,8 @@ $conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN system_family VARCHAR(64) DEFAULT NULL";
 $conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN motherboard_manufacturer VARCHAR(36) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN motherboard_serial VARCHAR(36) DEFAULT NULL";
 $conn->query($sql);
 
 
