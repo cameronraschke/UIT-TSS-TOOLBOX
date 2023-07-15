@@ -7,7 +7,7 @@ $conn->query($sql);
 $sql = "UPDATE jobstats SET uuid = NULL WHERE uuid = ''";
 $conn->query($sql);
 
-$sql = "ALTER TABLE jobstats MODIFY COLUMN uuid VARCHAR(36) DEFAULT NULL";
+$sql = "ALTER TABLE jobstats MODIFY COLUMN uuid VARCHAR(36) NOT NULL";
 $conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN tagnumber VARCHAR(6) DEFAULT NULL";
 $conn->query($sql);
