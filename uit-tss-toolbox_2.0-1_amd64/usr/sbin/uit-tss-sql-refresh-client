@@ -25,9 +25,8 @@ if (preg_match("/[0-9]{6}/", $line)) {
 
 if (isset($sql)) {
 $stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-while ($row = $row->fetch_assoc()) {
+$results = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
     $tagNum = $row['tagnumber'];
     $myfile = fopen("/tmp/tagnumber.uit", "w");
     fwrite($myfile, $tagNum);
