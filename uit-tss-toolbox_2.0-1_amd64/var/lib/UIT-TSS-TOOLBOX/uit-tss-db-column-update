@@ -2,6 +2,8 @@
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 
+$sql = "UPDATE jobstats SET uuid = NULL WHERE uuid = 'N/A'";
+
 $sql = "ALTER TABLE jobstats MODIFY COLUMN uuid VARCHAR(36) DEFAULT NULL";
 $conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN tagnumber VARCHAR(6) DEFAULT NULL";
@@ -22,8 +24,21 @@ $sql = "ALTER TABLE jobstats MODIFY COLUMN bios_revision VARCHAR(8) DEFAULT NULL
 $conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN bios_firmware VARCHAR(16) DEFAULT NULL";
 $conn->query($sql);
-$sql = "ALTER TABLE jobstats MODIFY COLUMN bios_firmware VARCHAR(8) DEFAULT NULL";
+$sql = "ALTER TABLE jobstats MODIFY COLUMN system_manufacturer VARCHAR(36) DEFAULT NULL";
 $conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN system_productname VARCHAR(36) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN system_serial VARCHAR(36) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN system_uuid VARCHAR(36) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN system_sku VARCHAR(36) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN system_family VARCHAR(64) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN motherboard_manufacturer VARCHAR(36) DEFAULT NULL";
+$conn->query($sql);
+
 
 $conn->close();
 ?>
