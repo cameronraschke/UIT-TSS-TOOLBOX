@@ -28,9 +28,6 @@ $stmt->execute();
 $results = $stmt->get_result();
 while ($row = $results->fetch_assoc()) {
     $tagNum = $row['tagnumber'];
-    $myfile = fopen("/tmp/tagnumber.uit", "w");
-    fwrite($myfile, $tagNum);
-    fclose($myfile);
     unset($tagNum);
     global $tagNum;
     $tagNum = $value['tagnumber'];
