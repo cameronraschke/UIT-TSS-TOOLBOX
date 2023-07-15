@@ -157,7 +157,7 @@ function enterTag {
 	echo ""
 
 	echo "checktag,$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tagNum=$(cat /tmp/tagnumber.uit)
+	tagNum=$(cat /tmp/tagnumber.uit &>/dev/null)
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber

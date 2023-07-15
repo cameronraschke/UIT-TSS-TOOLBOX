@@ -14,15 +14,24 @@ global $tagNum;
 if (preg_match("/[0-9]{6}/", $line)) {
     $sql = "SELECT tagnumber FROM jobstats WHERE tagnumber = '$line'";
 } else {
-    $sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000'";
+    $tagNumPlaceholder = "000000";
+    $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $tagNumPlaceholder);
+
 }
 
 
 
 if (isset($sql)) {
-$results = $conn->query($sql);
-$i = $results->fetch_all(MYSQLI_ASSOC);
-foreach ($i as $key => $value) {
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+while ($row = $row->fetch_assoc()) {
+    $tagNum = $row['tagnumber'];
+    $myfile = fopen("/tmp/tagnumber.uit", "w");
+    fwrite($myfile, $tagNum);
+    fclose($myfile);
     unset($tagNum);
     global $tagNum;
     $tagNum = $value['tagnumber'];
