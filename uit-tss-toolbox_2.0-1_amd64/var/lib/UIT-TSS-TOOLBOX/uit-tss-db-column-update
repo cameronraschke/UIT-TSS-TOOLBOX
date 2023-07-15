@@ -43,6 +43,22 @@ $sql = "ALTER TABLE jobstats MODIFY COLUMN motherboard_manufacturer VARCHAR(36) 
 $conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN motherboard_serial VARCHAR(36) DEFAULT NULL";
 $conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN chassis_manufacturer VARCHAR(36) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN chassis_type VARCHAR(16) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN chassis_serial VARCHAR(16) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN chassis_tag VARCHAR(16) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN chassis_psu VARCHAR(16) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN cpu_family VARCHAR(16) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN cpu_manufacturer VARCHAR(36) DEFAULT NULL";
+$conn->query($sql);
+$sql = "ALTER TABLE jobstats MODIFY COLUMN cpu_version VARCHAR(64) DEFAULT NULL";
+$conn->query($sql);
 
 
 $conn->close();
