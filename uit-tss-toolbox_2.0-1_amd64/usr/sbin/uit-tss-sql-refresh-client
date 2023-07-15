@@ -48,8 +48,11 @@ foreach ($results as $row) {
     }
 
     #Update disks
-    $sql = "SELECT disk FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time desc LIMIT 1";
-    $results = $conn->query($sql);
+    $sql = "SELECT disk FROM jobstats WHERE tagnumber = ? ORDER BY time desc LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $tagNum);
+    $stmt->execute();
+    $results = $stmt->get_result();
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET disk = '" . $row['disk'] . "' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
