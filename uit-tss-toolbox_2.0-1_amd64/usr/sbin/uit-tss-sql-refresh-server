@@ -71,18 +71,12 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	# Update ssd_erase_avgtime
 	$sql = "SELECT erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0' AND disk LIKE 'sd%'";
 	$results = $conn->query($sql);
-	$ssdEraseLineCount = mysqli_num_rows($results);
+	$linecount = mysqli_num_rows($results);
 	$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS ssd_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0' AND disk LIKE 'sd%'";
 	$results = $conn->query($sql);
-	$i = $results->fetch_all(MYSQLI_ASSOC);
-	$ssdEraseAvgTime = 0;
-	foreach($i as $key => $value) {
-		$ssdEraseAvgTime = $ssdEraseAvgTime + $value['ssd_erase_avgtime'];
-	}
-	if ($ssdEraseLineCount >= 1) {
-		$avgTimeSec = round($ssdEraseAvgTime / $ssdEraseLineCount);
-		$avgTimeMin = round($avgTimeSec);
-		$sql = "UPDATE serverstats SET ssd_erase_avgtime = '$avgTimeMin' WHERE date = '$date'";
+	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+		$sum = $row['ssd_erase_avgtime'];
+		$sql = "UPDATE serverstats SET ssd_erase_avgtime = '$sum' / '$linecount' WHERE date = '$date'";
 		$conn->query($sql);
 	}
 
