@@ -69,7 +69,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 
 	# Update ssd_erase_avgtime
-	$sql = "SELECT erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'sd%'";
+	$sql = "SELECT erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0' AND disk LIKE 'sd%'";
 	$results = $conn->query($sql);
 	$ssdEraseLineCount = mysqli_num_rows($results);
 	$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS ssd_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'sd%'";
