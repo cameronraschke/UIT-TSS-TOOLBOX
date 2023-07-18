@@ -12,20 +12,17 @@ fclose($stdin);
 global $tagNum;
 
 if (preg_match("/[0-9]{6}/", $line)) {
-    $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $line);
+    $sql = "SELECT * FROM jobstats WHERE tagnumber = ?";
+    $results = $conn->query($sql);
 } else {
     $tagNumPlaceholder = "000000";
     $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $tagNumPlaceholder);
+    $results = $conn->query($sql);
 }
 
 
 
-$stmt->execute();
-$results = $stmt->get_result();
+$results = $conn->query($sql);
 $arr = array();
 while ($row = mysqli_fetch_array($results)) {
     $arr = $row;
