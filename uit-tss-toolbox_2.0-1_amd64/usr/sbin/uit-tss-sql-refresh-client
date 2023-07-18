@@ -15,8 +15,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
     $sql = "SELECT * FROM jobstats WHERE tagnumber = ?";
     $results = $conn->query($sql);
 } else {
-    $tagNumPlaceholder = "000000";
-    $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = ?";
+    $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = 000000";
     $results = $conn->query($sql);
 }
 
