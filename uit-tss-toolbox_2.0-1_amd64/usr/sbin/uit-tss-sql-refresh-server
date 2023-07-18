@@ -134,8 +134,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	#TBW	
 	$sql = "SELECT ROUND(SUM(disk_tbw) / SUM(max_tbw) * 100, 2) AS tbw_pcnt FROM clientstats";
 	$results = $conn->query($sql);
-	$i = $results->fetch_all(MYSQLI_ASSOC);
-	foreach($i as $key => $value) {
+	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$pcntTBW = $row['tbw_pcnt'];
 		$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
 		$conn->query($sql);
