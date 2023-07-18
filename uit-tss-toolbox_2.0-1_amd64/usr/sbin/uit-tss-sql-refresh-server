@@ -37,7 +37,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	$sql = "SELECT clone_time FROM jobstats WHERE clone_completed = 'Yes'";
 	$results = $conn->query($sql);
 	$totalCloneLineCount = mysqli_num_rows($results);
-	$sql = "SELECT ROUND(SUM(clone_avgtime), 2) AS clone_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT clone_avgtime = '0 minutes'";
+	$sql = "SELECT ROUND(SUM(clone_avgtime), 2) AS clone_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT clone_avgtime = '0'";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	$cloneAvgTime = "0";
@@ -51,10 +51,10 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 
 	# Update nvme_erase_avgtime
-	$sql = "SELECT erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'nvme0%'";
+	$sql = "SELECT erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0' AND disk LIKE 'nvme0%'";
 	$results = $conn->query($sql);
 	$nvmeEraseLineCount = mysqli_num_rows($results);
-	$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS nvme_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'nvme0%'";
+	$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS nvme_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0' AND disk LIKE 'nvme0%'";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	$nvmeEraseAvgTime = 0;
@@ -72,7 +72,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	$sql = "SELECT erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0' AND disk LIKE 'sd%'";
 	$results = $conn->query($sql);
 	$ssdEraseLineCount = mysqli_num_rows($results);
-	$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS ssd_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0 minutes' AND disk LIKE 'sd%'";
+	$sql = "SELECT ROUND(SUM(erase_avgtime), 2) AS ssd_erase_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT erase_avgtime = '0' AND disk LIKE 'sd%'";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	$ssdEraseAvgTime = 0;
