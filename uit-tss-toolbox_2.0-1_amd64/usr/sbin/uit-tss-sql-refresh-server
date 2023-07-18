@@ -132,7 +132,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 
 	#TBW	
-	$sql = "SELECT ROUND(SUM(max_tbw) / SUM(disk_tbw), 2) * 100 AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = NULL";
+	$sql = "SELECT ROUND(SUM(max_tbw) / SUM(disk_tbw), 2) AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = NULL";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	foreach($i as $key => $value) {
