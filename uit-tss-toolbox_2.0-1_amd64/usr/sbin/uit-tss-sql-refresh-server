@@ -145,7 +145,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	$results = $conn->query($sql);
 	$lineNums = mysqli_num_rows($results);
 
-	$sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM clientstats WHERE NOT boot_time = NULL AND NOT boot_time = '0'";
+	$sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM clientstats WHERE NOT boot_time = 'NULL' AND NOT boot_time = '0'";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sumBootTime = $row['boot_time'];
