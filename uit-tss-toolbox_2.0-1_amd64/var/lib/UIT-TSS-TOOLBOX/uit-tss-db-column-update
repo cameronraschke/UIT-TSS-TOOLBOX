@@ -13,8 +13,6 @@ $sql = "ALTER TABLE jobstats MODIFY COLUMN tagnumber VARCHAR(6) DEFAULT NULL";
 $conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN etheraddress VARCHAR(32) DEFAULT NULL";
 $conn->query($sql);
-$sql = "UPDATE jobstats SET date = NULL WHERE date = 'N/A'";
-$conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN date DATE DEFAULT NULL";
 $conn->query($sql);
 $sql = "ALTER TABLE jobstats MODIFY COLUMN time DATETIME DEFAULT NULL";
