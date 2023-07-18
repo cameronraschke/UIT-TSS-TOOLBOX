@@ -140,7 +140,7 @@ foreach ($results as $row) {
         $sql = "UPDATE clientstats SET erase_time = '$eraseTime' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
         $avgTimeSec = round($eraseTime / $eraseLineCount);
-        $avgTimeMin = round($avgTimeSec / 60) . " minutes";
+        $avgTimeMin = round($avgTimeSec / 60);
         $sql = "UPDATE clientstats SET erase_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -164,7 +164,7 @@ foreach ($results as $row) {
         $sql = "UPDATE clientstats SET clone_time = '$cloneTime' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
         $avgTimeSec = round($cloneTime / $cloneLineCount);
-        $avgTimeMin = round($avgTimeSec / 60) . " minutes";
+        $avgTimeMin = round($avgTimeSec / 60);
         $sql = "UPDATE clientstats SET clone_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
@@ -194,7 +194,7 @@ foreach ($results as $row) {
         $sql = "UPDATE clientstats SET all_time = '$allTime' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
         $avgTimeSec = round($allTime / $allLineCount);
-        $avgTimeMin = round($avgTimeSec / 60) . " minutes";
+        $avgTimeMin = round($avgTimeSec / 60);
         $sql = "UPDATE clientstats SET all_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
