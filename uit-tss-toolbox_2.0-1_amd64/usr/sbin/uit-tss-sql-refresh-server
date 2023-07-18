@@ -158,7 +158,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	$results = $conn->query($sql);
 	$lineNums = mysqli_num_rows($results);
 
-	$sql = "SELECT ROUND(SUM(battery_health), 2) as battery_health FROM clientstats WHERE NOT battery_health = NULL AND NOT battery_health = ''";
+	$sql = "SELECT ROUND(SUM(battery_health), 2) as battery_health FROM clientstats WHERE NOT battery_health = ''";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['battery_health'];
