@@ -16,7 +16,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	if (empty($sqldate)) {
 		$sql = "INSERT INTO serverstats(date,time,laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,";
 		$sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime) VALUES ('$date','$time',";
-		$sql .= "'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A')";
+		$sql .= "NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)";
 		$conn->query($sql);
 	}
 
@@ -132,14 +132,14 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 
 	#TBW
-	$sql = "SELECT ROUND(SUM(disk_tbw), 2) as sum_disk_tbw FROM clientstats WHERE NOT max_tbw = 'N/A'";
+	$sql = "SELECT ROUND(SUM(disk_tbw), 2) as sum_disk_tbw FROM clientstats WHERE NOT max_tbw = NULL";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	foreach($i as $key => $value) {
 		$sumDiskWrites = $value['sum_disk_tbw'];
 	}
 	
-	$sql = "SELECT ROUND(SUM(max_tbw), 2) AS sum_max_tbw FROM clientstats WHERE NOT max_tbw = 'N/A'";
+	$sql = "SELECT ROUND(SUM(max_tbw), 2) AS sum_max_tbw FROM clientstats WHERE NOT max_tbw = NULL";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	foreach($i as $key => $value) {
@@ -155,11 +155,11 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	$conn->query($sql);
 
 	#Update boot_time
-	$sql = "SELECT boot_time FROM clientstats WHERE NOT boot_time = 'N/A' AND NOT boot_time = '0'";
+	$sql = "SELECT boot_time FROM clientstats WHERE NOT boot_time = NULL AND NOT boot_time = '0'";
 	$results = $conn->query($sql);
 	$lineNums = mysqli_num_rows($results);
 
-	$sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM clientstats WHERE NOT boot_time = 'N/A' AND NOT boot_time = '0'";
+	$sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM clientstats WHERE NOT boot_time = NULL AND NOT boot_time = '0'";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sumBootTime = $row['boot_time'];
@@ -168,11 +168,11 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 
 	#Update battery_health
-	$sql = "SELECT battery_health FROM clientstats WHERE NOT battery_health = 'N/A' AND NOT battery_health = ''";
+	$sql = "SELECT battery_health FROM clientstats WHERE NOT battery_health = NULL AND NOT battery_health = ''";
 	$results = $conn->query($sql);
 	$lineNums = mysqli_num_rows($results);
 
-	$sql = "SELECT ROUND(SUM(battery_health), 2) as battery_health FROM clientstats WHERE NOT battery_health = 'N/A' AND NOT battery_health = ''";
+	$sql = "SELECT ROUND(SUM(battery_health), 2) as battery_health FROM clientstats WHERE NOT battery_health = NULL AND NOT battery_health = ''";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['battery_health'];
