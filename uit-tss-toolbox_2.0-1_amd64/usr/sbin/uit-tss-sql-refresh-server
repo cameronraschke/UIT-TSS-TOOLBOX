@@ -136,6 +136,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	foreach($i as $key => $value) {
+		$pcntTBW = $row['tbw_pcnt'];
 		$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
 		$conn->query($sql);
 	}
