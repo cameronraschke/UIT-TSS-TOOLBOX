@@ -131,28 +131,14 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$conn->query($sql);
 	}
 
-	#TBW
-	$sql = "SELECT ROUND(SUM(disk_tbw), 2) as sum_disk_tbw FROM clientstats WHERE NOT max_tbw = NULL";
+	#TBW	
+	$sql = "SELECT ROUND(SUM(max_tbw) / SUM(disk_tbw), 2) * 100 AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = NULL";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	foreach($i as $key => $value) {
-		$sumDiskWrites = $value['sum_disk_tbw'];
+		$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
+		$conn->query($sql);
 	}
-	
-	$sql = "SELECT ROUND(SUM(max_tbw), 2) AS sum_max_tbw FROM clientstats WHERE NOT max_tbw = NULL";
-	$results = $conn->query($sql);
-	$i = $results->fetch_all(MYSQLI_ASSOC);
-	foreach($i as $key => $value) {
-		$sumDiskTBW = $value['sum_max_tbw'];
-	}
-
-	$sumDiskTBW = preg_replace("/[^0-9]/", "", $sumDiskTBW);
-	$sumDiskWrites = preg_replace("/[^0-9]/", "", $sumDiskWrites);
-
-	$pcntTBW = $sumDiskWrites / $sumDiskTBW;
-	$pcntTBW = round($pcntTBW, 2);
-	$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
-	$conn->query($sql);
 
 	#Update boot_time
 	$sql = "SELECT boot_time FROM clientstats WHERE NOT boot_time = NULL AND NOT boot_time = '0'";
