@@ -15,8 +15,8 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 }
 	if (empty($sqldate)) {
 		$sql = "INSERT INTO serverstats(date,time,laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,";
-		$sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime) VALUES ('$date','$time',";
-		$sql .= "NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)";
+		$sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time) VALUES ('$date','$time',";
+		$sql .= "NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)";
 		$conn->query($sql);
 	}
 
@@ -26,7 +26,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 
 
 	# Update laptop count
-	$sql = "SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000'";
+	$sql = "SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
 	$results = $conn->query($sql);
 	$laptopCount = mysqli_num_rows($results);
 	$sql = "UPDATE serverstats SET laptop_count = '$laptopCount' WHERE date = '$date'";
@@ -70,7 +70,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 
 	# Update erase_jobs
-	$sql = "SELECT SUM(erase_jobs) AS erase_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND erase_time > 1";
+	$sql = "SELECT SUM(erase_jobs) AS erase_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_time > 1";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	$eraseJobsLineCount = 0;
@@ -83,7 +83,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 
 	# Update clone_jobs
-	$sql = "SELECT SUM(clone_jobs) AS clone_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND clone_time > 1";
+	$sql = "SELECT SUM(clone_jobs) AS clone_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_time > 1";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	$cloneJobsLineCount = 0;
@@ -103,7 +103,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	}
 
 	# Update last_image_update
-	$sql = "SELECT date from jobstats where clone_master = 'Yes' ORDER BY date DESC LIMIT 1";
+	$sql = "SELECT date from jobstats where clone_master = 'Yes' ORDER BY time DESC LIMIT 1";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	foreach($i as $key => $value) {

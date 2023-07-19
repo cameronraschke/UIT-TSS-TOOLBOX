@@ -16,7 +16,7 @@ $time = date('Y-m-d-His', time());
     $sql .= "'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update','Linux User' ";
     $sql .= "\nUNION ALL ";
     $sql .= "\nSELECT * ";
-    $sql .= "\nFROM jobstats ORDER BY date DESC ";
+    $sql .= "\nFROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY date DESC ";
     $sql .= "\nINTO OUTFILE '/tmp/laptop-report-job-".$time.".csv' ";
     $sql .= "\nFIELDS TERMINATED BY ',' ";
     $sql .= "\nENCLOSED BY '\"' ";
@@ -40,7 +40,7 @@ $time = date('Y-m-d-His', time());
     $sql .= "'Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date','Battery Health (Current Max Charge %)','TBW (Terabytes Written)','Max TBW', 'Average Boot Time'";
     $sql .= "UNION ALL
     SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,battery_manufacturedate,battery_health,disk_tbw,max_tbw,boot_time
-    FROM clientstats ORDER BY 'last_job_date' DESC 
+    FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC 
     INTO OUTFILE '/tmp/laptop-report-client-".$time.".csv'
     FIELDS TERMINATED BY ','
     ENCLOSED BY '\"'
