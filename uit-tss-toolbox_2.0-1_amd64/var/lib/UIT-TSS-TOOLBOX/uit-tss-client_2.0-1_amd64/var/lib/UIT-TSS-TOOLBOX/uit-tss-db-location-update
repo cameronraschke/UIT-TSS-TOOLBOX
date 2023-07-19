@@ -33,12 +33,4 @@ if ($arr[0] == "custom") {
 
 $conn->query("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES ('$tagNum','$serial','$location','$status',$default,'$time')");
 
-#Update Serial Numbers
-$sql = $conn->query("SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'");
-$results = $conn->query($sql);
-while ($row = $results->fetch_assoc()) {
-    $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
-    $conn->query($sql);
-}
-
 ?>
