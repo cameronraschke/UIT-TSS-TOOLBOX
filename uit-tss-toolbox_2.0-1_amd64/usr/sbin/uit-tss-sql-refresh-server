@@ -34,19 +34,14 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 
 
 	# Update clone_avgtime
-	$sql = "SELECT clone_time FROM jobstats WHERE clone_completed = 'Yes'";
+	$sql = "SELECT clone_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes'";
 	$results = $conn->query($sql);
-	$totalCloneLineCount = mysqli_num_rows($results);
-	$sql = "SELECT ROUND(SUM(clone_avgtime), 2) AS clone_avgtime FROM clientstats WHERE NOT tagnumber = '000000' AND NOT clone_avgtime = '0'";
+	$linecount = mysqli_num_rows($results);
+	$sql = "SELECT SUM(clone_time) as clone_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes'";
 	$results = $conn->query($sql);
-	$i = $results->fetch_all(MYSQLI_ASSOC);
-	$cloneAvgTime = "0";
-	foreach($i as $key => $value) {
-		$cloneAvgTime = $cloneAvgTime + $value['clone_avgtime'];
-	}
-	if ($totalCloneLineCount >= 1) {
-		$avgTimeMin = round($cloneAvgTime / $totalCloneLineCount);
-		$sql = "UPDATE serverstats SET clone_avgtime = '$avgTimeMin' WHERE date = '$date'";
+	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+		$sum = $row['clone_avgtime'];
+		$sql = "UPDATE serverstats SET nvme_erase_avgtime = '$sum' / '$linecount' WHERE date = '$date'";
 		$conn->query($sql);
 	}
 
