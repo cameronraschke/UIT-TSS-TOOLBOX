@@ -6,7 +6,6 @@ $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
 $default = "NULL";
-$location = "NULL";
 $status = "functioning";
 
 $stdin = fopen('php://stdin', 'r');
@@ -29,7 +28,7 @@ if ($arr[0] == "custom") {
     $location = $arr[2];
 }
 
-$stmt = $conn->query("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES ($tagNum,$default,$location,$status,$default,$time)");
+$stmt = $conn->query("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES ('$tagNum',$default,'$location','$status',$default,'$time')");
 
 #Update Serial Numbers
 $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
