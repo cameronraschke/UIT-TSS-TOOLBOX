@@ -162,14 +162,14 @@ function enterTag {
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
 		/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
-		echo "begin,${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
+		echo "begin,${tagNum},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 		return
 	else
 		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
 		/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
-		echo "begin,${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
+		echo "begin,${tagNum},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 	fi
 }
 
@@ -1354,7 +1354,7 @@ function terminate {
 	tput reset
 	totaltime
 	sleep 1
-	echo "end,${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
+	echo "end,${tagNum},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 	/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	echo "${BOLD}Process has finished!${RESET}"
@@ -1363,7 +1363,7 @@ function terminate {
 	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
 
 	read -p "Where will this laptop be stored? ${GREEN}${BOLD}Please Enter: ${RESET} " location
-	echo "custom,${tagNum},${location}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
+	echo "custom,${tagNum},${tOneSerialNumber},${location}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
 		echo "UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}'" | uit-tss-db

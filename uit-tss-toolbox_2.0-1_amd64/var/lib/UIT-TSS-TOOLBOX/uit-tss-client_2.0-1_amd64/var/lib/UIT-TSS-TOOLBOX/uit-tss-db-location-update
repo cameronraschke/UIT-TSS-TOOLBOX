@@ -15,20 +15,23 @@ $arr = explode(',', $line);
 
 if ($arr[0] == "begin") {
     $tagNum = $arr[1];
+    $serial = $arr[2];
     $location = "Plugged in and booted on laptop table.";
 }
 
 if ($arr[0] == "end") {
     $tagNum = $arr[1];
+    $serial = $arr[2];
     $location = "Finished work on laptop table.";
 }
 
 if ($arr[0] == "custom") {
     $tagNum = $arr[1];
-    $location = $arr[2];
+    $serial = $arr[2];
+    $location = $arr[3];
 }
 
-$conn->query("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES ('$tagNum',$default,'$location','$status',$default,'$time')");
+$conn->query("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES ('$tagNum','$serial','$location','$status',$default,'$time')");
 
 #Update Serial Numbers
 $sql = $conn->query("SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'");
