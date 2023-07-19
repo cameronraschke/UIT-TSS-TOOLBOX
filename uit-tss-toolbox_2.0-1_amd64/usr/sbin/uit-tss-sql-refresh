@@ -1,5 +1,5 @@
 #!/bin/bash
 
-/usr/sbin/uit-tss-sql-refresh-client
+echo | /usr/sbin/uit-tss-sql-refresh-client
 /usr/sbin/uit-tss-sql-refresh-location
 /usr/sbin/uit-tss-sql-refresh-server
