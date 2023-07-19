@@ -295,7 +295,7 @@ function appSelect {
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
