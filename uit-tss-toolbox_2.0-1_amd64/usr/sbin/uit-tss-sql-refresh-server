@@ -77,28 +77,20 @@ if (isset($arr)) {
 	}
 
 	# Update erase_jobs
-	$sql = "SELECT SUM(erase_jobs) AS erase_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_time > 1";
+	$sql = "SELECT COUNT(erase_completed) AS erase_jobs FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
-	$i = $results->fetch_all(MYSQLI_ASSOC);
-	$eraseJobsLineCount = 0;
-	foreach($i as $key => $value) {
-		$eraseJobsLineCount = $eraseJobsLineCount + $value['erase_jobs'];
-	}
-	if ($eraseJobsLineCount >= 1) {
-		$sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLineCount' WHERE date = '$date'";
+	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+		$eraseJobsLineCount = $row['erase_jobs'];
+		$sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLineCount' WHERE date = '$sqldate'";
 		$conn->query($sql);
 	}
 
 	# Update clone_jobs
-	$sql = "SELECT SUM(clone_jobs) AS clone_jobs FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_time > 1";
+	$sql = "SELECT COUNT(clone_completed) AS clone_jobs FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
-	$i = $results->fetch_all(MYSQLI_ASSOC);
-	$cloneJobsLineCount = 0;
-	foreach($i as $key => $value) {
-		$cloneJobsLineCount = $cloneJobsLineCount + $value['clone_jobs'];
-	}
-	if ($cloneJobsLineCount >= 1) {
-		$sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLineCount' WHERE date = '$date'";
+	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+		$cloneJobsLineCount = $row['clone_jobs'];
+		$sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLineCount' WHERE date = '$sqldate'";
 		$conn->query($sql);
 	}
 
