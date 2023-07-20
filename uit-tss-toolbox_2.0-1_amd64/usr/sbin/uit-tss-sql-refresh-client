@@ -15,11 +15,12 @@ if (preg_match("/[0-9]{6}/", $line)) {
     $arr = array(
         "tagnumber" => "$line",
     );
+    $arr = $row;
 } else {
     $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
     $results = $conn->query($sql);
     $arr = array();
-    while ($arr = mysqli_fetch_array($results)) {
+    while ($row = mysqli_fetch_array($results)) {
         $arr = $row;
     }
 }
