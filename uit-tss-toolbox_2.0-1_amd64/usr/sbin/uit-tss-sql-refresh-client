@@ -30,7 +30,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
 if (isset($arr)) {
 foreach ($arr as $row) {
     unset($tagNum);
-    $tagNum = $arr['tagnumber'];
+    $tagNum = $row['tagnumber'];
     echo "Working on laptop: " . $tagNum . PHP_EOL;
 
     $sql = "SELECT tagnumber FROM clientstats WHERE tagnumber = '$tagNum'";
