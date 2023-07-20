@@ -68,11 +68,11 @@ if (isset($arr)) {
 	$sql = "SELECT erase_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
 	$linecount = mysqli_num_rows($results);
-	$sql = "SELECT ROUND(SUM(erase_time) / 60, 2) as ssd_erase_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
+	$sql = "SELECT SUM(erase_time) as ssd_erase_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['ssd_erase_avgtime'];
-		$sql = "UPDATE serverstats SET ssd_erase_avgtime = '$sum' / '$linecount' WHERE date = '$sqldate'";
+		$sql = "UPDATE serverstats SET ssd_erase_avgtime = ROUND('$sum' / '$linecount' / 60, 0) WHERE date = '$sqldate'";
 		$conn->query($sql);
 	}
 
