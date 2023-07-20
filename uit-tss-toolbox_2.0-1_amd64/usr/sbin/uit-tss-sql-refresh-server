@@ -26,7 +26,7 @@ $sql = "SELECT date FROM serverstats";
 $results = $conn->query($sql);
 while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	$sqldate = $row['date'];
-	echo "Working on date: " .$sqldate['row'];
+	echo "Working on date: " .$row['date'];
 
 	# Update time
 	$sql = "UPDATE serverstats SET time = '$time' WHERE date = '$date'";
