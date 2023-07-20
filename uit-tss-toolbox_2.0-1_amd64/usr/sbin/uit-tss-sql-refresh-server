@@ -95,13 +95,9 @@ if (isset($arr)) {
 	}
 
 	# Update all_jobs
-	$sql = "SELECT (COUNT(clone_completed)+COUNT(erase_completed)) AS all_jobs FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND (date BETWEEN '2023-01-09' AND '$sqldate')";
-	$results = $conn->query($sql);
-	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-		$allJobsLineCount = $row['all_jobs'];
-		$sql = "UPDATE serverstats SET all_jobs = '$allJobsLineCount' WHERE date = '$sqldate'";
-		$conn->query($sql);
-	}
+	$allJobsLineCount = $eraseJobsLineCount + $cloneJobsLineCount;
+	$sql = "UPDATE serverstats SET all_jobs = '$allJobsLineCount' WHERE date = '$sqldate'";
+	$conn->query($sql);
 
 	# Update last_image_update
 	$sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate') ORDER BY time DESC LIMIT 1";
