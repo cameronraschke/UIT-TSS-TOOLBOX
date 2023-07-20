@@ -41,7 +41,7 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['clone_avgtime'];
-		$sql = "UPDATE serverstats SET nvme_erase_avgtime = '$sum' / '$linecount' / 60 WHERE date = '$date'";
+		$sql = "UPDATE serverstats SET nvme_erase_avgtime = ROUND('$sum' / '$linecount' / 60, 0) WHERE date = '$date'";
 		$conn->query($sql);
 	}
 
