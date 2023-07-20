@@ -11,17 +11,17 @@ fclose($stdin);
 
 global $tagNum;
 
+$arr = array();
 if (preg_match("/[0-9]{6}/", $line)) {
     $arr = array(
         "tagnumber" => "$line",
     );
-    $arr = $row;
 } else {
-    $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
+    $sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
     $results = $conn->query($sql);
     $arr = array();
     while ($row = mysqli_fetch_array($results)) {
-        $arr = $row;
+        $arr[] = $row;
     }
 }
 
