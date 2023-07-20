@@ -123,17 +123,17 @@ foreach ($arr as $row) {
     # Erase times
     $sql = "SELECT erase_time FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
     $results = $conn->query($sql);
-    $linecount = mysqli_num_rows($results);
+    $eraseLineCount = mysqli_num_rows($results);
     $sql = "SELECT ROUND(SUM(erase_time), 2) AS erase_time FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
-        $sql = "UPDATE clientstats SET erase_jobs = '$linecount' WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE clientstats SET erase_jobs = '$eraseLineCount' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
-        if ($linecount >= 1) {
+        if ($eraseLineCount >= 1) {
             $sum = $row['erase_time'];
             $sql = "UPDATE clientstats SET erase_time = '$sum' WHERE tagnumber = '$tagNum'";
             $conn->query($sql);
-            $sql = "UPDATE clientstats SET erase_avgtime = ROUND('$sum' / '$linecount' / 60, 0) WHERE tagnumber = '$tagNum'";
+            $sql = "UPDATE clientstats SET erase_avgtime = ROUND('$sum' / '$eraseLineCount' / 60, 0) WHERE tagnumber = '$tagNum'";
             $conn->query($sql);
         }
     }
