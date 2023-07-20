@@ -156,6 +156,7 @@ if (isset($arr)) {
 		$conn->query($sql);
 	}
 }
+}
 
 $conn->close();
 ?>
