@@ -14,7 +14,7 @@ global $tagNum;
 $arr = array();
 if (preg_match("/[0-9]{6}/", $line)) {
     $arr = array(
-        "tagnumber" => "$line",
+        'tagnumber' => "$line",
     );
 } else {
     $sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
@@ -32,7 +32,6 @@ foreach ($arr as $row) {
     unset($tagNum);
     $tagNum = $row['tagnumber'];
     echo "Working on laptop: " . $tagNum . PHP_EOL;
-
     $sql = "SELECT tagnumber FROM clientstats WHERE tagnumber = '$tagNum'";
     $results = $conn->query($sql);
     $exists = mysqli_num_rows($results);
