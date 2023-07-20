@@ -27,24 +27,24 @@ $arr = $conn->query($sql);
 if (isset($arr)) {
 	foreach ($arr as $row) {
 	$sqldate = $row['date'];
-	echo "Working on date: " . $row['date'];
+	echo "Working on date: " . $row['date'] . PHP_EOL;
 
 	# Update time
 	$sql = "UPDATE serverstats SET time = '$time' WHERE date = '$date'";
 	$conn->query($sql);
 
 	# Update laptop count
-	$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-30' AND '$sqldate')";
+	$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
 	$linecount = mysqli_num_rows($results);
 	$sql = "UPDATE serverstats SET laptop_count = '$linecount' WHERE date = '$sqldate'";
 	$conn->query($sql);
 
 	# Update clone_avgtime
-	$sql = "SELECT clone_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-30' AND '$sqldate')";
+	$sql = "SELECT clone_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
 	$linecount = mysqli_num_rows($results);
-	$sql = "SELECT SUM(clone_time) as clone_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-30' AND '$sqldate')";
+	$sql = "SELECT SUM(clone_time) as clone_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['clone_avgtime'];
@@ -53,10 +53,10 @@ if (isset($arr)) {
 	}
 
 	# Update nvme_erase_avgtime
-	$sql = "SELECT erase_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-30' AND '$sqldate')";
+	$sql = "SELECT erase_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
 	$linecount = mysqli_num_rows($results);
-	$sql = "SELECT SUM(erase_time) as nvme_erase_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-30' AND '$sqldate')";
+	$sql = "SELECT SUM(erase_time) as nvme_erase_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['nvme_erase_avgtime'];
@@ -65,10 +65,10 @@ if (isset($arr)) {
 	}
 
 	# Update ssd_erase_avgtime
-	$sql = "SELECT erase_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-30' AND '$sqldate')";
+	$sql = "SELECT erase_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
 	$linecount = mysqli_num_rows($results);
-	$sql = "SELECT ROUND(SUM(erase_time) / 60, 2) as ssd_erase_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-30' AND '$sqldate')";
+	$sql = "SELECT ROUND(SUM(erase_time) / 60, 2) as ssd_erase_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['ssd_erase_avgtime'];
@@ -110,7 +110,7 @@ if (isset($arr)) {
 	}
 
 	# Update last_image_update
-	$sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND (date BETWEEN '2023-01-30' AND '$sqldate') ORDER BY time DESC LIMIT 1";
+	$sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate') ORDER BY time DESC LIMIT 1";
 	$results = $conn->query($sql);
 	$i = $results->fetch_all(MYSQLI_ASSOC);
 	foreach($i as $key => $value) {
