@@ -23,10 +23,11 @@ while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 
 # Update date of report, create new report if none exist for today
 $sql = "SELECT date FROM serverstats";
-$results = $conn->query($sql);
-while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+$arr = $conn->query($sql);
+if (isset($arr)) {
+	foreach ($arr as $row) {
 	$sqldate = $row['date'];
-	echo "Working on date: " .$row['date'];
+	echo "Working on date: " . $row['date'];
 
 	# Update time
 	$sql = "UPDATE serverstats SET time = '$time' WHERE date = '$date'";
