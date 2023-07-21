@@ -11,7 +11,7 @@ $location = "N/A";
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
 
-$arr = explode('#', $line);
+$arr = explode('|', $line);
 
 if ($arr[0] == "begin") {
     $tagNum = $arr[1];
@@ -25,13 +25,18 @@ if ($arr[0] == "end") {
 
 if ($arr[0] == "custom") {
     $tagNum = $arr[1];
-    $location = $arr[2];
-    $status = $arr[3];
-    $problem = $arr[4];
+    $serial = $arr[2];
+    $location = $arr[3];
+    $status = $arr[4];
+    $problem = $arr[5];
+
+    if (empty($serial) || $serial == "" || $serial == " ") {
+        $serial = $default;
+    }
 }
 
 $stmt = $conn->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssssss", $tagNum,$default,$location,$status,$problem,$time);
+$stmt->bind_param("ssssss", $tagNum,$serial,$location,$status,$problem,$time);
 $stmt->execute();
 
 #Update Serial Numbers
