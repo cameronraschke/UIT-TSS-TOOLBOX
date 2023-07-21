@@ -131,10 +131,10 @@ function hardwareData {
 	tbVRFY=$(echo "${diskWrites}" | grep -iq 'TB')
 	gbVRFY=$(echo "${diskWrites}" | grep -iq 'GB')
 	if [[ -z $tbVRFY ]]; then
-			diskWrites=$(echo "${diskWrites}" | sed 's/[^0-9]//g')
+			diskWrites=$(echo "${diskWrites}" | sed 's/[^0-9\.]//g')
 			echo "disk,disk_writes,${UUID},${diskWrites},TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		elif [[ -z $gbVRFY ]]; then
-			diskWrites=$(echo "$diskWrites" | sed 's/[^0-9]//g')
+			diskWrites=$(echo "$diskWrites" | sed 's/[^0-9\.]//g')
 			echo "disk,disk_writes,${UUID},${diskWrites},GB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
 			echo "disk,disk_writes,${UUID},NULL,TB" | /var/lib/UIT-TSS-TOOLBOX/parse
