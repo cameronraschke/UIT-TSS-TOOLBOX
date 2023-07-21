@@ -9,15 +9,13 @@ $time = date('Y-m-d H:i:s', time());
 
 $sql = "SELECT date FROM serverstats WHERE date = '$date'";
 $results = $conn->query($sql);
-while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-	$datecheck = $row['date'];
-	if (empty($datecheck)) {
+$exists = mysqli_num_rows($results);
+if ($exists == "0") {
 		echo "Inserting new serverstats entry for $date." . PHP_EOL;
 		$sql = "INSERT INTO serverstats(date,time,laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,";
 		$sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time) VALUES ('$date','$time',";
 		$sql .= "NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)";
 		$conn->query($sql);
-	}
 }
 
 
