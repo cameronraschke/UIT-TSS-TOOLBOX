@@ -111,7 +111,7 @@ if (isset($arr)) {
 		$conn->query($sql);
 	}
 
-	#TBW	
+	#TBW
 	$sql = "SELECT ROUND(SUM(disk_tbw) / SUM(max_tbw) * 100, 0) AS tbw_pcnt FROM clientstats";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
