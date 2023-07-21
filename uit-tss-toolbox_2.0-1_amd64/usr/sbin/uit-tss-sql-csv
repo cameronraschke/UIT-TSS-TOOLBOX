@@ -55,19 +55,19 @@ $time = date('Y-m-d-His', time());
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
         $arr[] = $row;
     }
+    
+    $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report' UNION ALL SELECT tagnumber,chassis_serial,location,status,problem,time FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND tagnumber = '$tagNum' ORDER BY tagnumber DESC";
+    $results = $conn->query($sql);
+    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $arr = array_push($arr, $row['tagnumber']);
+    }
 
     foreach ($arr as $row) {
         unset($tagNum);
         $tagNum = $row['tagnumber'];
-        $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report' UNION ALL SELECT tagnumber,chassis_serial,location,status,problem,time FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND tagnumber = '$tagNum' ORDER BY tagnumber ASC";
-        $results = $conn->query($sql);
-        $arr = array();
-        $fp = fopen("/tmp/laptop-report-location-".$time.".csv", 'w');
-        $i = $results->fetch_all(MYSQLI_ASSOC);
-        foreach($i as $key => $value) {
-            fputcsv($fp, $row);
-        }
-        fclose($fp);
+        $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
+        $file->fputcsv(array($row));
+        $file = null;
     }
 
 $conn->close(); 
