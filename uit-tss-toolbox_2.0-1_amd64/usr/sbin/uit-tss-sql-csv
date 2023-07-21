@@ -63,7 +63,8 @@ $time = date('Y-m-d-His', time());
         $results = $conn->query($sql);
         $arr = array();
         $fp = fopen("/tmp/laptop-report-location-".$time.".csv", 'w');
-        while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $i = $results->fetch_all(MYSQLI_ASSOC);
+        foreach($i as $key => $value) {
             fputcsv($fp, $row);
         }
         fclose($fp);
