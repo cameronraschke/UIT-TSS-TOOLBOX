@@ -50,22 +50,15 @@ $time = date('Y-m-d-His', time());
 
 
     #Locations Table
-    $sql = "SELECT DISTINCT tagnumber FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY time DESC LIMIT 1";
+    $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report' UNION ALL SELECT tagnumber,chassis_serial,location,status,problem,time FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY time DESC LIMIT 1 GROUP BY(tagnumber)";
     $results = $conn->query($sql);
     $arr = array();
+    $fp = fopen("/tmp/laptop-report-location-".$time.".csv", 'w');
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
         $arr[] = $row;
+        fputcsv($fp, $row);
     }
-
-    if (isset($arr)) {
-        $fp = fopen("/tmp/laptop-report-location-".$time.".csv", 'w');
-        $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report' UNION ALL SELECT tagnumber,chassis_serial,location,status,problem,time FROM locations WHERE tagnumber = '$tagNum' ORDER BY 'time' DESC";
-        $conn->query($sql);
-        while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-            fputcsv($fp, $row);
-        }
-        fclose($fp);
-    }
+    fclose($fp);
 
 $conn->close(); 
 ?>
