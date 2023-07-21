@@ -59,7 +59,7 @@ $time = date('Y-m-d-His', time());
     foreach ($arr as $row) {
         unset($tagNum);
         $tagNum = $row;
-        $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report' UNION ALL SELECT tagnumber,chassis_serial,location,status,problem,time FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
+        $sql = "SELECT tagnumber,chassis_serial,location,status,problem,time FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
         $results = $conn->query($sql);
         while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
             $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
