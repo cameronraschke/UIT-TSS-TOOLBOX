@@ -127,7 +127,7 @@ function hardwareData {
 		echo "disk,disk_temp,${UUID},${diskTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskReads=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/Data Units Read: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
 		echo "disk,disk_reads,${UUID},${diskReads}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	diskWrites=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/Data Units Written: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g' | sed 's/[^0-9]//g')
+	diskWrites=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/Data Units Written: *//g' | grep -i 'TB' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g' | sed 's/[^0-9]//g')
 		echo "disk,disk_writes,${UUID},${diskWrites}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Battery Data
@@ -1344,7 +1344,7 @@ function execute {
 
 
 function totaltime {
-	totalElapsed=$(echo $(( (shredElapsed + cloneElapsed) / 60 )) minutes)
+	totalElapsed=$(echo $(( (shredElapsed + cloneElapsed) / 60 )))
 	echo "UPDATE jobstats SET all_time = '${totalElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
 }
 
