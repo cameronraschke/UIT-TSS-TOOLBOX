@@ -48,16 +48,24 @@ $time = date('Y-m-d-His', time());
     
     $conn->query($sql);
 
-    $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report'
-    UNION ALL
-    SELECT tagnumber,chassis_serial,location,status,problem,time
-    FROM locations ORDER BY 'time' DESC 
-    INTO OUTFILE '/tmp/laptop-report-location-".$time.".csv'
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '\"'
-    LINES TERMINATED BY '\\n'";
 
-    $conn->query($sql);
+    #Locations Table
+    $sql = "SELECT DISTINCT tagnumber FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY time DESC LIMIT 1";
+    $results = $conn->query($sql);
+    $arr = array();
+    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $arr[] = $row;
+    }
+
+    if (isset($arr)) {
+        $fp = fopen("/tmp/laptop-report-location-".$time.".csv", 'w');
+        $sql = "SELECT 'Tagnumber','Serial Number','Location','Status','Problem','Time of Report' UNION ALL SELECT tagnumber,chassis_serial,location,status,problem,time FROM locations WHERE tagnumber = '$tagNum' ORDER BY 'time' DESC";
+        $conn->query($sql);
+        while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+            fputcsv($fp, $row);
+        }
+        fclose($fp);
+    }
 
 $conn->close(); 
 ?>
