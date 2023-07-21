@@ -129,14 +129,13 @@ function hardwareData {
 		echo "disk,disk_reads,${UUID},${diskReads}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskWrites=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/Data Units Written: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
 	if [[ echo "${diskWrites}" | grep -i 'TB' ]]; then
-		diskWrites = $(echo "${diskWrites}" | sed 's/[^0-9]//g')
-		echo "disk,disk_writes,${UUID},${diskWrites}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			diskWrites = $(echo "${diskWrites}" | sed 's/[^0-9]//g')
+			echo "disk,disk_writes,${UUID},${diskWrites},TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		elif [[ echo "${diskWrites}" | grep -i 'GB' ]]; then
 			diskWrites = $(echo "$diskWrites" | sed 's/[^0-9]//g')
-			diskWrites = $((diskWrites / 1000))
-			echo "disk,disk_writes,${UUID},${diskWrites}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk,disk_writes,${UUID},${diskWrites},GB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
-			echo "disk,disk_writes,${UUID},NULL" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk,disk_writes,${UUID},NULL,TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
 	###Battery Data

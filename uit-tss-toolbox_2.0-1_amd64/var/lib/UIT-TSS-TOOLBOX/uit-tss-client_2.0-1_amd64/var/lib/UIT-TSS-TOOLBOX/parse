@@ -33,6 +33,11 @@ if ($arr[0] == "init") {
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default)";
     $conn->query($sql);
 } elseif ($arr[0] == "disk") {
+    $tbw = $arr[3];
+    $multiply = $arr[4];
+    if ($multiply == "GB"){
+        $tbw = bcdiv("$tbw", '1000', 4);
+    }
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
     $conn->query($sql);
 } elseif ($arr[0] == "battery") {
