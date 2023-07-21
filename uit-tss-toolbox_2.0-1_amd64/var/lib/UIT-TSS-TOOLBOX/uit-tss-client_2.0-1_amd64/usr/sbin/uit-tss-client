@@ -131,10 +131,12 @@ function hardwareData {
 	if [[ echo "${diskWrites}" | grep -i 'TB' ]]; then
 		diskWrites = $(echo "${diskWrites}" | sed 's/[^0-9]//g')
 		echo "disk,disk_writes,${UUID},${diskWrites}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		else
+		elif [[ echo "${diskWrites}" | grep -i 'GB' ]]; then
 			diskWrites = $(echo "$diskWrites" | sed 's/[^0-9]//g')
 			diskWrites = $((diskWrites / 1000))
 			echo "disk,disk_writes,${UUID},${diskWrites}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		else
+			echo "disk,disk_writes,${UUID},NULL" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
 	###Battery Data
