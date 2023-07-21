@@ -112,7 +112,7 @@ if (isset($arr)) {
 	}
 
 	#TBW
-	$sql = "SELECT ROUND((100-(SUM(disk_tbw)/(SUM(max_tbw)/1000)))) AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = 'N/A' AND NOT disk_tbw LIKE '______'";
+	$sql = "SELECT ROUND((100-(SUM(disk_tbw)/(SUM(max_tbw)/1000))), 0) AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = 'N/A' AND NOT disk_tbw LIKE '______'";
 	$results = $conn->query($sql);
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$pcntTBW = $row['tbw_pcnt'];
