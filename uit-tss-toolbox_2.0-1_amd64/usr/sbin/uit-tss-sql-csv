@@ -24,16 +24,30 @@ $time = date('Y-m-d-His', time());
 
     $conn->query($sql);
 
-    $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time (minutes)','NVME Avg. Erase Time (minutes)','SSD Avg. Erase Time (minutes)','Average Disk Wear Percent','Average Battery Max Charge Level Percent','Average Boot Time (seconds)'
-    UNION ALL
-    SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time
-    FROM serverstats ORDER BY date DESC 
-    INTO OUTFILE '/tmp/laptop-report-server-".$time.".csv'
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '\"'
-    LINES TERMINATED BY '\\n'";
+    #Server Table
+    unset($arr);
+    unset($row);
+    $sql = "SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time FROM serverstats ORDER BY date DESC";
+    $results = $conn->query($sql);
+    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $arr[] = $row;
+    }
 
-    $conn->query($sql);
+    $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time (minutes)','NVME Avg. Erase Time (minutes)','SSD Avg. Erase Time (minutes)','Average Disk Wear Percent','Average Battery Max Charge Level Percent','Average Boot Time (seconds)'";
+    $results = $conn->query($sql);
+    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $file = new SplFileObject("/home/file/laptop-report-server-".$time.".csv", 'a');
+        $file->fputcsv($row);
+        $file = null;
+    }
+
+    foreach ($arr as $row) {
+        $file = new SplFileObject("/home/file/laptop-report-server-".$time.".csv", 'a');
+        $file->fputcsv($row);
+        $file = null;
+    }
+
+
 
     #Client Table
     unset($arr);
