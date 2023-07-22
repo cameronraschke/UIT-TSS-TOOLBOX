@@ -250,7 +250,7 @@ foreach ($arr as $row) {
     # Device Type
     $sql = "SELECT system_manufacturer FROM jobstats WHERE tagnumber = '$tagNum' AND NOT system_manufacturer = 'N/A' ORDER BY time DESC LIMIT 1";
     $results = $conn->query($sql);
-    while ($row = $results->fetch_assoc()) {
+    while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $deviceType = $row['system_manufacturer'];
         $sql = "UPDATE clientstats SET device_type = '$deviceType' WHERE tagnumber = '$tagNum'";
     }
