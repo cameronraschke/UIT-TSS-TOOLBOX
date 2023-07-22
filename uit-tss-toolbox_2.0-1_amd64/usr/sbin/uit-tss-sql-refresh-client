@@ -233,12 +233,15 @@ foreach ($arr as $row) {
     }
 
     #Update boot_time
+    $sql = "SELECT boot_time FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
+    $results = $conn->query($sql);
+    $lineNums = mysqli_num_rows($results);
     $sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
     $results = $conn->query($sql);
     $lineNums = mysqli_num_rows($results);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $bootTime = round(intdiv($row['boot_time'],$lineNums),0,PHP_ROUND_HALF_UP);
-        if ($bootTime == 0){
+        if ($bootTime == 0 || $bootTime == 0){
             $bootTime = "NULL";
         }
         $sql = "UPDATE clientstats SET boot_time = $bootTime WHERE tagnumber = '$tagNum'";
