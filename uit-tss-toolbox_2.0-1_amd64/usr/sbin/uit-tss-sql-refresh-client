@@ -239,7 +239,7 @@ foreach ($arr as $row) {
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $bootTime = round(intdiv($row['boot_time'],$lineNums),0,PHP_ROUND_HALF_UP);
         if ($bootTime == 0) {
-            $bootTime = "NULL";
+            $bootTime = NULL;
         }
         $sql = "UPDATE clientstats SET boot_time = $bootTime WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
