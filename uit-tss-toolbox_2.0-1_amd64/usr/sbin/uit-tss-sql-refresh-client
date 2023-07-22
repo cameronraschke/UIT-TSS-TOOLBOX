@@ -240,9 +240,10 @@ foreach ($arr as $row) {
     $results = $conn->query($sql);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $bootTime = $row['boot_time'];
-        $bootTime = intdiv($bootTime,$lineNums);
         if ($bootTime == 0 || $lineNums == 0){
             $bootTime = "NULL";
+        } elseif ($bootTime >= 1 || $lineNums >= 1) {
+            $bootTime = intdiv($bootTime,$lineNums);
         }
         $sql = "UPDATE clientstats SET boot_time = $bootTime WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
