@@ -56,7 +56,7 @@ foreach ($arr as $row) {
     }
 
     #Update bios_date
-    $stmt = $conn->prepare("SELECT bios_date FROM jobstats WHERE tagnumber = '$tagNum' AND not bios_date = 'N/A' ORDER BY time desc LIMIT 1");
+    $stmt = $conn->prepare("SELECT bios_date FROM jobstats WHERE tagnumber = '$tagNum' AND bios_date IS NOT NULL ORDER BY time desc LIMIT 1");
     $stmt->execute();
     $results = $stmt->get_result();
     while ($row = $results->fetch_assoc()) {
@@ -65,7 +65,7 @@ foreach ($arr as $row) {
     }
 
     #Update bios_version
-    $sql = "SELECT bios_version FROM jobstats WHERE tagnumber = '$tagNum' AND not bios_version = 'N/A' ORDER BY time desc LIMIT 1";
+    $sql = "SELECT bios_version FROM jobstats WHERE tagnumber = '$tagNum' AND  bios_version IS NOT NULL ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET bios_version = '" . $row['bios_version'] . "' WHERE tagnumber = '$tagNum'";
@@ -73,7 +73,7 @@ foreach ($arr as $row) {
     }
 
     #Update system_productname
-    $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum' AND NOT system_productname = 'N/A' ORDER BY time DESC LIMIT 1";
+    $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum' AND system_productname IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET system_productname = '" . $row['system_productname'] . "' WHERE tagnumber = '$tagNum'";
@@ -81,7 +81,7 @@ foreach ($arr as $row) {
     }
 
     #Update motherboard_serial
-    $sql = "SELECT motherboard_serial FROM jobstats WHERE tagnumber = '$tagNum' AND not motherboard_serial = 'N/A' ORDER BY time desc LIMIT 1";
+    $sql = "SELECT motherboard_serial FROM jobstats WHERE tagnumber = '$tagNum' AND motherboard_serial IS NOT NULL ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET motherboard_serial = '" . $row['motherboard_serial'] . "' WHERE tagnumber = '$tagNum'";
@@ -89,7 +89,7 @@ foreach ($arr as $row) {
     }
 
     #Update chassis_serial and system_serial
-    $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND not system_serial = 'N/A' ORDER BY time desc LIMIT 1";
+    $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET chassis_serial = '" . $row['system_serial'] . "' WHERE tagnumber = '$tagNum'";
@@ -97,7 +97,7 @@ foreach ($arr as $row) {
     }
 
     #Update cpu_version
-    $sql = "SELECT cpu_version FROM jobstats WHERE tagnumber = '$tagNum' AND not cpu_version = 'N/A' ORDER BY time desc LIMIT 1";
+    $sql = "SELECT cpu_version FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_version IS NOT NULL ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET cpu_version = '" . $row['cpu_version'] . "' WHERE tagnumber = '$tagNum'";
@@ -105,7 +105,7 @@ foreach ($arr as $row) {
     }
 
     #Update cpu_cores
-    $sql = "SELECT cpu_cores FROM jobstats WHERE tagnumber = '$tagNum' AND not cpu_cores = 'N/A' ORDER BY time desc LIMIT 1";
+    $sql = "SELECT cpu_cores FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_cores IS NOT NULL ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET cpu_cores = '" . $row['cpu_cores'] . "' WHERE tagnumber = '$tagNum'";
@@ -113,7 +113,7 @@ foreach ($arr as $row) {
     }
 
     #Update battery_manufacturedate
-    $sql = "SELECT battery_manufacturedate FROM jobstats WHERE tagnumber = '$tagNum' AND not battery_manufacturedate = 'N/A' ORDER BY time desc LIMIT 1";
+    $sql = "SELECT battery_manufacturedate FROM jobstats WHERE tagnumber = '$tagNum' AND battery_manufacturedate IS NOT NULL ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET battery_manufacturedate = '" . $row['battery_manufacturedate'] . "' WHERE tagnumber = '$tagNum'";
@@ -202,7 +202,7 @@ foreach ($arr as $row) {
     }
 
     # TBW
-    $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND NOT disk_model = 'N/A' AND NOT disk_model = ''";
+    $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND NOT disk_model = ''";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $diskModel = $row['disk_model'];
@@ -217,7 +217,7 @@ foreach ($arr as $row) {
     }
 
     #Also TBW
-    $sql = "SELECT disk_writes FROM jobstats WHERE tagnumber = '$tagNum' AND NOT disk_writes = 'N/A' AND NOT disk_writes = '' ORDER BY time DESC LIMIT 1";
+    $sql = "SELECT disk_writes FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL AND NOT disk_writes = '' ORDER BY time DESC LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET disk_tbw = '" . $row['disk_writes'] . "' WHERE tagnumber = '$tagNum'";
@@ -225,7 +225,7 @@ foreach ($arr as $row) {
     }
 
     #Battery Health
-    $sql = "SELECT battery_health FROM jobstats WHERE tagnumber = '$tagNum' AND not battery_health = 'N/A' ORDER BY time desc LIMIT 1";
+    $sql = "SELECT battery_health FROM jobstats WHERE tagnumber = '$tagNum' AND battery_health IS NOT NULL ORDER BY time desc LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET battery_health = '" . $row['battery_health'] . "' WHERE tagnumber = '$tagNum'";
@@ -233,7 +233,7 @@ foreach ($arr as $row) {
     }
 
     #Update boot_time
-    $sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM jobstats WHERE tagnumber = '$tagNum' AND not boot_time = 'N/A'";
+    $sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
     $results = $conn->query($sql);
     $lineNums = mysqli_num_rows($results);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
@@ -248,7 +248,7 @@ foreach ($arr as $row) {
     $sql = "UPDATE clientstats SET all_lastuuid = '$lastUUID' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
     # Device Type
-    $sql = "SELECT system_manufacturer FROM jobstats WHERE tagnumber = '$tagNum' AND NOT system_manufacturer = 'N/A' ORDER BY time DESC LIMIT 1";
+    $sql = "SELECT system_manufacturer FROM jobstats WHERE tagnumber = '$tagNum' AND system_manufacturer IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
         $deviceType = $row['system_manufacturer'];

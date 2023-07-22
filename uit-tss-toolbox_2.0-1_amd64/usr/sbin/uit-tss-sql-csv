@@ -35,18 +35,37 @@ $time = date('Y-m-d-His', time());
 
     $conn->query($sql);
 
+    #Client Table
+    $sql = "SELECT DISTINCT tagnumber FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
+    $results = $conn->query($sql);
+    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $arr[] = $row['tagnumber'];
+    }
+
     $sql = "SELECT 'Tag Number','Chassis Serial Number','Device Manufacturer','Device Model','Last Job Date',";
     $sql .= "'Average Time for All Operations (minutes)','Average Time to Erase (minutes)','Average Time to Clone (minutes)','Total Jobs (Erase and Clone Jobs)','Total Erase Jobs',";
     $sql .= "'Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date','Battery Max Charge in Percent','Terabytes Written (TBW)','Max Terabytes Written (TBW)', 'Average Boot Time (seconds)'";
-    $sql .= "UNION ALL
-    SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,battery_manufacturedate,battery_health,disk_tbw,max_tbw,boot_time
-    FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC 
-    INTO OUTFILE '/tmp/laptop-report-client-".$time.".csv'
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '\"'
-    LINES TERMINATED BY '\\n'";
+    $results = $conn->query($sql);
+    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
+        $file->fputcsv($row);
+        $file = null;
+    }
+
     
-    $conn->query($sql);
+    foreach ($arr as $row) {
+        unset($tagNum);
+        $tagNum = $row;
+        $sql = "SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,battery_manufacturedate,battery_health,disk_tbw,max_tbw,boot_time";
+        $sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC ";
+        $results = $conn->query($sql);
+        while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+            $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
+            $file->fputcsv($row);
+            $file = null;
+        }
+
+    }
 
 
     #Locations Table
