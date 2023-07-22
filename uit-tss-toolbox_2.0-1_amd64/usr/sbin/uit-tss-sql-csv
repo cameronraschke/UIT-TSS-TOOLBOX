@@ -47,7 +47,7 @@ $time = date('Y-m-d-His', time());
     $sql .= "'Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date','Battery Max Charge in Percent','Terabytes Written (TBW)','Max Terabytes Written (TBW)', 'Average Boot Time (seconds)'";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
-        $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
+        $file = new SplFileObject("/home/file/laptop-report-client-".$time.".csv", 'a');
         $file->fputcsv($row);
         $file = null;
     }
@@ -60,7 +60,7 @@ $time = date('Y-m-d-His', time());
         $sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC";
         $results = $conn->query($sql);
         while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
-            $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
+            $file = new SplFileObject("/home/file/laptop-report-client-".$time.".csv", 'a');
             $file->fputcsv($row);
             $file = null;
         }
@@ -78,7 +78,7 @@ $time = date('Y-m-d-His', time());
     $sql = "SELECT 'Tagnumber', 'Serial Number', 'Current Location', 'Status', 'Description of Problem (if applicable)', 'Datetime of Most Recent Update'";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
-        $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
+        $file = new SplFileObject("/home/file/laptop-report-location-".$time.".csv", 'a');
         $file->fputcsv($row);
         $file = null;
     }
@@ -90,7 +90,7 @@ $time = date('Y-m-d-His', time());
         $sql = "SELECT tagnumber,chassis_serial,location,status,problem,time FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
         $results = $conn->query($sql);
         while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
-            $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
+            $file = new SplFileObject("/home/file/laptop-report-location-".$time.".csv", 'a');
             $file->fputcsv($row);
             $file = null;
         }
