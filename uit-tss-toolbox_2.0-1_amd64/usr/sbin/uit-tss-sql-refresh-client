@@ -73,7 +73,7 @@ foreach ($arr as $row) {
     }
 
     #Update system_productname
-    $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum' AND not system_productname = 'N/A' ORDER BY time desc LIMIT 1";
+    $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET system_productname = '" . $row['system_productname'] . "' WHERE tagnumber = '$tagNum'";
