@@ -73,7 +73,7 @@ foreach ($arr as $row) {
     }
 
     #Update system_productname
-    $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
+    $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum' AND NOT system_productname = 'N/A' ORDER BY time DESC LIMIT 1";
     $results = $conn->query($sql);
     while ($row = $results->fetch_assoc()) {
         $sql = "UPDATE clientstats SET system_productname = '" . $row['system_productname'] . "' WHERE tagnumber = '$tagNum'";
@@ -248,7 +248,7 @@ foreach ($arr as $row) {
     $sql = "UPDATE clientstats SET all_lastuuid = '$lastUUID' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
     # Device Type
-    $sql = "SELECT system_manufacturer FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
+    $sql = "SELECT system_manufacturer FROM jobstats WHERE tagnumber = '$tagNum' AND NOT system_manufacturer = 'N/A' ORDER BY time DESC LIMIT 1";
     $results = $conn->query($sql);
     $i = $results->fetch_all(MYSQLI_ASSOC);
     foreach($i as $key => $value) {
