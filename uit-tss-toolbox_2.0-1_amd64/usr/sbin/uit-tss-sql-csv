@@ -24,7 +24,7 @@ $time = date('Y-m-d-His', time());
 
     $conn->query($sql);
 
-    $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time','NVME Avg. Erase Time','SSD Avg. Erase Time','Average Disk Wear Percent','Average Battery Max Charge Level','Average Boot Time'
+    $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time (minutes)','NVME Avg. Erase Time (minutes)','SSD Avg. Erase Time (minutes)','Average Disk Wear Percent','Average Battery Max Charge Level Percent','Average Boot Time (seconds)'
     UNION ALL
     SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time
     FROM serverstats ORDER BY date DESC 
@@ -55,6 +55,15 @@ $time = date('Y-m-d-His', time());
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
         $arr[] = $row['tagnumber'];
     }
+
+    $sql = "SELECT 'Tagnumber', 'Serial Number', 'Current Location', 'Status', 'Description of Problem (if applicable)', 'Datetime of Most Recent Update'";
+    $results = $conn->query($sql);
+    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
+        $file->fputcsv($row);
+        $file = null;
+    }
+
     
     foreach ($arr as $row) {
         unset($tagNum);
