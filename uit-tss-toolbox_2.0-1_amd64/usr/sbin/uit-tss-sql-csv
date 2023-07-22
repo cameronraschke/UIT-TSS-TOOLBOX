@@ -36,6 +36,8 @@ $time = date('Y-m-d-His', time());
     $conn->query($sql);
 
     #Client Table
+    unset($arr);
+    unset($row);
     $sql = "SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,battery_manufacturedate,battery_health,disk_tbw,max_tbw,boot_time ";
     $sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC";
     $results = $conn->query($sql);
@@ -62,6 +64,8 @@ $time = date('Y-m-d-His', time());
 
 
     #Locations Table
+    unset($arr);
+    unset($row);
     $sql = "SELECT DISTINCT tagnumber FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
