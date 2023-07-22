@@ -242,10 +242,10 @@ foreach ($arr as $row) {
     }
 
     # Update last_job_date
-    $sql = "UPDATE clientstats SET last_job_date = '$lastDate' WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
+    $sql = "UPDATE clientstats SET last_job_date = '$lastDate' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
     # Update all_lastuuid
-    $sql = "UPDATE clientstats SET all_lastuuid = '$lastUUID' WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
+    $sql = "UPDATE clientstats SET all_lastuuid = '$lastUUID' WHERE tagnumber = '$tagNum'";
     $conn->query($sql);
     # Device Type
     $sql = "SELECT system_manufacturer FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
