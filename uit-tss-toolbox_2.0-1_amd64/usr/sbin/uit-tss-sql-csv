@@ -40,7 +40,7 @@ $time = date('Y-m-d-His', time());
     $sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
-        $arr[] = $row['tagnumber'];
+        $arr[] = $row;
     }
 
     $sql = "SELECT 'Tag Number','Chassis Serial Number','Device Manufacturer','Device Model','Last Job Date',";
