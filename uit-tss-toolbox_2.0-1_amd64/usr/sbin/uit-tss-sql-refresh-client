@@ -237,7 +237,11 @@ foreach ($arr as $row) {
     $results = $conn->query($sql);
     $lineNums = mysqli_num_rows($results);
     while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-        $sql = "UPDATE clientstats SET boot_time = ROUND('" . $row['boot_time'] . "' / '" . $lineNums . "', 0) WHERE tagnumber = '$tagNum'";
+        $bootTime = round(intdiv($row['boot_time'],$lineNums),0,PHP_ROUND_HALF_UP);
+        if ($bootTime == 0) {
+            $bootTime = "NULL";
+        }
+        $sql = "UPDATE clientstats SET boot_time = '$bootTime' WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
 
