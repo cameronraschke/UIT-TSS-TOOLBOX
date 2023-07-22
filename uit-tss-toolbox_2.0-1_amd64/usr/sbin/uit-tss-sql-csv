@@ -36,8 +36,8 @@ $time = date('Y-m-d-His', time());
     $conn->query($sql);
 
     $sql = "SELECT 'Tag Number','Chassis Serial Number','Device Manufacturer','Device Model','Last Job Date',";
-    $sql .= "'Average Time for All Operations','Average Time to Erase','Average Time to Clone','Total Jobs (Erase and Clone Jobs)','Total Erase Jobs',";
-    $sql .= "'Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date','Battery Health (Current Max Charge %)','TBW (Terabytes Written)','Max TBW', 'Average Boot Time'";
+    $sql .= "'Average Time for All Operations (minutes)','Average Time to Erase (minutes)','Average Time to Clone (minutes)','Total Jobs (Erase and Clone Jobs)','Total Erase Jobs',";
+    $sql .= "'Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date','Battery Max Charge in Percent','Terabytes Written (TBW)','Max Terabytes Written (TBW)', 'Average Boot Time (seconds)'";
     $sql .= "UNION ALL
     SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,battery_manufacturedate,battery_health,disk_tbw,max_tbw,boot_time
     FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC 
