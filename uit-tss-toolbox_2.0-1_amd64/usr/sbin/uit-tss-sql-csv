@@ -5,6 +5,15 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 $date = date('Y-m-d',time());
 $time = date('Y-m-d-His', time());
 
+    #Job Table
+    unset($arr);
+    unset($row);
+    $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY date DESC";
+    $results = $conn->query($sql);
+    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $arr[] = $row;
+    }
+
     $sql = "SELECT 'Job UUID','Tag Number','MAC Address','Date','Time','BIOS Vendor','BIOS Version','BIOS Last Update',";
     $sql .= "'BIOS Revision','BIOS Firmware','System Manufacturer','System Product Name','System Serial Number','System UUID',";
     $sql .= "'System SKU','System Family','Motherboard Manufacturer','Motherboard Serial Number','Chassis Manufcaturer',";
@@ -14,15 +23,18 @@ $time = date('Y-m-d-His', time());
     $sql .= "'Boot Time','Action','Reboot','Disk','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware','Disk Health Check','Disk Temperature','Disk Reads (TB)','Disk Writes (TB)',";
     $sql .= "'Max TBW (per the manufacturer)','Total Time','Erase Successful','Erase Mode','Total Erase Time','Percent of Disk Erased',";
     $sql .= "'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update','Linux User' ";
-    $sql .= "\nUNION ALL ";
-    $sql .= "\nSELECT * ";
-    $sql .= "\nFROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY date DESC ";
-    $sql .= "\nINTO OUTFILE '/tmp/laptop-report-job-".$time.".csv' ";
-    $sql .= "\nFIELDS TERMINATED BY ',' ";
-    $sql .= "\nENCLOSED BY '\"' ";
-    $sql .= "\nLINES TERMINATED BY '\\n'";
+    $results = $conn->query($sql);
+    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        $file = new SplFileObject("/home/file/laptop-report-job-".$time.".csv", 'a');
+        $file->fputcsv($row);
+        $file = null;
+    }
 
-    $conn->query($sql);
+    foreach ($arr as $row) {
+        $file = new SplFileObject("/home/file/laptop-report-job-".$time.".csv", 'a');
+        $file->fputcsv($row);
+        $file = null;
+    }
 
     #Server Table
     unset($arr);
