@@ -241,7 +241,7 @@ foreach ($arr as $row) {
         if ($bootTime == 0) {
             $bootTime = "NULL";
         }
-        $sql = "UPDATE clientstats SET boot_time = '$bootTime' WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE clientstats SET boot_time = $bootTime WHERE tagnumber = '$tagNum'";
         $conn->query($sql);
     }
 
