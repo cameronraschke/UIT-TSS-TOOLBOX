@@ -49,4 +49,13 @@ while ($row = $results->fetch_assoc()) {
     $conn->query($sql);
 }
 
+$sql = "UPDATE locations SET location = NULL WHERE location = ''";
+$conn->query($sql);
+
+$sql = "UPDATE locations SET status = NULL WHERE status = ''";
+$conn->query($sql);
+
+$sql = "UPDATE locations SET problem = NULL WHERE problem = ''";
+$conn->query($sql);
+
 ?>
