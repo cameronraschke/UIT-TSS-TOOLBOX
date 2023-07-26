@@ -19,14 +19,14 @@ read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] 
 
 if [[ $status == "1" ]]; then
     status="functioning"
-    problem="N/A"
+    problem=""
 elif [[ $status == "2" ]]; then
     echo ""
     status="broken"
     read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
 else
-    status="N/A"
-    problem="N/A"
+    status=""
+    problem=""
 fi
 
 echo "custom|${tagnumber}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
