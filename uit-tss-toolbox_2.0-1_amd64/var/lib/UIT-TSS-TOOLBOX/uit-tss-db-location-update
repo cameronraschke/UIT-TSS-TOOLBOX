@@ -35,7 +35,7 @@ if ($arr[0] == "custom") {
     }
 }
 
-$conn->query("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("ssssss", $tagNum,$serial,$location,$status,$problem,$time);
 $stmt->execute();
 
