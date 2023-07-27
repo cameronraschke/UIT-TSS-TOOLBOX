@@ -18,7 +18,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
     $input = '%';
 }
 
-$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND tagnumber LIKE '$input'";
+$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND tagnumber LIKE '$input' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 $results = $conn->query($sql);
 $arr = array();
 while ($row = mysqli_fetch_array($results)) {

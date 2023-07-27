@@ -32,7 +32,7 @@ if (isset($arr)) {
 	$conn->query($sql);
 
 	# Update laptop count
-	$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
+	$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-01' AND '$sqldate')";
 	$results = $conn->query($sql);
 	$linecount = mysqli_num_rows($results);
 	$sql = "UPDATE serverstats SET laptop_count = '$linecount' WHERE date = '$sqldate'";
