@@ -22,6 +22,9 @@ if [[ $status == "1" ]]; then
     problem=""
 elif [[ $status == "2" ]]; then
     echo ""
+    ISSUE=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
+	--execute="SELECT problem FROM locations WHERE tagnumber = '${tagnumber} ORDER BY time DESC LIMIT 1';")
+    echo "The last reported issue for ${tagnumber} was: ${ISSUE}"
     status="broken"
     read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
 else
