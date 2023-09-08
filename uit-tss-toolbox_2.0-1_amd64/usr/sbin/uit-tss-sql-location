@@ -6,7 +6,6 @@ BLUE=$(tput setaf 4)
 BOLD=$(tput bold)
 DIM=$(tput dim)
 RESET=$(tput sgr0)
-UUID=$(cat /proc/sys/kernel/random/uuid)
 
 while true; do
 date=$(date '+%Y-%m-%d %H:%M:%S')
@@ -40,5 +39,5 @@ else
     problem=""
 fi
 
-echo "custom|${tagnumber}|${serial}|${location}|${status}|${problem}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
+echo "custom|${tagnumber}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 done

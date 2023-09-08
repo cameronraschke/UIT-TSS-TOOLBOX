@@ -29,11 +29,12 @@ if ($arr[0] == "custom") {
     $location = $arr[3];
     $status = $arr[4];
     $problem = $arr[5];
-    $uuid = $arr[6];
 
     if (empty($serial) || $serial == "" || $serial == " ") {
         $serial = $default;
     }
+
+    $uuid = uniqid("manual", true);
 
     $sql = "INSERT INTO jobstats(uuid,tagnumber,etheraddress,date,time,bios_vendor,bios_version,bios_date,";
     $sql .= "bios_revision,bios_firmware,system_manufacturer,system_productname,system_serial,system_uuid,system_sku,";
