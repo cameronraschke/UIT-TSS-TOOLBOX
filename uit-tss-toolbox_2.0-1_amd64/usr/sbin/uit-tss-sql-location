@@ -16,7 +16,7 @@ read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagnumber
 SERIAL=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
 	--execute="SELECT chassis_serial FROM locations WHERE tagnumber = '${tagnumber}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
 echo "The last reported serial number for ${tagnumber} was: ${SERIAL}"
-if [[ -z $SERIAL ]]; then
+if [[ $SERIAL == "NULL" ]]; then
     read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
 else
     serial="${SERIAL}"
