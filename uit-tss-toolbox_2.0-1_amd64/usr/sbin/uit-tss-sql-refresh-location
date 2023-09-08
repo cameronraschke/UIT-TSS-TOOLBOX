@@ -20,8 +20,8 @@ $i = $results->fetch_all(MYSQLI_ASSOC);
         while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
             $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
             $conn->query($sql);
+        }
     }
-}
 
 $conn->close();
 ?>
