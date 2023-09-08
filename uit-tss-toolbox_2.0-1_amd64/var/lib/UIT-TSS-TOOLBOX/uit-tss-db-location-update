@@ -45,7 +45,7 @@ if ($arr[0] == "custom") {
     $sql .= "erase_completed,erase_mode,erase_time,erase_diskpercent,clone_completed,clone_mode,clone_time,clone_master,";
     $sql .= "clone_server,clone_image,clone_imageupdate,clone_sambauser) ";
     $sql .= "VALUES ('$uuid','$tagNum',$default,'$date','$time',$default,$default,$default,$default,$default,$default,$default,";
-    $sql .= "$serial,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
+    $sql .= "'$serial',$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
