@@ -5,8 +5,8 @@ include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
-$default = "N/A";
-$location = "N/A";
+$default = "NULL";
+$location = "NULL";
 
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
@@ -29,15 +29,35 @@ if ($arr[0] == "custom") {
     $location = $arr[3];
     $status = $arr[4];
     $problem = $arr[5];
+    $uuid = $arr[6];
 
     if (empty($serial) || $serial == "" || $serial == " ") {
         $serial = $default;
     }
+
+    $sql = "INSERT INTO jobstats(uuid,tagnumber,etheraddress,date,time,bios_vendor,bios_version,bios_date,";
+    $sql .= "bios_revision,bios_firmware,system_manufacturer,system_productname,system_serial,system_uuid,system_sku,";
+    $sql .= "system_family,motherboard_manufacturer,motherboard_serial,chassis_manufacturer,chassis_type,chassis_serial,";
+    $sql .= "chassis_tag,chassis_psu,cpu_family,cpu_manufacturer,cpu_id,cpu_version,cpu_voltage,cpu_maxspeed,cpu_currentspeed,";
+    $sql .= "cpu_cores,cpu_threads,ram_serial,battery_manufacturer,battery_name,battery_capacity,battery_voltage,battery_serial,";
+    $sql .= "battery_manufacturedate,battery_alarm,battery_health,battery_charge_cycles,boot_errors,boot_time,action,reboot,disk,";
+    $sql .= "disksizegb,disk_model,disk_serial,disk_firmware,disk_health,disk_temp,disk_reads,disk_writes,max_tbw,all_time,";
+    $sql .= "erase_completed,erase_mode,erase_time,erase_diskpercent,clone_completed,clone_mode,clone_time,clone_master,";
+    $sql .= "clone_server,clone_image,clone_imageupdate,clone_sambauser) ";
+    $sql .= "VALUES ('$uuid','$tagNum',$default,'$date','$time',$default,$default,$default,$default,$default,$default,$default,";
+    $sql .= "$serial,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
+    $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
+    $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
+    $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
+    $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default)";
+    $conn->query($sql);
 }
 
 $stmt = $conn->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("ssssss", $tagNum,$serial,$location,$status,$problem,$time);
 $stmt->execute();
+
+
 
 #Update Serial Numbers
 $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
