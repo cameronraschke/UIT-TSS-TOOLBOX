@@ -58,4 +58,7 @@ $conn->query($sql);
 $sql = "UPDATE locations SET problem = NULL WHERE problem = ''";
 $conn->query($sql);
 
+$sql = "UPDATE locations SET chassis_serial = NULL WHERE chassis_serial = ''";
+$conn->query($sql);
+
 ?>
