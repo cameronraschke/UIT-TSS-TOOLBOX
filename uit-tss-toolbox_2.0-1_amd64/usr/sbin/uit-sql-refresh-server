@@ -67,11 +67,10 @@ foreach ($pdo->query($sql) as $row) {
 
 	# Update ssd_erase_avgtime
 	$sql = "SELECT erase_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
-	$results = $conn->query($sql);
-	$linecount = mysqli_num_rows($results);
+	$results = $pdo->query($sql);
+	$linecount = $results->fetchColumn();
 	$sql = "SELECT SUM(erase_time) as ssd_erase_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
-	$results = $conn->query($sql);
-	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+	foreach ($pdo->query($sql) as $row) {
 		$sum = $row['ssd_erase_avgtime'];
 		$sql = "UPDATE serverstats SET ssd_erase_avgtime = ROUND('$sum' / '$linecount' / 60, 0) WHERE date = '$sqldate'";
 		$pdo->query($sql);
