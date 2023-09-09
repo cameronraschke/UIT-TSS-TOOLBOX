@@ -1,5 +1,5 @@
 #!/bin/bash
 
-/usr/bin/chmod 700 /usr/sbin/uit-tss-*
-/usr/bin/chown root:root /usr/sbin/uit-tss-*
+/usr/bin/chmod 700 /usr/sbin/uit-*
+/usr/bin/chown root:root /usr/sbin/uit-*
 /usr/bin/chown root:root /var/lib/UIT-TSS-TOOLBOX/ -R
