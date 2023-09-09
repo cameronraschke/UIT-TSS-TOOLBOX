@@ -11,11 +11,12 @@ $sql = "SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000'";
         unset($tagNum);
         global $tagNum;
         $tagNum = $row;
+        var_dump($row);
 
         #Update Serial Numbers
         $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
         foreach ($pdo->query($sql) as $row) {
-            echo "$row";
+            var_dump($row);
             #$sql = "UPDATE locations SET chassis_serial = '$row' WHERE tagnumber = '$tagNum'";
             #$pdo->query($sql);
         }
