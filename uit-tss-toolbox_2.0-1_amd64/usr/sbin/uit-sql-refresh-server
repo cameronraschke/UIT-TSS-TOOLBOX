@@ -27,23 +27,21 @@ if ($count == "0") {
 
 # Select all the dates from the serverstats table and iterate through them.
 $sql = "SELECT date FROM serverstats";
-$arr = $conn->query($sql);
-if (isset($arr)) {
-	foreach ($arr as $row) {
+foreach ($pdo->query($sql) as $row) {
 	$sqldate = $row['date'];
 	echo "Working on date: " . $row['date'] . PHP_EOL;
 
 	/* Update time, which is a datetime stamp. This helps us see the time when the serverstats 
 	table was last updated, not just the date. */
 	$sql = "UPDATE serverstats SET time = '$time' WHERE date = '$date'";
-	$conn->query($sql);
+	$pdo->query($sql);
 
 	/* Update laptop count. This takes*/
 	$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-01' AND '$sqldate')";
 	$results = $conn->query($sql);
 	$linecount = mysqli_num_rows($results);
 	$sql = "UPDATE serverstats SET laptop_count = '$linecount' WHERE date = '$sqldate'";
-	$conn->query($sql);
+	$pdo->query($sql);
 
 	# Update clone_avgtime
 	$sql = "SELECT clone_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
@@ -54,7 +52,7 @@ if (isset($arr)) {
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['clone_avgtime'];
 		$sql = "UPDATE serverstats SET clone_avgtime = ROUND('$sum' / '$linecount' / 60, 0) WHERE date = '$sqldate'";
-		$conn->query($sql);
+		$pdo->query($sql);
 	}
 
 	# Update nvme_erase_avgtime
@@ -66,7 +64,7 @@ if (isset($arr)) {
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['nvme_erase_avgtime'];
 		$sql = "UPDATE serverstats SET nvme_erase_avgtime = ROUND('$sum' / '$linecount' / 60, 0) WHERE date = '$sqldate'";
-		$conn->query($sql);
+		$pdo->query($sql);
 	}
 
 	# Update ssd_erase_avgtime
@@ -78,7 +76,7 @@ if (isset($arr)) {
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['ssd_erase_avgtime'];
 		$sql = "UPDATE serverstats SET ssd_erase_avgtime = ROUND('$sum' / '$linecount' / 60, 0) WHERE date = '$sqldate'";
-		$conn->query($sql);
+		$pdo->query($sql);
 	}
 
 	# Update erase_jobs
@@ -87,7 +85,7 @@ if (isset($arr)) {
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$eraseJobsLineCount = $row['erase_jobs'];
 		$sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLineCount' WHERE date = '$sqldate'";
-		$conn->query($sql);
+		$pdo->query($sql);
 	}
 
 	# Update clone_jobs
@@ -96,13 +94,13 @@ if (isset($arr)) {
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$cloneJobsLineCount = $row['clone_jobs'];
 		$sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLineCount' WHERE date = '$sqldate'";
-		$conn->query($sql);
+		$pdo->query($sql);
 	}
 
 	# Update all_jobs
 	$allJobsLineCount = $eraseJobsLineCount + $cloneJobsLineCount;
 	$sql = "UPDATE serverstats SET all_jobs = '$allJobsLineCount' WHERE date = '$sqldate'";
-	$conn->query($sql);
+	$pdo->query($sql);
 
 	# Update last_image_update
 	$sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate') ORDER BY time DESC LIMIT 1";
@@ -113,7 +111,7 @@ if (isset($arr)) {
 	}
 	if (!empty($lastImageUpdate)) {
 		$sql = "UPDATE serverstats SET last_image_update = '$lastImageUpdate' WHERE date = '$sqldate'";
-		$conn->query($sql);
+		$pdo->query($sql);
 	}
 
 	#TBW
@@ -122,7 +120,7 @@ if (isset($arr)) {
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$pcntTBW = $row['tbw_pcnt'];
 		$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
-		$conn->query($sql);
+		$pdo->query($sql);
 	}
 
 	#Update boot_time
@@ -135,7 +133,7 @@ if (isset($arr)) {
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sumBootTime = $row['boot_time'];
 		$sql = "UPDATE serverstats SET boot_time = ROUND($sumBootTime / $lineNums, 0) WHERE date = '$date'";
-		$conn->query($sql);
+		$pdo->query($sql);
 	}
 
 	#Update battery_health
@@ -148,10 +146,10 @@ if (isset($arr)) {
 	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
 		$sum = $row['battery_health'];
 		$sql = "UPDATE serverstats SET battery_health = ROUND($sum / $lineNums, 0) WHERE date = '$date'";
-		$conn->query($sql);
+		$pdo->query($sql);
 	}
-}
 }
 
 $conn->close();
+$pdo = null;
 ?>
