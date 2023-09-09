@@ -184,14 +184,14 @@ function enterTag {
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
-		/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
+		/usr/sbin/uit-sql-refresh-client &>/dev/null &
 		echo "begin,${tagNum},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 		return
 	else
 		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
-		/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
+		/usr/sbin/uit-sql-refresh-client &>/dev/null &
 		echo "begin,${tagNum},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 	fi
 }
@@ -1378,7 +1378,7 @@ function terminate {
 	totaltime
 	sleep 1
 	echo "end,${tagNum},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
-	/usr/sbin/uit-tss-sql-refresh-client &>/dev/null &
+	/usr/sbin/uit-sql-refresh-client &>/dev/null &
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
@@ -1454,7 +1454,7 @@ function terminate {
 	fi
 
 	echo ""
-	/usr/sbin/uit-tss-sql-refresh-client	
+	/usr/sbin/uit-sql-refresh-client	
 	echo ""
 	echo "${exitMessage}"
 	echo ""

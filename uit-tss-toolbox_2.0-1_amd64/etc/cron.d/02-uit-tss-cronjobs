@@ -1,5 +1,5 @@
-* */12 * * * root /usr/sbin/uit-tss-toolbox-backup
-1 */3 * * * root /usr/sbin/uit-tss-sql-csv
+* */12 * * * root /usr/sbin/uit-toolbox-backup
+1 */3 * * * root /usr/sbin/uit-sql-csv
 * * * * * root mv /tmp/laptop-report-job*.csv /mnt/laptop-reports/job-reports
 * * * * * root mv /tmp/laptop-report-location*.csv /mnt/laptop-reports/location-reports
 * * * * * root mv /tmp/laptop-report-client*.csv /mnt/laptop-reports/client-reports

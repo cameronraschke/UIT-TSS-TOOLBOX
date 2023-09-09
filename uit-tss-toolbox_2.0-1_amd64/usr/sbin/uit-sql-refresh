@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo | /usr/sbin/uit-sql-refresh-client
+/usr/sbin/uit-sql-refresh-location
+/usr/sbin/uit-sql-refresh-server
