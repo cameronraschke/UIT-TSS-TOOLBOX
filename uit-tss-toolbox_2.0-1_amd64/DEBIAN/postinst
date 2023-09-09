@@ -4,8 +4,8 @@
 /usr/bin/chown root:uit /usr/sbin/uit-*
 /usr/bin/chmod 750 /var/lib/UIT-TSS-TOOLBOX/ -R
 /usr/bin/chown root:uit /var/lib/UIT-TSS-TOOLBOX/ -R
-echo -e "\n" >> /etc/cron.d/01-uit-tss-cronjobs
-echo -e "\n" >> /etc/cron.d/02-uit-tss-cronjobs
+echo -e "\n" >> /etc/cron.d/01-uit-cronjobs
+echo -e "\n" >> /etc/cron.d/02-uit-cronjobs
 cp -r /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/ /home/cameron
 chown cameron:cameron /home/cameron/uit-tss-client_2.0-1_amd64/ -R
 chmod 775 /home/cameron/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
