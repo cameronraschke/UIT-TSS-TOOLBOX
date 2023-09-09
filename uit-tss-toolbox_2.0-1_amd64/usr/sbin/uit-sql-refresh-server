@@ -4,7 +4,6 @@
 serverstats table is an aggregation of the clientstats table's statistics and also pulls some data
 from the jobstats table. serverstats is a historical table. This script iterates between every date
 starting at 2023-01-09 (our first database entry) and works through every date until the current date. */
-include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 echo "Updating serverstats" . PHP_EOL;
@@ -115,8 +114,7 @@ foreach ($pdo->query($sql) as $row) {
 	}
 
 	#TBW
-	$sql = "SELECT ROUND((100-(SUM(disk_tbw)/(SUM(max_tbw)/1000))), 0) AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = 'N/A'";
-	$results = $conn->query($sql);
+	$sql = "SELECT ROUND((100-(SUM(disk_tbw)/(SUM(max_tbw)/1000))), 0) AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = 'N/A' AND max_tbw IS NOT NULL";
 	foreach($pdo->query($sql) as $row) {
 		$pcntTBW = $row['tbw_pcnt'];
 		$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
@@ -124,32 +122,29 @@ foreach ($pdo->query($sql) as $row) {
 	}
 
 	#Update boot_time
-	$sql = "SELECT boot_time FROM clientstats WHERE NOT boot_time = '0'";
-	$results = $conn->query($sql);
-	$lineNums = mysqli_num_rows($results);
+	$sql = "SELECT COUNT(boot_time) FROM clientstats WHERE NOT boot_time = '0'";
+	$results = $pdo->query($sql);
+	$lineNums = $results->fetchColumn();
 
 	$sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM clientstats WHERE NOT boot_time = '0'";
-	$results = $conn->query($sql);
-	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+	foreach($pdo->query($sql) as $row) {
 		$sumBootTime = $row['boot_time'];
-		$sql = "UPDATE serverstats SET boot_time = ROUND($sumBootTime / $lineNums, 0) WHERE date = '$date'";
+		$sql = "UPDATE serverstats SET boot_time = ROUND('$sumBootTime' / '$lineNums', 0) WHERE date = '$date'";
 		$pdo->query($sql);
 	}
 
 	#Update battery_health
 	$sql = "SELECT battery_health FROM clientstats WHERE NOT battery_health = ''";
-	$results = $conn->query($sql);
-	$lineNums = mysqli_num_rows($results);
+	$results = $pdo->query($sql);
+	$lineNums = $results->fetchColumn();
 
 	$sql = "SELECT ROUND(SUM(battery_health), 2) as battery_health FROM clientstats WHERE NOT battery_health = ''";
-	$results = $conn->query($sql);
-	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+	foreach($pdo->query($sql) as $row) {
 		$sum = $row['battery_health'];
-		$sql = "UPDATE serverstats SET battery_health = ROUND($sum / $lineNums, 0) WHERE date = '$date'";
+		$sql = "UPDATE serverstats SET battery_health = ROUND('$sum' / '$lineNums', 0) WHERE date = '$date'";
 		$pdo->query($sql);
 	}
 }
 
-$conn->close();
 $pdo = null;
 ?>
