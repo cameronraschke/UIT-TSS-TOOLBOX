@@ -43,7 +43,7 @@ foreach ($pdo->query($sql) as $row) {
 	$pdo->query($sql);
 
 	# Update clone_avgtime
-	$sql = "SELECT clone_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
+	$sql = "SELECT COUNT(clone_time) FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $pdo->query($sql);
 	$linecount = $results->fetchColumn();
 	$sql = "SELECT SUM(clone_time) as clone_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
@@ -134,7 +134,7 @@ foreach ($pdo->query($sql) as $row) {
 	}
 
 	#Update battery_health
-	$sql = "SELECT battery_health FROM clientstats WHERE NOT battery_health = ''";
+	$sql = "SELECT COUNT(battery_health) FROM clientstats WHERE NOT battery_health = ''";
 	$results = $pdo->query($sql);
 	$lineNums = $results->fetchColumn();
 
