@@ -1,24 +1,23 @@
 #!/usr/bin/php
 <?php
+
+/* uit-sql-refresh-location uses php to update the location table. This script
+specifically focuses on matching a tagnumber from the clientstats table and
+putting the tagnumber's corresponding serial number into the location table. */
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
-### Location Table ###
-$sql = "SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000'";
-    foreach ($pdo->query($sql) as $row) {
-        unset($tagNum);
-        global $tagNum;
-        $tagNum = $row["tagnumber"];
+# Select tagnumbers and serial numbers from clientstats
+$sql = "SELECT tagnumber,chassis_serial FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
+foreach ($pdo->query($sql) as $row) {
+    $tagNum = $row['tagnumber'];
+    $serial = $row['chassis_serial'];
+    $sql = "UPDATE locations SET chassis_serial = '$serial' WHERE tagnumber = '$tagNum'";
+    $pdo->query($sql);
+}
 
-        #Update Serial Numbers
-        $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
-        foreach ($pdo->query($sql) as $row) {
-            $sql = "UPDATE locations SET chassis_serial = '" . $row["chassis_serial"] . "' WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-        }
-    }
-
+# Close the connection
 $pdo = null;
 ?>

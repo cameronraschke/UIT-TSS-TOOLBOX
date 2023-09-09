@@ -2,8 +2,10 @@
 <?php
 /* "uit-sql-refresh-server" uses PHP to refresh the serverstats table in the mysql database. The
 serverstats table is an aggregation of the clientstats table's statistics and also pulls some data
-from the jobstats table. serverstats is a historical table. This script iterates between every date
-starting at 2023-01-09 (our first database entry) and works through every date until the current date. */
+from the jobstats table. serverstats is a historical table. This script iterates through every date
+starting at 2023-01-09 (our first database entry) until the current date and updates all of the entries
+accordingly. TBW, boot_time, and battry_health are not historical, meaning they only update when the 
+script runs and cannot update retroactively if, for example, the serverstats table were to be lost.*/
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 echo "Updating serverstats" . PHP_EOL;
@@ -35,7 +37,7 @@ foreach ($pdo->query($sql) as $row) {
 	$sql = "UPDATE serverstats SET time = '$time' WHERE date = '$date'";
 	$pdo->query($sql);
 
-	/* Update laptop count. This takes*/
+	/* Update laptop count. A laptop counts as a distinct tagnumber in jobstats.*/
 	$sql = "SELECT COUNT(DISTINCT tagnumber) FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-01' AND '$sqldate')";
 	$results = $pdo->query($sql);
 	$linecount = $results->fetchColumn();
@@ -146,5 +148,6 @@ foreach ($pdo->query($sql) as $row) {
 	}
 }
 
+# Close the connection
 $pdo = null;
 ?>
