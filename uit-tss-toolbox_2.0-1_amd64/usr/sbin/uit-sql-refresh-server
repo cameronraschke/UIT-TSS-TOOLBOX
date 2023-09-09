@@ -1,10 +1,11 @@
 #!/usr/bin/php
 <?php
-/* "uit-tss-sql-refresh-server" uses PHP to refresh the serverstats table in the mysql database. The
+/* "uit-sql-refresh-server" uses PHP to refresh the serverstats table in the mysql database. The
 serverstats table is an aggregation of the clientstats table's statistics and also pulls some data
 from the jobstats table. serverstats is a historical table. This script iterates between every date
 starting at 2023-01-09 (our first database entry) and works through every date until the current date. */
 include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 echo "Updating serverstats" . PHP_EOL;
 
@@ -12,15 +13,15 @@ $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
 # If the current date does not exist in the DB, then create an entry for the current date with mostly NULL values.
-$sql = "SELECT date FROM serverstats WHERE date = '$date'";
-$results = $conn->query($sql);
-$exists = mysqli_num_rows($results);
-if ($exists == "0") {
-		echo "Inserting new serverstats entry for $date." . PHP_EOL;
+$sql = "SELECT COUNT(date) FROM serverstats WHERE date = '$date'";
+$results = $pdo->query($sql);
+$count = $results->fetchColumn();
+if ($count == "0") {
+		echo "Inserting new serverstats entry for $date." . "\n";
 		$sql = "INSERT INTO serverstats(date,time,laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,";
 		$sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time) VALUES ('$date','$time',";
 		$sql .= "NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)";
-		$conn->query($sql);
+		$pdo->query($sql);
 }
 
 
