@@ -1,12 +1,17 @@
 #!/usr/bin/php
 <?php
+/* "uit-tss-sql-refresh-server" uses PHP to refresh the serverstats table in the mysql database. The
+serverstats table is an aggregation of the clientstats table's statistics and also pulls some data
+from the jobstats table. serverstats is a historical table. This script iterates between every date
+starting at 2023-01-09 (our first database entry) and works through every date until the current date. */
 include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
-##### serverstats #####
+
 echo "Updating serverstats" . PHP_EOL;
 
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
+# If the current date does not exist in the DB, then create an entry for the current date with mostly NULL values.
 $sql = "SELECT date FROM serverstats WHERE date = '$date'";
 $results = $conn->query($sql);
 $exists = mysqli_num_rows($results);
@@ -19,7 +24,7 @@ if ($exists == "0") {
 }
 
 
-# Update date of report, create new report if none exist for today
+# Select all the dates from the serverstats table and iterate through them.
 $sql = "SELECT date FROM serverstats";
 $arr = $conn->query($sql);
 if (isset($arr)) {
@@ -27,11 +32,12 @@ if (isset($arr)) {
 	$sqldate = $row['date'];
 	echo "Working on date: " . $row['date'] . PHP_EOL;
 
-	# Update time
+	/* Update time, which is a datetime stamp. This helps us see the time when the serverstats 
+	table was last updated, not just the date. */
 	$sql = "UPDATE serverstats SET time = '$time' WHERE date = '$date'";
 	$conn->query($sql);
 
-	# Update laptop count
+	/* Update laptop count. This takes*/
 	$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-01' AND '$sqldate')";
 	$results = $conn->query($sql);
 	$linecount = mysqli_num_rows($results);
