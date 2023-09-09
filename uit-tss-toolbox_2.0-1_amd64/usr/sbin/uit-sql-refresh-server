@@ -55,7 +55,7 @@ foreach ($pdo->query($sql) as $row) {
 	}
 
 	# Update nvme_erase_avgtime
-	$sql = "SELECT erase_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
+	$sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $pdo->query($sql);
 	$linecount = $results->fetchColumn();
 	$sql = "SELECT SUM(erase_time) as nvme_erase_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
@@ -66,13 +66,24 @@ foreach ($pdo->query($sql) as $row) {
 	}
 
 	# Update ssd_erase_avgtime
-	$sql = "SELECT erase_time FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
+	$sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	$results = $pdo->query($sql);
 	$linecount = $results->fetchColumn();
 	$sql = "SELECT SUM(erase_time) as ssd_erase_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	foreach ($pdo->query($sql) as $row) {
 		$sum = $row['ssd_erase_avgtime'];
 		$sql = "UPDATE serverstats SET ssd_erase_avgtime = ROUND('$sum' / '$linecount', 0) WHERE date = '$sqldate'";
+		$pdo->query($sql);
+	}
+
+	# Update all_avgtime
+	$sql = "SELECT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND erase_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
+	$results = $pdo->query($sql);
+	$linecount = $results->fetchColumn();
+	$sql = "SELECT SUM(clone_time + erase_time) as all_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND erase_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
+	foreach ($pdo->query($sql) as $row) {
+		$sum = $row['all_avgtime'];
+		$sql = "UPDATE serverstats SET all_avgtime = ROUND('$sum' / '$linecount' / 60 * 10, 0) WHERE date = '$sqldate'";
 		$pdo->query($sql);
 	}
 
@@ -97,12 +108,8 @@ foreach ($pdo->query($sql) as $row) {
 
 	# Update last_image_update
 	$sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate') ORDER BY time DESC LIMIT 1";
-	$results = $conn->query($sql);
-	$i = $results->fetch_all(MYSQLI_ASSOC);
-	foreach($i as $key => $value) {
+	foreach($pdo->query($sql) as $row) {
 		$lastImageUpdate = $value['date'];
-	}
-	if (!empty($lastImageUpdate)) {
 		$sql = "UPDATE serverstats SET last_image_update = '$lastImageUpdate' WHERE date = '$sqldate'";
 		$pdo->query($sql);
 	}
@@ -110,7 +117,7 @@ foreach ($pdo->query($sql) as $row) {
 	#TBW
 	$sql = "SELECT ROUND((100-(SUM(disk_tbw)/(SUM(max_tbw)/1000))), 0) AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = 'N/A'";
 	$results = $conn->query($sql);
-	while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
+	foreach($pdo->query($sql) as $row) {
 		$pcntTBW = $row['tbw_pcnt'];
 		$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
 		$pdo->query($sql);
