@@ -1,27 +1,24 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
 ### Location Table ###
 $sql = "SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000'";
-$results = $conn->query($sql);
-$i = $results->fetch_all(MYSQLI_ASSOC);
-    foreach ($i as $key => $value) {
+    foreach ($pdo->query($sql) as $row) {
         unset($tagNum);
         global $tagNum;
-        $tagNum = $value['tagnumber'];
+        $tagNum = $row;
 
         #Update Serial Numbers
         $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
-        $results = $conn->query($sql);
-        while ($row = $results->fetch_array(MYSQLI_ASSOC)) {
-            $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
-            $conn->query($sql);
+        foreach ($pdo->query($sql) as $row) {
+            $sql = "UPDATE locations SET chassis_serial = '$row' WHERE tagnumber = '$tagNum'";
+            $pdo->query($sql);
         }
     }
 
-$conn->close();
+$pdo = null;
 ?>
