@@ -15,9 +15,8 @@ $sql = "SELECT tagnumber FROM clientstats WHERE NOT tagnumber = '000000'";
         #Update Serial Numbers
         $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
         foreach ($pdo->query($sql) as $row) {
-            var_dump($row["tagnumber"]);
-            #$sql = "UPDATE locations SET chassis_serial = '" . $row["tagnumber"] . "' WHERE tagnumber = '$tagNum'";
-            #$pdo->query($sql);
+            $sql = "UPDATE locations SET chassis_serial = '" . $row["chassis_serial"] . "' WHERE tagnumber = '$tagNum'";
+            $pdo->query($sql);
         }
     }
 
