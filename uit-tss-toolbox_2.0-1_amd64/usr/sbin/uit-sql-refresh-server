@@ -109,7 +109,7 @@ foreach ($pdo->query($sql) as $row) {
 	# Update last_image_update
 	$sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate') ORDER BY time DESC LIMIT 1";
 	foreach($pdo->query($sql) as $row) {
-		$lastImageUpdate = $value['date'];
+		$lastImageUpdate = $row['date'];
 		$sql = "UPDATE serverstats SET last_image_update = '$lastImageUpdate' WHERE date = '$sqldate'";
 		$pdo->query($sql);
 	}
