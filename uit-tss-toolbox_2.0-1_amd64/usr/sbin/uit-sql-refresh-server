@@ -37,9 +37,9 @@ foreach ($pdo->query($sql) as $row) {
 	$pdo->query($sql);
 
 	/* Update laptop count. This takes*/
-	$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-01' AND '$sqldate')";
-	$results = $conn->query($sql);
-	$linecount = mysqli_num_rows($results);
+	$sql = "SELECT COUNT(DISTINCT tagnumber) FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-01' AND '$sqldate')";
+	$results = $pdo->query($sql);
+	$linecount = $results->fetchColumn();
 	$sql = "UPDATE serverstats SET laptop_count = '$linecount' WHERE date = '$sqldate'";
 	$pdo->query($sql);
 
