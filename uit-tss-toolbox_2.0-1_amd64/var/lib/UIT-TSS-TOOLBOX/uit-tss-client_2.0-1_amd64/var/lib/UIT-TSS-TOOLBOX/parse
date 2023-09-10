@@ -1,6 +1,7 @@
 #!/bin/php
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
@@ -9,7 +10,7 @@ $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
 fclose($stdin);
 
-$arr = explode(',', $line);
+$arr = explode('|', $line);
 
 if ($arr[0] == "init") {
     $uuid = $arr[1];
@@ -75,5 +76,8 @@ if ($arr[0] == "init") {
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[2]."' WHERE uuid = '".$arr[3]."'";
     $conn->query($sql);
 }
+
+$conn->close();
+$pdo = null;
 
 ?>

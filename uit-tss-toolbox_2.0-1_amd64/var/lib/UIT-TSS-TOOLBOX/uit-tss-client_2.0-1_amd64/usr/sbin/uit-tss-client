@@ -31,7 +31,7 @@ UUID=$(cat /proc/sys/kernel/random/uuid)
 DATE=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="SELECT date FROM serverstats ORDER BY date DESC LIMIT 1")
 
 tput reset
-echo "init,${UUID},000000,${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
+echo "init|${UUID}|000000|${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
 tput reset
 
 
@@ -46,25 +46,25 @@ function hardwareData {
 	#t22 = Battery
 	#t32 = Boot Status
 	tZeroVendor=$(dmidecode --string bios-vendor)
-		echo "dmi,bios_vendor,${UUID},${tZeroVendor}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|bios_vendor|${UUID}|${tZeroVendor}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroBiosVersion=$(dmidecode --string bios-version)
-		echo "dmi,bios_version,${UUID},${tZeroBiosVersion}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|bios_version|${UUID}|${tZeroBiosVersion}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroBiosReleaseDate=$(dmidecode --string bios-release-date)
-		echo "dmi,bios_date,${UUID},${tZeroBiosReleaseDate}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|bios_date|${UUID}|${tZeroBiosReleaseDate}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroBiosRevision=$(dmidecode --string bios-revision)
-		echo "dmi,bios_revision,${UUID},${tZeroBiosRevision}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|bios_revision|${UUID}|${tZeroBiosRevision}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroFirmwareRevision=$(dmidecode --string firmware-revision)
-		echo "dmi,bios_firmware,${UUID},${tZeroFirmwareRevision}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|bios_firmware|${UUID}|${tZeroFirmwareRevision}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneManufacturer=$(dmidecode --string system-manufacturer)
-		echo "dmi,system_manufacturer,${UUID},${tOneManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|system_manufacturer|${UUID}|${tOneManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneProductName=$(dmidecode --string system-product-name)
-		echo "dmi,system_productname,${UUID},${tOneProductName}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|system_productname|${UUID}|${tOneProductName}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSerialNumber=$(dmidecode --string system-serial-number)
-		echo "dmi,system_serial,${UUID},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|system_serial|${UUID}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneUUID=$(dmidecode --string system-uuid)
-		echo "dmi,system_uuid,${UUID},${tOneUUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|system_uuid|${UUID}|${tOneUUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSKU=$(dmidecode --string system-sku-number)
-		echo "dmi,system_sku,${UUID},${tOneSKU}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "dmi|system_sku|${UUID}|${tOneSKU}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneFamily=$(dmidecode --string system-family)
 		echo "UPDATE jobstats SET system_family = '${tOneFamily}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
@@ -116,28 +116,28 @@ function hardwareData {
 
 	###Disk Data
 	diskModel=$(cat /root/smartctl-data | grep '^Model Number: ' | sed 's/Model Number: *//g')
-		echo "disk,disk_model,${UUID},${diskModel}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "disk|disk_model|${UUID}|${diskModel}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskSerial=$(cat /root/smartctl-data | grep '^Serial Number: ' | sed 's/Serial Number: *//g')
-		echo "disk,disk_serial,${UUID},${diskSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "disk|disk_serial|${UUID}|${diskSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
-		echo "disk,disk_firmware,${UUID},${diskFirmware}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "disk|disk_firmware|${UUID}|${diskFirmware}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test result: ' | sed 's/SMART overall-health self-assessment test result: *//g')
-		echo "disk,disk_health,${UUID},${diskHealth}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "disk|disk_health|${UUID}|${diskHealth}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/Temperature: *//g')
-		echo "disk,disk_temp,${UUID},${diskTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "disk|disk_temp|${UUID}|${diskTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskReads=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/Data Units Read: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
 	tbVRFY=$(echo "${diskReads}" | grep -iq 'TB')
 	gbVRFY=$(echo "${diskReads}" | grep -iq 'GB')
 	if [[ -z $tbVRFY ]]; then
 			diskReads=$(echo "${diskReads}" | sed 's/[^0-9\.]//g')
-			echo "disk,disk_reads,${UUID},${diskReads},TB" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk|disk_reads|${UUID}|${diskReads}|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		elif [[ -z $gbVRFY ]]; then
 			diskReads=$(echo "$diskReads" | sed 's/[^0-9\.]//g')
-			echo "disk,disk_reads,${UUID},${diskReads},GB" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk|disk_reads|${UUID}|${diskReads}|GB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
-			echo "disk,disk_reads,${UUID},NULL,TB" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk|disk_reads|${UUID}|NULL|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
-		echo "disk,disk_reads,${UUID},${diskReads}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "disk|disk_reads|${UUID}|${diskReads}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskWrites=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/Data Units Written: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
 	tbVRFY=$(echo "${diskWrites}" | grep -iq 'TB')
 	tbVRFY=${PIPESTATUS[0]}
@@ -145,31 +145,31 @@ function hardwareData {
 	gbVRFY=${PIPESTATUS[0]}
 	if [[ $tbVRFY == 0 ]]; then
 			diskWrites=$(echo "${diskWrites}" | sed 's/[^0-9\.]//g')
-			echo "disk,disk_writes,${UUID},${diskWrites},TB" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk|disk_writes|${UUID}|${diskWrites}|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		elif [[ $gbVRFY == 0 ]]; then
 			diskWrites=$(echo "$diskWrites" | sed 's/[^0-9\.]//g')
-			echo "disk,disk_writes,${UUID},${diskWrites},GB" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk|disk_writes|${UUID}|${diskWrites}|GB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
-			echo "disk,disk_writes,${UUID},NULL,TB" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk|disk_writes|${UUID}|NULL|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
 	###Battery Data
 	batChargeNow=$(cat /sys/class/power_supply/BAT0/charge_full)
 	batChargeFactory=$(cat /sys/class/power_supply/BAT0/charge_full_design)
 	batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
-		echo "battery,battery_health,${UUID},${batHealthPCNT}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "battery|battery_health|${UUID}|${batHealthPCNT}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	batAlarmBool=$(cat /sys/class/power_supply/BAT0/alarm)
-		echo "battery,battery_alarm,${UUID},${batAlarmBool}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "battery|battery_alarm|${UUID}|${batAlarmBool}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	batChargeCycles=$(cat /sys/class/power_supply/BAT0/cycle_count)
-		echo "battery,battery_charge_cycles,${UUID},${batChargeCycles}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "battery|battery_charge_cycles|${UUID}|${batChargeCycles}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Memory Data
 	memSerial=$(dmidecode --type memory | grep Serial | sed 's/Serial Number: //g' | sed 's/[[:space:]]//g' | perl -p -e 's/\n/ /')
-		echo "memory,ram_serial,${UUID},${memSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "memory|ram_serial|${UUID}|${memSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Boot Times
 	bootTime=$(systemd-analyze | grep -oP '[0-9]+[0-9.]*' | head -n 1)
-		echo "boot,boot_time,${UUID},${bootTime}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "boot|boot_time|${UUID}|${bootTime}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
@@ -179,7 +179,7 @@ function enterTag {
 	tput reset
 	echo ""
 
-	echo "checktag,$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "checktag|$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tagNum=$(cat /tmp/tagnumber.uit 2> /dev/null)
 	if [[ $tagNum =~ $regex ]]; then
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
@@ -318,7 +318,7 @@ function appSelect {
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
