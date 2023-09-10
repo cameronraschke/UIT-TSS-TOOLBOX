@@ -276,9 +276,9 @@ function intro {
 	echo "   ${BLUE}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
 	echo "   ${BLUE}[4]${RESET} ${BOLD}Simple erase NVME${RESET}"
 	echo "   ${BLUE}[5]${RESET} ${BOLD}Simple erase SATA${RESET}"
-	echo "   ${BLUE}[6]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
+	echo "   ${BLUE}[9]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
 	echo "   ${BLUE}[0]${RESET} ${BOLD}Associate Hardware Data${RESET}"
-	read -n 1 -p "Select [0-6]: " mainMenuOpt
+	read -n 1 -p "Select [0-9]: " mainMenuOpt
 
 	tput reset
 }
@@ -304,7 +304,7 @@ function powerWarning {
 		echo "${BOLD}It is dangerous to skip this step.${RESET}"
 		echo "${BOLD}${RED}*** WARNING ***${RESET}"
 		echo ""
-		read -p "Press ${BOLD}${BLUE}Enter${RESET}${BOLD} to NOT reset (DANGEROUS)....${RESET} "
+		read -p "Press ${BOLD}${BLUE}Enter${RESET}${BOLD} to skip this step and NOT hibernate (DANGEROUS)....${RESET} "
 		tput reset
 	else
 		powerWarning
@@ -1605,7 +1605,7 @@ function main {
 
 		powerWarning
 		execute
-	elif [[ $mainMenuOpt == "6" ]]; then
+	elif [[ $mainMenuOpt == "9" ]]; then
 		appSelect
 		diskSelect
 		execute
