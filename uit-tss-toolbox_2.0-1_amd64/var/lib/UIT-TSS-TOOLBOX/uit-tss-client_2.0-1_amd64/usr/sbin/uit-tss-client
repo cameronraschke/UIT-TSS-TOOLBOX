@@ -26,9 +26,9 @@ RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
-etherAddr=$(cat /sys/class/net/e*/address | tail -n 1)
+etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do cat /sys/class/net/${i}/address; done)
 UUID=$(cat /proc/sys/kernel/random/uuid)
-DATE=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N --execute="SELECT date FROM serverstats ORDER BY date DESC LIMIT 1")
+DATE=$(date --iso)
 
 tput reset
 echo "init|${UUID}|000000|${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -68,7 +68,7 @@ function hardwareData {
 	tOneFamily=$(dmidecode --string system-family)
 		echo "dmi|system_family|${UUID}|${tOneFamily}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
-		echo "UPDATE jobstats SET motherboard_manufacturer = '${tTwoManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi|motherboard_manufacturer|${UUID}|${tTwoManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
 		echo "UPDATE jobstats SET motherboard_serial = '${tTwoSerialNumber}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tThreeManufacturer=$(dmidecode --string chassis-manufacturer)
@@ -125,19 +125,22 @@ function hardwareData {
 		echo "disk|disk_health|${UUID}|${diskHealth}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/Temperature: *//g')
 		echo "disk|disk_temp|${UUID}|${diskTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	
 	diskReads=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/Data Units Read: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
-	tbVRFY=$(echo "${diskReads}" | grep -iq 'TB')
-	gbVRFY=$(echo "${diskReads}" | grep -iq 'GB')
-	if [[ -z $tbVRFY ]]; then
+	tbVRFY=$(echo "${diskWrites}" | grep -iq 'TB')
+	tbVRFY=${PIPESTATUS[0]}
+	gbVRFY=$(echo "${diskWrites}" | grep -iq 'GB')
+	gbVRFY=${PIPESTATUS[0]}
+	if [[ $tbVRFY == 0 ]]; then
 			diskReads=$(echo "${diskReads}" | sed 's/[^0-9\.]//g')
 			echo "disk|disk_reads|${UUID}|${diskReads}|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
-		elif [[ -z $gbVRFY ]]; then
+		elif [[ $gbVRFY == 0 ]]; then
 			diskReads=$(echo "$diskReads" | sed 's/[^0-9\.]//g')
 			echo "disk|disk_reads|${UUID}|${diskReads}|GB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
 			echo "disk|disk_reads|${UUID}|NULL|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
-		echo "disk|disk_reads|${UUID}|${diskReads}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
 	diskWrites=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/Data Units Written: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
 	tbVRFY=$(echo "${diskWrites}" | grep -iq 'TB')
 	tbVRFY=${PIPESTATUS[0]}
