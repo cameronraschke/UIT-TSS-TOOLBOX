@@ -41,7 +41,7 @@ if ($arr[0] == "init") {
         }
     }
     $sql = "UPDATE jobstats SET ".$arr[1]." = '$value' WHERE uuid = '".$arr[2]."'";
-    $conn->query($sql);
+    $pdo->query($sql);
 } elseif ($arr[0] == "battery") {
     $value = $arr[3];
     if ($arr[1] == "battery_charge_cycles") { 
@@ -50,22 +50,22 @@ if ($arr[0] == "init") {
         }
     }
     $sql = "UPDATE jobstats SET ".$arr[1]." = '$value' WHERE uuid = '".$arr[2]."'";
-    $conn->query($sql);
+    $pdo->query($sql);
 } elseif ($arr[0] == "memory") {
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
-    $conn->query($sql);
+    $pdo->query($sql);
 } elseif ($arr[0] == "dmi") {
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
-    $conn->query($sql);
+    $pdo->query($sql);
 } elseif ($arr[0] == "boot") {
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
-    $conn->query($sql);
+    $pdo->query($sql);
 } elseif ($arr[0] == "update") {
     system("ssh cameron@mickey.uit 'echo $arr[1] | uit-sql-refresh-client'", $return);
 } elseif ($arr[0] == "checktag") {
     $systemSerial = $arr[1];
     $sql = "SELECT tagnumber FROM clientstats WHERE chassis_serial = '$systemSerial'";
-    $results = $conn->query($sql);
+    $results = $pdo->query($sql);
     while ($row = $results->fetch_assoc()) {
         $tagNum = $row['tagnumber'];
         $myfile = fopen("/tmp/tagnumber.uit", "w");
@@ -124,10 +124,9 @@ if ($arr[0] == "init") {
 
 } elseif ($arr[0] == "general") {
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[2]."' WHERE uuid = '".$arr[3]."'";
-    $conn->query($sql);
+    $pdo->query($sql);
 }
 
-$conn->close();
 $pdo = null;
 
 ?>
