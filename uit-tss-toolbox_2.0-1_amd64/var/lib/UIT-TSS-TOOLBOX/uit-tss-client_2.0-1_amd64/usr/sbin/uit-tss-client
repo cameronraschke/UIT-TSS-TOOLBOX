@@ -66,7 +66,7 @@ function hardwareData {
 	tOneSKU=$(dmidecode --string system-sku-number)
 		echo "dmi|system_sku|${UUID}|${tOneSKU}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneFamily=$(dmidecode --string system-family)
-		echo "UPDATE jobstats SET system_family = '${tOneFamily}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "dmi|system_family|${UUID}|${tOneFamily}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
 		echo "UPDATE jobstats SET motherboard_manufacturer = '${tTwoManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
 	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
@@ -182,17 +182,17 @@ function enterTag {
 	echo "checktag|$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tagNum=$(cat /tmp/tagnumber.uit 2> /dev/null)
 	if [[ $tagNum =~ $regex ]]; then
-		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "general|tagnumber|${tagNum}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "${tagNum}" > /root/tagnumber
 		/usr/sbin/uit-sql-refresh-client &>/dev/null &
-		echo "begin,${tagNum},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
+		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
 	else
 		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /root/tagnumber
 		/usr/sbin/uit-sql-refresh-client &>/dev/null &
-		echo "begin,${tagNum},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
+		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 }
 
@@ -1377,7 +1377,7 @@ function terminate {
 	tput reset
 	totaltime
 	sleep 1
-	echo "end,${tagNum},${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
+	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	/usr/sbin/uit-sql-refresh-client &>/dev/null &
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	echo "${BOLD}Process has finished!${RESET}"
@@ -1386,7 +1386,7 @@ function terminate {
 	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
 
 	read -p "Where will this laptop be stored? ${GREEN}${BOLD}Please Enter: ${RESET} " location
-	echo "custom,${tagNum},${tOneSerialNumber},${location}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
+	echo "custom|${tagNum}|${tOneSerialNumber}|${location}" | /var/lib/UIT-TSS-TOOLBOX/uit-tss-db-location-update
 
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
 		echo "UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}'" | uit-tss-db
