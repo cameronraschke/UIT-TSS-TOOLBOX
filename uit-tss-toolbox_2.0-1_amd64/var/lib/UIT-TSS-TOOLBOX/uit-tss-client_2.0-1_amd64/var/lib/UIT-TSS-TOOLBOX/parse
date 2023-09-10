@@ -32,7 +32,7 @@ if ($arr[0] == "init") {
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default)";
-    $conn->query($sql);
+    $pdo->query($sql);
 } elseif ($arr[0] == "disk") {
     $value = $arr[3];
     if (isset($arr[4])) {
