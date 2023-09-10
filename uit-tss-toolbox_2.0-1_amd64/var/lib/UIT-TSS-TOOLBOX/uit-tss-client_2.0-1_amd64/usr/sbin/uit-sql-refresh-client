@@ -1,4 +1,4 @@
 #!/bin/bash
 tagNum=$(cat /root/tagnumber | sed 's/[^0-9]//g')
 
-echo "update,$tagNum" | /var/lib/UIT-TSS-TOOLBOX/parse
+echo "update|$tagNum" | /var/lib/UIT-TSS-TOOLBOX/parse
