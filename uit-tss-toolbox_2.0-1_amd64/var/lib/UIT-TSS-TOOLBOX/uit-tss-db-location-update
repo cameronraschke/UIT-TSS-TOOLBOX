@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
@@ -51,35 +51,44 @@ if ($arr[0] == "custom") {
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default)";
-    $conn->query($sql);
+    $pdo->query($sql);
 }
 
-$stmt = $conn->prepare("INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssssss", $tagNum,$serial,$location,$status,$problem,$time);
-$stmt->execute();
+
+
+# INSERT statement
+$sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) ";
+$sql .= "VALUES (:tagnumber, :chassis_serial, :location, :status, :problem, :time)";
+$pdo->prepare($sql);
+$pdo->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
+$pdo->bindParam(':chassis_serial', $serial, PDO::PARAM_STR);
+$pdo->bindParam(':location', $location, PDO::PARAM_STR);
+$pdo->bindParam(':status', $status, PDO::PARAM_STR);
+$pdo->bindParam(':problem', $problem, PDO::PARAM_STR);
+$pdo->bindParam(':time', $time, PDO::PARAM_STR);
+$pdo->execute();
 
 
 
 #Update Serial Numbers
 $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
-$stmt = $conn->prepare($sql);
-$stmt->execute();
-$results = $stmt->get_result();
-while ($row = $results->fetch_assoc()) {
-    $sql = "UPDATE locations SET chassis_serial = '" . $row['chassis_serial'] . "' WHERE tagnumber = '$tagNum'";
-    $conn->query($sql);
+foreach ($pdo->query($sql) as $row) {
+    $serial = $row['chassis_serial'];
+    $sql = "UPDATE locations SET chassis_serial = '$serial' WHERE tagnumber = '$tagNum'";
+    $pdo->query($sql);
 }
 
 $sql = "UPDATE locations SET location = NULL WHERE location = ''";
-$conn->query($sql);
+$pdo->query($sql);
 
 $sql = "UPDATE locations SET status = NULL WHERE status = ''";
-$conn->query($sql);
+$pdo->query($sql);
 
 $sql = "UPDATE locations SET problem = NULL WHERE problem = ''";
-$conn->query($sql);
+$pdo->query($sql);
 
 $sql = "UPDATE locations SET chassis_serial = NULL WHERE chassis_serial = ''";
-$conn->query($sql);
+$pdo->query($sql);
 
+$pdo = null;
 ?>

@@ -1,11 +1,11 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
-$conn->query($line);
+$pdo->query($line);
 fclose($stdin);
-$conn->close();
+$pdo = null;
 
 ?>
