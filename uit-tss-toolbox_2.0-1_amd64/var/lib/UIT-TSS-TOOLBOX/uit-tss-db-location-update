@@ -59,14 +59,15 @@ if ($arr[0] == "custom") {
 # INSERT statement
 $sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) ";
 $sql .= "VALUES (:tagnumber, :chassis_serial, :location, :status, :problem, :time)";
-$pdo->prepare($sql);
-$pdo->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
-$pdo->bindParam(':chassis_serial', $serial, PDO::PARAM_STR);
-$pdo->bindParam(':location', $location, PDO::PARAM_STR);
-$pdo->bindParam(':status', $status, PDO::PARAM_STR);
-$pdo->bindParam(':problem', $problem, PDO::PARAM_STR);
-$pdo->bindParam(':time', $time, PDO::PARAM_STR);
-$pdo->execute();
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
+$stmt->bindParam(':chassis_serial', $serial, PDO::PARAM_STR);
+$stmt->bindParam(':location', $location, PDO::PARAM_STR);
+$stmt->bindParam(':status', $status, PDO::PARAM_STR);
+$stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
+$stmt->bindParam(':time', $time, PDO::PARAM_STR);
+$stmt->execute();
+$stmt = null;
 
 
 
