@@ -1434,6 +1434,14 @@ function terminate {
 
 	location
 
+	cloneNumToday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
+	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND date = '${DATE}';" 2>/dev/null)
+
+	eraseNumToday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
+	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'Yes' AND date = '${DATE}';" 2>/dev/null)
+
+	jobsToday=$(( cloneNumToday + eraseNumToday ))
+
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
 		echo "UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}'" | uit-tss-db
 
@@ -1450,8 +1458,8 @@ function terminate {
 		echo "Action: ${terminateAction}"
 		echo "Server: \"${sambaDNS}\""
 		echo "Image: \"${cloneImgName}\""
-		echo "Image last updated: ${imgupdate}";
-		#echo "Computers imaged/erased today: ${imageNumToday}"
+		echo "Image last updated: ${imgupdate}"
+		echo "Computers imaged and erased today: ${jobsToday}"
 		echo "Total time taken: ${totalElapsed}"
 		#echo "Times ${tagNum} has been reimaged: ${totalCount}"
 		)
@@ -1470,8 +1478,8 @@ function terminate {
 		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
 		echo "Server: \"${sambaDNS}\""
 		echo "Total time taken: ${totalElapsed}"
-		echo "Last updated on: ${imageUpdate}"
-		#echo "Computers imaged/erased today: ${imageNumToday}"
+		echo "Image was last updated on: ${imageUpdate}"
+		echo "Computers imaged and erased today: ${jobsToday}"
 		)
 
 		echo "UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
@@ -1485,6 +1493,7 @@ function terminate {
 		echo "MAC: ${etherAddr}"
 		echo "Action: ${terminateAction}"
 		echo "Total time taken: ${totalElapsed}"
+		echo "Computers imaged and erased today: ${jobsToday}"
 		)
 		echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
 
