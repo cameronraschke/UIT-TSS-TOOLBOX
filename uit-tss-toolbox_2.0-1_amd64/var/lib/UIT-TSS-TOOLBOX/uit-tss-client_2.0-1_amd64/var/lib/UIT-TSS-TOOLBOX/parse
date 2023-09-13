@@ -32,19 +32,21 @@ if ($arr[0] == "init") {
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default)";
     $pdo->query($sql);
+
 } elseif ($arr[0] == "disk") {
+    $key = $arr[1];
     $value = $arr[3];
-    if ($arr[4] != "empty") {
+    $uuid = $arr[2];
+    if ($arr[3] != "empty") {
         if ($arr[4] == "GB"){
             $value = bcdiv("$value", '1000', 4);
         }
-        $sql = "UPDATE jobstats SET ".$arr[1]." = '$value' WHERE uuid = '".$arr[2]."'";
+        $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '".$arr[2]."'";
         $pdo->query($sql);
     } else {
-        $sql = "UPDATE jobstats SET ".$arr[1]." = NULL WHERE uuid = '".$arr[2]."'";
+        $sql = "UPDATE jobstats SET $key = NULL WHERE uuid = '".$arr[2]."'";
         $pdo->query($sql);
     }
-    
     
 } elseif ($arr[0] == "battery") {
     $value = $arr[3];
