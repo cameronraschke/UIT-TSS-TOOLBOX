@@ -38,7 +38,7 @@ if ($arr[0] == "init") {
     $value = $arr[3];
     $uuid = $arr[2];
     if (isset($value)) {
-        if (isset($arr[4]) && $arr[4] == "GB"){
+        if (!empty($arr[4]) && $arr[4] == "GB"){
             $value = bcdiv("$value", '1000', 4);
         }
         $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
