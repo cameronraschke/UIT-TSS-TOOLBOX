@@ -138,7 +138,7 @@ function hardwareData {
 			diskReads=$(echo "$diskReads" | sed 's/[^0-9\.]//g')
 			echo "disk|disk_reads|${UUID}|${diskReads}|GB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
-			echo "disk|disk_reads|${UUID}||TB" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk|disk_reads|${UUID}|empty|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
 	diskWrites=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/Data Units Written: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
@@ -153,7 +153,7 @@ function hardwareData {
 			diskWrites=$(echo "$diskWrites" | sed 's/[^0-9\.]//g')
 			echo "disk|disk_writes|${UUID}|${diskWrites}|GB" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
-			echo "disk|disk_writes|${UUID}||TB" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "disk|disk_writes|${UUID}|empty|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
 	###Battery Data
