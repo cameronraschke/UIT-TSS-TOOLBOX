@@ -51,7 +51,7 @@ foreach ($pdo->query($sql) as $row) {
 	$sql = "SELECT SUM(clone_time) as clone_avgtime FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqldate')";
 	foreach ($pdo->query($sql) as $row) {
 		$sum = $row['clone_avgtime'];
-		$sql = "UPDATE serverstats SET clone_avgtime = ROUND('$sum' / '$linecount' / 60 * 10, 0) WHERE date = '$sqldate'";
+		$sql = "UPDATE serverstats SET clone_avgtime = ROUND('$sum' / '$linecount' / 60, 0) WHERE date = '$sqldate'";
 		$pdo->query($sql);
 	}
 
