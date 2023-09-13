@@ -31,7 +31,7 @@ if (isset($arr)) {
 foreach ($arr as $row) {
     unset($tagNum);
     $tagNum = $row['tagnumber'];
-    echo "Working on laptop: " . $tagNum . PHP_EOL;
+    echo "Updating laptop: " . $tagNum . " in the database." . PHP_EOL;
     $sql = "SELECT tagnumber FROM clientstats WHERE tagnumber = '$tagNum'";
     $results = $conn->query($sql);
     $exists = mysqli_num_rows($results);
