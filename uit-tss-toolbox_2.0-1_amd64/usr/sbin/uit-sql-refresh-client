@@ -193,7 +193,7 @@ foreach ($pdo->query($sql) as $row) {
     }
 
     # TBW (cont.)
-    $sql = "SELECT ROUND(disk_writes / max_tbw / 100, 0) as tbw_pcnt FROM clientstats WHERE max_tbw IS NOT NULL AND tagnumber = '$tagNum'";
+    $sql = "SELECT ROUND(disk_tbw / max_tbw / 100, 0) as tbw_pcnt FROM clientstats WHERE max_tbw IS NOT NULL AND tagnumber = '$tagNum'";
     foreach ($pdo->query($sql) as $row) {
         $sql = "UPDATE clientstats SET tbw_pcnt = '" . $row['tbw_pcnt'] . "' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);

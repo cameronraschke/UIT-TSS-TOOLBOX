@@ -77,7 +77,7 @@ $time = date('Y-m-d-His', time());
 
     $sql = "SELECT 'Tag Number','Serial Number','Device Manufacturer','Device Model','Last Job Date',";
     $sql .= "'Average Erase Time (minutes)','Average Clone Time (minutes)','Total Jobs',";
-    $sql = "'Battery Max Charge in Percent','Terabytes Written Percent (TBW)'";
+    $sql .= "'Battery Max Charge in Percent','Terabytes Written Percent (TBW)'";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
         $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
