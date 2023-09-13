@@ -137,6 +137,8 @@ if ($arr[0] == "init") {
 } elseif ($arr[0] == "general") {
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[2]."' WHERE uuid = '".$arr[3]."'";
     $pdo->query($sql);
+} else {
+    echo "No query specified.";
 }
 
 $pdo = null;

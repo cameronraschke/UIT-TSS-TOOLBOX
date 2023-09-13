@@ -10,7 +10,6 @@ try {
     ));
 } catch (PDOException $e) {
     echo 'Caught exception: ',  $e->getMessage(), "\n";
-    exit();
 }
 
 ?>
