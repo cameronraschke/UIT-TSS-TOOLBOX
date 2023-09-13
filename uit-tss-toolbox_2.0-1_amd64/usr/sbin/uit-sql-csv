@@ -39,13 +39,15 @@ $time = date('Y-m-d-His', time());
     #Server Table
     unset($arr);
     unset($row);
-    $sql = "SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time FROM serverstats ORDER BY date DESC";
+    $sql = "SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,";
+    $sql .= "nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time ";
+    $sql .= "FROM serverstats ORDER BY date DESC";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
         $arr[] = $row;
     }
 
-    $sql = "SELECT 'Date','Laptop Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time (minutes)','NVME Avg. Erase Time (minutes)','SSD Avg. Erase Time (minutes)','Average Disk Wear Percent','Average Battery Max Charge Level Percent','Average Boot Time (seconds)'";
+    $sql = "SELECT 'Date','Computer Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time (minutes)','NVME Avg. Erase Time (minutes)','SSD Avg. Erase Time (minutes)','Average Disk Wear Percent','Average Battery Max Charge Level Percent','Average Boot Time (seconds)'";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
         $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'a');
@@ -64,16 +66,18 @@ $time = date('Y-m-d-His', time());
     #Client Table
     unset($arr);
     unset($row);
-    $sql = "SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,all_avgtime,erase_avgtime,clone_avgtime,all_jobs,erase_jobs,clone_jobs,bios_date,bios_version,battery_manufacturedate,battery_health,disk_tbw,max_tbw,boot_time ";
+    $sql = "SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,";
+    $sql .= "erase_avgtime,clone_avgtime,all_jobs,";
+    $sql .= "battery_health,tbw_pcnt ";
     $sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
         $arr[] = $row;
     }
 
-    $sql = "SELECT 'Tag Number','Chassis Serial Number','Device Manufacturer','Device Model','Last Job Date',";
-    $sql .= "'Average Time for All Operations (minutes)','Average Time to Erase (minutes)','Average Time to Clone (minutes)','Total Jobs (Erase and Clone Jobs)','Total Erase Jobs',";
-    $sql .= "'Total Clone Jobs','BIOS Last Update','BIOS Version','Battery Manufacture Date','Battery Max Charge in Percent','Terabytes Written (TBW)','Max Terabytes Written (TBW)', 'Average Boot Time (seconds)'";
+    $sql = "SELECT 'Tag Number','Serial Number','Device Manufacturer','Device Model','Last Job Date',";
+    $sql .= "'Average Erase Time (minutes)','Average Clone Time (minutes)','Total Jobs',";
+    $sql = "'Battery Max Charge in Percent','Terabytes Written Percent (TBW)'";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
         $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
@@ -98,7 +102,7 @@ $time = date('Y-m-d-His', time());
         $arr[] = $row['tagnumber'];
     }
 
-    $sql = "SELECT 'Tagnumber', 'Serial Number', 'Current Location', 'Status', 'Description of Problem (if applicable)', 'Datetime of Most Recent Update'";
+    $sql = "SELECT 'Tagnumber', 'Serial Number', 'Current Location', 'Status', 'Description of Problem', 'Datetime of Most Recent Update'";
     $results = $conn->query($sql);
     while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
         $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
