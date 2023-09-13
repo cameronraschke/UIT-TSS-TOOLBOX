@@ -37,14 +37,14 @@ if ($arr[0] == "init") {
     $key = $arr[1];
     $value = $arr[3];
     $uuid = $arr[2];
-    if ($arr[3] != "empty") {
+    if (isset($value)) {
         if ($arr[4] == "GB"){
             $value = bcdiv("$value", '1000', 4);
         }
-        $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '".$arr[2]."'";
+        $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
         $pdo->query($sql);
     } else {
-        $sql = "UPDATE jobstats SET $key = NULL WHERE uuid = '".$arr[2]."'";
+        $sql = "UPDATE jobstats SET $key = NULL WHERE uuid = '$uuid'";
         $pdo->query($sql);
     }
     
