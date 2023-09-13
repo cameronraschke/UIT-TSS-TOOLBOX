@@ -3,7 +3,7 @@ $user = "laptops";
 $pass = "UHouston!";
 
 try {
-    $pdo = new PDO('mysql:host=10.10.0.2;dbname=laptopDB', $user, $pass, array(
+    $pdo = new PDO('mysql:host=10.0.0.1;dbname=laptopDB', $user, $pass, array(
         PDO::ATTR_PERSISTENT => true,
         PDO::ATTR_ERRMODE => true,
         PDO::ERRMODE_EXCEPTION => true
