@@ -192,6 +192,13 @@ foreach ($pdo->query($sql) as $row) {
         $pdo->query($sql);
     }
 
+    # TBW (cont.)
+    $sql = "SELECT ROUND(disk_writes / max_tbw / 100, 0) as tbw_pcnt FROM clientstats WHERE max_tbw IS NOT NULL AND tagnumber = '$tagNum'";
+    foreach ($pdo->query($sql) as $row) {
+        $sql = "UPDATE clientstats SET tbw_pcnt = '" . $row['tbw_pcnt'] . "' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    }
+
     #Battery Health
     $sql = "SELECT battery_health FROM jobstats WHERE tagnumber = '$tagNum' AND battery_health IS NOT NULL ORDER BY time desc LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
