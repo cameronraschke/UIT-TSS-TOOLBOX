@@ -34,7 +34,7 @@ if ($arr[0] == "init") {
     $pdo->query($sql);
 } elseif ($arr[0] == "disk") {
     $value = $arr[3];
-    if (isset($arr[4])) {
+    if ($arr[4] != "") {
         if ($arr[4] == "GB"){
             $value = bcdiv("$value", '1000', 4);
         }
