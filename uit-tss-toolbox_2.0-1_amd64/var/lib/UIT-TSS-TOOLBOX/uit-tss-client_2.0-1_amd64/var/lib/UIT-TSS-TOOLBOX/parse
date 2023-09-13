@@ -36,6 +36,9 @@ if ($arr[0] == "init") {
 } elseif ($arr[0] == "disk") {
     $key = $arr[1];
     $value = $arr[3];
+    if ($value == "") {
+        unset($value);
+    }
     $uuid = $arr[2];
     if (isset($value)) {
         if (!empty($arr[4]) && $arr[4] == "GB"){
