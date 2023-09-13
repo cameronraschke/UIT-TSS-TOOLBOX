@@ -4,6 +4,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
+$default = "NULL";
 
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
@@ -15,7 +16,6 @@ if ($arr[0] == "init") {
     $uuid = $arr[1];
     $tagNum = $arr[2];
     $macAddr = $arr[3];
-    $default = "NULL";
     $sql = "INSERT INTO jobstats(uuid,tagnumber,etheraddress,date,time,bios_vendor,bios_version,bios_date,";
     $sql .= "bios_revision,bios_firmware,system_manufacturer,system_productname,system_serial,system_uuid,system_sku,";
     $sql .= "system_family,motherboard_manufacturer,motherboard_serial,chassis_manufacturer,chassis_type,chassis_serial,";
@@ -49,13 +49,19 @@ if ($arr[0] == "init") {
     }
     
 } elseif ($arr[0] == "battery") {
+    $key = $arr[1];
+    $uuid = $arr[2];
     $value = $arr[3];
     if ($arr[1] == "battery_charge_cycles") { 
-        if ($value == 0){
-            $value = $default;
+        if ($value == 0 || empty($value)){
+            $sql = "UPDATE jobstats SET $key = $default WHERE uuid = '$uuid'";
+            $pdo->query($sql);
+        } else {
+            $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
+            $pdo->query($sql);
         }
     }
-    $sql = "UPDATE jobstats SET ".$arr[1]." = '$value' WHERE uuid = '".$arr[2]."'";
+    $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
     $pdo->query($sql);
 } elseif ($arr[0] == "memory") {
     $sql = "UPDATE jobstats SET ".$arr[1]." = '".$arr[3]."' WHERE uuid = '".$arr[2]."'";
