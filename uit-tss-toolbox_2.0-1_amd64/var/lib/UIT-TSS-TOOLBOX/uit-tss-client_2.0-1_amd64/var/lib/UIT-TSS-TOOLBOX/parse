@@ -65,7 +65,7 @@ if ($arr[0] == "init") {
     $systemSerial = $arr[1];
     $sql = "SELECT tagnumber FROM clientstats WHERE chassis_serial = '$systemSerial'";
     $results = $pdo->query($sql);
-    while ($row = $results->fetch_assoc()) {
+    foreach ($pdo->query($sql) as $row) {
         $tagNum = $row['tagnumber'];
         $myfile = fopen("/tmp/tagnumber.uit", "w");
         fwrite($myfile, $tagNum);
