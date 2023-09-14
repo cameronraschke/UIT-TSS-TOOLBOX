@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/DB-connect-local.php');
+include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $date = date('Y-m-d',time());
 $time = date('Y-m-d-His', time());
@@ -9,8 +9,7 @@ $time = date('Y-m-d-His', time());
     unset($arr);
     unset($row);
     $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY date DESC";
-    $results = $conn->query($sql);
-    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+    foreach ($pdo->query($sql) as $row) {
         $arr[] = $row;
     }
 
@@ -23,8 +22,7 @@ $time = date('Y-m-d-His', time());
     $sql .= "'Boot Time','Action','Reboot','Disk','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware','Disk Health Check','Disk Temperature','Disk Reads (TB)','Disk Writes (TB)',";
     $sql .= "'Max TBW (per the manufacturer)','Total Time','Erase Successful','Erase Mode','Total Erase Time','Percent of Disk Erased',";
     $sql .= "'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update','Linux User' ";
-    $results = $conn->query($sql);
-    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+    foreach ($pdo->query($sql) as $row) {
         $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
         $file->fputcsv($row);
         $file = null;
@@ -42,14 +40,12 @@ $time = date('Y-m-d-His', time());
     $sql = "SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,";
     $sql .= "nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time ";
     $sql .= "FROM serverstats ORDER BY date DESC";
-    $results = $conn->query($sql);
-    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+    foreach ($pdo->query($sql) as $row) {
         $arr[] = $row;
     }
 
     $sql = "SELECT 'Date','Computer Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time (minutes)','NVME Avg. Erase Time (minutes)','SSD Avg. Erase Time (minutes)','Average Disk Wear Percent','Average Battery Max Charge Level Percent','Average Boot Time (seconds)'";
-    $results = $conn->query($sql);
-    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+    foreach ($pdo->query($sql) as $row) {
         $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'a');
         $file->fputcsv($row);
         $file = null;
@@ -70,16 +66,14 @@ $time = date('Y-m-d-His', time());
     $sql .= "erase_avgtime,clone_avgtime,all_jobs,";
     $sql .= "battery_health,tbw_pcnt ";
     $sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC";
-    $results = $conn->query($sql);
-    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+    foreach ($pdo->query($sql) as $row) {
         $arr[] = $row;
     }
 
     $sql = "SELECT 'Tag Number','Serial Number','Device Manufacturer','Device Model','Last Job Date',";
     $sql .= "'Average Erase Time (minutes)','Average Clone Time (minutes)','Total Jobs',";
     $sql .= "'Battery Max Charge in Percent','Terabytes Written Percent (TBW)'";
-    $results = $conn->query($sql);
-    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+    foreach ($pdo->query($sql) as $row) {
         $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
         $file->fputcsv($row);
         $file = null;
@@ -97,14 +91,12 @@ $time = date('Y-m-d-His', time());
     unset($arr);
     unset($row);
     $sql = "SELECT DISTINCT tagnumber FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
-    $results = $conn->query($sql);
-    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+    foreach ($pdo->query($sql) as $row) {
         $arr[] = $row['tagnumber'];
     }
 
     $sql = "SELECT 'Tagnumber', 'Serial Number', 'Current Location', 'Status', 'Description of Problem', 'Datetime of Most Recent Update'";
-    $results = $conn->query($sql);
-    while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+    foreach ($pdo->query($sql) as $row) {
         $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
         $file->fputcsv($row);
         $file = null;
@@ -115,8 +107,7 @@ $time = date('Y-m-d-His', time());
         unset($tagNum);
         $tagNum = $row;
         $sql = "SELECT tagnumber,chassis_serial,location,status,problem,time FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
-        $results = $conn->query($sql);
-        while ($row = mysqli_fetch_array($results, MYSQLI_ASSOC)) {
+        foreach ($pdo->query($sql) as $row) {
             $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
             $file->fputcsv($row);
             $file = null;
@@ -124,5 +115,5 @@ $time = date('Y-m-d-His', time());
 
     }
 
-$conn->close(); 
+$pdo = null;
 ?>
