@@ -88,7 +88,7 @@ if ($arr[0] == "select-chassis_serial") {
     $sql = "SELECT $column FROM $table WHERE $condition ORDER BY time DESC LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
         $serial = $row['chassis_serial'];
-        $fd = fopen('php://fd/3', 'wb');
+        $fd = fopen('/tmp/fifo', 'wb');
         fwrite($fd, "$serial");
         fclose($fd);
     }
