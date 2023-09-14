@@ -1195,27 +1195,33 @@ function clientselect_Clone {
 	exitMessage
 	echo -n "Are you cloning ${BOLD}HP laptops ${BLUE}[1]${RESET}, "
 	echo -n "${BOLD}Dell laptops ${BLUE}[2]${RESET}, "
-	echo "or ${BOLD}Dell desktops ${BLUE}[3]${RESET}?"
-	read -n1 -p "Enter ${BOLD}${BLUE}[1-3]${RESET} " CLIENTTYPE
+	echo -n "${BOLD}TechCommons desktops ${BLUE}[3]${RESET}, "
+	echo "or ${BOLD}SHRL desktops${BLUE}[4]${RESET}?"
+	read -n1 -p "Enter ${BOLD}${BLUE}[1-4]${RESET} " CLIENTTYPE
 	echo ""
 	case $CLIENTTYPE in
 	1)
-	sambaPath='hp'
-	cloneImgName='2023Spring-HP'
+	sambaPath='images'
+	cloneImgName='HP-laptops'
 	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	2)
-	sambaPath='dell'
-	cloneImgName='2023Spring-Dell'
+	sambaPath='images'
+	cloneImgName='Dell-laptops'
 	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	3)
-	sambaPath='desktops'
-	cloneImgName='2022Fall-Win10Desktops'
+	sambaPath='images'
+	cloneImgName='TechCommons-desktops'
+	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
+	;;
+	4)
+	sambaPath='images'
+	cloneImgName='SHRL-desktops'
 	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	*)
-	clientselect
+	clientselect_Clone
 	;;
 	esac
 }
@@ -1527,8 +1533,8 @@ function main {
 			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		cloneMode="restoredisk"
 			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaPath="hp"
-		cloneImgName="2023Spring-HP"
+		sambaPath="images"
+		cloneImgName="HP-laptops"
 			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
@@ -1550,8 +1556,8 @@ function main {
 			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		cloneMode="restoredisk"
 			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaPath="dell"
-		cloneImgName="2023Spring-Dell"
+		sambaPath="images"
+		cloneImgName="Dell-laptops"
 			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
@@ -1573,8 +1579,8 @@ function main {
 			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		cloneMode="restoredisk"
 			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaPath="dell"
-		cloneImgName="2023Spring-Dell"
+		sambaPath="images"
+		cloneImgName="Dell-laptops"
 			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
