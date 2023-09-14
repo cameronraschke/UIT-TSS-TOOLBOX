@@ -15,7 +15,7 @@ echo ""
 read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagnumber
 exec 3<> /tmp/fifo
 echo "select-chassis_serial|locations|chassis_serial|${tagnumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
-read -u 3 SERIAL
+read SERIAL < /tmp/fifo
 echo "The last reported serial number for ${tagnumber} was: ${SERIAL}"
 if [[ $SERIAL == "NULL" ]]; then
     read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
