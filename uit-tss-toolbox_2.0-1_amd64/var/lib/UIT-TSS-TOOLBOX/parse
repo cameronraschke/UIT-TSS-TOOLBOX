@@ -42,44 +42,58 @@ if ($arr[0] == "location") {
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
     $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default)";
     $pdo->query($sql);
-}
+
+
+    # INSERT statement
+    $sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) ";
+    $sql .= "VALUES (:tagnumber, :chassis_serial, :location, :status, :problem, :time)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
+    $stmt->bindParam(':chassis_serial', $serial, PDO::PARAM_STR);
+    $stmt->bindParam(':location', $location, PDO::PARAM_STR);
+    $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+    $stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
+    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+    $stmt->execute();
+    $stmt = null;
 
 
 
-# INSERT statement
-$sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) ";
-$sql .= "VALUES (:tagnumber, :chassis_serial, :location, :status, :problem, :time)";
-$stmt = $pdo->prepare($sql);
-$stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
-$stmt->bindParam(':chassis_serial', $serial, PDO::PARAM_STR);
-$stmt->bindParam(':location', $location, PDO::PARAM_STR);
-$stmt->bindParam(':status', $status, PDO::PARAM_STR);
-$stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
-$stmt->bindParam(':time', $time, PDO::PARAM_STR);
-$stmt->execute();
-$stmt = null;
+    #Update Serial Numbers
+    $sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
+    foreach ($pdo->query($sql) as $row) {
+        $serial = $row['chassis_serial'];
+        $sql = "UPDATE locations SET chassis_serial = '$serial' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    }
 
+    $sql = "UPDATE locations SET location = NULL WHERE location = ''";
+    $pdo->query($sql);
 
+    $sql = "UPDATE locations SET status = NULL WHERE status = ''";
+    $pdo->query($sql);
 
-#Update Serial Numbers
-$sql = "SELECT chassis_serial FROM clientstats WHERE tagnumber = '$tagNum'";
-foreach ($pdo->query($sql) as $row) {
-    $serial = $row['chassis_serial'];
-    $sql = "UPDATE locations SET chassis_serial = '$serial' WHERE tagnumber = '$tagNum'";
+    $sql = "UPDATE locations SET problem = NULL WHERE problem = ''";
+    $pdo->query($sql);
+
+    $sql = "UPDATE locations SET chassis_serial = NULL WHERE chassis_serial = ''";
     $pdo->query($sql);
 }
 
-$sql = "UPDATE locations SET location = NULL WHERE location = ''";
-$pdo->query($sql);
+if ($arr[0] == "select-chassis_serial") {
+    $table = $arr[1];
+    $column = $arr[2];
+    $condition = $arr[3];
 
-$sql = "UPDATE locations SET status = NULL WHERE status = ''";
-$pdo->query($sql);
+    $sql = "SELECT $column FROM $table WHERE $condition ORDER BY time DESC LIMIT 1";
+    foreach ($pdo->query($sql) as $row) {
+        $serial = $row['chassis_serial'];
+        $stdout = fopen('/tmp/chassis_serial.txt', 'wb');
+        fwrite($stdout, "$serial");
+        fclose($stdout);
+    }
 
-$sql = "UPDATE locations SET problem = NULL WHERE problem = ''";
-$pdo->query($sql);
-
-$sql = "UPDATE locations SET chassis_serial = NULL WHERE chassis_serial = ''";
-$pdo->query($sql);
+}
 
 $pdo = null;
 ?>
