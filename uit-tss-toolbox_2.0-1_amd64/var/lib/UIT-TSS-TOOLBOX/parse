@@ -80,20 +80,5 @@ if ($arr[0] == "location") {
     $pdo->query($sql);
 }
 
-if ($arr[0] == "select-chassis_serial") {
-    $table = $arr[1];
-    $column = $arr[2];
-    $condition = $arr[3];
-
-    $sql = "SELECT $column FROM $table WHERE $condition ORDER BY time DESC LIMIT 1";
-    foreach ($pdo->query($sql) as $row) {
-        $serial = $row['chassis_serial'];
-        $fd = fopen('/tmp/fifo', 'wb');
-        fwrite($fd, "$serial");
-        fclose($fd);
-    }
-
-}
-
 $pdo = null;
 ?>
