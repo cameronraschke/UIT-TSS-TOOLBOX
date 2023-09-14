@@ -13,9 +13,9 @@ date=$(date '+%Y-%m-%d %H:%M:%S')
 echo ""
 echo ""
 read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagnumber
-mkfifo /tmp/fifo
+exec 3<> /tmp/fifo
 echo "select-chassis_serial|locations|chassis_serial|${tagnumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
-read SERIAL < /tmp/fifo
+read -u 3 SERIAL
 echo "The last reported serial number for ${tagnumber} was: ${SERIAL}"
 if [[ $SERIAL == "NULL" ]]; then
     read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
@@ -41,5 +41,5 @@ else
 fi
 
 echo "location|${tagnumber}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/parse
-rm /tmp/fifo
+exec 3>&-
 done
