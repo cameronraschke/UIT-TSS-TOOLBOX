@@ -13,9 +13,8 @@ date=$(date '+%Y-%m-%d %H:%M:%S')
 echo ""
 echo ""
 read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagnumber
-exec 3<> /tmp/fifo
-echo "select-chassis_serial|locations|chassis_serial|${tagnumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
-read SERIAL < /tmp/fifo
+SERIAL=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
+	--execute="SELECT chassis_serial FROM locations WHERE tagnumber = '${tagnumber}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
 echo "The last reported serial number for ${tagnumber} was: ${SERIAL}"
 if [[ $SERIAL == "NULL" ]]; then
     read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
@@ -41,5 +40,4 @@ else
 fi
 
 echo "location|${tagnumber}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/parse
-exec 3>&-
 done
