@@ -30,7 +30,7 @@ if ($count == "0") {
 $sql = "SELECT date FROM serverstats";
 foreach ($pdo->query($sql) as $row) {
 	$sqldate = $row['date'];
-	echo "Working on date: " . $row['date'] . PHP_EOL;
+	echo "Updating serverstats for $sqldate" . PHP_EOL;
 
 	/* Update time, which is a datetime stamp. This helps us see the time when the serverstats 
 	table was last updated, not just the date. */

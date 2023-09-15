@@ -9,12 +9,15 @@ include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
 
+echo "Updating the location table" . PHP_EOL;
+
 /* Select the serial numbers from clientstats which corresponds with the tagnumber 
 in the locations table and update the locations table */
 $sql = "SELECT tagnumber,chassis_serial FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
 foreach ($pdo->query($sql) as $row) {
     $tagNum = $row['tagnumber'];
     $serial = $row['chassis_serial'];
+    echo "$tagNum -> $serial" . PHP_EOL;
     $sql = "UPDATE locations SET chassis_serial = '$serial' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
 }

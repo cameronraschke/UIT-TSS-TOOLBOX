@@ -21,7 +21,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
 $sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-09' AND '$date') AND tagnumber LIKE '$input'";
 foreach ($pdo->query($sql) as $row) {
     $tagNum = $row['tagnumber'];
-    echo "Updating laptop: $tagNum in the database." . PHP_EOL;
+    echo "Updating laptop \"$tagNum\" in the database." . PHP_EOL;
     $sql = "SELECT COUNT(tagnumber) FROM clientstats WHERE tagnumber = '$tagNum'";
 	$results = $pdo->query($sql);
 	$linecount = $results->fetchColumn();
