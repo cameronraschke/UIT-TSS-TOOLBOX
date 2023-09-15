@@ -18,13 +18,17 @@ $sql .= "'Boot Time','Action','Reboot','Disk','Disk Size (GB)','Disk Model','Dis
 $sql .= "'Max TBW (per the manufacturer)','Total Time','Erase Successful','Erase Mode','Total Erase Time','Percent of Disk Erased',";
 $sql .= "'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update','Linux User' ";
 foreach ($pdo->query($sql) as $row) {
+    $arr[] = $row;
+}
+
+$sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY date DESC";
+foreach ($pdo->query($sql) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
     $file->fputcsv($row[0]);
     $file = null;
 }
 
-$sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY date DESC";
-foreach ($pdo->query($sql) as $row) {
+foreach ($arr as $row) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
     $file->fputcsv($row[0]);
     $file = null;
