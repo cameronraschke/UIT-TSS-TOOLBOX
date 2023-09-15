@@ -12,18 +12,18 @@ date=$(date '+%Y-%m-%d %H:%M:%S')
 
 echo ""
 echo ""
-read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagnumber
+read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
 sql=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT chassis_serial FROM locations WHERE tagnumber = '${tagnumber}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
-echo "The last reported serial number for ${tagnumber} was: ${BOLD}${sql}${RESET}"
+	--execute="SELECT chassis_serial FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
 if [[ $sql == "NULL" ]]; then
     read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
 else
     serial="${sql}"
 fi
 sql=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT location FROM locations WHERE tagnumber = '${tagnumber}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
-echo "The last reported location for ${tagnumber} was: ${BOLD}${sql}${RESET}"
+	--execute="SELECT location FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+echo "The last reported location for ${tagNum} was: ${BOLD}${sql}${RESET}"
 read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
 read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
 
@@ -33,8 +33,8 @@ if [[ $status == "1" ]]; then
 elif [[ $status == "2" ]]; then
     echo ""
     sql=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	    --execute="SELECT problem FROM locations WHERE tagnumber = '${tagnumber}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
-    echo "The last reported issue for ${tagnumber} was: ${BOLD}${sql}${RESET}"
+	    --execute="SELECT problem FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+    echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
     status="broken"
     read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
 else
@@ -42,5 +42,5 @@ else
     problem=""
 fi
 
-echo "location|${tagnumber}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/parse
+echo "location|${tagNum}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/parse
 done
