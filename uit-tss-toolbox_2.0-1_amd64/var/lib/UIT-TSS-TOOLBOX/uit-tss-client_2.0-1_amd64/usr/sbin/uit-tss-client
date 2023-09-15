@@ -1201,22 +1201,22 @@ function clientselect_Clone {
 	case $CLIENTTYPE in
 	1)
 	sambaPath='images'
-	cloneImgName='HP-laptops'
+	cloneImgName='TechCommons-HP-Laptops'
 	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	2)
 	sambaPath='images'
-	cloneImgName='Dell-laptops'
+	cloneImgName='TechCommons-Dell-Laptops'
 	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	3)
 	sambaPath='images'
-	cloneImgName='TechCommons-desktops'
+	cloneImgName='TechCommons-Dell-Desktops'
 	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	4)
 	sambaPath='images'
-	cloneImgName='SHRL-desktops'
+	cloneImgName='SHRL-Dell-Desktops'
 	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 	;;
 	*)
@@ -1536,7 +1536,7 @@ function main {
 		cloneMode="restoredisk"
 			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
 		sambaPath="images"
-		cloneImgName="HP-laptops"
+		cloneImgName="TechComms-HP-Laptops"
 			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
@@ -1559,7 +1559,7 @@ function main {
 		cloneMode="restoredisk"
 			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
 		sambaPath="images"
-		cloneImgName="Dell-laptops"
+		cloneImgName="TechComms-Dell-Laptops"
 			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
@@ -1582,7 +1582,7 @@ function main {
 		cloneMode="restoredisk"
 			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
 		sambaPath="images"
-		cloneImgName="Dell-laptops"
+		cloneImgName="TechComms-Dell-Laptops"
 			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
