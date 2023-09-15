@@ -80,9 +80,9 @@ if ($arr[0] == "init") {
     $results = $pdo->query($sql);
     foreach ($pdo->query($sql) as $row) {
         $tagNum = $row['tagnumber'];
-        $myfile = fopen("/tmp/tagnumber.uit", "w");
-        fwrite($myfile, $tagNum);
-        fclose($myfile);
+        $fd = fopen("/tmp/tagnumber.uit", "w");
+        fwrite($fd, $tagNum);
+        fclose($fd);
     }
 } elseif ($arr[0] == "location") {
 

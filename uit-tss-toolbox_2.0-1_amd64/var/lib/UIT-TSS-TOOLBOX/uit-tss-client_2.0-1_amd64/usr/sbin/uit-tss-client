@@ -183,16 +183,15 @@ function enterTag {
 	echo ""
 
 	echo "checktag|$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tagNum=$(cat /tmp/tagnumber.uit 2> /dev/null)
+	tagNum=$(cat /tmp/tagnumber.uit 2>/dev/null)
 	if [[ $tagNum =~ $regex ]]; then
 		echo "general|tagnumber|${tagNum}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "${tagNum}" > /root/tagnumber
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
 	else
 		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
-		echo "${tagNum}" > /root/tagnumber
+		echo "${tagNum}" > /tmp/tagnumber.uit
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 }
@@ -511,7 +510,7 @@ function diskSelect {
 	fi
 	
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db &
+		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 	else
 	    echo ""
 	    echo "${BOLD}${RED}Invalid selection.${RESET}"
@@ -1275,7 +1274,6 @@ function execute_Clone {
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	sshfs -o allow_other,default_permissions ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
-	#mount -t cifs -o user=${sambaUser} -o password=${sambaPassword} //${sambaServer}/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
 		info
@@ -1288,7 +1286,7 @@ function execute_Clone {
 		info
 		sleep 1
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
-			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z9 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
+			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z3 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
 	echo "UPDATE jobstats SET clone_time = '${cloneElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
@@ -1368,6 +1366,8 @@ function execute {
 		execute_Clone
 	else
 		echo "${RED}Error - Invalid application selected.${RESET}"
+		sleep 1
+		exit
 	fi
 
 }
@@ -1391,10 +1391,9 @@ function location {
 
 	echo ""
 	echo ""
-	tagnumber=$(cat /root/tagnumber | sed 's/[^0-9]//g')
 	SERIAL=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-		--execute="SELECT chassis_serial FROM locations WHERE tagnumber = '${tagnumber}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
-	echo "The last reported serial number for ${tagnumber} was: ${SERIAL}"
+		--execute="SELECT chassis_serial FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+	echo "The last reported serial number for ${tagNum} was: ${SERIAL}"
 	if [[ $SERIAL == "NULL" ]]; then
 		read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
 	else
@@ -1409,8 +1408,8 @@ function location {
 	elif [[ $status == "2" ]]; then
 		echo ""
 		ISSUE=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-		--execute="SELECT problem FROM locations WHERE tagnumber = '${tagnumber}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
-		echo "The last reported issue for ${tagnumber} was: ${ISSUE}"
+		--execute="SELECT problem FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+		echo "The last reported issue for ${tagNum} was: ${ISSUE}"
 		status="broken"
 		read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
 	else
@@ -1418,7 +1417,7 @@ function location {
 		problem=""
 	fi
 
-	echo "location|custom|${tagnumber}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "location|custom|${tagNum}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
@@ -1441,6 +1440,9 @@ function terminate {
 
 	eraseNumToday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
 	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'Yes' AND date = '${DATE}';" 2>/dev/null)
+
+	clientCloneTotal=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
+	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND tagnumber = '${tagNum}';" 2>/dev/null)
 
 	jobsToday=$(( cloneNumToday + eraseNumToday ))
 
