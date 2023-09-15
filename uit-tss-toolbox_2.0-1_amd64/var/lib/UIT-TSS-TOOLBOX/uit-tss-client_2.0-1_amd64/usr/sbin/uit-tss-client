@@ -1461,7 +1461,7 @@ function terminate {
 		echo "Server: \"${sambaDNS}\""
 		echo "Image: \"${cloneImgName}\""
 		echo "Image last updated: ${imgupdate}"
-		echo "Computers imaged and erased today: ${jobsToday}"
+		echo "Image and erase jobs today: ${jobsToday}"
 		echo "Total time taken: ${totalElapsed}"
 		#echo "Times ${tagNum} has been reimaged: ${totalCount}"
 		)
@@ -1481,7 +1481,7 @@ function terminate {
 		echo "Server: \"${sambaDNS}\""
 		echo "Total time taken: ${totalElapsed}"
 		echo "Image was last updated on: ${imageUpdate}"
-		echo "Computers imaged and erased today: ${jobsToday}"
+		echo "Image and erase jobs today: ${jobsToday}"
 		)
 
 		echo "UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
