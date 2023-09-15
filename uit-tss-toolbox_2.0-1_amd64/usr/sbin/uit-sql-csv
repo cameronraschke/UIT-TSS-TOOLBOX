@@ -19,14 +19,14 @@ $sql .= "'Max TBW (per the manufacturer)','Total Time','Erase Successful','Erase
 $sql .= "'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update','Linux User' ";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
-    $file->fputcsv($row[0]);
+    $file->fputcsv($row);
     $file = null;
 }
 
 $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY date DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
-    $file->fputcsv($row[0]);
+    $file->fputcsv($row);
     $file = null;
 }
 
@@ -38,20 +38,20 @@ unset($row);
 $sql = "SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,";
 $sql .= "nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time ";
 $sql .= "FROM serverstats ORDER BY date DESC";
-foreach ($pdo->query($sql) as $row) {
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row;
 }
 
 $sql = "SELECT 'Date','Computer Count','Last Image Update','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time (minutes)','NVME Avg. Erase Time (minutes)','SSD Avg. Erase Time (minutes)','Average Disk Wear Percent','Average Battery Max Charge Level Percent','Average Boot Time (seconds)'";
-foreach ($pdo->query($sql) as $row) {
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'a');
-    $file->fputcsv($row[0]);
+    $file->fputcsv($row);
     $file = null;
 }
 
 foreach ($arr as $row) {
     $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'a');
-    $file->fputcsv($row[0]);
+    $file->fputcsv($row);
     $file = null;
 }
 
@@ -64,23 +64,23 @@ $sql = "SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_
 $sql .= "erase_avgtime,clone_avgtime,all_jobs,";
 $sql .= "battery_health,tbw_pcnt ";
 $sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC";
-foreach ($pdo->query($sql) as $row) {
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row;
 }
 
 $sql = "SELECT 'Tag Number','Serial Number','Device Manufacturer','Device Model','Last Job Date',";
 $sql .= "'Average Erase Time (minutes)','Average Clone Time (minutes)','Total Jobs',";
 $sql .= "'Battery Max Charge in Percent','Terabytes Written Percent (TBW)'";
-foreach ($pdo->query($sql) as $row) {
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
-    $file->fputcsv($row[0]);
+    $file->fputcsv($row);
     $file = null;
 }
 
 
 foreach ($arr as $row) {
         $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
-        $file->fputcsv($row)[0];
+        $file->fputcsv($row);
         $file = null;
 }
 
@@ -90,14 +90,14 @@ foreach ($arr as $row) {
 unset($arr);
 unset($row);
 $sql = "SELECT DISTINCT tagnumber FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
-foreach ($pdo->query($sql) as $row) {
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row['tagnumber'];
 }
 
 $sql = "SELECT 'Tagnumber', 'Serial Number', 'Current Location', 'Status', 'Description of Problem', 'Datetime of Most Recent Update'";
-foreach ($pdo->query($sql) as $row) {
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
-    $file->fputcsv($row[0]);
+    $file->fputcsv($row);
     $file = null;
 }
 
@@ -108,9 +108,9 @@ foreach ($arr as $row) {
     $sql = "SELECT tagnumber,chassis_serial,location,status,problem,time ";
     $sql .= "FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ";
     $sql .= "AND tagnumber = '$tagNum' AND (time > '2023-09-01 00:00:00') ORDER BY time DESC LIMIT 1";
-    foreach ($pdo->query($sql) as $row) {
+    foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
         $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
-        $file->fputcsv($row[0]);
+        $file->fputcsv($row);
         $file = null;
     }
 
