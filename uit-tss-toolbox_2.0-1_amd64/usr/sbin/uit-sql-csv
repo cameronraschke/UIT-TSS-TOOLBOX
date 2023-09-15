@@ -17,14 +17,14 @@ $sql .= "'Battery Name','Battery Capacity','Battery Voltage','Battery Serial Num
 $sql .= "'Boot Time','Action','Reboot','Disk','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware','Disk Health Check','Disk Temperature','Disk Reads (TB)','Disk Writes (TB)',";
 $sql .= "'Max TBW (per the manufacturer)','Total Time','Erase Successful','Erase Mode','Total Erase Time','Percent of Disk Erased',";
 $sql .= "'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update','Linux User' ";
-foreach ($pdo->query($sql) as $row, PDO::FETCH_ASSOC) {
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
     $file->fputcsv($row[0]);
     $file = null;
 }
 
 $sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY date DESC";
-foreach ($pdo->query($sql) as $row, PDO::FETCH_ASSOC) {
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
     $file->fputcsv($row[0]);
     $file = null;
