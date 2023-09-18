@@ -49,7 +49,7 @@ if ($arr[0] == "location") {
     $sql = "UPDATE locations SET problem = NULL WHERE problem = ''";
     $pdo->query($sql);
 
-    $sql = "UPDATE locations SET serial = NULL WHERE chassis_serial = ''";
+    $sql = "UPDATE locations SET serial = NULL WHERE serial = ''";
     $pdo->query($sql);
 }
 
