@@ -1,0 +1,57 @@
+#!/usr/bin/php
+<?php
+include('/var/lib/UIT-TSS-TOOLBOX/SHRL/PDO-connect');
+
+$date = date('Y-m-d',time());
+$time = date('Y-m-d H:i:s', time());
+
+$default = "NULL";
+$location = "NULL";
+
+$stdin = fopen('php://stdin', 'r');
+$line = trim(fgets(STDIN));
+
+$arr = explode('|', $line);
+
+if ($arr[0] == "location") {
+    $tagNum = $arr[1];
+    $serial = $arr[2];
+    $dorm = $arr[3];
+    $location = $arr[4];
+    $status = $arr[5];
+    $problem = $arr[6];
+
+    if (empty($serial) || $serial == "" || $serial == " ") {
+        $serial = $default;
+    }
+
+
+    # INSERT statement
+    $sql = "INSERT INTO locations(tagnumber,serial,dorm,location,status,problem,time) ";
+    $sql .= "VALUES (:tagnumber, :serial, :dorm, :location, :status, :problem, :time)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
+    $stmt->bindParam(':serial', $serial, PDO::PARAM_STR);
+    $stmt->bindParam(':dorm', $dorm, PDO::PARAM_STR);
+    $stmt->bindParam(':location', $location, PDO::PARAM_STR);
+    $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+    $stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
+    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+    $stmt->execute();
+    $stmt = null;
+
+    $sql = "UPDATE locations SET location = NULL WHERE location = ''";
+    $pdo->query($sql);
+
+    $sql = "UPDATE locations SET status = NULL WHERE status = ''";
+    $pdo->query($sql);
+
+    $sql = "UPDATE locations SET problem = NULL WHERE problem = ''";
+    $pdo->query($sql);
+
+    $sql = "UPDATE locations SET serial = NULL WHERE chassis_serial = ''";
+    $pdo->query($sql);
+}
+
+$pdo = null;
+?>

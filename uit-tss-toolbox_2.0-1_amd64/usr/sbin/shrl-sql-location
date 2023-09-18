@@ -1,0 +1,50 @@
+#!/bin/bash
+
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BLUE=$(tput setaf 4)
+BOLD=$(tput bold)
+DIM=$(tput dim)
+RESET=$(tput sgr0)
+
+while true; do
+date=$(date '+%Y-%m-%d %H:%M:%S')
+
+echo ""
+echo ""
+read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
+sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
+	--execute="SELECT serial FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
+if [[ $sql == "NULL" ]]; then
+    read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
+else
+    serial="${sql}"
+fi
+sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
+	--execute="SELECT dorm FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+echo "The last reported dorm for ${tagNum} was: ${BOLD}${sql}${RESET}"
+read -p "Please enter the ${BOLD}${GREEN}dorm${RESET}: " dorm
+sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
+	--execute="SELECT location FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+echo "The last reported location for ${tagNum} was: ${BOLD}${sql}${RESET}"
+read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
+read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
+
+if [[ $status == "1" ]]; then
+    status="functioning"
+    problem=""
+elif [[ $status == "2" ]]; then
+    echo ""
+    sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
+	    --execute="SELECT problem FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+    echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
+    status="broken"
+    read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
+else
+    status=""
+    problem=""
+fi
+
+echo "location|${tagNum}|${serial}|${dorm}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/SHRL/parse
+done
