@@ -2,6 +2,8 @@
 
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
+/usr/bin/chmod 750 /usr/sbin/shrl-*
+/usr/bin/chown root:uit /usr/sbin/shrl-*
 /usr/bin/chmod 750 /var/lib/UIT-TSS-TOOLBOX/ -R
 /usr/bin/chown root:uit /var/lib/UIT-TSS-TOOLBOX/ -R
 echo -e "\n" >> /etc/cron.d/01-uit-cronjobs
