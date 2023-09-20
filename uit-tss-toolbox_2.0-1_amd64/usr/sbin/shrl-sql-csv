@@ -7,7 +7,14 @@ $time = date('Y-m-d-His', time());
 
 
 
-#Location Table
+#Locations Table
+unset($arr);
+unset($row);
+$sql = "SELECT DISTINCT tagnumber FROM locations";
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
+    $arr[] = $row['tagnumber'];
+}
+
 $sql = "SELECT 'Tagnumber','Serial','Model','Dorm','Computer Number','Status','Problem','Datetime'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/shrl-report-location-".$time.".csv", 'a');
@@ -15,13 +22,19 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = null;
 }
 
-$sql = "SELECT tagnumber,serial,model,dorm,location,status,problem,time FROM locations ORDER BY time DESC";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
-    $file = new SplFileObject("/tmp/shrl-report-location-".$time.".csv", 'a');
-    $file->fputcsv($row);
-    $file = null;
-}
 
+foreach ($arr as $row) {
+    unset($tagNum);
+    $tagNum = $row;
+    $sql = "SELECT tagnumber,serial,model,dorm,location,status,problem,time FROM locations";
+    $sql .= "WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
+    foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
+        $file = new SplFileObject("/tmp/shrl-report-location-".$time.".csv", 'a');
+        $file->fputcsv($row);
+        $file = null;
+    }
+
+}
 
 $pdo = null;
 ?>
