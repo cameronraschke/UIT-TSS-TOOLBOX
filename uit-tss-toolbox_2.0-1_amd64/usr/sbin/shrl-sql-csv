@@ -8,8 +8,6 @@ $time = date('Y-m-d-His', time());
 
 
 #Locations Table
-unset($arr);
-unset($row);
 $sql = "SELECT DISTINCT tagnumber FROM locations";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row['tagnumber'];
@@ -26,7 +24,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 foreach ($arr as $row) {
     unset($tagNum);
     $tagNum = $row;
-    $sql = "SELECT tagnumber,serial,model,dorm,location,status,problem,time FROM locations";
+    $sql = "SELECT tagnumber,serial,model,dorm,location,status,problem,time FROM locations ";
     $sql .= "WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
     foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
         $file = new SplFileObject("/tmp/shrl-report-location-".$time.".csv", 'a');
