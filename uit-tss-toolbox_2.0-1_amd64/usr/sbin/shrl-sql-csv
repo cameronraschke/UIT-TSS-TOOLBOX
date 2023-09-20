@@ -8,14 +8,14 @@ $time = date('Y-m-d-His', time());
 
 
 #Location Table
-$sql = "SELECT 'Tagnumber','Serial','Dorm','Location','Status','Problem','Datetime'";
+$sql = "SELECT 'Tagnumber','Serial','Model','Dorm','Computer Number','Status','Problem','Datetime'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/shrl-report-location-".$time.".csv", 'a');
     $file->fputcsv($row);
     $file = null;
 }
 
-$sql = "SELECT tagnumber,serial,dorm,location,status,problem,time FROM locations ORDER BY time DESC";
+$sql = "SELECT tagnumber,serial,model,dorm,location,status,problem,time FROM locations ORDER BY time DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/shrl-report-location-".$time.".csv", 'a');
     $file->fputcsv($row);
