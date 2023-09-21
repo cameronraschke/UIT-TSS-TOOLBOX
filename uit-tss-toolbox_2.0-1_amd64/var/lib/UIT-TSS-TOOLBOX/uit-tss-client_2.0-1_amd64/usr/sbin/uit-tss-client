@@ -226,6 +226,8 @@ function enterTag {
 
 		if [[ ${shrlTag[*]} =~ $tagNum ]]; then
 			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
+		elif [[ ${techCommTag[*]} =~ $tagNum ]]; then
+			UUID=$(echo -n "techComm-"; cat /proc/sys/kernel/random/uuid)
 		else
 			UUID=$(cat /proc/sys/kernel/random/uuid)
 		fi
