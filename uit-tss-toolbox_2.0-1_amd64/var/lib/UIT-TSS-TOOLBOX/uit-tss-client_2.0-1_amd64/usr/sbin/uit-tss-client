@@ -7,7 +7,7 @@ EOF
 
 cat <<'EOF' > /etc/systemd/timesyncd.conf
 [Time]
-NTP=10.10.0.1
+NTP=10.0.0.1
 EOF
 
 timedatectl set-timezone "America/Chicago"
