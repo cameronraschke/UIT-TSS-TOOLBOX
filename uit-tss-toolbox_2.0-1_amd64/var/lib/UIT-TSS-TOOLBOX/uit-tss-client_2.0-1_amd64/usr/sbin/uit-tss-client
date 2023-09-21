@@ -41,6 +41,15 @@ while IFS=$'\t' read sql; do
 done < <(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -BNr \
 		--execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null)
 
+while IFS=$'\t' read sql; do
+	if [[ -z $techCommTag ]]; then
+		techCommTag=( "$sql" )
+	else
+		techCommTag+=( "$sql" )
+	fi
+done < <(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -BNr \
+		--execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null)
+
 
 DATE=$(date --iso)
 
@@ -201,6 +210,8 @@ function enterTag {
 
 		if [[ ${shrlTag[*]} =~ $tagNum ]]; then
 			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
+		elif [[ ${techCommTag[*]} =~ $tagNum ]]; then
+			UUID=$(echo -n "techComm-"; cat /proc/sys/kernel/random/uuid)
 		else
 			UUID=$(cat /proc/sys/kernel/random/uuid)
 		fi
