@@ -134,6 +134,11 @@ net-tools
 gzip
 lzip
 zstd
+lzop
+lzma
+bzip2
+xz-utils
+lz4
 sudo
 chntpw
 libasound2
@@ -149,6 +154,8 @@ dosfstools
 efibootmgr
 efivar
 ntfs-3g
+libfsntfs-dev
+libfsntfs-utils
 iptables
 hdparm
 util-linux
@@ -157,6 +164,7 @@ coreutils
 pv
 postfix
 default-mysql-client
+mysql-client
 dmidecode
 sshfs
 php
@@ -166,6 +174,7 @@ httpfs2
 nfs-common
 smartmontools
 upower
+iputils-ping
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
@@ -190,10 +199,12 @@ sysctl --quiet --write "kernel.kptr_restrict=1"
 sysctl --quiet --write "vm.mmap_min_addr=65536"
 sysctl --quiet --load
 
-echo "uit-tss-toolbox.cameronraschke.com" > /etc/hostname
+echo "uit-toolbox-client" > /etc/hostname
 echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/motd
 echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/issue.net
 echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
+
+update-smart-drivedb
 EOF
 
 chmod 777 /opt/UIT-TSS-TOOLBOX/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
@@ -284,11 +295,14 @@ echo "${BOLD}Changing font...${RESET}"
 /usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz &>/dev/null
 echo "${GREEN}Done.${RESET}"
 
+echo ""
+echo "${BOLD}Installing the client package${RESET}
 sleep 1
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
-dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64
-dpkg --install /root/uit-tss-client_2.0-1_amd64.deb
+dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
+dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
+echo "${GREEN}Done.${RESET}
 
 /usr/sbin/uit-tss-client
 EOF
