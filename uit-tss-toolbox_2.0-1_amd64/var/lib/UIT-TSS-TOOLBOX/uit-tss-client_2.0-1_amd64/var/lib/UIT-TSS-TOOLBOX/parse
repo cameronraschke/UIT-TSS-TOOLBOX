@@ -4,7 +4,6 @@ include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $date = date('Y-m-d',time());
 $time = date('Y-m-d H:i:s', time());
-$default = "NULL";
 
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
@@ -25,12 +24,12 @@ if ($arr[0] == "init") {
     $sql .= "disksizegb,disk_model,disk_serial,disk_firmware,disk_health,disk_temp,disk_reads,disk_writes,max_tbw,all_time,";
     $sql .= "erase_completed,erase_mode,erase_time,erase_diskpercent,clone_completed,clone_mode,clone_time,clone_master,";
     $sql .= "clone_server,clone_image,clone_imageupdate,clone_sambauser) ";
-    $sql .= "VALUES ('$uuid','$tagNum','$macAddr','$date','$time',$default,$default,$default,$default,$default,$default,$default,";
-    $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
-    $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
-    $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
-    $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,$default,";
-    $sql .= "$default,$default,$default,$default,$default,$default,$default,$default,$default)";
+    $sql .= "VALUES ('$uuid','$tagNum','$macAddr','$date','$time',DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
     $pdo->query($sql);
 
 } elseif ($arr[0] == "disk") {
@@ -54,7 +53,7 @@ if ($arr[0] == "init") {
     $value = $arr[3];
     if ($arr[1] == "battery_charge_cycles") { 
         if ($value == 0 || empty($value)){
-            $sql = "UPDATE jobstats SET $key = $default WHERE uuid = '$uuid'";
+            $sql = "UPDATE jobstats SET $key = NULL WHERE uuid = '$uuid'";
             $pdo->query($sql);
         } else {
             $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
