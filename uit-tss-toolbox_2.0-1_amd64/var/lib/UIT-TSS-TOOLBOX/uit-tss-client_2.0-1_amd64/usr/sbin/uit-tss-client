@@ -27,11 +27,24 @@ cloneElapsed="0"
 shredElapsed="0"
 
 etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do cat /sys/class/net/${i}/address; done)
-UUID=$(cat /proc/sys/kernel/random/uuid)
+
+
+tOneSerialNumber=$(dmidecode --string system-serial-number)
+
+
+while IFS=$'\t' read sql; do
+	if [[ -z $shrlTag ]]; then
+		shrlTag=( "$sql" )
+	else
+		shrlTag+=( "$sql" )
+	fi
+done < <(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -BNr \
+		--execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null)
+
+
 DATE=$(date --iso)
 
-tput reset
-echo "init|${UUID}|000000|${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
 tput reset
 
 
@@ -184,15 +197,32 @@ function enterTag {
 
 	echo "checktag|$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tagNum=$(cat /tmp/tagnumber.uit 2>/dev/null)
-	if [[ $tagNum =~ $regex ]]; then
+	if [[ $tagNum != "" ]]; then
+
+		if [[ ${shrlTag[*]} =~ $tagNum ]]; then
+			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
+		else
+			UUID=$(cat /proc/sys/kernel/random/uuid)
+		fi
+
+		echo "init|${UUID}|${tagNum}|${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "general|tagnumber|${tagNum}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
 	else
 		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
-		echo "UPDATE jobstats SET tagnumber = '${tagNum}' WHERE uuid = '${UUID}'" | uit-tss-db
 		echo "${tagNum}" > /tmp/tagnumber.uit
+
+		if [[ ${shrlTag[*]} =~ $tagNum ]]; then
+			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
+		else
+			UUID=$(cat /proc/sys/kernel/random/uuid)
+		fi
+
+		echo "init|${UUID}|${tagNum}|${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|tagnumber|${tagNum}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		
 	fi
 }
 
@@ -1526,8 +1556,8 @@ function terminate {
 
 
 function main {
-	hardwareData
 	intro
+	hardwareData
 	if [[ $mainMenuOpt == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
