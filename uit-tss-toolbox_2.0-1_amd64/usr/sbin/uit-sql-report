@@ -44,7 +44,7 @@ function diskSelect {
 	            diskSelect
             fi
     elif [[ $diskNums -gt "1" ]]; then
-		echo "Which disk do you want to ${BOLD}flash${RESET}?"
+		echo "Which NTFS disk do you want to ${BOLD}copy reports to${RESET}?"
 		lsblk
 		echo ""
 		while read -r line; do
