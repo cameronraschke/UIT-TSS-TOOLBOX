@@ -19,31 +19,31 @@ if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
 fi
 
 function diskSelect {
-	DISKNAMES=$(for i in /sys/block/*;
-        do if udevadm info --query=property --path=${i} | grep -q ^ID_BUS=usb;
-        then i=$(echo ${i} | grep -o 'sd.*');
+	DISKNAMES=$(for i in /sys/block/*; do 
+    if udevadm info --query=property --path=${i} | grep -q ^ID_BUS=usb; then
+        i=$(echo ${i} | grep -o 'sd.*');
         echo ${i}; fi; done)
-	CLIENTDISK=""
-	diskNums="0"
-	local DISKCONF=""
-	local a="0"
-	local n="0"
-	local DISKARR=()
+	    CLIENTDISK=""
+	    diskNums="0"
+	    local DISKCONF=""
+	    local a="0"
+	    local n="0"
+	    local DISKARR=()
 
-	for i in ${DISKNAMES}; do
-		diskNums=$(( diskNums + 1 ))
-		DISKARR+=( "$i" )
-	done
+	    for i in ${DISKNAMES}; do
+		    diskNums=$(( diskNums + 1 ))
+		    DISKARR+=( "$i" )
+	    done
 
-	if [[ $diskNums == "1" ]]; then
-		for i in ${!DISKARR[@]}; do
-			CLIENTDISK=${DISKARR[$i]}
-		done
-		echo "The disk ${BOLD}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
-		read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to confirm" DISKCONF
-		if [[ $DISKCONF != "1" ]]; then
-			echo "${BOLD}${RED}Reselecting disk.${RESET}"
-			diskSelect
+	    if [[ $diskNums == "1" ]]; then
+		    for i in ${!DISKARR[@]}; do
+			    CLIENTDISK=${DISKARR[$i]}
+		    done
+		    echo "The disk ${BOLD}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
+		    read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to confirm" DISKCONF
+		elif [[ $DISKCONF != "1" ]]; then
+			    echo "${BOLD}${RED}Reselecting disk.${RESET}"
+			    diskSelect
 		fi
 	else
 		echo "Which disk do you want to ${BOLD}flash${RESET}?"
@@ -73,7 +73,6 @@ function diskSelect {
 		sleep 0.5
 	    diskSelect
 	fi	
-}
 
 function execute {
         if [[ $CLIENTDISK =~ sd.* ]]; then

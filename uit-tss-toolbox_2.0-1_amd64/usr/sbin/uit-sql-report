@@ -1,0 +1,94 @@
+#!/bin/bash
+SSD_REGEX='sd.*'
+NVME_REGEX='nvme.*'
+SCSI_REGEX='hd.*'
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BLUE=$(tput setaf 4)
+BOLD=$(tput bold)
+DIM=$(tput dim)
+RESET=$(tput sgr0)
+cloneElapsed="0"
+shredElapsed="0"
+ACTION="burn an ISO to"
+
+function diskSelect {
+    DISKNAMES=$(for i in /sys/block/*; do
+        if udevadm info --query=property --path=${i} | grep -q ^ID_BUS=usb; then
+            i=$(echo ${i} | grep -o 'sd.*');
+            echo ${i}
+        fi
+        done)
+
+	CLIENTDISK=""
+	diskNums="0"
+	local DISKCONF=""
+	local a="0"
+	local n="0"
+	local DISKARR=()
+
+	for i in ${DISKNAMES}; do
+        diskNums=$(( diskNums + 1 ))
+		DISKARR+=( "$i" )
+	done
+
+	if [[ $diskNums == "1" ]]; then
+	    for i in ${!DISKARR[@]}; do
+		    CLIENTDISK=${DISKARR[$i]}
+		done
+		echo "The disk ${BOLD}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
+		read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to confirm" DISKCONF
+	elif [[ $DISKCONF != "1" ]]; then
+	    echo "${BOLD}${RED}Reselecting disk.${RESET}"
+	    diskSelect
+	else
+		echo "Which disk do you want to ${BOLD}flash${RESET}?"
+		lsblk
+		echo ""
+		while read -r line; do
+			a=$(( $a + 1 ))
+			echo "${BOLD}${BLUE}[${a}]${RESET} $line"
+		done < <(echo "${BOLD}${DISKNAMES}${RESET}")
+		echo ""
+		read -n 1 -p "Select a disk ${BOLD}${BLUE}[1-$a]${RESET}: " CLIENTDISK
+		for i in ${!DISKARR[@]}; do
+			n=$(( $n + 1 ))
+			if [[ $n == $CLIENTDISK ]]; then
+				CLIENTDISK=${DISKARR[$i]}
+			fi
+		done
+		echo ""
+		echo ""
+	fi
+	
+	if [[ ! $CLIENTDISK =~ ${SSD_REGEX} ]]; then
+	    echo ""
+	    echo "${BOLD}${RED}Invalid selection: ${CLIENTDISK}${RESET}"
+		sleep 0.5
+	    diskSelect
+	fi	
+}
+
+function execute {
+        if [[ $CLIENTDISK =~ ${SSD_REGEX} && -d /mnt/usb ]]; then
+                echo "Unmounting and re-mounting ${CLIENTDISK}"
+                umount /dev/${CLIENTDISK} &>/dev/null
+                mount /dev/${CLIENTDISK} /mnt/usb &>/dev/null
+                echo "Generating reports"
+                uit-sql-csv; shrl-sql-csv
+                echo "Copying reports"
+                cp /tmp/laptop-report* /mnt/usb
+                cp /tmp/shrl-report* /mnt/usb
+                mysqldump laptopDB > /mnt/usb
+                mysqldump shrl > /mnt/usb
+                echo "Unmounting ${CLIENTDISK}"
+                umount /dev/${CLIENTDISK}
+        else
+                echo ""
+                echo "Invalid block device or no USB drive found. Exiting...."
+                exit 1
+        fi
+}
+
+diskSelect
+execute
