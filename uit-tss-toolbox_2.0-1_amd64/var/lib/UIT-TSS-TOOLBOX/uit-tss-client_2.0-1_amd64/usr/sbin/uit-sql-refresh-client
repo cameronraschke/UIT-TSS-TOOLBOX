@@ -1,4 +1,0 @@
-#!/bin/bash
-tagNum=$(cat /tmp/tagnumber.uit | sed 's/[^0-9]//g')
-
-echo "update|${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/parse

@@ -632,7 +632,7 @@ function writeDisk_Shred {
 	if [[ $PROCFAIL == '0' ]]; then
 		echo "Success! ${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten."
 		return 0
-		else
+	else
 		echo "${BOLD}${RED}Write failed.${RESET}"
 		return 1
 	fi
@@ -737,7 +737,7 @@ function vrfyDisk_Shred {
 	if [[ $PROCFAIL == '0' ]]; then
 		echo "Test passed successfully!"
 		return 0
-		else
+	else
 		echo "Test failed."
 		return 1
 	fi
@@ -1460,44 +1460,44 @@ function terminate {
 
 	jobsToday=$(( cloneNumToday + eraseNumToday ))
 
+	echo ""
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
 		echo "UPDATE jobstats SET clone_imageupdate = '${imgupdate}' WHERE uuid = '${UUID}'" | uit-tss-db
 
 		if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
-			terminateAction="erased and cloned"
+			terminateAction="Erased and cloned"
 		fi
 
 		if [[ $cloneMode == "restoredisk" && $APPSELECT == "C" ]]; then
-			terminateAction="cloned"
+			terminateAction="Cloned"
 		fi
 
-		exitMessage=$(echo "Tag#: ${tagNum}"
+		terminateMessage=$(echo "Tag#: ${tagNum}"
 		echo "MAC: ${etherAddr}"
 		echo "Action: ${terminateAction}"
+		echo "Total time taken: ${totalElapsed} minutes"
 		echo "Server: \"${sambaDNS}\""
 		echo "Image: \"${cloneImgName}\""
-		echo "Image last updated: ${imgupdate}"
-		echo "Image and erase jobs today: ${jobsToday}"
-		echo "Total time taken: ${totalElapsed}"
-		#echo "Times ${tagNum} has been reimaged: ${totalCount}"
+		echo "Total jobs today: ${jobsToday}"
 		)
 
 		echo "UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
 
 		if [[ $APPSELECT == "EC" ]]; then
-		echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
 		fi
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
 		imgupdate=$(date --iso)
-		echo "UPDATE serverstats SET last_image_update = '${imgupdate}' WHERE date = '${DATE}'" | uit-tss-db
 
-		exitMessage=$(echo "Updated image: \"${cloneImgName}\""
+		terminateMessage=$(echo "Tag#: ${tagNum}"
+		echo "MAC: ${etherAddr}"
+		echo "Action: ${terminateAction}"
+		echo "Total time taken: ${totalElapsed} minutes"
 		echo "Server: \"${sambaDNS}\""
-		echo "Total time taken: ${totalElapsed}"
-		echo "Image was last updated on: ${imageUpdate}"
-		echo "Image and erase jobs today: ${jobsToday}"
+		echo "Image: \"${cloneImgName}\""
+		echo "Total jobs today: ${jobsToday}"
 		)
 
 		echo "UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
@@ -1507,29 +1507,19 @@ function terminate {
 	if [[ $APPSELECT == "E" ]]; then
 		terminateAction="erased"
 
-		exitMessage=$(echo "Tag#: ${tagNum}"
+		terminateMessage=$(echo "Tag#: ${tagNum}"
 		echo "MAC: ${etherAddr}"
 		echo "Action: ${terminateAction}"
-		echo "Total time taken: ${totalElapsed}"
-		echo "Computers imaged and erased today: ${jobsToday}"
+		echo "Total time taken: ${totalElapsed} minutes"
+		echo "Total jobs today: ${jobsToday}"
 		)
-		echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
 
-		echo ""
-		echo "${exitMessage}"
-		echo ""
-		if [[ $PROCFAIL == '1' ]]; then
-			echo "${BOLD}${RED}Process failed - Bad bits found on device ${CLIENTDISK}!${RESET}"
-		fi
-		echo ""
-		read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to shutdown...${RESET}"
-		poweroff
+		echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
 	fi
 
+	echo "${terminateMessage}"
+	echo "update|${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/parse	
 	echo ""
-	/usr/sbin/uit-sql-refresh-client	
-	echo ""
-	echo "${exitMessage}"
 	echo ""
 	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to shutdown...${RESET}"
 	poweroff
