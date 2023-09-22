@@ -380,40 +380,46 @@ function basicEraseMode_Shred {
 
 function advEraseMode_Shred {
 	tput reset
+	exitMessage
 	echo ""
 	echo "Please choose an erase mode: "
 	echo ""
 
 	echo ""
 	echo "${BOLD}${BLUE}[1]${RESET} ${BOLD}Autodetect${RESET} (Default)
-	-Best trade off between security and speed"
+	-Best trade off between security and speed. Autodetects the best mode for your disk."
 
 	echo ""
 	echo "${BOLD}${BLUE}[2]${RESET} ${BOLD}NIST 800-88r1${RESET}
-	-Fastest for NVME"
+	-Fastest for NVME."
 
 	echo ""
 	echo "${BOLD}${BLUE}[3]${RESET} ${BOLD}Zero Mode + Quick Verify${RESET}
-	-One pass of zeroes and then verifies"
+	-One pass of zeroes, quick verification step."
 	
 	echo ""
-	echo "${BOLD}${BLUE}[4]${RESET} ${BOLD}DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5${RESET}"
+	echo "${BOLD}${BLUE}[4]${RESET} ${BOLD}DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5${RESET}
+	-Writes a pass of zeroes, then ones, then a random bit. Verifies each step."
 
 	echo ""
-	echo "${BOLD}${BLUE}[5]${RESET} ${BOLD}RCMP TSSIT OPS-II/VSITR${RESET}"
+	echo "${BOLD}${BLUE}[5]${RESET} ${BOLD}RCMP TSSIT OPS-II/VSITR${RESET}
+	-Alternates between 0's and 1's 6 times. 7th pass writes and verifies a random bit."
 
 	echo ""
-	echo "${BOLD}${BLUE}[6]${RESET} ${BOLD}Schneier${RESET}"
+	echo "${BOLD}${BLUE}[6]${RESET} ${BOLD}Schneier${RESET}
+	-A pass of 1's then a pass of 0's. Five passes of a random pattern of characters."
 
 	echo ""
-	echo "${BOLD}${BLUE}[7]${RESET} ${BOLD}Gutmann${RESET}"
+	echo "${BOLD}${BLUE}[7]${RESET} ${BOLD}Gutmann${RESET}
+	-Four random character passes, 27 predefined pattern passes, four more random character passes."
 	
 	echo ""
-	echo "${BOLD}${BLUE}[8]${RESET} ${BOLD}Verify Only${RESET}"
+	echo "${BOLD}${BLUE}[8]${RESET} ${BOLD}Verify Only${RESET}
+	-Does not write data, choose character/pattern to verify."
 
 	echo ""
 	echo "${BOLD}${BLUE}[9]${RESET} ${BOLD}Unlock${RESET}
-	-Unlocks disk previously locked by this program"
+	-Unlocks disks previously locked by this program."
 
 	echo ""
 	read -n1 -p "${BOLD}Choose ${BLUE}[0-9]${RESET}${BOLD}:${RESET} " MODESELECT
