@@ -15,7 +15,7 @@ echo "${BOLD}${RED}Go coogs!!${RESET}"
 echo ""
 
 function diskSelect {
-    DISKNAMES=$(for i in /sys/block/*; do;
+    DISKNAMES=$(for i in /sys/block/*; do
         if udevadm info --query=property --path=${i} | grep -q ^ID_BUS=usb; then
             i=$(echo ${i} | grep -o 'sd.*');
             echo ${i};
