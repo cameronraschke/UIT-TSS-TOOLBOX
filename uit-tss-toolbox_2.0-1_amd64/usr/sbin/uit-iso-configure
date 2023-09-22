@@ -246,6 +246,7 @@ echo "${BOLD}Changing font...${RESET}"
 /usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz &>/dev/null
 echo "${GREEN}Done.${RESET}"
 
+echo ""
 echo "${BOLD}Changing brightness...${RESET}"
 maxBrightness=$(cat /sys/class/backlight/*/max_brightness)
 echo "${maxBrightness}" > /sys/class/backlight/*/brightness 2>/dev/null
@@ -312,7 +313,7 @@ echo "${BOLD}Configuring audio...${RESET}"
 echo "${GREEN}Done.${RESET}"
 
 echo ""
-echo "${BOLD}Installing the client package${RESET}
+echo "${BOLD}Installing the client package${RESET}"
 scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
