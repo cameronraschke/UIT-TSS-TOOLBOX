@@ -1,4 +1,6 @@
 #!/bin/bash
+dpkg --purge uit-tss-toolbox
+
 rm -r /tmp/UIT-TSS-TOOLBOX/
 
 git clone https://github.com/cameronraschke/UIT-TSS-TOOLBOX /tmp/UIT-TSS-TOOLBOX/
