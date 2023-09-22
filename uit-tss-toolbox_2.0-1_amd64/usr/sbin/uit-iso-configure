@@ -246,7 +246,7 @@ echo "${GREEN}Done.${RESET}"
 
 echo "${BOLD}Changing brightness...${RESET}"
 maxBrightness=$(cat /sys/class/backlight/*/max_brightness)
-echo "${maxBrightness}" | /sys/class/backlight/*/brightness
+echo "${maxBrightness}" > /sys/class/backlight/*/brightness
 echo "${GREEN}Done.${RESET}"
 
 echo ""
