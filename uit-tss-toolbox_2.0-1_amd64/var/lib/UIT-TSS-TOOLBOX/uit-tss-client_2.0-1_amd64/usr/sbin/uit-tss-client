@@ -783,7 +783,7 @@ function secUnlock_Shred {
 function nistMode_Shred {
 	clear
 	echo ""
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}.${RESET}"
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 
 	echo ""
@@ -824,7 +824,7 @@ function nistMode_Shred {
 function zeroMode_Shred {
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
+		echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 
 	echo ""
@@ -853,7 +853,7 @@ function dodMode_Shred {
 	
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 
 	echo ""
@@ -906,7 +906,7 @@ function rcmpMode_Shred {
 
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 
 	echo ""
@@ -970,7 +970,7 @@ function schneierMode_Shred {
 
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 
 	echo ""
@@ -1029,7 +1029,7 @@ function gutmann {
 
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 
 	
@@ -1074,7 +1074,7 @@ function gutmann {
 function verifyMode_Shred {
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in ${RMODE}."
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 	
 	echo ""
@@ -1175,7 +1175,7 @@ function verifyMode_Shred {
 function unlockMode_Shred {
 	clear
 	echo ""
-	echo "UIT-TSS-TOOLBOX running in ${RMODE}"
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 	
 	secUnlock_Shred
