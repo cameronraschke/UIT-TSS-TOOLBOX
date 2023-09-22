@@ -79,10 +79,10 @@ function execute {
                 echo "Generating reports"
                 uit-sql-csv; shrl-sql-csv
                 echo "Copying reports"
-                cp /tmp/laptop-report* /mnt/usb
-                cp /tmp/shrl-report* /mnt/usb
-                mysqldump laptopDB > /mnt/usb
-                mysqldump shrl > /mnt/usb
+                cp /tmp/laptop-report* /mnt/usb/
+                cp /tmp/shrl-report* /mnt/usb/
+                mysqldump laptopDB > /mnt/usb/laptopDB.sql
+                mysqldump shrl > /mnt/usb/shrlDB.sql
                 echo "Unmounting ${CLIENTDISK}"
                 umount /dev/${CLIENTDISK}
         else
