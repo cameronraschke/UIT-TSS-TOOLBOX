@@ -468,6 +468,7 @@ function advEraseMode_Shred {
 
 	tput reset
 	setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz
+	echo ""
 	read -p "Are you sure you want to use ${BOLD}${RMODE}${RESET} on ${BOLD}${CLIENTDISK}${RESET}? Press ${BOLD}${BLUE}Enter${RESET} to continue: "
 
 	echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
