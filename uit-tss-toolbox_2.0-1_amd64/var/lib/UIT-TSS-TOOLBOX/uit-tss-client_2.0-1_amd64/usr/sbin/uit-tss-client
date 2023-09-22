@@ -382,9 +382,6 @@ function advEraseMode_Shred {
 	tput reset
 	setfont /usr/share/consolefonts/Lat7-Terminus28x14.psf.gz
 	exitMessage
-	echo ""
-	echo "Please choose an erase mode: "
-	echo ""
 
 	echo ""
 	echo "${BOLD}${BLUE}[1]${RESET} ${BOLD}Autodetect${RESET} (Default)
@@ -423,7 +420,7 @@ function advEraseMode_Shred {
 	-Unlocks disks previously locked by this program."
 
 	echo ""
-	read -n1 -p "${BOLD}Choose ${BLUE}[0-9]${RESET}${BOLD}:${RESET} " MODESELECT
+	read -n1 -p "${BOLD}Please choose an erase mode ${BLUE}[0-9]${RESET}${BOLD}:${RESET} " MODESELECT
 	echo ""
 
 	case $MODESELECT in
