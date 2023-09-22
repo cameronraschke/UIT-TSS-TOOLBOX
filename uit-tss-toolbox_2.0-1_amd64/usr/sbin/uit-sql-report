@@ -8,9 +8,11 @@ BLUE=$(tput setaf 4)
 BOLD=$(tput bold)
 DIM=$(tput dim)
 RESET=$(tput sgr0)
-cloneElapsed="0"
-shredElapsed="0"
-ACTION="burn an ISO to"
+
+echo ""
+echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
+echo "${BOLD}${RED}Go coogs!!${RESET}"
+echo ""
 
 function diskSelect {
     DISKNAMES=$(for i in /sys/block/*; do
@@ -40,7 +42,9 @@ function diskSelect {
 	elif [[ $DISKCONF != "1" ]]; then
 	    echo "${BOLD}${RED}Reselecting disk.${RESET}"
 	    diskSelect
-	else
+
+    fi
+	if [[ $diskNums >= "1" ]]; then
 		echo "Which disk do you want to ${BOLD}flash${RESET}?"
 		lsblk
 		echo ""
