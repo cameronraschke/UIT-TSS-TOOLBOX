@@ -380,6 +380,7 @@ function basicEraseMode_Shred {
 
 function advEraseMode_Shred {
 	tput reset
+	setfont /usr/share/consolefonts/Lat7-Terminus28x14.psf.gz
 	exitMessage
 	echo ""
 	echo "Please choose an erase mode: "
@@ -467,6 +468,10 @@ function advEraseMode_Shred {
 	modeselect
 	;;
 	esac
+
+	tput reset
+	setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz
+	read -p "Are you sure you want to use ${BOLD}${RMODE}${RESET} on ${BOLD}${CLIENTDISK}${RESET}? Press ${BOLD}${BLUE}Enter${RESET}to continue: "
 
 	echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
 }
