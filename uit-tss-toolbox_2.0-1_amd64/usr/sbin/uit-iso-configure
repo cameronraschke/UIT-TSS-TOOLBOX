@@ -241,7 +241,12 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Changing font...${RESET}"
-/usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz &>/dev/null
+/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz &>/dev/null
+echo "${GREEN}Done.${RESET}"
+
+echo "${BOLD}Changing brightness...${RESET}"
+maxBrightness=$(cat /sys/class/backlight/intel_backlight/max_brightness)
+echo "${maxBrightness}" | /sys/class/backlight/*/brightness
 echo "${GREEN}Done.${RESET}"
 
 echo ""

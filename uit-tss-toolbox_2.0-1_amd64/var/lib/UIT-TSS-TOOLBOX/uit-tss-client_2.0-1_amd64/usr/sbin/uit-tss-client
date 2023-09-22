@@ -247,10 +247,8 @@ function info {
 function exitMessage {
 	lines=$(tput lines)
 	tput reset
-	tput cup $(( lines - 6 ))
+	tput cup $(( lines - 3 ))
 	echo "Tagnumber: ${tagNum}, System Serial Number: ${tOneSerialNumber}"
-	echo "${DIM}Press ${BOLD}${BLUE}CTRL + C${RESET}${DIM} at any time to exit UIT-TSS-TOOLBOX${RESET}"
-	echo "${DIM}If you have exited UIT-TSS-TOOLBOX and you want to restart it, press ${BOLD}${BLUE}CTRL + D${RESET}"
 	echo ""
 	echo "${DIM}UIT-TSS-TOOLBOX by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"
 	tput cup 0 0
@@ -269,7 +267,6 @@ function intro {
 	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
 	echo "${BOLD}${RED}Go coogs!!${RESET}"
 	echo ""
-	echo ""
 	tput bold
 	tput setaf 1
 	echo "| |    | |  | |     | |"
@@ -280,20 +277,13 @@ function intro {
 	tput sgr0
 	echo ""
 	echo "------------------------------"
-	echo ""
 	echo "Checklist:"
 	echo "${BOLD}-General best practices${RESET} "
 	echo "   * Sanitize laptops with cleaner before imaging them."
 	echo "   * Reset BIOS to default/factory settings before imaging."
-	echo "${BOLD}-Physical connections${RESET} "
-	echo "   * Make sure that power and ethernet are plugged in to the client."
-	echo "   * Do not use Secure Erase on USB drives or drives connected over USB."
-	echo "      * Autodetect mode and NIST 800-88r1 mode can both do Secure Erase."
 	echo "${BOLD}-Dells${RESET} "
 	echo "   * Make sure SATA mode is in AHCI mode and not RAID mode."
 	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
-	echo "      * Every Dell is in RAID mode by default."
-	echo "      * If you reset BIOS, make sure you change SATA mode to AHCI after the reset."
 	echo ""
 	echo "${BOLD}Please remove the thumb drive and press one select one of the following keys:${RESET} "
 	echo "   ${BLUE}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} an HP laptop${RESET}"
