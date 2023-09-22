@@ -240,6 +240,11 @@ sysctl --quiet --load
 echo "${GREEN}Done.${RESET}"
 
 echo ""
+echo "${BOLD}Changing font...${RESET}"
+/usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz &>/dev/null
+echo "${GREEN}Done.${RESET}"
+
+echo ""
 echo "${BOLD}Configuring networking....${RESET}"
 sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
 sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
@@ -250,21 +255,28 @@ sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
 sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
 sysctl --quiet --load
 
-# INTERFACES=$(cat /proc/net/dev | grep -oP '.*:\ ' | sed 's/://g' | sed 's/lo//g' | sed 's/w.*//g' | sed 's/[[:space:]]//g')
-# for iface in $INTERFACES; do
+# for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
 # 	ip link set "${iface}" up
 # 	dhclient -r "${iface}"
 # 	dhclient -4 "${iface}"
 # done &>/dev/null
+echo "${GREEN}Done.${RESET}"
 
+echo ""
+echo "${BOLD}Syncing time...${RESET}"
+echo "[Time]
+NTP=10.0.0.1" > /etc/systemd/timesyncd.conf
+
+timedatectl set-timezone "America/Chicago"
+
+/usr/bin/systemctl restart systemd-timesyncd
 echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Running disk checks....${RESET}"
-for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
+for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11 | head -n1); do
 	smartctl -t short -a /dev/${i} > /root/smartctl-data
 done
-
 echo "${GREEN}Done.${RESET}"
 
 echo ""
@@ -279,7 +291,9 @@ ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
 fi
 sshpass -f /root/.ssh_passwd ssh-copy-id \
 	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
-scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
+
+echo "Host *
+	StrictHostKeyChecking=no" > /root/.ssh/config
 echo "${GREEN}Done.${RESET}"
 
 echo ""
@@ -291,18 +305,15 @@ echo "${BOLD}Configuring audio...${RESET}"
 echo "${GREEN}Done.${RESET}"
 
 echo ""
-echo "${BOLD}Changing font...${RESET}"
-/usr/bin/setfont /usr/share/consolefonts/Lat7-TerminusBold16.psf.gz &>/dev/null
-echo "${GREEN}Done.${RESET}"
-
-echo ""
 echo "${BOLD}Installing the client package${RESET}
-sleep 1
+scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
 dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
 dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 echo "${GREEN}Done.${RESET}
+
+sleep 1
 
 /usr/sbin/uit-tss-client
 EOF

@@ -1,19 +1,4 @@
 #!/bin/bash
-
-cat <<'EOF' > /root/.ssh/config
-Host *
-	StrictHostKeyChecking=no
-EOF
-
-cat <<'EOF' > /etc/systemd/timesyncd.conf
-[Time]
-NTP=10.0.0.1
-EOF
-
-timedatectl set-timezone "America/Chicago"
-
-/usr/bin/systemctl restart systemd-timesyncd
-
 SSD_REGEX='sd.*'
 NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'

@@ -15,7 +15,7 @@ ACTION="burn an ISO to"
 
 if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
         echo ""
-        echo "${BOLD}${RED}ISO file does not exist. Please run uit-tss-configure-toolbox.${RESET}"
+        echo "${BOLD}${RED}ISO file does not exist. Please run uit-iso-configure.${RESET}"
 fi
 
 function diskSelect {
