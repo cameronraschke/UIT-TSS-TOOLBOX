@@ -74,8 +74,8 @@ function diskSelect {
 function execute {
         if [[ $CLIENTDISK =~ ${SSD_REGEX} && -d /mnt/usb ]]; then
                 echo "Unmounting and re-mounting ${CLIENTDISK}"
-                umount /dev/${CLIENTDISK} &>/dev/null
-                mount /dev/${CLIENTDISK} /mnt/usb &>/dev/null
+                umount "/dev/${CLIENTDISK}1" &>/dev/null
+                mount "/dev/${CLIENTDISK}1" /mnt/usb &>/dev/null
                 echo "Generating reports"
                 uit-sql-csv; shrl-sql-csv
                 echo "Copying reports"
@@ -84,7 +84,7 @@ function execute {
                 mysqldump laptopDB > /mnt/usb/laptopDB.sql
                 mysqldump shrl > /mnt/usb/shrlDB.sql
                 echo "Unmounting ${CLIENTDISK}"
-                umount /dev/${CLIENTDISK}
+                umount "/dev/${CLIENTDISK}1"
         else
                 echo ""
                 echo "Invalid block device or no USB drive found. Exiting...."
