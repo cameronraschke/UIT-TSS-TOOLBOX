@@ -17,8 +17,7 @@ function diskSelect {
         if udevadm info --query=property --path=${i} | grep -q ^ID_BUS=usb; then
             i=$(echo ${i} | grep -o 'sd.*');
             echo ${i}
-        fi
-        done)
+        fi; done)
 
 	CLIENTDISK=""
 	diskNums="0"
