@@ -13,7 +13,6 @@ shredElapsed="0"
 
 etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do cat /sys/class/net/${i}/address; done)
 
-
 tOneSerialNumber=$(dmidecode --string system-serial-number)
 
 
