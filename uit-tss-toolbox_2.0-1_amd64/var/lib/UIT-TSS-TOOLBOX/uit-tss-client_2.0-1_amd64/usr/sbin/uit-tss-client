@@ -1210,10 +1210,11 @@ function clientselect_Clone {
 	esac
 
 	exitMessage
-	echo -n "Are you cloning ${BOLD}Tech Commoons HP laptops ${BLUE}[1]${RESET}, "
-	echo -n "${BOLD}Tech Commons Dell laptops ${BLUE}[2]${RESET}, "
-	echo -n "${BOLD}Tech Commons Dell desktops ${BLUE}[3]${RESET}, "
-	echo "or ${BOLD}SHRL desktops${BLUE}[4]${RESET}?"
+	echo "Select which device you are cloning: "
+	echo "${BLUE}[1]${RESET} ${BOLD}Tech Commons HP laptops${RESET}"
+	echo "${BLUE}[2]${RESET} ${BOLD}Tech Commons Dell laptops${RESET}"
+	echo "${BLUE}[3]${RESET} ${BOLD}Tech Commons Dell desktops${RESET}"
+	echo "${BLUE}[4]${RESET} ${BOLD}SHRL Dell desktops${RESET}"
 	read -n1 -p "Enter ${BOLD}${BLUE}[1-4]${RESET} " CLIENTTYPE
 	echo ""
 	case $CLIENTTYPE in
