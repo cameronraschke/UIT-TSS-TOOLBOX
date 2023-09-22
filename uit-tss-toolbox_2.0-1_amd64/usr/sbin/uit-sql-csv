@@ -23,7 +23,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = null;
 }
 
-$sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY date DESC";
+$sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND uuid LIKE 'techComm-%' ORDER BY date DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
     $file->fputcsv($row);
