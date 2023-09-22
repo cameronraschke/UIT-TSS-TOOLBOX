@@ -39,12 +39,10 @@ function diskSelect {
 		done
 		echo "The disk ${BOLD}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
 		read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to confirm" DISKCONF
-	elif [[ $DISKCONF != "1" ]]; then
+	elif [[ $DISKCONF -le "1" ]]; then
 	    echo "${BOLD}${RED}Reselecting disk.${RESET}"
 	    diskSelect
-
-    fi
-	if [[ $diskNums >= "1" ]]; then
+    elif [[ $diskNums -gt "1" ]]; then
 		echo "Which disk do you want to ${BOLD}flash${RESET}?"
 		lsblk
 		echo ""
