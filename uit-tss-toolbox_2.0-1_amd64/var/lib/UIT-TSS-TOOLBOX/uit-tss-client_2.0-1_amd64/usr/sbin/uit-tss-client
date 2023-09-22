@@ -285,7 +285,7 @@ function intro {
 	echo "   * Make sure SATA mode is in AHCI mode and not RAID mode."
 	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
 	echo ""
-	echo "${BOLD}Please remove the thumb drive and press one select one of the following keys:${RESET} "
+	echo "${BOLD}Please remove the thumb drive and select one of the following options:${RESET} "
 	echo "   ${BLUE}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} an HP laptop${RESET}"
 	echo "   ${BLUE}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a SMALL Dell laptop${RESET}"
 	echo "   ${BLUE}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
