@@ -34,7 +34,7 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 			--apt-secure true \
 			--apt-source-archives true \
 			--architecture amd64 \
-			--archive-areas 'main contrib non-free' \
+			--archive-areas 'main contrib non-free non-free-firmware' \
 			--binary-filesystem fat32 \
 			--binary-images iso-hybrid \
 			--bootappend-live "fetch=10.0.0.1/live/live/filesystem.squashfs \
@@ -164,7 +164,6 @@ coreutils
 pv
 postfix
 default-mysql-client
-mysql-client
 dmidecode
 sshfs
 php
