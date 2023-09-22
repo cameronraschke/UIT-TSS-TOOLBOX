@@ -5,8 +5,8 @@ rm -r /tmp/UIT-TSS-TOOLBOX/
 
 git clone https://github.com/cameronraschke/UIT-TSS-TOOLBOX /tmp/UIT-TSS-TOOLBOX/
 
-chmod 755 /root/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64/DEBIAN/postinst
-dpkg-deb --build /root/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64/
-dpkg --install /root/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64.deb
+chmod 755 /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64/DEBIAN/postinst
+dpkg-deb --build /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64/
+dpkg --install /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64.deb
 
 rm -r /tmp/UIT-TSS-TOOLBOX/
