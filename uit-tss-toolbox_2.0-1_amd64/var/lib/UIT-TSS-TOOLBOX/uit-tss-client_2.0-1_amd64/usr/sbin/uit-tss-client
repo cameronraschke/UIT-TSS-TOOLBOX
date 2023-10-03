@@ -36,6 +36,7 @@ done < <(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --h
 
 
 DATE=$(date --iso)
+sambaPath="images"
 
 
 tput reset
@@ -205,7 +206,7 @@ function enterTag {
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
 	else
-		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${BLUE}Enter${RESET}${BOLD}:${RESET} " tagNum
+		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo "${tagNum}" > /tmp/tagnumber.uit
 
 		if [[ ${shrlTag[*]} =~ $tagNum ]]; then
@@ -219,7 +220,6 @@ function enterTag {
 		echo "init|${UUID}|${tagNum}|${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "general|tagnumber|${tagNum}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		
 	fi
 }
 
@@ -288,8 +288,8 @@ function intro {
 	echo "   ${BLUE}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} an HP laptop${RESET}"
 	echo "   ${BLUE}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a SMALL Dell laptop${RESET}"
 	echo "   ${BLUE}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
-	echo "   ${BLUE}[4]${RESET} ${BOLD}Simple erase NVME${RESET}"
-	echo "   ${BLUE}[5]${RESET} ${BOLD}Simple erase SATA${RESET}"
+	echo "   ${BLUE}[4]${RESET} ${BOLD}Simple erase NVME ${RESET}${DIM}(nvme0/nvme0n1)${RESET}"
+	echo "   ${BLUE}[5]${RESET} ${BOLD}Simple erase SATA ${RESET}${DIM}(sda)${RESET}"
 	echo "   ${BLUE}[9]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
 	echo "   ${BLUE}[0]${RESET} ${BOLD}Associate Hardware Data${RESET}"
 	read -n 1 -p "Select [0-9]: " mainMenuOpt
@@ -329,8 +329,11 @@ function powerWarning {
 
 function appSelect {
 	exitMessage
-	echo -n "Would you like to ${BOLD}erase and clone ${BLUE}[1]${RESET}, ${BOLD}only erase (advanced) ${BLUE}[2]${RESET}"
-	echo ", or ${BOLD}only clone ${BLUE}[3]${RESET}?"
+	echo "Please select ..."
+	echo ""
+	echo "${BOLD}${BLUE}[1]${RESET} erase and clone${RESET}"
+	echo "${BOLD}${BLUE}[2]${RESET} only erase (advanced)${RESET}"
+	echo "${BOLD}${BLUE}[3]${RESET} only clone${RESET}"
 	read -n 1 -p "${BOLD}Please enter ${BLUE}[1-3]${RESET}${BOLD}: ${RESET}" APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
@@ -340,12 +343,12 @@ function appSelect {
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
-		echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	else
 		echo ""
 		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
@@ -372,7 +375,7 @@ function basicEraseMode_Shred {
 			RMODE='Zero Mode'
 		fi
 	fi
-	echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
+	echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
@@ -468,51 +471,53 @@ function advEraseMode_Shred {
 	tput reset
 	setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz
 	echo ""
-	read -p "Are you sure you want to use ${BOLD}${RMODE}${RESET} on ${BOLD}${CLIENTDISK}${RESET}? Press ${BOLD}${BLUE}Enter${RESET} to continue: "
+	read -p "Are you sure you want to use ${BOLD}${RMODE}${RESET} on ${BOLD}${CLIENTDISK}${RESET}? Press ${BOLD}${GREEN}Enter${RESET} to continue: "
 
-	echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
+	echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
 
 function diskSelect {
-	DISKNAMES=$(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11)
-	DISKSIZES=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
+	diskList=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
+	diskNames=$(echo "${diskList}" | awk '{print $1}')
 	CLIENTDISK=""
-	diskNums="0"
-	local DISKCONF=""
+	diskCount="0"
+	local diskConfirm=""
 	local a="0"
 	local n="0"
-	local DISKARR=()
+	local diskArr=()
 	exitMessage
 
-	for i in ${DISKNAMES}; do
-		diskNums=$(( diskNums + 1 ))
-		DISKARR+=( "$i" )
+	for i in ${diskNames}; do
+		diskCount=$(( diskCount + 1 ))
+		diskArr+=( "$i" )
 	done
 
-	if [[ $diskNums == "1" ]]; then
-		for i in ${!DISKARR[@]}; do
-			CLIENTDISK=${DISKARR[$i]}
+	if [[ $diskCount == "1" ]]; then
+		for i in ${!diskArr[@]}; do
+			CLIENTDISK=${diskArr[$i]}
 		done
 		echo "The disk ${BOLD}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
-		read -n 1 -p "Press ${BOLD}${BLUE}[1]${RESET} to confirm" DISKCONF
-		if [[ $DISKCONF != "1" ]]; then
+		read -n 1 -p "Press ${BOLD}${GREEN}[1]${RESET} to confirm" diskConfirm
+		if [[ $diskConfirm != "1" ]]; then
 			echo "${BOLD}${RED}Reselecting disk.${RESET}"
+			sleep 0.5
 			diskSelect
 		fi
 	else
 		echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
 		while read -r line; do
-			a=$(( $a + 1 ))
+			a=$(( a + 1 ))
 			echo "${BOLD}${BLUE}[${a}]${RESET} $line"
-		done < <(echo "${BOLD}${DISKSIZES}${RESET}")
+		done < <(echo "${BOLD}${diskList}${RESET}")
+
 		echo ""
 		read -n 1 -p "Select a disk ${BOLD}${BLUE}[1-$a]${RESET}: " CLIENTDISK
-		for i in ${!DISKARR[@]}; do
+		for i in ${!diskArr[@]}; do
 			n=$(( $n + 1 ))
 			if [[ $n == $CLIENTDISK ]]; then
-				CLIENTDISK=${DISKARR[$i]}
+				CLIENTDISK=${diskArr[$i]}
 			fi
 		done
 		echo ""
@@ -520,10 +525,10 @@ function diskSelect {
 	fi
 	
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	else
 	    echo ""
-	    echo "${BOLD}${RED}Invalid selection.${RESET}"
+	    echo "${BOLD}${RED}Invalid disk regex check.${RESET}"
 		sleep 0.5
 	    diskSelect
 	fi	
@@ -549,9 +554,9 @@ function writeDisk_Shred {
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	echo "UPDATE jobstats SET disksizegb = '${DISKSIZEGB}' WHERE uuid = '${UUID}'" | uit-tss-db
-	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
-	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
+	echo "general|disksizegb|${DISKSIZEGB}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	SECTIONSIZEMB=$(( DISKSIZEMB / SECTIONS ))
+	COUNT=$(( SECTIONSIZEMB / 100 * PCNTOFSECTOR / 2 ))
 	PROCFAIL='0'
 	local a='0'
 	local i='0'
@@ -596,7 +601,7 @@ function writeDisk_Shred {
 	fi
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
-	echo "UPDATE jobstats SET erase_diskpercent = '${PCNTOFSECTOR}' WHERE uuid = '${UUID}'" | uit-tss-db
+	echo "general|erase_diskpercent|${PCNTOFSECTOR}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -627,14 +632,6 @@ function writeDisk_Shred {
 	echo "Completely filling the last sector...."
 	${SOURCE} | dd bs=${BS} count=${SECTIONSIZEMB} seek=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) of=/dev/${CLIENTDISK} \
 		iflag=fullblock status=none 2>/dev/null
-
-	if [[ $PROCFAIL == '0' ]]; then
-		echo "Success! ${PCNTOFSECTOR}% of ${CLIENTDISK} has been overwritten."
-		return 0
-	else
-		echo "${BOLD}${RED}Write failed.${RESET}"
-		return 1
-	fi
 }
 
 
@@ -653,9 +650,8 @@ function vrfyDisk_Shred {
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	SECTIONSIZEMB=$(( ${DISKSIZEMB} / ${SECTIONS} ))
-	COUNT=$(( ${SECTIONSIZEMB} / 100 * ${PCNTOFSECTOR} / 2 ))
-	PROCFAIL='0'
+	SECTIONSIZEMB=$(( DISKSIZEMB / SECTIONS ))
+	COUNT=$(( SECTIONSIZEMB / 100 * PCNTOFSECTOR / 2 ))
 	local a='0'
 	local i='0'
 
@@ -685,7 +681,8 @@ function vrfyDisk_Shred {
 		tput cuu1
 
 		COUNT1=$(shuf -i 1-${COUNT} -n 1)
-		SKIP1=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} / 2 ))
+		MATHONE=$(shuf -i 1-$(( SECTIONSIZEMB / DIVPERSEC )) -n 1)
+		SKIP1=$(( MATHONE + ${a} / 2 ))
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP1} iflag=fullblock status=none 2>/dev/null \
         	| grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
             	PROCFAIL='1'
@@ -696,7 +693,8 @@ function vrfyDisk_Shred {
     	fi
 
 		COUNT2=$(shuf -i 1-${COUNT} -n 1)
-    	SKIP2=$(( $(shuf -i 1-$(( ${SECTIONSIZEMB} + ${SECTIONSIZEMB} - ${SECTIONSIZEMB} / ${DIVPERSEC} )) -n 1) + ${a} ))
+		MATHTWO=$(shuf -i 1-$(( SECTIONSIZEMB + SECTIONSIZEMB - SECTIONSIZEMB / DIVPERSEC )) -n 1)
+    	SKIP2=$(( MATHTWO + ${a} ))
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT2} skip=${SKIP2} iflag=fullblock status=none 2>/dev/null \
         	| grep --quiet -oP -m 1 [^${CHAR}]; echo $?) == '0' ]]; then
             	PROCFAIL='1'
@@ -706,8 +704,8 @@ function vrfyDisk_Shred {
 				return 1
     	fi
 
-		i=$(( ${i} + 1 ))
-		a=$(( ${a} + ${SECTIONSIZEMB} ))
+		i=$(( i + 1 ))
+		a=$(( a + SECTIONSIZEMB ))
 
 	done
 
@@ -769,7 +767,7 @@ function secUnlock_Shred {
 		hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
 		echo "${CLIENTDISK} is successfully unlocked."
 	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-		echo "Only SATA drives can be unlocked. Failed to unlock ${CLIENTDISK:0:-2}. Continuing...."
+		echo "NVME drives do not need to be unlocked. Failed to unlock ${CLIENTDISK}. Continuing...."
 	elif [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
 		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}. Continuing...."
 	else
@@ -1207,28 +1205,29 @@ function clientselect_Clone {
 	echo "${BLUE}[2]${RESET} ${BOLD}Tech Commons Dell laptops${RESET}"
 	echo "${BLUE}[3]${RESET} ${BOLD}Tech Commons Dell desktops${RESET}"
 	echo "${BLUE}[4]${RESET} ${BOLD}SHRL Dell desktops${RESET}"
+	echo "${BLUE}[5]${RESET} ${BOLD}Ubuntu Desktop${RESET}"
 	read -n1 -p "Enter ${BOLD}${BLUE}[1-4]${RESET} " CLIENTTYPE
 	echo ""
 	case $CLIENTTYPE in
 	1)
-	sambaPath='images'
 	cloneImgName='TechCommons-HP-Laptops'
-	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
+	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	;;
 	2)
-	sambaPath='images'
 	cloneImgName='TechCommons-Dell-Laptops'
-	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
+	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	;;
 	3)
-	sambaPath='images'
 	cloneImgName='TechCommons-Dell-Desktops'
-	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
+	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	;;
 	4)
-	sambaPath='images'
 	cloneImgName='SHRL-Dell-Desktops'
-	echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
+	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	;;
+	5)
+	cloneImgName='Ubuntu-Desktop'
+	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	;;
 	*)
 	clientselect_Clone
@@ -1532,13 +1531,11 @@ function main {
 	if [[ $mainMenuOpt == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-			echo "UPDATE jobstats SET clone_image = '${tOneManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='nvme0n1'
 			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		cloneMode="restoredisk"
 			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaPath="images"
 		cloneImgName="TechCommons-HP-Laptops"
 			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
@@ -1555,13 +1552,11 @@ function main {
 	elif [[ $mainMenuOpt == "2" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-			echo "UPDATE jobstats SET clone_image = '${tOneManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='nvme0n1'
 			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		cloneMode="restoredisk"
 			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaPath="images"
 		cloneImgName="TechCommons-Dell-Laptops"
 			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
@@ -1578,13 +1573,11 @@ function main {
 	elif [[ $mainMenuOpt == "3" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-			echo "UPDATE jobstats SET clone_image = '${tOneManufacturer}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='sda'
 			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		cloneMode="restoredisk"
 			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
-		sambaPath="images"
 		cloneImgName="TechCommons-Dell-Laptops"
 			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
@@ -1601,7 +1594,7 @@ function main {
 	elif [[ $mainMenuOpt == "4" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='nvme0n1'
 			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
@@ -1612,13 +1605,12 @@ function main {
 	elif [[ $mainMenuOpt == "5" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-			echo "UPDATE jobstats SET action = '${ACTION}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='sda'
 		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
-
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "9" ]]; then
