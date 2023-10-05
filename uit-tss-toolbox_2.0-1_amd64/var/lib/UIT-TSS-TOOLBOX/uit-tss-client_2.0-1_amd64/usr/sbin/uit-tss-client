@@ -662,8 +662,8 @@ function vrfyDisk_Shred {
 	echo "Looking for non-${CHAR}'s on ${CLIENTDISK}...."
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		FULLVRFY=$(pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${CHAR}]" | head -1)
-		if [[ -z $FULLVRFY ]]; then
+		FULLVRFY=$(pv /dev/${CLIENTDISK} | grep -oP -m 1 "[^${CHAR}]" | head -n 1)
+		if [[ ${PIPESTATUS[1]} = "1" ]]; then
         	echo "${BOLD}The drive ${CLIENTDISK} is completely and securely wiped.${RESET}"
 			PROCFAIL='0'
 		else
@@ -828,20 +828,14 @@ function zeroMode_Shred {
 	echo "Step [1/2]: "
 	echo ""
 	WMODE='zero'
+	CHAR='0'
 	if [[ $zeroQuick = "1" ]]; then
-		PCNTOFSECTOR='25'
+		PCNTOFSECTOR='10'
 	else
-		PCNTOFSECTOR='100'
+		:
 	fi
 	writeDisk_Shred
-	
-	if [[ $zeroQuick != "1" ]]; then
-		echo ""
-		echo "Step: [2/2]: "
-		PCNTOFSECTOR='10'
-		CHAR='0'
-		vrfyDisk_Shred
-	fi
+	vrfyDisk_Shred
 }
 
 
@@ -1352,7 +1346,7 @@ function execute {
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		echo "${RED}Cannot erase device and save its image.${RESET}"
-		read -p "Please press enter to restart UIT-TSS-TOOLBOX."
+		read -p "Please press ${BOLD}${GREEN}enter${RESET} to restart ${BOLD}UIT-TSS-TOOLBOX${RESET}."
 		exit 1
 	fi
 
@@ -1366,9 +1360,10 @@ function execute {
 	elif [[ $APPSELECT == "E" ]]; then
 		if [[ -z $shredMode ]]; then
 			advEraseMode_Shred
+		else
+			basicEraseMode_Shred
+			execute_Shred
 		fi
-		basicEraseMode_Shred
-		execute_Shred
 	elif [[ $APPSELECT == "C" ]]; then
 		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
