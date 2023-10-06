@@ -1231,41 +1231,6 @@ function clientselect_Clone {
 
 
 
-function confirm_Clone {
-	echo ""
-	echo ""
-	echo ""
-	echo "------------------------------"
-	echo ""
-	echo "Default settings:"
-	echo "Server type: Samba"
-	echo "User: ${USER}"
-	echo "Password: ${PASS}"
-	echo "Hostname prefix: ${HOSTNAME}"
-	echo ""
-	echo ""
-	echo "Custom settings:"
-	echo "Mode is: ${cloneMode}"
-	echo "Server is: ${SERVER}/${SERVERDNS}"
-	echo "Samba path is: //${SERVERDNS}/${SMBPATH}"
-	echo "Image name is: ${IMAGENAME}"
-	echo "Client disk: ${CLIENTDISK}"
-	echo ""
-		if [[ $cloneMode == "savedisk" ]]; then
-		echo "Saving an image will overwrite the previous image stored on the server. \
-Please make a backup if necessary."
-		fi
-		if [[ $cloneMode == "restoredisk" ]]; then
-		echo "Restoring an image will overwrite the client's hard drive. \
-Please make a backup if necessary."
-		fi
-	echo ""
-	read -p "Press Enter to continue or CTRL + C to exit...."
-	clear
-}
-
-
-
 function execute_Clone {
 	SECONDS=0
 	start_time=$SECONDS
@@ -1335,7 +1300,7 @@ function execute_Shred {
 			unlockMode_Shred
 		fi
 		shredElapsed=$(( SECONDS - start_time ))
-		echo "UPDATE jobstats SET erase_time = '${shredElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "general|erase_time|${shredElapsed}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 	return
 }
@@ -1380,7 +1345,7 @@ function execute {
 
 function totaltime {
 	totalElapsed=$(echo $(( (shredElapsed + cloneElapsed) / 60 )))
-	echo "UPDATE jobstats SET all_time = '${totalElapsed}' WHERE uuid = '${UUID}'" | uit-tss-db
+	echo "general|all_time|${totalElapsed}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
@@ -1474,10 +1439,10 @@ function terminate {
 		echo "Total jobs today: ${jobsToday}"
 		)
 
-		echo "UPDATE jobstats SET clone_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "general|clone_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 		if [[ $APPSELECT == "EC" ]]; then
-			echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 	fi
 	
@@ -1507,14 +1472,14 @@ function terminate {
 		echo "Total jobs today: ${jobsToday}"
 		)
 
-		echo "UPDATE jobstats SET erase_completed = 'Yes' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
 	echo "${terminateMessage}"
 	echo "update|${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/parse	
 	echo ""
 	echo ""
-	read -p "${BOLD}Process has finished. Press ${BLUE}Enter${RESET}${BOLD} to shutdown...${RESET}"
+	read -p "${BOLD}Process has finished. Press ${GREEN}Enter${RESET}${BOLD} to shutdown...${RESET}"
 	poweroff
 }
 
@@ -1528,20 +1493,20 @@ function main {
 		ACTION="erase and clone"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='nvme0n1'
-			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
-			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|clone_mode|${cloneMode}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneImgName="TechCommons-HP-Laptops"
-			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		sambaUser="cameron"
 		sambaPassword="UHouston!"
 		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
-			echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|clone_sambauser|${sambaUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_server|${sambaDNS}/${sambaServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "2" ]]; then
@@ -1549,20 +1514,20 @@ function main {
 		ACTION="erase and clone"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='nvme0n1'
-			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
-			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|clone_mode|${cloneMode}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneImgName="TechCommons-Dell-Laptops"
-			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		sambaUser="cameron"
 		sambaPassword="UHouston!"
 		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
-			echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|clone_sambauser|${sambaUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_server|${sambaDNS}/${sambaServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "3" ]]; then
@@ -1570,20 +1535,20 @@ function main {
 		ACTION="erase and clone"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='sda'
-			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
-			echo "UPDATE jobstats SET clone_mode = '${cloneMode}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|clone_mode|${cloneMode}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneImgName="TechCommons-Dell-Laptops"
-			echo "UPDATE jobstats SET clone_image = '${cloneImgName}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		sambaUser="cameron"
 		sambaPassword="UHouston!"
 		sambaServer="10.0.0.1"
 		sambaDNS="mickey.uit"
-			echo "UPDATE jobstats SET clone_sambauser = '${sambaUser}' WHERE uuid = '${UUID}'" | uit-tss-db
-			echo "UPDATE jobstats SET clone_server = '${sambaDNS}/${sambaServer}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|clone_sambauser|${sambaUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_server|${sambaDNS}/${sambaServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "4" ]]; then
@@ -1591,10 +1556,10 @@ function main {
 		ACTION="erase"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='nvme0n1'
-			echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "5" ]]; then
@@ -1602,10 +1567,10 @@ function main {
 		ACTION="erase"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='sda'
-		echo "UPDATE jobstats SET disk = '${CLIENTDISK}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "UPDATE jobstats SET erase_mode = '${RMODE}' WHERE uuid = '${UUID}'" | uit-tss-db
+			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "9" ]]; then
