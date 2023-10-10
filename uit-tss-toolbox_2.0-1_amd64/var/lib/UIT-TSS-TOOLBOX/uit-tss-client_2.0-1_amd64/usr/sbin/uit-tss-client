@@ -207,19 +207,15 @@ function enterTag {
 		return
 	else
 		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
-		echo "${tagNum}" > /tmp/tagnumber.uit
-
-		if [[ ${shrlTag[*]} =~ $tagNum ]]; then
-			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
-		elif [[ ${techCommTag[*]} =~ $tagNum ]]; then
-			UUID=$(echo -n "techComm-"; cat /proc/sys/kernel/random/uuid)
-		else
-			UUID=$(cat /proc/sys/kernel/random/uuid)
-		fi
-
-		echo "init|${UUID}|${tagNum}|${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "general|tagnumber|${tagNum}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo ""
+		echo "Please enter the ${BOLD}${BLUE}department${RESET}: "
+		echo "${BOLD}${BLUE}[1]${RESET} ${BOLD}TechCommons${RESET}"
+		echo "${BOLD}${BLUE}[2]${RESET} ${BOLD}SHRL${RESET}"
+		echo ""
+		read -n 1 -p "${BOLD}Please enter ${GREEN}[1,2]${RESET}${BOLD}:${RESET} " department
+		echo "location|begin|${tagNum}|${tOneSerialNumber}|${location}|${status}|${problem}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		ssh cameron@mickey.uit "echo $tagNum | uit-sql-refresh-client 2>/dev/null"
+		enterTag
 	fi
 }
 

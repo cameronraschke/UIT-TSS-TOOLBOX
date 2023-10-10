@@ -82,6 +82,7 @@ if ($arr[0] == "init") {
         $location = "Plugged in and booted on laptop table.";
         $status = "functioning";
         $problem = "";
+        $department = $arr[7];
     }
 
     if ($arr[1] == "end") {
@@ -90,6 +91,7 @@ if ($arr[0] == "init") {
         $location = "Finished work on laptop table.";
         $status = "functioning";
         $problem = "";
+        $department = $arr[7];
     }
 
     if ($arr[1] == "custom") {
@@ -98,7 +100,34 @@ if ($arr[0] == "init") {
         $location = $arr[4];
         $status = $arr[5];
         $problem = $arr[6];
+        $department = $arr[7];
     }
+
+    if ($department == "1") {
+        $uuid = uniqid("techComm-", true);
+    } elseif ($department == "2") {
+        $uuid = uniqid("SHRL-", true);
+    } else {
+        $uuid = uniqid("manual", true);
+    }
+    
+
+    $sql = "INSERT INTO jobstats(uuid,tagnumber,etheraddress,date,time,bios_vendor,bios_version,bios_date,";
+    $sql .= "bios_revision,bios_firmware,system_manufacturer,system_productname,system_serial,system_uuid,system_sku,";
+    $sql .= "system_family,motherboard_manufacturer,motherboard_serial,chassis_manufacturer,chassis_type,chassis_serial,";
+    $sql .= "chassis_tag,chassis_psu,cpu_family,cpu_manufacturer,cpu_id,cpu_version,cpu_voltage,cpu_maxspeed,cpu_currentspeed,";
+    $sql .= "cpu_cores,cpu_threads,ram_serial,battery_manufacturer,battery_name,battery_capacity,battery_voltage,battery_serial,";
+    $sql .= "battery_manufacturedate,battery_alarm,battery_health,battery_charge_cycles,boot_errors,boot_time,action,reboot,disk,";
+    $sql .= "disksizegb,disk_model,disk_serial,disk_firmware,disk_health,disk_temp,disk_reads,disk_writes,max_tbw,all_time,";
+    $sql .= "erase_completed,erase_mode,erase_time,erase_diskpercent,clone_completed,clone_mode,clone_time,clone_master,";
+    $sql .= "clone_server,clone_image,clone_imageupdate,clone_sambauser) ";
+    $sql .= "VALUES ('$uuid','$tagNum',DEFAULT,'$date','$time',DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "'$serial',DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
+    $pdo->query($sql);
 
     $sql = "INSERT INTO locations(tagnumber,chassis_serial,location,status,problem,time) ";
     $sql .= "VALUES (:tagnumber, :chassis_serial, :location, :status, :problem, :time)";
