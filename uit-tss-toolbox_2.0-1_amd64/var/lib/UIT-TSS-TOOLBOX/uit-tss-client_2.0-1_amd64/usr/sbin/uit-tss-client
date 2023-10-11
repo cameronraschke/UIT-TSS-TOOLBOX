@@ -352,10 +352,14 @@ function autodetectClient {
 				manualClient
 		fi
 		echo ""
+		echo ""
 		echo "System Manufacturer: $systemManufacturer"
 		echo "Chassis Type: $chassisType"
 		echo "Disk type: $autodetectDisk"
-		read -n 1 -p "If this is correct, please press ${BOLD}${GREEN}[1]${RESET} to continue: " autoSelectConf
+		echo ""
+		echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Continue${RESET}"
+		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual Mode${RESET}"
+		read -n 1 -p "Please select ${BOLD}${GREEN}[1,2]${RESET} to continue: " autoSelectConf
 		if [[ $autoSelectConf == "1" ]]; then
 				return
 			else
