@@ -188,6 +188,7 @@ function enterTag {
 	echo ""
 
 	echo "checktag|$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
+	while [[ ! -f /tmp/tagnumber.uit ]]; do sleep 0.1; done
 	tagNum=$(cat /tmp/tagnumber.uit 2>/dev/null)
 	if [[ $tagNum != "" ]]; then
 

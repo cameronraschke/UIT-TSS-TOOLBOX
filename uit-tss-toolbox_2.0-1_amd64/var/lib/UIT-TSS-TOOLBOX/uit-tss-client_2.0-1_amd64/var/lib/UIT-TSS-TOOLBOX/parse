@@ -106,7 +106,7 @@ if ($arr[0] == "init") {
     if ($department == "1") {
         $uuid = uniqid("techComm-", true);
     } elseif ($department == "2") {
-        $uuid = uniqid("SHRL-", true);
+        $uuid = uniqid("shrl-", true);
     } else {
         $uuid = uniqid("manual", true);
     }
