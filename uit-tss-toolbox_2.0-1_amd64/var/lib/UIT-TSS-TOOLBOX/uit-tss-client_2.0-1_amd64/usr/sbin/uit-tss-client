@@ -33,6 +33,9 @@ done < <(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --h
 		--execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null)
 
 
+tOneSerialNumber=$(dmidecode --string system-serial-number)
+
+
 DATE=$(date --iso)
 sambaPath="images"
 
@@ -187,7 +190,7 @@ function enterTag {
 	tput reset
 	echo ""
 
-	echo "checktag|$tOneSerialNumber" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "checktag|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	while [[ ! -f /tmp/tagnumber.uit ]]; do sleep 0.1; done
 	tagNum=$(cat /tmp/tagnumber.uit 2>/dev/null)
 	if [[ $tagNum != "" ]]; then
@@ -1561,9 +1564,9 @@ function terminate {
 
 function main {
 	tput reset
-	hardwareData
-	tput reset
 	enterTag
+	tput reset
+	hardwareData
 	intro
 	if [[ $mainMenuOpt == "1" ]]; then
 		APPSELECT="EC"
