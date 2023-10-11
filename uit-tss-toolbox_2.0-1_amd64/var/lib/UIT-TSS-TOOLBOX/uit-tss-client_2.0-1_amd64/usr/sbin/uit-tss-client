@@ -358,7 +358,7 @@ function autodetectClient {
 		echo "Disk type: $autodetectDisk"
 		echo ""
 		echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Continue${RESET}"
-		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual Mode${RESET}"
+		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Restart${RESET}"
 		read -n 1 -p "Please select ${BOLD}${GREEN}[1,2]${RESET} to continue: " autoSelectConf
 		if [[ $autoSelectConf == "1" ]]; then
 				return
