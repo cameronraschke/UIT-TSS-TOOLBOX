@@ -76,7 +76,9 @@ if ($arr[0] == "init") {
     }
 } elseif ($arr[0] == "location") {
 
-    $department = "unknown";
+    if (empty($arr[7])) {
+        $arr[7] = "unknown";
+    }
 
     if ($arr[1] == "begin") {
         $tagNum = $arr[2];

@@ -302,6 +302,7 @@ function autodetectClient {
 	echo -n "${tOneManufacturer}" > /tmp/manufacturer.uit
 	echo -n "${tThreeType}" > /tmp/chassis.uit
 	for i in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11); do echo $i > /tmp/disk.uit; done
+	autodetectDisk=$(cat /tmp/disk.uit)
 
 	while [[ ! -f /tmp/manufacturer.uit || ! -f /tmp/chassis.uit || ! -f /tmp/disk.uit ]]; do
 		sleep 0.1
@@ -353,7 +354,7 @@ function autodetectClient {
 		echo ""
 		echo "System Manufacturer: $systemManufacturer"
 		echo "Chassis Type: $chassisType"
-		echo "Disk type: $diskName"
+		echo "Disk type: $autodetectDisk"
 		read -n 1 -p "If this is correct, please press ${BOLD}${GREEN}[1]${RESET} to continue: " autoSelectConf
 		if [[ $autoSelectConf == "1" ]]; then
 				return
