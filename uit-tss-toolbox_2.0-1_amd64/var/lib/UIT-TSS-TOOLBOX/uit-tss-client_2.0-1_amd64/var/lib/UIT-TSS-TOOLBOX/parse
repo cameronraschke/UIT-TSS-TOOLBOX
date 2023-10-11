@@ -159,22 +159,6 @@ if ($arr[0] == "init") {
     $uuid = $arr[3];
     $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
     $pdo->query($sql);
-} elseif ($arr[0] == "autodetect") {
-    $arr[1] = $uuid;
-    $sql = "SELECT system_manufacturer FROM jobstats WHERE uuid = '$uuid'";
-    foreach ($pdo->query($sql) as $row) {
-        $manufacturer = $row['system_manufacturer'];
-        $fd = fopen("/tmp/manufacturer.uit", "w");
-        fwrite($fd, $manufacturer);
-        fclose($fd);
-    }
-    $sql = "SELECT chassis_type FROM jobstats WHERE uuid = '$uuid'";
-    foreach ($pdo->query($sql) as $row) {
-        $chassisType = $row['chassis_type'];
-        $fd = fopen("/tmp/chassis.uit", "w");
-        fwrite($fd, $chassisType);
-        fclose($fd);
-    }
 } else {
     echo "No query specified.";
 }

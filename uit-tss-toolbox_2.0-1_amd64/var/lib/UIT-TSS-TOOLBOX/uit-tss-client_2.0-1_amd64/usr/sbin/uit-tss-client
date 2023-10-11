@@ -13,8 +13,6 @@ shredElapsed="0"
 
 etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do cat /sys/class/net/${i}/address; done)
 
-tOneSerialNumber=$(dmidecode --string system-serial-number)
-
 
 while IFS=$'\t' read sql; do
 	if [[ -z $shrlTag ]]; then
@@ -253,90 +251,7 @@ function footer {
 
 
 
-function autodetectClient {
-	echo "autodetect|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	systemManufacturer=$(cat /tmp/manufacturer.uit 2>/dev/null)
-	chassisType=$(cat /tmp/chassis.uit 2>/dev/null)
-	
-	for i in $(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11); do echo $i > /tmp/clientdisk.uit; done
-	diskName=$(cat /tmp/disk.uit 2>/dev/null)
-
-	while [[ $systemManufacturer == "" || $chassisType == "" || $diskName == "" ]]; do
-		sleep 0.1
-	done
-
-	if grep -i 'dell' /tmp/manufacturer.uit; then
-		systemManufacturer="dell"
-		elif grep -i 'hp' /tmp/manufacturer.uit; then
-			systemManufacturer="hp"
-		else
-			systemManufacturer="unknown"
-	fi
-
-	if [[ $chassisType != "" ]]; then
-		if grep -i 'notebook' /tmp/chassis.uit; then
-			chassisType="notebook"
-			elif grep -i 'desktop' /tmp/chassis.uit; then
-				chassisType="desktop"
-			else
-				chassisType="unknown"
-		fi
-	fi
-
-	if grep -i 'nvme' /tmp/disk.uit; then
-		diskType="nvme"
-		elif grep -i 'sd' /tmp/disk.uit; then
-			diskType="sata"
-		else
-			diskType="unknown"
-	fi
-
-	tput reset
-	echo ""
-	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
-	echo "${BOLD}${RED}Go coogs!!${RESET}"
-	echo ""
-	tput bold
-	tput setaf 1
-	echo "| |    | |  | |     | |"
-	echo "| |    | |  | |_____| |"
-	echo "| |    | |  | |_____| |"
-	echo "| |____| |  | |     | |"
-	echo "\________/  | |     | |"
-	tput sgr0
-	echo ""
-	echo "------------------------------"
-	echo "${BOLD}Select mode:${RESET}"
-	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
-	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
-	read -n 1 -p "${BOLD}Enter [1,2]${RESET}: " autodetectMenu
-
-	if [[ $autodetectMenu == "1" ]]; then
-		if [[ $systemManufacturer == "hp" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
-			mainMenuOpt="1"
-			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
-				mainMenuOpt="2"
-			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "sata" ]]; then
-				mainMenuOpt="3"
-		fi
-		echo "System Manufacturer: $systemManufacturer"
-		echo "Chassis Type: $chassisType"
-		echo "Disk type: $diskName"
-		read -n 1 -p "If this is correct, please press ${BOLD}${GREEN}Enter${RESET} to continue: "
-		return
-		else
-			return
-	fi
-}
-
-
-
-function intro {
-	tput reset
-	enterTag
-	autodetectClient
-	tput reset
-	echo "${RESET}"
+function logo {
 	footer
 	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
 	echo "${BOLD}${RED}Go coogs!!${RESET}"
@@ -351,6 +266,13 @@ function intro {
 	tput sgr0
 	echo ""
 	echo "------------------------------"
+}
+
+
+
+function manualClient {
+	tput reset
+	logo
 	echo "Checklist:"
 	echo "${BOLD}-General best practices${RESET} "
 	echo "   * Sanitize laptops with cleaner before imaging them."
@@ -360,16 +282,92 @@ function intro {
 	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
 	echo ""
 	echo "${BOLD}Please remove the thumb drive and select one of the following options:${RESET} "
-	echo "   ${BLUE}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} an HP laptop${RESET}"
-	echo "   ${BLUE}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a SMALL Dell laptop${RESET}"
-	echo "   ${BLUE}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
-	echo "   ${BLUE}[4]${RESET} ${BOLD}Simple erase NVME ${RESET}${DIM}(nvme0/nvme0n1)${RESET}"
-	echo "   ${BLUE}[5]${RESET} ${BOLD}Simple erase SATA ${RESET}${DIM}(sda)${RESET}"
-	echo "   ${BLUE}[9]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
-	echo "   ${BLUE}[0]${RESET} ${BOLD}Associate Hardware Data${RESET}"
+	echo "   ${GREEN}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} an HP laptop${RESET}"
+	echo "   ${GREEN}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a SMALL Dell laptop${RESET}"
+	echo "   ${GREEN}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
+	echo "   ${GREEN}[4]${RESET} ${BOLD}Simple erase NVME ${RESET}${DIM}(nvme0/nvme0n1)${RESET}"
+	echo "   ${GREEN}[5]${RESET} ${BOLD}Simple erase SATA ${RESET}${DIM}(sda)${RESET}"
+	echo "   ${GREEN}[9]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
+	echo "   ${GREEN}[0]${RESET} ${BOLD}Associate Hardware Data${RESET}"
 	read -n 1 -p "Select [0-9]: " mainMenuOpt
+}
+
+
+
+function autodetectClient {
+	echo -n "${tOneManufacturer}" > /tmp/manufacturer.uit
+	echo -n "${tThreeType}" > /tmp/chassis.uit
+	for i in $(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11); do echo $i > /tmp/disk.uit; done
+
+	while [[ ! -f /tmp/manufacturer.uit || ! -f /tmp/chassis.uit || ! -f /tmp/disk.uit ]]; do
+		sleep 0.1
+	done
+
+	if grep -i 'dell' /tmp/manufacturer.uit; then
+		systemManufacturer="dell"
+		elif grep -i 'hp' /tmp/manufacturer.uit; then
+			systemManufacturer="hp"
+		else
+			systemManufacturer="unknown"
+	fi
+
+	if grep -i 'notebook' /tmp/chassis.uit; then
+		chassisType="notebook"
+		elif grep -i 'desktop' /tmp/chassis.uit; then
+			chassisType="desktop"
+		else
+			chassisType="unknown"
+	fi
+
+	if grep -i 'nvme' /tmp/disk.uit; then
+		diskType="nvme"
+		elif grep -i 'sd' /tmp/disk.uit; then
+			diskType="sata"
+		else
+			diskType="unknown"
+	fi
 
 	tput reset
+	logo
+	echo "${BOLD}Select mode:${RESET}"
+	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
+	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
+	read -n 1 -p "${BOLD}Enter [1,2]${RESET}: " autodetectMenu
+
+	if [[ $autodetectMenu == "1" ]]; then
+		if [[ $systemManufacturer == "hp" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
+			mainMenuOpt="1"
+			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
+				mainMenuOpt="2"
+			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "sata" ]]; then
+				mainMenuOpt="3"
+			else
+				echo "${BOLD}${RED}Not enough info for autodetect.${RESET}"
+				sleep 0.5
+				manualClient
+		fi
+		echo ""
+		echo "System Manufacturer: $systemManufacturer"
+		echo "Chassis Type: $chassisType"
+		echo "Disk type: $diskName"
+		read -n 1 -p "If this is correct, please press ${BOLD}${GREEN}[1]${RESET} to continue: " autoSelectConf
+		if [[ $autoSelectConf == "1" ]]; then
+				return
+			else
+				autodetectClient
+		fi
+		else
+			manualClient
+	fi
+}
+
+
+
+function intro {
+	tput reset
+	autodetectClient
+	tput reset
+	return
 }
 
 
@@ -1561,8 +1559,11 @@ function terminate {
 
 
 function main {
-	intro
+	tput reset
 	hardwareData
+	tput reset
+	enterTag
+	intro
 	if [[ $mainMenuOpt == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
