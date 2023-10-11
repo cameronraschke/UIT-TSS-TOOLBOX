@@ -325,7 +325,7 @@ function autodetectClient {
 		read -n 1 -p "If this is correct, please press ${BOLD}${GREEN}Enter${RESET} to continue: "
 		return
 		else
-			autodetectClient
+			return
 	fi
 }
 
