@@ -301,7 +301,7 @@ function manualClient {
 function autodetectClient {
 	echo -n "${tOneManufacturer}" > /tmp/manufacturer.uit
 	echo -n "${tThreeType}" > /tmp/chassis.uit
-	for i in $(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11); do echo $i > /tmp/disk.uit; done
+	for i in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11); do echo $i > /tmp/disk.uit; done
 
 	while [[ ! -f /tmp/manufacturer.uit || ! -f /tmp/chassis.uit || ! -f /tmp/disk.uit ]]; do
 		sleep 0.1
