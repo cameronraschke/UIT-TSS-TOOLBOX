@@ -333,6 +333,9 @@ function autodetectClient {
 	fi
 
 	logo
+	echo ""
+	echo "${BOLD}${BLUE}Autodetect mode${RESET}${BOLD} will destroy all data on this laptop and image it."
+	echo ""
 	echo "${BOLD}Select mode:${RESET}"
 	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
 	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
