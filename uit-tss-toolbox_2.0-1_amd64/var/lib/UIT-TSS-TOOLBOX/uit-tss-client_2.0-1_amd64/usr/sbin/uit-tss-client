@@ -353,6 +353,7 @@ function autodetectClient {
 		fi
 		echo ""
 		echo ""
+		echo "------------------------------"
 		echo "${BOLD}System Manufacturer: $systemManufacturer${RESET}"
 		echo "${BOLD}Chassis Type: $chassisType${RESET}"
 		echo "${BOLD}Disk type: $autodetectDisk${RESET}"
