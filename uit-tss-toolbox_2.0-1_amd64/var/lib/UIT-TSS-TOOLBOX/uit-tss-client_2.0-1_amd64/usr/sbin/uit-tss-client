@@ -1564,7 +1564,7 @@ function terminate {
 	echo "update|${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo ""
 	echo ""
-	read -p "${BOLD}Process has finished. Press ${GREEN}Enter${RESET}${BOLD} to shutdown...${RESET}"
+	read -p "${BOLD}Process has finished. Press ${GREEN}Enter${RESET}${BOLD} to shutdown...${RESET} "
 	poweroff
 }
 
