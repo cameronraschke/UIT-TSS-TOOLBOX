@@ -208,13 +208,13 @@ function enterTag {
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
 	else
-		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
+		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo ""
-		echo "Please enter the ${BOLD}${BLUE}department${RESET}: "
+		echo "Please select the ${BOLD}${BLUE}department${RESET}: "
 		echo "${BOLD}${GREEN}[1]${RESET} TechCommons${RESET}"
 		echo "${BOLD}${GREEN}[2]${RESET} SHRL${RESET}"
 		echo ""
-		read -n 1 -p "${BOLD}Please enter ${GREEN}[1,2]${RESET}${BOLD}:${RESET} " department
+		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " department
 		echo "location|begin|${tagNum}|${tOneSerialNumber}|${location}|${status}|${problem}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		ssh cameron@mickey.uit "echo $tagNum | uit-sql-refresh-client 2>/dev/null"
 		enterTag
@@ -258,7 +258,7 @@ function footer {
 function logo {
 	tput reset
 	footer
-	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
+	echo -n "UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}. "
 	echo "${BOLD}${RED}Go coogs!!${RESET}"
 	echo ""
 	tput bold
@@ -277,7 +277,6 @@ function logo {
 
 function manualClient {
 	logo
-	echo "Checklist:"
 	echo "${BOLD}-General best practices${RESET} "
 	echo "   * Sanitize laptops with cleaner before imaging them."
 	echo "   * Reset BIOS to default/factory settings before imaging."
@@ -286,14 +285,14 @@ function manualClient {
 	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
 	echo ""
 	echo "${BOLD}Please remove the thumb drive and select one of the following options:${RESET} "
-	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} an HP laptop${RESET}"
-	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a SMALL Dell laptop${RESET}"
-	echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
-	echo "   ${BOLD}${GREEN}[4]${RESET} ${BOLD}Simple erase NVME ${RESET}${DIM}(nvme0/nvme0n1)${RESET}"
-	echo "   ${BOLD}${GREEN}[5]${RESET} ${BOLD}Simple erase SATA ${RESET}${DIM}(sda)${RESET}"
+	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET} ${BOLD}an HP laptop${RESET}"
+	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET} ${BOLD}a SMALL Dell laptop${RESET}"
+	echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET} ${BOLD}a BIG Dell laptop${RESET}"
+	echo "   ${BOLD}${GREEN}[4]${RESET} ${BOLD}Simple erase NVME${RESET} ${DIM}(nvme0/nvme0n1)${RESET}"
+	echo "   ${BOLD}${GREEN}[5]${RESET} ${BOLD}Simple erase SATA${RESET} ${DIM}(sda)${RESET}"
 	echo "   ${BOLD}${GREEN}[9]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
 	echo "   ${BOLD}${GREEN}[0]${RESET} ${BOLD}Associate Hardware Data${RESET}"
-	read -n 1 -p "Select [0-9]: " mainMenuOpt
+	read -n 1 -p "${BOLD}Please enter [0-9]:${RESET} " mainMenuOpt
 }
 
 
@@ -338,7 +337,7 @@ function autodetectClient {
 	echo "${BOLD}Select mode:${RESET}"
 	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
 	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
-	read -n 1 -p "${BOLD}Enter [1,2]${RESET}: " autodetectMenu
+	read -n 1 -p "${BOLD}Enter [1,2]:${RESET} " autodetectMenu
 
 	if [[ $autodetectMenu == "1" ]]; then
 		if [[ $systemManufacturer == "hp" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
@@ -355,13 +354,13 @@ function autodetectClient {
 		echo ""
 		echo ""
 		echo "------------------------------"
-		echo "${BOLD}System Manufacturer: $systemManufacturer${RESET}"
-		echo "${BOLD}Chassis Type: $chassisType${RESET}"
-		echo "${BOLD}Disk type: $autodetectDisk${RESET}"
+		echo "${BOLD}${BLUE}System Manufacturer${RESET}${BOLD}: $systemManufacturer${RESET}"
+		echo "${BOLD}${BLUE}Chassis Type${RESET}${BOLD}: $chassisType${RESET}"
+		echo "${BOLD}${BLUE}Disk type${RESET}${BOLD}: $autodetectDisk${RESET}"
 		echo ""
 		echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Continue${RESET}"
 		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Restart${RESET}"
-		read -n 1 -p "Please select ${BOLD}${GREEN}[1,2]${RESET} to continue: " autoSelectConf
+		read -n 1 -p "${BOLD}Please select [1,2] to continue:${RESET} " autoSelectConf
 		if [[ $autoSelectConf == "1" ]]; then
 				return
 			else
@@ -392,10 +391,10 @@ function powerWarning {
 	echo ""
 	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Hibernate (recommended)${RESET}"
 	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Skip hibernate${RESET}"
-	read -n 1 -p  "${BOLD}Please enter ${BOLD}${GREEN}[1-2]${RESET}${BOLD}: ${RESET}" restartBool
+	read -n 1 -p  "${BOLD}Please enter [1-2]:${RESET} " restartBool
 	if [[ $restartBool == "1" ]]; then
 		tput reset
-		echo "UPDATE jobstats SET reboot = 'yes' WHERE uuid = '${UUID}'" | uit-tss-db
+		echo "general|reboot|yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo -n mem > /sys/power/state
 		tput reset
 	elif [[ $restartBool == "2" ]]; then
@@ -404,7 +403,7 @@ function powerWarning {
 		echo "${BOLD}It is dangerous to skip this step.${RESET}"
 		echo "${BOLD}${RED}*** WARNING ***${RESET}"
 		echo ""
-		read -p "Press ${BOLD}${GREEN}Enter${RESET}${BOLD} to skip this step and NOT hibernate (DANGEROUS)....${RESET} "
+		read -p "Press ${BOLD}${RED}Enter${RESET} to skip this step and NOT hibernate ${RED}(DANGEROUS)${RESET}.... "
 		tput reset
 	else
 		powerWarning
@@ -415,7 +414,7 @@ function powerWarning {
 
 function appSelect {
 	footer
-	echo "${BOLD}Please select a job mode ... ${RESET}"
+	echo "${BOLD}Please select an ${BLUE}app mode${RESET}${BOLD}... ${RESET}"
 	echo ""
 	echo "${BOLD}${GREEN}[1]${RESET} erase and clone${RESET}"
 	echo "${BOLD}${GREEN}[2]${RESET} only erase (advanced)${RESET}"
