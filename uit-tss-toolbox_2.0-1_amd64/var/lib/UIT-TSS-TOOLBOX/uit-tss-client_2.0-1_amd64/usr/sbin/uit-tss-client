@@ -210,9 +210,9 @@ function enterTag {
 	else
 		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo ""
-		echo "Please select the ${BOLD}${BLUE}department${RESET}: "
-		echo "${BOLD}${GREEN}[1]${RESET} TechCommons${RESET}"
-		echo "${BOLD}${GREEN}[2]${RESET} SHRL${RESET}"
+		echo "${BOLD}Please select the ${BLUE}department${RESET}${BOLD}:${RESET} "
+		echo "   ${BOLD}${GREEN}[1]${RESET} TechCommons${RESET}"
+		echo "   ${BOLD}${GREEN}[2]${RESET} SHRL${RESET}"
 		echo ""
 		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " department
 		echo "location|begin|${tagNum}|${tOneSerialNumber}|${location}|${status}|${problem}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -360,7 +360,7 @@ function autodetectClient {
 		echo ""
 		echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Continue${RESET}"
 		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Restart${RESET}"
-		read -n 1 -p "${BOLD}Please select [1,2] to continue:${RESET} " autoSelectConf
+		read -n 1 -p "${BOLD}Please enter [1,2] to continue:${RESET} " autoSelectConf
 		if [[ $autoSelectConf == "1" ]]; then
 				return
 			else
@@ -414,12 +414,12 @@ function powerWarning {
 
 function appSelect {
 	footer
-	echo "${BOLD}Please select an ${BLUE}app mode${RESET}${BOLD}... ${RESET}"
+	echo "${BOLD}Please select an ${BLUE}action${RESET}${BOLD}... ${RESET}"
 	echo ""
 	echo "${BOLD}${GREEN}[1]${RESET} erase and clone${RESET}"
 	echo "${BOLD}${GREEN}[2]${RESET} only erase (advanced)${RESET}"
 	echo "${BOLD}${GREEN}[3]${RESET} only clone${RESET}"
-	read -n 1 -p "${BOLD}Please enter ${BOLD}${GREEN}[1-3]${RESET}${BOLD}: ${RESET}" APPSELECT
+	read -n 1 -p "${BOLD}Please enter [1-3]:${RESET} " APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
@@ -507,7 +507,7 @@ function advEraseMode_Shred {
 	-Unlocks disks previously locked by this program."
 
 	echo ""
-	read -n1 -p "${BOLD}Please choose an ${BOLD}${BLUE}erase mode${RESET} ${BOLD}${GREEN}[0-9]${RESET}${BOLD}: ${RESET}" MODESELECT
+	read -n 1 -p "${BOLD}Please select an option [0-9]:${RESET} " MODESELECT
 	echo ""
 
 	case $MODESELECT in
@@ -556,7 +556,7 @@ function advEraseMode_Shred {
 	tput reset
 	setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz
 	echo ""
-	read -p "Are you sure you want to use ${BOLD}${RMODE}${RESET} on ${BOLD}${CLIENTDISK}${RESET}? Press ${BOLD}${GREEN}Enter${RESET} to continue: "
+	read -p "Are you sure you want to use ${BOLD}${BLUE}${RMODE}${RESET} on ${BOLD}${BLUE}${CLIENTDISK}${RESET}? Press ${BOLD}${GREEN}Enter${RESET} to continue...${RESET} "
 
 	echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
@@ -583,22 +583,22 @@ function diskSelect {
 		for i in ${!diskArr[@]}; do
 			CLIENTDISK=${diskArr[$i]}
 		done
-		echo "The disk ${BOLD}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
-		read -n 1 -p "Press ${BOLD}${GREEN}[1]${RESET} to confirm" diskConfirm
+		echo "The disk ${BOLD}${BLUE}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
+		read -n 1 -p "Press ${BOLD}${GREEN}[1]${RESET} to confirm:${RESET} " diskConfirm
 		if [[ $diskConfirm != "1" ]]; then
 			echo "${BOLD}${RED}Reselecting disk.${RESET}"
 			sleep 0.5
 			diskSelect
 		fi
 	else
-		echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
+		echo "Which disk do you want to ${BOLD}${BLUE}${ACTION}${RESET}?"
 		while read -r line; do
 			a=$(( a + 1 ))
 			echo "${BOLD}${GREEN}[${a}]${RESET} $line"
 		done < <(echo "${BOLD}${diskList}${RESET}")
 
 		echo ""
-		read -n 1 -p "Select a disk ${BOLD}${GREEN}[1-$a]${RESET}: " CLIENTDISK
+		read -n 1 -p "${BOLD}Please select [1-$a]:${RESET} " CLIENTDISK
 		for i in ${!diskArr[@]}; do
 			n=$(( $n + 1 ))
 			if [[ $n == $CLIENTDISK ]]; then
@@ -1178,7 +1178,7 @@ function verifyMode_Shred {
 	-1000 divisions, 10% verified"
 
 	echo ""
-	read -n 1 -p "Please select [1-5]: " VRFYSELECT
+	read -n 1 -p "${BOLD}Please select [1-5]:${RESET} " VRFYSELECT
 	echo ""
 
 	case $VRFYSELECT in
@@ -1261,10 +1261,10 @@ function unlockMode_Shred {
 
 function clientselect_Clone {
 	footer
-	echo "Please select a mode:"
-	echo "${BOLD}${GREEN}[1]${RESET} Restore ${DIM}(server -> client)${RESET}"
-	echo "${BOLD}${GREEN}[2]${RESET} Save ${DIM}(client -> server)${RESET}"
-	read -n1 -p "Enter ${BOLD}${GREEN}[1-2]${RESET} " cloneMode
+	echo "${BOLD}Please select a ${BOLD}${BLUE}clone mode${RESET}${BOLD}:"
+	echo "   ${BOLD}${GREEN}[1]${RESET} Restore ${DIM}(server -> client)${RESET}"
+	echo "   ${BOLD}${GREEN}[2]${RESET} Save ${DIM}(client -> server)${RESET}"
+	read -n1 -p "${BOLD}Enter [1-2]:${RESET} " cloneMode
 	echo ""
 	echo ""
 	case $cloneMode in
