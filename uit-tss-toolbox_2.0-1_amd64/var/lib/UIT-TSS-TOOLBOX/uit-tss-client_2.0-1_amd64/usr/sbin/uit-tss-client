@@ -211,8 +211,8 @@ function enterTag {
 		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET}${BOLD} followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo ""
 		echo "Please enter the ${BOLD}${BLUE}department${RESET}: "
-		echo "${BOLD}${BLUE}[1]${RESET} ${BOLD}TechCommons${RESET}"
-		echo "${BOLD}${BLUE}[2]${RESET} ${BOLD}SHRL${RESET}"
+		echo "${BOLD}${GREEN}[1]${RESET} TechCommons${RESET}"
+		echo "${BOLD}${GREEN}[2]${RESET} SHRL${RESET}"
 		echo ""
 		read -n 1 -p "${BOLD}Please enter ${GREEN}[1,2]${RESET}${BOLD}:${RESET} " department
 		echo "location|begin|${tagNum}|${tOneSerialNumber}|${location}|${status}|${problem}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -386,11 +386,13 @@ function intro {
 function powerWarning {
 	footer
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
-	echo "${BOLD}After pressing ${BLUE}[1]${RESET}${BOLD}, the system will enter hibernate mode.${RESET}"
-	echo "${BOLD}This is normal. Please wake up the system after it hibernates.${RESET}"
+	echo "${BOLD}It is highly recommended to put the computer into hibernate mode. This takes less than 5 seconds.${RESET}"
+	echo "${BOLD}Remember to wake up the system after it hibernates.${RESET}"
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
-	read -n 1 -p "Please press ${BOLD}${BLUE}[1]${RESET} ${BOLD}or ${BLUE}[2]${RESET} ${BOLD}to skip....${RESET} " restartBool
+	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Hibernate (recommended)${RESET}"
+	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Skip hibernate${RESET}"
+	read -n 1 -p  "${BOLD}Please enter ${BOLD}${GREEN}[1-3]${RESET}${BOLD}: ${RESET}" restartBool
 	if [[ $restartBool == "1" ]]; then
 		tput reset
 		echo "UPDATE jobstats SET reboot = 'yes' WHERE uuid = '${UUID}'" | uit-tss-db
@@ -402,7 +404,7 @@ function powerWarning {
 		echo "${BOLD}It is dangerous to skip this step.${RESET}"
 		echo "${BOLD}${RED}*** WARNING ***${RESET}"
 		echo ""
-		read -p "Press ${BOLD}${BLUE}Enter${RESET}${BOLD} to skip this step and NOT hibernate (DANGEROUS)....${RESET} "
+		read -p "Press ${BOLD}${GREEN}Enter${RESET}${BOLD} to skip this step and NOT hibernate (DANGEROUS)....${RESET} "
 		tput reset
 	else
 		powerWarning
@@ -413,12 +415,12 @@ function powerWarning {
 
 function appSelect {
 	footer
-	echo "Please select ..."
+	echo "${BOLD}Please select a job mode ... ${RESET}"
 	echo ""
-	echo "${BOLD}${BLUE}[1]${RESET} erase and clone${RESET}"
-	echo "${BOLD}${BLUE}[2]${RESET} only erase (advanced)${RESET}"
-	echo "${BOLD}${BLUE}[3]${RESET} only clone${RESET}"
-	read -n 1 -p "${BOLD}Please enter ${BLUE}[1-3]${RESET}${BOLD}: ${RESET}" APPSELECT
+	echo "${BOLD}${GREEN}[1]${RESET} erase and clone${RESET}"
+	echo "${BOLD}${GREEN}[2]${RESET} only erase (advanced)${RESET}"
+	echo "${BOLD}${GREEN}[3]${RESET} only clone${RESET}"
+	read -n 1 -p "${BOLD}Please enter ${BOLD}${GREEN}[1-3]${RESET}${BOLD}: ${RESET}" APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
@@ -470,43 +472,43 @@ function advEraseMode_Shred {
 	footer
 
 	echo ""
-	echo "${BOLD}${BLUE}[1]${RESET} ${BOLD}Autodetect${RESET} (Default)
+	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET} (Default)
 	-Best trade off between security and speed. Autodetects the best mode for your disk."
 
 	echo ""
-	echo "${BOLD}${BLUE}[2]${RESET} ${BOLD}NIST 800-88r1${RESET}
+	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}NIST 800-88r1${RESET}
 	-Fastest for NVME."
 
 	echo ""
-	echo "${BOLD}${BLUE}[3]${RESET} ${BOLD}Zero Mode + Quick Verify${RESET}
+	echo "${BOLD}${GREEN}[3]${RESET} ${BOLD}Zero Mode + Quick Verify${RESET}
 	-One pass of zeroes, quick verification step."
 	
 	echo ""
-	echo "${BOLD}${BLUE}[4]${RESET} ${BOLD}DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5${RESET}
+	echo "${BOLD}${GREEN}[4]${RESET} ${BOLD}DOD 5220.22-M/NCSC-TG-025/AFSSI-5020/HMG IS5${RESET}
 	-Writes a pass of zeroes, then ones, then a random bit. Verifies each step."
 
 	echo ""
-	echo "${BOLD}${BLUE}[5]${RESET} ${BOLD}RCMP TSSIT OPS-II/VSITR${RESET}
+	echo "${BOLD}${GREEN}[5]${RESET} ${BOLD}RCMP TSSIT OPS-II/VSITR${RESET}
 	-Alternates between 0's and 1's 6 times. 7th pass writes and verifies a random bit."
 
 	echo ""
-	echo "${BOLD}${BLUE}[6]${RESET} ${BOLD}Schneier${RESET}
+	echo "${BOLD}${GREEN}[6]${RESET} ${BOLD}Schneier${RESET}
 	-A pass of 1's then a pass of 0's. Five passes of a random pattern of characters."
 
 	echo ""
-	echo "${BOLD}${BLUE}[7]${RESET} ${BOLD}Gutmann${RESET}
+	echo "${BOLD}${GREEN}[7]${RESET} ${BOLD}Gutmann${RESET}
 	-Four random character passes, 27 predefined pattern passes, four more random character passes."
 	
 	echo ""
-	echo "${BOLD}${BLUE}[8]${RESET} ${BOLD}Verify Only${RESET}
+	echo "${BOLD}${GREEN}[8]${RESET} ${BOLD}Verify Only${RESET}
 	-Does not write data, choose character/pattern to verify."
 
 	echo ""
-	echo "${BOLD}${BLUE}[9]${RESET} ${BOLD}Unlock${RESET}
+	echo "${BOLD}${GREEN}[9]${RESET} ${BOLD}Unlock${RESET}
 	-Unlocks disks previously locked by this program."
 
 	echo ""
-	read -n1 -p "${BOLD}Please choose an erase mode ${BLUE}[0-9]${RESET}${BOLD}:${RESET} " MODESELECT
+	read -n1 -p "${BOLD}Please choose an ${BOLD}${BLUE}erase mode${RESET} ${BOLD}${GREEN}[0-9]${RESET}${BOLD}: ${RESET}" MODESELECT
 	echo ""
 
 	case $MODESELECT in
@@ -593,11 +595,11 @@ function diskSelect {
 		echo "Which disk do you want to ${BOLD}${ACTION}${RESET}?"
 		while read -r line; do
 			a=$(( a + 1 ))
-			echo "${BOLD}${BLUE}[${a}]${RESET} $line"
+			echo "${BOLD}${GREEN}[${a}]${RESET} $line"
 		done < <(echo "${BOLD}${diskList}${RESET}")
 
 		echo ""
-		read -n 1 -p "Select a disk ${BOLD}${BLUE}[1-$a]${RESET}: " CLIENTDISK
+		read -n 1 -p "Select a disk ${BOLD}${GREEN}[1-$a]${RESET}: " CLIENTDISK
 		for i in ${!diskArr[@]}; do
 			n=$(( $n + 1 ))
 			if [[ $n == $CLIENTDISK ]]; then
@@ -754,7 +756,7 @@ function vrfyDisk_Shred {
             PROCFAIL='1'
             echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 			echo ""
-        	read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
+        	read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESET}"
 			return 1
 		fi
 	fi
@@ -772,7 +774,7 @@ function vrfyDisk_Shred {
             	PROCFAIL='1'
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
-        		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
+        		read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESET}"
 				return 1
     	fi
 
@@ -784,7 +786,7 @@ function vrfyDisk_Shred {
             	PROCFAIL='1'
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
-        		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
+        		read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESET}"
 				return 1
     	fi
 
@@ -800,7 +802,7 @@ function vrfyDisk_Shred {
             	PROCFAIL='1'
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
-        		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
+        		read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESSET}"
 				return 1
     fi
 	echo "Verifing the last sector of the disk...."
@@ -810,7 +812,7 @@ function vrfyDisk_Shred {
             	PROCFAIL='1'
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
-        		read -p "${BOLD}Press ${BLUE}Enter ${RESET}${BOLD}to continue.${RESSET}"
+        		read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESSET}"
 				return 1
     fi
 
@@ -864,7 +866,7 @@ function secUnlock_Shred {
 function nistMode_Shred {
 	clear
 	echo ""
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BOLD}${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 
 	echo ""
@@ -1260,9 +1262,10 @@ function unlockMode_Shred {
 
 function clientselect_Clone {
 	footer
-	echo -n "Are you ${BOLD} restoring${RESET} (server -> client) ${BLUE}${BOLD}[1]${RESET} or "
-	echo "${BOLD}saving${RESET} (client -> server) ${BLUE}${BOLD}[2]${RESET} an image?"
-	read -n1 -p "Enter ${BOLD}${BLUE}[1-2]${RESET} " cloneMode
+	echo "Please select a mode:"
+	echo "${BOLD}${GREEN}[1]${RESET} Restore ${DIM}(server -> client)${RESET}"
+	echo "${BOLD}${GREEN}[2]${RESET} Save ${DIM}(client -> server)${RESET}"
+	read -n1 -p "Enter ${BOLD}${GREEN}[1-2]${RESET} " cloneMode
 	echo ""
 	echo ""
 	case $cloneMode in
@@ -1279,12 +1282,12 @@ function clientselect_Clone {
 
 	footer
 	echo "Select which device you are cloning: "
-	echo "${BLUE}[1]${RESET} ${BOLD}Tech Commons HP laptops${RESET}"
-	echo "${BLUE}[2]${RESET} ${BOLD}Tech Commons Dell laptops${RESET}"
-	echo "${BLUE}[3]${RESET} ${BOLD}Tech Commons Dell desktops${RESET}"
-	echo "${BLUE}[4]${RESET} ${BOLD}SHRL Dell desktops${RESET}"
-	echo "${BLUE}[5]${RESET} ${BOLD}Ubuntu Desktop${RESET}"
-	read -n1 -p "Enter ${BOLD}${BLUE}[1-4]${RESET} " CLIENTTYPE
+	echo "${BOLD}${GREEN}[1]${RESET} Tech Commons HP laptops${RESET}"
+	echo "${BOLD}${GREEN}[2]${RESET} Tech Commons Dell laptops${RESET}"
+	echo "${BOLD}${GREEN}[3]${RESET} Tech Commons Dell desktops${RESET}"
+	echo "${BOLD}${GREEN}[4]${RESET} SHRL Dell desktops${RESET}"
+	echo "${BOLD}${GREEN}[5]${RESET} Ubuntu Desktop${RESET}"
+	read -n1 -p "Enter ${BOLD}${GREEN}[1-4]${RESET} " CLIENTTYPE
 	echo ""
 	case $CLIENTTYPE in
 	1)
