@@ -1485,7 +1485,6 @@ function terminate {
 	totaltime
 	sleep 1
 	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	/usr/sbin/uit-sql-refresh-client &>/dev/null &
 	/usr/bin/play /root/oven.mp3 &> /dev/null
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
