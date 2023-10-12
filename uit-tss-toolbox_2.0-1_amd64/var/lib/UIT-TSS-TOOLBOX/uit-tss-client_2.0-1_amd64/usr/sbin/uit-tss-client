@@ -256,6 +256,7 @@ function footer {
 
 
 function logo {
+	tput reset
 	footer
 	echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
 	echo "${BOLD}${RED}Go coogs!!${RESET}"
@@ -275,7 +276,6 @@ function logo {
 
 
 function manualClient {
-	tput reset
 	logo
 	echo "Checklist:"
 	echo "${BOLD}-General best practices${RESET} "
@@ -286,13 +286,13 @@ function manualClient {
 	echo "      * This is usually under \"System Configuration\" or \"Storage\" in BIOS."
 	echo ""
 	echo "${BOLD}Please remove the thumb drive and select one of the following options:${RESET} "
-	echo "   ${GREEN}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} an HP laptop${RESET}"
-	echo "   ${GREEN}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a SMALL Dell laptop${RESET}"
-	echo "   ${GREEN}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
-	echo "   ${GREEN}[4]${RESET} ${BOLD}Simple erase NVME ${RESET}${DIM}(nvme0/nvme0n1)${RESET}"
-	echo "   ${GREEN}[5]${RESET} ${BOLD}Simple erase SATA ${RESET}${DIM}(sda)${RESET}"
-	echo "   ${GREEN}[9]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
-	echo "   ${GREEN}[0]${RESET} ${BOLD}Associate Hardware Data${RESET}"
+	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} an HP laptop${RESET}"
+	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a SMALL Dell laptop${RESET}"
+	echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET}${BOLD} a BIG Dell laptop${RESET}"
+	echo "   ${BOLD}${GREEN}[4]${RESET} ${BOLD}Simple erase NVME ${RESET}${DIM}(nvme0/nvme0n1)${RESET}"
+	echo "   ${BOLD}${GREEN}[5]${RESET} ${BOLD}Simple erase SATA ${RESET}${DIM}(sda)${RESET}"
+	echo "   ${BOLD}${GREEN}[9]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
+	echo "   ${BOLD}${GREEN}[0]${RESET} ${BOLD}Associate Hardware Data${RESET}"
 	read -n 1 -p "Select [0-9]: " mainMenuOpt
 }
 
@@ -332,7 +332,6 @@ function autodetectClient {
 			diskType="unknown"
 	fi
 
-	tput reset
 	logo
 	echo "${BOLD}Select mode:${RESET}"
 	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
