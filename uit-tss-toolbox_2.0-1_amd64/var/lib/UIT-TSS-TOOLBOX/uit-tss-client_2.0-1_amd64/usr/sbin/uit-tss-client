@@ -335,8 +335,8 @@ function autodetectClient {
 	echo "${BOLD}${BLUE}Autodetect mode${RESET}${BOLD} will destroy all data on this laptop and image it."
 	echo ""
 	echo "${BOLD}Select mode:${RESET}"
-	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
-	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
+	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
+	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
 	read -n 1 -p "${BOLD}Enter [1,2]:${RESET} " autodetectMenu
 
 	if [[ $autodetectMenu == "1" ]]; then
@@ -1280,13 +1280,13 @@ function clientselect_Clone {
 	esac
 
 	footer
-	echo "Select which device you are cloning: "
-	echo "${BOLD}${GREEN}[1]${RESET} Tech Commons HP laptops${RESET}"
-	echo "${BOLD}${GREEN}[2]${RESET} Tech Commons Dell laptops${RESET}"
-	echo "${BOLD}${GREEN}[3]${RESET} Tech Commons Dell desktops${RESET}"
-	echo "${BOLD}${GREEN}[4]${RESET} SHRL Dell desktops${RESET}"
-	echo "${BOLD}${GREEN}[5]${RESET} Ubuntu Desktop${RESET}"
-	read -n1 -p "Enter ${BOLD}${GREEN}[1-4]${RESET} " CLIENTTYPE
+	echo "${BOLD}Select which ${BOLD}${BLUE}image${RESET} you are cloning:${RESET} "
+	echo "   ${BOLD}${GREEN}[1]${RESET} Tech Commons HP laptops${RESET}"
+	echo "   ${BOLD}${GREEN}[2]${RESET} Tech Commons Dell laptops${RESET}"
+	echo "   ${BOLD}${GREEN}[3]${RESET} Tech Commons Dell desktops${RESET}"
+	echo "   ${BOLD}${GREEN}[4]${RESET} SHRL Dell desktops${RESET}"
+	echo "   ${BOLD}${GREEN}[5]${RESET} Ubuntu Desktop${RESET}"
+	read -n1 -p "${BOLD}Enter [1-4]:${RESET} " CLIENTTYPE
 	echo ""
 	case $CLIENTTYPE in
 	1)
@@ -1397,7 +1397,7 @@ function execute {
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		echo "${RED}Cannot erase device and save its image.${RESET}"
-		read -p "Please press ${BOLD}${GREEN}enter${RESET} to restart ${BOLD}UIT-TSS-TOOLBOX${RESET}."
+		read -p "${BOLD}Please press ${BOLD}${GREEN}enter${RESET} to restart UIT-TSS-TOOLBOX${RESET}."
 		exit 1
 	fi
 
@@ -1421,7 +1421,7 @@ function execute {
 		fi
 		execute_Clone
 	else
-		echo "${RED}Error - Invalid application selected.${RESET}"
+		echo "${BOLD}${RED}Error - Invalid application selected.${RESET}"
 		sleep 0.5
 		exit
 	fi
