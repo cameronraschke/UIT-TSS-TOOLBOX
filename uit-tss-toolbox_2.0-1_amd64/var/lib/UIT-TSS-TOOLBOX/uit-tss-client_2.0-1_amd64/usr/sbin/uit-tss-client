@@ -235,6 +235,9 @@ function info {
 	if [[ $cloneMode != "" ]]; then
 		echo "The selected clone mode is ${BOLD}${cloneMode}${RESET}"
 	fi
+	if [[ $cloneImgName != "" ]]; then
+		echo "The selected image is ${BOLD}${cloneImgName}${RESET}"
+	fi
 
 	echo ""
 }
