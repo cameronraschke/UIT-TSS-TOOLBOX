@@ -664,17 +664,17 @@ function writeDisk_Shred {
 		PCNTOFSECTOR='100'
 	fi
 	
-	if [[ "$WMODE" == 'zero' ]]; then
+	if [[ $WMODE == "zero" ]]; then
 		SOURCE='cat /dev/zero'
 		BITS='null bits'
 	fi
 
-	if [[ "$WMODE" == 'random' ]]; then
+	if [[ $WMODE == "random" ]]; then
 		SOURCE='cat /dev/urandom'
 		BITS='random bits'
 	fi
 
-	if [[ "$WMODE" == 'randBit_Shred' ]]; then
+	if [[ $WMODE == "randBit_Shred" ]]; then
 		randBit_Shred
 		SOURCE="yes \"${RANDBIT}\""
 		BITS="a random bit (${RANDBIT})"
@@ -759,7 +759,7 @@ function vrfyDisk_Shred {
 			PROCFAIL='0'
 		else
             PROCFAIL='1'
-            echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
+            echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 			echo ""
         	read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESET}"
 			return 1
