@@ -1667,7 +1667,7 @@ function main {
 		diskSelect
 		execute
 	elif [[ $mainMenuOpt == "0" ]]; then
-		enterTag
+		:
 	else
 		exit 1
 	fi
