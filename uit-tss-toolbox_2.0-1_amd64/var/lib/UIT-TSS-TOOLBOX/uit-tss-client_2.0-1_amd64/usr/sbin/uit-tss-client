@@ -337,6 +337,7 @@ function autodetectClient {
 	logo
 	echo "${BOLD}${BLUE}Autodetect mode${RESET}${BOLD} will destroy all data on this laptop and image it."
 	echo ""
+	echo "------------------------------"
 	echo "${BOLD}Select mode:${RESET}"
 	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
 	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
@@ -350,11 +351,11 @@ function autodetectClient {
 			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "sata" && $tOneProductName != "Latitude 7400" ]]; then
 				mainMenuOpt="5"
 			else
+				echo ""
 				echo "${BOLD}${RED}Not enough info for autodetect.${RESET}"
 				sleep 0.5
 				manualClient
 		fi
-		echo ""
 		echo ""
 		echo "------------------------------"
 		echo "${BOLD}Is this information corect?${RESET}"
