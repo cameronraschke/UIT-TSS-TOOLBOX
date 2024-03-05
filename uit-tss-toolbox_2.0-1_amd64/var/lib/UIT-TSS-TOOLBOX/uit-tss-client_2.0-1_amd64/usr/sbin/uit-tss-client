@@ -1331,6 +1331,7 @@ function execute_Clone {
 	echo "general|clone_server|${sambaDNS}/${sambaServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
+	modprobe fuse
 	sshfs -o allow_other,default_permissions ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
