@@ -1333,7 +1333,7 @@ function execute_Clone {
 	mkdir -p /home/partimag
 	modprobe fuse
 	#sshfs -o allow_other,default_permissions ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
-	mount -t nfs ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
+	mount -t nfs ${sambaServer}:/home/${sambaPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
 		info
