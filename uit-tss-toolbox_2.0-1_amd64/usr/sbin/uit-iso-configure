@@ -178,7 +178,6 @@ iputils-arping
 iputils-tracepath
 gpg
 php-bcmath
-fuse
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
