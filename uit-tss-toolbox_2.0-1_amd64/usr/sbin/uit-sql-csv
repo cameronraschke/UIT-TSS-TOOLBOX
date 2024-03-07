@@ -107,7 +107,8 @@ foreach ($arr as $row) {
     $tagNum = $row;
     $sql = "SELECT tagnumber,chassis_serial,location,status,problem,time ";
     $sql .= "FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ";
-    $sql .= "AND tagnumber = '$tagNum' AND (time > '2023-09-01 00:00:00') ORDER BY time DESC LIMIT 1";
+    #$sql .= "AND tagnumber = '$tagNum' AND (time > '2023-09-01 00:00:00') ORDER BY time DESC LIMIT 1";
+    $sql .= "AND tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
     foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
         $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
         $file->fputcsv($row);
