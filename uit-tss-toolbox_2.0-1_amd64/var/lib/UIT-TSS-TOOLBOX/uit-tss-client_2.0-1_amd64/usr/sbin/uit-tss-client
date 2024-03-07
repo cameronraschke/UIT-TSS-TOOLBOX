@@ -135,8 +135,8 @@ function hardwareData {
 		echo "disk|disk_temp|${UUID}|${diskTemp}|NULL" | /var/lib/UIT-TSS-TOOLBOX/parse
 	
 	diskReads=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/Data Units Read: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
-	tbVRFY=$(echo "${diskWrites}" | grep -iq 'TB' &>/dev/null; echo ${PIPESTATUS[1]})
-	gbVRFY=$(echo "${diskWrites}" | grep -iq 'GB' &>/dev/null; echo ${PIPESTATUS[1]})
+	tbVRFY=$(echo "${diskReads}" | grep -iq 'TB' &>/dev/null; echo ${PIPESTATUS[1]})
+	gbVRFY=$(echo "${diskReads}" | grep -iq 'GB' &>/dev/null; echo ${PIPESTATUS[1]})
 	if [[ $tbVRFY == 0 ]]; then
 			diskReads=$(echo "${diskReads}" | sed 's/[^0-9\.]//g')
 			echo "disk|disk_reads|${UUID}|${diskReads}|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
