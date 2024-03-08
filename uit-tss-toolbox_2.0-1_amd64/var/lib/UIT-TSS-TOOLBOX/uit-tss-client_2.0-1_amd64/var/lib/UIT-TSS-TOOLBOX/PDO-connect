@@ -21,7 +21,7 @@ do {
         continue;
     }
     break;
-} while ($attempts < 5);
+} while ($attempts < 10);
 
 
 ?>
