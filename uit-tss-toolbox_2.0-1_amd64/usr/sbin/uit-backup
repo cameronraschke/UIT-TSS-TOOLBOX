@@ -1,5 +1,5 @@
 #!/bin/bash
 DTIME=$(date '+%F-%H%M%S')
-mysqldump --user="laptops" --password="UHouston!" --host="10.0.0.1" laptopDB > /mnt/sql-backups/laptopDB-${DTIME}.sql
+mysqldump --user="laptops" --password="UHouston!" --host="10.0.0.1" laptopDB > /home/images/sql-backups/laptopDB-${DTIME}.sql
 
 rsync -a --delete /home/images/ /mnt/images
