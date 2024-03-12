@@ -1,0 +1,2 @@
+*/5 * * * * root /usr/sbin/uit-sql-refresh
+0 */12 * * * root /usr/sbin/uit-toolbox-backup
