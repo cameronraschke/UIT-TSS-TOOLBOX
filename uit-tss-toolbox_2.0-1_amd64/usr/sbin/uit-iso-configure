@@ -178,6 +178,7 @@ iputils-arping
 iputils-tracepath
 gpg
 php-bcmath
+usbutils
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
@@ -283,7 +284,7 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Running disk checks....${RESET}"
-for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11 | head -n1); do
+for i in $(lsblk -o NAME,tran --nodeps --noheadings --exclude 1,2,7,11 | grep -i 'sata' | sed 's/sata//g'  | sed 's/ //g' | head -n1); do
 	smartctl -t short -a /dev/${i} > /root/smartctl-data
 done
 echo "${GREEN}Done.${RESET}"
