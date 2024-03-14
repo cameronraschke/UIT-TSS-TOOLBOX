@@ -19,6 +19,7 @@ if ($arr[0] == "location") {
     $location = $arr[3];
     $status = $arr[4];
     $problem = $arr[5];
+    $macAddr = NULL;
 
     if (empty($serial) || $serial == "" || $serial == " ") {
         $serial = $default;
