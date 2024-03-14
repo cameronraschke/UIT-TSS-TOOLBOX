@@ -136,10 +136,10 @@ function hardwareData {
 	diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $4}') / 1000000000 ))
 		echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	
-	diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | awk '{print $4}')
+	diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/,//g' | awk '{print $4}')
 	echo "disk|disk_reads|${diskReadsLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-	diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | awk '{print $4}')
+	diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
 	echo "disk|disk_writes|${diskWritesLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
 	
 
