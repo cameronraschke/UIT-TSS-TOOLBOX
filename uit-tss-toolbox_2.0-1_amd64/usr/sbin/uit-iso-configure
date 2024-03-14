@@ -285,7 +285,7 @@ echo "${GREEN}Done.${RESET}"
 echo ""
 echo "${BOLD}Running disk checks....${RESET}"
 for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
-	if [[ $(cat /sys/block/${i}/removable) == 0) ]]; then
+	if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
 		smartctl -t short -a /dev/${i} > /root/smartctl-data
 	fi
 done
