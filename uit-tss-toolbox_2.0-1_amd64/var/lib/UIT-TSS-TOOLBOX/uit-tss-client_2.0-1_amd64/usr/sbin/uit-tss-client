@@ -131,7 +131,7 @@ function hardwareData {
 		echo "disk|disk_firmware|${UUID}|${diskFirmware}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test result: ' | sed 's/SMART overall-health self-assessment test result: *//g')
 		echo "disk|disk_health|${UUID}|${diskHealth}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/Temperature: *//g')
+	diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/Temperature: *//g' | sed 's/ //g' | sed 's/Celsius//g')
 		echo "disk|disk_temp|${UUID}|${diskTemp}|NULL" | /var/lib/UIT-TSS-TOOLBOX/parse
 	
 	diskReads=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/Data Units Read: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
@@ -177,6 +177,14 @@ function hardwareData {
 	###Boot Times
 	bootTime=$(systemd-analyze | grep -oP '[0-9]+[0-9.]*' | head -n 1)
 		echo "general|boot_time|${bootTime}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	###CPU Info
+	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null | cut --characters=-2)
+		echo "general|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	###WiFi Info
+	wifiMac=$(cat /sys/class/ieee80211/phy0/macaddress 2>/dev/null)
+		echo "general|wifi_mac|${wifiMac}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
