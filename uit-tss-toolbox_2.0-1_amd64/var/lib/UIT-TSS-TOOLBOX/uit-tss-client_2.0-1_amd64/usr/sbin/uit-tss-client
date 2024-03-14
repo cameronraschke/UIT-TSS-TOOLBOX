@@ -147,18 +147,9 @@ function hardwareData {
 			echo "disk|disk_reads|${UUID}||TB" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
-	diskWrites=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/Data Units Written: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
-	tbVRFY=$(echo "${diskWrites}" | grep -iq 'TB' &>/dev/null; echo ${PIPESTATUS[1]})
-	gbVRFY=$(echo "${diskWrites}" | grep -iq 'GB' &>/dev/null; echo ${PIPESTATUS[1]})
-	if [[ $tbVRFY == 0 ]]; then
-			diskWrites=$(echo "${diskWrites}" | sed 's/[^0-9\.]//g')
-			echo "disk|disk_writes|${UUID}|${diskWrites}|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
-		elif [[ $gbVRFY == 0 ]]; then
-			diskWrites=$(echo "$diskWrites" | sed 's/[^0-9\.]//g')
-			echo "disk|disk_writes|${UUID}|${diskWrites}|GB" | /var/lib/UIT-TSS-TOOLBOX/parse
-		else
-			echo "disk|disk_writes|${UUID}||TB" | /var/lib/UIT-TSS-TOOLBOX/parse
-	fi
+	diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | awk '{print $4}')
+	echo "general|disk_writes|${diskWritesLBA}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	
 
 	###Battery Data
 	batChargeNow=$(cat /sys/class/power_supply/BAT0/charge_full)
