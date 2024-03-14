@@ -34,11 +34,12 @@ if ($arr[0] == "init") {
 
 } elseif ($arr[0] == "disk") {
     $key = $arr[1];
-    $value = $arr[3];
-    $uuid = $arr[2];
+    $value = $arr[2];
+    $uuid = $arr[3];
     if (!empty($value)) {
         if (!empty($arr[4]) && $arr[4] == "LBA"){
-            $value = bcdiv("$value", '1000', 4);
+            $value = bcmul("$value", 512, 4);
+            $value = bcdiv("$value", 1000000000, 2);
         }
         $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
         $pdo->query($sql);
