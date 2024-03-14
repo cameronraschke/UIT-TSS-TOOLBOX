@@ -162,8 +162,8 @@ function hardwareData {
 		echo "general|boot_time|${bootTime}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###CPU Info
-	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null | cut --characters=-2)
-		echo "general|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
+		echo "cpu|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###WiFi Info
 	wifiMac=$(cat /sys/class/ieee80211/phy0/macaddress 2>/dev/null)
