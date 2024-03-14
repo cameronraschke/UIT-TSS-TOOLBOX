@@ -142,8 +142,12 @@ function hardwareData {
 	diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
 	echo "disk|disk_writes|${diskWritesLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-	diskName=
-		echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
+	if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
+		echo "general|disk|${i}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	fi
+	done
+		
 	
 
 	###Battery Data
