@@ -163,7 +163,7 @@ if ($arr[0] == "init") {
     $value = $arr[2];
     $uuid = $arr[3];
 
-    $value = bcdiv( 1000, 2);
+    $value = bcdiv("$value", 1000, 2);
 
     $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
     $pdo->query($sql);
