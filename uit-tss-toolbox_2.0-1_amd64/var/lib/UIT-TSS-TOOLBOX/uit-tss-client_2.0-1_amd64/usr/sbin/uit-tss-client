@@ -134,18 +134,8 @@ function hardwareData {
 	diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/Temperature: *//g' | sed 's/ //g' | sed 's/Celsius//g')
 		echo "disk|disk_temp|${UUID}|${diskTemp}|NULL" | /var/lib/UIT-TSS-TOOLBOX/parse
 	
-	diskReads=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/Data Units Read: *//g' | grep -o '\[.*\]' | sed 's/\[//g' | sed 's/\]//g')
-	tbVRFY=$(echo "${diskReads}" | grep -iq 'TB' &>/dev/null; echo ${PIPESTATUS[1]})
-	gbVRFY=$(echo "${diskReads}" | grep -iq 'GB' &>/dev/null; echo ${PIPESTATUS[1]})
-	if [[ $tbVRFY == 0 ]]; then
-			diskReads=$(echo "${diskReads}" | sed 's/[^0-9\.]//g')
-			echo "disk|disk_reads|${UUID}|${diskReads}|TB" | /var/lib/UIT-TSS-TOOLBOX/parse
-		elif [[ $gbVRFY == 0 ]]; then
-			diskReads=$(echo "$diskReads" | sed 's/[^0-9\.]//g')
-			echo "disk|disk_reads|${UUID}|${diskReads}|GB" | /var/lib/UIT-TSS-TOOLBOX/parse
-		else
-			echo "disk|disk_reads|${UUID}||TB" | /var/lib/UIT-TSS-TOOLBOX/parse
-	fi
+	diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | awk '{print $4}')
+	echo "disk|disk_reads|${diskReadsLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | awk '{print $4}')
 	echo "disk|disk_writes|${diskWritesLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
