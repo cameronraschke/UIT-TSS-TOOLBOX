@@ -148,7 +148,7 @@ function hardwareData {
 	fi
 
 	diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | awk '{print $4}')
-	echo "general|disk_writes|${diskWritesLBA}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "disk|disk_writes|${diskWritesLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
 	
 
 	###Battery Data
