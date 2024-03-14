@@ -158,6 +158,16 @@ if ($arr[0] == "init") {
     $sql = "UPDATE locations SET chassis_serial = NULL WHERE chassis_serial = ''";
     $pdo->query($sql);
 
+} elseif ($arr[0] == "cpu") {
+    $key = $arr[1];
+    $value = $arr[2];
+    $uuid = $arr[3];
+
+    $value = bcdiv( 1000, 2);
+
+    $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
+    $pdo->query($sql);
+
 } elseif ($arr[0] == "general") {
     $key = $arr[1];
     $value = $arr[2];
