@@ -116,7 +116,7 @@ if ($arr[0] == "init") {
         $uuid = uniqid("manual", true);
     }
     
-
+    #Not the same insert statement as above, ether address is DEFAULT here.
     $sql = "INSERT INTO jobstats(uuid,tagnumber,etheraddress,wifi_mac,date,time,bios_vendor,bios_version,bios_date,";
     $sql .= "bios_revision,bios_firmware,system_manufacturer,system_productname,system_serial,system_uuid,system_sku,";
     $sql .= "system_family,motherboard_manufacturer,motherboard_serial,chassis_manufacturer,chassis_type,chassis_serial,";
@@ -126,7 +126,7 @@ if ($arr[0] == "init") {
     $sql .= "disksizegb,disk_model,disk_serial,disk_firmware,disk_health,disk_temp,disk_reads,disk_writes,max_tbw,all_time,";
     $sql .= "erase_completed,erase_mode,erase_time,erase_diskpercent,clone_completed,clone_mode,clone_time,clone_master,";
     $sql .= "clone_server,clone_image,clone_imageupdate,clone_sambauser) ";
-    $sql .= "VALUES ('$uuid','$tagNum','$macAddr',DEFAULT,'$date','$time',DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
+    $sql .= "VALUES ('$uuid','$tagNum',DEFAULT,DEFAULT,'$date','$time',DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
     $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
     $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
     $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
