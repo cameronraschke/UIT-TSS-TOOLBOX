@@ -123,30 +123,47 @@ function hardwareData {
 		echo "general|boot_errors|${tThirtyTwoBootStatus}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Disk Data
-	diskModel=$(cat /root/smartctl-data | grep '^Model Number: ' | sed 's/Model Number: *//g')
-		echo "general|disk_model|${diskModel}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	diskSerial=$(cat /root/smartctl-data | grep '^Serial Number: ' | sed 's/Serial Number: *//g')
-		echo "general|disk_serial|${diskSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
-		echo "general|disk_firmware|${diskFirmware}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test result: ' | sed 's/SMART overall-health self-assessment test result: *//g')
-		echo "general|disk_health|${diskHealth}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/[^0-9]//g')
-		echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $4}') / 1000000000 ))
-		echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	
-	diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/,//g' | awk '{print $4}')
-	echo "disk|disk_reads|${diskReadsLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
-
-	diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
-	echo "disk|disk_writes|${diskWritesLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
-
 	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
-	if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
-		echo "general|disk|${i}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	fi
+		if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
+			DISK="$i"
+			echo "general|disk|${DISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		fi
+
+
+		if [[ $DISK =~ $NVME_REGEX ]]; then
+		diskModel=$(cat /root/smartctl-data | grep '^Model Number: ' | sed 's/Model Number: *//g')
+			echo "general|disk_model|${diskModel}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskSerial=$(cat /root/smartctl-data | grep '^Serial Number: ' | sed 's/Serial Number: *//g')
+			echo "general|disk_serial|${diskSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
+			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test result: ' | sed 's/SMART overall-health self-assessment test result: *//g')
+			echo "general|disk_health|${diskHealth}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/[^0-9]//g')
+			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $4}') / 1000000000 ))
+			echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/,//g' | awk '{print $4}')
+			echo "disk|disk_reads|${diskReadsLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
+			echo "disk|disk_writes|${diskWritesLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
+		fi
+		if [[ $DISK =~ $SSD_REGEX ]]; then
+		diskModel=$(cat /root/smartctl-data | grep '^Device Model: ' | sed 's/Device Model: *//g')
+			echo "general|disk_model|${diskModel}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskSerial=$(cat /root/smartctl-data | grep '^Serial Number: ' | sed 's/Serial Number: *//g')
+			echo "general|disk_serial|${diskSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
+			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test result: ' | sed 's/SMART overall-health self-assessment test result: *//g')
+			echo "general|disk_health|${diskHealth}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		diskTemp=$(cat /root/smartctl-data | grep '^194 Temperature_Celsius' | awk '{print $10}')
+			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+		fi
 	done
+
+
 		
 	
 
