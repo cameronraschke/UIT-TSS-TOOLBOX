@@ -173,7 +173,7 @@ function hardwareData {
 		echo "cpu|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###WiFi Info
-	wifiMac=$(cat /sys/class/ieee80211/phy0/macaddress 2>/dev/null)
+	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
 		echo "general|wifi_mac|${wifiMac}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
