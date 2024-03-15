@@ -159,7 +159,7 @@ function hardwareData {
 			echo "general|disk_health|${diskHealth}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskTemp=$(cat /root/smartctl-data | grep '^194 Temperature_Celsius' | awk '{print $10}')
 			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
+		diskSize=$(( $(cat /root/smartctl-data | grep '^User Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
 			echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^242 Total_LBAs_Read' | awk '{print $10}')
 			echo "disk|disk_reads|${diskReadsLBA}|${UUID}|LBA" | /var/lib/UIT-TSS-TOOLBOX/parse
