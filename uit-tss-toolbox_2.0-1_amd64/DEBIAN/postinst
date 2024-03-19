@@ -11,3 +11,12 @@ cp -rv /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/ /home/cameron
 chown cameron:cameron /home/cameron/uit-tss-client_2.0-1_amd64/ -R
 chmod 775 /home/cameron/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
 chmod 755 /home/cameron/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
+
+/usr/bin/chmod 750 /root/firewall
+/usr/bin/chown root:root /root/firewall
+/usr/bin/chmod 750 /root/git-script
+/usr/bin/chown root:root /root/git-script
+/usr/bin/chmod 750 /root/sql-report
+/usr/bin/chown root:root /root/sql-report
+/usr/bin/chmod 750 /root/startup-script
+/usr/bin/chown root:root /root/startup-script
