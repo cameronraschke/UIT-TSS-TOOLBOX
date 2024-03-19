@@ -37,7 +37,7 @@ foreach ($pdo->query($sql) as $row) {
     }
 
     #Update disks
-    $sql = "SELECT disk FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') ORDER BY time desc LIMIT 1";
+    $sql = "SELECT disk FROM jobstats WHERE tagnumber = '$tagNum' AND disk IS NOT NULL ORDER BY time desc LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
         $sql = "UPDATE clientstats SET disk = '" . $row['disk'] . "' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
@@ -51,7 +51,7 @@ foreach ($pdo->query($sql) as $row) {
     }
 
     #Update bios_version
-    $sql = "SELECT bios_version FROM jobstats WHERE tagnumber = '$tagNum' AND  bios_version IS NOT NULL ORDER BY time desc LIMIT 1";
+    $sql = "SELECT bios_version FROM jobstats WHERE tagnumber = '$tagNum' AND bios_version IS NOT NULL ORDER BY time desc LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
         $sql = "UPDATE clientstats SET bios_version = '" . $row['bios_version'] . "' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
@@ -172,7 +172,7 @@ foreach ($pdo->query($sql) as $row) {
     }
 
     # TBW
-    $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND NOT disk_model = ''";
+    $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND NOT disk_model = '' ORDER BY time DESC LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
         $diskModel = $row['disk_model'];
         if ($diskModel == "SSDPEMKF256G8 NVMe INTEL 256GB") {
