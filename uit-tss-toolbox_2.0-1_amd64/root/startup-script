@@ -1,0 +1,5 @@
+#!/bin/bash
+
+systemctl restart dnsmasq chrony mysql nginx apache2 nfs-kernel-server
+
+/root/firewall
