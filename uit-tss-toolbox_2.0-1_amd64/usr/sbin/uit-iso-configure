@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function confirmDelete {
-    read -n1 -p "Are you sure you want to delete the old directory and unmount /var/www/html/live? [y/n]: " CONFIRM
+    read -p "Are you sure you want to delete the old directory and unmount /var/www/html/live? [y/n]: " CONFIRM
     if [[ $CONFIRM == "y" ]]; then
 		umount /var/www/html/live
         return
@@ -123,6 +123,8 @@ cifs-utils
 passwd
 locales
 firmware-linux-free
+firmware-linux
+firmware-linux-nonfree
 apt-utils
 parted
 partclone
@@ -179,6 +181,7 @@ iputils-tracepath
 gpg
 php-bcmath
 usbutils
+bc
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
