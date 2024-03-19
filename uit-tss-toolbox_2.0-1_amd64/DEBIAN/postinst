@@ -6,10 +6,12 @@
 /usr/bin/chown root:uit /usr/sbin/shrl-*
 /usr/bin/chmod 750 /var/lib/UIT-TSS-TOOLBOX/ -R
 /usr/bin/chown root:uit /var/lib/UIT-TSS-TOOLBOX/ -R
+
 echo -e "\n" >> /etc/cron.d/uit-cron
+
 cp -rv /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/ /home/cameron
+
 chown cameron:cameron /home/cameron/uit-tss-client_2.0-1_amd64/ -R
-chmod 775 /home/cameron/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
 chmod 755 /home/cameron/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
 
 /usr/bin/chmod 750 /root/firewall
