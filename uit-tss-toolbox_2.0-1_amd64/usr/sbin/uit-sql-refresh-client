@@ -183,6 +183,19 @@ foreach ($pdo->query($sql) as $row) {
             $sql = "UPDATE clientstats SET max_tbw = '75' WHERE tagnumber = '$tagNum'";
             $pdo->query($sql);
         }
+        if ($diskModel == "LITEON CV8-8E128-11 SATA 128GB") {
+            $sql = "UPDATE clientstats SET max_tbw = '75' WHERE tagnumber = '$tagNum'";
+            $pdo->query($sql);
+        }
+		if ($diskModel == "WDC PC SN520 SDAPNUW-256G-1006") {
+            $sql = "UPDATE clientstats SET max_tbw = '100' WHERE tagnumber = '$tagNum'";
+            $pdo->query($sql);
+        }
+		if ($diskModel == "ST500LM034-2GH17A") {
+            $sql = "UPDATE clientstats SET max_tbw = '55' WHERE tagnumber = '$tagNum'";
+            $pdo->query($sql);
+        }
+		#TOSHIBA MQ01ACF050 = unknown
     }
 
     #Also TBW
