@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ "$EUID" > 0 ]]
+  then echo "Please run as root"
+  exit 1
+fi
+
 function confirmDelete {
     read -p "Are you sure you want to delete the old directory and unmount /var/www/html/live? [y/n]: " CONFIRM
     if [[ $CONFIRM == "y" ]]; then
