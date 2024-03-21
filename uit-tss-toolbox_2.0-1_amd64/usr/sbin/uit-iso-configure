@@ -25,6 +25,8 @@ apt install /opt/debian-live.deb -y
 
 apt install dosfstools -y
 
+apt install debian-archive-keyring -y
+
 rm -r /opt/UIT-TSS-TOOLBOX/
 mkdir /opt/UIT-TSS-TOOLBOX/
 
