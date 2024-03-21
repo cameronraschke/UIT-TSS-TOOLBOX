@@ -1,4 +1,10 @@
 #!/bin/bash
+
+if [[ "$EUID" > 0 ]]
+  then echo "Please run as root"
+  exit 1
+fi
+
 SSD_REGEX='sd.*'
 NVME_REGEX='nvme.*'
 SCSI_REGEX='hd.*'
