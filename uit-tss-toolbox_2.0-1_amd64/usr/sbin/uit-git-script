@@ -1,4 +1,10 @@
 #!/bin/bash
+
+if [[ "$EUID" > 0 ]]
+  then echo "Please run as root"
+  exit
+fi
+
 dpkg --purge uit-tss-toolbox
 
 rm -r /tmp/UIT-TSS-TOOLBOX/
