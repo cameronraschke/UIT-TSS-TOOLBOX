@@ -7,9 +7,9 @@ $attempts = 0;
 
 do {
     try {
-        $user = "root";
+        $user = "laptops";
         $pass = "UHouston!";
-        $pdo = new PDO('mysql:host=localhost;dbname=laptopDB', $user, $pass, array(
+        $pdo = new PDO('mysql:host=10.0.0.1;dbname=laptopDB', $user, $pass, array(
             PDO::ATTR_PERSISTENT => true,
             PDO::ATTR_ERRMODE => true,
             PDO::ERRMODE_EXCEPTION => true
