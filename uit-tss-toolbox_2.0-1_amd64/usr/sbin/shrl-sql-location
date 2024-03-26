@@ -17,21 +17,24 @@ read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
 #Serial number input
 sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
 	--execute="SELECT serial FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
-echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
 if [[ $sql == "NULL" || $sql == "" ]]; then
+	echo "No serial number data for ${tagNum}"
     read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
 else
+	echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
     serial="${sql}"
 fi
 
 #Model number input
 sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
 	--execute="SELECT system_model FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
-echo "The last reported model name for ${tagNum} was: ${BOLD}${sql}${RESET}"
+
 if [[ $sql == "NULL" || $sql == "" ]]; then
+	echo "No model number data for ${tagNum}"
     read -p "Please enter the ${BOLD}${GREEN}model number${RESET}: " modelNumber
 else
-    serial="${sql}"
+	echo "The last reported model name for ${tagNum} was: ${BOLD}${sql}${RESET}"
+    modelNumber="${sql}"
 fi
 
 #Dorm location input
