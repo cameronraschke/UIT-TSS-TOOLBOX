@@ -8,12 +8,13 @@ DIM=$(tput dim)
 RESET=$(tput sgr0)
 
 while true; do
-date=$(date '+%Y-%m-%d %H:%M:%S')
 
 echo ""
 echo ""
+#Tagnumber Input
 read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
 
+#Serial number input
 sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
 	--execute="SELECT serial FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
 echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
@@ -23,6 +24,7 @@ else
     serial="${sql}"
 fi
 
+#Model number input
 sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
 	--execute="SELECT system_model FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
 echo "The last reported model name for ${tagNum} was: ${BOLD}${sql}${RESET}"
@@ -32,14 +34,19 @@ else
     serial="${sql}"
 fi
 
+#Dorm location input
 sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
 	--execute="SELECT dorm FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
 echo "The last reported dorm for ${tagNum} was: ${BOLD}${sql}${RESET}"
 read -p "Please enter the ${BOLD}${GREEN}dorm${RESET}: " dorm
+
+#Computer number input
 sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
 	--execute="SELECT location FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
 echo "The last reported computer number for ${tagNum} was: ${BOLD}${sql}${RESET}"
 read -p "Please enter the ${BOLD}${GREEN}computer number${RESET}: " location
+
+#Status input
 read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
 
 if [[ $status == "1" ]]; then
