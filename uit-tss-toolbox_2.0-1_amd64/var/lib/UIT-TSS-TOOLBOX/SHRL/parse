@@ -16,10 +16,11 @@ $arr = explode('|', $line);
 if ($arr[0] == "location") {
     $tagNum = $arr[1];
     $serial = $arr[2];
-    $dorm = $arr[3];
-    $location = $arr[4];
-    $status = $arr[5];
-    $problem = $arr[6];
+    $systemModel = $arr[3];
+    $dorm = $arr[4];
+    $location = $arr[5];
+    $status = $arr[6];
+    $problem = $arr[7];
 
     if (empty($serial) || $serial == "" || $serial == " ") {
         $serial = $default;
@@ -27,11 +28,12 @@ if ($arr[0] == "location") {
 
 
     # INSERT statement
-    $sql = "INSERT INTO locations(tagnumber,serial,dorm,location,status,problem,time) ";
-    $sql .= "VALUES (:tagnumber, :serial, :dorm, :location, :status, :problem, :time)";
+    $sql = "INSERT INTO locations(tagnumber,serial,system_model,dorm,location,status,problem,time) ";
+    $sql .= "VALUES (:tagnumber, :serial, :system_model, :dorm, :location, :status, :problem, :time)";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
     $stmt->bindParam(':serial', $serial, PDO::PARAM_STR);
+    $stmt->bindParam(':system_model', $system_model, PDO::PARAM_STR);
     $stmt->bindParam(':dorm', $dorm, PDO::PARAM_STR);
     $stmt->bindParam(':location', $location, PDO::PARAM_STR);
     $stmt->bindParam(':status', $status, PDO::PARAM_STR);
