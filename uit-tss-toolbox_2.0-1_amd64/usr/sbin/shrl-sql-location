@@ -15,9 +15,8 @@ echo ""
 read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
 
 #Serial number input
-sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
-	--execute="SELECT serial FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
-if [[ $sql == "NULL" || $sql == "" ]]; then
+sql=$(echo "most-recent-where|locations|serial|tagnumber|$tagNum" | /var/lib/UIT-TSS-TOOLBOX/SHRL/select 2>/dev/null)
+if [[ $sql == "NULL" || $sql == "" || $sql = " " ]]; then
 	echo "No serial number data for ${tagNum}"
     read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
 else
@@ -26,10 +25,9 @@ else
 fi
 
 #Model number input
-sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
-	--execute="SELECT system_model FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+sql=$(echo "most-recent-where|locations|system_model|tagnumber|$tagNum" | /var/lib/UIT-TSS-TOOLBOX/SHRL/select 2>/dev/null)
 
-if [[ $sql == "NULL" || $sql == "" ]]; then
+if [[ $sql == "NULL" || $sql == "" || $sql = " " ]]; then
 	echo "No model number data for ${tagNum}"
     read -p "Please enter the ${BOLD}${GREEN}model number${RESET}: " modelNumber
 else
@@ -38,14 +36,12 @@ else
 fi
 
 #Dorm location input
-sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
-	--execute="SELECT dorm FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+sql=$(echo "most-recent-where|locations|dorm|tagnumber|$tagNum" | /var/lib/UIT-TSS-TOOLBOX/SHRL/select 2>/dev/null)
 echo "The last reported dorm for ${tagNum} was: ${BOLD}${sql}${RESET}"
 read -p "Please enter the ${BOLD}${GREEN}dorm${RESET}: " dorm
 
 #Computer number input
-sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
-	--execute="SELECT location FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+sql=$(echo "most-recent-where|locations|location|tagnumber|$tagNum" | /var/lib/UIT-TSS-TOOLBOX/SHRL/select 2>/dev/null)
 echo "The last reported computer number for ${tagNum} was: ${BOLD}${sql}${RESET}"
 read -p "Please enter the ${BOLD}${GREEN}computer number${RESET}: " location
 
@@ -57,8 +53,7 @@ if [[ $status == "1" ]]; then
     problem=""
 elif [[ $status == "2" ]]; then
     echo ""
-    sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
-	    --execute="SELECT problem FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+sql=$(echo "most-recent-where|locations|problem|tagnumber|$tagNum" | /var/lib/UIT-TSS-TOOLBOX/SHRL/select 2>/dev/null)
     echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
     status="broken"
     read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
