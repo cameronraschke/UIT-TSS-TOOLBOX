@@ -13,7 +13,7 @@ if ($arr[0] == "most-recent") {
     $table = $arr[1];
     $key = $arr[2];
 
-    $sql = "SELECT $key FROM $table WHERE $key IS NOT NULL AND NOT $key = '' AND NOT $key = ' ' AND NOT LENGTH($key) = 0";
+    $sql = "SELECT $key FROM $table WHERE $key IS NOT NULL AND NOT $key = '' AND NOT $key = ' ' AND NOT LENGTH($key) = 0 ORDER BY TIME DESC LIMIT 1";
 
     foreach ($pdo->query($sql) as $row) {
         echo $row[$key] . PHP_EOL;
