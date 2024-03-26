@@ -18,7 +18,10 @@ if ($arr[0] == "most-recent") {
     $sql = "SELECT $key FROM $table WHERE $key IS NOT NULL AND NOT $key = '' AND NOT $key = ' ' AND NOT LENGTH($key) = 0 ORDER BY TIME DESC LIMIT 1";
 
     foreach ($pdo->query($sql) as $row) {
-        $_ENV["mostRecent"] = $row[$key];
+        sleep 1;
+        $fd = fopen('php://stdout', 'w');
+        fwrite($fd, $row[$key]);
+        fclose($fd);
     }
 }
 
@@ -31,7 +34,9 @@ if ($arr[0] == "most-recent-where") {
     $sql = "SELECT $key FROM $table WHERE $key IS NOT NULL AND NOT $key = '' AND NOT $key = ' ' AND NOT LENGTH($key) = 0 AND $whereKey = '$whereValue' ORDER BY TIME DESC LIMIT 1";
 
     foreach ($pdo->query($sql) as $row) {
-        $_ENV["mostRecent"] = $row[$key];
+        $fd = fopen('php://stdout', 'w');
+        fwrite($fd, $row[$key]);
+        fclose($fd);
     }
 }
 
