@@ -36,7 +36,6 @@ if ($arr[0] == "most-recent-where") {
         echo $read;
         pclose($handle);
     }
-    echo "END OF DATA";
 }
 
 
