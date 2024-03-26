@@ -1,5 +1,8 @@
 #!/bin/bash
 
+/usr/bin/gcc /var/lib/UIT-TSS-TOOLBOX/C/server.c -o /var/lib/UIT-TSS-TOOLBOX/server
+/usr/bin/gcc /var/lib/UIT-TSS-TOOLBOX/C/client.c -o /var/lib/UIT-TSS-TOOLBOX/client
+
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
 /usr/bin/chmod 750 /usr/sbin/shrl-*
