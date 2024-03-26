@@ -249,7 +249,7 @@ foreach ($pdo->query($sql) as $row) {
         $pdo->query($sql);
     }
 	$end = hrtime(true);
-	$executionTime = ($end - $start) / 1e9;
+	$executionTime = round($end - $start / 1e9, 4);
 	echo "Updating computer $tagNum: " . $executionTime . " seconds" . PHP_EOL;
 }
 
