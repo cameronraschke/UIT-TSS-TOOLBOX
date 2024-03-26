@@ -32,7 +32,9 @@ if ($arr[0] == "most-recent-where") {
 
     foreach ($pdo->query($sql) as $row) {
         echo $row["$key"];
+        
     }
+    echo null;
 }
 
 
