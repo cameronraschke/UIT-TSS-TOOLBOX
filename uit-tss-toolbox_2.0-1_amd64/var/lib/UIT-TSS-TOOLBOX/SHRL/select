@@ -15,8 +15,9 @@ if ($arr[0] == "most-recent") {
 
     $sql = "SELECT $key FROM $table WHERE $key IS NOT NULL AND NOT $key = '' AND NOT $key = ' ' AND NOT LENGTH($key) = 0";
 
-  foreach ($pdo->query($sql) as $row) {
+    foreach ($pdo->query($sql) as $row) {
         echo $row[$key] . PHP_EOL;
+    }
 }
 
 ?>
