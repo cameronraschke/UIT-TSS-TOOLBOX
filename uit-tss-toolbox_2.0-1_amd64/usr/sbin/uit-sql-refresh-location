@@ -16,11 +16,15 @@ echo "Updating the location table" . PHP_EOL;
 in the locations table and update the locations table */
 $sql = "SELECT tagnumber,chassis_serial FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
 foreach ($pdo->query($sql) as $row) {
+    $start = hrtime(true);
     $tagNum = $row['tagnumber'];
     $serial = $row['chassis_serial'];
-    echo "$tagNum -> $serial" . PHP_EOL;
     $sql = "UPDATE locations SET chassis_serial = '$serial' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
+    
+    $end = hrtime(true);
+	$executionTime = round(($end - $start) / 1e9, 4);
+	echo "Updating copmuter $tagNum -> $serial: " . $executionTime . " seconds" . PHP_EOL;
 }
 
 # Close the connection
