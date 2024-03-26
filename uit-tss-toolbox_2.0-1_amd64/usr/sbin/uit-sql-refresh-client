@@ -20,8 +20,8 @@ if (preg_match("/[0-9]{6}/", $line)) {
 
 $sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-09' AND '$date') AND tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'";
 foreach ($pdo->query($sql) as $row) {
+	$start = hrtime(true);
     $tagNum = $row['tagnumber'];
-    echo "Updating laptop \"$tagNum\" in the database." . PHP_EOL;
     $sql = "SELECT COUNT(tagnumber) FROM clientstats WHERE tagnumber = '$tagNum'";
 	$results = $pdo->query($sql);
 	$linecount = $results->fetchColumn();
@@ -248,6 +248,9 @@ foreach ($pdo->query($sql) as $row) {
         $sql = "UPDATE clientstats SET device_type = '$deviceType' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     }
+	$end = hrtime(true);
+	$executionTime = ($end - $start) / 1e9;
+	echo "Updating computer " . $row["tagnumber"] . " in: " . $executionTime . " seconds" . PHP_EOL;
 }
 
 $pdo = null;
