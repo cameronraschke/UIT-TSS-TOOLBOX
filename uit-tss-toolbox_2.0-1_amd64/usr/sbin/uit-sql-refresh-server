@@ -11,7 +11,8 @@ include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 echo "Updating serverstats" . PHP_EOL;
 
 $date = date('Y-m-d',time());
-$time = date('Y-m-d H:i:s', time());
+$dt = new DateTimeImmutable();
+$time = $dt->format('Y-m-d H:i:s.v');
 
 # If the current date does not exist in the DB, then create an entry for the current date with mostly NULL values.
 $sql = "SELECT COUNT(date) FROM serverstats WHERE date = '$date'";
