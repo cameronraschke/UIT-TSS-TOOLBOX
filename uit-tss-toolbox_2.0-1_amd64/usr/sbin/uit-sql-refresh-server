@@ -30,8 +30,8 @@ if ($count == "0") {
 # Select all the dates from the serverstats table and iterate through them.
 $sql = "SELECT date FROM serverstats";
 foreach ($pdo->query($sql) as $row) {
+	$start = hrtime(true);
 	$sqldate = $row['date'];
-	echo "Updating serverstats for $sqldate" . PHP_EOL;
 
 	/* Update time, which is a datetime stamp. This helps us see the time when the serverstats 
 	table was last updated, not just the date. */
@@ -147,6 +147,10 @@ foreach ($pdo->query($sql) as $row) {
 		$sql = "UPDATE serverstats SET battery_health = ROUND('$sum' / '$lineNums', 0) WHERE date = '$date'";
 		$pdo->query($sql);
 	}
+
+    $end = hrtime(true);
+	$executionTime = round(($end - $start) / 1e9, 4);
+	echo "Updating date $sqldate: " . $executionTime . " seconds" . PHP_EOL;
 }
 
 # Close the connection
