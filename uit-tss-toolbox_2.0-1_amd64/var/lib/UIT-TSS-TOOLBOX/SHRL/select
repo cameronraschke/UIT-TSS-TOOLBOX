@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 
 include('/var/lib/UIT-TSS-TOOLBOX/SHRL/PDO-connect');
