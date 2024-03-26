@@ -1,8 +1,3 @@
-/* A simple server in the internet domain using TCP
-   The port number is passed as an argument
-   This version runs forever, forking off a separate
-   process for each connection
-*/
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -64,10 +59,10 @@ int main(int argc, char *argv[])
 void dostuff (int sock)
 {
    int n;
-   char buffer[256];
+   char buffer[1024];
 
-   bzero(buffer,256);
-   n = read(sock,buffer,255);
+   bzero(buffer,1024);
+   n = read(sock,buffer,1023);
    if (n < 0) error("ERROR reading from socket");
    printf("%s\n",buffer);
    n = write(sock,"0",1);
