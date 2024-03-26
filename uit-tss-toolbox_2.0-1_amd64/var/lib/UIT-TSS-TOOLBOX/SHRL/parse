@@ -2,12 +2,10 @@
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/SHRL/PDO-connect');
 
-$date = date('Y-m-d',time());
 $dt = new DateTimeImmutable();
 $time = $dt->format('Y-m-d H:i:s.v');
 
-$default = "NULL";
-$location = "NULL";
+$default = NULL;
 
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
@@ -34,7 +32,7 @@ if ($arr[0] == "location") {
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
     $stmt->bindParam(':serial', $serial, PDO::PARAM_STR);
-    $stmt->bindParam(':system_model', $system_model, PDO::PARAM_STR);
+    $stmt->bindParam(':system_model', $systemModel, PDO::PARAM_STR);
     $stmt->bindParam(':dorm', $dorm, PDO::PARAM_STR);
     $stmt->bindParam(':location', $location, PDO::PARAM_STR);
     $stmt->bindParam(':status', $status, PDO::PARAM_STR);
