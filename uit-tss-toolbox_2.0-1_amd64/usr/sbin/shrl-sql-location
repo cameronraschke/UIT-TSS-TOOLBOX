@@ -38,8 +38,8 @@ echo "The last reported dorm for ${tagNum} was: ${BOLD}${sql}${RESET}"
 read -p "Please enter the ${BOLD}${GREEN}dorm${RESET}: " dorm
 sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
 	--execute="SELECT location FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
-echo "The last reported location for ${tagNum} was: ${BOLD}${sql}${RESET}"
-read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
+echo "The last reported computer number for ${tagNum} was: ${BOLD}${sql}${RESET}"
+read -p "Please enter the ${BOLD}${GREEN}computer number${RESET}: " location
 read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
 
 if [[ $status == "1" ]]; then
