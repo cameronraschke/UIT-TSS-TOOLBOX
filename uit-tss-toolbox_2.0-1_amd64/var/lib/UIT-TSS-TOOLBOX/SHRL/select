@@ -31,10 +31,9 @@ if ($arr[0] == "most-recent-where") {
     $sql = "SELECT $key FROM $table WHERE $key IS NOT NULL AND NOT $key = '' AND NOT $key = ' ' AND NOT LENGTH($key) = 0 AND $whereKey = '$whereValue' ORDER BY TIME DESC LIMIT 1";
 
     foreach ($pdo->query($sql) as $row) {
-        shell_exec("echo $row['$key'] | /var/lib/UIT-TSS-TOOLBOX/client");
-        $read = fread($handle, 2096);
-        echo $read;
-        pclose($handle);
+        $output = shell_exec("echo '$row[$key]' | /var/lib/UIT-TSS-TOOLBOX/client");
+        echo $output;
+
     }
 }
 
