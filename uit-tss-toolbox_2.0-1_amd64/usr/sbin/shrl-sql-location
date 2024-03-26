@@ -13,6 +13,7 @@ date=$(date '+%Y-%m-%d %H:%M:%S')
 echo ""
 echo ""
 read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
+
 sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
 	--execute="SELECT serial FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
 echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
@@ -21,6 +22,16 @@ if [[ $sql == "NULL" || $sql == "" ]]; then
 else
     serial="${sql}"
 fi
+
+sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
+	--execute="SELECT system_model FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+echo "The last reported model name for ${tagNum} was: ${BOLD}${sql}${RESET}"
+if [[ $sql == "NULL" || $sql == "" ]]; then
+    read -p "Please enter the ${BOLD}${GREEN}model number${RESET}: " modelNumber
+else
+    serial="${sql}"
+fi
+
 sql=$(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -s -N \
 	--execute="SELECT dorm FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
 echo "The last reported dorm for ${tagNum} was: ${BOLD}${sql}${RESET}"
@@ -46,5 +57,5 @@ else
     problem=""
 fi
 
-echo "location|${tagNum}|${serial}|${dorm}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/SHRL/parse
+echo "location|${tagNum}|${serial}|${modelNumber}|${dorm}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/SHRL/parse
 done
