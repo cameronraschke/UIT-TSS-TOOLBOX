@@ -7,7 +7,8 @@ putting the tagnumber's corresponding serial number into the location table. */
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $date = date('Y-m-d',time());
-$time = date('Y-m-d H:i:s', time());
+$dt = new DateTimeImmutable();
+$time = $dt->format('Y-m-d H:i:s.v');
 
 echo "Updating the location table" . PHP_EOL;
 
