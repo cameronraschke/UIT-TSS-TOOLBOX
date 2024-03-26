@@ -250,7 +250,7 @@ foreach ($pdo->query($sql) as $row) {
     }
 	$end = hrtime(true);
 	$executionTime = ($end - $start) / 1e9;
-	echo "Updating computer " . $row["tagnumber"] . " in: " . $executionTime . " seconds" . PHP_EOL;
+	echo "Updating computer $tagNum: " . $executionTime . " seconds" . PHP_EOL;
 }
 
 $pdo = null;
