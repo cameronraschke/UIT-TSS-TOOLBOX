@@ -10,7 +10,7 @@ fclose($stdin);
 $arr = array();
 $arr = explode('|', $line);
 
-if ($arr[0] == "") {
+if ($arr[0] == "all") {
     $table = $arr[1];
     $key = $arr[2];
 
