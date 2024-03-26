@@ -24,7 +24,7 @@ foreach ($pdo->query($sql) as $row) {
     
     $end = hrtime(true);
 	$executionTime = round(($end - $start) / 1e9, 4);
-	echo "Updating computer $tagNum -> $serial: " . $executionTime . " seconds" . PHP_EOL;
+	echo "Updating location for $tagNum($serial): " . $executionTime . " seconds" . PHP_EOL;
 }
 
 # Close the connection
