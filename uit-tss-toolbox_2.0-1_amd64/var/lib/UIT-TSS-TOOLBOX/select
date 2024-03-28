@@ -9,6 +9,7 @@ fclose($stdin);
 
 $sql = $pdo->prepare($line);
 $sql->execute();
+
 $row = $sql->fetchAll(PDO::FETCH_COLUMN);
 
 foreach ($row as $key => $value) {
