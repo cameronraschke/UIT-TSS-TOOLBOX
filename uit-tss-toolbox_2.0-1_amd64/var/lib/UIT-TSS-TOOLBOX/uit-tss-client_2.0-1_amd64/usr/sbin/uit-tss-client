@@ -1514,15 +1514,15 @@ function terminate {
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
 	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE}';")
+	--execute="SELECT last_image_update FROM serverstats WHERE date = '${DATE} 00:00:00.000';")
 
 	location
 
 	cloneNumToday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND date = '${DATE}';" 2>/dev/null)
+	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND time = '${DATE} 00:00:00.000';" 2>/dev/null)
 
 	eraseNumToday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'Yes' AND date = '${DATE}';" 2>/dev/null)
+	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'Yes' AND time = '${DATE} 00:00:00.000';" 2>/dev/null)
 
 	clientCloneTotal=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
 	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND tagnumber = '${tagNum}';" 2>/dev/null)
