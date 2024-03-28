@@ -47,5 +47,5 @@ if ($arr[0] == "most-recent-where") {
     }
 }
 
-
+$pdo = null;
 ?>
