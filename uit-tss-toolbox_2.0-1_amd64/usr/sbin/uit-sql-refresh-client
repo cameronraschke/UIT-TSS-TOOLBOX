@@ -19,7 +19,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
     $input = '%';
 }
 
-$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (date BETWEEN '2023-01-09' AND '$date') AND tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'";
+$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (time BETWEEN '2023-01-09 00:00:00.000' AND '$time') AND tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'";
 foreach ($pdo->query($sql) as $row) {
 	$start = hrtime(true);
     $tagNum = $row['tagnumber'];
