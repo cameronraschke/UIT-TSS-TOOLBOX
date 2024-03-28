@@ -1,0 +1,21 @@
+#!/usr/bin/php
+<?php
+
+include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
+
+$stdin = fopen('php://stdin', 'r');
+$line = trim(fgets(STDIN));
+fclose($stdin);
+
+$sql = $pdo->prepare($line);
+$sql->execute();
+$arr = array();
+$arr = $reult = $sql->fetch(PDO::FETCH_ASSOC);
+foreach ($arr as $key => $value) {
+        if ($value == "") {
+                $value = "NULL";
+        }
+        echo $value . PHP_EOL;
+}
+
+?>
