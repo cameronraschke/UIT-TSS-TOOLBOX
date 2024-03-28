@@ -23,4 +23,5 @@ foreach ($row as $key => $value) {
         echo $value . PHP_EOL;
 }
 
+$pdo = null;
 ?>
