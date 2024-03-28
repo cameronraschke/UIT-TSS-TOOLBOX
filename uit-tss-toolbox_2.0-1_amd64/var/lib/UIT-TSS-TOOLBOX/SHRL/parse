@@ -3,6 +3,7 @@
 include('/var/lib/UIT-TSS-TOOLBOX/SHRL/PDO-connect');
 
 $dt = new DateTimeImmutable();
+$date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
 $default = NULL;
