@@ -12,7 +12,15 @@ $sql->execute();
 
 $row = $sql->fetchAll(PDO::FETCH_COLUMN);
 
+if (empty($row)) {
+        $row = array( "KEY" => "NULL"  );
+}
+
 foreach ($row as $key => $value) {
+        if ($value == "" || $value == null) {
+                $value = "NULL";
+        }
         echo $value . PHP_EOL;
 }
+
 ?>
