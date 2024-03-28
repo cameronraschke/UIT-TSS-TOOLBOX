@@ -6,8 +6,8 @@ specifically focuses on matching a tagnumber from the clientstats table and
 putting the tagnumber's corresponding serial number into the location table. */
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
-$date = date('Y-m-d',time());
 $dt = new DateTimeImmutable();
+$date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
 echo "Updating the location table" . PHP_EOL;
