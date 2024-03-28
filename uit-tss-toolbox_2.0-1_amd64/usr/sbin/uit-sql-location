@@ -8,7 +8,7 @@ DIM=$(tput dim)
 RESET=$(tput sgr0)
 
 while true; do
-date=$(date '+%Y-%m-%d %H:%M:%S')
+date=$(date '+%Y-%m-%d %H:%M:%S.%3N')
 
 echo ""
 echo ""
