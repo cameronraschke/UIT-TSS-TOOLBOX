@@ -9,13 +9,9 @@ fclose($stdin);
 
 $sql = $pdo->prepare($line);
 $sql->execute();
-$arr = array();
-$arr = $reult = $sql->fetch(PDO::FETCH_ASSOC);
-foreach ($arr as $key => $value) {
-        if ($value == "") {
-                $value = "NULL";
-        }
+$row = $sql->fetchAll(PDO::FETCH_COLUMN);
+
+foreach ($row as $key => $value) {
         echo $value . PHP_EOL;
 }
-
 ?>
