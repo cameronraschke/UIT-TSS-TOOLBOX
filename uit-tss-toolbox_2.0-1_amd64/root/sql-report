@@ -1,11 +1,14 @@
 #!/bin/bash
 
+DATE=$(date --iso)
+
 uit-sql-refresh
 
 uit-sql-csv
 
 cp /tmp/laptop-report* /home/cameron
 rm /tmp/laptop-report*
-mysqldump laptopDB > /home/cameron/laptopDB.sql
+mysqldump laptopDB > /home/cameron/laptopDB-${DATE}.sql
+mysqldump shrl > /home/cameron/shrl-${DATE}.sql
 
 chown -R cameron:cameron /home/cameron/
