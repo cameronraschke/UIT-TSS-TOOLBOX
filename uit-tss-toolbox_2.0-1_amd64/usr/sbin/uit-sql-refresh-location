@@ -14,12 +14,12 @@ echo "Updating the location table" . PHP_EOL;
 
 /* Select the serial numbers from clientstats which corresponds with the tagnumber 
 in the locations table and update the locations table */
-$sql = "SELECT tagnumber,chassis_serial FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
+$sql = "SELECT tagnumber,system_serial FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
 foreach ($pdo->query($sql) as $row) {
     $start = hrtime(true);
     $tagNum = $row['tagnumber'];
-    $serial = $row['chassis_serial'];
-    $sql = "UPDATE locations SET chassis_serial = '$serial' WHERE tagnumber = '$tagNum'";
+    $serial = $row['system_serial'];
+    $sql = "UPDATE locations SET system_serial = '$serial' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
     
     $end = hrtime(true);
