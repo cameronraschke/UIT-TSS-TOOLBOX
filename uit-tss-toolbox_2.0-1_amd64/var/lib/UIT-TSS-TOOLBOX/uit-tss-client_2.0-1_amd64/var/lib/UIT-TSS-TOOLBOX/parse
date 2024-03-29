@@ -73,7 +73,7 @@ if ($arr[0] == "init") {
     system("ssh cameron@mickey.uit 'echo $value | uit-sql-refresh-client'", $return);
 } elseif ($arr[0] == "checktag") {
     $systemSerial = $arr[1];
-    $sql = "SELECT tagnumber FROM clientstats WHERE system_serial = '$systemSerial'";
+    $sql = "SELECT tagnumber FROM jobstats WHERE system_serial = '$systemSerial' AND system_serial IS NOT NULL ORDER BY time desc LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
         $tagNum = $row['tagnumber'];
         $fd = fopen("/tmp/tagnumber.uit", "w");
