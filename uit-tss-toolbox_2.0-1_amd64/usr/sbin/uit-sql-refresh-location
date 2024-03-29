@@ -18,7 +18,7 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time desc LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
 		$serial = $row["system_serial"];
-        $sql = "UPDATE clientstats SET system_serial = '$serial' WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE locations SET system_serial = '$serial' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
 
 		$end = hrtime(true);
