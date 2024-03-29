@@ -1,5 +1,10 @@
 #!/bin/bash
 
+SECONDS=0
+
 echo | /usr/sbin/uit-sql-refresh-client
 /usr/sbin/uit-sql-refresh-location
 /usr/sbin/uit-sql-refresh-server
+
+echo ""
+echo "Total time taken: ${SECONDS}s"
