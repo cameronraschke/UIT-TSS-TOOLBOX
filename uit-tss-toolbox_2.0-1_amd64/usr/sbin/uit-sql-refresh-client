@@ -30,7 +30,7 @@ foreach ($pdo->query($sql) as $row) {
         echo "Inserting laptop: " . $tagNum . PHP_EOL;
         $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,";
         $sql .= "all_time,all_avgtime,erase_time,erase_avgtime,clone_time,clone_avgtime,all_jobs,erase_jobs,";
-        $sql .= "clone_jobs,disk,disk_tbw,max_tbw,tbw_pcnt,system_productname,bios_date,bios_version,chassis_serial,";
+        $sql .= "clone_jobs,disk,disk_tbw,max_tbw,tbw_pcnt,system_productname,bios_date,bios_version,system_serial,";
         $sql .= "motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate,battery_health,boot_time)";
         $sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
         $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
@@ -72,10 +72,10 @@ foreach ($pdo->query($sql) as $row) {
         $pdo->query($sql);
     }
 
-    #Update chassis_serial and system_serial
+    #Update system_serial
     $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time desc LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
-        $sql = "UPDATE clientstats SET chassis_serial = '" . $row['system_serial'] . "' WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE clientstats SET system_serial = '" . $row['system_serial'] . "' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     }
 
