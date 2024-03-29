@@ -1,9 +1,6 @@
 #!/usr/bin/php
 <?php
 
-/* uit-sql-refresh-location uses php to update the location table. This script
-specifically focuses on matching a tagnumber from the clientstats table and
-putting the tagnumber's corresponding serial number into the location table. */
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 $dt = new DateTimeImmutable();
@@ -12,28 +9,21 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
 echo "Updating the location table" . PHP_EOL;
 
-/*#Update system_serial
+/* Select the serial numbers from jobstats which corresponds with the tagnumber 
+in the locations table and update the locations table */
+$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND (time BETWEEN '2023-01-09 00:00:00.000' AND '$time') AND uuid LIKE 'techComm-%'";
+foreach ($pdo->query($sql) as $row) {
+	$start = hrtime(true);
+    $tagNum = $row['tagnumber'];
     $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time desc LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
         $sql = "UPDATE clientstats SET system_serial = '" . $row['system_serial'] . "' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
-    }
-*/
 
-/* Select the serial numbers from clientstats which corresponds with the tagnumber 
-in the locations table and update the locations table */
-$sql = "SELECT tagnumber,system_serial FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
-foreach ($pdo->query($sql) as $row) {
-    $start = hrtime(true);
-    $tagNum = $row['tagnumber'];
-    $serial = $row['system_serial'];
-    $sql = "UPDATE locations SET system_serial = '$serial' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
-    
-    $end = hrtime(true);
-	$executionTime = round(($end - $start) / 1e9, 4);
-	echo "Updating location for $tagNum($serial): " . $executionTime . " seconds" . PHP_EOL;
-}
+		$end = hrtime(true);
+		$executionTime = round(($end - $start) / 1e9, 4);
+		echo "Updating location for $tagNum ($serial): " . $executionTime . " seconds" . PHP_EOL;
+    }
 
 # Close the connection
 $pdo = null;
