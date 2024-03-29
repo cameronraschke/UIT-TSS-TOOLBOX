@@ -60,7 +60,7 @@ foreach ($arr as $row) {
 #Client Table
 unset($arr);
 unset($row);
-$sql = "SELECT tagnumber,chassis_serial,device_type,system_productname,last_job_date,";
+$sql = "SELECT tagnumber,system_serial,device_type,system_productname,last_job_date,";
 $sql .= "erase_avgtime,clone_avgtime,all_jobs,";
 $sql .= "battery_health,tbw_pcnt ";
 $sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC";
@@ -105,7 +105,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 foreach ($arr as $row) {
     unset($tagNum);
     $tagNum = $row;
-    $sql = "SELECT tagnumber,chassis_serial,location,status,problem,time ";
+    $sql = "SELECT tagnumber,system_serial,location,status,problem,time ";
     $sql .= "FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ";
     #$sql .= "AND tagnumber = '$tagNum' AND (time > '2023-09-01 00:00:00') ORDER BY time DESC LIMIT 1";
     $sql .= "AND tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
