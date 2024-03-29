@@ -15,9 +15,9 @@ $sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE NOT tagnumber = '000000' A
 foreach ($pdo->query($sql) as $row) {
 	$start = hrtime(true);
     $tagNum = $row['tagnumber'];
-	$serial = $row["system_serial"];
     $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time desc LIMIT 1";
     foreach ($pdo->query($sql) as $row) {
+		$serial = $row["system_serial"];
         $sql = "UPDATE clientstats SET system_serial = '$serial' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
 
