@@ -1519,10 +1519,10 @@ function terminate {
 	location
 
 	cloneNumToday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND time = '${DATE} 00:00:00.000';" 2>/dev/null)
+	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND time > '${DATE} 00:00:00.000';" 2>/dev/null)
 
 	eraseNumToday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'Yes' AND time = '${DATE} 00:00:00.000';" 2>/dev/null)
+	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'Yes' AND time > '${DATE} 00:00:00.000';" 2>/dev/null)
 
 	clientCloneTotal=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
 	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND tagnumber = '${tagNum}';" 2>/dev/null)
@@ -1558,8 +1558,6 @@ function terminate {
 	fi
 	
 	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
-		imgupdate=$(date --iso)
-
 		terminateMessage=$(echo "Tag#: ${tagNum}"
 		echo "MAC: ${etherAddr}"
 		echo "Action: ${terminateAction}"
