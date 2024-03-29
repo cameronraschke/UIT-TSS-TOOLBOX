@@ -1471,7 +1471,7 @@ function location {
 
 	echo ""
 	sql=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-		--execute="SELECT chassis_serial FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+		--execute="SELECT system_serial FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
 	echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
 	if [[ $sql == "NULL" ]]; then
 		read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
