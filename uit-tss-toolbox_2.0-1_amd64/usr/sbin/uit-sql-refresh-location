@@ -12,6 +12,14 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
 echo "Updating the location table" . PHP_EOL;
 
+/*#Update system_serial
+    $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time desc LIMIT 1";
+    foreach ($pdo->query($sql) as $row) {
+        $sql = "UPDATE clientstats SET system_serial = '" . $row['system_serial'] . "' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    }
+*/
+
 /* Select the serial numbers from clientstats which corresponds with the tagnumber 
 in the locations table and update the locations table */
 $sql = "SELECT tagnumber,system_serial FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
