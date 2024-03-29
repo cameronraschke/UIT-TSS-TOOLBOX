@@ -1513,8 +1513,9 @@ function terminate {
 	fi
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
-	imgupdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT date FROM jobstats WHERE clone_master = 'Yes' AND uuid LIKE 'techComm-%' ORDER BY time DESC LIMIT 1;")
+	imgUpdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
+	--execute="SELECT time FROM jobstats WHERE clone_master = 'Yes' AND uuid LIKE 'techComm-%' ORDER BY time DESC LIMIT 1;")
+	imgUpdate=${imgUpdate::10}
 
 	location
 
@@ -1531,7 +1532,7 @@ function terminate {
 
 	echo ""
 	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
-		echo "general|clone_imageupdate|${imgupdate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|clone_imageupdate|${imgUpdate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 		if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
 			terminateAction="Erased and cloned"
