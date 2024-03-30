@@ -15,7 +15,7 @@ serverTime=$(printf %.2f $( echo "$serverEnd - $serverStart" | bc -l ))
 totalTime=$(printf %.2f $( echo "$serverEnd - $clientStart" | bc -l ))
 
 echo ""
-echo "Time to update clientstats: $clientTime"
-echo "Time to update locations: $locationTime"
-echo "Time to update serverstats: $serverTime"
-echo "Total time taken: ${totalTime}"
+echo "Time to update clientstats: ${clientTime}s"
+echo "Time to update locations: ${locationTime}s"
+echo "Time to update serverstats: ${serverTime}s"
+echo "Total time taken: ${totalTime}s"
