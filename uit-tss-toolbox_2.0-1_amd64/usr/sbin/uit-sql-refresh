@@ -1,16 +1,17 @@
 #!/bin/bash
 
-clientStart=$(date +%s.%N)
+clientStart=$(date +%s.%3N)
 echo | /usr/sbin/uit-sql-refresh-client
-clientEnd=$(date +%s.%N)
-locationStart=$(date +%s.%N)
+locationStart=$(date +%s.%3N)
 /usr/sbin/uit-sql-refresh-location
-locationEnd=$(date +%s.%N)
-serverStart=$(date +%s.%N)
+serverStart=$(date +%s.%3N)
 /usr/sbin/uit-sql-refresh-server
-serverEnd=$(date +%s.%N)
+serverEnd=$(date +%s.%3N)
 
+clientTime=$( echo "$locationStart - $clientStart" | bc -l )
 totalTime=$( echo "$serverEnd - $clientStart" | bc -l )
+
+totalTime=$(printf %.2f $( echo "$serverEnd - $clientStart" | bc -l ))
 
 echo ""
 echo "Total time taken: ${totalTime}"
