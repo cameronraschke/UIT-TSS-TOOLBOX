@@ -143,27 +143,32 @@ foreach ($pdo->query($sql) as $row) {
 	}
 
 
-	
-	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'SSDPEMKF256G8 NVMe INTEL 256GB'";
+	$arr = array();
+	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 72) FROM jobstats WHERE disk_model = 'SSDPEMKF256G8 NVMe INTEL 256GB'";
 	$results = $pdo->query($sql);
-    $linecount = $results->fetchColumn();
-	$sql = "SELECT SUM(disk_writes) FROM jobstats WHERE disk_model = 'SSDPEMKF256G8 NVMe INTEL 256GB'";
-	$results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-	if ($linecount > 0) {
-		$avg1 = $value / $linecount;
-	} else {
-		$avg1 = 0;
-	}
+    array_push($arr, $results->fetchColumn());
 
-	$sql = "SELECT SUM(disk_writes) FROM jobstats WHERE disk_model = 'MTFDHBA256TCK-1AS1AABHA'";
-	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'MTFDHBA256TCK-1AS1AABHA'";
-	$sql = "SELECT SUM(disk_writes) FROM jobstats WHERE disk_model = 'LITEON CV8-8E128-11 SATA 128GB'";
-	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'LITEON CV8-8E128-11 SATA 128GB'";
-	$sql = "SELECT SUM(disk_writes) FROM jobstats WHERE disk_model = 'WDC PC SN520 SDAPNUW-256G-1006'";
-	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'WDC PC SN520 SDAPNUW-256G-1006'";
-	$sql = "SELECT SUM(disk_writes + disk_reads) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A'";
-	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A'";
+	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 75) FROM jobstats WHERE disk_model = 'MTFDHBA256TCK-1AS1AABHA'";
+	$results = $pdo->query($sql);
+    $avg2 = $results->fetchColumn();
+
+	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 75) FROM jobstats WHERE disk_model = 'LITEON CV8-8E128-11 SATA 128GB'";
+	$results = $pdo->query($sql);
+    $avg3 = $results->fetchColumn();
+
+	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 100) FROM jobstats WHERE disk_model = 'WDC PC SN520 SDAPNUW-256G-1006'";
+	$results = $pdo->query($sql);
+    $avg4 = $results->fetchColumn();
+
+	$sql = "SELECT SUM(disk_writes + disk_reads) / (COUNT(tagnumber) * 55) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A'";
+	$results = $pdo->query($sql);
+    $avg5 = $results->fetchColumn();
+
+	$sql = "SELECT SUM(disk_writes + disk_reads) / (COUNT(tagnumber) * 55) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A'";
+	$results = $pdo->query($sql);
+    $avg6 = $results->fetchColumn();
+
+
 	$sql = "SELECT SUM(disk_writes + disk_reads) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050'";
 	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050'";
 
