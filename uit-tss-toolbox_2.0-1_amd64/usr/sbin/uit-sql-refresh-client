@@ -216,39 +216,38 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-        if (!empty($value)) {
-            if ($value == "SSDPEMKF256G8 NVMe INTEL 256GB") {
-                $maxTBW='72';
-                $diskType='ssd';
-            }
-            if ($value == "MTFDHBA256TCK-1AS1AABHA") {
-                $maxTBW='75';
-                $diskType='ssd';
-            }
-            if ($value == "LITEON CV8-8E128-11 SATA 128GB") {
-                $maxTBW='75';
-                $diskType='ssd';
-            }
-            if ($value == "WDC PC SN520 SDAPNUW-256G-1006") {
-                $maxTBW='100';
-                $diskType='ssd';
-            }
-            if ($value == "ST500LM034-2GH17A") {
-                $maxTBW='55';
-                $diskType='hdd';
-            }
-            #TOSHIBA MQ01ACF050 600k hours mtbf
-            if ($value == "TOSHIBA MQ01ACF050") {
-                $maxTBW='100';
-                $diskType='hdd';
-            }
-            $sql = "UPDATE clientstats SET max_tbw = '$maxTBW' WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-        } else {
-            $diskType="unknown";
-            $sql = "UPDATE clientstats SET max_tbw = NULL WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
+    if (!empty($value)) {
+        if ($value == "SSDPEMKF256G8 NVMe INTEL 256GB") {
+            $maxTBW='72';
+            $diskType='ssd';
         }
+        if ($value == "MTFDHBA256TCK-1AS1AABHA") {
+            $maxTBW='75';
+            $diskType='ssd';
+        }
+        if ($value == "LITEON CV8-8E128-11 SATA 128GB") {
+            $maxTBW='75';
+            $diskType='ssd';
+        }
+        if ($value == "WDC PC SN520 SDAPNUW-256G-1006") {
+            $maxTBW='100';
+            $diskType='ssd';
+        }
+        if ($value == "ST500LM034-2GH17A") {
+            $maxTBW='55';
+            $diskType='hdd';
+        }
+        #TOSHIBA MQ01ACF050 600k hours mtbf
+        if ($value == "TOSHIBA MQ01ACF050") {
+            $maxTBW='100';
+            $diskType='hdd';
+        }
+        $sql = "UPDATE clientstats SET max_tbw = '$maxTBW' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $diskType="unknown";
+        $sql = "UPDATE clientstats SET max_tbw = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
 
     #Disk type
@@ -325,7 +324,7 @@ foreach ($pdo->query($sql) as $row) {
     $value = $results->fetchColumn();
     if ($value >= 1 && $lineNums > 0) {
         $value = intdiv($value,$lineNums);
-        $sql = "UPDATE clientstats SET boot_time = '$bootTime' WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE clientstats SET boot_time = '$value' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     } else {
         $sql = "UPDATE clientstats SET boot_time = NULL WHERE tagnumber = '$tagNum'";
