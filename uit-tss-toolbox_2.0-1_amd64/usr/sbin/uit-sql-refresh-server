@@ -18,8 +18,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
 # If the current date does not exist in the DB, then create an entry for the current date with mostly NULL values.
 $sql = "SELECT date FROM serverstats WHERE date = '$date'";
 $results = $pdo->query($sql);
-$value = $results->fetchColumn();
-if (filter($value) == "1") {
+$linecount = $results->fetchColumn();
+if ($linecount == "0") {
 		echo "Inserting new serverstats entry for $date." . "\n";
 		$sql = "INSERT INTO serverstats(date,time,laptop_count,last_image_update,all_jobs,clone_jobs,erase_jobs,";
 		$sql .= "all_avgtime,clone_avgtime,nvme_erase_avgtime,ssd_erase_avgtime,tbw_pcnt,battery_health,boot_time) VALUES ('$date','$time',";
@@ -55,12 +55,12 @@ foreach ($pdo->query($sql) as $row) {
 	# Update clone_avgtime
 	$sql = "SELECT COUNT(clone_time) FROM jobstats WHERE clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-	$linecount = $results->fetchColumn();
+	$cloneJobsLC = $results->fetchColumn();
 	$sql = "SELECT SUM(clone_time) FROM jobstats WHERE clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
 	$value = $results->fetchColumn();
-	if ($linecount > 0) {
-		$cloneAvgTime = round(($value / $linecount) / 60, 0);
+	if ($cloneJobsLC > 0) {
+		$cloneAvgTime = round(($value / $cloneJobsLC) / 60, 0);
 		$sql = "UPDATE serverstats SET clone_avgtime = 'cloneAvgTime' WHERE date = '$sqlDate'";
 		$pdo->query($sql);
     } else {
@@ -72,12 +72,12 @@ foreach ($pdo->query($sql) as $row) {
 	# Update nvme_erase_avgtime
 	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-	$linecount = $results->fetchColumn();
+	$nvmeEraseLC = $results->fetchColumn();
 	$sql = "SELECT SUM(erase_time) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
 	$value = $results->fetchColumn();
-	if ($linecount > 0) {
-		$nvmeEraseAvgTime = round(($value / $linecount) / 60, 0);
+	if ($nvmeEraseLC > 0) {
+		$nvmeEraseAvgTime = round(($value / $nvmeEraseLC) / 60, 0);
 		$sql = "UPDATE serverstats SET nvme_erase_avgtime = '$nvmeEraseAvgTime' WHERE date = '$sqlDate'";
 		$pdo->query($sql);
 	} else {
@@ -88,12 +88,12 @@ foreach ($pdo->query($sql) as $row) {
 	# Update ssd_erase_avgtime
 	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-	$linecount = $results->fetchColumn();
+	$ssdEraseLC = $results->fetchColumn();
 	$sql = "SELECT SUM(erase_time) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
 	$value = $results->fetchColumn();
-	if ($linecount > 0) {
-		$ssdEraseAvgTime = round(($value / $linecount) / 60, 0);
+	if ($ssdEraseLC > 0) {
+		$ssdEraseAvgTime = round(($value / $ssdEraseLC) / 60, 0);
 		$sql = "UPDATE serverstats SET ssd_erase_avgtime = '$ssdEraseAvgTime' WHERE date = '$sqlDate'";
 		$pdo->query($sql);
 	} else {
@@ -117,39 +117,101 @@ foreach ($pdo->query($sql) as $row) {
 	}
 
 	# Update erase_jobs
-	$sql = "SELECT COUNT(erase_completed) AS erase_jobs FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND erase_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate') AND uuid LIKE 'techComm-%'";
-	$results = $pdo->query($sql);
-	$eraseJobsLineCount = $results->fetchColumn();
-	$sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLineCount' WHERE date = '$sqlDate'";
+	$eraseJobsLC = $ssdEraseLC + $nvmeEraseLC;
+	$sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLC' WHERE date = '$sqlDate'";
 	$pdo->query($sql);
 
 	# Update clone_jobs
-	$sql = "SELECT COUNT(clone_completed) AS clone_jobs FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate') AND uuid LIKE 'techComm-%'";
-	$results = $pdo->query($sql);
-	$cloneJobsLineCount = $results->fetchColumn();
-	$sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLineCount' WHERE date = '$sqlDate'";
+	$sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLC' WHERE date = '$sqlDate'";
 	$pdo->query($sql);
 
 	# Update all_jobs
-	$allJobsLineCount = $eraseJobsLineCount + $cloneJobsLineCount;
+	$allJobsLineCount = $eraseJobsLC + $cloneJobsLC;
 	$sql = "UPDATE serverstats SET all_jobs = '$allJobsLineCount' WHERE date = '$sqlDate'";
 	$pdo->query($sql);
 
 	# Update last_image_update
-	$sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate') AND uuid LIKE 'techComm-%' ORDER BY time DESC LIMIT 1";
-	foreach($pdo->query($sql) as $row) {
-		$lastImageUpdate = $row['date'];
-		$sql = "UPDATE serverstats SET last_image_update = '$lastImageUpdate' WHERE date = '$sqlDate'";
+	$sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate') ORDER BY time DESC LIMIT 1";
+	$results = $pdo->query($sql);
+    $value = $results->fetchColumn();
+    if (filter($value) == 0) {
+		$sql = "UPDATE serverstats SET last_image_update = '$value' WHERE date = '$sqlDate'";
+		$pdo->query($sql);
+	} else {
+		$sql = "UPDATE serverstats SET last_image_update = NULL WHERE date = '$sqlDate'";
 		$pdo->query($sql);
 	}
 
-	#TBW
-	$sql = "SELECT ROUND((100-(SUM(disk_writes)/(SUM(max_tbw)/1000))), 0) AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = 'N/A' AND max_tbw IS NOT NULL";
-	foreach($pdo->query($sql) as $row) {
-		$pcntTBW = $row['tbw_pcnt'];
-		$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
-		$pdo->query($sql);
+
+	
+	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'SSDPEMKF256G8 NVMe INTEL 256GB'";
+	$results = $pdo->query($sql);
+    $linecount = $results->fetchColumn();
+	$sql = "SELECT SUM(disk_writes) FROM jobstats WHERE disk_model = 'SSDPEMKF256G8 NVMe INTEL 256GB'";
+	$results = $pdo->query($sql);
+    $value = $results->fetchColumn();
+	if ($linecount > 0) {
+		$avg1 = $value / $linecount;
+	} else {
+		$avg1 = 0;
 	}
+
+	$sql = "SELECT SUM(disk_writes) FROM jobstats WHERE disk_model = 'MTFDHBA256TCK-1AS1AABHA'";
+	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'MTFDHBA256TCK-1AS1AABHA'";
+	$sql = "SELECT SUM(disk_writes) FROM jobstats WHERE disk_model = 'LITEON CV8-8E128-11 SATA 128GB'";
+	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'LITEON CV8-8E128-11 SATA 128GB'";
+	$sql = "SELECT SUM(disk_writes) FROM jobstats WHERE disk_model = 'WDC PC SN520 SDAPNUW-256G-1006'";
+	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'WDC PC SN520 SDAPNUW-256G-1006'";
+	$sql = "SELECT SUM(disk_writes + disk_reads) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A'";
+	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A'";
+	$sql = "SELECT SUM(disk_writes + disk_reads) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050'";
+	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050'";
+
+			if ($diskModel == "SSDPEMKF256G8 NVMe INTEL 256GB") {
+				$maxTBW='72';
+				$diskType='ssd';
+			}
+			if ($diskModel == "MTFDHBA256TCK-1AS1AABHA") {
+				$maxTBW='75';
+				$diskType='ssd';
+			}
+			if ($diskModel == "LITEON CV8-8E128-11 SATA 128GB") {
+				$maxTBW='75';
+				$diskType='ssd';
+			}
+			if ($diskModel == "WDC PC SN520 SDAPNUW-256G-1006") {
+				$maxTBW='100';
+				$diskType='ssd';
+			}
+			if ($diskModel == "ST500LM034-2GH17A") {
+				$maxTBW='55';
+				$diskType='hdd';
+			}
+			#TOSHIBA MQ01ACF050 600k hours mtbf
+			if ($diskModel == "TOSHIBA MQ01ACF050") {
+				$maxTBW='100';
+				$diskType='hdd';
+			}
+			$sql = "UPDATE clientstats SET max_tbw = '$maxTBW' WHERE tagnumber = '$tagNum'";
+			$pdo->query($sql);
+		} else {
+			$diskType="unknown";
+			$sql = "UPDATE clientstats SET max_tbw = NULL WHERE tagnumber = '$tagNum'";
+			$pdo->query($sql);
+		}
+	}
+
+    #Disk type
+    if ($diskType != "unknown") {
+        $sql = "UPDATE clientstats SET disk_type = '$diskType' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET disk_type = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    }
+
+		$sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$date'";
+		$pdo->query($sql);
 
 	#Update boot_time
 	$sql = "SELECT COUNT(boot_time) FROM clientstats WHERE NOT boot_time = '0'";
