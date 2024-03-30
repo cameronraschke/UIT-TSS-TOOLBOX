@@ -52,6 +52,7 @@ foreach ($pdo->query($sql) as $row) {
     }
 
 
+
 	# Update clone_avgtime
 	$sql = "SELECT COUNT(clone_time) FROM jobstats WHERE clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
@@ -61,12 +62,13 @@ foreach ($pdo->query($sql) as $row) {
 	$value = $results->fetchColumn();
 	if ($cloneJobsLC > 0) {
 		$cloneAvgTime = round(($value / $cloneJobsLC) / 60, 0);
-		$sql = "UPDATE serverstats SET clone_avgtime = 'cloneAvgTime' WHERE date = '$sqlDate'";
+		$sql = "UPDATE serverstats SET clone_avgtime = '$cloneAvgTime' WHERE date = '$sqlDate'";
 		$pdo->query($sql);
     } else {
 		$sql = "UPDATE serverstats SET clone_avgtime = NULL WHERE date = '$sqlDate'";
 		$pdo->query($sql);
     }
+
 
 
 	# Update nvme_erase_avgtime
@@ -85,6 +87,8 @@ foreach ($pdo->query($sql) as $row) {
 		$pdo->query($sql);
 	}
 
+
+
 	# Update ssd_erase_avgtime
 	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
@@ -100,8 +104,8 @@ foreach ($pdo->query($sql) as $row) {
 		$sql = "UPDATE serverstats SET ssd_erase_avgtime = NULL WHERE date = '$sqlDate'";
 		$pdo->query($sql);
 	}
-		
-	}
+
+
 
 	# Update all_avgtime
 	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND erase_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
@@ -116,19 +120,27 @@ foreach ($pdo->query($sql) as $row) {
 		$pdo->query($sql);
 	}
 
+
+
 	# Update erase_jobs
 	$eraseJobsLC = $ssdEraseLC + $nvmeEraseLC;
 	$sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLC' WHERE date = '$sqlDate'";
 	$pdo->query($sql);
 
+
+
 	# Update clone_jobs
 	$sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLC' WHERE date = '$sqlDate'";
 	$pdo->query($sql);
+
+
 
 	# Update all_jobs
 	$allJobsLineCount = $eraseJobsLC + $cloneJobsLC;
 	$sql = "UPDATE serverstats SET all_jobs = '$allJobsLineCount' WHERE date = '$sqlDate'";
 	$pdo->query($sql);
+
+
 
 	# Update last_image_update
 	$sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate') ORDER BY time DESC LIMIT 1";
@@ -141,6 +153,7 @@ foreach ($pdo->query($sql) as $row) {
 		$sql = "UPDATE serverstats SET last_image_update = NULL WHERE date = '$sqlDate'";
 		$pdo->query($sql);
 	}
+
 
 
 	#Terabyte Written Percent Overall
@@ -171,6 +184,7 @@ foreach ($pdo->query($sql) as $row) {
 
 	if (filter($value) == 0 && count($arr) > 0) {
 		$value = array_sum($arr) / count($arr);
+		$value = $value * 100;
 		$sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
 		$pdo->query($sql);
 	} else {
@@ -187,12 +201,16 @@ foreach ($pdo->query($sql) as $row) {
 	$sql = "UPDATE serverstats SET boot_time = '$value' WHERE date = '$sqlDate'";
 	$pdo->query($sql);
 
+
+
 	#Update battery_health
 	$sql = "SELECT SUM(battery_health) / COUNT(battery_health) FROM jobstats WHERE NOT battery_health = '' AND battery_health IS NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
 	$value = $results->fetchColumn();
 	$sql = "UPDATE serverstats SET battery_health = '$value' WHERE date = '$sqlDate'";
 	$pdo->query($sql);
+
+
 
     $end = hrtime(true);
 	$executionTime = round(($end - $start) / 1e9, 4);
