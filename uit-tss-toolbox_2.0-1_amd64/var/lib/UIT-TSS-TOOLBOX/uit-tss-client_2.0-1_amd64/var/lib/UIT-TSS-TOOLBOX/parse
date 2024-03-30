@@ -65,9 +65,10 @@ if ($arr[0] == "init") {
             $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
             $pdo->query($sql);
         }
+    } else {
+        $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
-    $pdo->query($sql);
 } elseif ($arr[0] == "update") {
     $value = $arr[1];
     system("ssh cameron@mickey.uit 'echo $value | uit-sql-refresh-client'", $return);
