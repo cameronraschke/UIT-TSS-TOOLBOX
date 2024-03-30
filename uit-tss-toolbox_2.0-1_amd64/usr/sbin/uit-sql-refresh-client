@@ -37,7 +37,7 @@ foreach ($pdo->query($sql) as $row) {
         echo "Inserting laptop: " . $tagNum . PHP_EOL;
         $sql = "INSERT INTO clientstats(tagnumber,device_type,last_job_date,all_lastuuid,";
         $sql .= "all_time,all_avgtime,erase_time,erase_avgtime,clone_time,clone_avgtime,all_jobs,erase_jobs,";
-        $sql .= "clone_jobs,disk,disk_tbw,max_tbw,tbw_pcnt,system_productname,bios_date,bios_version,system_serial,";
+        $sql .= "clone_jobs,disk,disk_writes,disk_reads,max_tbw,tbw_pcnt,system_productname,bios_date,bios_version,system_serial,";
         $sql .= "motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate,battery_health,boot_time)";
         $sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
         $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
@@ -216,28 +216,48 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if (!empty($value)) {
-        if ($value == "SSDPEMKF256G8 NVMe INTEL 256GB") {
-            $sql = "UPDATE clientstats SET max_tbw = '72' WHERE tagnumber = '$tagNum'";
+        if (!empty($value)) {
+            if ($value == "SSDPEMKF256G8 NVMe INTEL 256GB") {
+                $maxTBW='72'
+                $diskType='ssd'
+            }
+            if ($value == "MTFDHBA256TCK-1AS1AABHA") {
+                $maxTBW='75'
+                $diskType='ssd'
+            }
+            if ($value == "LITEON CV8-8E128-11 SATA 128GB") {
+                $maxTBW='75'
+                $diskType='ssd'
+            }
+            if ($value == "WDC PC SN520 SDAPNUW-256G-1006") {
+                $maxTBW='100'
+                $diskType='ssd'
+            }
+            if ($value == "ST500LM034-2GH17A") {
+                $maxTBW='55'
+                $diskType='hdd'
+            }
+            #TOSHIBA MQ01ACF050 600k hours mtbf
+            if ($value == "TOSHIBA MQ01ACF050") {
+                $maxTBW='100'
+                $diskType='hdd'
+            }
+            $sql = "UPDATE clientstats SET max_tbw = '$maxTBW' WHERE tagnumber = '$tagNum'";
+            $pdo->query($sql);
+        } else {
+            $diskType="unknown";
+            $sql = "UPDATE clientstats SET max_tbw = NULL WHERE tagnumber = '$tagNum'";
             $pdo->query($sql);
         }
-        if ($value == "MTFDHBA256TCK-1AS1AABHA") {
-            $sql = "UPDATE clientstats SET max_tbw = '75' WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-        }
-        if ($value == "LITEON CV8-8E128-11 SATA 128GB") {
-            $sql = "UPDATE clientstats SET max_tbw = '75' WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-        }
-		if ($value == "WDC PC SN520 SDAPNUW-256G-1006") {
-            $sql = "UPDATE clientstats SET max_tbw = '100' WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-        }
-		if ($value == "ST500LM034-2GH17A") {
-            $sql = "UPDATE clientstats SET max_tbw = '55' WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-        }
-		#TOSHIBA MQ01ACF050 = unknown
+    }
+
+    #Disk type
+    if ($diskType != "unknown") {
+        $sql = "UPDATE clientstats SET disk_type = '$diskType' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET disk_type = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
 
     #Also TBW
@@ -245,36 +265,42 @@ foreach ($pdo->query($sql) as $row) {
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if (filter($value) == 0) {
-        $sql = "UPDATE clientstats SET disk_tbw = '$value' WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE clientstats SET disk_writes = '$value' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     } else {
-        $sql = "UPDATE clientstats SET disk_tbw = NULL WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE clientstats SET disk_writes = NULL WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     }
 
-    $sql = "SELECT disk_reads FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1";
+    #TBR (Terabytes Read)
+    $sql = "SELECT disk_reads FROM jobstats WHERE tagnumber = '$tagNum' AND disk_reads IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if (filter($value) == 0) {
-        $sql = "UPDATE clientstats SET disk_tbw = '$value' WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE clientstats SET disk_reads = '$value' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     } else {
-        $sql = "UPDATE clientstats SET disk_tbw = NULL WHERE tagnumber = '$tagNum'";
+        $sql = "UPDATE clientstats SET disk_reads = NULL WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     }
 
 
-    # TBW (cont.)
-    $sql = "SELECT ROUND(disk_tbw / max_tbw * 100, 0) as tbw_pcnt FROM clientstats WHERE max_tbw IS NOT NULL AND tagnumber = '$tagNum'";
+    # Disk Health
+    if ($diskType == "ssd") {
+        $sql = "SELECT ROUND((disk_writes / max_tbw) * 100, 0) FROM clientstats WHERE tagnumber = '$tagNum' AND max_tbw IS NOT NULL";
+    } else {
+        $sql = "SELECT ROUND((disk_writes + disk_reads) / max_tbw * 100, 0) FROM clientstats WHERE tagnumber = '$tagNum' AND max_tbw IS NOT NULL";
+    }
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if (filter($value) == 0) {
+    if (filter($value) == 0 && $value > 0) {
         $sql = "UPDATE clientstats SET tbw_pcnt = '$value' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     } else {
         $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     }
+
 
 
     #Battery Health
