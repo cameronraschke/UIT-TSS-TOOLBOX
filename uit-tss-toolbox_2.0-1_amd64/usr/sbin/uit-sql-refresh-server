@@ -143,92 +143,49 @@ foreach ($pdo->query($sql) as $row) {
 	}
 
 
+	#Terabyte Written Percent Overall
 	$arr = array();
-	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 72) FROM jobstats WHERE disk_model = 'SSDPEMKF256G8 NVMe INTEL 256GB'";
+	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 72) FROM jobstats WHERE disk_model = 'SSDPEMKF256G8 NVMe INTEL 256GB' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
     array_push($arr, $results->fetchColumn());
 
-	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 75) FROM jobstats WHERE disk_model = 'MTFDHBA256TCK-1AS1AABHA'";
+	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 75) FROM jobstats WHERE disk_model = 'MTFDHBA256TCK-1AS1AABHA' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-    $avg2 = $results->fetchColumn();
+	array_push($arr, $results->fetchColumn());
 
-	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 75) FROM jobstats WHERE disk_model = 'LITEON CV8-8E128-11 SATA 128GB'";
+	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 75) FROM jobstats WHERE disk_model = 'LITEON CV8-8E128-11 SATA 128GB' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-    $avg3 = $results->fetchColumn();
+	array_push($arr, $results->fetchColumn());
 
-	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 100) FROM jobstats WHERE disk_model = 'WDC PC SN520 SDAPNUW-256G-1006'";
+	$sql = "SELECT SUM(disk_writes) / (COUNT(tagnumber) * 100) FROM jobstats WHERE disk_model = 'WDC PC SN520 SDAPNUW-256G-1006' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-    $avg4 = $results->fetchColumn();
+	array_push($arr, $results->fetchColumn());
 
-	$sql = "SELECT SUM(disk_writes + disk_reads) / (COUNT(tagnumber) * 55) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A'";
+	$sql = "SELECT SUM(disk_writes + disk_reads) / (COUNT(tagnumber) * 55) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-    $avg5 = $results->fetchColumn();
+	array_push($arr, $results->fetchColumn());
 
-	$sql = "SELECT SUM(disk_writes + disk_reads) / (COUNT(tagnumber) * 55) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A'";
+	$sql = "SELECT SUM(disk_writes + disk_reads) / (COUNT(tagnumber) * 100) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-    $avg6 = $results->fetchColumn();
+	array_push($arr, $results->fetchColumn());
 
-
-	$sql = "SELECT SUM(disk_writes + disk_reads) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050'";
-	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050'";
-
-			if ($diskModel == "SSDPEMKF256G8 NVMe INTEL 256GB") {
-				$maxTBW='72';
-				$diskType='ssd';
-			}
-			if ($diskModel == "MTFDHBA256TCK-1AS1AABHA") {
-				$maxTBW='75';
-				$diskType='ssd';
-			}
-			if ($diskModel == "LITEON CV8-8E128-11 SATA 128GB") {
-				$maxTBW='75';
-				$diskType='ssd';
-			}
-			if ($diskModel == "WDC PC SN520 SDAPNUW-256G-1006") {
-				$maxTBW='100';
-				$diskType='ssd';
-			}
-			if ($diskModel == "ST500LM034-2GH17A") {
-				$maxTBW='55';
-				$diskType='hdd';
-			}
-			#TOSHIBA MQ01ACF050 600k hours mtbf
-			if ($diskModel == "TOSHIBA MQ01ACF050") {
-				$maxTBW='100';
-				$diskType='hdd';
-			}
-			$sql = "UPDATE clientstats SET max_tbw = '$maxTBW' WHERE tagnumber = '$tagNum'";
-			$pdo->query($sql);
-		} else {
-			$diskType="unknown";
-			$sql = "UPDATE clientstats SET max_tbw = NULL WHERE tagnumber = '$tagNum'";
-			$pdo->query($sql);
-		}
+	if (filter($value) == 0 && count($arr) > 0) {
+		$value = array_sum($arr) / count($arr);
+		$sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
+		$pdo->query($sql);
+	} else {
+		$sql = "UPDATE serverstats SET tbw_pcnt = NULL WHERE date = '$sqlDate'";
+		$pdo->query($sql);
 	}
 
-    #Disk type
-    if ($diskType != "unknown") {
-        $sql = "UPDATE clientstats SET disk_type = '$diskType' WHERE tagnumber = '$tagNum'";
-        $pdo->query($sql);
-    } else {
-        $sql = "UPDATE clientstats SET disk_type = NULL WHERE tagnumber = '$tagNum'";
-        $pdo->query($sql);
-    }
 
-		$sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$date'";
-		$pdo->query($sql);
 
 	#Update boot_time
-	$sql = "SELECT COUNT(boot_time) FROM clientstats WHERE NOT boot_time = '0'";
+	$sql = "SELECT SUM(boot_time)/COUNT(boot_time) FROM jobstats WHERE boot_time > 0 AND boot_time NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-	$lineNums = $results->fetchColumn();
-
-	$sql = "SELECT ROUND(SUM(boot_time), 2) as boot_time FROM clientstats WHERE NOT boot_time = '0'";
-	foreach($pdo->query($sql) as $row) {
-		$sumBootTime = $row['boot_time'];
-		$sql = "UPDATE serverstats SET boot_time = ROUND('$sumBootTime' / '$lineNums', 0) WHERE date = '$date'";
-		$pdo->query($sql);
-	}
+	$value = $results->fetchColumn();
+	$sql = "UPDATE serverstats SET boot_time = ROUND('$sumBootTime' / '$lineNums', 0) WHERE date = '$date'";
+	$pdo->query($sql);
 
 	#Update battery_health
 	$sql = "SELECT COUNT(battery_health) FROM clientstats WHERE NOT battery_health = ''";
