@@ -18,6 +18,14 @@ if (preg_match("/[0-9]{6}/", $line)) {
     $input = '%';
 }
 
+function filter ($string) {
+    if ($string == "" || $string == " " || $string == "NULL" || empty($string)) {
+            return 1;
+    } else {
+            return 0;
+    }
+}
+
 $sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE time > '2023-01-09 00:00:00.000' AND tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'";
 foreach ($pdo->query($sql) as $row) {
     $start = hrtime(true);
@@ -40,88 +48,111 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT disk FROM jobstats WHERE tagnumber = '$tagNum' AND disk IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET disk = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET disk = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET disk = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
 
     #Update bios_date
     $sql = "SELECT bios_date FROM jobstats WHERE tagnumber = '$tagNum' AND bios_date IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET bios_date = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET bios_date = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET bios_date = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     #Update bios_version
     $sql = "SELECT bios_version FROM jobstats WHERE tagnumber = '$tagNum' AND bios_version IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET bios_version = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET bios_version = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET bios_version = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     #Update system_productname
     $sql = "SELECT system_productname FROM jobstats WHERE tagnumber = '$tagNum' AND system_productname IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET system_productname = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET system_productname = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET system_productname = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     #Update motherboard_serial
     $sql = "SELECT motherboard_serial FROM jobstats WHERE tagnumber = '$tagNum' AND motherboard_serial IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET motherboard_serial = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET motherboard_serial = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET motherboard_serial = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     #Update system_serial
     $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET system_serial = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET system_serial = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET system_serial = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     #Update cpu_version
     $sql = "SELECT cpu_version FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_version IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET cpu_version = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET cpu_version = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET cpu_version = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     #Update cpu_cores
     $sql = "SELECT cpu_cores FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_cores IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET cpu_cores = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET cpu_cores = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET cpu_cores = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     #Update battery_manufacturedate
     $sql = "SELECT battery_manufacturedate FROM jobstats WHERE tagnumber = '$tagNum' AND battery_manufacturedate IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+
     }
     $sql = "UPDATE clientstats SET battery_manufacturedate = '$value' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
@@ -210,8 +241,8 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT disk_writes FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+
     }
     $sql = "UPDATE clientstats SET disk_tbw = '$value' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
@@ -220,8 +251,8 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT ROUND(disk_tbw / max_tbw * 100, 0) as tbw_pcnt FROM clientstats WHERE max_tbw IS NOT NULL AND tagnumber = '$tagNum'";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+
     }
     $sql = "UPDATE clientstats SET tbw_pcnt = '$value' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
@@ -230,8 +261,8 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT battery_health FROM jobstats WHERE tagnumber = '$tagNum' AND battery_health IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+
     }
     $sql = "UPDATE clientstats SET battery_health = '$value' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
@@ -268,8 +299,8 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT system_manufacturer FROM jobstats WHERE tagnumber = '$tagNum' AND system_manufacturer IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if ($value == "") {
-        $value = "NULL";
+    if (filter($value) == 0) {
+
     }
     $sql = "UPDATE clientstats SET device_type = '$value' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
