@@ -107,7 +107,7 @@ foreach ($pdo->query($sql) as $row) {
 	$sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND erase_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
 	$linecount = $results->fetchColumn();
-	$sql = "SELECT SUM(clone_time + erase_time) as all_avgtime FROM jobstats WHERE clone_completed = 'Yes' AND erase_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+	$sql = "SELECT SUM(clone_time + erase_time) FROM jobstats WHERE clone_completed = 'Yes' AND erase_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
 	$value = $results->fetchColumn();
 	if ($linecount > 0) {
