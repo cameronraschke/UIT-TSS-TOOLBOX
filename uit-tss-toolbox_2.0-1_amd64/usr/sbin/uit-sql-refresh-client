@@ -152,10 +152,13 @@ foreach ($pdo->query($sql) as $row) {
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if (filter($value) == 0) {
-
+        $sql = "UPDATE clientstats SET battery_manufacturedate = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET battery_manufacturedate = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET battery_manufacturedate = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     # Erase times
     $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
@@ -242,30 +245,39 @@ foreach ($pdo->query($sql) as $row) {
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if (filter($value) == 0) {
-
+        $sql = "UPDATE clientstats SET disk_tbw = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET disk_tbw = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET disk_tbw = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     # TBW (cont.)
     $sql = "SELECT ROUND(disk_tbw / max_tbw * 100, 0) as tbw_pcnt FROM clientstats WHERE max_tbw IS NOT NULL AND tagnumber = '$tagNum'";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if (filter($value) == 0) {
-
+        $sql = "UPDATE clientstats SET tbw_pcnt = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET tbw_pcnt = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     #Battery Health
     $sql = "SELECT battery_health FROM jobstats WHERE tagnumber = '$tagNum' AND battery_health IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if (filter($value) == 0) {
-
+        $sql = "UPDATE clientstats SET battery_health = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET battery_health = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET battery_health = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
     #Update boot_time
     $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
@@ -300,10 +312,13 @@ foreach ($pdo->query($sql) as $row) {
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if (filter($value) == 0) {
-
+        $sql = "UPDATE clientstats SET device_type = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET device_type = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
-    $sql = "UPDATE clientstats SET device_type = '$value' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
+
 
 	$end = hrtime(true);
 	$executionTime = round(($end - $start) / 1e9, 4);
