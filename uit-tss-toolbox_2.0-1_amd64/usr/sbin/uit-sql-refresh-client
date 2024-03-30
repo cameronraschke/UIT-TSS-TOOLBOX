@@ -1,6 +1,7 @@
 #!/usr/bin/php
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
+include('/var/lib/UIT-TSS-TOOLBOX/functions');
 
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
@@ -18,14 +19,6 @@ if (preg_match("/[0-9]{6}/", $line)) {
     $input = '%';
 }
 
-function filter ($string) {
-    if ($string == "" || $string == " " || $string == "NULL" || empty($string)) {
-            return 1;
-    } else {
-            return 0;
-    }
-}
-
 $sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'";
 foreach ($pdo->query($sql) as $row) {
     $start = hrtime(true);
@@ -40,7 +33,7 @@ foreach ($pdo->query($sql) as $row) {
         $sql .= "clone_jobs,disk,disk_type,disk_writes,disk_reads,max_tbw,tbw_pcnt,system_productname,bios_date,bios_version,system_serial,";
         $sql .= "motherboard_serial,cpu_version,cpu_cores,battery_manufacturedate,battery_health,boot_time)";
         $sql .= "VALUES ($tagNum,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-        $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
+        $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
         $pdo->query($sql);
     }
 
@@ -164,7 +157,7 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
 	$results = $pdo->query($sql);
 	$eraseLineCount = $results->fetchColumn();
-    $sql = "SELECT ROUND(SUM(erase_time), 2) AS erase_time FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
+    $sql = "SELECT ROUND(SUM(erase_time), 2) FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
 	$results = $pdo->query($sql);
 	$eraseTimeSum = $results->fetchColumn();
     $sql = "UPDATE clientstats SET erase_jobs = '$eraseLineCount' WHERE tagnumber = '$tagNum'";
@@ -181,7 +174,7 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
 	$results = $pdo->query($sql);
 	$cloneLineCount = $results->fetchColumn();
-    $sql = "SELECT ROUND(SUM(clone_time), 2) AS clone_time FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
+    $sql = "SELECT ROUND(SUM(clone_time), 2) FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
     $results = $pdo->query($sql);
     $cloneTimeSum = $results->fetchColumn();
     # Update total clone jobs
@@ -199,12 +192,16 @@ foreach ($pdo->query($sql) as $row) {
     # All (clone + erase) times
     $allLineCount = $cloneLineCount + $eraseLineCount;
     $allTimeSum = $cloneTimeSum + $eraseTimeSum;
-    $allAvgTime = round(($eraseTimeSum * $eraseLineCount) + ($cloneTimeSum * $cloneLineCount) / ($allLineCount), 2);
+    if ($allLineCount > 0) {
+        $allAvgTime = round(($eraseTimeSum * $eraseLineCount) + ($cloneTimeSum * $cloneLineCount) / ($allLineCount), 2);
+    } else {
+        $allLineCount = 0;
+    }
     # Update total jobs
     $sql = "UPDATE clientstats SET all_jobs = '$allLineCount' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
     #Avg Times
-    if ($allLineCount >= 1) {
+    if ($allLineCount > 0) {
         $sql = "UPDATE clientstats SET all_time = '$allTimeSum' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
         $avgTimeMin = round($allAvgTime / 60, 2);
@@ -319,7 +316,7 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
 	$results = $pdo->query($sql);
 	$lineNums = $results->fetchColumn();
-    $sql = "SELECT ROUND(SUM(boot_time), 0) as boot_time FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
+    $sql = "SELECT ROUND(SUM(boot_time), 0) FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if ($value >= 1 && $lineNums > 0) {
