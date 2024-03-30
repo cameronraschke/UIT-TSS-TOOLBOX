@@ -20,8 +20,8 @@ confirmDelete
 
 apt purge live-build -y
 wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20230502_all.deb \
-	--output-document=/opt/debian-live.deb
-apt install /opt/debian-live.deb -y
+	--output-document=/tmp/debian-live.deb
+apt install /tmp/debian-live.deb -y
 
 apt install dosfstools -y
 
@@ -343,7 +343,7 @@ EOF
 (cd /opt/UIT-TSS-TOOLBOX
 lb build)
 
-rm /opt/debian-live.deb
+rm /tmp/debian-live.deb
 
 umount /var/www/html/live
 mount /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso /var/www/html/live

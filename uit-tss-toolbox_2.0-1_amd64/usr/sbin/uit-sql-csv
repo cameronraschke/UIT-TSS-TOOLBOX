@@ -2,8 +2,9 @@
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
-$date = date('Y-m-d',time());
-$time = date('Y-m-d-His', time());
+$dt = new DateTimeImmutable();
+$date = $dt->format('Y-m-d');
+$time = $dt->format('Y-m-d-His');
 
 
 

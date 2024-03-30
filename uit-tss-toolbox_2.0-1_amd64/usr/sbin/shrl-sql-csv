@@ -2,17 +2,13 @@
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/SHRL/PDO-connect');
 
-$date = date('Y-m-d',time());
-$time = date('Y-m-d-His', time());
+$dt = new DateTimeImmutable();
+$date = $dt->format('Y-m-d');
+$time = $dt->format('Y-m-d-His');
 
 
 
 #Locations Table
-$sql = "SELECT DISTINCT tagnumber FROM locations";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
-    $arr[] = $row['tagnumber'];
-}
-
 $sql = "SELECT 'Tagnumber','Serial','Model','Dorm','Computer Number','Status','Problem','Datetime'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/shrl-report-location-".$time.".csv", 'a');
@@ -20,6 +16,10 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = null;
 }
 
+$sql = "SELECT DISTINCT tagnumber FROM locations";
+foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
+    $arr[] = $row['tagnumber'];
+}
 
 foreach ($arr as $row) {
     unset($tagNum);

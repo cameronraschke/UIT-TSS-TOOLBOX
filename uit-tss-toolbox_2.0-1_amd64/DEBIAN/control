@@ -1,9 +1,8 @@
-Package: uit-tss-toolbox
-Source: uit-tss-toolbox
+Package: uit-toolbox
 Version: 2.0-1
-Section: utils
+Section: Utilities
 Priority: optional
 Architecture: amd64
 Maintainer: Cameron Raschke <caraschke@uh.edu>
-Description: UIT-TSS-TOOLBOX.
-Pre-Depends: wget
+Description: Server software for cloning and securely erasing 
+ computers.
