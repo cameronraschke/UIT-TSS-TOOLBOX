@@ -181,23 +181,18 @@ foreach ($pdo->query($sql) as $row) {
 
 
 	#Update boot_time
-	$sql = "SELECT SUM(boot_time)/COUNT(boot_time) FROM jobstats WHERE boot_time > 0 AND boot_time NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+	$sql = "SELECT SUM(boot_time) / COUNT(boot_time) FROM jobstats WHERE boot_time > 0 AND boot_time IS NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
 	$value = $results->fetchColumn();
-	$sql = "UPDATE serverstats SET boot_time = ROUND('$sumBootTime' / '$lineNums', 0) WHERE date = '$date'";
+	$sql = "UPDATE serverstats SET boot_time = '$value' WHERE date = '$sqlDate'";
 	$pdo->query($sql);
 
 	#Update battery_health
-	$sql = "SELECT COUNT(battery_health) FROM clientstats WHERE NOT battery_health = ''";
+	$sql = "SELECT SUM(battery_health) / COUNT(battery_health) FROM jobstats WHERE NOT battery_health = '' AND battery_health IS NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
 	$results = $pdo->query($sql);
-	$lineNums = $results->fetchColumn();
-
-	$sql = "SELECT ROUND(SUM(battery_health), 2) as battery_health FROM clientstats WHERE NOT battery_health = ''";
-	foreach($pdo->query($sql) as $row) {
-		$sum = $row['battery_health'];
-		$sql = "UPDATE serverstats SET battery_health = ROUND('$sum' / '$lineNums', 0) WHERE date = '$date'";
-		$pdo->query($sql);
-	}
+	$value = $results->fetchColumn();
+	$sql = "UPDATE serverstats SET battery_health = '$value' WHERE date = '$sqlDate'";
+	$pdo->query($sql);
 
     $end = hrtime(true);
 	$executionTime = round(($end - $start) / 1e9, 4);
