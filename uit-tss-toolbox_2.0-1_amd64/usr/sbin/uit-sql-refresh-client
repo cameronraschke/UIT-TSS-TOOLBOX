@@ -199,7 +199,7 @@ foreach ($pdo->query($sql) as $row) {
     # All (clone + erase) times
     $allLineCount = $cloneLineCount + $eraseLineCount;
     $allTimeSum = $cloneTimeSum + $eraseTimeSum;
-    $allAvgTime = round(($eraseTimeSum * $eraseLineCount) + ($cloneTimeSum + $cloneLineCount) / ($eraseLineCount + $cloneLineCount), 2);
+    $allAvgTime = round(($eraseTimeSum * $eraseLineCount) + ($cloneTimeSum * $cloneLineCount) / ($allLineCount), 2);
     # Update total jobs
     $sql = "UPDATE clientstats SET all_jobs = '$allLineCount' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
