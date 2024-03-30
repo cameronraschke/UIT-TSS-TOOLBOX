@@ -121,7 +121,7 @@ foreach ($pdo->query($sql) as $row) {
 	}
 
 	#TBW
-	$sql = "SELECT ROUND((100-(SUM(disk_tbw)/(SUM(max_tbw)/1000))), 0) AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = 'N/A' AND max_tbw IS NOT NULL";
+	$sql = "SELECT ROUND((100-(SUM(disk_writes)/(SUM(max_tbw)/1000))), 0) AS tbw_pcnt FROM clientstats WHERE NOT max_tbw = 'N/A' AND max_tbw IS NOT NULL";
 	foreach($pdo->query($sql) as $row) {
 		$pcntTBW = $row['tbw_pcnt'];
 		$sql = "UPDATE serverstats SET tbw_pcnt = '$pcntTBW' WHERE date = '$date'";
