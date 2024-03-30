@@ -164,7 +164,7 @@ foreach ($pdo->query($sql) as $row) {
 
     # All (clone + erase) times
     $allLineCount = $cloneLineCount + $eraseLineCount;
-    $allTimeSum = $cloneTimeSum + $eraseTimeSum
+    $allTimeSum = $cloneTimeSum + $eraseTimeSum;
     $allAvgTime = round(($eraseTimeSum * $eraseLineCount) + ($cloneTimeSum + $cloneLineCount) / ($eraseLineCount + $cloneLineCount), 2);
     # Update total jobs
     $sql = "UPDATE clientstats SET all_jobs = '$allLineCount' WHERE tagnumber = '$tagNum'";
@@ -173,7 +173,7 @@ foreach ($pdo->query($sql) as $row) {
     if ($allLineCount >= 1) {
         $sql = "UPDATE clientstats SET all_time = '$allTimeSum' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
-        $avgTimeMin = round(($allTimeSum / $allLineCount) / 60, 2);
+        $avgTimeMin = round($allAvgTime / 60, 2);
         $sql = "UPDATE clientstats SET all_avgtime = '$avgTimeMin' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     }
