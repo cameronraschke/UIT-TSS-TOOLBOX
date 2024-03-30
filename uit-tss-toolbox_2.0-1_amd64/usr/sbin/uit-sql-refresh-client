@@ -155,11 +155,11 @@ foreach ($pdo->query($sql) as $row) {
 
     # Erase times
     $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
-	$results = $pdo->query($sql);
-	$eraseLineCount = $results->fetchColumn();
+    $results = $pdo->query($sql);
+    $eraseLineCount = $results->fetchColumn();
     $sql = "SELECT ROUND(SUM(erase_time), 2) FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'";
-	$results = $pdo->query($sql);
-	$eraseTimeSum = $results->fetchColumn();
+    $results = $pdo->query($sql);
+    $eraseTimeSum = $results->fetchColumn();
     $sql = "UPDATE clientstats SET erase_jobs = '$eraseLineCount' WHERE tagnumber = '$tagNum'";
     $pdo->query($sql);
     if ($eraseLineCount >= 1) {
@@ -172,8 +172,8 @@ foreach ($pdo->query($sql) as $row) {
 
     # Clone times
     $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
-	$results = $pdo->query($sql);
-	$cloneLineCount = $results->fetchColumn();
+    $results = $pdo->query($sql);
+    $cloneLineCount = $results->fetchColumn();
     $sql = "SELECT ROUND(SUM(clone_time), 2) FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'";
     $results = $pdo->query($sql);
     $cloneTimeSum = $results->fetchColumn();
@@ -314,8 +314,8 @@ foreach ($pdo->query($sql) as $row) {
 
     #Update boot_time
     $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
-	$results = $pdo->query($sql);
-	$lineNums = $results->fetchColumn();
+    $results = $pdo->query($sql);
+    $lineNums = $results->fetchColumn();
     $sql = "SELECT ROUND(SUM(boot_time), 0) FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
@@ -367,9 +367,9 @@ foreach ($pdo->query($sql) as $row) {
     }
 
 
-	$end = hrtime(true);
-	$executionTime = round(($end - $start) / 1e9, 4);
-	echo "Updating client $tagNum: " . $executionTime . " seconds" . PHP_EOL;
+    $end = hrtime(true);
+    $executionTime = round(($end - $start) / 1e9, 4);
+    echo "Updating client $tagNum: " . $executionTime . " seconds" . PHP_EOL;
 }
 
 $pdo = null;
