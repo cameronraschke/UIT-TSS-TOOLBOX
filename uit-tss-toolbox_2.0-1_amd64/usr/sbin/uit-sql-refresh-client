@@ -26,7 +26,7 @@ function filter ($string) {
     }
 }
 
-$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE time > '2023-01-09 00:00:00.000' AND tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'";
+$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'";
 foreach ($pdo->query($sql) as $row) {
     $start = hrtime(true);
     $tagNum = $row['tagnumber'];
@@ -252,6 +252,17 @@ foreach ($pdo->query($sql) as $row) {
         $pdo->query($sql);
     }
 
+    $sql = "SELECT disk_reads FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1";
+    $results = $pdo->query($sql);
+    $value = $results->fetchColumn();
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET disk_tbw = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET disk_tbw = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    }
+
 
     # TBW (cont.)
     $sql = "SELECT ROUND(disk_tbw / max_tbw * 100, 0) as tbw_pcnt FROM clientstats WHERE max_tbw IS NOT NULL AND tagnumber = '$tagNum'";
@@ -285,27 +296,41 @@ foreach ($pdo->query($sql) as $row) {
 	$lineNums = $results->fetchColumn();
     $sql = "SELECT ROUND(SUM(boot_time), 0) as boot_time FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL";
     $results = $pdo->query($sql);
-    $bootTime = $results->fetchColumn();
-    if ($bootTime == 0 || $lineNums == 0){
-        $bootTime = "NULL";
-    } elseif ($bootTime >= 1 || $lineNums >= 1) {
-        $bootTime = intdiv($bootTime,$lineNums);
-    }
-    $sql = "UPDATE clientstats SET boot_time = '$bootTime' WHERE tagnumber = '$tagNum'";
-    $pdo->query($sql);
-
-    # Update last_job_date and all_lastuuid
-    $sql = "SELECT uuid,date FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY date DESC LIMIT 1";
-    foreach ($pdo->query($sql) as $row) {
-        $lastDate = $row['date'];
-        $lastUUID = $row['uuid'];
-
-        $sql = "UPDATE clientstats SET last_job_date = '$lastDate' WHERE tagnumber = '$tagNum'";
+    $value = $results->fetchColumn();
+    if ($value >= 1 && $lineNums > 0) {
+        $value = intdiv($value,$lineNums);
+        $sql = "UPDATE clientstats SET boot_time = '$bootTime' WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
-
-        $sql = "UPDATE clientstats SET all_lastuuid = '$lastUUID' WHERE tagnumber = '$tagNum'";
+    } else {
+        $sql = "UPDATE clientstats SET boot_time = NULL WHERE tagnumber = '$tagNum'";
         $pdo->query($sql);
     }
+
+
+    # Update all_lastuuid
+    $sql = "SELECT uuid FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') ORDER BY time DESC LIMIT 1";
+    $results = $pdo->query($sql);
+    $value = $results->fetchColumn();
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET all_lastuuid = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET all_lastuuid = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    }
+
+    # Update last_job_date
+    $sql = "SELECT time FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') ORDER BY time DESC LIMIT 1";
+    $results = $pdo->query($sql);
+    $value = $results->fetchColumn();
+    if (filter($value) == 0) {
+        $sql = "UPDATE clientstats SET last_job_date = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE clientstats SET last_job_date = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    }
+
 
     # Device Type
     $sql = "SELECT system_manufacturer FROM jobstats WHERE tagnumber = '$tagNum' AND system_manufacturer IS NOT NULL ORDER BY time DESC LIMIT 1";
