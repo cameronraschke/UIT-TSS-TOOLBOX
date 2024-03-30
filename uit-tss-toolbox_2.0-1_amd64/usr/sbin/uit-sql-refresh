@@ -9,7 +9,8 @@ serverStart=$(date +%s.%3N)
 serverEnd=$(date +%s.%3N)
 
 clientTime=$( echo "$locationStart - $clientStart" | bc -l )
-totalTime=$( echo "$serverEnd - $clientStart" | bc -l )
+locationTime=$( echo "$serverEnd - $clientStart" | bc -l )
+serverTime
 
 totalTime=$(printf %.2f $( echo "$serverEnd - $clientStart" | bc -l ))
 
