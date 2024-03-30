@@ -24,7 +24,7 @@ foreach ($pdo->query($sql) as $row) {
       $sql = "UPDATE locations SET system_serial = '$value' WHERE tagnumber = '$tagNum'";
       $pdo->query($sql);
     } else {
-      echo "Can't find serial for $tagNum";
+      echo "Can't find serial for $tagNum" . PHP_EOL;
     }
 
     $end = hrtime(true);
