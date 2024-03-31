@@ -53,19 +53,6 @@ if ($arr[0] == "location") {
     $stmt->execute();
     $stmt = null;
 
-
-    #Update Serial Numbers
-    $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    if (filter($value) == 0) {
-        $sql = "UPDATE locations SET system_serial = '$serial' WHERE time = '$time'";
-        $pdo->query($sql);
-    } else {
-        $sql = "UPDATE locations SET system_serial = NULL WHERE time = '$time'";
-        $pdo->query($sql);
-    }
-
     # Update empty values to NULL
     if (filter($location) == 1) {
         $sql = "UPDATE locations SET location = NULL WHERE time = '$time'";

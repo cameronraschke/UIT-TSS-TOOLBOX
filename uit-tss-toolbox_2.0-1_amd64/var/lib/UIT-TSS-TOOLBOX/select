@@ -21,7 +21,7 @@ foreach ($row as $key => $value) {
     if (filter($value) == "1") {
         $value = "NULL";
     }
-    echo $value . PHP_EOL;
+    echo $value;
 }
 
 $pdo = null;
