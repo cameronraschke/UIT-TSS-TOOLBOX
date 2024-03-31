@@ -2,6 +2,7 @@
 <?php
 
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
+include('/var/lib/UIT-TSS-TOOLBOX/functions');
 
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
@@ -13,14 +14,14 @@ $sql->execute();
 $row = $sql->fetchAll(PDO::FETCH_COLUMN);
 
 if (empty($row)) {
-        $row = array( "KEY" => "NULL"  );
+    $row = array( "KEY" => "NULL"  );
 }
 
 foreach ($row as $key => $value) {
-        if ($value == "" || $value == null) {
-                $value = "NULL";
-        }
-        echo $value . PHP_EOL;
+    if (filter($value) == "1") {
+        $value = "NULL";
+    }
+    echo $value . PHP_EOL;
 }
 
 $pdo = null;
