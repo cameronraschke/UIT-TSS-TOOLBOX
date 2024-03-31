@@ -156,7 +156,7 @@ foreach ($pdo->query($sql) as $row) {
 
 
 
-    #Terabyte Written Percent Overall
+    #Terabyte Written (Disk wear) Percent Overall
     $arr = array();
     $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'SSDPEMKF256G8 NVMe INTEL 256GB' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $results = $pdo->query($sql);
@@ -182,20 +182,22 @@ foreach ($pdo->query($sql) as $row) {
     $avg4 = array_sum($arr) / (count($arr) * 100);
     $arr = array();
 
-    $sql = "SELECT SUM(disk_writes + disk_reads) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+    $sql = "SELECT SUM(disk_writes + disk_reads) / COUNT(disk_writes) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $results = $pdo->query($sql);
     array_push($arr, $results->fetchColumn());
     $avg5 = array_sum($arr) / (count($arr) * 55);
     $arr = array();
 
-    $sql = "SELECT SUM(disk_writes + disk_reads) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+    $sql = "SELECT SUM(disk_writes + disk_reads) / COUNT(disk_writes) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $results = $pdo->query($sql);
     array_push($arr, $results->fetchColumn());
     $avg6 = array_sum($arr) / (count($arr) * 100);
     $arr = array();
 
-    if (filter($value) == 0 && count($arr) > 0) {
-        $value = (($avg1 + $avg2 + $avg3 + $avg4 + $avg5 + $avg6) / 6) * 100;
+    $avg = ($avg1 + $avg2 + $avg3 + $avg4 + $avg5 + $avg6) / 6;
+
+    if (filter($avg) == 0 && $avg > 0) {
+        $value = ($avg * 100);
         $sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
         $pdo->query($sql);
     } else {
