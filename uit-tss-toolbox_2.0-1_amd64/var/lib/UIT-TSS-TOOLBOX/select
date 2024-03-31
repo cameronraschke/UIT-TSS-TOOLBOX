@@ -25,4 +25,5 @@ foreach ($row as $key => $value) {
 }
 
 $pdo = null;
+
 ?>

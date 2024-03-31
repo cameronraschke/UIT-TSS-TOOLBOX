@@ -76,4 +76,5 @@ if ($arr[0] == "location") {
 }
 
 $pdo = null;
+
 ?>

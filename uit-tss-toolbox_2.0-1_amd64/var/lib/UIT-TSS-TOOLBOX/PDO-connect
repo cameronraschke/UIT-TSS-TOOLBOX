@@ -23,5 +23,4 @@ do {
     break;
 } while ($attempts < 10);
 
-
 ?>
