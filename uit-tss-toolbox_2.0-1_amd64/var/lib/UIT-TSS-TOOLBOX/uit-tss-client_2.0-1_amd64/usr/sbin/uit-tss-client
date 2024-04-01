@@ -15,22 +15,21 @@ etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
 wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
 
 function department {
-	while IFS=$'\t' read sql; do
+	for i in $(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -BNr --execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null); do
 		if [[ -z $shrlTag ]]; then
-			shrlTag=( "$sql" )
+			shrlTag=( "$i" )
 		else
-			shrlTag+=( "$sql" )
+			shrlTag+=( "$i" )
 		fi
-	done < <(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -BNr \
-			--execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null)
+	done
 
-	while IFS=$'\t' read sql; do
+	for i in $(echo "SELECT DISTINCT tagnumber FROM locations" | /var/lib/UIT-TSS-TOOLBOX/select); do
 		if [[ -z $techCommTag ]]; then
-			techCommTag=( "$sql" )
+			techCommTag=( "$i" )
 		else
-			techCommTag+=( "$sql" )
+			techCommTag+=( "$i" )
 		fi
-	done < <(echo "SELECT DISTINCT tagnumber FROM locations" | /var/lib/UIT-TSS-TOOLBOX/select)
+	done
 }
 
 
@@ -208,11 +207,8 @@ function enterTag {
 	tput reset
 	echo ""
 
-	echo "checktag|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	while [[ ! -f /tmp/tagnumber.uit ]]; do sleep 0.1; done
-	tagNum=$(cat /tmp/tagnumber.uit 2>/dev/null)
-	if [[ $tagNum != "" ]]; then
-
+	tagNum=$(echo "SELECT tagnumber FROM jobstats WHERE system_serial = '$tOneSerialNumber' AND system_serial IS NOT NULL ORDER BY time desc LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	if [[ $tagNum != "NULL" ]]; then
 		if [[ ${shrlTag[*]} =~ $tagNum ]]; then
 			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
 		elif [[ ${techCommTag[*]} =~ $tagNum ]]; then
@@ -1580,7 +1576,7 @@ function terminate {
 	fi
 
 	echo "${terminateMessage}"
-	echo "update|${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	#echo "update|${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo ""
 	echo ""
 	read -p "${BOLD}Process has finished. Press ${GREEN}Enter${RESET}${BOLD} to shutdown...${RESET} "
