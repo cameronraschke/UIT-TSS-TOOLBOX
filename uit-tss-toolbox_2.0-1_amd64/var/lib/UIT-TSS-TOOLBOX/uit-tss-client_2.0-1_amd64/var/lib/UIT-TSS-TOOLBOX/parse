@@ -17,21 +17,9 @@ if ($arr[0] == "init") {
     $uuid = $arr[1];
     $tagNum = $arr[2];
     $macAddr = $arr[3];
-    $sql = "INSERT INTO jobstats(uuid,tagnumber,etheraddress,wifi_mac,date,time,bios_vendor,bios_version,bios_date,";
-    $sql .= "bios_revision,bios_firmware,system_manufacturer,system_productname,system_serial,system_uuid,system_sku,";
-    $sql .= "system_family,motherboard_manufacturer,motherboard_serial,chassis_manufacturer,chassis_type,chassis_serial,";
-    $sql .= "chassis_tag,chassis_psu,cpu_family,cpu_manufacturer,cpu_id,cpu_version,cpu_voltage,cpu_maxspeed,cpu_currentspeed,";
-    $sql .= "cpu_cores,cpu_threads,cpu_temp,ram_serial,battery_manufacturer,battery_name,battery_capacity,battery_voltage,battery_serial,";
-    $sql .= "battery_manufacturedate,battery_alarm,battery_health,battery_charge_cycles,boot_errors,boot_time,action,reboot,disk,";
-    $sql .= "disksizegb,disk_model,disk_serial,disk_firmware,disk_health,disk_temp,disk_reads,disk_writes,max_tbw,all_time,";
-    $sql .= "erase_completed,erase_mode,erase_time,erase_diskpercent,clone_completed,clone_mode,clone_time,clone_master,";
-    $sql .= "clone_server,clone_image,clone_imageupdate,clone_sambauser) ";
-    $sql .= "VALUES ('$uuid','$tagNum','$macAddr',DEFAULT,'$date','$time',DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
+    $wifiMac = $arr[4];
+    $sql = "INSERT INTO jobstats(uuid,tagnumber,etheraddress,wifi_mac,date,time) ";
+    $sql .= "VALUES ('$uuid','$tagNum','$macAddr','$wifiMac','$date','$time')";
     $pdo->query($sql);
 
 } elseif ($arr[0] == "disk") {
@@ -125,21 +113,8 @@ if ($arr[0] == "init") {
     }
     
     #Not the same insert statement as above, ether address is DEFAULT here.
-    $sql = "INSERT INTO jobstats(uuid,tagnumber,etheraddress,wifi_mac,date,time,bios_vendor,bios_version,bios_date,";
-    $sql .= "bios_revision,bios_firmware,system_manufacturer,system_productname,system_serial,system_uuid,system_sku,";
-    $sql .= "system_family,motherboard_manufacturer,motherboard_serial,chassis_manufacturer,chassis_type,chassis_serial,";
-    $sql .= "chassis_tag,chassis_psu,cpu_family,cpu_manufacturer,cpu_id,cpu_version,cpu_voltage,cpu_maxspeed,cpu_currentspeed,";
-    $sql .= "cpu_cores,cpu_threads,cpu_temp,ram_serial,battery_manufacturer,battery_name,battery_capacity,battery_voltage,battery_serial,";
-    $sql .= "battery_manufacturedate,battery_alarm,battery_health,battery_charge_cycles,boot_errors,boot_time,action,reboot,disk,";
-    $sql .= "disksizegb,disk_model,disk_serial,disk_firmware,disk_health,disk_temp,disk_reads,disk_writes,max_tbw,all_time,";
-    $sql .= "erase_completed,erase_mode,erase_time,erase_diskpercent,clone_completed,clone_mode,clone_time,clone_master,";
-    $sql .= "clone_server,clone_image,clone_imageupdate,clone_sambauser) ";
-    $sql .= "VALUES ('$uuid','$tagNum',DEFAULT,DEFAULT,'$date','$time',DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,";
-    $sql .= "DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)";
+    $sql = "INSERT INTO jobstats(uuid,tagnumber,date,time) ";
+    $sql .= "VALUES ('$uuid','$tagNum','$date','$time')";
     $pdo->query($sql);
 
     # INSERT statement
@@ -147,34 +122,36 @@ if ($arr[0] == "init") {
     $sql .= "VALUES (:tagnumber, :system_serial, :location, :status, :problem, :time)";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
-    $stmt->bindParam(':system_serial', $serial, PDO::PARAM_STR);
-    $stmt->bindParam(':location', $location, PDO::PARAM_STR);
-    $stmt->bindParam(':status', $status, PDO::PARAM_STR);
-    $stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
     $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-    $stmt->execute();
-    $stmt = null;
+
 
     # Update empty values to NULL
     if (filter($location) == 1) {
-        $sql = "UPDATE locations SET location = NULL WHERE time = '$time'";
-        $pdo->query($sql);
+        $stmt->bindParam(':location', $location, PDO::PARAM_NULL);
+    } else {
+        $stmt->bindParam(':location', $location, PDO::PARAM_STR);
     }
 
     if (filter($status) == 1) {
-        $sql = "UPDATE locations SET status = NULL WHERE time = '$time'";
-        $pdo->query($sql);
+        $stmt->bindParam(':status', $status, PDO::PARAM_NULL);
+    } else {
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
     }
 
     if (filter($problem) == 1) {
-        $sql = "UPDATE locations SET problem = NULL WHERE time = '$time'";
-        $pdo->query($sql);
+        $stmt->bindParam(':problem', $problem, PDO::PARAM_NULL);
+    } else {
+        $stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
     }
 
     if (filter($serial) == 1) {
-        $sql = "UPDATE locations SET system_serial = NULL WHERE time = '$time'";
-        $pdo->query($sql);
+        $stmt->bindParam(':serial', $serial, PDO::PARAM_NULL);
+    } else {
+        $stmt->bindParam(':serial', $serial, PDO::PARAM_STR);
     }
+
+    $stmt->execute();
+    $stmt = null;
 
 } elseif ($arr[0] == "cpu") {
     $key = $arr[1];

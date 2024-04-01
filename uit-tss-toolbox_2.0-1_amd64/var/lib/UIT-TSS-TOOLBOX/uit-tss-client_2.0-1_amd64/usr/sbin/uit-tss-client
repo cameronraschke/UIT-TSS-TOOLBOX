@@ -12,6 +12,7 @@ cloneElapsed="0"
 shredElapsed="0"
 
 etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do cat /sys/class/net/${i}/address; done)
+wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
 
 function department {
 	while IFS=$'\t' read sql; do
@@ -220,7 +221,7 @@ function enterTag {
 			UUID=$(cat /proc/sys/kernel/random/uuid)
 		fi
 
-		echo "init|${UUID}|${tagNum}|${etherAddr}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "init|${UUID}|${tagNum}|${etherAddr}|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "general|tagnumber|${tagNum}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
