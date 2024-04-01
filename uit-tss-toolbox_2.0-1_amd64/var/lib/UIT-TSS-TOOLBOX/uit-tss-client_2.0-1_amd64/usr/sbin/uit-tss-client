@@ -315,34 +315,33 @@ function manualClient {
 
 
 function autodetectClient {
-	echo -n "${tOneManufacturer}" > /tmp/manufacturer.uit
-	echo -n "${tThreeType}" > /tmp/chassis.uit
-	for i in $(lsblk --nodeps --noheadings -o NAME --exclude 1,2,7,11); do echo $i > /tmp/disk.uit; done
-	autodetectDisk=$(cat /tmp/disk.uit)
-
-	while [[ ! -f /tmp/manufacturer.uit || ! -f /tmp/chassis.uit || ! -f /tmp/disk.uit ]]; do
-		sleep 0.1
+	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
+		if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
+			autodetectDisk="${i}"
+		fi
 	done
 
-	if grep -i 'dell' /tmp/manufacturer.uit; then
+	if [[ $(echo "${tOneManufacturer}" | grep -i "dell") ]]; then
 		systemManufacturer="dell"
-		elif grep -i 'hp' /tmp/manufacturer.uit; then
+		elif [[ $(echo "${tOneManufacturer}" | grep -i "hp") ]]; then
+			systemManufacturer="hp"
+		elif [[ $(echo "${tOneManufacturer}" | grep -i "hewlett") ]]; then
 			systemManufacturer="hp"
 		else
 			systemManufacturer="unknown"
 	fi
 
-	if grep -i 'notebook' /tmp/chassis.uit; then
+	if [[ $(echo "${tThreeType}" | grep -i "notebook") ]]; then
 		chassisType="notebook"
-		elif grep -i 'desktop' /tmp/chassis.uit; then
+		elif [[ $(echo "${tThreeType}" | grep -i "desktop") ]]; then
 			chassisType="desktop"
 		else
 			chassisType="unknown"
 	fi
 
-	if grep -i 'nvme' /tmp/disk.uit; then
+	if [[ $(echo "${autodetectDisk}" | grep -i "nvme") ]]; then
 		diskType="nvme"
-		elif grep -i 'sd' /tmp/disk.uit; then
+		elif [[ $(echo "${autodetectDisk}" | grep -i "sd") ]]; then
 			diskType="sata"
 		else
 			diskType="unknown"
@@ -406,7 +405,7 @@ function powerWarning {
 	footer
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo "${BOLD}It is highly recommended to put the computer into hibernate mode. This takes less than 5 seconds.${RESET}"
-	echo "${BOLD}Remember to wake up the system after it hibernates.${RESET}"
+	echo "${BOLD}Remember to wake up the system after it hibernates by pushing the power button.${RESET}]"
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
 	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Hibernate (recommended)${RESET}"
@@ -414,7 +413,7 @@ function powerWarning {
 	read -n 1 -p  "${BOLD}Please enter [1-2]:${RESET} " restartBool
 	if [[ $restartBool == "1" ]]; then
 		tput reset
-		echo "general|reboot|yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|hibernate|yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo -n mem > /sys/power/state
 		tput reset
 	elif [[ $restartBool == "2" ]]; then
