@@ -13,24 +13,24 @@ shredElapsed="0"
 
 etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do cat /sys/class/net/${i}/address; done)
 
+function department {
+	while IFS=$'\t' read sql; do
+		if [[ -z $shrlTag ]]; then
+			shrlTag=( "$sql" )
+		else
+			shrlTag+=( "$sql" )
+		fi
+	done < <(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -BNr \
+			--execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null)
 
-while IFS=$'\t' read sql; do
-	if [[ -z $shrlTag ]]; then
-		shrlTag=( "$sql" )
-	else
-		shrlTag+=( "$sql" )
-	fi
-done < <(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -BNr \
-		--execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null)
-
-while IFS=$'\t' read sql; do
-	if [[ -z $techCommTag ]]; then
-		techCommTag=( "$sql" )
-	else
-		techCommTag+=( "$sql" )
-	fi
-done < <(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -BNr \
-		--execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null)
+	while IFS=$'\t' read sql; do
+		if [[ -z $techCommTag ]]; then
+			techCommTag=( "$sql" )
+		else
+			techCommTag+=( "$sql" )
+		fi
+	done < <(echo "SELECT DISTINCT tagnumber FROM locations" | /var/lib/UIT-TSS-TOOLBOX/select)
+}
 
 
 tOneSerialNumber=$(dmidecode --string system-serial-number)
@@ -233,7 +233,7 @@ function enterTag {
 		echo ""
 		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " department
 		echo "location|begin|${tagNum}|${tOneSerialNumber}|${location}|${status}|${problem}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		ssh cameron@mickey.uit "echo $tagNum | uit-sql-refresh-client 2>/dev/null"
+		department
 		enterTag
 	fi
 }
@@ -1470,16 +1470,14 @@ function location {
 	RESET=$(tput sgr0)
 
 	echo ""
-	sql=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-		--execute="SELECT system_serial FROM locations WHERE tagnumber = '${tagNum}' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+	sql=$(echo "SELECT system_serial FROM locations WHERE tagnumber = '${tagNum}' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
 	if [[ $sql == "NULL" ]]; then
 		read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
 	else
 		serial="${sql}"
 	fi
-	sql=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-		--execute="SELECT location FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+	sql=$(echo "SELECT location FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	echo "The last reported location for ${tagNum} was: ${BOLD}${sql}${RESET}"
 	read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
 	read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
@@ -1489,8 +1487,7 @@ function location {
 		problem=""
 	elif [[ $status == "2" ]]; then
 		echo ""
-		sql=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-			--execute="SELECT problem FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1;" 2>/dev/null)
+		sql=$(echo "SELECT problem FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 		echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
 		status="broken"
 		read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
@@ -1513,20 +1510,16 @@ function terminate {
 	fi
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
-	imgUpdate=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT time FROM jobstats WHERE clone_master = 'Yes' AND uuid LIKE 'techComm-%' ORDER BY time DESC LIMIT 1;")
+	imgUpdate=$(echo "SELECT time FROM jobstats WHERE clone_master = 'Yes' AND uuid LIKE 'techComm-%' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	imgUpdate=${imgUpdate::10}
 
 	location
 
-	cloneNumToday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND time > '${DATE} 00:00:00.000';" 2>/dev/null)
+	cloneNumToday=$(echo "SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
-	eraseNumToday=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'Yes' AND time > '${DATE} 00:00:00.000';" 2>/dev/null)
+	eraseNumToday=$(echo "SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'Yes' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
-	clientCloneTotal=$(mysql --user="laptops" --password="UHouston!" --database="laptopDB" --host="10.0.0.1" -s -N \
-	--execute="SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND tagnumber = '${tagNum}';" 2>/dev/null)
+	clientCloneTotal=$(echo "SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
 	jobsToday=$(( cloneNumToday + eraseNumToday ))
 
@@ -1597,6 +1590,7 @@ function terminate {
 
 function main {
 	tput reset
+	department
 	enterTag
 	tput reset
 	hardwareData

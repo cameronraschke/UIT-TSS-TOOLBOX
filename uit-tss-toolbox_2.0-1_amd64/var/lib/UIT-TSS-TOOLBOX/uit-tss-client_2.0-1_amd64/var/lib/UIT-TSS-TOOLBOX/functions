@@ -1,0 +1,12 @@
+#!/usr/bin/php
+<?php
+
+function filter ($string) {
+    if ($string == "" || $string == " " || $string == "NULL" || empty($string)) {
+            return 1;
+    } else {
+            return 0;
+    }
+}
+
+?>
