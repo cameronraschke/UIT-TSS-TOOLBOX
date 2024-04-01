@@ -167,11 +167,25 @@ if ($arr[0] == "init") {
     $key = $arr[1];
     $value = $arr[2];
     $uuid = $arr[3];
-    $sql = "UPDATE jobstats SET $key = '$value' WHERE uuid = '$uuid'";
-    $pdo->query($sql);
-} else {
-    echo "No query specified.";
-}
+
+    $sql = "UPDATE jobstats SET :key = :value WHERE uuid = :uuid";
+    $stmt = $pdo->prepare($sql);
+
+    if (filter($key) == 1) {
+        echo "No key specified.";
+        exit(1);
+    elseif (filter($uuid) == 1) {
+        echo "No UUID specified.";
+        exit(1);
+    } elseif (filter($value) == 1) {
+        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+    } elseif ($filter($key) == 0 && filter($value) == 0) {
+        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+    }
+    
+    $stmt->execute();
+    $stmt = null;
+} 
 
 $pdo = null;
 

@@ -32,34 +32,36 @@ if ($arr[0] == "location") {
     $sql .= "VALUES (:tagnumber, :system_serial, :location, :status, :problem, :time)";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
-    $stmt->bindParam(':system_serial', $serial, PDO::PARAM_STR);
-    $stmt->bindParam(':location', $location, PDO::PARAM_STR);
-    $stmt->bindParam(':status', $status, PDO::PARAM_STR);
-    $stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
     $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-    $stmt->execute();
-    $stmt = null;
+
 
     # Update empty values to NULL
     if (filter($location) == 1) {
-        $sql = "UPDATE locations SET location = NULL WHERE time = '$time'";
-        $pdo->query($sql);
+        $stmt->bindParam(':location', $location, PDO::PARAM_NULL);
+    } else {
+        $stmt->bindParam(':location', $location, PDO::PARAM_STR);
     }
 
     if (filter($status) == 1) {
-        $sql = "UPDATE locations SET status = NULL WHERE time = '$time'";
-        $pdo->query($sql);
+        $stmt->bindParam(':status', $status, PDO::PARAM_NULL);
+    } else {
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
     }
 
     if (filter($problem) == 1) {
-        $sql = "UPDATE locations SET problem = NULL WHERE time = '$time'";
-        $pdo->query($sql);
+        $stmt->bindParam(':problem', $problem, PDO::PARAM_NULL);
+    } else {
+        $stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
     }
 
     if (filter($serial) == 1) {
-        $sql = "UPDATE locations SET system_serial = NULL WHERE time = '$time'";
-        $pdo->query($sql);
+        $stmt->bindParam(':serial', $serial, PDO::PARAM_NULL);
+    } else {
+        $stmt->bindParam(':serial', $serial, PDO::PARAM_STR);
     }
+
+    $stmt->execute();
+    $stmt = null;
 }
 
 $pdo = null;
