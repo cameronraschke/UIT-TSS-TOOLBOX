@@ -27,6 +27,18 @@ foreach ($pdo->query($sql) as $row) {
       echo "Can't find serial for $tagNum" . PHP_EOL;
     }
 
+    # OS Installed
+    $sql = "SELECT clone_completed FROM jobstats WHERE tagnumber = '$tagNum' AND all_time > 1 ORDER BY time DESC LIMIT 1";
+    $results = $pdo->query($sql);
+    $value = $results->fetchColumn();
+    if (filter($value) == 0) {
+        $sql = "UPDATE locations SET os_installed = '$value' WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    } else {
+        $sql = "UPDATE locations SET os_installed = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
+    }
+
     $end = hrtime(true);
     $executionTime = round(($end - $start) / 1e9, 4);
     echo "Updating location for $tagNum ($value): " . $executionTime . " seconds" . PHP_EOL;
