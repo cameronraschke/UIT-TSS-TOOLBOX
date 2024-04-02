@@ -40,7 +40,7 @@ foreach ($pdo->query($sql) as $row) {
     /* Update laptop count. A laptop counts as a distinct tagnumber in jobstats.*/
     $sql = "SELECT COUNT(DISTINCT tagnumber) FROM jobstats WHERE (date BETWEEN '2023-01-01' AND '$sqlDate') AND uuid LIKE 'techComm-%'";
     $results = $pdo->query($sql);
-    array_push($arr, $results->fetchColumn());
+    $value = $results->fetchColumn();
     if ($value > 0) {
         $sql = "UPDATE serverstats SET laptop_count = '$value' WHERE date = '$sqlDate'";
         $pdo->query($sql);
