@@ -1503,7 +1503,9 @@ function location {
 
 function terminate {
 	tput reset
-	totaltime
+	if [[ $APPSELECT == "C" || $APPSELECT == "EC" || $APPSELECT = "E" ]]; then
+		totaltime
+	fi
 	sleep 1
 	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	if [[ $mainMenuOpt != 0 ]]; then
