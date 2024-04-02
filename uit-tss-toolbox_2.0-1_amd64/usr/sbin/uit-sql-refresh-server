@@ -164,7 +164,7 @@ foreach ($pdo->query($sql) as $row) {
     $linecount = count($arr);
     if ($linecount > 0) {
         $avg1 = $sum / ($linecount * 72);
-    { else {
+    } else {
         $avg1 = 0;
     }
     $arr = array();
