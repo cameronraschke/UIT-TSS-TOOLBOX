@@ -49,16 +49,15 @@ if ($arr[0] == "location") {
     }
 
     if (filter($problem) == 1) {
-        $problem = "empty";
         $stmt->bindParam(':problem', $problem, PDO::PARAM_NULL);
     } else {
         $stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
     }
 
     if (filter($serial) == 1) {
-        $stmt->bindParam(':serial', $serial, PDO::PARAM_NULL);
+        $stmt->bindParam(':system_serial', $serial, PDO::PARAM_NULL);
     } else {
-        $stmt->bindParam(':serial', $serial, PDO::PARAM_STR);
+        $stmt->bindParam(':system_serial', $serial, PDO::PARAM_STR);
     }
 
     $stmt->execute();
