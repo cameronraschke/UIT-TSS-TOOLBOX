@@ -46,8 +46,9 @@ if ($arr[0] == "init") {
     $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
     $stmt = $pdo->prepare($sql);
 
-    if (filter($value) == 1) {
+    if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
         $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
     } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
         $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
@@ -67,11 +68,16 @@ if ($arr[0] == "init") {
         $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
         $stmt = $pdo->prepare($sql);
     
-        if (filter($value) == 1 || $value == 0) {
+        if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
             $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
         } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
             $stmt->bindParam(':value', $value, PDO::PARAM_STR);
             $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+        } else {
+            echo "Key or UUID not specified, exiting." . PHP_EOL;
+            exit(1);
+        }
         
             $stmt->execute();
             $stmt = null;
@@ -80,11 +86,15 @@ if ($arr[0] == "init") {
         $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
         $stmt = $pdo->prepare($sql);
     
-        if (filter($value) == 1) {
+        if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
             $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
         } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
             $stmt->bindParam(':value', $value, PDO::PARAM_STR);
             $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+        } else {
+            echo "Key or UUID not specified, exiting." . PHP_EOL;
+            exit(1);
         }
         
         $stmt->execute();
@@ -182,8 +192,9 @@ if ($arr[0] == "init") {
     $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
     $stmt = $pdo->prepare($sql);
 
-    if (filter($value) == 1) {
+    if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
         $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
     } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
         $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);

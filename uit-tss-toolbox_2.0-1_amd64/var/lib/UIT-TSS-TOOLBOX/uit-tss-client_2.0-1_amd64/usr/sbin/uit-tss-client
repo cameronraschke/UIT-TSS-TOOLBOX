@@ -182,9 +182,9 @@ function hardwareData {
 	batChargeNow=$(cat /sys/class/power_supply/BAT0/charge_full)
 	batChargeFactory=$(cat /sys/class/power_supply/BAT0/charge_full_design)
 	batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
-		echo "battery|battery_health|${UUID}|${batHealthPCNT}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_health|${batHealthPCNT}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	batAlarmBool=$(cat /sys/class/power_supply/BAT0/alarm)
-		echo "battery|battery_alarm|${UUID}|${batAlarmBool}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_alarm|${batAlarmBool}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	batChargeCycles=$(cat /sys/class/power_supply/BAT0/cycle_count)
 		echo "battery|battery_charge_cycles|${UUID}|${batChargeCycles}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
@@ -1503,9 +1503,8 @@ function location {
 
 function terminate {
 	tput reset
-	#f [[ $APPSELECT == "C" || $APPSELECT == "EC" || $APPSELECT = "E" ]]; then
-		totaltime
-	#fi
+	totaltime
+
 	sleep 1
 	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	if [[ $mainMenuOpt != 0 ]]; then
