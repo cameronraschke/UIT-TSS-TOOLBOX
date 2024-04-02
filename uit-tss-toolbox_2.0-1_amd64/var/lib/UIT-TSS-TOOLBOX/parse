@@ -49,6 +49,7 @@ if ($arr[0] == "location") {
     }
 
     if (filter($problem) == 1) {
+        $problem = "empty";
         $stmt->bindParam(':problem', $problem, PDO::PARAM_NULL);
     } else {
         $stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
