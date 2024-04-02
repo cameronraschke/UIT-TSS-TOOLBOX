@@ -166,9 +166,9 @@ if ($arr[0] == "init") {
     }
 
     if (filter($serial) == 1) {
-        $stmt->bindParam(':serial', $serial, PDO::PARAM_NULL);
+        $stmt->bindParam(':system_serial', $serial, PDO::PARAM_NULL);
     } else {
-        $stmt->bindParam(':serial', $serial, PDO::PARAM_STR);
+        $stmt->bindParam(':system_serial', $serial, PDO::PARAM_STR);
     }
 
     $stmt->execute();
