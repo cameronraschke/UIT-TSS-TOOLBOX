@@ -160,42 +160,78 @@ foreach ($pdo->query($sql) as $row) {
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $avg1 = array_sum($arr) / (count($arr) * 72);
+    $sum = array_sum($arr);
+    $linecount = count($arr);
+    if ($linecount > 0) {
+        $avg1 = $sum / ($linecount * 72);
+    { else {
+        $avg1 = 0;
+    }
     $arr = array();
 
     $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'MTFDHBA256TCK-1AS1AABHA' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $avg2 = array_sum($arr) / (count($arr) * 75);
+    $sum = array_sum($arr);
+    $linecount = count($arr);
+    if ($linecount > 0) {
+        $avg2 = $sum / ($linecount * 75);
+    } else {
+        $avg2 = 0;
+    }
     $arr = array();
 
     $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'LITEON CV8-8E128-11 SATA 128GB' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $avg3 = array_sum($arr) / (count($arr) * 75);
+    $sum = array_sum($arr);
+    $linecount = count($arr);
+    if ($linecount > 0) {
+        $avg3 = $sum / ($linecount * 75);
+    } else {
+        $avg3 = 0;
+    }
     $arr = array();
 
     $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'WDC PC SN520 SDAPNUW-256G-1006' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $avg4 = array_sum($arr) / (count($arr) * 100);
+    $sum = array_sum($arr);
+    $linecount = count($arr);
+    if ($linecount > 0) {
+        $avg4 = $sum / ($linecount * 100);
+    } else {
+        $avg4 = 0;
+    }
     $arr = array();
 
     $sql = "SELECT SUM(disk_writes + disk_reads) / COUNT(disk_writes) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $avg5 = array_sum($arr) / (count($arr) * 55);
+    $sum = array_sum($arr);
+    $linecount = count($arr);
+    if ($linecount > 0) {
+        $avg5 = $sum / ($linecount * 55);
+    } else {
+        $avg5 = 0;
+    }
     $arr = array();
 
     $sql = "SELECT SUM(disk_writes + disk_reads) / COUNT(disk_writes) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $avg6 = array_sum($arr) / (count($arr) * 100);
+    $sum = array_sum($arr);
+    $linecount = count($arr);
+    if ($linecount > 0) {
+        $avg6 = $sum / ($linecount * 100);
+    } else {
+        $avg6 = 0;
+    }
     $arr = array();
 
     $avg = ($avg1 + $avg2 + $avg3 + $avg4 + $avg5 + $avg6) / 6;
