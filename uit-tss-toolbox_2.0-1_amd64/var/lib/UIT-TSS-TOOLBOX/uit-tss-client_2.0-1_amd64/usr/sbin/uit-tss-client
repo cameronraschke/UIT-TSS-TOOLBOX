@@ -37,7 +37,7 @@ tOneSerialNumber=$(dmidecode --string system-serial-number)
 
 
 DATE=$(date --iso)
-sambaPath="images"
+linuxPath="images"
 
 
 tput reset
@@ -1340,17 +1340,17 @@ function clientselect_Clone {
 function execute_Clone {
 	SECONDS=0
 	start_time=$SECONDS
-	sambaUser="cameron"
-	sambaPassword='UHouston!'
-	sambaServer="10.0.0.1"
-	sambaDNS="mickey.uit"
-	echo "general|clone_sambauser|${sambaUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	echo "general|clone_server|${sambaDNS}/${sambaServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	linuxUser="cameron"
+	linuxPassword='UHouston!'
+	linuxServer="10.0.0.1"
+	linuxDNS="mickey.uit"
+	echo "general|clone_linuxuser|${linuxUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	modprobe fuse
-	#sshfs -o allow_other,default_permissions ${sambaUser}@${sambaServer}:/home/${sambaPath} /home/partimag
-	mount -t nfs ${sambaServer}:/home/${sambaPath} /home/partimag
+	#sshfs -o allow_other,default_permissions ${linuxUser}@${linuxServer}:/home/${linuxPath} /home/partimag
+	mount -t nfs ${linuxServer}:/home/${linuxPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		tput reset
 		info
@@ -1535,7 +1535,7 @@ function terminate {
 		echo "MAC: ${etherAddr}"
 		echo "Action: ${terminateAction}"
 		echo "Total time taken: ${totalElapsed} minutes"
-		echo "Server: \"${sambaDNS}\""
+		echo "Server: \"${linuxDNS}\""
 		echo "Image: \"${cloneImgName}\""
 		echo "Total jobs today: ${jobsToday}"
 		)
@@ -1552,7 +1552,7 @@ function terminate {
 		echo "MAC: ${etherAddr}"
 		echo "Action: ${terminateAction}"
 		echo "Total time taken: ${totalElapsed} minutes"
-		echo "Server: \"${sambaDNS}\""
+		echo "Server: \"${linuxDNS}\""
 		echo "Image: \"${cloneImgName}\""
 		echo "Total jobs today: ${jobsToday}"
 		)
@@ -1604,12 +1604,12 @@ function main {
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		sambaUser="cameron"
-		sambaPassword="UHouston!"
-		sambaServer="10.0.0.1"
-		sambaDNS="mickey.uit"
-			echo "general|clone_sambauser|${sambaUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-			echo "general|clone_server|${sambaDNS}/${sambaServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		linuxUser="cameron"
+		linuxPassword="UHouston!"
+		linuxServer="10.0.0.1"
+		linuxDNS="mickey.uit"
+			echo "general|clone_linuxuser|${linuxUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "2" ]]; then
@@ -1625,12 +1625,12 @@ function main {
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		sambaUser="cameron"
-		sambaPassword="UHouston!"
-		sambaServer="10.0.0.1"
-		sambaDNS="mickey.uit"
-			echo "general|clone_sambauser|${sambaUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-			echo "general|clone_server|${sambaDNS}/${sambaServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		linuxUser="cameron"
+		linuxPassword="UHouston!"
+		linuxServer="10.0.0.1"
+		linuxDNS="mickey.uit"
+			echo "general|clone_linuxuser|${linuxUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "3" ]]; then
@@ -1646,12 +1646,12 @@ function main {
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		sambaUser="cameron"
-		sambaPassword="UHouston!"
-		sambaServer="10.0.0.1"
-		sambaDNS="mickey.uit"
-			echo "general|clone_sambauser|${sambaUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-			echo "general|clone_server|${sambaDNS}/${sambaServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		linuxUser="cameron"
+		linuxPassword="UHouston!"
+		linuxServer="10.0.0.1"
+		linuxDNS="mickey.uit"
+			echo "general|clone_linuxuser|${linuxUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "4" ]]; then
