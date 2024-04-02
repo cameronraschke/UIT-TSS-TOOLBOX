@@ -88,7 +88,7 @@ foreach ($pdo->query($sql) as $row) {
 
 
 
-    # Update ssd_erase_avgtime
+    # Update sata_erase_avgtime
     $sql = "SELECT erase_time FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
@@ -97,9 +97,9 @@ foreach ($pdo->query($sql) as $row) {
     $ssdEraseSum = array_sum($arr);
     if ($ssdEraseLC > 0) {
         $ssdEraseAvgTime = round(($ssdEraseSum / $ssdEraseLC) / 60, 0);
-        $sql = "UPDATE serverstats SET ssd_erase_avgtime = '$ssdEraseAvgTime' WHERE date = '$sqlDate'";
+        $sql = "UPDATE serverstats SET sata_erase_avgtime = '$ssdEraseAvgTime' WHERE date = '$sqlDate'";
     } else {
-        $sql = "UPDATE serverstats SET ssd_erase_avgtime = NULL WHERE date = '$sqlDate'";
+        $sql = "UPDATE serverstats SET sata_erase_avgtime = NULL WHERE date = '$sqlDate'";
     }
     $pdo->query($sql);
     $arr = array();
