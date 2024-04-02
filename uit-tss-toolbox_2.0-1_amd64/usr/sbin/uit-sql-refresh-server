@@ -40,7 +40,7 @@ foreach ($pdo->query($sql) as $row) {
     /* Update laptop count. A laptop counts as a distinct tagnumber in jobstats.*/
     $sql = "SELECT COUNT(DISTINCT tagnumber) FROM jobstats WHERE (date BETWEEN '2023-01-01' AND '$sqlDate') AND uuid LIKE 'techComm-%'";
     $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
+    array_push($arr, $results->fetchColumn());
     if ($value > 0) {
         $sql = "UPDATE serverstats SET laptop_count = '$value' WHERE date = '$sqlDate'";
         $pdo->query($sql);
@@ -53,10 +53,8 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update clone_avgtime
     $sql = "SELECT clone_time FROM jobstats WHERE clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $sth = $pdo->prepare($sql);
-    $sth->execute();
-    $results = $sth->fetchAll(PDO::FETCH_COLUMN);
-    array_push($arr, $row);
+    $results = $pdo->query($sql);
+    array_push($arr, $results->fetchColumn());
     $cloneJobsLC = count($arr);
     $sum = array_sum($arr);
     if ($cloneJobsLC > 0) {
@@ -72,10 +70,8 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update nvme_erase_avgtime
     $sql = "SELECT erase_time FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $sth = $pdo->prepare($sql);
-    $sth->execute();
-    $results = $sth->fetchAll(PDO::FETCH_COLUMN);
-    array_push($arr, $results);
+    $results = $pdo->query($sql);
+    array_push($arr, $results->fetchColumn());
     $nvmeEraseLC = count($arr);
     $nvmeEraseSum = array_sum($arr);
     if ($nvmeEraseLC > 0) {
@@ -92,10 +88,8 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update ssd_erase_avgtime
     $sql = "SELECT erase_time FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $sth = $pdo->prepare($sql);
-    $sth->execute();
-    $results = $sth->fetchAll(PDO::FETCH_COLUMN);
-    array_push($arr, $results);
+    $results = $pdo->query($sql);
+    array_push($arr, $results->fetchColumn());
     $ssdEraseLC = count($arr);
     $ssdEraseSum = array_sum($arr);
     if ($ssdEraseLC > 0) {
@@ -210,10 +204,8 @@ foreach ($pdo->query($sql) as $row) {
 
     #Update boot_time
     $sql = "SELECT boot_time FROM jobstats WHERE boot_time IS NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $sth = $pdo->prepare($sql);
-    $sth->execute();
-    $results = $sth->fetchAll(PDO::FETCH_COLUMN);
-    array_push($arr, $results);
+    $results = $pdo->query($sql);
+    array_push($arr, $results->fetchColumn());
     $value = round(array_sum($arr) / count($arr), 0);
     if ($value > 0) {
         $sql = "UPDATE serverstats SET boot_time = '$value' WHERE date = '$sqlDate'";
@@ -227,10 +219,8 @@ foreach ($pdo->query($sql) as $row) {
 
     #Update battery_health
     $sql = "SELECT battery_health FROM jobstats WHERE battery_health IS NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $sth = $pdo->prepare($sql);
-    $sth->execute();
-    $results = $sth->fetchAll(PDO::FETCH_COLUMN);
-    array_push($arr, $results);
+    $results = $pdo->query($sql);
+    array_push($arr, $results->fetchColumn());
     $value = round(array_sum($arr) / count($arr), 0);
     if ($value > 0) {
         $sql = "UPDATE serverstats SET battery_health = '$value' WHERE date = '$sqlDate'";
