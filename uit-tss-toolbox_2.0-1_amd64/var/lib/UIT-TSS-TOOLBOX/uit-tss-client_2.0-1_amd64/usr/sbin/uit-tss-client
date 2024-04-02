@@ -1552,6 +1552,7 @@ function terminate {
 		)
 
 		echo "general|clone_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|os_installed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 		if [[ $APPSELECT == "EC" ]]; then
 			echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1568,7 +1569,7 @@ function terminate {
 		echo "Total jobs today: ${jobsToday}"
 		)
 
-		echo "general|clone_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|os_installed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "general|clone_master|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
