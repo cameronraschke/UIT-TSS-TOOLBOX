@@ -5,7 +5,7 @@ if [[ "$EUID" > 0 ]]
   exit 1
 fi
 
-dpkg --purge uit-tss-toolbox
+dpkg --purge uit-toolbox
 
 rm -r /tmp/UIT-TSS-TOOLBOX/
 
