@@ -48,7 +48,7 @@ foreach ($pdo->query($sql) as $row) {
         $sql = "UPDATE serverstats SET laptop_count = NULL WHERE date = '$sqlDate'";
         $pdo->query($sql);
     }
-
+    $arr = array();
 
 
     # Update clone_avgtime
@@ -57,7 +57,6 @@ foreach ($pdo->query($sql) as $row) {
     array_push($arr, $results->fetchColumn());
     $cloneJobsLC = count($arr);
     $sum = array_sum($arr);
-    $arr = array();
     if ($cloneJobsLC > 0) {
         $cloneAvgTime = round(($sum / $cloneJobsLC) / 60, 0);
         $sql = "UPDATE serverstats SET clone_avgtime = '$cloneAvgTime' WHERE date = '$sqlDate'";
@@ -66,7 +65,7 @@ foreach ($pdo->query($sql) as $row) {
         $sql = "UPDATE serverstats SET clone_avgtime = NULL WHERE date = '$sqlDate'";
         $pdo->query($sql);
     }
-
+    $arr = array();
 
 
     # Update nvme_erase_avgtime
@@ -75,27 +74,26 @@ foreach ($pdo->query($sql) as $row) {
     array_push($arr, $results->fetchColumn());
     $nvmeEraseLC = count($arr);
     $sum = array_sum($arr);
-    $arr = array();
     if ($nvmeEraseLC > 0) {
         $nvmeEraseAvgTime = round(($sum / $nvmeEraseLC) / 60, 0);
         $sql = "UPDATE serverstats SET nvme_erase_avgtime = '$nvmeEraseAvgTime' WHERE date = '$sqlDate'";
-        $pdo->query($sql);
     } else {
         $sql = "UPDATE serverstats SET nvme_erase_avgtime = NULL WHERE date = '$sqlDate'";
-        $pdo->query($sql);
+        
     }
+    $pdo->query($sql);
+    $arr = array();
 
 
 
     # Update ssd_erase_avgtime
-    $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+    $sql = "SELECT erase_time FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $results = $pdo->query($sql);
-    $ssdEraseLC = $results->fetchColumn();
-    $sql = "SELECT SUM(erase_time) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
+    array_push($arr, $results->fetchColumn());
+    $ssdEraseLC = count($arr);
+    $sum = array_sum($arr);
     if ($ssdEraseLC > 0) {
-        $ssdEraseAvgTime = round(($value / $ssdEraseLC) / 60, 0);
+        $ssdEraseAvgTime = round(($sum / $ssdEraseLC) / 60, 0);
         $sql = "UPDATE serverstats SET ssd_erase_avgtime = '$ssdEraseAvgTime' WHERE date = '$sqlDate'";
         $pdo->query($sql);
     } else {
@@ -115,8 +113,8 @@ foreach ($pdo->query($sql) as $row) {
     if ($linecount > 0) {
         $allAvgTime = round(($value / $linecount) / 60, 0);
         $sql = "UPDATE serverstats SET all_avgtime = '$allAvgTime' WHERE date = '$sqlDate'";
-        $pdo->query($sql);
     }
+    $pdo->query($sql);
 
 
 
@@ -146,11 +144,10 @@ foreach ($pdo->query($sql) as $row) {
     $value = $results->fetchColumn();
     if (filter($value) == 0) {
         $sql = "UPDATE serverstats SET last_image_update = '$value' WHERE date = '$sqlDate'";
-        $pdo->query($sql);
     } else {
         $sql = "UPDATE serverstats SET last_image_update = NULL WHERE date = '$sqlDate'";
-        $pdo->query($sql);
     }
+    $pdo->query($sql);
 
 
 
@@ -197,11 +194,11 @@ foreach ($pdo->query($sql) as $row) {
     if (filter($avg) == 0 && $avg > 0) {
         $value = ($avg * 100);
         $sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
-        $pdo->query($sql);
     } else {
         $sql = "UPDATE serverstats SET tbw_pcnt = NULL WHERE date = '$sqlDate'";
-        $pdo->query($sql);
     }
+    $pdo->query($sql);
+    $arr = array();
 
 
 
@@ -215,8 +212,8 @@ foreach ($pdo->query($sql) as $row) {
     } else {
         $sql = "UPDATE serverstats SET boot_time = NULL WHERE date = '$sqlDate'";
     }
-    $arr = array();
     $pdo->query($sql);
+    $arr = array();
 
 
 
@@ -230,9 +227,8 @@ foreach ($pdo->query($sql) as $row) {
     } else {
         $sql = "UPDATE serverstats SET battery_health = NULL WHERE date = '$sqlDate'";
     }
-    $arr = array();
     $pdo->query($sql);
-
+    $arr = array();
 
 
     $end = hrtime(true);
