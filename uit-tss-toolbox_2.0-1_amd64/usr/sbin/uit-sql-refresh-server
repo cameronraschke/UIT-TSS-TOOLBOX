@@ -70,6 +70,8 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update nvme_erase_avgtime
     $sql = "SELECT erase_time FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+    $sth = $pdo->prepare($line);
+    $sth->execute();
     $row = $sql->fetchAll(PDO::FETCH_COLUMN);
     array_push($arr, $row);
     $nvmeEraseLC = count($arr);
