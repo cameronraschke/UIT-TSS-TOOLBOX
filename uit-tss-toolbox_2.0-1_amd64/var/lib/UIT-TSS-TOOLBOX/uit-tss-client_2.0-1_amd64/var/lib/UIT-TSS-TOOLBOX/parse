@@ -81,7 +81,6 @@ if ($arr[0] == "init") {
         
             $stmt->execute();
             $stmt = null;
-        }
     } else {
         $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
         $stmt = $pdo->prepare($sql);
