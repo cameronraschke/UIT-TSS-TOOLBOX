@@ -199,10 +199,16 @@ function hardwareData {
 	###CPU Info
 	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
 		echo "cpu|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	cpuArch=$(uname --processor)
+		echo "general|cpu_arch|${cpuArch}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###WiFi Info
 	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
 		echo "general|wifi_mac|${wifiMac}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	###Kernel Info
+	kernelVersion=$(uname --kernel-release)
+		echo "general|kernel_version|${kernelVersion}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
@@ -1349,7 +1355,6 @@ function execute_Clone {
 	linuxPassword='UHouston!'
 	linuxServer="10.0.0.1"
 	linuxDNS="mickey.uit"
-	echo "general|clone_linuxuser|${linuxUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
