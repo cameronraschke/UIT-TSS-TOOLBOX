@@ -367,7 +367,7 @@ foreach ($pdo->query($sql) as $row) {
     }
 
     # OS Installed
-    $sql = "SELECT clone_completed FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
+    $sql = "SELECT clone_completed FROM jobstats WHERE tagnumber = '$tagNum' AND all_time > 1 ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if (filter($value) == 0) {
