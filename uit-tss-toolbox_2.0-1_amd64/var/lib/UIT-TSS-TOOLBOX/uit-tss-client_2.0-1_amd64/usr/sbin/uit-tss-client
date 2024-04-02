@@ -148,7 +148,7 @@ function hardwareData {
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
 			echo "disk|disk_writes|${diskWritesLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '^Power On Hours: ' | awk '{print $4}')
-			echo "disk|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 		if [[ $DISK =~ $SSD_REGEX ]]; then
 		diskModel=$(cat /root/smartctl-data | grep '^Device Model: ' | sed 's/Device Model: *//g')
