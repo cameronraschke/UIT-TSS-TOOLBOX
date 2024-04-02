@@ -36,7 +36,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 #Server Table
 unset($arr);
 unset($row);
-$sql = "SELECT date,laptop_count,last_image_update,os_installed,all_jobs,erase_jobs,clone_jobs,clone_avgtime,";
+$sql = "SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,";
 $sql .= "nvme_erase_avgtime,sata_erase_avgtime,tbw_pcnt,battery_health,boot_time ";
 $sql .= "FROM serverstats ORDER BY date DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
@@ -62,7 +62,7 @@ foreach ($arr as $row) {
 unset($arr);
 unset($row);
 $sql = "SELECT tagnumber,system_serial,device_type,system_productname,last_job_date,";
-$sql .= "erase_avgtime,clone_avgtime,all_jobs,";
+$sql .= "os_installed,erase_avgtime,clone_avgtime,all_jobs,";
 $sql .= "battery_health,tbw_pcnt ";
 $sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
@@ -70,7 +70,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 }
 
 $sql = "SELECT 'Tag Number','Serial Number','Device Manufacturer','Device Model','Last Job Date',";
-$sql .= "'Average Erase Time (minutes)','Average Clone Time (minutes)','Total Jobs',";
+$sql .= "'os_installed','Average Erase Time (minutes)','Average Clone Time (minutes)','Total Jobs',";
 $sql .= "'Battery Max Charge in Percent','Terabytes Written Percent (TBW)'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
