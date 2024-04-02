@@ -33,9 +33,14 @@ if ($arr[0] == "init") {
     } elseif (filter($arr[4]) == 0 && $arr[4] == "sata") {
         $value = bcmul("$value", 512, 4);
         $value = bcdiv("$value", 1000000000000, 2);
-    } else {
-        $value = "";
-        echo "Disk type unknown.";
+    }
+
+    if (filter($key) == 0 && $key == "disk_type") {
+        if (filter($value) == 0 && $value == 0) {
+            $value = "ssd";
+        } elseif (filter($value) && $value == 1) {
+            $value = "hdd";
+        }
     }
     
     $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
