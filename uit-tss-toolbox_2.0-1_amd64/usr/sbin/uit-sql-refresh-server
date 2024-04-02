@@ -53,8 +53,10 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update clone_avgtime
     $sql = "SELECT clone_time FROM jobstats WHERE clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $results = $pdo->query($sql);
-    array_push($arr, $results->fetchAll());
+    $sth = $pdo->prepare($sql);
+    $sth->execute();
+    $row = $sth->fetchAll(PDO::FETCH_COLUMN);
+    array_push($arr, $row);
     $cloneJobsLC = count($arr);
     $sum = array_sum($arr);
     if ($cloneJobsLC > 0) {
@@ -70,8 +72,10 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update nvme_erase_avgtime
     $sql = "SELECT erase_time FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $results = $pdo->query($sql);
-    array_push($arr, $results->fetchAll());
+    $sth = $pdo->prepare($sql);
+    $sth->execute();
+    $row = $sth->fetchAll(PDO::FETCH_COLUMN);
+    array_push($arr, $row);
     $nvmeEraseLC = count($arr);
     $nvmeEraseSum = array_sum($arr);
     if ($nvmeEraseLC > 0) {
@@ -88,8 +92,10 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update ssd_erase_avgtime
     $sql = "SELECT erase_time FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $results = $pdo->query($sql);
-    array_push($arr, $results->fetchAll());
+    $sth = $pdo->prepare($sql);
+    $sth->execute();
+    $row = $sth->fetchAll(PDO::FETCH_COLUMN);
+    array_push($arr, $row);
     $ssdEraseLC = count($arr);
     $ssdEraseSum = array_sum($arr);
     if ($ssdEraseLC > 0) {
@@ -219,9 +225,10 @@ foreach ($pdo->query($sql) as $row) {
 
     #Update battery_health
     $sql = "SELECT battery_health FROM jobstats WHERE battery_health IS NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $results = $pdo->query($sql);
-    array_push($arr, $results->fetchAll());
-    $value = round(array_sum($arr) / count($arr), 0);
+    $sth = $pdo->prepare($sql);
+    $sth->execute();
+    $row = $sth->fetchAll(PDO::FETCH_COLUMN);
+    array_push($arr, $row);
     if ($value > 0) {
         $sql = "UPDATE serverstats SET battery_health = '$value' WHERE date = '$sqlDate'";
     } else {
