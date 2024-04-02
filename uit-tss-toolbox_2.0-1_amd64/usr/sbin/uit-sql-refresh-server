@@ -73,9 +73,9 @@ foreach ($pdo->query($sql) as $row) {
     $results = $pdo->query($sql);
     array_push($arr, $results->fetchColumn());
     $nvmeEraseLC = count($arr);
-    $sum = array_sum($arr);
+    $nvmeEraseSum = array_sum($arr);
     if ($nvmeEraseLC > 0) {
-        $nvmeEraseAvgTime = round(($sum / $nvmeEraseLC) / 60, 0);
+        $nvmeEraseAvgTime = round(($nvmeEraseSum / $nvmeEraseLC) / 60, 0);
         $sql = "UPDATE serverstats SET nvme_erase_avgtime = '$nvmeEraseAvgTime' WHERE date = '$sqlDate'";
     } else {
         $sql = "UPDATE serverstats SET nvme_erase_avgtime = NULL WHERE date = '$sqlDate'";
@@ -91,15 +91,15 @@ foreach ($pdo->query($sql) as $row) {
     $results = $pdo->query($sql);
     array_push($arr, $results->fetchColumn());
     $ssdEraseLC = count($arr);
-    $sum = array_sum($arr);
+    $ssdEraseSum = array_sum($arr);
     if ($ssdEraseLC > 0) {
-        $ssdEraseAvgTime = round(($sum / $ssdEraseLC) / 60, 0);
+        $ssdEraseAvgTime = round(($ssdEraseSum / $ssdEraseLC) / 60, 0);
         $sql = "UPDATE serverstats SET ssd_erase_avgtime = '$ssdEraseAvgTime' WHERE date = '$sqlDate'";
-        $pdo->query($sql);
     } else {
         $sql = "UPDATE serverstats SET ssd_erase_avgtime = NULL WHERE date = '$sqlDate'";
-        $pdo->query($sql);
     }
+    $pdo->query($sql);
+    $arr = array();
 
 
 
