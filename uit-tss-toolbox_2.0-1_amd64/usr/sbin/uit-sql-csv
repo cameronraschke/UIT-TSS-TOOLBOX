@@ -70,7 +70,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 }
 
 $sql = "SELECT 'Tag Number','Serial Number','Device Manufacturer','Device Model','Last Job Date',";
-$sql .= "'os_installed','Average Erase Time (minutes)','Average Clone Time (minutes)','Total Jobs',";
+$sql .= "'OS Installed','Average Erase Time (minutes)','Average Clone Time (minutes)','Total Jobs',";
 $sql .= "'Battery Max Charge in Percent','Terabytes Written Percent (TBW)'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
