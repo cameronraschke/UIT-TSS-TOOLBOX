@@ -252,8 +252,10 @@ foreach ($pdo->query($sql) as $row) {
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $value = round(array_sum($arr) / count($arr), 0);
-    if ($value > 0) {
+    $sum = array_sum($arr);
+    $linecount = count($arr);
+    $value = round($sum / $linecount, 0);
+    if ($value > 0 && $linecount > 0) {
         $sql = "UPDATE serverstats SET boot_time = '$value' WHERE date = '$sqlDate'";
     } else {
         $sql = "UPDATE serverstats SET boot_time = NULL WHERE date = '$sqlDate'";
