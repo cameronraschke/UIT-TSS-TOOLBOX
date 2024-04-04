@@ -21,21 +21,15 @@ $results = $pdo->query($sql);
 $linecount = $results->fetchColumn();
 if ($linecount == "0") {
         echo "Inserting new serverstats entry for $date." . "\n";
-        $sql = "INSERT INTO serverstats(date,time) VALUES ('$date','$time')";
+        $sql = "INSERT INTO serverstats(date) VALUES ('$date')";
         $pdo->query($sql);
 }
 
 # Select all the dates from the serverstats table and iterate through them.
-$arr = array();
 $sql = "SELECT date FROM serverstats";
 foreach ($pdo->query($sql) as $row) {
     $start = hrtime(true);
     $sqlDate = $row['date'];
-
-    /* Update time, which is a datetime stamp. This helps us see the time when the serverstats 
-    table was last updated, not just the date. */
-    $sql = "UPDATE serverstats SET time = '$time' WHERE date = '$date'";
-    $pdo->query($sql);
 
     /* Update laptop count. A laptop counts as a distinct tagnumber in jobstats.*/
     $sql = "SELECT COUNT(DISTINCT tagnumber) FROM jobstats WHERE (date BETWEEN '2023-01-01' AND '$sqlDate') AND uuid LIKE 'techComm-%'";
@@ -128,14 +122,13 @@ foreach ($pdo->query($sql) as $row) {
 
 
     # TBW
-    $arrDiskWrites = array();
     $sql = "SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats";
     foreach ($pdo->query($sql) as $row) {
         $diskTBW = $row["disk_tbw"];
         $diskTBR = $row["disk_tbr"];
         $diskModel = $row["disk_model"];
 
-        $sql = "SELECT AVG(disk_writes) / '$diskTBW' * 100 as disk_writes FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
+        $sql = "SELECT (AVG(disk_writes) / '$diskTBW' * 100) as disk_writes FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
         $sql .= "GROUP BY tagnumber) AND disk_model = '$diskModel'";
         $results = $pdo->query($sql);
         $value = $results->fetchColumn();
@@ -149,39 +142,29 @@ foreach ($pdo->query($sql) as $row) {
 
 
     #Update boot_time
-    $sql = "SELECT boot_time FROM jobstats WHERE boot_time IS NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $sth = $pdo->prepare($sql);
-    $sth->execute();
-    $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $sum = array_sum($arr);
-    $linecount = count($arr);
-    if ($sum > 0 && $linecount > 0) {
-        $value = round($sum / $linecount, 0);
+    $sql = "SELECT AVG(boot_time) FROM jobstats WHERE boot_time IS NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+    $results = $pdo->query($sql);
+    $value = $results->fetchColumn();
+    if ($value > 0 && filter($value) == 0) {
         $sql = "UPDATE serverstats SET boot_time = '$value' WHERE date = '$sqlDate'";
     } else {
         $sql = "UPDATE serverstats SET boot_time = NULL WHERE date = '$sqlDate'";
     }
     $pdo->query($sql);
-    $arr = array();
 
 
 
     #Update battery_health
-    $sql = "SELECT battery_health FROM jobstats WHERE battery_health IS NOT NULL AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $sth = $pdo->prepare($sql);
-    $sth->execute();
-    $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $sum = array_sum($arr);
-    $linecount = count($arr);
-    if ($sum > 0 && $linecount > 0) {
-        $value = round($sum / $linecount, 0);
+    $sql = "SELECT AVG(battery_health) as battery_health FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
+    $sql .= "GROUP BY tagnumber)";
+    $results = $pdo->query($sql);
+    $value = $results->fetchColumn();
+    if ($value > 0 && filter($value) == 0) {
         $sql = "UPDATE serverstats SET battery_health = '$value' WHERE date = '$sqlDate'";
     } else {
         $sql = "UPDATE serverstats SET battery_health = NULL WHERE date = '$sqlDate'";
     }
-    $pdo->query($sql);
-    $arr = array();
-
+    $results = $pdo->query($sql);
 
     $end = hrtime(true);
     $executionTime = round(($end - $start) / 1e9, 4);
