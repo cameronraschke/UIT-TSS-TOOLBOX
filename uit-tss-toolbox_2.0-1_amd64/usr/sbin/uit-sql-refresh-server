@@ -208,31 +208,21 @@ foreach ($pdo->query($sql) as $row) {
     }
     $arr = array();
 
-    $sql = "SELECT SUM(disk_writes + disk_reads) / COUNT(disk_writes) FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+    #55 TBW/R
+    $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";.
     $sth = $pdo->prepare($sql);
     $sth->execute();
-    $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $sum = array_sum($arr);
-    $linecount = count($arr);
-    if ($linecount > 0) {
-        $avg5 = $sum / ($linecount * 55);
-    } else {
-        $avg5 = 0;
-    }
-    $arr = array();
+    $diskWritesSum = array_sum($sth->fetchAll(PDO::FETCH_COLUMN));
+    echo "Disk Writes Sum".$diskWritesSum . PHP_EOL;
+    $diskReadsSum
+    $diskWritesLC
+    $diskReadsLC
+    $avg5 = $results->fetchColumn();
 
-    $sql = "SELECT SUM(disk_writes + disk_reads) / COUNT(disk_writes) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $sth = $pdo->prepare($sql);
-    $sth->execute();
-    $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
-    $sum = array_sum($arr);
-    $linecount = count($arr);
-    if ($linecount > 0) {
-        $avg6 = $sum / ($linecount * 100);
-    } else {
-        $avg6 = 0;
-    }
-    $arr = array();
+    #100 TBW/R
+    $sql = "SELECT SUM(disk_writes + disk_reads) / (COUNT(disk_writes) * 100) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+    $results = $pdo->query($sql);
+    $avg6 = $results->fetchColumn();
 
     $avg = ($avg1 + $avg2 + $avg3 + $avg4 + $avg5 + $avg6) / 6;
 
