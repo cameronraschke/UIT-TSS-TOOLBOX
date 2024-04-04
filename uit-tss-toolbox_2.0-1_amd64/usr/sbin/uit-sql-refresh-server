@@ -226,10 +226,10 @@ foreach ($pdo->query($sql) as $row) {
     $diskReadsLC = count($arr);
     echo "Disk Reads Sum ".$diskWritesSum . PHP_EOL;
     echo "Disk Reads LC ".$diskWritesSum . PHP_EOL;
-    if ($diskWritesLC > 0) {
+    if ($diskWritesLC > 0 || $diskReadsLC > 0) {
         $avg5 = (($diskWritesSum + $diskReadsSum) / (($diskWritesLC + $diskReadsLC) * 55));
     } else {
-        $diskWritesLC = 0;
+        $avg5 = 0;
     }
 
     #100 TBW/R TOSHIBA MQ01ACF050
