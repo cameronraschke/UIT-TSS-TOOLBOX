@@ -173,8 +173,11 @@ foreach ($pdo->query($sql) as $row) {
         $sql = "SELECT disk_tbw FROM static_disk_stats WHERE disk_model = '$diskModel'";
         $results = $pdo->query($sql);
         $diskWritesMax = $results->fetchColumn();
+        $value = 0;
         if ($diskType == "ssd" || $diskType == "nvme") {
-            $value = round(($diskWritesCur / $diskWritesMax) * 100, 0);
+            if ($diskReadsMax > 0 && $diskWritesMax > 0) {
+                $value = round(($diskWritesCur / $diskWritesMax) * 100, 0);
+            }
         } elseif ($diskType == "hdd") {
             #disk reads
             $sql = "SELECT disk_reads FROM jobstats WHERE tagnumber = '$tagNum' AND disk_reads IS NOT NULL ORDER BY time DESC LIMIT 1";
@@ -183,16 +186,11 @@ foreach ($pdo->query($sql) as $row) {
             $sql = "SELECT disk_tbr FROM static_disk_stats WHERE disk_model = '$diskModel'";
             $results = $pdo->query($sql);
             $diskReadsMax = $results->fetchColumn();
-        
+            $value = 0;
             if ($diskReadsMax > 0 && $diskWritesMax > 0) {
                 $value = round(((($diskReadsCur / $diskReadsMax) * 100 ) + ((($diskWritesCur / $diskWritesMax) * 100)) / 2), 0);
-            } else {
-                $value = 0;
             }
-        } else {
-            $value = 0;
         }
-
         if ($value > 0) {
             $sql = "UPDATE clientstats SET tbw_pcnt = '$value' WHERE tagnumber = '$tagNum'";
             $pdo->query($sql);
