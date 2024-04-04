@@ -90,16 +90,23 @@ foreach ($pdo->query($sql) as $row) {
     $sql = "SELECT COUNT(erase_completed) FROM jobstats WHERE erase_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $results = $pdo->query($sql);
     $eraseJobsLC = $results->fetchColumn();
-    $sql = "UPDATE serverstats SET erase_jobs = '$value' WHERE date = '$sqlDate'";
+    if ($eraseJobsLC > 0) {
+        $sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLC' WHERE date = '$sqlDate'";
+    } else {
+        $eraseJobsLC = 0;
+    }
     $pdo->query($sql);
 
 
     # Update clone_jobs
     $sql = "SELECT COUNT(clone_completed) FROM jobstats WHERE clone_completed = 'Yes' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    $cloneJobsLC = "UPDATE serverstats SET clone_jobs = '$value' WHERE date = '$sqlDate'";
-    $pdo->query($sql);
+    $cloneJobsLC = $results->fetchColumn();
+    if ($cloneJobsLC > 0) {
+        $sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLC' WHERE date = '$sqlDate'";
+    } else {
+        $cloneJobsLC = 0;
+    }
 
 
     # Update all_jobs
@@ -119,7 +126,7 @@ foreach ($pdo->query($sql) as $row) {
     }
     $pdo->query($sql);
 
-    
+
     #72 TBW SSDPEMKF256G8 NVMe INTEL 256GB
     $arrDiskWrites = array();
     $sql = "SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats";
