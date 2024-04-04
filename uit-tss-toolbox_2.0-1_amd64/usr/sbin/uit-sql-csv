@@ -64,7 +64,7 @@ unset($arr);
 unset($row);
 $sql = "SELECT tagnumber,system_serial,device_type,system_productname,last_job_date,";
 $sql .= "os_installed,CONCAT(battery_health, '%'),CONCAT(tbw_pcnt, '%'),";
-$sql .- "CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all_jobs) ";
+$sql .- "CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all_jobs ";
 $sql .= "FROM clientstats ORDER BY 'last_job_date' DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row;
