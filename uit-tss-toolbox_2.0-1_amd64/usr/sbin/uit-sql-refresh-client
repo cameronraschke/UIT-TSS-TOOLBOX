@@ -217,7 +217,7 @@ foreach ($pdo->query($sql) as $row) {
             $sql .= "AND disk_model IS NOT NULL ORDER BY time LIMIT 1)";
             $results = $pdo->query($sql);
             $diskReadsMax = $results->fetchColumn();
-            $value = round(((($diskReadsCur / $diskReadsMax) + ($diskWritesCur / $diskReadsMax)) / 2) * 100, 0);
+            $value = round((($diskReadsCur / $diskReadsMax) + ($diskWritesCur / $diskReadsMax)) * 100, 0);
         } else {
             $value = 0;
             $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
