@@ -226,7 +226,11 @@ foreach ($pdo->query($sql) as $row) {
     $diskReadsLC = count($arr);
     echo "Disk Reads Sum ".$diskWritesSum . PHP_EOL;
     echo "Disk Reads LC ".$diskWritesSum . PHP_EOL;
-    $avg5 = (($diskWritesSum + $diskReadsSum) / (($diskWritesLC + $diskReadsLC) * 55));
+    if ($diskWritesLC > 0) {
+        $avg5 = (($diskWritesSum + $diskReadsSum) / (($diskWritesLC + $diskReadsLC) * 55));
+    } else {
+        $diskWritesLC = 0;
+    }
 
     #100 TBW/R TOSHIBA MQ01ACF050
     $sql = "SELECT SUM(disk_writes + disk_reads) / (COUNT(disk_writes) * 100) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
