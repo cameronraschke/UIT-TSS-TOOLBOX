@@ -127,12 +127,10 @@ foreach ($pdo->query($sql) as $row) {
     $pdo->query($sql);
 
 
-    #72 TBW SSDPEMKF256G8 NVMe INTEL 256GB
+    # TBW
     $arrDiskWrites = array();
     $sql = "SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    foreach ($value as $row) {
+    foreach ($pdo->query($sql) as $row) {
         $diskTBW = $row["disk_tbw"];
         $diskTBR = $row["disk_tbr"];
         $diskModel = $row["disk_model"];
