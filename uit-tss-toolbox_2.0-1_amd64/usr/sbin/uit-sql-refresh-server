@@ -217,15 +217,15 @@ foreach ($pdo->query($sql) as $row) {
     $diskWritesLC = count($arr);
     $arr = array();
     echo "Disk Writes Sum ".$diskWritesSum . PHP_EOL;
-    echo "Disk Writes LC ".$diskWritesSum . PHP_EOL;
+    echo "Disk Writes LC ".$diskWritesLC . PHP_EOL;
     $sql = "SELECT disk_reads FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
     $diskReadsSum = array_sum($arr);
     $diskReadsLC = count($arr);
-    echo "Disk Reads Sum ".$diskWritesSum . PHP_EOL;
-    echo "Disk Reads LC ".$diskWritesSum . PHP_EOL;
+    echo "Disk Reads Sum ".$diskReadsSum . PHP_EOL;
+    echo "Disk Reads LC ".$diskReadsLC . PHP_EOL;
     if ($diskWritesLC > 0 || $diskReadsLC > 0) {
         $avg5 = (($diskWritesSum + $diskReadsSum) / (($diskWritesLC + $diskReadsLC) * 55));
     } else {
