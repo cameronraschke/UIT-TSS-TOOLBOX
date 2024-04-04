@@ -135,11 +135,11 @@ foreach ($pdo->query($sql) as $row) {
         $diskTBR = $row["disk_tbr"];
         $diskModel = $row["disk_model"];
 
-        $sql = "SELECT AVG(disk_writes) / $diskTBW as disk_writes FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats GROUP BY tagnumber) ";
+        $sql = "SELECT AVG(disk_writes) / '$diskTBW' as disk_writes FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats GROUP BY tagnumber) ";
         $sql .= "AND disk_model = '$diskModel' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
         $results = $pdo->query($sql);
         $value = $results->fetchColumn();
-        $sql = "UPDATE jobstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
+        $sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
         $results = $pdo->query($sql);
     }
 
