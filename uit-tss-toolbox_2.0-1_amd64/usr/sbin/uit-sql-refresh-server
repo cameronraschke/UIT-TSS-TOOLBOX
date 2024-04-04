@@ -245,9 +245,9 @@ foreach ($pdo->query($sql) as $row) {
     $diskReadsLC = count($arr);
     $arr = array();
     if ($diskWritesLC > 0 || $diskReadsLC > 0) {
-        $avg5 = (($diskWritesSum + $diskReadsSum) / (($diskWritesLC + $diskReadsLC) * 55));
+        $avg6 = (($diskWritesSum + $diskReadsSum) / (($diskWritesLC + $diskReadsLC) * 100));
     } else {
-        $avg5 = 0;
+        $avg6 = 0;
     }
 
     $avg = ($avg1 + $avg2 + $avg3 + $avg4 + $avg5 + $avg6) / 6;
