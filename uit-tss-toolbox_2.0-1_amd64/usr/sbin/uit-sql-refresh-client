@@ -159,30 +159,23 @@ foreach ($pdo->query($sql) as $row) {
     $pdo->query($sql);
 
     # Disk Health
-    $sql = "SELECT disk_type FROM static_disk_stats WHERE disk_model = (SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' ";
-    $sql .= "AND disk_model IS NOT NULL ORDER BY time LIMIT 1)";
+    $sql = "SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL ORDER BY time LIMIT 1";
+    $results = $pdo->query($sql);
+    $diskModel = $results->fetchColumn();
+    $sql = "SELECT disk_type FROM static_disk_stats WHERE disk_model = '$diskModel'";
     $results = $pdo->query($sql);
     $diskType = $results->fetchColumn();
-    if (filter($diskType) == 0) {
+    if (filter($diskType) == 0 && filter($diskModel) == 0) {
+        #disk writes
+        $sql = "SELECT disk_writes FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1";
+        $results = $pdo->query($sql);
+        $diskWritesCur = $results->fetchColumn();
+        $sql = "SELECT disk_tbw FROM static_disk_stats WHERE disk_model = '$diskModel'";
+        $results = $pdo->query($sql);
+        $diskWritesMax = $results->fetchColumn();
         if ($diskType == "ssd" || $diskType == "nvme") {
-            #disk writes
-            $sql = "SELECT disk_writes FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1";
-            $results = $pdo->query($sql);
-            $diskWritesCur = $results->fetchColumn();
-            $sql = "SELECT disk_tbw FROM static_disk_stats WHERE disk_model = (SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' ";
-            $sql .= "AND disk_model IS NOT NULL ORDER BY time LIMIT 1)";
-            $results = $pdo->query($sql);
-            $diskWritesMax = $results->fetchColumn();
             $value = round(($diskWritesCur / $diskWritesMax) * 100, 0);
         } elseif ($diskType == "hdd") {
-            #disk writes
-            $sql = "SELECT disk_writes FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1";
-            $results = $pdo->query($sql);
-            $diskWritesCur = $results->fetchColumn();
-            $sql = "SELECT disk_tbw FROM static_disk_stats WHERE disk_model = (SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' ";
-            $sql .= "AND disk_model IS NOT NULL ORDER BY time LIMIT 1)";
-            $results = $pdo->query($sql);
-            $diskWritesMax = $results->fetchColumn();
             #disk reads
             $sql = "SELECT disk_reads FROM jobstats WHERE tagnumber = '$tagNum' AND disk_reads IS NOT NULL ORDER BY time DESC LIMIT 1";
             $results = $pdo->query($sql);
@@ -191,7 +184,7 @@ foreach ($pdo->query($sql) as $row) {
             $sql .= "AND disk_model IS NOT NULL ORDER BY time LIMIT 1)";
             $results = $pdo->query($sql);
             $diskReadsMax = $results->fetchColumn();
-            $value = round(((($diskReadsCur / $diskReadsMax) + ($diskWritesCur / $diskWritesMax)) / 2) * 100, 0);
+            $value = round((($diskReadsCur / $diskReadsMax) *100 ) + (($diskWritesCur / $diskWritesMax) * 100), 0);
         } else {
             $value = 0;
             $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
@@ -205,6 +198,9 @@ foreach ($pdo->query($sql) as $row) {
             $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
             $pdo->query($sql);
         }
+    } else {
+        $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
+        $pdo->query($sql);
     }
 
 
