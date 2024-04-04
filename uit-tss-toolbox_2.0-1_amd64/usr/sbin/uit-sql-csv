@@ -24,7 +24,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = null;
 }
 
-$sql = "SELECT * FROM jobstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' AND uuid LIKE 'techComm-%' ORDER BY date DESC";
+$sql = "SELECT * FROM jobstats WHERE uuid LIKE 'techComm-%' ORDER BY date DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
     $file->fputcsv($row);
@@ -36,14 +36,15 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 #Server Table
 unset($arr);
 unset($row);
-$sql = "SELECT date,laptop_count,last_image_update,all_jobs,erase_jobs,clone_jobs,clone_avgtime,";
-$sql .= "nvme_erase_avgtime,sata_erase_avgtime,tbw_pcnt,battery_health,boot_time ";
+$sql = "SELECT date,laptop_count,CONCAT(tbw_pcnt, '%'),CONCAT(battery_health, '%'),all_jobs,clone_jobs,erase_jobs,";
+$sql .= "CONCAT(clone_avgtime, ' minutes'),CONCAT(nvme_erase_avgtime, ' minutes'),CONCAT(sata_erase_avgtime, ' minutes',last_image_update) ";
 $sql .= "FROM serverstats ORDER BY date DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row;
 }
 
-$sql = "SELECT 'Date','Computer Count','Last Image Update','OS Installed','Total Erase and/or Clone Jobs','Erase Jobs','Clone Jobs','Clone Avg. Time (minutes)','NVME Avg. Erase Time (minutes)','SATA Avg. Erase Time (minutes)','Average Disk Wear Percent','Average Battery Max Charge Level Percent','Average Boot Time (seconds)'";
+$sql = "SELECT 'Date','Computer Count','Disk Wear','Battery Max Charge Level','Total Erase and Clone Jobs','Clone Jobs','Erase Jobs',";
+$sql .= "'Clone Time','NVME Erase Time','SATA Erase Time','Last Image Update'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'a');
     $file->fputcsv($row);
@@ -62,16 +63,16 @@ foreach ($arr as $row) {
 unset($arr);
 unset($row);
 $sql = "SELECT tagnumber,system_serial,device_type,system_productname,last_job_date,";
-$sql .= "os_installed,erase_avgtime,clone_avgtime,all_jobs,";
-$sql .= "battery_health,tbw_pcnt ";
-$sql .= "FROM clientstats WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ORDER BY 'last_job_date' DESC";
+$sql .= "os_installed,CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all_jobs,";
+$sql .= "CONCAT(battery_health, '%'),CONCAT(tbw_pcnt, '%') ";
+$sql .= "FROM clientstats ORDER BY 'last_job_date' DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row;
 }
 
 $sql = "SELECT 'Tag Number','Serial Number','Device Manufacturer','Device Model','Last Job Date',";
-$sql .= "'OS Installed','Average Erase Time (minutes)','Average Clone Time (minutes)','Total Jobs',";
-$sql .= "'Battery Max Charge in Percent','Terabytes Written Percent (TBW)'";
+$sql .= "'OS Installed','Erase Time','Clone Time','Total Jobs',";
+$sql .= "'Battery Max Charge','Terabytes Written (TBW)'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
     $file->fputcsv($row);
@@ -90,12 +91,12 @@ foreach ($arr as $row) {
 #Locations Table
 unset($arr);
 unset($row);
-$sql = "SELECT DISTINCT tagnumber FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111'";
+$sql = "SELECT DISTINCT tagnumber FROM locations";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row['tagnumber'];
 }
 
-$sql = "SELECT 'Tagnumber', 'Serial Number', 'Current Location', 'Status', 'Description of Problem', 'Datetime of Most Recent Update'";
+$sql = "SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Update'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
     $file->fputcsv($row);
@@ -107,9 +108,8 @@ foreach ($arr as $row) {
     unset($tagNum);
     $tagNum = $row;
     $sql = "SELECT tagnumber,system_serial,location,status,problem,time ";
-    $sql .= "FROM locations WHERE NOT tagnumber = '000000' AND NOT tagnumber = '111111' ";
-    #$sql .= "AND tagnumber = '$tagNum' AND (time > '2023-09-01 00:00:00') ORDER BY time DESC LIMIT 1";
-    $sql .= "AND tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
+    $sql .= "FROM locations ";
+    $sql .= "WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
     foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
         $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
         $file->fputcsv($row);
