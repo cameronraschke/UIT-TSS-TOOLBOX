@@ -209,7 +209,7 @@ foreach ($pdo->query($sql) as $row) {
     $arr = array();
 
     #55 TBW/R ST500LM034-2GH17A
-    $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";.
+    $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
@@ -218,7 +218,7 @@ foreach ($pdo->query($sql) as $row) {
     $arr = array();
     echo "Disk Writes Sum ".$diskWritesSum . PHP_EOL;
     echo "Disk Writes LC ".$diskWritesSum . PHP_EOL;
-    $sql = "SELECT disk_reads FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";.
+    $sql = "SELECT disk_reads FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
