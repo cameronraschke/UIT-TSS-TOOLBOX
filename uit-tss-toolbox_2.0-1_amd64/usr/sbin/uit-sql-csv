@@ -37,7 +37,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 unset($arr);
 unset($row);
 $sql = "SELECT date,laptop_count,CONCAT(tbw_pcnt, '%'),CONCAT(battery_health, '%'),all_jobs,clone_jobs,erase_jobs,";
-$sql .= "CONCAT(clone_avgtime, ' minutes'),CONCAT(nvme_erase_avgtime, ' minutes'),CONCAT(sata_erase_avgtime, ' minutes',last_image_update) ";
+$sql .= "CONCAT(clone_avgtime, ' minutes'),CONCAT(nvme_erase_avgtime, ' minutes'),CONCAT(sata_erase_avgtime, ' minutes'),last_image_update ";
 $sql .= "FROM serverstats ORDER BY date DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row;
