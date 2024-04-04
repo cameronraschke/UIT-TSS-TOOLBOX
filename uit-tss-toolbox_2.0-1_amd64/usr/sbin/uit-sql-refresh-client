@@ -183,11 +183,14 @@ foreach ($pdo->query($sql) as $row) {
             $sql = "SELECT disk_tbr FROM static_disk_stats WHERE disk_model = '$diskModel'";
             $results = $pdo->query($sql);
             $diskReadsMax = $results->fetchColumn();
-            $value = round(((($diskReadsCur / $diskReadsMax) * 100 ) + ((($diskWritesCur / $diskWritesMax) * 100)) / 2), 0);
+        
+            if ($diskReadsMax > 0 && $diskWritesMax > 0) {
+                $value = round(((($diskReadsCur / $diskReadsMax) * 100 ) + ((($diskWritesCur / $diskWritesMax) * 100)) / 2), 0);
+            } else {
+                $value = 0;
+            }
         } else {
             $value = 0;
-            $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
         }
 
         if ($value > 0) {
