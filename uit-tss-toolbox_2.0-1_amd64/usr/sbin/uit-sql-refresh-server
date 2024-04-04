@@ -216,16 +216,13 @@ foreach ($pdo->query($sql) as $row) {
     $diskWritesSum = array_sum($arr);
     $diskWritesLC = count($arr);
     $arr = array();
-    echo "Disk Writes Sum ".$diskWritesSum . PHP_EOL;
-    echo "Disk Writes LC ".$diskWritesLC . PHP_EOL;
     $sql = "SELECT disk_reads FROM jobstats WHERE disk_model = 'ST500LM034-2GH17A' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
     $diskReadsSum = array_sum($arr);
     $diskReadsLC = count($arr);
-    echo "Disk Reads Sum ".$diskReadsSum . PHP_EOL;
-    echo "Disk Reads LC ".$diskReadsLC . PHP_EOL;
+    $arr = array();
     if ($diskWritesLC > 0 || $diskReadsLC > 0) {
         $avg5 = (($diskWritesSum + $diskReadsSum) / (($diskWritesLC + $diskReadsLC) * 55));
     } else {
@@ -233,9 +230,25 @@ foreach ($pdo->query($sql) as $row) {
     }
 
     #100 TBW/R TOSHIBA MQ01ACF050
-    $sql = "SELECT SUM(disk_writes + disk_reads) / (COUNT(disk_writes) * 100) FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
-    $results = $pdo->query($sql);
-    $avg6 = $results->fetchColumn();
+    $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+    $sth = $pdo->prepare($sql);
+    $sth->execute();
+    $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
+    $diskWritesSum = array_sum($arr);
+    $diskWritesLC = count($arr);
+    $arr = array();
+    $sql = "SELECT disk_reads FROM jobstats WHERE disk_model = 'TOSHIBA MQ01ACF050' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+    $sth = $pdo->prepare($sql);
+    $sth->execute();
+    $arr = $sth->fetchAll(PDO::FETCH_COLUMN);
+    $diskReadsSum = array_sum($arr);
+    $diskReadsLC = count($arr);
+    $arr = array();
+    if ($diskWritesLC > 0 || $diskReadsLC > 0) {
+        $avg5 = (($diskWritesSum + $diskReadsSum) / (($diskWritesLC + $diskReadsLC) * 55));
+    } else {
+        $avg5 = 0;
+    }
 
     $avg = ($avg1 + $avg2 + $avg3 + $avg4 + $avg5 + $avg6) / 6;
 
