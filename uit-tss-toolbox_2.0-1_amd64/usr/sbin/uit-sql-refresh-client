@@ -205,7 +205,7 @@ foreach ($pdo->query($sql) as $row) {
 
 
     #Disk type
-    if (filter($diskType) == 0 && $diskType != "unknown") {
+    if (filter($diskType) == 0) {
         $sql = "UPDATE clientstats SET disk_type = '$diskType' WHERE tagnumber = '$tagNum'";
     } else {
         $sql = "UPDATE clientstats SET disk_type = NULL WHERE tagnumber = '$tagNum'";
