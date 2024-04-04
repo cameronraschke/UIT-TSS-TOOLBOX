@@ -135,8 +135,8 @@ foreach ($pdo->query($sql) as $row) {
         $diskTBR = $row["disk_tbr"];
         $diskModel = $row["disk_model"];
 
-        $sql = "SELECT AVG(disk_writes) / '$diskTBW' * 100 as disk_writes FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats GROUP BY tagnumber) ";
-        $sql .= "AND disk_model = '$diskModel' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
+        $sql = "SELECT AVG(disk_writes) / '$diskTBW' * 100 as disk_writes FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
+        $sql .= "GROUP BY tagnumber) AND disk_model = '$diskModel'";
         $results = $pdo->query($sql);
         $value = $results->fetchColumn();
         if ($value > 0 && filter($value) == 0) {
