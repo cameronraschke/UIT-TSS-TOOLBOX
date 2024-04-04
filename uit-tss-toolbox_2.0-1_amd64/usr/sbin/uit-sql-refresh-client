@@ -180,11 +180,10 @@ foreach ($pdo->query($sql) as $row) {
             $sql = "SELECT disk_reads FROM jobstats WHERE tagnumber = '$tagNum' AND disk_reads IS NOT NULL ORDER BY time DESC LIMIT 1";
             $results = $pdo->query($sql);
             $diskReadsCur = $results->fetchColumn();
-            $sql = "SELECT disk_tbr FROM static_disk_stats WHERE disk_model = (SELECT disk_model FROM jobstats WHERE tagnumber = '$tagNum' ";
-            $sql .= "AND disk_model IS NOT NULL ORDER BY time LIMIT 1)";
+            $sql = "SELECT disk_tbr FROM static_disk_stats WHERE disk_model = '$diskModel'";
             $results = $pdo->query($sql);
             $diskReadsMax = $results->fetchColumn();
-            $value = round((($diskReadsCur / $diskReadsMax) *100 ) + (($diskWritesCur / $diskWritesMax) * 100), 0);
+            $value = round(((($diskReadsCur / $diskReadsMax) * 100 ) + ((($diskWritesCur / $diskWritesMax) * 100)) / 2), 0);
         } else {
             $value = 0;
             $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
