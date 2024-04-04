@@ -200,7 +200,6 @@ foreach ($pdo->query($sql) as $row) {
             $results = $pdo->query($sql);
             $diskWritesMax = $results->fetchColumn();
             $value = round(($diskWritesCur / $diskWritesMax) * 100, 0);
-            $sql = "UPDATE clientstats SET tbw_pcnt = '$value' WHERE tagnumber = '$tagNum'";
         } elseif ($diskType == "hdd") {
             #disk writes
             $sql = "SELECT disk_writes FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1";
@@ -219,7 +218,15 @@ foreach ($pdo->query($sql) as $row) {
             $results = $pdo->query($sql);
             $diskReadsMax = $results->fetchColumn();
             $value = round(((($diskReadsCur / $diskReadsMax) + ($diskWritesCur / $diskReadsMax)) / 2) * 100, 0);
+        } else {
+            $value = 0;
+            $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
+            $pdo->query($sql);
+        }
+
+        if ($value > 0) {
             $sql = "UPDATE clientstats SET tbw_pcnt = '$value' WHERE tagnumber = '$tagNum'";
+            $pdo->query($sql);
         } else {
             $sql = "UPDATE clientstats SET tbw_pcnt = NULL WHERE tagnumber = '$tagNum'";
             $pdo->query($sql);
