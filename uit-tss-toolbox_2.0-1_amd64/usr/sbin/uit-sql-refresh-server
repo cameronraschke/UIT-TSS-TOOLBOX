@@ -156,6 +156,8 @@ foreach ($pdo->query($sql) as $row) {
 
     #Terabyte Written (Disk wear) Percent Overall
     $arr = array();
+
+    #72 TBW SSDPEMKF256G8 NVMe INTEL 256GB
     $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'SSDPEMKF256G8 NVMe INTEL 256GB' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
@@ -169,6 +171,7 @@ foreach ($pdo->query($sql) as $row) {
     }
     $arr = array();
 
+    #75 TBW MTFDHBA256TCK-1AS1AABHA
     $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'MTFDHBA256TCK-1AS1AABHA' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
@@ -182,6 +185,7 @@ foreach ($pdo->query($sql) as $row) {
     }
     $arr = array();
 
+    #75 TBW LITEON CV8-8E128-11 SATA 128GB
     $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'LITEON CV8-8E128-11 SATA 128GB' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
@@ -195,6 +199,7 @@ foreach ($pdo->query($sql) as $row) {
     }
     $arr = array();
 
+    #100 TBW WDC PC SN520 SDAPNUW-256G-1006
     $sql = "SELECT disk_writes FROM jobstats WHERE disk_model = 'WDC PC SN520 SDAPNUW-256G-1006' AND (date BETWEEN '2023-01-09' AND '$sqlDate')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
