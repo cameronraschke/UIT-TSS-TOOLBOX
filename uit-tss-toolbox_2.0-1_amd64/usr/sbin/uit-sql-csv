@@ -71,8 +71,8 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 }
 
 $sql = "SELECT 'Tag Number','Serial Number','Device Manufacturer','Device Model','Last Job Date',";
-$sql .= "'OS Installed','Erase Time','Clone Time','Total Jobs',";
-$sql .= "'Battery Max Charge','Terabytes Written (TBW)'";
+$sql .= "'OS Installed','Battery Max Charge','Terabytes Written (TBW)',";
+$sql .= "'Erase Time','Clone Time','Total Jobs'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
     $file->fputcsv($row);
