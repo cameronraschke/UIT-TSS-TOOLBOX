@@ -129,7 +129,7 @@ function hardwareData {
 			echo "disk|disk_reads|${diskReadsLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
 			echo "disk|disk_writes|${diskWritesLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
-		diskPowerOnHours=$(cat /root/smartctl-data | grep '^Power On Hours: ' | awk '{print $4}')
+		diskPowerOnHours=$(cat /root/smartctl-data | grep '^Power On Hours: ' | awk '{print $4}' | sed 's/,//g')
 			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskType=nvme
 			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
