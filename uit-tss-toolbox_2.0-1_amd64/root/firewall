@@ -12,6 +12,7 @@ ufw deny out on ${wan} proto tcp to any port 67
 ufw deny out on ${wan} proto udp to any port 123
 ufw deny out on ${wan} proto tcp to any port 123
 ufw default deny incoming
+ufw enable
 ufw reload
 
 #iptables -t filter -F
