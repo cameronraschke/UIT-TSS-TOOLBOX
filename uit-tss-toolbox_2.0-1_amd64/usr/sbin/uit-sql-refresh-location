@@ -27,18 +27,19 @@ foreach ($pdo->query($sql) as $row) {
       echo "Can't find serial for $tagNum" . PHP_EOL;
     }
 
-    # OS Installed
-    $sql = "SELECT clone_completed FROM jobstats WHERE tagnumber = '$tagNum' AND all_time > 1 ORDER BY time DESC LIMIT 1";
+
+    # Select most recent entry for a given client where the clone job has successfully completed.
+    $sql = "SELECT time FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes') ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
-    if (filter($value) == 0) {
+    if ($value > 0) {
         $sql = "UPDATE locations SET os_installed = '$value' WHERE tagnumber = '$tagNum'";
-        $pdo->query($sql);
     } else {
         $sql = "UPDATE locations SET os_installed = NULL WHERE tagnumber = '$tagNum'";
-        $pdo->query($sql);
     }
+    $pdo->query($sql);
 
+    # End the timer and print how long it took to update the location table for a specific tagnumber.
     $end = hrtime(true);
     $executionTime = round(($end - $start) / 1e9, 4);
     echo "Updating location for $tagNum ($serial): " . $executionTime . " seconds" . PHP_EOL;
