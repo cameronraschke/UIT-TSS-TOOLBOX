@@ -73,8 +73,6 @@ function hardwareData {
 		echo "general|system_uuid|${tOneUUID}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSKU=$(dmidecode --string system-sku-number)
 		echo "general|system_sku|${tOneSKU}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tOneFamily=$(dmidecode --string system-family)
-		echo "general|system_family|${tOneFamily}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
 		echo "general|motherboard_manufacturer|${tTwoManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
@@ -87,22 +85,12 @@ function hardwareData {
 		echo "general|chassis_serial|${tThreeSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tThreeAssetTag=$(dmidecode --string chassis-asset-tag)
 		echo "general|chassis_tag|${tThreeAssetTag}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tThreePowerSupplyState=$(dmidecode -t3 | grep 'Power Supply State' | sed 's/Power Supply State: //g')
-		echo "general|chassis_psu|${tThreePowerSupplyState}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourFamily=$(dmidecode --string processor-family)
-		echo "general|cpu_family|${tFourFamily}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourManufacturer=$(dmidecode --string processor-manufacturer)
 		echo "general|cpu_manufacturer|${tFourManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourID=$(dmidecode -t4 | grep 'ID' | sed 's/ID: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|cpu_id|${tFourID}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourVersion=$(dmidecode --string processor-version)
 		echo "general|cpu_model|${tFourVersion}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourVoltage=$(dmidecode -t4 | grep 'Voltage' | sed 's/Voltage: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|cpu_voltage|${tFourVoltage}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/Max Speed: //g' | sed 's/^[[:space:]]*//g')
+	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/[^0-9]//g')
 		echo "general|cpu_maxspeed|${tFourMaxSpeed}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourCurrentSpeed=$(dmidecode --string processor-frequency)
-		echo "general|cpu_currentspeed|${tFourCurrentSpeed}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|cpu_cores|${tFourCoreCount}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
@@ -111,16 +99,12 @@ function hardwareData {
 		echo "general|battery_manufacturer|${tTwentyTwoManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|battery_name|${tTwentyTwoName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/Design Capacity: //g' | sed 's/^[[:space:]]*//g')
+	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/[^0-9]//g')
 		echo "general|battery_capacity|${tTwentyTwoCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tTwentyTwoVoltage=$(dmidecode -t22 | grep 'Design Voltage' | sed 's/Design Voltage: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|battery_voltage|${tTwentyTwoVoltage}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|battery_serial|${tTwentyTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|battery_manufacturedate|${tTwentyTwoManufactureDate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tThirtyTwoBootStatus=$(dmidecode -t32 | grep 'Status' | sed 's/Status: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|boot_errors|${tThirtyTwoBootStatus}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Disk Data
 	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
@@ -137,8 +121,6 @@ function hardwareData {
 			echo "general|disk_serial|${diskSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
 			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test result: ' | sed 's/SMART overall-health self-assessment test result: *//g')
-			echo "general|disk_health|${diskHealth}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/[^0-9]//g')
 			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $4}') / 1000000000 ))
@@ -159,8 +141,6 @@ function hardwareData {
 			echo "general|disk_serial|${diskSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
 			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		diskHealth=$(cat /root/smartctl-data | grep '^SMART overall-health self-assessment test result: ' | sed 's/SMART overall-health self-assessment test result: *//g')
-			echo "general|disk_health|${diskHealth}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskTemp=$(cat /root/smartctl-data | grep '^194 Temperature_Celsius' | awk '{print $10}')
 			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep '^User Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
@@ -183,8 +163,6 @@ function hardwareData {
 	batChargeFactory=$(cat /sys/class/power_supply/BAT0/charge_full_design)
 	batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
 		echo "general|battery_health|${batHealthPCNT}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	batAlarmBool=$(cat /sys/class/power_supply/BAT0/alarm)
-		echo "general|battery_alarm|${batAlarmBool}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	batChargeCycles=$(cat /sys/class/power_supply/BAT0/cycle_count)
 		echo "battery|battery_charge_cycles|${UUID}|${batChargeCycles}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
@@ -205,10 +183,6 @@ function hardwareData {
 	###WiFi Info
 	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
 		echo "general|wifi_mac|${wifiMac}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-
-	###Kernel Info
-	kernelVersion=$(uname --kernel-release)
-		echo "general|kernel_version|${kernelVersion}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
