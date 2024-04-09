@@ -169,7 +169,7 @@ foreach ($pdo->query($sql) as $row) {
         $diskModel = $row["disk_model"];
         $diskMTBF = $row["disk_mtbf"];
 
-        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMTBF' * 100), 3) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' AND disk_model = '$diskModel' ";
+        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMTBF' * 100, 3) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' AND disk_model = '$diskModel' ";
         $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         $results = $pdo->query($sql);
         $value = $results->fetchColumn();
