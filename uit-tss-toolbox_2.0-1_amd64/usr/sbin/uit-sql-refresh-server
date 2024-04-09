@@ -163,7 +163,6 @@ foreach ($pdo->query($sql) as $row) {
     $pdo->query($sql);
 
 
-    $arr = array();
     #Disk Power on Hours
     $sql = "SELECT disk_model,disk_mtbf FROM static_disk_stats WHERE disk_mtbf IS NOT NULL";
     foreach ($pdo->query($sql) as $row) {
@@ -175,18 +174,13 @@ foreach ($pdo->query($sql) as $row) {
         $results = $pdo->query($sql);
         $value = $results->fetchColumn();
 
-        array_push($arr, $value);
+        if ($value > 0 && filter($value) == 0) {
+            $sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
+        } else {
+            $sql = "UPDATE serverstats SET tbw_pcnt = NULL WHERE date = '$sqlDate'";
+        }
+        $pdo->query($sql);
     }
-
-    # Update disk_mtbf
-    $avg = array_filter($arr);
-    if ($avg > 0 && filter($avg) == 0) {
-        $value = array_sum($avg) / count($avg);
-        $sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET tbw_pcnt = NULL WHERE date = '$sqlDate'";
-    }
-    $pdo->query($sql);
 
 
     #Update boot_time
