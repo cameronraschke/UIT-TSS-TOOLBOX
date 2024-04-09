@@ -153,8 +153,8 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update tbw_pcnt
     $avg = array_filter($arr);
-    $value = array_sum($avg) / count($avg);
-    if ($value > 0 && filter($value) == 0) {
+    if ($avg > 0 && filter($avg) == 0) {
+        $value = array_sum($avg) / count($avg);
         $sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
     } else {
         $sql = "UPDATE serverstats SET tbw_pcnt = NULL WHERE date = '$sqlDate'";
