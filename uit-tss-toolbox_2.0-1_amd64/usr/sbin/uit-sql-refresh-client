@@ -278,7 +278,7 @@ foreach ($pdo->query($sql) as $row) {
 
 
     # Select most recent entry for a given client where the clone job has successfully completed.
-    $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber = '$tagNum' clone_completed = 'Yes' AND all_time IS NOT NULL)";
+    $sql = "SELECT COUNT(tagnumber) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes')";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
     if ($value > 0) {
