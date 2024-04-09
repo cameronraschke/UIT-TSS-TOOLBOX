@@ -1,22 +1,26 @@
 #!/usr/bin/php
 <?php
 
+# Connect to database and include custom functions
 include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 include('/var/lib/UIT-TSS-TOOLBOX/functions');
 
+# Set current date and time
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
 echo "Updating the location table" . PHP_EOL;
 
-/* Select the serial numbers from jobstats which corresponds with the tagnumber 
-in the locations table and update the locations table */
+# Iterate through distinct tagnumbers from jobstats with techComm UUIDs
 $sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE uuid LIKE 'techComm-%'";
 foreach ($pdo->query($sql) as $row) {
+    # Start the timer
     $start = hrtime(true);
+
     $tagNum = $row['tagnumber'];
 
+    # Get the most recent serial number from jobstats that is associated with the tagnumber.
     $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $serial = $results->fetchColumn();
@@ -27,8 +31,8 @@ foreach ($pdo->query($sql) as $row) {
       echo "Can't find serial for $tagNum" . PHP_EOL;
     }
 
-
-    # Select most recent entry for a given client where the clone job has successfully completed.
+    /* Select the time of the most recent entry for a given client where the clone job has successfully completed. 
+    This shows whether or not the OS is installed and at what time it was last installed. */
     $sql = "SELECT time FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes') ORDER BY time DESC LIMIT 1";
     $results = $pdo->query($sql);
     $value = $results->fetchColumn();
@@ -45,6 +49,6 @@ foreach ($pdo->query($sql) as $row) {
     echo "Updating location for $tagNum ($serial): " . $executionTime . " seconds" . PHP_EOL;
 }
 
-# Close the connection
+# Close the connection to the DB.
 $pdo = null;
 ?>

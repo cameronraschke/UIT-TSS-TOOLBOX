@@ -63,15 +63,15 @@ foreach ($arr as $row) {
 unset($arr);
 unset($row);
 $sql = "SELECT tagnumber,system_serial,system_manufacturer,system_model,last_job_time,";
-$sql .= "os_installed,CONCAT(battery_health, '%'),CONCAT(tbw_pcnt, '%'),";
+$sql .= "CONCAT(battery_health, '%'),CONCAT(tbw_pcnt, '%'),";
 $sql .= "CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all_jobs ";
 $sql .= "FROM clientstats ORDER BY last_job_time DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row;
 }
 
-$sql = "SELECT 'Tag Number','Serial Number','Device Manufacturer','Device Model','Last Job Time',";
-$sql .= "'OS Installed','Battery Max Charge','Terabytes Written (TBW)',";
+$sql = "SELECT 'Tag Number','Serial Number','System Manufacturer','System Model','Last Job Time',";
+$sql .= "'Battery Max Charge','Terabytes Written (TBW)',";
 $sql .= "'Erase Time','Clone Time','Total Jobs'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
@@ -96,7 +96,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row['tagnumber'];
 }
 
-$sql = "SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Update'";
+$sql = "SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Update','OS Installed'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
     $file->fputcsv($row);
@@ -107,7 +107,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 foreach ($arr as $row) {
     unset($tagNum);
     $tagNum = $row;
-    $sql = "SELECT tagnumber,system_serial,location,status,problem,time ";
+    $sql = "SELECT tagnumber,system_serial,location,status,problem,time,os_installed ";
     $sql .= "FROM locations ";
     $sql .= "WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
     foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
