@@ -1524,7 +1524,6 @@ function terminate {
 		)
 
 		echo "general|clone_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "general|os_installed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 		if [[ $APPSELECT == "EC" ]]; then
 			echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
