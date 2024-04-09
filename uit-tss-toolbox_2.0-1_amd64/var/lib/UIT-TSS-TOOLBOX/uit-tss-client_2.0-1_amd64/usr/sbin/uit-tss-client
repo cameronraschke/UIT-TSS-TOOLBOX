@@ -177,8 +177,6 @@ function hardwareData {
 	###CPU Info
 	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
 		echo "cpu|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	cpuArch=$(uname --processor)
-		echo "general|cpu_arch|${cpuArch}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###WiFi Info
 	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
