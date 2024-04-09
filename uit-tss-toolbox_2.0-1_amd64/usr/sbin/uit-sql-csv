@@ -36,14 +36,14 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 #Server Table
 unset($arr);
 unset($row);
-$sql = "SELECT date,laptop_count,CONCAT(tbw_pcnt, '%'),CONCAT(battery_health, '%'),all_jobs,clone_jobs,erase_jobs,";
+$sql = "SELECT date,laptop_count,CONCAT(tbw_pcnt, '%'),CONCAT(disk_mtbf, '%'),CONCAT(battery_health, '%'),all_jobs,clone_jobs,erase_jobs,";
 $sql .= "CONCAT(clone_avgtime, ' minutes'),CONCAT(nvme_erase_avgtime, ' minutes'),CONCAT(sata_erase_avgtime, ' minutes'),last_image_update ";
 $sql .= "FROM serverstats ORDER BY date DESC";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row;
 }
 
-$sql = "SELECT 'Date','Computer Count','Disk Wear','Battery Max Charge Level','Total Erase and Clone Jobs','Clone Jobs','Erase Jobs',";
+$sql = "SELECT 'Date','Computer Count','Disk TBW/R','Disk MTBF','Battery Max Charge Level','Total Erase and Clone Jobs','Clone Jobs','Erase Jobs',";
 $sql .= "'Clone Time','NVME Erase Time','SATA Erase Time','Last Image Update'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'a');
