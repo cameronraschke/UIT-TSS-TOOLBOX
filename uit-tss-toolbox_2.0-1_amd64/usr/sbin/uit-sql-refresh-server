@@ -101,6 +101,7 @@ foreach ($pdo->query($sql) as $row) {
     } else {
         $cloneJobsLC = 0;
     }
+    $pdo->query($sql)
 
 
     # Update all_jobs
