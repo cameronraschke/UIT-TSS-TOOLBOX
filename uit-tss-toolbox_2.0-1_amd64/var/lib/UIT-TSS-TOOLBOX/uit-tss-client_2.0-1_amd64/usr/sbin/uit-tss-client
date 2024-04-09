@@ -66,7 +66,7 @@ function hardwareData {
 	tOneManufacturer=$(dmidecode --string system-manufacturer)
 		echo "general|system_manufacturer|${tOneManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneProductName=$(dmidecode --string system-product-name)
-		echo "general|system_productname|${tOneProductName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|system_model|${tOneProductName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSerialNumber=$(dmidecode --string system-serial-number)
 		echo "general|system_serial|${tOneSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneUUID=$(dmidecode --string system-uuid)
@@ -96,7 +96,7 @@ function hardwareData {
 	tFourID=$(dmidecode -t4 | grep 'ID' | sed 's/ID: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|cpu_id|${tFourID}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourVersion=$(dmidecode --string processor-version)
-		echo "general|cpu_version|${tFourVersion}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|cpu_model|${tFourVersion}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourVoltage=$(dmidecode -t4 | grep 'Voltage' | sed 's/Voltage: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|cpu_voltage|${tFourVoltage}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/Max Speed: //g' | sed 's/^[[:space:]]*//g')
