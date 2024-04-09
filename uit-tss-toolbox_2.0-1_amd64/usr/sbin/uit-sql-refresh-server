@@ -121,23 +121,64 @@ foreach ($pdo->query($sql) as $row) {
     $pdo->query($sql);
 
 
-    # TBW
-    $sql = "SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats";
+    $arr = array();
+    # TBW Non-HDD
+    $sql = "SELECT disk_model,disk_tbw FROM static_disk_stats WHERE NOT disk_type = 'hdd'";
+    foreach ($pdo->query($sql) as $row) {
+        $diskTBW = $row["disk_tbw"];
+        $diskModel = $row["disk_model"];
+
+        $sql = "SELECT (AVG(disk_writes) / '$diskTBW' * 100) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
+        $sql .= "GROUP BY tagnumber) AND disk_model = '$diskModel'";
+        $results = $pdo->query($sql);
+        $value = $results->fetchColumn();
+
+        array_push($arr, $value);
+    }
+
+    # TBW + TBR HDD
+    $sql = "SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats WHERE disk_type = 'hdd'";
     foreach ($pdo->query($sql) as $row) {
         $diskTBW = $row["disk_tbw"];
         $diskTBR = $row["disk_tbr"];
         $diskModel = $row["disk_model"];
 
-        $sql = "SELECT (AVG(disk_writes) / '$diskTBW' * 100) as disk_writes FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
+        $sql = "SELECT ((AVG(disk_writes) / '$diskTBW' * 100) + (AVG(disk_reads) / '$diskTBR' * 100)) / 2 FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
         $sql .= "GROUP BY tagnumber) AND disk_model = '$diskModel'";
         $results = $pdo->query($sql);
         $value = $results->fetchColumn();
-        if ($value > 0 && filter($value) == 0) {
-            $sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
-        } else {
-            $sql = "UPDATE serverstats SET tbw_pcnt = NULL WHERE date = '$sqlDate'";
-        }
+
+        array_push($arr, $value);
+    }
+
+    # Update tbw_pcnt
+    $avg = array_filter($arr);
+    $value = array_sum($avg) / count($avg);
+    if ($value > 0 && filter($value) == 0) {
+        $sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
+    } else {
+        $sql = "UPDATE serverstats SET tbw_pcnt = NULL WHERE date = '$sqlDate'";
+    }
+    $pdo->query($sql);
+
+
+    #Disk Power on Hours
+    $sql = "SELECT disk_model,disk_mtbf FROM static_disk_stats WHERE disk_mtbf IS NOT NULL";
+    foreach ($pdo->query($sql) as $row) {
+        $diskModel = $row["disk_model"];
+        $diskMTBF = $row["disk_mtbf"];
+
+        $sql = "SELECT (AVG(disk_power_on_hours) / '$diskMTBF' * 100) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
+        $sql .= "GROUP BY tagnumber) AND disk_model = '$diskModel'";
         $results = $pdo->query($sql);
+        $value = $results->fetchColumn();
+
+        if ($value > 0 && filter($value) == 0) {
+            $sql = "UPDATE serverstats SET disk_mtbf = '$value' WHERE date = '$sqlDate'";
+        } else {
+            $sql = "UPDATE serverstats SET disk_mtbf = NULL WHERE date = '$sqlDate'";
+        }
+        $pdo->query($sql);
     }
 
 
