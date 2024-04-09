@@ -130,7 +130,7 @@ foreach ($pdo->query($sql) as $row) {
         $diskModel = $row["disk_model"];
 
         $sql = "SELECT (AVG(disk_writes) / '$diskTBW' * 100) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
-        $sql .= "GROUP BY tagnumber) AND disk_model = '$diskModel'";
+        $sql .= "AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
         $results = $pdo->query($sql);
         $value = $results->fetchColumn();
 
@@ -145,7 +145,7 @@ foreach ($pdo->query($sql) as $row) {
         $diskModel = $row["disk_model"];
 
         $sql = "SELECT ((AVG(disk_writes) / '$diskTBW' * 100) + (AVG(disk_reads) / '$diskTBR' * 100)) / 2 FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
-        $sql .= "GROUP BY tagnumber) AND disk_model = '$diskModel'";
+        $sql .= "AND (disk_writes IS NOT NULL OR disk_reads IS NOT NULL) AND disk_model = '$diskModel' GROUP BY tagnumber)";
         $results = $pdo->query($sql);
         $value = $results->fetchColumn();
 
@@ -169,8 +169,8 @@ foreach ($pdo->query($sql) as $row) {
         $diskModel = $row["disk_model"];
         $diskMTBF = $row["disk_mtbf"];
 
-        $sql = "SELECT (AVG(disk_power_on_hours) / '$diskMTBF' * 100) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' ";
-        $sql .= "GROUP BY tagnumber) AND disk_model = '$diskModel'";
+        $sql = "SELECT (AVG(disk_power_on_hours) / '$diskMTBF' * 100) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '2023-01-09' AND '$sqlDate' AND disk_model = '$diskModel' ";
+        $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         $results = $pdo->query($sql);
         $value = $results->fetchColumn();
 
@@ -210,7 +210,7 @@ foreach ($pdo->query($sql) as $row) {
 
     $end = hrtime(true);
     $executionTime = round(($end - $start) / 1e9, 4);
-    echo "Updating serverstats for $sqlDate: " . $executionTime . " seconds" . PHP_EOL;
+    echo "Updated serverstats for $sqlDate: " . $executionTime . " seconds" . PHP_EOL;
 }
 
 # Close the connection
