@@ -113,7 +113,6 @@ function hardwareData {
 			echo "general|disk|${DISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 
-
 		if [[ $DISK =~ $NVME_REGEX ]]; then
 		diskModel=$(cat /root/smartctl-data | grep '^Model Number: ' | sed 's/Model Number: *//g')
 			echo "general|disk_model|${diskModel}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -134,6 +133,7 @@ function hardwareData {
 		diskType=nvme
 			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
+
 		if [[ $DISK =~ $SSD_REGEX ]]; then
 		diskModel=$(cat /root/smartctl-data | grep '^Device Model: ' | sed 's/Device Model: *//g')
 			echo "general|disk_model|${diskModel}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse

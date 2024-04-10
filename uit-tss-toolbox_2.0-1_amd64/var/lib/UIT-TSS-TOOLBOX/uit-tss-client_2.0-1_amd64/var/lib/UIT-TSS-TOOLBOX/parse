@@ -27,19 +27,21 @@ if ($arr[0] == "init") {
     $value = $arr[2];
     $uuid = $arr[3];
 
-    if (filter($arr[4]) == 0 && $arr[4] == "nvme") {
+    if ($arr[4] == "nvme") {
         $value = bcmul("$value", 512, 4);
         $value = bcdiv("$value", 1000000000, 2);
-    } elseif (filter($arr[4]) == 0 && $arr[4] == "sata") {
+    } elseif ($arr[4] == "sata") {
         $value = bcmul("$value", 512, 4);
         $value = bcdiv("$value", 1000000000000, 2);
     }
 
-    if (filter($key) == 0 && $key == "disk_type") {
-        if (filter($value) == 0 && $value == 0) {
+    if ($key == "disk_type") {
+        if ($value == 0) {
             $value = "ssd";
-        } elseif (filter($value) && $value == 1) {
+        } elseif ($value == 1) {
             $value = "hdd";
+        } else {
+            $value = "NULL";
         }
     }
     
@@ -64,41 +66,24 @@ if ($arr[0] == "init") {
     $key = $arr[1];
     $uuid = $arr[2];
     $value = $arr[3];
-    if ($arr[1] == "battery_charge_cycles") {
-        $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
-        $stmt = $pdo->prepare($sql);
-    
-        if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
-            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-        } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
-            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-        } else {
-            echo "Key or UUID not specified, exiting." . PHP_EOL;
-            exit(1);
-        }
-        
-            $stmt->execute();
-            $stmt = null;
+
+    $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
+    $stmt = $pdo->prepare($sql);
+
+    if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
+        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+    } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
+        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
     } else {
-        $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
-        $stmt = $pdo->prepare($sql);
-    
-        if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
-            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-        } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
-            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-        } else {
-            echo "Key or UUID not specified, exiting." . PHP_EOL;
-            exit(1);
-        }
-        
-        $stmt->execute();
-        $stmt = null;
+        echo "Key or UUID not specified, exiting." . PHP_EOL;
+        exit(1);
     }
+    
+    $stmt->execute();
+    $stmt = null;
+
 } elseif ($arr[0] == "location") {
 
     if (empty($arr[7])) {
@@ -226,6 +211,7 @@ if ($arr[0] == "init") {
     
     $stmt->execute();
     $stmt = null;
+
 } else {
     echo "General Error, exiting";
     exit(1);
