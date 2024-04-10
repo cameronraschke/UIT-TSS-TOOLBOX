@@ -41,7 +41,7 @@ if ($arr[0] == "init") {
         } elseif ($value == 1) {
             $value = "hdd";
         } else {
-            $value = "NULL";
+            $value = "";
         }
     }
     
