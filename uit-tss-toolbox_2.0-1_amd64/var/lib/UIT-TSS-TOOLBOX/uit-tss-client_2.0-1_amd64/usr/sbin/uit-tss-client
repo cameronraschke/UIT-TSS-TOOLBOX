@@ -60,6 +60,8 @@ systemctl daemon-reload &>/dev/null
 
 /usr/bin/chronyc add server 10.0.0.1 iburst
 /usr/bin/chronyc makestep
+
+sleep 1
 echo "${GREEN}Done.${RESET}"
 
 echo ""
