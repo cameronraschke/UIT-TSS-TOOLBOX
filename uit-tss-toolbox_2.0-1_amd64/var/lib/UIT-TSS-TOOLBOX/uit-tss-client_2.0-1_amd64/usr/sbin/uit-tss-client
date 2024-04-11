@@ -55,6 +55,8 @@ EOF
 
 /usr/bin/timedatectl set-timezone "America/Chicago"
 /usr/bin/timedatectl set-ntp yes
+
+chronyc makestep &>/dev/null
 echo "${GREEN}Done.${RESET}"
 
 echo ""
