@@ -43,8 +43,16 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Syncing time...${RESET}"
-# echo "[Time]
-# NTP=10.0.0.1" > /etc/systemd/timesyncd.conf
+echo "[Time]
+NTP=10.0.0.1" > /etc/systemd/timesyncd.conf
+
+systemctl daemon-reload &>/dev/null
+/usr/bin/timedatectl set-ntp off
+/usr/bin/timedatectl set-ntp on
+/usr/bin/timedatectl set-timezone 'America/Chicago'
+/usr/bin/timedatectl set-ntp false
+/usr/bin/timedatectl set-ntp true
+/usr/bin/timedatectl set-local-rtc false
 
 #cat <<'EOF' > /etc/chrony/chrony.conf
 #server 10.0.0.1 iburst
@@ -52,14 +60,8 @@ echo "${BOLD}Syncing time...${RESET}"
 #rtcsync
 #EOF
 
-/usr/bin/timedatectl set-timezone 'America/Chicago'
-/usr/bin/timedatectl set-ntp true
-/usr/bin/timedatectl set-local-rtc false
-
 chronyc add server 10.0.0.1 iburst &>/dev/null
 chronyc makestep &>/dev/null
-
-systemctl restart systemd-timedated
 echo "${GREEN}Done.${RESET}"
 
 echo ""
