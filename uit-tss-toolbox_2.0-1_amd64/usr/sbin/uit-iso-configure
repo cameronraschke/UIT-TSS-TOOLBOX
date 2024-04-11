@@ -255,6 +255,18 @@ sysctl --quiet --load
 echo "${GREEN}Done.${RESET}"
 
 echo ""
+echo "${BOLD}Configuring SSH...${RESET}"
+if [ ! -f /root/.ssh/id_rsa ]; then
+ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
+fi
+sshpass -f /root/.ssh_passwd ssh-copy-id \
+	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
+
+echo "Host *
+	StrictHostKeyChecking=no" > /root/.ssh/config
+echo "${GREEN}Done.${RESET}"
+
+echo ""
 echo "${BOLD}Installing the client package${RESET}"
 scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control

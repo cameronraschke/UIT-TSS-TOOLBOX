@@ -72,18 +72,6 @@ echo "${GREEN}Done.${RESET}"
 # upower -i /org/freedesktop/UPower/devices/battery_BAT0 > /root/battery-data
 # echo "${GREEN}Done.${RESET}"
 
-# echo ""
-# echo "${BOLD}Configuring SSH...${RESET}"
-# if [ ! -f /root/.ssh/id_rsa ]; then
-# ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
-# fi
-# sshpass -f /root/.ssh_passwd ssh-copy-id \
-# 	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
-
-# echo "Host *
-# 	StrictHostKeyChecking=no" > /root/.ssh/config
-# echo "${GREEN}Done.${RESET}"
-
 echo ""
 echo "${BOLD}Configuring audio...${RESET}"
 /usr/bin/amixer sset Master 100% &>/dev/null
