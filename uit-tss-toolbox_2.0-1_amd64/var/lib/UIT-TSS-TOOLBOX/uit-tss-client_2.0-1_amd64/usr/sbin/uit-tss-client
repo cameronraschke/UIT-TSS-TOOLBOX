@@ -46,21 +46,18 @@ echo "${BOLD}Syncing time...${RESET}"
 # echo "[Time]
 # NTP=10.0.0.1" > /etc/systemd/timesyncd.conf
 
-# cat <<'EOF' > /etc/chrony/chrony.conf
-# server 10.0.0.1 iburst
-# driftfile /var/lib/chrony/drift
-# rtcsync
-# EOF
+cat <<'EOF' > /etc/chrony/chrony.conf
+server 10.0.0.1 iburst
+driftfile /var/lib/chrony/drift
+rtcsync
+EOF
+systemctl restart chrony chronyd
 
 /usr/bin/timedatectl set-timezone "America/Chicago"
 /usr/bin/timedatectl set-ntp true
 
 chronyc add server 10.0.0.1 iburst &>/dev/null
-i=0
-while [[ $i < 3 ]]; do
-	i=$((i + 1))
-	chronyc makestep &>/dev/null
-done
+chronyc makestep &>/dev/null
 echo "${GREEN}Done.${RESET}"
 
 echo ""
