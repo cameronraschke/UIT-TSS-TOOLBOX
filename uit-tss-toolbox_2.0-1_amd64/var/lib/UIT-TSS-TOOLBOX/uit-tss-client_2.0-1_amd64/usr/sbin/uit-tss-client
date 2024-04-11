@@ -55,7 +55,6 @@ EOF
 
 /usr/bin/timedatectl set-timezone "America/Chicago"
 /usr/bin/timedatectl set-ntp yes
-/usr/bin/systemctl restart systemd-timesyncd
 echo "${GREEN}Done.${RESET}"
 
 echo ""
