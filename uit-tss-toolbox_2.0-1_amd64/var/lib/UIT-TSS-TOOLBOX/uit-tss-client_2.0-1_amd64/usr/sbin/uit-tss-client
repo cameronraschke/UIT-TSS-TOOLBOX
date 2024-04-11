@@ -47,6 +47,12 @@ echo "[Time]
 NTP=10.0.0.1" > /etc/systemd/timesyncd.conf
 
 timedatectl set-timezone "America/Chicago"
+timedatectl set-ntp yes
+
+server 10.0.0.1 iburst
+driftfile /var/lib/chrony/drift
+makestep 1.0 3
+rtcsync
 
 /usr/bin/systemctl restart systemd-timesyncd
 echo "${GREEN}Done.${RESET}"
