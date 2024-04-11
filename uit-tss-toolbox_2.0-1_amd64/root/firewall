@@ -9,7 +9,8 @@ ufw allow out on ${lan}
 ufw allow in on ${wan} from 172.27.53.0/24 proto tcp to any port 22
 ufw deny out on ${wan} proto udp to any port 67
 ufw deny out on ${wan} proto tcp to any port 67
-ufw deny out on ${wan} proto udp to any port 123
+ufw deny out on ${wan} proto udp to 172.27.53.0/24 port 123
+ufw allow out on ${wan} proto udp to any port 123
 ufw deny out on ${wan} proto tcp to any port 123
 ufw default deny incoming
 ufw enable
