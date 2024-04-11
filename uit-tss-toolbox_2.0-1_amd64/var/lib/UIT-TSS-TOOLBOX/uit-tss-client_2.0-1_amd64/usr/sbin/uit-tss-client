@@ -54,11 +54,13 @@ echo "${BOLD}Syncing time...${RESET}"
 
 /usr/bin/timedatectl set-timezone "America/Chicago"
 /usr/bin/timedatectl set-ntp true
-systemctl restart systemd-timedated
+/usr/bin/timedatectl set-local-rtc true
 
-#chronyc delete 
+
 chronyc add server 10.0.0.1 iburst &>/dev/null
 chronyc makestep &>/dev/null
+
+systemctl restart systemd-timedated
 echo "${GREEN}Done.${RESET}"
 
 echo ""
