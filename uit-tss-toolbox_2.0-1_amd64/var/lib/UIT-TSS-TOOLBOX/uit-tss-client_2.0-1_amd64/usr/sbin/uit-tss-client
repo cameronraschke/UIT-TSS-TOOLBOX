@@ -23,39 +23,38 @@ maxBrightness=$(cat /sys/class/backlight/*/max_brightness)
 echo "${maxBrightness}" > /sys/class/backlight/*/brightness 2>/dev/null
 echo "${GREEN}Done.${RESET}"
 
-echo ""
-echo "${BOLD}Configuring networking....${RESET}"
-sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
-sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
-sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
-sysctl --quiet --write "net.ipv4.conf.all.rp_filter=2"
-sysctl --quiet --write "net.ipv4.ip_forward=0"
-sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
-sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
-sysctl --quiet --load
+# echo ""
+# echo "${BOLD}Configuring networking....${RESET}"
+# sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
+# sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
+# sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
+# sysctl --quiet --write "net.ipv4.conf.all.rp_filter=2"
+# sysctl --quiet --write "net.ipv4.ip_forward=0"
+# sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
+# sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
+# sysctl --quiet --load
 
 # for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
-# 	ip link set "${iface}" up
-# 	dhclient -r "${iface}"
-# 	dhclient -4 "${iface}"
+#  	ip link set "${iface}" up
+#  	dhclient -r "${iface}"
+#  	dhclient -4 "${iface}"
 # done &>/dev/null
-echo "${GREEN}Done.${RESET}"
+# echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Syncing time...${RESET}"
 echo "[Time]
 NTP=10.0.0.1" > /etc/systemd/timesyncd.conf
 
-timedatectl set-timezone "America/Chicago"
-timedatectl set-ntp yes
-
 cat <<'EOF' > /etc/chrony/chrony.conf
 server 10.0.0.1 iburst
 driftfile /var/lib/chrony/drift
 rtcsync
 EOF
-
 /usr/bin/systemctl restart chrony
+
+/usr/bin/timedatectl set-timezone "America/Chicago"
+/usr/bin/timedatectl set-ntp yes
 /usr/bin/systemctl restart systemd-timesyncd
 echo "${GREEN}Done.${RESET}"
 
