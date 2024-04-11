@@ -47,10 +47,8 @@ echo "[Time]
 NTP=10.0.0.1" > /etc/systemd/timesyncd.conf
 
 systemctl daemon-reload &>/dev/null
-/usr/bin/timedatectl set-ntp off
-/usr/bin/timedatectl set-ntp on
+# /usr/bin/timedatectl set-ntp off
 /usr/bin/timedatectl set-timezone 'America/Chicago'
-/usr/bin/timedatectl set-ntp false
 /usr/bin/timedatectl set-ntp true
 /usr/bin/timedatectl set-local-rtc false
 
@@ -60,8 +58,8 @@ systemctl daemon-reload &>/dev/null
 #rtcsync
 #EOF
 
-/usr/bin/chronyc add server 10.0.0.1 iburst &>/dev/null
-/usr/bin/chronyc makestep &>/dev/null
+/usr/bin/chronyc add server 10.0.0.1 iburst
+/usr/bin/chronyc makestep
 echo "${GREEN}Done.${RESET}"
 
 echo ""
