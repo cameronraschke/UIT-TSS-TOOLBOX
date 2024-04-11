@@ -56,7 +56,11 @@ echo "${BOLD}Syncing time...${RESET}"
 /usr/bin/timedatectl set-ntp true
 
 chronyc add server 10.0.0.1 iburst &>/dev/null
-chronyc makestep &>/dev/null
+i=0
+while [[ $i < 3 ]]; do
+	i=$((i + 1))
+	chronyc makestep &>/dev/null
+done
 echo "${GREEN}Done.${RESET}"
 
 echo ""
