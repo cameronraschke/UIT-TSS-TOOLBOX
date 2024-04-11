@@ -60,8 +60,8 @@ systemctl daemon-reload &>/dev/null
 #rtcsync
 #EOF
 
-chronyc add server 10.0.0.1 iburst &>/dev/null
-chronyc makestep &>/dev/null
+/usr/bin/chronyc add server 10.0.0.1 iburst &>/dev/null
+/usr/bin/chronyc makestep &>/dev/null
 echo "${GREEN}Done.${RESET}"
 
 echo ""
