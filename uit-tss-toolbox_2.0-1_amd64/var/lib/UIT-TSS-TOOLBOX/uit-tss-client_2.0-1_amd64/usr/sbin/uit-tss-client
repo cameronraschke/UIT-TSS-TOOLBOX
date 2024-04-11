@@ -52,10 +52,9 @@ echo "${BOLD}Syncing time...${RESET}"
 #rtcsync
 #EOF
 
-/usr/bin/timedatectl set-timezone "America/Chicago"
+/usr/bin/timedatectl set-timezone 'America/Chicago'
 /usr/bin/timedatectl set-ntp true
-/usr/bin/timedatectl set-local-rtc true
-
+/usr/bin/timedatectl set-local-rtc false
 
 chronyc add server 10.0.0.1 iburst &>/dev/null
 chronyc makestep &>/dev/null
