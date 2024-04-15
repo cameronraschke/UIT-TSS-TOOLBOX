@@ -60,7 +60,10 @@ systemctl daemon-reload &>/dev/null
 /usr/bin/chronyc add server 10.0.0.1 iburst
 /usr/bin/chronyc makestep
 
-sleep 1
+sql=$(echo "SELECT CURDATE()" | /var/lib/UIT-TSS-TOOLBOX/select)
+while [[ $sql != $(date --iso) ]]; do
+	sleep 1
+done
 echo "${GREEN}Done.${RESET}"
 
 echo ""
