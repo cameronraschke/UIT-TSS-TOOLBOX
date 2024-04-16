@@ -30,113 +30,63 @@ foreach ($arr as $key => $value) {
     $tagNum = $value['tagnumber'];
 
     # If tagnumber does not exist in the clientstats table, then insert it.
-    dbSelect("SELECT COUNT(tagnumber) AS result FROM clientstats WHERE tagnumber = '$tagNum'");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        if ($result == "0") {
-            echo "Inserting laptop: " . $tagNum . PHP_EOL;
-            $sql = "INSERT INTO clientstats(tagnumber) VALUES ('$tagNum')";
-            $pdo->query($sql);
-        }
+    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM clientstats WHERE tagnumber = '$tagNum'");
+    if ($result == "0") {
+        echo "Inserting laptop: " . $tagNum . PHP_EOL;
+        $sql = "INSERT INTO clientstats(tagnumber) VALUES ('$tagNum')";
+        $pdo->query($sql);
     }
 
     # Update the date of the BIOS release
-    dbSelect("SELECT bios_date AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_date IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        dbUpdateCS("clone_avgtime", "$result", "$tagNum");
-    }
+    dbSelectVal("SELECT bios_date AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_date IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbUpdateCS("clone_avgtime", "$result", "$tagNum");
 
     # Update the BIOS version
-    dbSelect("SELECT bios_version AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_version IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        dbUpdateCS("bios_version", "$result", "$tagNum");
-    }
+    dbSelectVal("SELECT bios_version AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_version IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbUpdateCS("bios_version", "$result", "$tagNum");
 
     # Update the system model
-    dbSelect("SELECT system_model AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_model IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        dbUpdateCS("system_model", "$result", "$tagNum");
-    }
+    dbSelectVal("SELECT system_model AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_model IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbUpdateCS("system_model", "$result", "$tagNum");
 
     # Update the system serial number
-    dbSelect("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        dbUpdateCS("system_serial", "$result", "$tagNum");
-    }
+    dbSelectVal("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbUpdateCS("system_serial", "$result", "$tagNum");
 
     # Update the CPU model
-    dbSelect("SELECT cpu_model AS result FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_model IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        dbUpdateCS("cpu_model", "$result", "$tagNum");
-    }
+    dbSelectVal("SELECT cpu_model AS result FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_model IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbUpdateCS("cpu_model", "$result", "$tagNum");
 
     # Update the amount of CPU cores
-    dbSelect("SELECT cpu_cores AS result FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_cores IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        dbUpdateCS("cpu_cores", "$result", "$tagNum");
-    }
+    dbSelectVal("SELECT cpu_cores AS result FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_cores IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbUpdateCS("cpu_cores", "$result", "$tagNum");
 
     # Update the average erase times for each client
-    dbSelect("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        if ($result > 0) {
-            dbUpdateCS("erase_avgtime", "$result", "$tagNum");
-        } else {
-            dbUpdateCS("erase_avgtime", "NULL", "$tagNum");
-        }
-    }
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'");
+    dbUpdateCS("erase_avgtime", "$result", "$tagNum");
 
     # Update the average clone time for each client
     dbSelect("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        if ($result > 0) {
-            dbUpdateCS("clone_avgtime", "$result", "$tagNum");
-        } else {
-            dbUpdateCS("clone_avgtime", "NULL", "$tagNum");
-        }
-    }
+    dbUpdateCS("clone_avgtime", "$result", "$tagNum");
 
     # Update count of total jobs. Total jobs count as every entry of clone_completed or erase_completed equal to "Yes" - One entry can be up to two jobs (clone + erase job).
     dbSelect("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed= 'Yes')");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        if ($result > 0) {
-            dbUpdateCS("all_jobs", "$result", "$tagNum");
-        } else {
-            dbUpdateCS("all_jobs", "NULL", "$tagNum");
-        }
-    }
+    dbUpdateCS("all_jobs", "$result", "$tagNum");
 
     # Disk Health
     # Get disk model of the client.
-    dbSelect("SELECT disk_model AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL ORDER BY time LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $diskModel = $value["result"];
-    }
+    dbSelectVal("SELECT disk_model AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL ORDER BY time LIMIT 1");
+    $diskModel = $result;
     # Get disk type (ssd/nvme/hdd).
-    dbSelect("SELECT disk_type AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
-    foreach ($arr as $key => $value) {
-        $diskType = $value["result"];
-    }
+    dbSelectVal("SELECT disk_type AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
+    $diskType = $result;
     if (filter($diskType) == 0 && filter($diskModel) == 0) {
         # Get most recent amount of disk writes.
-        dbSelect("SELECT disk_writes AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1");
-        foreach ($arr as $key => $value) {
-            $diskWritesCur = $value["result"];
-        }
+        dbSelectVal("SELECT disk_writes AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1");
+        $diskWritesCur = $result;
         # Get maximum amount of disk writes per the drive manufacturer.
-        dbSelect("SELECT disk_tbw AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
-        foreach ($arr as $key => $value) {
-            $diskWritesMax = $value["result"];
-        }
+        dbSelectVal("SELECT disk_tbw AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
+        $diskWritesMax = $result;
         $diskTBW = 0;
         # If the disk type is an nvme or ssd, then $value is the average of disk writes over disk max writes as a percentage
         if ($diskType == "ssd" || $diskType == "nvme") {
@@ -146,15 +96,11 @@ foreach ($arr as $key => $value) {
         # If the disk type is hdd
         } elseif ($diskType == "hdd") {
             # Get current disk reads amount
-            dbSelect("SELECT disk_reads AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_reads IS NOT NULL ORDER BY time DESC LIMIT 1");
-            foreach ($arr as $key => $value) {
-                $diskReadsCur = $value["result"];
-            }
+            dbSelectVal("SELECT disk_reads AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_reads IS NOT NULL ORDER BY time DESC LIMIT 1");
+            $diskReadsCur = $result;
             # Get maximum disk reads amount
             dbSelect("SELECT disk_tbr AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
-            foreach ($arr as $key => $value) {
-                $diskReadsMax = $value["result"];
-            }
+            $diskReadsMax = $result;
             $diskTBW = 0;
             # $value is the average of the average of disk read amount and disk write amount as a percentage
             if ($diskReadsMax > 0 && $diskWritesMax > 0) {
@@ -162,40 +108,20 @@ foreach ($arr as $key => $value) {
             }
         }
         # If $value is greater than 0, then set tbw_pcnt to $value, otherwise tbw_pcnt is null;
-        if ($diskTBW > 0) {
-            dbUpdateCS("tbw_pcnt", "$diskTBW", "$tagNum");
-        } else {
-            dbUpdateCS("tbw_pcnt", "NULL", "$tagNum");
-        }
+        dbUpdateCS("tbw_pcnt", "$diskTBW", "$tagNum");
     # If there is no disk type or disk model, then set tbw_pcnt to null;
-    } else {
-        dbUpdateCS("tbw_pcnt", "NULL", "$tagNum");
     }
 
     # Update the type of disk (nvme,ssd,hdd), based on the disk_health block
     dbUpdateCS("disk_type", "$diskType", "$tagNum");
 
     # Update battery health as a percentage
-    dbSelect("SELECT battery_health AS result FROM jobstats WHERE tagnumber = '$tagNum' AND battery_health IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        if ($result > 0) {
-            dbUpdateCS("battery_health", "$result", "$tagNum");
-        } else {
-            dbUpdateCS("battery_health", "NULL", "$tagNum");
-        }
-    }
+    dbSelectVal("SELECT battery_health AS result FROM jobstats WHERE tagnumber = '$tagNum' AND battery_health IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbUpdateCS("battery_health", "$result", "$tagNum");
 
     # Update boot time in seconds
-    dbSelect("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        if ($result > 0) {
-            dbUpdateCS("boot_time", "$result", "$tagNum");
-        } else {
-            dbUpdateCS("boot_time", "NULL", "$tagNum");
-        }
-    }
+    dbSelectVal("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL");
+    dbUpdateCS("boot_time", "$result", "$tagNum");
 
     # Update the uuid of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
     dbSelect("SELECT time,uuid FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
@@ -207,11 +133,8 @@ foreach ($arr as $key => $value) {
     }
 
     # Update the system manufacturer
-    dbSelect("SELECT system_manufacturer AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_manufacturer IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $result = $value["result"];
-        dbUpdateCS("system_manufacturer", "$result", "$tagNum");
-    }
+    dbSelectVal("SELECT system_manufacturer AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_manufacturer IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbUpdateCS("system_manufacturer", "$result", "$tagNum");
 
     # End the timer and print the time taken to iterate through a client.
     $end = hrtime(true);

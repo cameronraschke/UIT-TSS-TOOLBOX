@@ -2,8 +2,7 @@
 <?php
 
 # Connect to database and include custom functions
-include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
-include('/var/lib/UIT-TSS-TOOLBOX/functions');
+include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
 
 # Set current date and time
 $dt = new DateTimeImmutable();
@@ -13,22 +12,18 @@ $time = $dt->format('Y-m-d H:i:s.v');
 echo "Updating the location table" . PHP_EOL;
 
 # Iterate through distinct tagnumbers from jobstats with techComm UUIDs
-$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE uuid LIKE 'techComm-%'";
-foreach ($pdo->query($sql) as $row) {
+dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE uuid LIKE 'techComm-%'");
+foreach ($arr as $key => $value) {
     # Start the timer
     $start = hrtime(true);
 
-    $tagNum = $row['tagnumber'];
+    $tagNum = $value['tagnumber'];
 
     # Get the most recent serial number from jobstats that is associated with the tagnumber.
-    $sql = "SELECT system_serial FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1";
-    $results = $pdo->query($sql);
-    $serial = $results->fetchColumn();
-    if (filter($serial) == 0) {
-      $sql = "UPDATE locations SET system_serial = '$serial' WHERE tagnumber = '$tagNum'";
-      $pdo->query($sql);
-    } else {
-      echo "Can't find serial for $tagNum" . PHP_EOL;
+    dbSelect("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
+    foreach ($arr as $key => $value) {
+      $serial = $value["result"];
+      dbUpdateLoc("system_serial", "$serial", "$tagNum");
     }
 
     /* Select the time of the most recent entry for a given client where the clone job has successfully completed. 
