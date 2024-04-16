@@ -12,9 +12,13 @@ function DBSelect ($sql, $bool) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
         $row = $sql->fetchAll(PDO::FETCH_COLUMN);
-        foreach ($row as $key => $value) {
-            array_push($arr, $value);
+        if (filter($row) == 0) {
+            foreach ($row as $key => $value) {
+                array_push($arr, $value);
+                array_filter($arr);
+            }
         }
+
     } else {
         exit();
     }
