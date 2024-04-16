@@ -40,7 +40,7 @@ function dbUpdateSS ($key, $value, $date) {
 
 function dbUpdateCS ($key, $value, $tagnumber) {
     global $pdo;
-    $sql = "UPDATE serverstats SET $key = :value WHERE tagnumber = :tagnumber";
+    $sql = "UPDATE clientstats SET $key = :value WHERE tagnumber = :tagnumber";
     $stmt = $pdo->prepare($sql);
 
     if (filter($key) == 0 && filter($value) == 1 && filter($tagnumber) == 0) {
