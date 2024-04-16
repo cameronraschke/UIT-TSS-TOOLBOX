@@ -20,10 +20,10 @@ echo "Updating serverstats" . PHP_EOL;
 $oldDate = "2023-01-01";
 
 # Iterate through all the dates between $oldDate and $date.
-$stmt = "CALL iterateDate('$oldDate', '$date')";
-$sql = $pdo->prepare($stmt);
-$sql->execute();
-foreach ($sql->fetchAll(PDO::FETCH_COLUMN) as $row) {
+$sql = "CALL iterateDate('$oldDate', '$date')";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $row) {
     $stmt->closeCursor();
 
     # Start the timer that counts how much time each date takes to process.
