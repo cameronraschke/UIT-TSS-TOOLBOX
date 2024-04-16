@@ -203,12 +203,11 @@ foreach ($arr as $key => $value) {
     foreach ($arr as $key => $value) {
         $result = $value["result"];
         if ($result > 0) {
-            dbUpdateSS("boot_time", "$value", "$sqlDate");
+            dbUpdateSS("boot_time", "$result", "$sqlDate");
         } else {
             dbUpdateSS("boot_time", "NULL", "$sqlDate");
         }
     }
-
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
@@ -218,7 +217,7 @@ foreach ($arr as $key => $value) {
     foreach ($arr as $key => $value) {
         $result = $value["result"];
         if ($result > 0) {
-            dbUpdateSS("battery_health", "$value", "$sqlDate");
+            dbUpdateSS("battery_health", "$result", "$sqlDate");
         } else {
             dbUpdateSS("battery_health", "NULL", "$sqlDate");
         }
