@@ -1,5 +1,6 @@
 #!/usr/bin/php
 <?php
+include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 function filter ($string) {
     if ($string == "" || $string == " " || $string == "NULL" || empty($string)) {
