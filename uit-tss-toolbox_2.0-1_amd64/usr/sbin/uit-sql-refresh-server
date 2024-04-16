@@ -194,7 +194,7 @@ foreach ($arr as $key => $value) {
     $avg = array_filter($arr);
     if (filter($avg) == 0) {
         $result = array_sum($avg) / count($avg);
-        dbUpdateSS("tbw_mtbf", "$result", "$sqlDate");
+        dbUpdateSS("disk_mtbf", "$result", "$sqlDate");
     }
 
 
