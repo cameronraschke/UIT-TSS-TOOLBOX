@@ -4,6 +4,7 @@
 require('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 function DBSelect ($sql) {
+    global $pdo;
     $sql = $pdo->prepare($sql);
     $sql->execute();
     
