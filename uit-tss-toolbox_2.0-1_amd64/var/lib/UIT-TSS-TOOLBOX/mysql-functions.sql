@@ -15,6 +15,8 @@ label1: LOOP
     LEAVE label1;
 END LOOP label1;
 
+INSERT INTO tbl_results (date) VALUES(date2);
+
 SELECT date FROM tbl_results;
 
 END; //
