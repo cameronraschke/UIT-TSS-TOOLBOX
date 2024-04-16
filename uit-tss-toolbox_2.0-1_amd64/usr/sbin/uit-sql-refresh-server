@@ -23,7 +23,7 @@ $oldDate = "2023-01-01";
 $sql = "CALL iterateDate('$oldDate', '$date')";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
-foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $row) {
+foreach ($stmt->fetchColumn() as $row) {
     $stmt->closeCursor();
 
     # Start the timer that counts how much time each date takes to process.
