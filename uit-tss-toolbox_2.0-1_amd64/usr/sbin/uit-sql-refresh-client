@@ -1,8 +1,7 @@
 #!/usr/bin/php
 <?php
 # Connect to database and include custom functions
-include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
-include('/var/lib/UIT-TSS-TOOLBOX/functions');
+include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
 
 # Set current date and time
 $dt = new DateTimeImmutable();
@@ -23,34 +22,30 @@ if (preg_match("/[0-9]{6}/", $line)) {
 }
 
 # Iterate through distinct computers in the Tech Commons by tagnumber.
-$sql = "SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'";
-foreach ($pdo->query($sql) as $row) {
+dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'");
+foreach ($arr as $key => $value) {
     # Start the timer that counts how long it takes to update each tagnumber.
     $start = hrtime(true);
 
     $tagNum = $row['tagnumber'];
 
     # If tagnumber does not exist in the clientstats table, then insert it.
-    $sql = "SELECT COUNT(tagnumber) FROM clientstats WHERE tagnumber = '$tagNum'";
-    $results = $pdo->query($sql);
-    $linecount = $results->fetchColumn();
-    if ($linecount == "0") {
-        echo "Inserting laptop: " . $tagNum . PHP_EOL;
-        $sql = "INSERT INTO clientstats(tagnumber) ";
-        $sql .= "VALUES ($tagNum)";
-        $pdo->query($sql);
+    dbSelect("SELECT COUNT(tagnumber) AS result FROM clientstats WHERE tagnumber = '$tagNum'");
+    foreach ($arr as $key => $value) {
+        $result = $value["result"];
+        if ($result == "0") {
+            echo "Inserting laptop: " . $tagNum . PHP_EOL;
+            $sql = "INSERT INTO clientstats(tagnumber) VALUES ('$tagNum')";
+            $pdo->query($sql);
+        }
     }
 
     # Update the date of the BIOS release
-    $sql = "SELECT bios_date FROM jobstats WHERE tagnumber = '$tagNum' AND bios_date IS NOT NULL ORDER BY time DESC LIMIT 1";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    if (filter($value) == 0) {
-        $sql = "UPDATE clientstats SET bios_date = '$value' WHERE tagnumber = '$tagNum'";
-    } else {
-        $sql = "UPDATE clientstats SET bios_date = NULL WHERE tagnumber = '$tagNum'";
+    dbSelect("SELECT bios_date AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_date IS NOT NULL ORDER BY time DESC LIMIT 1");
+    foreach ($arr as $key => $value) {
+        $result = $value["result"];
+        dbUpdateSS("clone_avgtime", "$result", "$tagNum");
     }
-    $pdo->query($sql);
 
     # Update the BIOS version
     $sql = "SELECT bios_version FROM jobstats WHERE tagnumber = '$tagNum' AND bios_version IS NOT NULL ORDER BY time DESC LIMIT 1";

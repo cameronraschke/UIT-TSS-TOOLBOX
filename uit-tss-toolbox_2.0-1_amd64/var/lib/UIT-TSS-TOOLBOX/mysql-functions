@@ -38,4 +38,23 @@ function dbUpdateSS ($key, $value, $date) {
     $stmt = null;
 }
 
+function dbUpdateCS ($key, $value, $tagnumber) {
+    global $pdo;
+    $sql = "UPDATE serverstats SET $key = :value WHERE tagnumber = :tagnumber";
+    $stmt = $pdo->prepare($sql);
+
+    if (filter($key) == 0 && filter($value) == 1 && filter($tagnumber) == 0) {
+        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+    } elseif (filter($key) == 0 && filter($value) == 0 && filter($tagnumber) == 0) {
+        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+    } else {
+        exit(1);
+    }
+
+    $stmt->execute();
+    $stmt = null;
+}
+
 ?>
