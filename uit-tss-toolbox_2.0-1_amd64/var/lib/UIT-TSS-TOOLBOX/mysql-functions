@@ -4,15 +4,27 @@
 require('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 require('/var/lib/UIT-TSS-TOOLBOX/functions');
 
-function DBSelect ($sql, $bool) {
-    clearArray();
-    global $pdo;
-    global $arr;
-    $arr = array();
+clearArray();
+global $pdo;
+global $arr;
+$arr = array();
+
+function dbSelect ($sql) {
     if (filter($sql) == 0) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_COLUMN);
+    } else {
+        exit();
+    }
+}
+
+function dbIterate ($string) {
+    if (filter($string) == 0) {
+        dbSelect($string);
+        foreach ($arr as $key=>$value) {
+            echo("$value");
+        }
     } else {
         exit();
     }
