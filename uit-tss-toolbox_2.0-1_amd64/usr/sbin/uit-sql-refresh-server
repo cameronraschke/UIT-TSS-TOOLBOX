@@ -6,8 +6,7 @@ This script iterates through every date starting at 2023-01-09 (our first databa
 current date and updates all of the entries accordingly. */
 
 # Connect to database and include custom functions
-include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
-include('/var/lib/UIT-TSS-TOOLBOX/functions');
+include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
 
 # Set current date and time
 $dt = new DateTimeImmutable();

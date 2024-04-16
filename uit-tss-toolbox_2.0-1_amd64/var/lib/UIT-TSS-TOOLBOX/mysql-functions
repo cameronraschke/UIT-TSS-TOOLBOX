@@ -4,7 +4,8 @@
 require('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 require('/var/lib/UIT-TSS-TOOLBOX/functions');
 
-function DBSelect ($sql) {
+function DBSelect ($sql, $bool) {
+    global $arr = array();
     if (filter($sql) == 0) {
         global $pdo;
         $sql = $pdo->prepare($sql);
@@ -12,7 +13,7 @@ function DBSelect ($sql) {
         
         $row = $sql->fetchAll(PDO::FETCH_COLUMN);
         foreach ($row as $key => $value) {
-            echo $value;
+            array_push(global $arr, $value);
         }
     } else {
         exit();
