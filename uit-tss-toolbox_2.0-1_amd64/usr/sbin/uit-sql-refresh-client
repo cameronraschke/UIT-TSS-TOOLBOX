@@ -27,7 +27,7 @@ foreach ($arr as $key => $value) {
     # Start the timer that counts how long it takes to update each tagnumber.
     $start = hrtime(true);
 
-    $tagNum = $row['tagnumber'];
+    $tagNum = $value['tagnumber'];
 
     # If tagnumber does not exist in the clientstats table, then insert it.
     dbSelect("SELECT COUNT(tagnumber) AS result FROM clientstats WHERE tagnumber = '$tagNum'");
@@ -187,43 +187,30 @@ foreach ($arr as $key => $value) {
 
     # Update boot time in seconds
     dbSelect("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL");
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    if (filter($value) == 0 && $value > 0) {
-        $sql = "UPDATE clientstats SET boot_time = '$value' WHERE tagnumber = '$tagNum'";
-    } else {
-        $sql = "UPDATE clientstats SET boot_time = NULL WHERE tagnumber = '$tagNum'";
+    foreach ($arr as $key => $value) {
+        $result = $value["result"];
+        if ($result > 0) {
+            dbUpdateCS("boot_time", "$result", "$tagNum");
+        } else {
+            dbUpdateCS("boot_time", "NULL", "$tagNum");
+        }
     }
-    $pdo->query($sql);
 
     # Update the uuid of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
     dbSelect("SELECT time,uuid FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($pdo->query($sql) as $row) {
-        $lastJobTime = $row["time"];
-        $lastUUID = $row["uuid"];
-        if (filter($value) == 0) {
-            $sql = "UPDATE clientstats SET last_job_time = '$lastJobTime' WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-            $sql = "UPDATE clientstats SET last_job_uuid = '$lastUUID' WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-        } else {
-            $sql = "UPDATE clientstats SET last_job_time = NULL WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-            $sql = "UPDATE clientstats SET last_job_uuid = NULL WHERE tagnumber = '$tagNum'";
-            $pdo->query($sql);
-        }
+    foreach ($arr as $key => $value) {
+        $result = $value["time"];
+        dbUpdateCS("last_job_time", "$result", "$tagNum");
+        $result = $value["uuid"];
+        dbUpdateCS("last_job_uuid", "$result", "$tagNum");
     }
 
     # Update the system manufacturer
     dbSelect("SELECT system_manufacturer AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_manufacturer IS NOT NULL ORDER BY time DESC LIMIT 1");
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    if (filter($value) == 0) {
-        $sql = "UPDATE clientstats SET system_manufacturer = '$value' WHERE tagnumber = '$tagNum'";
-    } else {
-        $sql = "UPDATE clientstats SET system_manufacturer = NULL WHERE tagnumber = '$tagNum'";
+    foreach ($arr as $key => $value) {
+        $result = $value["result"];
+        dbUpdateCS("system_manufacturer", "$result", "$tagNum");
     }
-    $pdo->query($sql);
 
     # End the timer and print the time taken to iterate through a client.
     $end = hrtime(true);
