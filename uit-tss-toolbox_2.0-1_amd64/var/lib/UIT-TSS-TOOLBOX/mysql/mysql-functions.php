@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 
 function select ($sql) {
+    require('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
     $row = $sql->fetchAll(PDO::FETCH_COLUMN);
