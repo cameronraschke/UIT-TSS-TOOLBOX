@@ -14,7 +14,7 @@ function DBSelect ($sql, $bool) {
         $row = $sql->fetchAll(PDO::FETCH_COLUMN);
         if (filter($row) == 0) {
             foreach ($row as $key => $value) {
-                array_push(global $arr, $value);
+                array_push($arr, $value);
                 array_filter($arr);
             }
         }
