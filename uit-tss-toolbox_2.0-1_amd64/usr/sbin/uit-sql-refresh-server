@@ -184,6 +184,7 @@ foreach ($arr as $key => $value) {
     if (filter($avg) == 0) {
         $result = array_sum($avg) / count($avg);
         dbUpdateSS("tbw_mtbf", "$result", "$sqlDate");
+    }
 
 
     #Update the average boot time
