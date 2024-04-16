@@ -5,16 +5,16 @@ require('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 require('/var/lib/UIT-TSS-TOOLBOX/functions');
 
 function DBSelect ($sql, $bool) {
+    clearArray();
     global $pdo;
     global $arr;
-    clearArray();
     if (filter($sql) == 0) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
         $row = $sql->fetchAll(PDO::FETCH_COLUMN);
         if (filter($row) == 0) {
             foreach ($row as $key => $value) {
-                array_push($arr, $value);
+                array_push(global $arr, $value);
                 array_filter($arr);
             }
         }
