@@ -20,13 +20,13 @@ function dbSelect ($sql) {
     }
 }
 
-function dbIterate ($string) {
+function dbSelectPrint ($sql) {
     clearArray();
     global $pdo;
     global $arr;
     $arr = array();
-    if (filter($string) == 0) {
-        dbSelect($string);
+    if (filter($sql) == 0) {
+        dbSelect($sql);
         foreach ($arr as $key=>$value) {
             echo("$value");
         }
