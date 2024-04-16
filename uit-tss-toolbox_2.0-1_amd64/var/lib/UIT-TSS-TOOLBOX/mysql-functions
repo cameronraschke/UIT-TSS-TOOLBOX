@@ -12,10 +12,7 @@ function DBSelect ($sql, $bool) {
     if (filter($sql) == 0) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
-        $row = $sql->fetchAll(PDO::FETCH_COLUMN);
-        if (filter($row) == 0) {
-            array_push($arr, $row);
-        }
+        $arr = $sql->fetchAll(PDO::FETCH_COLUMN);
     } else {
         exit();
     }
