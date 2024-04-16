@@ -112,6 +112,7 @@ foreach ($arr as $key => $value) {
             dbUpdateCS("all_jobs", "$result", "$tagNum");
         } else {
             dbUpdateCS("all_jobs", "NULL", "$tagNum");
+        }
     }
 
     # Disk Health
