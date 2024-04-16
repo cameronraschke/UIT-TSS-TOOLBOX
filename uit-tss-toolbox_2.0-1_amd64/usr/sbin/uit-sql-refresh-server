@@ -164,7 +164,7 @@ foreach ($arr as $key => $value) {
     }
 
     # Update the average wear of disks based on reads and writes
-    if (filter($arr1) == 0) {
+    if (filter($arr1) == 0 && count($arr1) > 0) {
         $avg = array_filter($arr1);
         $result = array_sum($avg) / count($avg);
         dbUpdateSS("tbw_pcnt", "$result", "$sqlDate");
