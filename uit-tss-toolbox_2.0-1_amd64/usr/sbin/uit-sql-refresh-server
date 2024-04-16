@@ -29,9 +29,10 @@ foreach ($arr as $key => $value) {
     $sqlDate = $row['date'];
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
-    dbSelect("SELECT COUNT(date) FROM serverstats WHERE date = '$sqlDate'");
+    dbSelect("SELECT COUNT(date) AS count FROM serverstats WHERE date = '$sqlDate'");
     foreach ($arr as $key => $value) {
-        if ($value == "0") {
+        $result = $value["count"];
+        if ($result == "0") {
             echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
             $sql = "INSERT INTO serverstats(date) VALUES ('$sqlDate')";
             $pdo->query($sql);
@@ -39,179 +40,177 @@ foreach ($arr as $key => $value) {
     }
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
-    $sql = "SELECT COUNT(DISTINCT tagnumber) FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND uuid LIKE 'techComm-%'";
+    dbSelect("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND uuid LIKE 'techComm-%'");
     foreach ($arr as $key => $value) {
-    if ($value > 0) {
-        $sql = "UPDATE serverstats SET laptop_count = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET laptop_count = NULL WHERE date = '$sqlDate'";
+        $result = $value["result"];
+        if ($result > 0) {
+            dbUpdateSS("laptop_count", "$result", "$sqlDate");
+        } else {
+            dbUpdateSS("laptop_count", "NULL", "$sqlDate");
+        }
     }
-    $pdo->query($sql);
 
 
     # Update the average time taken to clone a computer.
-    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'";
+    dbSelect("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     foreach ($arr as $key => $value) {
-    if ($value > 0) {
-        $sql = "UPDATE serverstats SET clone_avgtime = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET clone_avgtime = NULL WHERE date = '$sqlDate'";
+        $result = $value["result"];
+        if ($result > 0) {
+            dbUpdateSS("clone_avgtime", "$result", "$sqlDate");
+        } else {
+            dbUpdateSS("clone_avgtime", "NULL", "$sqlDate");
+        }
     }
-    $pdo->query($sql);
 
 
     # Update the average erase time of NVMe drives
-    $sql = "SELECT ROUND(AVG(erase_time) / 60, 0) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND date BETWEEN '$oldDate' AND '$sqlDate'";
+    dbSelect("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     foreach ($arr as $key => $value) {
-    if ($value > 0) {
-        $sql = "UPDATE serverstats SET nvme_erase_avgtime = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET nvme_erase_avgtime = NULL WHERE date = '$sqlDate'";
+        $result = $value["result"];
+        if ($result > 0) {
+            dbUpdateSS("nvme_erase_avgtime", "$result", "$sqlDate");
+        } else {
+            dbUpdateSS("nvme_erase_avgtime", "NULL", "$sqlDate");
+        }
     }
-    $pdo->query($sql);
 
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
-    $sql = "SELECT ROUND(AVG(erase_time) / 60, 0) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND date BETWEEN '$oldDate' AND '$sqlDate'";
+    dbSelect("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     foreach ($arr as $key => $value) {
-    if ($value > 0) {
-        $sql = "UPDATE serverstats SET sata_erase_avgtime = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET sata_erase_avgtime = NULL WHERE date = '$sqlDate'";
+        $result = $value["result"];
+        if ($result > 0) {
+            dbUpdateSS("sata_erase_avgtime", "$result", "$sqlDate");
+        } else {
+            dbUpdateSS("sata_erase_avgtime", "NULL", "$sqlDate");
+        }
     }
-    $pdo->query($sql);
 
 
     # Update the number of erase jobs that have completed
-    $sql = "SELECT COUNT(erase_completed) FROM jobstats WHERE erase_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'";
+    dbSelect("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     foreach ($arr as $key => $value) {
-    if ($eraseJobsLC > 0) {
-        $sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLC' WHERE date = '$sqlDate'";
-    } else {
-        $eraseJobsLC = 0;
+        $eraseJobsLC = $value["result"];
+        if ($eraseJobsLC > 0) {
+            dbUpdateSS("erase_jobs", "$eraseJobsLC", "$sqlDate");
+        } else {
+            dbUpdateSS("erase_jobs", "NULL", "$sqlDate");
+            $eraseJobsLC = 0;
+        }
     }
-    $pdo->query($sql);
 
 
     # Update the number of clone jobs that have completed
-    $sql = "SELECT COUNT(clone_completed) FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'";
+    dbSelect("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     foreach ($arr as $key => $value) {
-    if ($cloneJobsLC > 0) {
-        $sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLC' WHERE date = '$sqlDate'";
-    } else {
-        $cloneJobsLC = 0;
+        $cloneJobsLC = $value["result"];
+        if ($cloneJobsLC > 0) {
+            dbUpdateSS("clone_jobs", "$cloneJobsLC", "$sqlDate");
+        } else {
+            dbUpdateSS("clone_jobs", "NULL", "$sqlDate");
+            $cloneJobsLC = 0;
+        }
     }
-    $pdo->query($sql);
 
 
     # Update count of all jobs (erase jobs + clone jobs)
-    $value = $eraseJobsLC + $cloneJobsLC;
-    $sql = "UPDATE serverstats SET all_jobs = '$value' WHERE date = '$sqlDate'";
-    $pdo->query($sql);
+    $result = $eraseJobsLC + $cloneJobsLC;
+    dbUpdateSS("all_jobs", "$result", "$sqlDate");
 
 
     # Update date of last image update
-    $sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate' ORDER BY time DESC LIMIT 1";
+    dbSelect("SELECT date AS result FROM jobstats WHERE clone_master = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate' ORDER BY time DESC LIMIT 1");
     foreach ($arr as $key => $value) {
-    if (filter($value) == 0) {
-        $sql = "UPDATE serverstats SET last_image_update = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET last_image_update = NULL WHERE date = '$sqlDate'";
+        $result = $value["result"];
+        dbUpdateSS("last_image_update", "$result", "$sqlDate");
     }
-    $pdo->query($sql);
 
 
-    # TBW and TBR
-    $arr = array();
     # Get average TBW of non-HDD drives (writes only, SSD and NVMe included). This average takes into account drive model and specifications of the drive.
-    $sql = "SELECT disk_model,disk_tbw FROM static_disk_stats WHERE NOT disk_type = 'hdd'";
-    foreach ($pdo->query($sql) as $row) {
-        $diskTBW = $row["disk_tbw"];
-        $diskModel = $row["disk_model"];
+    dbSelect("SELECT disk_model,disk_tbw FROM static_disk_stats WHERE NOT disk_type = 'hdd'");
+    foreach ($arr as $key => $value) {
+        $diskTBW = $value["disk_tbw"];
+        $diskModel = $value["disk_model"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT (AVG(disk_writes) / '$diskTBW' * 100) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+        $sql = "SELECT (AVG(disk_writes) / '$diskTBW' * 100) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
         $sql .= "AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
-        $results = $pdo->query($sql);
-        $value = $results->fetchColumn();
-
-        array_push($arr, $value);
+        dbSelect($sql);
+        foreach ($arr as $key => $value) {
+            $result = $value["result"];
+            array_push($arr1, $result);
+        }
     }
 
     # Get average TBW and TBR of HDDs (reads and writes). This average takes into account drive model and specifications of the drive.
-    $sql = "SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats WHERE disk_type = 'hdd'";
-    foreach ($pdo->query($sql) as $row) {
-        $diskTBW = $row["disk_tbw"];
-        $diskTBR = $row["disk_tbr"];
-        $diskModel = $row["disk_model"];
+    dbSelect("SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats WHERE disk_type = 'hdd'");
+    foreach ($arr as $key => $value) {
+        $diskTBW = $value["disk_tbw"];
+        $diskTBR = $value["disk_tbr"];
+        $diskModel = $value["disk_model"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ((AVG(disk_writes) / '$diskTBW' * 100) + (AVG(disk_reads) / '$diskTBR' * 100)) / 2 FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+        $sql = "SELECT ((AVG(disk_writes) / '$diskTBW' * 100) + (AVG(disk_reads) / '$diskTBR' * 100)) / 2 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
         $sql .= "AND (disk_writes IS NOT NULL OR disk_reads IS NOT NULL) AND disk_model = '$diskModel' GROUP BY tagnumber)";
-        $results = $pdo->query($sql);
-        $value = $results->fetchColumn();
-
-        array_push($arr, $value);
+        dbSelect($sql);
+        foreach ($arr as $key => $value) {
+            $result = $value["result"];
+            array_push($arr1, $result);
+        }
     }
 
     # Update the average wear of disks based on reads and writes
-    $avg = array_filter($arr);
-    if (filter($avg) == 0) {
-        $value = array_sum($avg) / count($avg);
-        $sql = "UPDATE serverstats SET tbw_pcnt = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET tbw_pcnt = NULL WHERE date = '$sqlDate'";
-    }
-    $pdo->query($sql);
+    $avg = array_filter($arr1);
+    $result = array_sum($avg) / count($avg);
+    dbUpdateSS("tbw_pcnt", "$result", "$sqlDate");
 
 
     # Get the average disk power on hours (MTBF/MTTF) and average that against the disk's specifications.
-    $arr = array();
-    $sql = "SELECT disk_model,disk_mtbf FROM static_disk_stats WHERE disk_mtbf IS NOT NULL";
-    foreach ($pdo->query($sql) as $row) {
-        $diskModel = $row["disk_model"];
-        $diskMTBF = $row["disk_mtbf"];
+    $arr1 = array();
+    dbSelect("SELECT disk_model,disk_mtbf FROM static_disk_stats WHERE disk_mtbf IS NOT NULL");
+    foreach ($arr as $key => $value) {
+        $diskModel = $value["disk_model"];
+        $diskMTBF = $value["disk_mtbf"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMTBF' * 100, 2) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
+        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMTBF' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
         $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
-        $results = $pdo->query($sql);
-        $value = $results->fetchColumn();
-
-        array_push($arr, $value);
+        dbSelect($sql);
+        foreach ($arr as $key => $value) {
+            $result = $value["result"];
+            array_push($arr1, $result);
+        }
     }
     # Update the MTBF for the disks. This average takes into account drive model and specifications of the drive.
     $avg = array_filter($arr);
     if (filter($avg) == 0) {
-        $value = array_sum($avg) / count($avg);
-        $sql = "UPDATE serverstats SET disk_mtbf = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET disk_mtbf = NULL WHERE date = '$sqlDate'";
-    }
-    $pdo->query($sql);
+        $result = array_sum($avg) / count($avg);
+        dbUpdateSS("tbw_mtbf", "$result", "$sqlDate");
 
 
     #Update the average boot time
-    $sql = "SELECT ROUND(AVG(boot_time), 0) FROM jobstats WHERE boot_time IS NOT NULL";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    if ($value > 0 && filter($value) == 0) {
-        $sql = "UPDATE serverstats SET boot_time = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET boot_time = NULL WHERE date = '$sqlDate'";
+    dbSelect("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE boot_time IS NOT NULL");
+    foreach ($arr as $key => $value) {
+        $result = $value["result"];
+        if ($result > 0) {
+            dbUpdateSS("boot_time", "$value", "$sqlDate");
+        } else {
+            dbUpdateSS("boot_time", "NULL", "$sqlDate");
+        }
     }
-    $pdo->query($sql);
+
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
-    $sql = "SELECT ROUND(AVG(battery_health), 0) FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+    $sql = "SELECT ROUND(AVG(battery_health), 0) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
     $sql .= "AND battery_health IS NOT NULL GROUP BY tagnumber)";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    if ($value > 0 && filter($value) == 0) {
-        $sql = "UPDATE serverstats SET battery_health = '$value' WHERE date = '$sqlDate'";
-    } else {
-        $sql = "UPDATE serverstats SET battery_health = NULL WHERE date = '$sqlDate'";
+    dbSelect($sql);
+    foreach ($arr as $key => $value) {
+        $result = $value["result"];
+        if ($result > 0) {
+            dbUpdateSS("battery_health", "$value", "$sqlDate");
+        } else {
+            dbUpdateSS("battery_health", "NULL", "$sqlDate");
+        }
     }
-    $results = $pdo->query($sql);
 
 
     # Output time taken for specific date

@@ -18,4 +18,12 @@ function dbSelect ($sql) {
     }
 }
 
+function dbUpdateSS ($key, $value, $date) {
+    if (filter($value) == 0) {
+        $sql = "UPDATE serverstats SET $key = '$value' WHERE date = '$date'";
+    } else {
+        $sql = "UPDATE serverstats SET $key = NULL WHERE date = '$date'";
+    }
+}
+
 ?>
