@@ -31,12 +31,15 @@ foreach ($pdo->query($sql) as $row) {
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
     $sql = "SELECT COUNT(date) FROM serverstats WHERE date = '$sqlDate'";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    if ($value == "0") {
-        echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
-        $sql = "INSERT INTO serverstats(date) VALUES ('$sqlDate')";
-        $pdo->query($sql);
+    $sql = $pdo->prepare($sql);
+    $sql->execute();
+    $row = $sql->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($row as $key => $value) {
+        if ($value == "0") {
+            echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
+            $sql = "INSERT INTO serverstats(date) VALUES ('$sqlDate')";
+            $pdo->query($sql);
+        }
     }
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.

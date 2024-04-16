@@ -3,9 +3,20 @@
 
 function filter ($string) {
     if ($string == "" || $string == " " || $string == "NULL" || empty($string)) {
-            return 1;
+        return 1;
     } else {
-            return 0;
+        return 0;
+    }
+}
+
+function select ($sql) {
+    if filter($sql) {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $row = $sql->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($row as $key => $value) {
+            return $value
+        }
     }
 }
 
