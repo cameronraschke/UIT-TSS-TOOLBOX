@@ -13,7 +13,7 @@ function DBSelect ($sql, $bool) {
         $sql->execute();
         $row = $sql->fetchAll(PDO::FETCH_COLUMN);
         foreach ($row as $key => $value) {
-            array_push(global $arr, $value);
+            array_push($arr, $value);
         }
     } else {
         exit();
