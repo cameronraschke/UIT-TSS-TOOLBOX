@@ -126,7 +126,8 @@ foreach ($arr as $key => $value) {
         dbUpdateSS("last_image_update", "$result", "$sqlDate");
     }
 
-
+    # Set $arr1
+    $arr1 = array();
     # Get average TBW of non-HDD drives (writes only, SSD and NVMe included). This average takes into account drive model and specifications of the drive.
     dbSelect("SELECT disk_model,disk_tbw FROM static_disk_stats WHERE NOT disk_type = 'hdd'");
     foreach ($arr as $key => $value) {
