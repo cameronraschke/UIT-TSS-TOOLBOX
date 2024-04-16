@@ -19,9 +19,10 @@ echo "Updating serverstats" . PHP_EOL;
 # Set $oldDate to the oldest date entry in the DB.
 $oldDate = "2023-01-01";
 
-# Select all the dates from the serverstats table and iterate through them.
+# Iterate through all the dates between $oldDate and $date.
 $sql = "CALL iterateDate('$oldDate', '$date')";
 foreach ($pdo->query($sql) as $row) {
+
     # Start the timer that counts how much time each date takes to process.
     $start = hrtime(true);
 
@@ -31,8 +32,8 @@ foreach ($pdo->query($sql) as $row) {
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
     $sql = "SELECT COUNT(date) FROM serverstats WHERE date = '$sqlDate'";
     $results = $pdo->query($sql);
-    $linecount = $results->fetchColumn();
-    if ($linecount == "0") {
+    $value = $results->fetchColumn();
+    if ($value == "0") {
         echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
         $sql = "INSERT INTO serverstats(date) VALUES ('$sqlDate')";
         $pdo->query($sql);
