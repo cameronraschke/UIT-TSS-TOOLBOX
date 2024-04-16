@@ -26,7 +26,7 @@ foreach ($arr as $key => $value) {
     $start = hrtime(true);
 
     # Set the variable $sqlDate to the iterated date.
-    $sqlDate = $row['date'];
+    $sqlDate = $value['date'];
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
     dbSelect("SELECT COUNT(date) AS count FROM serverstats WHERE date = '$sqlDate'");
