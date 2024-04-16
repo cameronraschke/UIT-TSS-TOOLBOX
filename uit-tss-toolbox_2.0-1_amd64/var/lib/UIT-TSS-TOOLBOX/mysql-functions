@@ -21,7 +21,7 @@ function dbSelect ($sql) {
 
 function dbUpdateSS ($key, $value, $date) {
     global $pdo;
-    $sql = "UPDATE serverstats SET $key = :value WHERE date = :date";
+    $sql = "UPDATE serverstats SET :key = :value WHERE date = :date";
     $stmt = $pdo->prepare($sql);
 
     if (filter($key) == 0 && filter($value) == 1 && filter($date) == 0) {
