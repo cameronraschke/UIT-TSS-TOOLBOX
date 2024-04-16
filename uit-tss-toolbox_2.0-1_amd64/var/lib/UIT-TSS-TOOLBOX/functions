@@ -9,4 +9,8 @@ function filter ($string) {
     }
 }
 
+function clearArray() {
+    unset($GLOBALS["arr"]);
+}
+
 ?>

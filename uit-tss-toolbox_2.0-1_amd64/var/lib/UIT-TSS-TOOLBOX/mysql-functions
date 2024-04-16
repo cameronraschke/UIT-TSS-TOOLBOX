@@ -6,7 +6,8 @@ require('/var/lib/UIT-TSS-TOOLBOX/functions');
 
 function DBSelect ($sql, $bool) {
     global $pdo;
-    global $arr = array();
+    global $arr;
+    clearArray();
     if (filter($sql) == 0) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
