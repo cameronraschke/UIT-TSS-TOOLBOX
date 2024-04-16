@@ -33,8 +33,7 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT COUNT(tagnumber) AS result FROM clientstats WHERE tagnumber = '$tagNum'");
     if ($result == "0") {
         echo "Inserting laptop: " . $tagNum . PHP_EOL;
-        $sql = "INSERT INTO clientstats(tagnumber) VALUES ('$tagNum')";
-        $pdo->query($sql);
+        $pdo->query("INSERT INTO clientstats(tagnumber) VALUES ('$tagNum')");
     }
 
     # Update the date of the BIOS release
