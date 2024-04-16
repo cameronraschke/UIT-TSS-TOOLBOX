@@ -138,7 +138,9 @@ foreach ($arr as $key => $value) {
         dbSelect($sql);
         foreach ($arr as $key => $value) {
             $result = $value["result"];
-            array_push($arr1, $result);
+            if (filter($result) == 0) {
+                array_push($arr1, $result);
+            }
         }
     }
 
@@ -154,7 +156,9 @@ foreach ($arr as $key => $value) {
         dbSelect($sql);
         foreach ($arr as $key => $value) {
             $result = $value["result"];
-            array_push($arr1, $result);
+            if (filter($result) == 0) {
+                array_push($arr1, $result);
+            }
         }
     }
 
@@ -176,7 +180,9 @@ foreach ($arr as $key => $value) {
         dbSelect($sql);
         foreach ($arr as $key => $value) {
             $result = $value["result"];
-            array_push($arr1, $result);
+            if (filter($result) == 0) {
+                array_push($arr1, $result);
+            }
         }
     }
     # Update the MTBF for the disks. This average takes into account drive model and specifications of the drive.
