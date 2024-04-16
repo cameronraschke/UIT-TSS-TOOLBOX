@@ -12,7 +12,7 @@ function dbSelect ($sql) {
     if (filter($sql) == 0) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
-        $arr = $sql->fetchAll(PDO::FETCH_COLUMN);
+        $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
     } else {
         exit();
     }

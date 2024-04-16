@@ -19,8 +19,8 @@ echo "Updating serverstats" . PHP_EOL;
 $oldDate = "2023-01-01";
 
 # Iterate through all the dates between $oldDate and $date.
-$sql = "CALL iterateDate('$oldDate', '$date')";
-foreach ($pdo->query($sql) as $row) {
+dbSelect("CALL iterateDate('$oldDate', '$date')");
+foreach ($arr as $key => $value) {
 
     # Start the timer that counts how much time each date takes to process.
     $start = hrtime(true);
@@ -29,11 +29,8 @@ foreach ($pdo->query($sql) as $row) {
     $sqlDate = $row['date'];
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
-    $sql = "SELECT COUNT(date) FROM serverstats WHERE date = '$sqlDate'";
-    $sql = $pdo->prepare($sql);
-    $sql->execute();
-    $row = $sql->fetchAll(PDO::FETCH_COLUMN);
-    foreach ($row as $key => $value) {
+    dbSelect("SELECT COUNT(date) FROM serverstats WHERE date = '$sqlDate'");
+    foreach ($arr as $key => $value) {
         if ($value == "0") {
             echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
             $sql = "INSERT INTO serverstats(date) VALUES ('$sqlDate')";
@@ -43,8 +40,7 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
     $sql = "SELECT COUNT(DISTINCT tagnumber) FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND uuid LIKE 'techComm-%'";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
+    foreach ($arr as $key => $value) {
     if ($value > 0) {
         $sql = "UPDATE serverstats SET laptop_count = '$value' WHERE date = '$sqlDate'";
     } else {
@@ -55,8 +51,7 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update the average time taken to clone a computer.
     $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
+    foreach ($arr as $key => $value) {
     if ($value > 0) {
         $sql = "UPDATE serverstats SET clone_avgtime = '$value' WHERE date = '$sqlDate'";
     } else {
@@ -67,8 +62,7 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update the average erase time of NVMe drives
     $sql = "SELECT ROUND(AVG(erase_time) / 60, 0) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND date BETWEEN '$oldDate' AND '$sqlDate'";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
+    foreach ($arr as $key => $value) {
     if ($value > 0) {
         $sql = "UPDATE serverstats SET nvme_erase_avgtime = '$value' WHERE date = '$sqlDate'";
     } else {
@@ -80,8 +74,7 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
     $sql = "SELECT ROUND(AVG(erase_time) / 60, 0) FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND date BETWEEN '$oldDate' AND '$sqlDate'";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
+    foreach ($arr as $key => $value) {
     if ($value > 0) {
         $sql = "UPDATE serverstats SET sata_erase_avgtime = '$value' WHERE date = '$sqlDate'";
     } else {
@@ -92,8 +85,7 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update the number of erase jobs that have completed
     $sql = "SELECT COUNT(erase_completed) FROM jobstats WHERE erase_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
+    foreach ($arr as $key => $value) {
     if ($eraseJobsLC > 0) {
         $sql = "UPDATE serverstats SET erase_jobs = '$eraseJobsLC' WHERE date = '$sqlDate'";
     } else {
@@ -104,8 +96,7 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update the number of clone jobs that have completed
     $sql = "SELECT COUNT(clone_completed) FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
+    foreach ($arr as $key => $value) {
     if ($cloneJobsLC > 0) {
         $sql = "UPDATE serverstats SET clone_jobs = '$cloneJobsLC' WHERE date = '$sqlDate'";
     } else {
@@ -122,8 +113,7 @@ foreach ($pdo->query($sql) as $row) {
 
     # Update date of last image update
     $sql = "SELECT date FROM jobstats WHERE clone_master = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate' ORDER BY time DESC LIMIT 1";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
+    foreach ($arr as $key => $value) {
     if (filter($value) == 0) {
         $sql = "UPDATE serverstats SET last_image_update = '$value' WHERE date = '$sqlDate'";
     } else {
