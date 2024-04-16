@@ -30,7 +30,7 @@ function dbSelectVal ($sql) {
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
         foreach ($arr as $key => $value) {
-            $result = $value["result"]
+            $result = $value["result"];
         }
     } else {
         exit();
