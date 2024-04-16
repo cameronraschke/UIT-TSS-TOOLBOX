@@ -8,6 +8,7 @@ function DBSelect ($sql, $bool) {
     clearArray();
     global $pdo;
     global $arr;
+    $arr = array();
     if (filter($sql) == 0) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
@@ -15,7 +16,6 @@ function DBSelect ($sql, $bool) {
         if (filter($row) == 0) {
             array_push($arr, $row);
         }
-
     } else {
         exit();
     }
