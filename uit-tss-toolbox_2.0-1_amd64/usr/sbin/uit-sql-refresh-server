@@ -29,8 +29,8 @@ foreach ($pdo->query($sql) as $row) {
     $sqlDate = $row['date'];
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
-    $sql = "SELECT date FROM serverstats WHERE date = '$sqlDate'";
-    $linecount = rowCount($pdo->query($sql));
+    $sql = "SELECT COUNT(date) FROM serverstats WHERE date = '$sqlDate'";
+    $linecount = fetchColumn($pdo->query($sql));
     if ($linecount == "0") {
         echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
         $sql = "INSERT INTO serverstats(date) VALUES ('$sqlDate')";
