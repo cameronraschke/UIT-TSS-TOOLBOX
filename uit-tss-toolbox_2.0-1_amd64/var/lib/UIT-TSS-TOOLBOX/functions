@@ -10,13 +10,11 @@ function filter ($string) {
 }
 
 function select ($sql) {
-    if filter($sql) {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        $row = $sql->fetchAll(PDO::FETCH_COLUMN);
-        foreach ($row as $key => $value) {
-            return $value;
-        }
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $row = $sql->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($row as $key => $value) {
+        return $value;
     }
 }
 
