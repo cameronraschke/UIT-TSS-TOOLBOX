@@ -20,28 +20,23 @@ foreach ($arr as $key => $value) {
     $tagNum = $value['tagnumber'];
 
     # Get the most recent serial number from jobstats that is associated with the tagnumber.
-    dbSelect("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-      $serial = $value["result"];
-      dbUpdateLoc("system_serial", "$serial", "$tagNum");
-    }
+    dbSelectVal("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
+    $serial = $result;
+    dbUpdateLoc("system_serial", "$result", "$tagNum");
 
     /* Select the time of the most recent entry for a given client where the clone job has successfully completed. 
     This shows whether or not the OS is installed and at what time it was last installed. */
-    $sql = "SELECT time FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes') ORDER BY time DESC LIMIT 1";
-    $results = $pdo->query($sql);
-    $value = $results->fetchColumn();
-    if ($value > 0) {
-        $sql = "UPDATE locations SET os_installed = '$value' WHERE tagnumber = '$tagNum'";
-    } else {
-        $sql = "UPDATE locations SET os_installed = NULL WHERE tagnumber = '$tagNum'";
-    }
-    $pdo->query($sql);
+    $sql = "SELECT time FROM jobstats WHERE time IN (SELECT MAX(time) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes') ORDER BY time DESC LIMIT 1";
+    dbUpdateLoc("os_installed", "$result", "$tagNum");
 
     # End the timer and print how long it took to update the location table for a specific tagnumber.
     $end = hrtime(true);
     $executionTime = round(($end - $start) / 1e9, 4);
-    echo "Updating location for $tagNum ($serial): " . $executionTime . " seconds" . PHP_EOL;
+    if (filter($serial) == 0) {
+        echo "Updating location for $tagNum ($serial): " . $executionTime . " seconds" . PHP_EOL;
+    } else {
+        echo "Can't find serial for $tagNum: " . $executionTime . " seconds" . PHP_EOL;
+    }
 }
 
 # Close the connection to the DB.

@@ -53,10 +53,12 @@ function dbUpdateSS ($key, $value, $date) {
         $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         $stmt->bindParam(':date', $date, PDO::PARAM_STR);
     } else {
-        exit(1);
+        $stmt = null;
     }
 
-    $stmt->execute();
+    if (filter($stmt) == 0) {
+        $stmt->execute();
+    }
     $stmt = null;
 }
 
@@ -76,10 +78,12 @@ function dbUpdateCS ($key, $value, $tagnumber) {
         $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
     } else {
-        exit(1);
+        $stmt = null;
     }
 
-    $stmt->execute();
+    if (filter($stmt) == 0) {
+        $stmt->execute();
+    }
     $stmt = null;
 }
 
@@ -95,10 +99,12 @@ function dbUpdateLoc ($key, $value, $tagnumber) {
         $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
     } else {
-        exit(1);
+        $stmt = null;
     }
 
-    $stmt->execute();
+    if (filter($stmt) == 0) {
+        $stmt->execute();
+    }
     $stmt = null;
 }
 
