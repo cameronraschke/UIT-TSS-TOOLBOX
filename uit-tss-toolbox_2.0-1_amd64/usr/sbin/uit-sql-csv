@@ -96,7 +96,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $arr[] = $row['tagnumber'];
 }
 
-$sql = "SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Update','OS Installed'";
+$sql = "SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Update'";
 foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
     $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
     $file->fputcsv($row);
@@ -107,7 +107,7 @@ foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
 foreach ($arr as $row) {
     unset($tagNum);
     $tagNum = $row;
-    $sql = "SELECT tagnumber,system_serial,location,status,problem,time,os_installed ";
+    $sql = "SELECT tagnumber,system_serial,location,status,problem,time ";
     $sql .= "FROM locations ";
     $sql .= "WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
     foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {

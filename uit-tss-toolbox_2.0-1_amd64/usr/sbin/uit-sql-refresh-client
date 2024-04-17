@@ -22,7 +22,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
 }
 
 # Iterate through distinct computers in the Tech Commons by tagnumber.
-dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber LIKE '$input' AND uuid LIKE 'techComm-%'");
+dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber LIKE '$input' AND uuid LIKE 'techComm-%' AND tagnumber IS NOT NULL");
 foreach ($arr as $key => $value) {
     # Start the timer that counts how long it takes to update each tagnumber.
     $start = hrtime(true);
