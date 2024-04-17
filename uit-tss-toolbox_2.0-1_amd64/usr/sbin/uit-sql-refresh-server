@@ -36,33 +36,33 @@ foreach ($arr as $key => $value) {
     }
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
-    dbSelect("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND uuid LIKE 'techComm-%'");
+    dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND uuid LIKE 'techComm-%'");
     dbUpdateSS("laptop_count", "$result", "$sqlDate");
 
 
     # Update the average time taken to clone a computer.
-    dbSelect("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     dbUpdateSS("clone_avgtime", "$result", "$sqlDate");
 
 
     # Update the average erase time of NVMe drives
-    dbSelect("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'nvme%' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     dbUpdateSS("nvme_erase_avgtime", "$result", "$sqlDate");
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
-    dbSelect("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND disk LIKE 'sd%' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     dbUpdateSS("sata_erase_avgtime", "$result", "$sqlDate");
 
 
     # Update the number of erase jobs that have completed
-    dbSelect("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     $eraseJobsLC = $result;
     dbUpdateSS("erase_jobs", "$result", "$sqlDate");
 
 
     # Update the number of clone jobs that have completed
-    dbSelect("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     $cloneJobsLC = $result;
     dbUpdateSS("clone_jobs", "$result", "$sqlDate");
 
@@ -73,7 +73,7 @@ foreach ($arr as $key => $value) {
 
 
     # Update date of last image update
-    dbSelect("SELECT date AS result FROM jobstats WHERE clone_master = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate' ORDER BY time DESC LIMIT 1");
+    dbSelectVal("SELECT date AS result FROM jobstats WHERE clone_master = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate' ORDER BY time DESC LIMIT 1");
     dbUpdateSS("last_image_update", "$result", "$sqlDate");
 
     # Set $arr1
@@ -151,14 +151,14 @@ foreach ($arr as $key => $value) {
 
 
     #Update the average boot time
-    dbSelect("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE boot_time IS NOT NULL");
+    dbSelectVal("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE boot_time IS NOT NULL");
     dbUpdateSS("boot_time", "$result", "$sqlDate");
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
     $sql = "SELECT ROUND(AVG(battery_health), 0) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
     $sql .= "AND battery_health IS NOT NULL GROUP BY tagnumber)";
-    dbSelect($sql);
+    dbSelectVal($sql);
     dbUpdateSS("battery_health", "$result", "$sqlDate");
 
 
