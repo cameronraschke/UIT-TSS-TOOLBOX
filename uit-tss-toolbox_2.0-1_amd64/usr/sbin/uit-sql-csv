@@ -52,27 +52,19 @@ foreach ($arr as $row) {
 
 
 #Client Table
-unset($arr);
-unset($row);
+dbSelect("CALL iterateJobLabels()");
+foreach ($arr as $key => $value) {
+    $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
+    $file->fputcsv($value);
+    $file = null;
+}
+
 $sql = "SELECT tagnumber,system_serial,system_manufacturer,system_model,last_job_time,";
 $sql .= "CONCAT(battery_health, '%'),CONCAT(tbw_pcnt, '%'),";
 $sql .= "CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all_jobs ";
 $sql .= "FROM clientstats ORDER BY last_job_time DESC";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
-    $arr[] = $row;
-}
-
-$sql = "SELECT 'Tag Number','Serial Number','System Manufacturer','System Model','Last Job Time',";
-$sql .= "'Battery Max Charge','Terabytes Written (TBW)',";
-$sql .= "'Erase Time','Clone Time','Total Jobs'";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
-    $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
-    $file->fputcsv($row);
-    $file = null;
-}
-
-
-foreach ($arr as $row) {
+dbSelect($sql);
+foreach ($arr as $key => $value) {
         $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
         $file->fputcsv($row);
         $file = null;
