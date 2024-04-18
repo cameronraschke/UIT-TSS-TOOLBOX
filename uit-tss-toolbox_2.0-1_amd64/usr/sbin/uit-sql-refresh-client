@@ -125,10 +125,10 @@ foreach ($arr as $key => $value) {
     dbUpdateCS("boot_time", "$result", "$tagNum");
 
     # Update the uuid of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
-    dbSelectVal("SELECT time FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbSelectVal("SELECT time AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
     dbUpdateCS("last_job_time", "$result", "$tagNum");
 
-    dbSelectVal("SELECT uuid FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbSelectVal("SELECT uuid AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
     dbUpdateCS("last_job_uuid", "$result", "$tagNum");
 
     # Update the system manufacturer
