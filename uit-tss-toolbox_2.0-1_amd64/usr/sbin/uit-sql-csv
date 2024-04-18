@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
+include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
 
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
@@ -9,18 +9,10 @@ $time = $dt->format('Y-m-d-His');
 
 
 #Job Table
-$sql = "SELECT 'Job UUID','Tag Number','Ethernet Address','WiFi Address','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Last Update',";
-$sql .= "'BIOS Revision','BIOS Firmware','System Manufacturer','System Model','System Serial','System UUID',";
-$sql .= "'System SKU','Motherboard Manufacturer','Motherboard Serial','Chassis Manufcaturer',";
-$sql .= "'Chassis Type','Chassis Serial','Chassis Tag','CPU Manufacturer',";
-$sql .= "'CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp','RAM Serial','Battery Manufacturer',";
-$sql .= "'Battery Name','Battery Capacity','Battery Serial Number','Battery Manufacture Date','Battery Max Charge %','Battery Charge Cycles',";
-$sql .= "'Boot Time','Job Type','Did Sleep (Boolean)','Disk','Disk Type','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware','Disk Power on Hours','Disk Temperature','Disk Reads (TB)','Disk Writes (TB)',";
-$sql .= "'Total Time for Jobs','Erase Successful','Erase Mode','Total Erase Time','Disk Erased %',";
-$sql .= "'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update' ";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
+dbSelect("CALL iterateJobLabels()");
+foreach ($arr as $key => $value) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
-    $file->fputcsv($row);
+    $file->fputcsv($value);
     $file = null;
 }
 
