@@ -53,3 +53,31 @@ SELECT 'Tag Number','Serial Number','System Manufacturer','System Model','Last J
 END; //
 
 DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS iterateServerLabels;
+DELIMITER //
+CREATE PROCEDURE iterateClientLabels()
+DETERMINISTIC
+BEGIN
+
+SELECT 'Date','Computer Count','Disk TBW/R','Disk MTBF','Battery Max Charge Level',
+    'Total Erase and Clone Jobs','Clone Jobs','Erase Jobs',";
+    'Clone Time','NVME Erase Time','SATA Erase Time','Last Image Update'";
+
+END; //
+
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS iterateLocationLabels;
+DELIMITER //
+CREATE PROCEDURE iterateClientLabels()
+DETERMINISTIC
+BEGIN
+
+SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Entry'";
+
+END; //
+
+DELIMITER ;

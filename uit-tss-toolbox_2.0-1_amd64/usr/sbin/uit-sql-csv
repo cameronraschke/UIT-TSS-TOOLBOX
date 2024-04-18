@@ -9,7 +9,7 @@ $time = $dt->format('Y-m-d-His');
 
 
 #Job Table
-$file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
+$file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'w');
 dbSelect("CALL iterateJobLabels()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
@@ -21,34 +21,9 @@ foreach ($arr as $key => $value) {
 }
 $file = null;
 
-#Server Table
-unset($arr);
-unset($row);
-$sql = "SELECT date,laptop_count,CONCAT(tbw_pcnt, '%'),CONCAT(disk_mtbf, '%'),CONCAT(battery_health, '%'),all_jobs,clone_jobs,erase_jobs,";
-$sql .= "CONCAT(clone_avgtime, ' minutes'),CONCAT(nvme_erase_avgtime, ' minutes'),CONCAT(sata_erase_avgtime, ' minutes'),last_image_update ";
-$sql .= "FROM serverstats ORDER BY date DESC";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
-    $arr[] = $row;
-}
-
-$sql = "SELECT 'Date','Computer Count','Disk TBW/R','Disk MTBF','Battery Max Charge Level','Total Erase and Clone Jobs','Clone Jobs','Erase Jobs',";
-$sql .= "'Clone Time','NVME Erase Time','SATA Erase Time','Last Image Update'";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
-    $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'a');
-    $file->fputcsv($row);
-    $file = null;
-}
-
-foreach ($arr as $row) {
-    $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'a');
-    $file->fputcsv($row);
-    $file = null;
-}
-
-
 
 #Client Table
-$file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
+$file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'w');
 dbSelect("CALL iterateClientLabels()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
@@ -60,41 +35,41 @@ $sql .= "CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all
 $sql .= "FROM clientstats ORDER BY last_job_time DESC";
 dbSelect($sql);
 foreach ($arr as $key => $value) {
-        $file->fputcsv($value);
+    $file->fputcsv($value);
 }
 $file = null;
 
 
+#Server Table
+$file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'w');
+dbSelect("CALL iterateServerLabels()");
+foreach ($arr as $key => $value) {
+    $file->fputcsv($value);
+}
+
+$sql = "SELECT date,laptop_count,CONCAT(tbw_pcnt, '%'),CONCAT(disk_mtbf, '%'),CONCAT(battery_health, '%'),all_jobs,clone_jobs,erase_jobs,";
+$sql .= "CONCAT(clone_avgtime, ' minutes'),CONCAT(nvme_erase_avgtime, ' minutes'),CONCAT(sata_erase_avgtime, ' minutes'),last_image_update ";
+$sql .= "FROM serverstats ORDER BY date DESC";
+dbSelect($sql);
+foreach ($arr as $key => $value) {
+    $file->fputcsv($value);
+}
+$file = null;
+
 
 #Locations Table
-unset($arr);
-unset($row);
-$sql = "SELECT DISTINCT tagnumber FROM locations";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
-    $arr[] = $row['tagnumber'];
+$file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'w');
+dbSelect("CALL iterateLocationLabels()");
+foreach ($arr as $key => $value) {
+    $file->fputcsv($value);
 }
 
-$sql = "SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Update'";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
-    $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
-    $file->fputcsv($row);
-    $file = null;
+$sql = "SELECT tagnumber,system_serial,location,status,problem,time FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)";
+dbSelect($sql);
+foreach ($arr as $key => $value) {
+    $file->fputcsv($value);
 }
-
-
-foreach ($arr as $row) {
-    unset($tagNum);
-    $tagNum = $row;
-    $sql = "SELECT tagnumber,system_serial,location,status,problem,time ";
-    $sql .= "FROM locations ";
-    $sql .= "WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1";
-    foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
-        $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'a');
-        $file->fputcsv($row);
-        $file = null;
-    }
-
-}
+$file = null;
 
 $pdo = null;
 ?>
