@@ -16,10 +16,10 @@ foreach ($arr as $key => $value) {
     $file = null;
 }
 
-$sql = "SELECT * FROM jobstats WHERE uuid LIKE 'techComm-%' ORDER BY date DESC";
-foreach ($pdo->query($sql, PDO::FETCH_ASSOC) as $row) {
+dbSelect("SELECT * FROM jobstats WHERE department = 'techComm' ORDER BY time DESC");
+foreach ($arr as $key => $value) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
-    $file->fputcsv($row);
+    $file->fputcsv($value);
     $file = null;
 }
 

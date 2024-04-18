@@ -22,7 +22,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
 }
 
 # Iterate through distinct computers in the Tech Commons by tagnumber.
-dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber LIKE '$input' AND uuid LIKE 'techComm-%' AND tagnumber IS NOT NULL");
+dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber LIKE '$input' AND department = 'techComm' AND tagnumber IS NOT NULL");
 foreach ($arr as $key => $value) {
     # Start the timer that counts how long it takes to update each tagnumber.
     $start = hrtime(true);
@@ -38,7 +38,7 @@ foreach ($arr as $key => $value) {
 
     # Update the date of the BIOS release
     dbSelectVal("SELECT bios_date AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_date IS NOT NULL ORDER BY time DESC LIMIT 1");
-    dbUpdateCS("clone_avgtime", "$result", "$tagNum");
+    dbUpdateCS("bios_date", "$result", "$tagNum");
 
     # Update the BIOS version
     dbSelectVal("SELECT bios_version AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_version IS NOT NULL ORDER BY time DESC LIMIT 1");

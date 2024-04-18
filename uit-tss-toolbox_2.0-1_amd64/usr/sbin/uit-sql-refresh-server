@@ -36,7 +36,7 @@ foreach ($arr as $key => $value) {
     }
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
-    dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND uuid LIKE 'techComm-%'");
+    dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND department = 'techComm'");
     dbUpdateSS("laptop_count", "$result", "$sqlDate");
 
 
