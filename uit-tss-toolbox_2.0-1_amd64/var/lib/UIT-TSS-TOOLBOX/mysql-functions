@@ -81,7 +81,7 @@ function dbUpdateSS ($key, $value, $date) {
 
 function dbInsertCS ($tagNum) {
     global $pdo;
-    $sql = "INSERT INTO clientstats (tagnumber) VALUES (:tagnumber)";
+    $sql = "INSERT INTO clientstats (tagnumber) VALUES (:tagNum)";
     $stmt = $pdo->prepare($sql);
 
     if (filter($tagNum) == 0) {
