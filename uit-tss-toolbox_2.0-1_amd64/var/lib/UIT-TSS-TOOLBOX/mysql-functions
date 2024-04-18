@@ -138,23 +138,6 @@ function dbInsertLocation ($time) {
     $stmt = null;
 }
 
-function dbInsertLocation ($time) {
-    global $pdo;
-    $sql = "INSERT INTO locations (time) VALUES (:time)";
-    $stmt = $pdo->prepare($sql);
-
-    if (filter($time) == 0) {
-        $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-    } else {
-        $stmt = null;
-    }
-
-    if (filter($stmt) == 0) {
-        $stmt->execute();
-    }
-    $stmt = null;
-}
-
 function dbUpdateLocation ($key, $value, $time) {
     global $pdo;
 
