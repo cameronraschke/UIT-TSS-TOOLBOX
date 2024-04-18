@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
-    date DATE DEFAULT NOT NULL,
-    laptop_count SMALLINT DEFAULT NULL,
+    date DATE DEFAULT NULL,
+    laptop_count SMALLINT DEFAULT NULL;
     last_image_update DATE DEFAULT NULL,
     all_jobs MEDIUMINT DEFAULT NULL,
     clone_jobs MEDIUMINT DEFAULT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE serverstats (
 DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
     tagnumber MEDIUMINT DEFAULT NOT NULL,
-    system_manufacturer VARCHAR(64) DEFAULT NULL,
+    system_manufacturer VARCHAR(12) DEFAULT NULL,
     last_job_time DATETIME DEFAULT NULL,
     last_job_uuid VARCHAR(64) DEFAULT NULL,
     all_avgtime SMALLINT DEFAULT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
     etheraddress VARCHAR(24) DEFAULT NULL,
     wifi_mac VARCHAR(24) DEFAULT NULL,
     date DATE DEFAULT NULL,
-    time datetime(3) DEFAULT NULL,
+    time DATETIME(3) DEFAULT NULL,
     department VARCHAR(12) DEFAULT NULL,
     bios_vendor VARCHAR(16) DEFAULT NULL,
     bios_version VARCHAR(24) DEFAULT NULL,
@@ -115,7 +115,7 @@ ALTER TABLE jobstats
     MODIFY COLUMN etheraddress VARCHAR(24) DEFAULT NULL,
     MODIFY COLUMN wifi_mac VARCHAR(24) DEFAULT NULL,
     MODIFY COLUMN date DATE DEFAULT NULL,
-    MODIFY COLUMN time datetime(3) DEFAULT NULL,
+    MODIFY COLUMN time DATETIME(3) DEFAULT NULL,
     MODIFY COLUMN department VARCHAR(12) DEFAULT NULL,
     MODIFY COLUMN bios_vendor VARCHAR(16) DEFAULT NULL,
     MODIFY COLUMN bios_version VARCHAR(24) DEFAULT NULL,
