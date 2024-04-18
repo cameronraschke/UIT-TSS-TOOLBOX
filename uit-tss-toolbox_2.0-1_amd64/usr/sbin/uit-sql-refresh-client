@@ -30,8 +30,8 @@ foreach ($arr as $key => $value) {
     $tagNum = $value['tagnumber'];
 
     # If tagnumber does not exist in the clientstats table, then insert it.
-    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM clientstats WHERE tagnumber = '$tagNum'");
-    if ($result == "0") {
+    dbSelectVal("SELECT tagnumber AS result FROM clientstats WHERE tagnumber = '$tagNum'");
+    if (filter($result) == 1) {
         echo "Inserting laptop: " . $tagNum . PHP_EOL;
         dbInsertCS("$tagNum");
     }
