@@ -375,12 +375,6 @@ function manualClient {
 
 
 function autodetectClient {
-	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
-		if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
-			autodetectDisk="${i}"
-		fi
-	done
-
 	if [[ $(echo "${tOneManufacturer}" | grep -i "dell") ]]; then
 		systemManufacturer="dell"
 		elif [[ $(echo "${tOneManufacturer}" | grep -i "hp") ]]; then
@@ -399,14 +393,6 @@ function autodetectClient {
 			chassisType="unknown"
 	fi
 
-	if [[ $(echo "${autodetectDisk}" | grep -i "nvme") ]]; then
-		diskType="nvme"
-		elif [[ $(echo "${autodetectDisk}" | grep -i "sd") ]]; then
-			diskType="sata"
-		else
-			diskType="unknown"
-	fi
-
 	logo
 	echo "${BOLD}${BLUE}Autodetect mode${RESET}${BOLD} will destroy all data on this laptop and image it."
 	echo ""
@@ -417,11 +403,11 @@ function autodetectClient {
 	read -n 1 -p "${BOLD}Enter [1,2]:${RESET} " autodetectMenu
 
 	if [[ $autodetectMenu == "1" ]]; then
-		if [[ $systemManufacturer == "hp" && $chassisType == "notebook" && $diskType == "nvme" && $tOneProductName == "HP ProBook 450 G6" ]]; then
+		if [[ $systemManufacturer == "hp" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
 			mainMenuOpt="1"
-			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "nvme" && $tOneProductName == "Latitude 7400" ]]; then
+			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
 				mainMenuOpt="2"
-			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "sata" && $tOneProductName != "Latitude 7400" ]]; then
+			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "sata" ]]; then
 				mainMenuOpt="5"
 			else
 				echo ""
@@ -435,7 +421,7 @@ function autodetectClient {
 		echo ""
 		echo "${BOLD}${BLUE}System Manufacturer${RESET}${BOLD}: ${systemManufacturer}${RESET}"
 		echo "${BOLD}${BLUE}Chassis Type${RESET}${BOLD}: ${chassisType}${RESET}"
-		echo "${BOLD}${BLUE}Disk type${RESET}${BOLD}: ${autodetectDisk}${RESET}"
+		echo "${BOLD}${BLUE}Disk type${RESET}${BOLD}: ${DISK}${RESET}"
 		echo ""
 		echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Yes, it is correct${RESET}"
 		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}No, start over${RESET}"
@@ -449,16 +435,6 @@ function autodetectClient {
 			manualClient
 	fi
 }
-
-
-
-function intro {
-	tput reset
-	autodetectClient
-	tput reset
-	return
-}
-
 
 
 function powerWarning {
@@ -1649,7 +1625,7 @@ function main {
 	department
 	enterTag
 	tput reset
-	intro
+	autodetectClient
 	if [[ $mainMenuOpt == "1" ]]; then
 		hardwareData
 		APPSELECT="EC"
