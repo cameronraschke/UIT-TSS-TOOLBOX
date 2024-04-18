@@ -22,7 +22,7 @@ foreach ($arr as $key => $value) {
     # Get the most recent serial number from jobstats that is associated with the tagnumber.
     dbSelectVal("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
     $serial = $result;
-    dbUpdateLoc("system_serial", "$result", "$tagNum");
+    dbUpdateLocation("system_serial", "$result", "NOTIME");
 
     /* Select the time of the most recent entry for a given client where the clone job has successfully completed. 
     This shows whether or not the OS is installed and at what time it was last installed. */

@@ -138,19 +138,52 @@ function dbInsertLocation ($time) {
     $stmt = null;
 }
 
-function dbUpdateLoc ($key, $value, $time) {
+function dbInsertLocation ($time) {
     global $pdo;
-    $sql = "UPDATE locations SET $key = :value WHERE time = :time";
+    $sql = "INSERT INTO locations (time) VALUES (:time)";
     $stmt = $pdo->prepare($sql);
 
-    if (filter($key) == 0 && filter($value) == 1 && filter($time) == 0) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-        $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-    } elseif (filter($key) == 0 && filter($value) == 0 && filter($time) == 0) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+    if (filter($time) == 0) {
         $stmt->bindParam(':time', $time, PDO::PARAM_STR);
     } else {
         $stmt = null;
+    }
+
+    if (filter($stmt) == 0) {
+        $stmt->execute();
+    }
+    $stmt = null;
+}
+
+function dbUpdateLocation ($key, $value, $time) {
+    global $pdo;
+
+    if ($time = "NOTIME") {
+        $sql = "UPDATE locations SET $key = :value";
+        $stmt = $pdo->prepare($sql);
+
+        if (filter($key) == 0 && filter($value) == 1 && filter($time) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+        } elseif (filter($key) == 0 && filter($value) == 0 && filter($time) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+        } else {
+            $stmt = null;
+        }
+    } else {
+        $sql = "UPDATE locations SET $key = :value WHERE time = :time";
+        $stmt = $pdo->prepare($sql);
+
+        if (filter($key) == 0 && filter($value) == 1 && filter($time) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+        } elseif (filter($key) == 0 && filter($value) == 0 && filter($time) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+        } else {
+            $stmt = null;
+        }
     }
 
     if (filter($stmt) == 0) {
