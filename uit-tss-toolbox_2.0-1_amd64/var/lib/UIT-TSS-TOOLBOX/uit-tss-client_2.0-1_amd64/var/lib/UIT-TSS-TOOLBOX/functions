@@ -2,11 +2,15 @@
 <?php
 
 function filter ($string) {
-    if ($string == "" || $string == " " || $string == "NULL" || empty($string)) {
-            return 1;
+    if ($string == "" || $string == " " || $string == "NULL" || empty($string) || is_null($string)) {
+        return 1;
     } else {
-            return 0;
+        return 0;
     }
+}
+
+function clearArray() {
+    unset($GLOBALS["arr"]);
 }
 
 ?>

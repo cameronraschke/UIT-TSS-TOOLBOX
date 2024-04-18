@@ -2,7 +2,7 @@
 <?php
 
 function filter ($string) {
-    if ($string == "" || $string == " " || $string == "NULL" || empty($string)) {
+    if ($string == "" || $string == " " || $string == "NULL" || empty($string) || is_null($string)) {
         return 1;
     } else {
         return 0;
