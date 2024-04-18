@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
-    date DATE DEFAULT NULL,
-    laptop_count SMALLINT DEFAULT NULL;
+    date DATE DEFAULT NOT NULL,
+    laptop_count SMALLINT DEFAULT NULL,
     last_image_update DATE DEFAULT NULL,
     all_jobs MEDIUMINT DEFAULT NULL,
     clone_jobs MEDIUMINT DEFAULT NULL,
