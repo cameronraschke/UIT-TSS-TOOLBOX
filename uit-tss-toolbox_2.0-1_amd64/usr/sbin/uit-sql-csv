@@ -9,20 +9,17 @@ $time = $dt->format('Y-m-d-His');
 
 
 #Job Table
-$file = fopen("/tmp/laptop-report-job-".$time.".csv", 'a');
+$file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
 dbSelect("CALL iterateJobLabels()");
 foreach ($arr as $key => $value) {
-    fputcsv($file, $value);
+    $file->fputcsv($value);
 }
 
 dbSelect("SELECT * FROM jobstats WHERE department = 'techComm' ORDER BY time DESC");
 foreach ($arr as $key => $value) {
-    $file->fputcsv($file, $value);
+    $file->fputcsv($value);
 }
-fclose($file);
 $file = null;
-
-
 
 #Server Table
 unset($arr);
@@ -51,9 +48,9 @@ foreach ($arr as $row) {
 
 
 #Client Table
+$file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
 dbSelect("CALL iterateClientLabels()");
 foreach ($arr as $key => $value) {
-    $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
     $file->fputcsv($value);
 }
 
@@ -64,8 +61,8 @@ $sql .= "FROM clientstats ORDER BY last_job_time DESC";
 dbSelect($sql);
 foreach ($arr as $key => $value) {
         $file->fputcsv($value);
-        $file = null;
 }
+$file = null;
 
 
 
