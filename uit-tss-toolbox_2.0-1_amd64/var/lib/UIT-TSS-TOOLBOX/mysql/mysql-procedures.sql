@@ -27,6 +27,7 @@ DROP PROCEDURE IF EXISTS iterateJobLabels;
 DELIMITER //
 CREATE PROCEDURE iterateJobLabels()
 DETERMINISTIC
+BEGIN
 SELECT 'Job UUID','Tag Number','Ethernet Address','WiFi Address','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Last Update',
     'BIOS Revision','BIOS Firmware','System Manufacturer','System Model','System Serial','System UUID',
     'System SKU','Motherboard Manufacturer','Motherboard Serial','Chassis Manufcaturer',
@@ -36,6 +37,7 @@ SELECT 'Job UUID','Tag Number','Ethernet Address','WiFi Address','Date','Datetim
     'Boot Time','Job Type','Did Sleep (Boolean)','Disk','Disk Type','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware',
     'Disk Power on Hours','Disk Temperature','Disk Reads (TB)','Disk Writes (TB)',
     'Total Time for Jobs','Erase Successful','Erase Mode','Total Erase Time','Disk Erased %',
-    'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update'//
+    'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update';
+END; //
 
 DELIMITER ;

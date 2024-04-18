@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS clientstats;
+DROP TABLE IF EXISTS serverstats;
 DELIMITER //
 CREATE TABLE clientstats (
     tagnumber MEDIUMINT,
@@ -26,72 +26,162 @@ CREATE TABLE clientstats (
     PRIMARY KEY (tagnumber)
 );
 
--- First check if the table exists
-CREATE TABLE IF NOT EXISTS jobstats (
+DROP TABLE IF EXISTS clientstats;
+CREATE TABLE clientstats (
+    tagnumber MEDIUMINT,
+    system_manufacturer VARCHAR(64),
+    last_job_time DATETIME,
+    last_job_uuid VARCHAR(64),
+    all_avgtime SMALLINT,
+    erase_time SMALLINT,
+    erase_avgtime SMALLINT,
+    clone_time SMALLINT,
+    clone_avgtime TINYINT,
+    all_jobs SMALLINT,
+    erase_jobs SMALLINT,
+    clone_jobs SMALLINT,
+    disk_type VARCHAR(4),
+    tbw_pcnt TINYINT,
+    system_model VARCHAR(24),
+    bios_date VARCHAR(12),
+    bios_version VARCHAR(24),
+    system_serial VARCHAR(16),
+    cpu_model VARCHAR(64),
+    cpu_cores TINYINT,
+    battery_health TINYINT,
+    boot_time TINYINT,
+    PRIMARY KEY (tagnumber)
+);
 
+CREATE TABLE IF NOT EXISTS jobstats (
+    uuid DEFAULT NOT NULL VARCHAR(64),
+    tagnumber MEDIUMINT DEFAULT NULL,
+    etheraddress VARCHAR(24) DEFAULT NULL,
+    wifi_mac varchar(24) DEFAULT NULL,
+    date date DEFAULT NULL,
+    time datetime(3) DEFAULT NULL,
+    department varchar(12) DEFAULT NULL,
+    bios_vendor varchar(16) DEFAULT NULL,
+    bios_version varchar(24) DEFAULT NULL,
+    bios_date varchar(12) DEFAULT NULL,
+    bios_revision varchar(8) DEFAULT NULL,
+    bios_firmware varchar(8) DEFAULT NULL,
+    system_manufacturer varchar(12) DEFAULT NULL,
+    system_model varchar(24) DEFAULT NULL,
+    system_serial varchar(16) DEFAULT NULL,
+    system_uuid varchar(36) DEFAULT NULL,
+    system_sku varchar(16) DEFAULT NULL,
+    motherboard_manufacturer varchar(16) DEFAULT NULL,
+    motherboard_serial varchar(32) DEFAULT NULL,
+    chassis_manufacturer varchar(12) DEFAULT NULL,
+    chassis_type varchar(12) DEFAULT NULL,
+    chassis_serial varchar(16) DEFAULT NULL,
+    chassis_tag varchar(16) DEFAULT NULL,
+    cpu_manufacturer varchar(32) DEFAULT NULL,
+    cpu_model varchar(64) DEFAULT NULL,
+    cpu_maxspeed smallint DEFAULT NULL,
+    cpu_cores tinyint DEFAULT NULL,
+    cpu_threads tinyint DEFAULT NULL,
+    cpu_temp decimal(6,2) DEFAULT NULL,
+    ram_serial varchar(24) DEFAULT NULL,
+    battery_manufacturer varchar(16) DEFAULT NULL,
+    battery_name varchar(16) DEFAULT NULL,
+    battery_capacity mediumint DEFAULT NULL,
+    battery_serial varchar(8) DEFAULT NULL,
+    battery_manufacturedate date DEFAULT NULL,
+    battery_health tinyint DEFAULT NULL,
+    battery_charge_cycles smallint DEFAULT NULL,
+    boot_time decimal(5,2) DEFAULT NULL,
+    action varchar(16) DEFAULT NULL,
+    hibernate varchar(3) DEFAULT NULL,
+    disk varchar(8)  DEFAULT NULL,
+    disk_type varchar(4) DEFAULT NULL,
+    disksizegb smallint DEFAULT NULL,
+    disk_model varchar(32) DEFAULT NULL,
+    disk_serial varchar(32) DEFAULT NULL,
+    disk_firmware varchar(10) DEFAULT NULL,
+    disk_power_on_hours mediumint DEFAULT NULL,
+    disk_temp varchar(32) DEFAULT NULL,
+    disk_reads decimal(7,2) DEFAULT NULL,
+    disk_writes decimal(7,2) DEFAULT NULL,
+    all_time smallint    DEFAULT NULL,
+    erase_completed varchar(3) DEFAULT NULL,
+    erase_mode varchar(24) DEFAULT NULL,
+    erase_time smallint DEFAULT NULL,
+    erase_diskpercent tinyint DEFAULT NULL,
+    clone_completed varchar(3) DEFAULT NULL,
+    clone_mode varchar(16) DEFAULT NULL,
+    clone_time smallint DEFAULT NULL,
+    clone_master varchar(8) DEFAULT NULL,
+    clone_server varchar(24) DEFAULT NULL,
+    clone_image varchar(32) DEFAULT NULL,
+    clone_imageupdate date DEFAULT NULL,
     PRIMARY KEY (uuid)
 );
-    ALTER TABLE jobstats
-        MODIFY COLUMN uuid DEFAULT NOT NULL VARCHAR(64),
-        MODIFY COLUMN tagnumber MEDIUMINT DEFAULT NULL,
-        MODIFY COLUMN etheraddress VARCHAR(24) DEFAULT NULL
-        MODIFY COLUMN wifi_mac varchar(24)  YES      NULL          |
-        MODIFY COLUMN date date         YES      NULL          |
-        MODIFY COLUMN time datetime(3)  YES      NULL          |
-        MODIFY COLUMN department varchar(12)  YES      NULL          |
-        MODIFY COLUMN bios_vendor varchar(16)  YES      NULL          |
-        MODIFY COLUMN bios_version varchar(24)  YES      NULL          |
-        MODIFY COLUMN bios_date varchar(12)  YES      NULL          |
-        MODIFY COLUMN bios_revision varchar(8)   YES      NULL          |
-        MODIFY COLUMN bios_firmware varchar(8)   YES      NULL          |
-        MODIFY COLUMN system_manufacturer varchar(12)  YES      NULL          |
-        MODIFY COLUMN system_model varchar(24)  YES      NULL          |
-        MODIFY COLUMN system_serial varchar(16)  YES      NULL          |
-        MODIFY COLUMN system_uuid varchar(36)  YES      NULL          |
-        MODIFY COLUMN system_sku varchar(16)  YES      NULL          |
-        MODIFY COLUMN motherboard_manufacturer varchar(16)  YES      NULL          |
-        MODIFY COLUMN motherboard_serial varchar(32)  YES      NULL          |
-        MODIFY COLUMN chassis_manufacturer varchar(12)  YES      NULL          |
-        MODIFY COLUMN chassis_type varchar(12)  YES      NULL          |
-        MODIFY COLUMN chassis_serial varchar(16)  YES      NULL          |
-        MODIFY COLUMN chassis_tag varchar(16)  YES      NULL          |
-        MODIFY COLUMN cpu_manufacturer varchar(32)  YES      NULL          |
-        MODIFY COLUMN cpu_model varchar(64)  YES      NULL          |
-        MODIFY COLUMN cpu_maxspeed smallint     YES      NULL          |
-        MODIFY COLUMN cpu_cores tinyint      YES      NULL          |
-        MODIFY COLUMN cpu_threads tinyint      YES      NULL          |
-        MODIFY COLUMN cpu_temp decimal(6,2) YES      NULL          |
-        MODIFY COLUMN ram_serial varchar(24)  YES      NULL          |
-        MODIFY COLUMN battery_manufacturer varchar(16)  YES      NULL          |
-        MODIFY COLUMN battery_name varchar(16)  YES      NULL          |
-        MODIFY COLUMN battery_capacity mediumint    YES      NULL          |
-        MODIFY COLUMN battery_serial varchar(8)   YES      NULL          |
-        MODIFY COLUMN battery_manufacturedate date         YES      NULL          |
-        MODIFY COLUMN battery_health tinyint      YES      NULL          |
-        MODIFY COLUMN battery_charge_cycles smallint     YES      NULL          |
-        MODIFY COLUMN boot_time decimal(5,2) YES      NULL          |
-        MODIFY COLUMN action varchar(16)  YES      NULL          |
-        MODIFY COLUMN hibernate                varchar(3)   YES      NULL          |
-        MODIFY COLUMN disk                     varchar(8)   YES      NULL          |
-        MODIFY COLUMN disk_type                varchar(4)   YES      NULL          |
-        MODIFY COLUMN disksizegb               smallint     YES      NULL          |
-        MODIFY COLUMN disk_model               varchar(32)  YES      NULL          |
-        MODIFY COLUMN disk_serial              varchar(32)  YES      NULL          |
-        MODIFY COLUMN disk_firmware            varchar(10)  YES      NULL          |
-        MODIFY COLUMN disk_power_on_hours      mediumint    YES      NULL          |
-        MODIFY COLUMN disk_temp                varchar(32)  YES      NULL          |
-        MODIFY COLUMN disk_reads               decimal(7,2) YES      NULL          |
-        MODIFY COLUMN disk_writes              decimal(7,2) YES      NULL          |
-        MODIFY COLUMN all_time                 smallint     YES      NULL          |
-        MODIFY COLUMN erase_completed          varchar(3)   YES      NULL          |
-        MODIFY COLUMN erase_mode               varchar(24)  YES      NULL          |
-        MODIFY COLUMN erase_time               smallint     YES      NULL          |
-        MODIFY COLUMN erase_diskpercent        tinyint      YES      NULL          |
-        MODIFY COLUMN clone_completed          varchar(3)   YES      NULL          |
-        MODIFY COLUMN clone_mode               varchar(16)  YES      NULL          |
-        MODIFY COLUMN clone_time               smallint     YES      NULL          |
-        MODIFY COLUMN clone_master             varchar(8)   YES      NULL          |
-        MODIFY COLUMN clone_server             varchar(24)  YES      NULL          |
-        MODIFY COLUMN clone_image              varchar(32)  YES      NULL          |
-        MODIFY COLUMN clone_imageupdate
-        ADD PRIMARY KEY (uuid);
+
+ALTER TABLE jobstats
+    MODIFY COLUMN uuid DEFAULT NOT NULL VARCHAR(64),
+    MODIFY COLUMN tagnumber MEDIUMINT DEFAULT NULL,
+    MODIFY COLUMN etheraddress VARCHAR(24) DEFAULT NULL,
+    MODIFY COLUMN wifi_mac varchar(24) DEFAULT NULL,
+    MODIFY COLUMN date date DEFAULT NULL,
+    MODIFY COLUMN time datetime(3) DEFAULT NULL,
+    MODIFY COLUMN department varchar(12) DEFAULT NULL,
+    MODIFY COLUMN bios_vendor varchar(16) DEFAULT NULL,
+    MODIFY COLUMN bios_version varchar(24) DEFAULT NULL,
+    MODIFY COLUMN bios_date varchar(12) DEFAULT NULL,
+    MODIFY COLUMN bios_revision varchar(8) DEFAULT NULL,
+    MODIFY COLUMN bios_firmware varchar(8) DEFAULT NULL,
+    MODIFY COLUMN system_manufacturer varchar(12) DEFAULT NULL,
+    MODIFY COLUMN system_model varchar(24) DEFAULT NULL,
+    MODIFY COLUMN system_serial varchar(16) DEFAULT NULL,
+    MODIFY COLUMN system_uuid varchar(36) DEFAULT NULL,
+    MODIFY COLUMN system_sku varchar(16) DEFAULT NULL,
+    MODIFY COLUMN motherboard_manufacturer varchar(16) DEFAULT NULL,
+    MODIFY COLUMN motherboard_serial varchar(32) DEFAULT NULL,
+    MODIFY COLUMN chassis_manufacturer varchar(12) DEFAULT NULL,
+    MODIFY COLUMN chassis_type varchar(12) DEFAULT NULL,
+    MODIFY COLUMN chassis_serial varchar(16) DEFAULT NULL,
+    MODIFY COLUMN chassis_tag varchar(16) DEFAULT NULL,
+    MODIFY COLUMN cpu_manufacturer varchar(32) DEFAULT NULL,
+    MODIFY COLUMN cpu_model varchar(64) DEFAULT NULL,
+    MODIFY COLUMN cpu_maxspeed smallint DEFAULT NULL,
+    MODIFY COLUMN cpu_cores tinyint DEFAULT NULL,
+    MODIFY COLUMN cpu_threads tinyint DEFAULT NULL,
+    MODIFY COLUMN cpu_temp decimal(6,2) DEFAULT NULL,
+    MODIFY COLUMN ram_serial varchar(24) DEFAULT NULL,
+    MODIFY COLUMN battery_manufacturer varchar(16) DEFAULT NULL,
+    MODIFY COLUMN battery_name varchar(16) DEFAULT NULL,
+    MODIFY COLUMN battery_capacity mediumint DEFAULT NULL,
+    MODIFY COLUMN battery_serial varchar(8) DEFAULT NULL,
+    MODIFY COLUMN battery_manufacturedate date DEFAULT NULL,
+    MODIFY COLUMN battery_health tinyint DEFAULT NULL,
+    MODIFY COLUMN battery_charge_cycles smallint DEFAULT NULL,
+    MODIFY COLUMN boot_time decimal(5,2) DEFAULT NULL,
+    MODIFY COLUMN action varchar(16) DEFAULT NULL,
+    MODIFY COLUMN hibernate varchar(3) DEFAULT NULL,
+    MODIFY COLUMN disk varchar(8)  DEFAULT NULL,
+    MODIFY COLUMN disk_type varchar(4) DEFAULT NULL,
+    MODIFY COLUMN disksizegb smallint DEFAULT NULL,
+    MODIFY COLUMN disk_model varchar(32) DEFAULT NULL,
+    MODIFY COLUMN disk_serial varchar(32) DEFAULT NULL,
+    MODIFY COLUMN disk_firmware varchar(10) DEFAULT NULL,
+    MODIFY COLUMN disk_power_on_hours mediumint DEFAULT NULL,
+    MODIFY COLUMN disk_temp varchar(32) DEFAULT NULL,
+    MODIFY COLUMN disk_reads decimal(7,2) DEFAULT NULL,
+    MODIFY COLUMN disk_writes decimal(7,2) DEFAULT NULL,
+    MODIFY COLUMN all_time smallint    DEFAULT NULL,
+    MODIFY COLUMN erase_completed varchar(3) DEFAULT NULL,
+    MODIFY COLUMN erase_mode varchar(24) DEFAULT NULL,
+    MODIFY COLUMN erase_time smallint DEFAULT NULL,
+    MODIFY COLUMN erase_diskpercent tinyint DEFAULT NULL,
+    MODIFY COLUMN clone_completed varchar(3) DEFAULT NULL,
+    MODIFY COLUMN clone_mode varchar(16) DEFAULT NULL,
+    MODIFY COLUMN clone_time smallint DEFAULT NULL,
+    MODIFY COLUMN clone_master varchar(8) DEFAULT NULL,
+    MODIFY COLUMN clone_server varchar(24) DEFAULT NULL,
+    MODIFY COLUMN clone_image varchar(32) DEFAULT NULL,
+    MODIFY COLUMN clone_imageupdate date DEFAULT NULL,
+    ADD PRIMARY KEY (uuid);
+
+    DELIMITER ;
