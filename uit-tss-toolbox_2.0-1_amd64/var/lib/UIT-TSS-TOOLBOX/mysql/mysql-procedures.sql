@@ -76,7 +76,7 @@ CREATE PROCEDURE iterateClientLabels()
 DETERMINISTIC
 BEGIN
 
-SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Entry'";
+SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Entry';
 
 END; //
 
