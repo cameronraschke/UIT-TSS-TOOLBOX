@@ -68,7 +68,11 @@ foreach ($arr as $key => $value) {
 
 
     # Update count of all jobs (erase jobs + clone jobs)
-    $result = $eraseJobsLC + $cloneJobsLC;
+    if (filter($eraseJobsLC) == 1 || filter($cloneJobsLC) == 1) {
+        $result = 0;
+    } else {
+        $result = $eraseJobsLC + $cloneJobsLC;
+    }
     dbUpdateSS("all_jobs", "$result", "$sqlDate");
 
 
