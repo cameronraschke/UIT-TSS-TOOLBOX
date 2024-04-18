@@ -52,7 +52,6 @@ function dbInsertJob ($uuid) {
     if (filter($stmt) == 0) {
         $stmt->execute();
     }
-    $stmt = null;
 }
 
 function dbUpdateJob ($key, $value, $uuid) {
@@ -73,7 +72,6 @@ function dbUpdateJob ($key, $value, $uuid) {
     if (filter($stmt) == 0) {
         $stmt->execute();
     }
-    $stmt = null;
 }
 
 function dbInsertLocation ($time) {
@@ -90,7 +88,6 @@ function dbInsertLocation ($time) {
     if (filter($stmt) == 0) {
         $stmt->execute();
     }
-    $stmt = null;
 }
 
 function dbUpdateLocation ($key, $value, $time) {
@@ -111,7 +108,6 @@ function dbUpdateLocation ($key, $value, $time) {
     if (filter($stmt) == 0) {
         $stmt->execute();
     }
-    $stmt = null;
 }
 
 ?>
