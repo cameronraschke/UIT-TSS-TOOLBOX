@@ -101,7 +101,7 @@ function department {
 		fi
 	done
 
-	for i in $(echo "SELECT DISTINCT tagnumber FROM locations" | /var/lib/UIT-TSS-TOOLBOX/select); do
+	for i in $(echo "SELECT DISTINCT tagnumber FROM jobstats WHERE department = 'techComm'" | /var/lib/UIT-TSS-TOOLBOX/select); do
 		if [[ -z $techCommTag ]]; then
 			techCommTag=( "$i" )
 		else
