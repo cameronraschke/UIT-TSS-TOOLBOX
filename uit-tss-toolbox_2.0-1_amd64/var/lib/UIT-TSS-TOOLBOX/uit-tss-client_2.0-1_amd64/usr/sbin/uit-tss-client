@@ -275,8 +275,10 @@ function enterTag {
 	if [[ $tagNum != "NULL" ]]; then
 		if [[ ${shrlTag[*]} =~ $tagNum ]]; then
 			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
+			echo "general|department|shrl|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		elif [[ ${techCommTag[*]} =~ $tagNum ]]; then
 			UUID=$(echo -n "techComm-"; cat /proc/sys/kernel/random/uuid)
+			echo "general|department|techComm|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
 			UUID=$(cat /proc/sys/kernel/random/uuid)
 		fi

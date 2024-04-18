@@ -61,10 +61,13 @@ if ($arr[0] == "init") {
 
     if ($department == "1") {
         $uuid = uniqid("techComm-", true);
+        $department = "techComm"
     } elseif ($department == "2") {
         $uuid = uniqid("shrl-", true);
+        $department = "shrl"
     } else {
         $uuid = uniqid("location-", true);
+        $department = "NULL"
     }
     
     #Not the same insert statement as above, ether address is DEFAULT here.

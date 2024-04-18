@@ -41,3 +41,15 @@ SELECT 'Job UUID','Tag Number','Ethernet Address','WiFi Address','Date','Datetim
 END; //
 
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS iterateClientLabels;
+DELIMITER //
+CREATE PROCEDURE iterateClientLabels()
+DETERMINISTIC
+BEGIN
+SELECT 'Tag Number','Serial Number','System Manufacturer','System Model','Last Job Time',
+    'Battery Max Charge','Terabytes Written (TBW)',
+    'Erase Time','Clone Time','Total Jobs';
+END; //
+
+DELIMITER ;
