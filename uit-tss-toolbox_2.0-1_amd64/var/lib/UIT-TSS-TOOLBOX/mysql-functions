@@ -16,7 +16,7 @@ function dbSelect ($sql) {
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
         if (filter($arr) == 1) {
-            $result = array("result"=>"NULL")
+            $result = array("result"=>"NULL");
         }
     } else {
         exit();
