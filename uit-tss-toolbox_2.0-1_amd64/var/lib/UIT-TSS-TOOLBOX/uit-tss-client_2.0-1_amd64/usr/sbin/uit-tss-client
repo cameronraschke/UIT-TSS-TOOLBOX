@@ -1624,10 +1624,10 @@ function main {
 	tput reset
 	department
 	enterTag
+	hardwareData
 	tput reset
 	autodetectClient
 	if [[ $mainMenuOpt == "1" ]]; then
-		hardwareData
 		APPSELECT="EC"
 		ACTION="erase and clone"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1649,7 +1649,6 @@ function main {
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "2" ]]; then
-		hardwareData
 		APPSELECT="EC"
 		ACTION="erase and clone"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1671,7 +1670,6 @@ function main {
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "3" ]]; then
-		hardwareData
 		APPSELECT="EC"
 		ACTION="erase and clone"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1693,7 +1691,6 @@ function main {
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "4" ]]; then
-		hardwareData
 		APPSELECT="E"
 		ACTION="erase"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1705,7 +1702,6 @@ function main {
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "5" ]]; then
-		hardwareData
 		APPSELECT="E"
 		ACTION="erase"
 			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1717,12 +1713,11 @@ function main {
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "9" ]]; then
-		hardwareData
 		appSelect
 		diskSelect
 		execute
 	elif [[ $mainMenuOpt == "0" ]]; then
-		hardwareData
+		:
 	else
 		exit 1
 	fi
