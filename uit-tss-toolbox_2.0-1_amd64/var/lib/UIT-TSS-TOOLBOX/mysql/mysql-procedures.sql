@@ -57,7 +57,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS iterateServerLabels;
 DELIMITER //
-CREATE PROCEDURE iterateClientLabels()
+CREATE PROCEDURE iterateServerLabels()
 DETERMINISTIC
 BEGIN
 
@@ -72,7 +72,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS iterateLocationLabels;
 DELIMITER //
-CREATE PROCEDURE iterateClientLabels()
+CREATE PROCEDURE iterateLocationLabels()
 DETERMINISTIC
 BEGIN
 
