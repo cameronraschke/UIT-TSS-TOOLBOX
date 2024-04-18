@@ -99,6 +99,7 @@ function dbInsertCS ($tagNum) {
 
 function dbUpdateCS ($key, $value, $tagnumber) {
     global $pdo;
+    $stmt = null;
     $sql = "UPDATE clientstats SET $key = :value WHERE tagnumber = :tagnumber";
     $stmt = $pdo->prepare($sql);
 
