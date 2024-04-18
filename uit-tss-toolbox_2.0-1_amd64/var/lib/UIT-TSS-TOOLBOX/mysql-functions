@@ -37,7 +37,7 @@ function dbSelectVal ($sql) {
             $result = $value["result"];
         }
         if (filter($result) == 1) {
-            $result = "NULL"
+            $result = "NULL";
         }
     } else {
         exit();
