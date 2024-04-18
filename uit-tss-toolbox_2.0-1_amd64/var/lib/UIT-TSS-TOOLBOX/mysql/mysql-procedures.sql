@@ -62,7 +62,7 @@ DETERMINISTIC
 BEGIN
 
 SELECT 'Date','Computer Count','Disk TBW/R','Disk MTBF','Battery Max Charge Level',
-    'Total Erase and Clone Jobs','Clone Jobs','Erase Jobs',
+    'Total Jobs','Clone Jobs','Erase Jobs',
     'Clone Time','NVME Erase Time','SATA Erase Time','Last Image Update';
 
 END; //
