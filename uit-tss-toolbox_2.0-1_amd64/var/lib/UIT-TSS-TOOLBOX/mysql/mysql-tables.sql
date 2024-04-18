@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
-    date DATE NOT NULL,
+    date DATE NOT NULL PRIMARY KEY,
     laptop_count SMALLINT DEFAULT NULL,
     last_image_update DATE DEFAULT NULL,
     all_jobs MEDIUMINT DEFAULT NULL,
@@ -12,13 +12,12 @@ CREATE TABLE serverstats (
     tbw_pcnt TINYINT DEFAULT NULL,
     disk_mtbf DECIMAL(3,2) DEFAULT NULL,
     battery_health TINYINT DEFAULT NULL,
-    boot_time SMALLINT DEFAULT NULL,
-    PRIMARY KEY (date)
+    boot_time SMALLINT DEFAULT NULL
 );
 
 DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
-    tagnumber MEDIUMINT NOT NULL,
+    tagnumber MEDIUMINT NOT NULL PRIMARY KEY,
     system_manufacturer VARCHAR(12) DEFAULT NULL,
     last_job_time DATETIME DEFAULT NULL,
     last_job_uuid VARCHAR(64) DEFAULT NULL,
@@ -39,8 +38,7 @@ CREATE TABLE clientstats (
     cpu_model VARCHAR(64) DEFAULT NULL,
     cpu_cores TINYINT DEFAULT NULL,
     battery_health TINYINT DEFAULT NULL,
-    boot_time TINYINT DEFAULT NULL,
-    PRIMARY KEY (tagnumber)
+    boot_time TINYINT DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS jobstats (
@@ -105,7 +103,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
     clone_master VARCHAR(8) DEFAULT NULL,
     clone_server VARCHAR(24) DEFAULT NULL,
     clone_image VARCHAR(32) DEFAULT NULL,
-    clone_imageupdate DATE DEFAULT NULL;
+    clone_imageupdate DATE DEFAULT NULL
 );
 
 ALTER TABLE jobstats
