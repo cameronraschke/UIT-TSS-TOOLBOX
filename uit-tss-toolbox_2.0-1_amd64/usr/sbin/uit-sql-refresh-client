@@ -98,7 +98,7 @@ foreach ($arr as $key => $value) {
             dbSelectVal("SELECT disk_reads AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_reads IS NOT NULL ORDER BY time DESC LIMIT 1");
             $diskReadsCur = $result;
             # Get maximum disk reads amount
-            dbSelect("SELECT disk_tbr AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
+            dbSelectVal("SELECT disk_tbr AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
             $diskReadsMax = $result;
             $diskTBW = 0;
             # $value is the average of the average of disk read amount and disk write amount as a percentage

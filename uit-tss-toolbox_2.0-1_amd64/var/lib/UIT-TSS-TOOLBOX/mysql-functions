@@ -15,6 +15,9 @@ function dbSelect ($sql) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
+        if (filter($arr) == 1) {
+            $result = array("result"=>"NULL")
+        }
     } else {
         exit();
     }
@@ -32,6 +35,9 @@ function dbSelectVal ($sql) {
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
         foreach ($arr as $key => $value) {
             $result = $value["result"];
+        }
+        if (filter($result) == 1) {
+            $result = "NULL"
         }
     } else {
         exit();
