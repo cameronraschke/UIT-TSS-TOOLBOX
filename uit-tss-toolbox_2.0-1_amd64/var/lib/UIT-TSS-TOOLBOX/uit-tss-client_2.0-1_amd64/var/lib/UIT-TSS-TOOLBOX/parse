@@ -89,10 +89,10 @@ if ($arr[0] == "init") {
         $value = bcdiv("$value", 1000, 2);
     }
 
-    if ($arr[4] == "nvme") {
+    if (!empty($arr[4]) && $arr[4] == "nvme") {
         $value = bcmul("$value", 512, 4);
         $value = bcdiv("$value", 1000000000, 2);
-    } elseif ($arr[4] == "sata") {
+    } elseif (!empty($arr[4]) && $arr[4] == "sata") {
         $value = bcmul("$value", 512, 4);
         $value = bcdiv("$value", 1000000000000, 2);
     }
