@@ -9,17 +9,18 @@ $time = $dt->format('Y-m-d-His');
 
 
 #Job Table
+$file = fopen("/tmp/laptop-report-job-".$time.".csv", 'a');
 dbSelect("CALL iterateJobLabels()");
 foreach ($arr as $key => $value) {
-    $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
-    $file->fputcsv($value);
+    fputcsv($file, $value);
 }
 
 dbSelect("SELECT * FROM jobstats WHERE department = 'techComm' ORDER BY time DESC");
 foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-    $file = null;
+    $file->fputcsv($file, $value);
 }
+fclose($file);
+$file = null;
 
 
 
