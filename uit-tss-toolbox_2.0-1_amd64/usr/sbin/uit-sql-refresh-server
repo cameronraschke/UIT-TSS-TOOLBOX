@@ -32,7 +32,7 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT COUNT(date) AS result FROM serverstats WHERE date = '$sqlDate'");
     if ($result == "0") {
         echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
-        dbInsertSS("$date");
+        dbInsertSS("$sqlDate");
     }
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.

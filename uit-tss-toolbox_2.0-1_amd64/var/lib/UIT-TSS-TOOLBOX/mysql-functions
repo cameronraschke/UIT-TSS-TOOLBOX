@@ -37,13 +37,13 @@ function dbSelectVal ($sql) {
     }
 }
 
-function dbInsertSS ($value) {
+function dbInsertSS ($date) {
     global $pdo;
-    $sql = "INSERT INTO serverstats (date) VALUES (:value)";
+    $sql = "INSERT INTO serverstats (date) VALUES (:date)";
     $stmt = $pdo->prepare($sql);
 
-    if (filter($value) == 0) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+    if (filter($date) == 0) {
+        $stmt->bindParam(':date', $date, PDO::PARAM_STR);
     } else {
         $stmt = null;
     }
