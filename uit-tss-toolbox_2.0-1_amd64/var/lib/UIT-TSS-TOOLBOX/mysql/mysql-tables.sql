@@ -1,60 +1,50 @@
 DROP TABLE IF EXISTS serverstats;
-DELIMITER //
-CREATE TABLE clientstats (
-    tagnumber MEDIUMINT,
-    system_manufacturer VARCHAR(64),
-    last_job_time DATETIME,
-    last_job_uuid VARCHAR(64),
-    all_avgtime SMALLINT,
-    erase_time SMALLINT,
-    erase_avgtime SMALLINT,
-    clone_time SMALLINT,
-    clone_avgtime TINYINT,
-    all_jobs SMALLINT,
-    erase_jobs SMALLINT,
-    clone_jobs SMALLINT,
-    disk_type VARCHAR(4),
-    tbw_pcnt TINYINT,
-    system_model VARCHAR(24),
-    bios_date VARCHAR(12),
-    bios_version VARCHAR(24),
-    system_serial VARCHAR(16),
-    cpu_model VARCHAR(64),
-    cpu_cores TINYINT,
-    battery_health TINYINT,
-    boot_time TINYINT,
-    PRIMARY KEY (tagnumber)
+CREATE TABLE serverstats (
+    date date DEFAULT NOT NULL,
+    laptop_count smallint DEFAULT NULL
+    last_image_update date DEFAULT NULL
+    all_jobs mediumint DEFAULT NULL
+    clone_jobs mediumint DEFAULT NULL
+    erase_jobs mediumint DEFAULT NULL
+    clone_avgtime smallint DEFAULT NULL
+    nvme_erase_avgtime smallint DEFAULT NULL
+    sata_erase_avgtime smallint DEFAULT NULL
+    tbw_pcnt tinyint DEFAULT NULL
+    disk_mtbf decimal(3,2) DEFAULT NULL
+    battery_health tinyint DEFAULT NULL
+    boot_time smallint DEFAULT NULL
+    PRIMARY KEY (date)
 );
 
 DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
-    tagnumber MEDIUMINT,
-    system_manufacturer VARCHAR(64),
-    last_job_time DATETIME,
-    last_job_uuid VARCHAR(64),
-    all_avgtime SMALLINT,
-    erase_time SMALLINT,
-    erase_avgtime SMALLINT,
-    clone_time SMALLINT,
-    clone_avgtime TINYINT,
-    all_jobs SMALLINT,
-    erase_jobs SMALLINT,
-    clone_jobs SMALLINT,
-    disk_type VARCHAR(4),
-    tbw_pcnt TINYINT,
-    system_model VARCHAR(24),
-    bios_date VARCHAR(12),
-    bios_version VARCHAR(24),
-    system_serial VARCHAR(16),
-    cpu_model VARCHAR(64),
-    cpu_cores TINYINT,
-    battery_health TINYINT,
-    boot_time TINYINT,
+    tagnumber MEDIUMINT DEFAULT NOT NULL,
+    system_manufacturer VARCHAR(64) DEFAULT NULL,
+    last_job_time DATETIME DEFAULT NULL,
+    last_job_uuid VARCHAR(64) DEFAULT NULL,
+    all_avgtime SMALLINT DEFAULT NULL,
+    erase_time SMALLINT DEFAULT NULL,
+    erase_avgtime SMALLINT DEFAULT NULL,
+    clone_time SMALLINT DEFAULT NULL,
+    clone_avgtime TINYINT DEFAULT NULL,
+    all_jobs SMALLINT DEFAULT NULL,
+    erase_jobs SMALLINT DEFAULT NULL,
+    clone_jobs SMALLINT DEFAULT NULL,
+    disk_type VARCHAR(4) DEFAULT NULL,
+    tbw_pcnt TINYINT DEFAULT NULL,
+    system_model VARCHAR(24) DEFAULT NULL,
+    bios_date VARCHAR(12) DEFAULT NULL,
+    bios_version VARCHAR(24) DEFAULT NULL,
+    system_serial VARCHAR(16) DEFAULT NULL,
+    cpu_model VARCHAR(64) DEFAULT NULL,
+    cpu_cores TINYINT DEFAULT NULL,
+    battery_health TINYINT DEFAULT NULL,
+    boot_time TINYINT DEFAULT NULL,
     PRIMARY KEY (tagnumber)
 );
 
 CREATE TABLE IF NOT EXISTS jobstats (
-    uuid DEFAULT NOT NULL VARCHAR(64),
+    uuid VARCHAR(64) DEFAULT NOT NULL,
     tagnumber MEDIUMINT DEFAULT NULL,
     etheraddress VARCHAR(24) DEFAULT NULL,
     wifi_mac varchar(24) DEFAULT NULL,
@@ -120,7 +110,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
 );
 
 ALTER TABLE jobstats
-    MODIFY COLUMN uuid DEFAULT NOT NULL VARCHAR(64),
+    MODIFY COLUMN uuid VARCHAR(64) DEFAULT NOT NULL,
     MODIFY COLUMN tagnumber MEDIUMINT DEFAULT NULL,
     MODIFY COLUMN etheraddress VARCHAR(24) DEFAULT NULL,
     MODIFY COLUMN wifi_mac varchar(24) DEFAULT NULL,
@@ -183,5 +173,3 @@ ALTER TABLE jobstats
     MODIFY COLUMN clone_image varchar(32) DEFAULT NULL,
     MODIFY COLUMN clone_imageupdate date DEFAULT NULL,
     ADD PRIMARY KEY (uuid);
-
-    DELIMITER ;
