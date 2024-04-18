@@ -38,7 +38,6 @@ if ($arr[0] == "init") {
         $location = "Plugged in and booted on laptop table.";
         $status = "functioning";
         $problem = "";
-        $department = $arr[7];
     }
 
     if ($arr[1] == "end") {
@@ -47,7 +46,6 @@ if ($arr[0] == "init") {
         $location = "Finished work on laptop table.";
         $status = "functioning";
         $problem = "";
-        $department = $arr[7];
     }
 
     if ($arr[1] == "custom") {
@@ -56,23 +54,14 @@ if ($arr[0] == "init") {
         $location = $arr[4];
         $status = $arr[5];
         $problem = $arr[6];
-        $department = $arr[7];
     }
 
-    if ($department == "techComm") {
-        $uuid = uniqid("techComm-", true);
-        $department = "techComm";
-    } elseif ($department == "shrl") {
-        $uuid = uniqid("shrl-", true);
-        $department = "shrl";
-    } else {
-        $uuid = uniqid("location-", true);
-        $department = "NULL";
-    }
+    $uuid = uniqid("location-", true);
     
     #Not the same insert statement as above, ether address is DEFAULT here.
     dbInsertJob($uuid);
     dbUpdateJob("tagnumber", "$tagNum", "$uuid");
+    dbUpdateJob("system_serial", "$serial", "$uuid");
     dbUpdateJob("date", "$date", "$uuid");
     dbUpdateJob("time", "$time", "$uuid");
 
