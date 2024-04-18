@@ -13,12 +13,10 @@ dbSelect("CALL iterateJobLabels()");
 foreach ($arr as $key => $value) {
     $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
     $file->fputcsv($value);
-    $file = null;
 }
 
 dbSelect("SELECT * FROM jobstats WHERE department = 'techComm' ORDER BY time DESC");
 foreach ($arr as $key => $value) {
-    $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'a');
     $file->fputcsv($value);
     $file = null;
 }
@@ -56,7 +54,6 @@ dbSelect("CALL iterateClientLabels()");
 foreach ($arr as $key => $value) {
     $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
     $file->fputcsv($value);
-    $file = null;
 }
 
 $sql = "SELECT tagnumber,system_serial,system_manufacturer,system_model,last_job_time,";
@@ -65,8 +62,7 @@ $sql .= "CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all
 $sql .= "FROM clientstats ORDER BY last_job_time DESC";
 dbSelect($sql);
 foreach ($arr as $key => $value) {
-        $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
-        $file->fputcsv($row);
+        $file->fputcsv($value);
         $file = null;
 }
 
