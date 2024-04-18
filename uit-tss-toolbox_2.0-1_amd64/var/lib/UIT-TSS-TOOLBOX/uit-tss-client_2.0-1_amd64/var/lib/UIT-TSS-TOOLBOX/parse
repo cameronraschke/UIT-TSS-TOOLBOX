@@ -59,10 +59,10 @@ if ($arr[0] == "init") {
         $department = $arr[7];
     }
 
-    if ($department == "1") {
+    if ($department == "techComm") {
         $uuid = uniqid("techComm-", true);
         $department = "techComm";
-    } elseif ($department == "2") {
+    } elseif ($department == "shrl") {
         $uuid = uniqid("shrl-", true);
         $department = "shrl";
     } else {

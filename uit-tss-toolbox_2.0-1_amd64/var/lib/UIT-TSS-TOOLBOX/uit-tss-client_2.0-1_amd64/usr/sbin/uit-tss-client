@@ -275,16 +275,17 @@ function enterTag {
 	if [[ $tagNum != "NULL" ]]; then
 		if [[ ${shrlTag[*]} =~ $tagNum ]]; then
 			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
-			echo "general|department|shrl|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			department="shrl"
 		elif [[ ${techCommTag[*]} =~ $tagNum ]]; then
 			UUID=$(echo -n "techComm-"; cat /proc/sys/kernel/random/uuid)
-			echo "general|department|techComm|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			department="techComm"
 		else
 			UUID=$(cat /proc/sys/kernel/random/uuid)
 		fi
 
 		echo "init|${UUID}|${tagNum}|${etherAddr}|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "general|tagnumber|${tagNum}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|department|${department}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
 	else
@@ -294,7 +295,14 @@ function enterTag {
 		echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}TechCommons${RESET}"
 		echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}SHRL${RESET}"
 		echo ""
-		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " department
+		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " input
+		if [[ $input == "1" ]]; then
+			department="techComm"
+		elif [[ $input == "2" ]]; then
+			department="shrl"
+		else
+			enterTag
+		fi
 		echo "location|begin|${tagNum}|${tOneSerialNumber}|${location}|${status}|${problem}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		department
 		enterTag
@@ -1572,7 +1580,7 @@ function terminate {
 	fi
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
-	imgUpdate=$(echo "SELECT time FROM jobstats WHERE clone_master = 'Yes' AND uuid LIKE 'techComm-%' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	imgUpdate=$(echo "SELECT time FROM jobstats WHERE clone_master = 'Yes' AND department = 'techComm' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	imgUpdate=${imgUpdate::10}
 
 	location
