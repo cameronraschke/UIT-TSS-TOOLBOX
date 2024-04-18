@@ -1,18 +1,18 @@
 DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
     date date DEFAULT NOT NULL,
-    laptop_count smallint DEFAULT NULL
-    last_image_update date DEFAULT NULL
-    all_jobs mediumint DEFAULT NULL
-    clone_jobs mediumint DEFAULT NULL
-    erase_jobs mediumint DEFAULT NULL
-    clone_avgtime smallint DEFAULT NULL
-    nvme_erase_avgtime smallint DEFAULT NULL
-    sata_erase_avgtime smallint DEFAULT NULL
-    tbw_pcnt tinyint DEFAULT NULL
-    disk_mtbf decimal(3,2) DEFAULT NULL
-    battery_health tinyint DEFAULT NULL
-    boot_time smallint DEFAULT NULL
+    laptop_count smallint DEFAULT NULL,
+    last_image_update date DEFAULT NULL,
+    all_jobs mediumint DEFAULT NULL,
+    clone_jobs mediumint DEFAULT NULL,
+    erase_jobs mediumint DEFAULT NULL,
+    clone_avgtime smallint DEFAULT NULL,
+    nvme_erase_avgtime smallint DEFAULT NULL,
+    sata_erase_avgtime smallint DEFAULT NULL,
+    tbw_pcnt tinyint DEFAULT NULL,
+    disk_mtbf decimal(3,2) DEFAULT NULL,
+    battery_health tinyint DEFAULT NULL,
+    boot_time smallint DEFAULT NULL,
     PRIMARY KEY (date)
 );
 
