@@ -85,7 +85,7 @@ if ($arr[0] == "init") {
     $value = $arr[2];
     $uuid = $arr[3];
 
-    if ($key = "cpu_temp") {
+    if ($key == "cpu_temp") {
         $value = bcdiv("$value", 1000, 2);
     }
 
