@@ -1,0 +1,79 @@
+#!/usr/bin/php
+<?php
+
+require('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
+require('/var/lib/UIT-TSS-TOOLBOX/functions');
+
+
+function dbSelect ($sql) {
+    clearArray();
+    global $pdo;
+    global $arr;
+    $arr = array();
+    if (filter($sql) == 0) {
+        $sql = $pdo->prepare($sql);
+        $sql->execute();
+        $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        exit();
+    }
+}
+
+function dbSelectVal ($sql) {
+    clearArray();
+    global $pdo;
+    global $arr;
+    global $result;
+    $arr = array();
+    if (filter($sql) == 0) {
+        $sql = $pdo->prepare($sql);
+        $sql->execute();
+        $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($arr as $key => $value) {
+            $result = $value["result"];
+        }
+    } else {
+        exit();
+    }
+}
+
+function dbUpdateJob ($key, $value, $uuid) {
+    global $pdo;
+    $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
+    $stmt = $pdo->prepare($sql);
+
+    if (filter($key) == 0 && filter($value) == 1 && filter($uuid) == 0) {
+        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+    } elseif (filter($key) == 0 && filter($value) == 0 && filter($uuid) == 0) {
+        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+    } else {
+        $stmt = null;
+    }
+
+    if (filter($stmt) == 0) {
+        $stmt->execute();
+    }
+    $stmt = null;
+}
+
+function dbInsertJob ($uuid) {
+    global $pdo;
+    $sql = "INSERT INTO jobstats (uuid) VALUES (:uuid)";
+    $stmt = $pdo->prepare($sql);
+
+    if (filter($uuid) == 0) {
+        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+    } else {
+        $stmt = null;
+    }
+
+    if (filter($stmt) == 0) {
+        $stmt->execute();
+    }
+    $stmt = null;
+}
+
+?>

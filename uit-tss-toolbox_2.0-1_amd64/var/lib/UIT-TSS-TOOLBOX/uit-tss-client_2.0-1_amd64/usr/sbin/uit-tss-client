@@ -203,9 +203,9 @@ function hardwareData {
 		diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $4}') / 1000000000 ))
 			echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/,//g' | awk '{print $4}')
-			echo "disk|disk_reads|${diskReadsLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_reads|${diskReadsLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
-			echo "disk|disk_writes|${diskWritesLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_writes|${diskWritesLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '^Power On Hours: ' | awk '{print $4}' | sed 's/,//g')
 			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskType=nvme
@@ -224,11 +224,11 @@ function hardwareData {
 		diskSize=$(( $(cat /root/smartctl-data | grep '^User Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
 			echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^242 Total_LBAs_Read' | awk '{print $10}')
-			echo "disk|disk_reads|${diskReadsLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^241 Total_LBAs_Written' | sed 's/,//g' | awk '{print $10}')
-			echo "disk|disk_writes|${diskWritesLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_writes|${diskWritesLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskType=$(lsblk -o NAME,ROTA | grep -i "${DISK}" | awk '{print $2}' | tail -n 1)
-			echo "disk|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '9 Power_On_Hours' | awk '{print $10}')
 			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
@@ -244,7 +244,7 @@ function hardwareData {
 	batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
 		echo "general|battery_health|${batHealthPCNT}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	batChargeCycles=$(cat /sys/class/power_supply/BAT0/cycle_count)
-		echo "battery|battery_charge_cycles|${UUID}|${batChargeCycles}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Memory Data
 	memSerial=$(dmidecode --type memory | grep Serial | sed 's/Serial Number: //g' | sed 's/[[:space:]]//g' | perl -p -e 's/\n/ /')
@@ -256,7 +256,7 @@ function hardwareData {
 
 	###CPU Info
 	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
-		echo "cpu|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###WiFi Info
 	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)

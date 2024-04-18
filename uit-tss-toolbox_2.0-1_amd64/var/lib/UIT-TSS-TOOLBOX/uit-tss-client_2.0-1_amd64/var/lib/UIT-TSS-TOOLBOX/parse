@@ -1,7 +1,6 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
-include('/var/lib/UIT-TSS-TOOLBOX/functions');
+include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
 
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
@@ -18,71 +17,14 @@ if ($arr[0] == "init") {
     $tagNum = $arr[2];
     $macAddr = $arr[3];
     $wifiMac = $arr[4];
-    $sql = "INSERT INTO jobstats(uuid,tagnumber,etheraddress,wifi_mac,date,time) ";
-    $sql .= "VALUES ('$uuid','$tagNum','$macAddr','$wifiMac','$date','$time')";
-    $pdo->query($sql);
 
-} elseif ($arr[0] == "disk") {
-    $key = $arr[1];
-    $value = $arr[2];
-    $uuid = $arr[3];
+    dbInsertJob($uuid);
 
-    if ($arr[4] == "nvme") {
-        $value = bcmul("$value", 512, 4);
-        $value = bcdiv("$value", 1000000000, 2);
-    } elseif ($arr[4] == "sata") {
-        $value = bcmul("$value", 512, 4);
-        $value = bcdiv("$value", 1000000000000, 2);
-    }
-
-    if ($key == "disk_type") {
-        if ($value == 0) {
-            $value = "ssd";
-        } elseif ($value == 1) {
-            $value = "hdd";
-        } else {
-            $value = "";
-        }
-    }
-    
-    $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
-    $stmt = $pdo->prepare($sql);
-
-    if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-    } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-    } else {
-        echo "Key or UUID not specified, exiting." . PHP_EOL;
-        exit(1);
-    }
-    
-    $stmt->execute();
-    $stmt = null;
-    
-} elseif ($arr[0] == "battery") {
-    $key = $arr[1];
-    $uuid = $arr[2];
-    $value = $arr[3];
-
-    $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
-    $stmt = $pdo->prepare($sql);
-
-    if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-    } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-    } else {
-        echo "Key or UUID not specified, exiting." . PHP_EOL;
-        exit(1);
-    }
-    
-    $stmt->execute();
-    $stmt = null;
+    dbUpdateJob("tagnumber", "$tagNum", "$uuid");
+    dbUpdateJob("etheraddress", "$macAddr", "$uuid");
+    dbUpdateJob("wifi_mac", "$wifiMac", "$uuid");
+    dbUpdateJob("date", "$date", "$uuid");
+    dbUpdateJob("time", "$time", "$uuid");
 
 } elseif ($arr[0] == "location") {
 
@@ -166,54 +108,37 @@ if ($arr[0] == "init") {
     $stmt->execute();
     $stmt = null;
 
-} elseif ($arr[0] == "cpu") {
-    $key = $arr[1];
-    $value = $arr[2];
-    $uuid = $arr[3];
-
-    $value = bcdiv("$value", 1000, 2);
-
-    $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
-    $stmt = $pdo->prepare($sql);
-
-    if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-    } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-    } else {
-        echo "Key or UUID not specified, exiting." . PHP_EOL;
-        exit(1);
-    }
-    
-    $stmt->execute();
-    $stmt = null;
-
 } elseif ($arr[0] == "general") {
     $key = $arr[1];
     $value = $arr[2];
     $uuid = $arr[3];
 
-    $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
-    $stmt = $pdo->prepare($sql);
-
-    if (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 1) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-    } elseif (filter($key) == 0 && filter($uuid) == 0 && filter($value) == 0) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-    } else {
-        echo "Key or UUID not specified, exiting." . PHP_EOL;
-        exit(1);
+    if ($key = "cpu_temp") {
+        $value = bcdiv("$value", 1000, 2);
     }
-    
-    $stmt->execute();
-    $stmt = null;
+
+    if ($arr[4] == "nvme") {
+        $value = bcmul("$value", 512, 4);
+        $value = bcdiv("$value", 1000000000, 2);
+    } elseif ($arr[4] == "sata") {
+        $value = bcmul("$value", 512, 4);
+        $value = bcdiv("$value", 1000000000000, 2);
+    }
+
+    if ($key == "disk_type") {
+        if ($value == 0) {
+            $value = "ssd";
+        } elseif ($value == 1) {
+            $value = "hdd";
+        } else {
+            $value = "";
+        }
+    }
+
+    dbUpdateJob("$key", "$value", "$uuid");
 
 } else {
-    echo "General Error, exiting";
+    echo "General SQL Syntax Error, exiting";
     exit(1);
 }
 

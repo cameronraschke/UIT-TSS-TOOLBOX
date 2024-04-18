@@ -9,7 +9,7 @@ $time = $dt->format('Y-m-d-His');
 
 
 #Job Table
-$sql = "SELECT 'Job UUID','Tag Number','Ethernet Address','WiFi Address','Date','Datetime','BIOS Vendor','BIOS Version','BIOS Last Update',";
+$sql = "SELECT 'Job UUID','Tag Number','Ethernet Address','WiFi Address','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Last Update',";
 $sql .= "'BIOS Revision','BIOS Firmware','System Manufacturer','System Model','System Serial','System UUID',";
 $sql .= "'System SKU','Motherboard Manufacturer','Motherboard Serial','Chassis Manufcaturer',";
 $sql .= "'Chassis Type','Chassis Serial','Chassis Tag','CPU Manufacturer',";
