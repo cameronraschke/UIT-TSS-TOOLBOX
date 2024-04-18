@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
-    date DATE DEFAULT NOT NULL,
+    date DATE NOT NULL,
     laptop_count SMALLINT DEFAULT NULL,
     last_image_update DATE DEFAULT NULL,
     all_jobs MEDIUMINT DEFAULT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE serverstats (
 
 DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
-    tagnumber MEDIUMINT DEFAULT NOT NULL,
+    tagnumber MEDIUMINT NOT NULL,
     system_manufacturer VARCHAR(12) DEFAULT NULL,
     last_job_time DATETIME DEFAULT NULL,
     last_job_uuid VARCHAR(64) DEFAULT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE clientstats (
 );
 
 CREATE TABLE IF NOT EXISTS jobstats (
-    uuid VARCHAR(64) DEFAULT NOT NULL,
+    uuid VARCHAR(64) NOT NULL,
     tagnumber MEDIUMINT DEFAULT NULL,
     etheraddress VARCHAR(24) DEFAULT NULL,
     wifi_mac VARCHAR(24) DEFAULT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
 );
 
 ALTER TABLE jobstats
-    MODIFY COLUMN uuid VARCHAR(64) DEFAULT NOT NULL,
+    MODIFY COLUMN uuid VARCHAR(64) NOT NULL,
     MODIFY COLUMN tagnumber MEDIUMINT DEFAULT NULL,
     MODIFY COLUMN etheraddress VARCHAR(24) DEFAULT NULL,
     MODIFY COLUMN wifi_mac VARCHAR(24) DEFAULT NULL,
