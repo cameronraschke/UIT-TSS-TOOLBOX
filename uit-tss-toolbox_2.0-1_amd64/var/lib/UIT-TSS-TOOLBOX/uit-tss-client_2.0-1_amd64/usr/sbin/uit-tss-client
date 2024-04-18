@@ -425,8 +425,8 @@ function autodetectClient {
 		echo ""
 		echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Yes, it is correct${RESET}"
 		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}No, start over${RESET}"
-		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " autoSelectConf
-		if [[ $autoSelectConf == "1" ]]; then
+		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " input
+		if [[ $input == "1" ]]; then
 				return
 			else
 				autodetectClient
