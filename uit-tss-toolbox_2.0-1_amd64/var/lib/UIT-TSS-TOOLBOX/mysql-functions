@@ -140,7 +140,6 @@ function dbInsertLocation ($time) {
 
 function dbUpdateLocation ($key, $value, $time) {
     global $pdo;
-
     if ($time = "NOTIME") {
         $sql = "UPDATE locations SET $key = :value";
         $stmt = $pdo->prepare($sql);

@@ -65,11 +65,11 @@ foreach ($arr as $key => $value) {
     dbUpdateCS("erase_avgtime", "$result", "$tagNum");
 
     # Update the average clone time for each client
-    dbSelect("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'");
+    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'");
     dbUpdateCS("clone_avgtime", "$result", "$tagNum");
 
     # Update count of total jobs. Total jobs count as every entry of clone_completed or erase_completed equal to "Yes" - One entry can be up to two jobs (clone + erase job).
-    dbSelect("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed= 'Yes')");
+    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed= 'Yes')");
     dbUpdateCS("all_jobs", "$result", "$tagNum");
 
     # Disk Health

@@ -28,7 +28,7 @@ DELIMITER //
 CREATE PROCEDURE iterateJobLabels()
 DETERMINISTIC
 BEGIN
-SELECT 'Job UUID','Tag Number','Ethernet Address','WiFi Address','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Last Update',
+SELECT 'UUID','Tag','Ethernet MAC','WiFi MAC','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Last Update',
     'BIOS Revision','BIOS Firmware','System Manufacturer','System Model','System Serial','System UUID',
     'System SKU','Motherboard Manufacturer','Motherboard Serial','Chassis Manufcaturer',
     'Chassis Type','Chassis Serial','Chassis Tag','CPU Manufacturer',
@@ -47,7 +47,7 @@ DELIMITER //
 CREATE PROCEDURE iterateClientLabels()
 DETERMINISTIC
 BEGIN
-SELECT 'Tag Number','Serial Number','System Manufacturer','System Model','Last Job Time',
+SELECT 'Tag','Serial Number','System Manufacturer','System Model','Last Job Time',
     'Battery Max Charge','Terabytes Written (TBW)',
     'Erase Time','Clone Time','Total Jobs';
 END; //
@@ -61,7 +61,7 @@ CREATE PROCEDURE iterateServerLabels()
 DETERMINISTIC
 BEGIN
 
-SELECT 'Date','Computer Count','Disk TBW/R','Disk MTBF','Battery Max Charge Level',
+SELECT 'Date','Computer Count','Disk Wear','Disk MTBF','Battery Max Charge Level',
     'Total Jobs','Clone Jobs','Erase Jobs',
     'Clone Time','NVME Erase Time','SATA Erase Time','Last Image Update';
 

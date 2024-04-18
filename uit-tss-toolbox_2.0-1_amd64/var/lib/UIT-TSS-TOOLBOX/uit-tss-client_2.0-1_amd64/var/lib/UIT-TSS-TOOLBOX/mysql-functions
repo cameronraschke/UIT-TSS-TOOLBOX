@@ -9,6 +9,7 @@ function dbSelect ($sql) {
     clearArray();
     global $pdo;
     global $arr;
+    global $result;
     $arr = array();
     if (filter($sql) == 0) {
         $sql = $pdo->prepare($sql);
