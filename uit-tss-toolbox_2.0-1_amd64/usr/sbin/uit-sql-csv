@@ -52,7 +52,7 @@ foreach ($arr as $row) {
 
 
 #Client Table
-dbSelect("CALL iterateJobLabels()");
+dbSelect("CALL iterateClientLabels()");
 foreach ($arr as $key => $value) {
     $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'a');
     $file->fputcsv($value);
