@@ -68,45 +68,17 @@ if ($arr[0] == "init") {
     }
     
     #Not the same insert statement as above, ether address is DEFAULT here.
-    $sql = "INSERT INTO jobstats(uuid,tagnumber,date,time) ";
-    $sql .= "VALUES ('$uuid','$tagNum','$date','$time')";
-    $pdo->query($sql);
+    dbInsertJob($uuid);
+    dbUpdateJob("tagnumber", "$tagNum", "$uuid");
+    dbUpdateJob("date", "$date", "$uuid");
+    dbUpdateJob("time", "$time", "$uuid");
 
-    # INSERT statement
-    $sql = "INSERT INTO locations(tagnumber,system_serial,location,status,problem,time) ";
-    $sql .= "VALUES (:tagnumber, :system_serial, :location, :status, :problem, :time)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
-    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-
-
-    # Update empty values to NULL
-    if (filter($location) == 1) {
-        $stmt->bindParam(':location', $location, PDO::PARAM_NULL);
-    } else {
-        $stmt->bindParam(':location', $location, PDO::PARAM_STR);
-    }
-
-    if (filter($status) == 1) {
-        $stmt->bindParam(':status', $status, PDO::PARAM_NULL);
-    } else {
-        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
-    }
-
-    if (filter($problem) == 1) {
-        $stmt->bindParam(':problem', $problem, PDO::PARAM_NULL);
-    } else {
-        $stmt->bindParam(':problem', $problem, PDO::PARAM_STR);
-    }
-
-    if (filter($serial) == 1) {
-        $stmt->bindParam(':system_serial', $serial, PDO::PARAM_NULL);
-    } else {
-        $stmt->bindParam(':system_serial', $serial, PDO::PARAM_STR);
-    }
-
-    $stmt->execute();
-    $stmt = null;
+    dbInsertLocation("$time");
+    dbUpdateLocation("tagnumber", "$tagNum", "$time");
+    dbUpdateLocation("system_serial", "$serial", "$time");
+    dbUpdateLocation("location", "$location", "$time");
+    dbUpdateLocation("status", "$status", "$time");
+    dbUpdateLocation("problem", "$problem", "$time");
 
 } elseif ($arr[0] == "general") {
     $key = $arr[1];
