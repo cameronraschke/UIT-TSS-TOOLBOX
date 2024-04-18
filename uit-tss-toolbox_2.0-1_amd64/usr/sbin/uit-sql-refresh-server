@@ -29,8 +29,8 @@ foreach ($arr as $key => $value) {
     $sqlDate = $value['date'];
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
-    dbSelectVal("SELECT COUNT(date) AS result FROM serverstats WHERE date = '$sqlDate'");
-    if ($result == "0") {
+    dbSelectVal("SELECT date AS result FROM serverstats WHERE date = '$sqlDate'");
+    if (filter($result) == 1) {
         echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
         dbInsertSS("$sqlDate");
     }
