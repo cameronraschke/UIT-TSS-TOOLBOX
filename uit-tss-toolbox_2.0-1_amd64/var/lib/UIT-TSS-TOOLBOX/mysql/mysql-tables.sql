@@ -105,8 +105,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
     clone_master VARCHAR(8) DEFAULT NULL,
     clone_server VARCHAR(24) DEFAULT NULL,
     clone_image VARCHAR(32) DEFAULT NULL,
-    clone_imageupdate DATE DEFAULT NULL,
-    PRIMARY KEY (uuid)
+    clone_imageupdate DATE DEFAULT NULL;
 );
 
 ALTER TABLE jobstats
