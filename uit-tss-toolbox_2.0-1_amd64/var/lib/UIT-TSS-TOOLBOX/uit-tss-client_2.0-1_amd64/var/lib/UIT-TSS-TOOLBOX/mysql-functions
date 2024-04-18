@@ -4,7 +4,6 @@
 require('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 require('/var/lib/UIT-TSS-TOOLBOX/functions');
 
-
 function dbSelect ($sql) {
     clearArray();
     global $pdo;
