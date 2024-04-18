@@ -138,7 +138,7 @@ foreach ($arr as $key => $value) {
     # End the timer and print the time taken to iterate through a client.
     $end = hrtime(true);
     $executionTime = round(($end - $start) / 1e9, 4);
-    echo "Updating client $tagNum: " . $executionTime . " seconds" . PHP_EOL;
+    echo "Updated client $tagNum: " . $executionTime . " seconds" . PHP_EOL;
 }
 
 # Disconnect from the DB.
