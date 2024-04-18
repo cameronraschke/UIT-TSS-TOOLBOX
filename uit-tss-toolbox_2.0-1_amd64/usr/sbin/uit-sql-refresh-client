@@ -102,8 +102,10 @@ foreach ($arr as $key => $value) {
             $diskReadsMax = $result;
             $diskTBW = 0;
             # $value is the average of the average of disk read amount and disk write amount as a percentage
-            if ($diskReadsMax > 0 && $diskWritesMax > 0) {
-                $diskTBW = round(((($diskReadsCur / $diskReadsMax) * 100 ) + ((($diskWritesCur / $diskWritesMax) * 100)) / 2), 0);
+            if (filter($diskReadsMax) == 0 && filter($diskWritesMax) == 0) {
+                if ($diskReadsMax > 0 && $diskWritesMax > 0) {
+                    $diskTBW = round(((($diskReadsCur / $diskReadsMax) * 100 ) + ((($diskWritesCur / $diskWritesMax) * 100)) / 2), 0);
+                }
             }
         }
         # If $value is greater than 0, then set tbw_pcnt to $value, otherwise tbw_pcnt is null;
