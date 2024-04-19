@@ -170,3 +170,55 @@ ALTER TABLE jobstats
     MODIFY COLUMN clone_server VARCHAR(24) DEFAULT NULL,
     MODIFY COLUMN clone_image VARCHAR(32) DEFAULT NULL,
     MODIFY COLUMN clone_imageupdate DATE DEFAULT NULL;
+
+DROP TABLE IF EXISTS static_disk_stats
+CREATE TABLE IF NOT EXISTS static_disk_stats (
+    disk_model VARCHAR(128) NOT NULL PRIMARY KEY,
+    disk_write_speed SMALLINT DEFAULT NULL,
+    disk_read_speed SMALLINT DEFAULT NULL,
+    disk_mtbf MEDIUMINT DEFAULT NULL,
+    disk_tbw SMALLINT DEFAULT NULL,
+    disk_tbr SMALLINT DEFAULT NULL,
+    min_temp SMALLINT DEFAULT NULL,
+    max_temp SMALLINT DEFAULT NULL,
+    disk_interface VARCHAR(8) DEFAULT NULL,
+    disk_type VARCHAR(8) DEFAULT NULL,
+    spinning TINYINT(1) DEFAULT NULL,
+    spin_speed SMALLINT DEFAULT NULL,
+    power_cycles MEDIUMINT DEFAULT NULL
+);
+
+INSERT INTO static_disk_stats
+    (disk_model,
+    disk_write_speed,
+    disk_read_speed,
+    disk_mtbf,
+    disk_tbw,
+    disk_tbr,
+    min_temp,
+    max_temp,
+    disk_interface,
+    disk_type,
+    spinning,
+    spin_speed,
+    power_cycles)
+VALUES 
+    ('LITEON CV8-8E128-11 SATA 128GB','550','380','1500000','146',NULL,'0','70','m.2','ssd','0',NULL,NULL),
+    ('MTFDHBA256TCK-1AS1AABHA','3000','1600','2000000','75',NULL,NULL,NULL,'m.2','nvme','0', NULL NULL),
+    ('SSDPEMKF256G8 NVMe INTEL 256GB','3210','1315','1600000','144',NULL,'0','70','m.2','nvme','0',NULL,NULL),
+    ('ST500LM034-2GH17A','160','160',NULL,'55','55','0','60','sata','hdd','1','7200','600000'),
+    ('TOSHIBA MQ01ACF050',NULL,NULL,'600000',NULL,NULL,'5','55','sata','hdd','1','7200',NULL),
+    ('WDC PC SN520 SDAPNUW-256G-1006','1300','1700','1752000','200',NULL,'0','70','m.2','nvme','0',NULL,NULL);
+
+/*DROP TABLE IF EXISTS static_battery_stats
+CREATE TABLE IF NOT EXISTS static_battery_stats (
+    battery_name VARCHAR(64) NOT NULL PRIMARY KEY,
+
+
+    RE03045XL,300-500 recharges,45WH,11.55V,3.92Ah
+    DELL VN3N047,41440 mWh, 300 discharge/charge cycles, 0 °C to 50 °C
+    DELL N2K6205,7.6 Volts,60 Whr,300-500 recharge cycles
+    DELL 1VX1H93,42 Wh,11.4 V,300 discharge/recharge cycles,0°C to 35°C,4 hours to charge full
+    DELL W7NKD85, 15.2 volts, 56 Wh and 3500 mAh, 300-500 charges
+
+*/
