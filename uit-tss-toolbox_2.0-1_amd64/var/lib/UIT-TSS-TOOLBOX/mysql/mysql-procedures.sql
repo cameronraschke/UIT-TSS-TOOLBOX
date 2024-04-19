@@ -81,3 +81,18 @@ SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Probl
 END; //
 
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS sqlPermissions;
+DELIMITER //
+CREATE PROCEDURE sqlPermissions()
+DETERMINISTIC
+BEGIN
+CREATE USER IF NOT EXISTS 'laptops'@'10.0.0.0/255.0.0.0' IDENTIFIED BY 'UHouston!';
+GRANT INSERT, SELECT, UPDATE ON laptopDB.* TO 'laptops'@'10.0.0.0/255.0.0.0';
+
+CREATE USER IF NOT EXISTS 'shrl'@'10.0.0.0/255.0.0.0' IDENTIFIED BY 'UHouston!';
+GRANT INSERT, SELECT, UPDATE ON shrl.* TO 'shrl'@'10.0.0.0/255.0.0.0';
+
+END; //
+
+DELIMITER ;
