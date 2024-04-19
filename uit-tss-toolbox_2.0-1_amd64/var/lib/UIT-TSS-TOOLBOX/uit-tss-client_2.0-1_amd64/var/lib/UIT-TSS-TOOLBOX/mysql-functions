@@ -113,7 +113,7 @@ function dbUpdateLocation ($key, $value, $time) {
 }
 
 function dbUpdateLocationSerial ($serial, $tagNum) {
-    if (filter($key) == 0 && filter($tagNum) == 0) {
+    if (filter($serial) == 0 && filter($tagNum) == 0) {
         global $pdo;
         $sql = "UPDATE locations SET system_serial = :serial WHERE tagnumber = :tagNum";
         $stmt = $pdo->prepare($sql);
