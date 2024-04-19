@@ -1,6 +1,5 @@
 #!/usr/bin/php
 <?php
-
 include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
 
 $stdin = fopen('php://stdin', 'r');
@@ -8,10 +7,6 @@ $input = trim(fgets(STDIN));
 fclose($stdin);
 
 dbSelect("$input");
-
-if (filter($arr) == 1) {
-    $arr = array( "result" => "NULL"  );
-}
 
 foreach ($arr as $key => $value) {
     if (filter($value) == "1") {
