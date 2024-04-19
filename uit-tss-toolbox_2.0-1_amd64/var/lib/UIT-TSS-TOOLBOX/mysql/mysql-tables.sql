@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS static_disk_stats (
     max_temp SMALLINT DEFAULT NULL,
     disk_interface VARCHAR(8) DEFAULT NULL,
     disk_type VARCHAR(8) DEFAULT NULL,
-    spinning TINYINT(1) DEFAULT NULL,
+    spinning BOOLEAN DEFAULT NULL,
     spin_speed SMALLINT DEFAULT NULL,
     power_cycles MEDIUMINT DEFAULT NULL
 );
