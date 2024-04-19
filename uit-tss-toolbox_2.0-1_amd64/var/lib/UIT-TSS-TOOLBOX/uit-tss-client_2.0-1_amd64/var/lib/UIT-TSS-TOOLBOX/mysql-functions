@@ -95,26 +95,35 @@ function dbInsertLocation ($time) {
 function dbUpdateLocation ($key, $value, $time) {
     if (filter($key) == 0 && filter($time) == 0) {
         global $pdo;
-        if ($time = "NOTIME") {
-            $sql = "UPDATE locations SET $key = :value";
-            $stmt = $pdo->prepare($sql);
+        $sql = "UPDATE locations SET $key = :value WHERE time = :time";
+        $stmt = $pdo->prepare($sql);
 
-            if (filter($value) == 0) {
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-            }
+        if (filter($value) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         } else {
-            $sql = "UPDATE locations SET $key = :value WHERE time = :time";
-            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+        }
 
-            if (filter($value) == 0) {
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            }
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
+
+function dbUpdateLocationSerial ($serial, $tagNum) {
+    if (filter($key) == 0 && filter($tagNum) == 0) {
+        global $pdo;
+        $sql = "UPDATE locations SET system_serial = :serial WHERE tagnumber = :tagNum";
+        $stmt = $pdo->prepare($sql);
+
+        if (filter($serial) == 0) {
+            $stmt->bindParam(':serial', $serial, PDO::PARAM_STR);
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':serial', $serial, PDO::PARAM_NULL);
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
         }
 
         if (filter($stmt) == 0) {
