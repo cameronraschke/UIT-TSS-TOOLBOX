@@ -102,10 +102,7 @@ if ($arr[0] == "init") {
     dbUpdateJob("$key", "$value", "$uuid");
 
 } else {
-    echo "General SQL Syntax Error, exiting";
-    exit(1);
+    exit();
 }
-
-$pdo = null;
 
 ?>

@@ -60,7 +60,7 @@ systemctl daemon-reload &>/dev/null
 /usr/bin/chronyc add server 10.0.0.1 iburst
 /usr/bin/chronyc makestep
 
-sql=$(echo "SELECT CURDATE()" | /var/lib/UIT-TSS-TOOLBOX/select)
+sql=$(echo "SELECT CURDATE() AS result" | /var/lib/UIT-TSS-TOOLBOX/select)
 while [[ $sql != $(date --iso) ]]; do
 	sleep 1
 done
@@ -94,10 +94,7 @@ wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
 tOneSerialNumber=$(dmidecode --string system-serial-number)
 
 function department {
-	# for i in $(mysql --user="shrl" --password="UHouston!" --database="shrl" --host="10.0.0.1" -BNr --execute="SELECT DISTINCT tagnumber FROM locations;" 2>/dev/null); do
-	# for i in $(echo "SELECT DISTINCT tagnumber FROM jobstats WHERE department = 'shrl'" | /var/lib/UIT-TSS-TOOLBOX/select); do
-
-	sqlDepartment=$(echo "SELECT department FROM jobstats WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	sqlDepartment=$(echo "SELECT department AS result FROM jobstats WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 }
 
 DATE=$(date --iso)
@@ -253,7 +250,7 @@ function enterTag {
 	tput reset
 	echo ""
 
-	tagNum=$(echo "SELECT tagnumber FROM jobstats WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	if [[ $tagNum != "NULL" ]]; then
 		if [[ $sqlDepartment == "shrl" ]]; then
 			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
@@ -1501,14 +1498,14 @@ function location {
 	RESET=$(tput sgr0)
 
 	echo ""
-	sql=$(echo "SELECT system_serial FROM locations WHERE tagnumber = '${tagNum}' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	sql=$(echo "SELECT system_serial AS result FROM locations WHERE tagnumber = '${tagNum}' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
 	if [[ $sql == "NULL" ]]; then
 		read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
 	else
 		serial="${sql}"
 	fi
-	sql=$(echo "SELECT location FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	sql=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	echo "The last reported location for ${tagNum} was: ${BOLD}${sql}${RESET}"
 	read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
 	read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
@@ -1518,7 +1515,7 @@ function location {
 		problem=""
 	elif [[ $status == "2" ]]; then
 		echo ""
-		sql=$(echo "SELECT problem FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+		sql=$(echo "SELECT problem AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 		echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
 		status="broken"
 		read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
@@ -1542,16 +1539,16 @@ function terminate {
 	fi
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
-	imgUpdate=$(echo "SELECT time FROM jobstats WHERE clone_master = 'Yes' AND department = 'techComm' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = 'Yes' AND department = 'techComm' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	imgUpdate=${imgUpdate::10}
 
 	location
 
-	cloneNumToday=$(echo "SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
+	cloneNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = 'Yes' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
-	eraseNumToday=$(echo "SELECT COUNT(tagnumber) FROM jobstats WHERE erase_completed = 'Yes' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
+	eraseNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE erase_completed = 'Yes' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
-	clientCloneTotal=$(echo "SELECT COUNT(tagnumber) FROM jobstats WHERE clone_completed = 'Yes' AND tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
+	clientCloneTotal=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = 'Yes' AND tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
 	jobsToday=$(( cloneNumToday + eraseNumToday ))
 
