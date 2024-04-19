@@ -123,6 +123,4 @@ function dbUpdateLocation ($key, $value, $time) {
     }
 }
 
-$pdo = null;
-
 ?>

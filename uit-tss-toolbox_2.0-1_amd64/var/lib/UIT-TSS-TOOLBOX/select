@@ -9,9 +9,6 @@ fclose($stdin);
 dbSelect("$input");
 
 foreach ($arr as $key => $value) {
-    if (filter($value) == "1") {
-        $value = "NULL";
-    }
     echo $value . PHP_EOL;
 }
 
