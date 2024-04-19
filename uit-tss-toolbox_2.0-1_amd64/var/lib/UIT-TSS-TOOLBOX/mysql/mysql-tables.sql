@@ -15,6 +15,7 @@ CREATE TABLE serverstats (
     boot_time SMALLINT DEFAULT NULL
 );
 
+
 DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
     tagnumber MEDIUMINT NOT NULL PRIMARY KEY,
@@ -40,6 +41,7 @@ CREATE TABLE clientstats (
     battery_health TINYINT DEFAULT NULL,
     boot_time TINYINT DEFAULT NULL
 );
+
 
 CREATE TABLE IF NOT EXISTS jobstats (
     uuid VARCHAR(64) NOT NULL PRIMARY KEY,
@@ -171,7 +173,8 @@ ALTER TABLE jobstats
     MODIFY COLUMN clone_image VARCHAR(32) DEFAULT NULL,
     MODIFY COLUMN clone_imageupdate DATE DEFAULT NULL;
 
-DROP TABLE IF EXISTS static_disk_stats
+
+DROP TABLE IF EXISTS static_disk_stats;
 CREATE TABLE IF NOT EXISTS static_disk_stats (
     disk_model VARCHAR(128) NOT NULL PRIMARY KEY,
     disk_write_speed SMALLINT DEFAULT NULL,
@@ -210,15 +213,20 @@ VALUES
     ('TOSHIBA MQ01ACF050',NULL,NULL,'600000',NULL,NULL,'5','55','sata','hdd','1','7200',NULL),
     ('WDC PC SN520 SDAPNUW-256G-1006','1300','1700','1752000','200',NULL,'0','70','m.2','nvme','0',NULL,NULL);
 
-/*DROP TABLE IF EXISTS static_battery_stats
+
+DROP TABLE IF EXISTS static_battery_stats;
 CREATE TABLE IF NOT EXISTS static_battery_stats (
-    battery_name VARCHAR(64) NOT NULL PRIMARY KEY,
+    battery_name VARCHAR(24) NOT NULL PRIMARY KEY,
+    battery_charge_cycles SMALLINT DEFAULT NULL
+);
 
-
-    RE03045XL,300-500 recharges,45WH,11.55V,3.92Ah
-    DELL VN3N047,41440 mWh, 300 discharge/charge cycles, 0 °C to 50 °C
-    DELL N2K6205,7.6 Volts,60 Whr,300-500 recharge cycles
-    DELL 1VX1H93,42 Wh,11.4 V,300 discharge/recharge cycles,0°C to 35°C,4 hours to charge full
-    DELL W7NKD85, 15.2 volts, 56 Wh and 3500 mAh, 300-500 charges
-
-*/
+INSERT INTO static_battery_stats
+    (battery_name,
+    battery_charge_cycles
+    )
+VALUES 
+    ('RE03045XL','300'),
+    ('DELL VN3N047','300'),
+    ('DELL N2K6205','300'),
+    ('DELL 1VX1H93','300'),
+    ('DELL W7NKD85','300');

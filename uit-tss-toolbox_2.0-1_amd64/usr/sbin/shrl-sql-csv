@@ -34,5 +34,4 @@ foreach ($arr as $row) {
 
 }
 
-$pdo = null;
 ?>
