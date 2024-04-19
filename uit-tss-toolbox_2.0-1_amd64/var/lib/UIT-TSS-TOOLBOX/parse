@@ -23,6 +23,7 @@ if ($arr[0] == "location") {
     #Not the same insert statment as client parse code, ether address is DEFAULT here.
     dbInsertJob($uuid);
     dbUpdateJob("tagnumber", "$tagNum", "$uuid");
+    dbUpdateJob("system_serial", "$serial", "$time");
     dbUpdateJob ("date", "$date", "$uuid");
     dbUpdateJob ("time", "$time", "$uuid");
 
