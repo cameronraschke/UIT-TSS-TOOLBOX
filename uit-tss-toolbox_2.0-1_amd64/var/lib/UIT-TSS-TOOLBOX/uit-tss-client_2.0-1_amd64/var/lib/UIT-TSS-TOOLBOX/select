@@ -9,7 +9,7 @@ fclose($stdin);
 dbSelect("$input");
 
 foreach ($arr as $key => $value) {
-    echo $value . PHP_EOL;
+    echo $value["result"] . PHP_EOL;
 }
 
 ?>
