@@ -6,8 +6,7 @@ uit-sql-refresh
 
 uit-sql-csv
 
-cp /tmp/laptop-report* /home/cameron
-rm /tmp/laptop-report*
+mv /tmp/laptop-report* /home/cameron
 mysqldump laptopDB > /home/cameron/laptopDB-${DATE}.sql
 mysqldump shrl > /home/cameron/shrl-${DATE}.sql
 
