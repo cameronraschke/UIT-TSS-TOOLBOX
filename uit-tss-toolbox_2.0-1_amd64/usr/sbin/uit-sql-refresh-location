@@ -39,6 +39,4 @@ foreach ($arr as $key => $value) {
     }
 }
 
-# Close the connection to the DB.
-$pdo = null;
 ?>

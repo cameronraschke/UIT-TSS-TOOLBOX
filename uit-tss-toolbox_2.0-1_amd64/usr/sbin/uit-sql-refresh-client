@@ -141,6 +141,4 @@ foreach ($arr as $key => $value) {
     echo "Updated client $tagNum: " . $executionTime . " seconds" . PHP_EOL;
 }
 
-# Disconnect from the DB.
-$pdo = null;
 ?>

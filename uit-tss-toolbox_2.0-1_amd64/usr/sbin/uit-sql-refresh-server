@@ -172,6 +172,4 @@ foreach ($arr as $key => $value) {
     echo "Updated serverstats for $sqlDate: " . $executionTime . " seconds" . PHP_EOL;
 }
 
-# Close the connection to the DB
-$pdo = null;
 ?>

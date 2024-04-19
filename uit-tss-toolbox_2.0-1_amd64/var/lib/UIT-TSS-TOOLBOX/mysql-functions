@@ -24,7 +24,6 @@ function dbSelect ($sql) {
 function dbSelectVal ($sql) {
     clearArray();
     global $pdo;
-    global $arr;
     global $result;
     $arr = array();
     if (filter($sql) == 0) {
@@ -42,59 +41,55 @@ function dbSelectVal ($sql) {
     }
 }
 
-function dbInsertSS ($date) {
-    global $pdo;
-    $sql = "INSERT INTO serverstats (date) VALUES (:date)";
-    $stmt = $pdo->prepare($sql);
+function dbInsertJob ($uuid) {
+    if (filter($uuid) == 0) {
+        global $pdo;
+        $sql = "INSERT INTO jobstats (uuid) VALUES (:uuid)";
+        $stmt = $pdo->prepare($sql);
 
-    if (filter($date) == 0) {
-        $stmt->bindParam(':date', $date, PDO::PARAM_STR);
-    } else {
-        $stmt = null;
-    }
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
 
-    if (filter($stmt) == 0) {
-        $stmt->execute();
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
     }
 }
 
-function dbUpdateSS ($key, $value, $date) {
-    global $pdo;
-    $sql = "UPDATE serverstats SET $key = :value WHERE date = :date";
-    $stmt = $pdo->prepare($sql);
+function dbUpdateJob ($key, $value, $uuid) {
+    if (filter($key) == 0 && filter($uuid) == 0) {
+        global $pdo;
+        $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
+        $stmt = $pdo->prepare($sql);
 
-    if (is_numeric($value) && $value <= 0) {
-        $value = "NULL";
-    }
+        if (is_numeric($value) && $value <= 0) {
+            $value = "NULL";
+        }
 
-    if (filter($key) == 0 && filter($value) == 1 && filter($date) == 0) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-        $stmt->bindParam(':date', $date, PDO::PARAM_STR);
-    } elseif (filter($key) == 0 && filter($value) == 0 && filter($date) == 0) {
-        $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-        $stmt->bindParam(':date', $date, PDO::PARAM_STR);
-    } else {
-        $stmt = null;
-    }
+        if (filter($value) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+        }
 
-    if (filter($stmt) == 0) {
-        $stmt->execute();
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
     }
 }
 
 function dbInsertCS ($tagNum) {
-    global $pdo;
-    $sql = "INSERT INTO clientstats (tagnumber) VALUES (:tagNum)";
-    $stmt = $pdo->prepare($sql);
-
     if (filter($tagNum) == 0) {
-        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-    } else {
-        $stmt = null;
-    }
+        global $pdo;
+        $sql = "INSERT INTO clientstats (tagnumber) VALUES (:tagNum)";
+        $stmt = $pdo->prepare($sql);
 
-    if (filter($stmt) == 0) {
-        $stmt->execute();
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
     }
 }
 
@@ -122,53 +117,89 @@ function dbUpdateCS ($key, $value, $tagnumber) {
     }
 }
 
-function dbInsertLocation ($time) {
-    global $pdo;
-    $sql = "INSERT INTO locations (time) VALUES (:time)";
-    $stmt = $pdo->prepare($sql);
+function dbInsertSS ($date) {
+    if (filter($date) == 0) {
+        global $pdo;
+        $sql = "INSERT INTO serverstats (date) VALUES (:date)";
+        $stmt = $pdo->prepare($sql);
 
-    if (filter($time) == 0) {
-        $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-    } else {
-        $stmt = null;
+        $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
     }
+}
 
-    if (filter($stmt) == 0) {
-        $stmt->execute();
+function dbUpdateSS ($key, $value, $date) {
+    if (filter($key) == 0 && filter($date) == 0) {
+        global $pdo;
+        $sql = "UPDATE serverstats SET $key = :value WHERE date = :date";
+        $stmt = $pdo->prepare($sql);
+
+        if (is_numeric($value) && $value <= 0) {
+            $value = "NULL";
+        }
+
+        if (filter($value) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+        }
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
+
+function dbInsertLocation ($time) {
+    if (filter($date) == 0) {
+        global $pdo;
+        $sql = "INSERT INTO locations (time) VALUES (:time)";
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
     }
 }
 
 function dbUpdateLocation ($key, $value, $time) {
-    global $pdo;
-    if ($time = "NOTIME") {
-        $sql = "UPDATE locations SET $key = :value";
-        $stmt = $pdo->prepare($sql);
+    if (filter($key) == 0 && filter($time) == 0) {
+        global $pdo;
+        if ($time = "NOTIME") {
+            $sql = "UPDATE locations SET $key = :value";
+            $stmt = $pdo->prepare($sql);
 
-        if (filter($key) == 0 && filter($value) == 1 && filter($time) == 0) {
-            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-        } elseif (filter($key) == 0 && filter($value) == 0 && filter($time) == 0) {
-            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            if (filter($value) == 0) {
+                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            } else {
+                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            }
         } else {
-            $stmt = null;
-        }
-    } else {
-        $sql = "UPDATE locations SET $key = :value WHERE time = :time";
-        $stmt = $pdo->prepare($sql);
+            $sql = "UPDATE locations SET $key = :value WHERE time = :time";
+            $stmt = $pdo->prepare($sql);
 
-        if (filter($key) == 0 && filter($value) == 1 && filter($time) == 0) {
-            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-        } elseif (filter($key) == 0 && filter($value) == 0 && filter($time) == 0) {
-            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-        } else {
-            $stmt = null;
+            if (filter($value) == 0) {
+                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+            } else {
+                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+            }
         }
-    }
 
-    if (filter($stmt) == 0) {
-        $stmt->execute();
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
     }
 }
+
+$pdo = null;
 
 ?>
