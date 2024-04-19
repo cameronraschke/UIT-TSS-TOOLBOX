@@ -1,11 +1,11 @@
 #!/bin/bash
 
 clientStart=$(date +%s.%N)
-echo | /usr/sbin/uit-sql-refresh-client
+echo | uit-sql-refresh-client
 locationStart=$(date +%s.%N)
-/usr/sbin/uit-sql-refresh-location
+uit-sql-refresh-location
 serverStart=$(date +%s.%N)
-/usr/sbin/uit-sql-refresh-server
+uit-sql-refresh-server
 serverEnd=$(date +%s.%N)
 
 clientTime=$(printf %.2f $( echo "$locationStart - $clientStart" | bc -l ))
