@@ -1,23 +1,19 @@
 #!/usr/bin/php
 <?php
 
-include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
-include('/var/lib/UIT-TSS-TOOLBOX/functions');
+include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
 
 $stdin = fopen('php://stdin', 'r');
-$line = trim(fgets(STDIN));
+$input = trim(fgets(STDIN));
 fclose($stdin);
 
-$sql = $pdo->prepare($line);
-$sql->execute();
+dbSelect("$input");
 
-$row = $sql->fetchAll(PDO::FETCH_COLUMN);
-
-if (empty($row)) {
-    $row = array( "KEY" => "NULL"  );
+if (filter($arr) == 1) {
+    $arr = array( "result" => "NULL"  );
 }
 
-foreach ($row as $key => $value) {
+foreach ($arr as $key => $value) {
     if (filter($value) == "1") {
         $value = "NULL";
     }
