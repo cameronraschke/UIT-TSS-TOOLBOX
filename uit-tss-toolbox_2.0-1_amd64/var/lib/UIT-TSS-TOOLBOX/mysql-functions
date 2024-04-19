@@ -1,8 +1,7 @@
 #!/usr/bin/php
 <?php
-
-require('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
-require('/var/lib/UIT-TSS-TOOLBOX/functions');
+include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
+include('/var/lib/UIT-TSS-TOOLBOX/functions');
 
 function dbSelect ($sql) {
     clearArray();
