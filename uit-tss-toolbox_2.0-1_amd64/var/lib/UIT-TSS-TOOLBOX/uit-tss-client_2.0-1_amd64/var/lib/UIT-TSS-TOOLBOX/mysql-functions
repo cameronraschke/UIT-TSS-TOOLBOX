@@ -5,10 +5,10 @@ include('/var/lib/UIT-TSS-TOOLBOX/functions');
 
 function dbSelect ($sql) {
     clearArray();
-    global $pdo;
-    global $arr;
-    $arr = array();
     if (filter($sql) == 0) {
+        global $pdo;
+        global $arr;
+        $arr = array();
         $sql = $pdo->prepare($sql);
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
@@ -22,10 +22,10 @@ function dbSelect ($sql) {
 
 function dbSelectVal ($sql) {
     clearArray();
-    global $pdo;
-    global $result;
-    $arr = array();
     if (filter($sql) == 0) {
+        global $pdo;
+        global $result;
+        $arr = array();
         $sql = $pdo->prepare($sql);
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
@@ -122,5 +122,7 @@ function dbUpdateLocation ($key, $value, $time) {
         }
     }
 }
+
+$pdo = null;
 
 ?>
