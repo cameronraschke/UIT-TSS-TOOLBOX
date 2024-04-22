@@ -6,10 +6,11 @@ $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
-$stdin = fopen('php://stdin', 'r');
-$line = trim(fgets(STDIN));
+$fd = fopen('php://stdin', 'r');
+$input = trim(fgets(STDIN));
+fclose($fd);
 
-$arr = explode('|', $line);
+$arr = explode('|', $input);
 
 if ($arr[0] == "location") {
     $tagNum = $arr[1];
