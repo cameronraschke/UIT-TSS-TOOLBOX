@@ -35,8 +35,8 @@ function timeSinceLastMarker($key) {
     }
 
     foreach (array_keys($timeArr) as $i) {
-        $currentVal = array_values($timeArr[$i]);
-        $previousVal = array_values($timeArr[$i-1]);
+        $currentVal = $timeArr[$i];
+        $previousVal = $timeArr[$i-1];
         $execTime = round(($currentVal - $previousVal) / 1e9, 4);
     }
 
