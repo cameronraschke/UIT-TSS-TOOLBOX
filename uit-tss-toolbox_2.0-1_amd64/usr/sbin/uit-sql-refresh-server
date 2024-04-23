@@ -192,7 +192,7 @@ foreach ($arr as $key => $value) {
         dbUpdateSS("battery_charge_cycles", "NULL", "$sqlDate");
     }
 
-    
+
     # Output time taken for specific date
     $end = hrtime(true);
     $executionTime = round(($end - $start) / 1e9, 4);
