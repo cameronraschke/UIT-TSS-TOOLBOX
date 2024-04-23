@@ -48,10 +48,10 @@ function timeSinceLastMarker($key) {
     if ($curKey > 0) {
         $iterator->rewind();
         $start = $iterator->current();
-        $iterator->seek($iterator->count());
+        $iterator->seek($curKey);
         $end = $curKey = $iterator->current();
     }
-    
+
     $execTime = round(($curVal - $previousVal) / 1e9, 4);
 
     echo $execTime;
