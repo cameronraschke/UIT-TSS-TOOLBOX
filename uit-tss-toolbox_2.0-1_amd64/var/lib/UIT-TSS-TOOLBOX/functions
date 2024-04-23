@@ -12,6 +12,34 @@ function filter ($string) {
 function clearArray() {
     unset($GLOBALS["result"]);
     unset($GLOBALS["arr"]);
+    unset($GLOBALS["timeArr"]);
+}
+
+function timeSinceLastMarker($key) {
+    $value = hrtime(true);
+    global $timeArr;
+    global $execTime;
+
+    if (filter($timeArr) == 1) {
+        $timeArr = array();
+    }
+
+    if ($key == "start") {
+        $timeArr = array();
+        array_push($timeArr, $value);
+    }
+
+    if ($key == "end") {
+        array_push($timeArr, $value);
+        $execTime = round((end($timeArr) - reset($timeArr)) / 1e9, 4);
+    }
+
+    foreach ($timeArr as $a => $b) {
+        $execTime = round($value - end(key($timeArr)) / 1e9, 4);
+        $a = $a + 1;
+    }
+
+    echo $execTime;
 }
 
 ?>

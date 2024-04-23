@@ -34,9 +34,6 @@ foreach ($arr as $key => $value) {
         echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
         dbInsertSS("$sqlDate");
     }
-    $marker1 = hrtime(true);
-    $executionTime = round(($marker1 - $start) / 1e9, 4);
-    echo "\t" . "Insert Statement: " . $executionTime . " seconds" . PHP_EOL;
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
     dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND department = 'techComm'");
