@@ -28,7 +28,7 @@ $file = null;
 
 #Server Table
 $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'w');
-dbSelect("CALL iterateServerLabels()");
+dbSelect("CALL iterateServerCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
@@ -37,17 +37,10 @@ $file = null;
 
 #Locations Table
 $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'w');
-dbSelect("CALL iterateLocationLabels()");
-foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-}
-
-$sql = "SELECT tagnumber,system_serial,location,status,problem,time FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)";
-dbSelect($sql);
+dbSelect("CALL iterateLocationCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
 $file = null;
 
-$pdo = null;
 ?>

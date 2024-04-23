@@ -94,8 +94,9 @@ DELIMITER ;
 
 -- Location table CSV
 DROP PROCEDURE IF EXISTS iterateLocationLabels;
+DROP PROCEDURE IF EXISTS iterateLocationsCSV;
 DELIMITER //
-CREATE PROCEDURE iterateLocationLabels()
+CREATE PROCEDURE iterateLocationsCSV()
 DETERMINISTIC
 BEGIN
 
