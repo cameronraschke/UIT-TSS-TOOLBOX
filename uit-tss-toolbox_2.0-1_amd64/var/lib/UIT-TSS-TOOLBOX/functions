@@ -39,7 +39,7 @@ function timeSinceLastMarker($key) {
         $iterator->rewind();
         $start = $iterator->current();
         $iterator->seek($curKey);
-        $end = $curKey = $iterator->current();
+        $end = $iterator->current();
     }
     
     if ($key == "start") {
