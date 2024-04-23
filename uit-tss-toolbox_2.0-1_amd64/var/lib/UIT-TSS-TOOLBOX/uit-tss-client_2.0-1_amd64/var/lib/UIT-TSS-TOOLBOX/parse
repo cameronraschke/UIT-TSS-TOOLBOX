@@ -89,16 +89,6 @@ if ($arr[0] == "init") {
         $value = bcdiv("$value", 1000000000000, 2);
     }
 
-    if ($key == "disk_type") {
-        if ($value == 0) {
-            $value = "ssd";
-        } elseif ($value == 1) {
-            $value = "hdd";
-        } else {
-            $value = "";
-        }
-    }
-
     dbUpdateJob("$key", "$value", "$uuid");
 
 } else {
