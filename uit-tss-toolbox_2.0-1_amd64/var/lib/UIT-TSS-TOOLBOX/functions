@@ -23,6 +23,7 @@ function timeSinceLastMarker($key) {
     $previousVal = null;
     $start = null;
     $end = null;
+    $execTime = null;
 
     if (filter($timeArr) == 1 || filter($arrayObject) == 1) {
         $timeArr = array();
@@ -34,12 +35,6 @@ function timeSinceLastMarker($key) {
 
     $count = $iterator->count();
 
-    while ($iterator->valid() && $count > 1) {
-        $previousVal = $iterator->seek($count - 2);
-        $iterator->seek($count - 1);
-        $curVal = $iterator->current();
-    }
-
     if ($key == "start") {
         $iterator->rewind();
         $start = $iterator->current();
@@ -49,6 +44,11 @@ function timeSinceLastMarker($key) {
         $end = $iterator->current();
         $execTime = round(($end - $start) / 1e9, 4);
     } elseif (is_numeric($key)) {
+        while ($iterator->valid() && $count > 1) {
+            $previousVal = $iterator->seek($count - 2);
+            $iterator->seek($count - 1);
+            $curVal = $iterator->current();
+        }
         $execTime = round(($curVal - $previousVal) / 1e9, 4);
     }
 
