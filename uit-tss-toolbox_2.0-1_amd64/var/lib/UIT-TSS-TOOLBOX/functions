@@ -41,6 +41,8 @@ function timeSinceLastMarker($key) {
     } elseif ($key == "end") {
         $iterator->seek($count - 1);
         $end = $iterator->current();
+        $iterator->rewind();
+        $start = $iterator->current();
         $execTime = round(($end - $start) / 1e9, 4);
     } elseif (is_numeric($key)) {
         while ($iterator->valid() && $count > 1) {
