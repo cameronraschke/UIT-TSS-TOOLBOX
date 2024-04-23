@@ -14,6 +14,7 @@ function clearArray() {
     unset($GLOBALS["arr"]);
     unset($GLOBALS["timeArr"]);
     unset($GLOBALS["execTime"]);
+    unset($GLOBALS["arrayobject"]);
 }
 
 function timeSinceLastMarker($key) {
@@ -34,15 +35,23 @@ function timeSinceLastMarker($key) {
         array_push($timeArr, hrtime(true));
     }
 
-    foreach (array_keys($timeArr) as $i) {
-        $currentVal = $timeArr[$i];
-        if ($i > 0) {
-            $previousVal = $timeArr[$i-1];
-            $execTime = round(($currentVal - $previousVal) / 1e9, 4);
-        } else {
-            $execTime = round($currentVal / 1e9, 4);
-        }
+    $arrayobject = new ArrayObject($timeArr);
+
+    for($iterator = $arrayobject->getIterator();
+    $iterator->valid();
+    $iterator->next()) {
+        $curKey = $iterator->count();
+        $curVal = $iterator->current();
+        $previousVal = $iterator->seek($curKey - 1);
     }
+
+    $iterator->rewind();
+    $start = $iterator->current();
+    $iterator->seek($iterator->count());
+    $end = $curKey = $iterator->current();
+
+    $execTime = round(($curVal - $previousVal) / 1e9, 4);
+
     echo $execTime;
 }
 
