@@ -19,7 +19,7 @@ function clearArray() {
 
 function timeSinceLastMarker($key) {
     global $timeArr;
-    
+
     if (filter($timeArr) == 1 || filter($arrayObject) == 1) {
         $timeArr = array();
         $arrayObject = new ArrayObject($timeArr);
@@ -35,7 +35,7 @@ function timeSinceLastMarker($key) {
         $previousVal = $iterator->seek($curKey - 1);
     }
 
-    if ($curKey > 0) {
+    if ($curKey > 1) {
         $iterator->rewind();
         $start = $iterator->current();
         $iterator->seek($curKey);
