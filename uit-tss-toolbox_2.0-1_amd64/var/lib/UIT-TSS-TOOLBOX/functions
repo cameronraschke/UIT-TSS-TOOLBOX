@@ -18,6 +18,8 @@ function clearArray() {
 }
 
 function timeSinceLastMarker($key) {
+    global $timeArr;
+    
     if (filter($timeArr) == 1 || filter($arrayObject) == 1) {
         $timeArr = array();
         $arrayObject = new ArrayObject($timeArr);
