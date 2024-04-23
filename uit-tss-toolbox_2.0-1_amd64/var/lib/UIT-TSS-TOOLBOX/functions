@@ -18,6 +18,7 @@ function clearArray() {
 }
 
 function timeSinceLastMarker($key) {
+    $timeArr = array();
 
     $arrayobject = new ArrayObject($timeArr);
 
