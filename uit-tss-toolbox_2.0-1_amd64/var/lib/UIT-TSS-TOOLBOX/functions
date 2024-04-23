@@ -13,6 +13,7 @@ function clearArray() {
     unset($GLOBALS["result"]);
     unset($GLOBALS["arr"]);
     unset($GLOBALS["timeArr"]);
+    unset($GLOBALS["execTime"]);
 }
 
 function timeSinceLastMarker($key) {
