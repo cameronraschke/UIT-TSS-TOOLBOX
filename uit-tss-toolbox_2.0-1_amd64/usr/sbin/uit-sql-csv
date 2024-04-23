@@ -15,12 +15,6 @@ foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
 
-dbSelect("SELECT * FROM jobstats WHERE department = 'techComm' ORDER BY time DESC");
-foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-}
-$file = null;
-
 
 #Client Table
 $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'w');
