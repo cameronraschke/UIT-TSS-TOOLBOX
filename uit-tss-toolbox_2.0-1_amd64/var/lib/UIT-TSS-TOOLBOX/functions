@@ -19,6 +19,8 @@ function clearArray() {
 
 function timeSinceLastMarker($key) {
     global $timeArr;
+    $curVal = string;
+    $previousVal = string;
 
     if (filter($timeArr) == 1 || filter($arrayObject) == 1) {
         $timeArr = array();
