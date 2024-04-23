@@ -56,13 +56,27 @@ DELIMITER //
 CREATE PROCEDURE iterateClientCSV()
 DETERMINISTIC
 BEGIN
-(SELECT 'Tag','Serial Number','System Manufacturer','System Model','Last Job Time',
-    'Battery Max Charge','Terabytes Written (TBW)',
-    'Erase Time','Clone Time','Total Jobs')
+(SELECT 'Tag',
+    'Serial Number',
+    'System Manufacturer',
+    'System Model',
+    'Last Job Time',
+    'Battery Max Charge',
+    'Terabytes Written (TBW)',
+    'Erase Time',
+    'Clone Time',
+    'Total Jobs')
 UNION
-(SELECT tagnumber,system_serial,system_manufacturer,system_model,last_job_time,
-    CONCAT(battery_health, '%'),CONCAT(tbw_pcnt, '%'),
-    CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all_jobs
+(SELECT tagnumber,
+    system_serial,
+    system_manufacturer,
+    system_model,
+    last_job_time,
+    CONCAT(battery_health, '%'),
+    CONCAT(tbw_pcnt, '%'),
+    CONCAT(erase_avgtime, ' minutes'),
+    CONCAT(clone_avgtime, ' minutes'),
+    all_jobs
     FROM clientstats ORDER BY last_job_time DESC);
 END; //
 
@@ -77,13 +91,33 @@ CREATE PROCEDURE iterateServerCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Date','Computer Count','Disk Wear','Disk MTBF','Battery Max Charge Level',
-    'Battery Charge Cycles','Total Jobs','Clone Jobs','Erase Jobs',
-    'Clone Time','NVME Erase Time','SATA Erase Time','Last Image Update')
+(SELECT 'Date',
+    'Computer Count',
+    'Disk Wear',
+    'Disk MTBF',
+    'Battery Max Charge Level',
+    'Battery Charge Cycles',
+    'Total Jobs',
+    'Clone Jobs',
+    'Erase Jobs',
+    'Clone Time',
+    'NVME Erase Time',
+    'SATA Erase Time',
+    'Last Image Update')
 UNION
-(SELECT date,laptop_count,CONCAT(tbw_pcnt, '%'),CONCAT(disk_mtbf, '%'),CONCAT(battery_health, '%'),CONCAT(battery_charge_cycles, '%')
-    all_jobs,clone_jobs,erase_jobs,CONCAT(clone_avgtime, ' minutes'),CONCAT(nvme_erase_avgtime, ' minutes'),
-    CONCAT(sata_erase_avgtime, ' minutes'),last_image_update
+(SELECT date,
+    laptop_count,
+    CONCAT(tbw_pcnt, '%'),
+    CONCAT(disk_mtbf, '%'),
+    CONCAT(battery_health, '%'),
+    CONCAT(battery_charge_cycles, '%'),
+    all_jobs,
+    clone_jobs,
+    erase_jobs,
+    CONCAT(clone_avgtime, ' minutes'),
+    CONCAT(nvme_erase_avgtime, ' minutes'),
+    CONCAT(sata_erase_avgtime, ' minutes'),
+    last_image_update
     FROM serverstats
     ORDER BY date DESC);
 
@@ -100,9 +134,19 @@ CREATE PROCEDURE iterateLocationsCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Entry')
+(SELECT 'Tagnumber',
+    'Serial Number',
+    'Location',
+    'Status',
+    'Description of Problem',
+    'Most Recent Entry')
 UNION
-(SELECT tagnumber,system_serial,location,status,problem,time 
+(SELECT tagnumber,
+    system_serial,
+    location,
+    status,
+    problem,
+    time 
     FROM locations 
     WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber));
 
