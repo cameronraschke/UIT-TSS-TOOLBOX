@@ -27,3 +27,5 @@ chmod 755 /home/cameron/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
 /usr/bin/chown root:root /root/startup-script
 
 /usr/bin/chown nobody:nogroup /home/images -R
+
+mysql laptopDB < /var/lib/UIT-TSS-TOOLBOX/mysql/mysql-procedures.sql
