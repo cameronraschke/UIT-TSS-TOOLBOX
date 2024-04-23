@@ -15,10 +15,13 @@ function clearArray() {
     unset($GLOBALS["timeArr"]);
     unset($GLOBALS["execTime"]);
     unset($GLOBALS["arrayobject"]);
+    unset($GLOBALS["iterator"]);
 }
 
 function timeSinceLastMarker($key) {
     global $timeArr;
+    global $arrayObject;
+    global $iterator;
     $curVal = null;
     $previousVal = null;
     $start = null;
