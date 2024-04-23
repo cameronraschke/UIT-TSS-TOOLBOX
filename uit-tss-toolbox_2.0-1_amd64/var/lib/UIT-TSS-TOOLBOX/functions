@@ -28,6 +28,7 @@ function timeSinceLastMarker($key) {
     $end = null;
     $execTime = null;
     $curTime = null;
+    $count = null;
 
     $curTime = hrtime(true);
 
