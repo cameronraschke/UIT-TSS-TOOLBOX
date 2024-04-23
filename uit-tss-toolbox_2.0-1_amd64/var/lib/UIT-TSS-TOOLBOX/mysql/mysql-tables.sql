@@ -12,7 +12,7 @@ CREATE TABLE serverstats (
     tbw_pcnt TINYINT DEFAULT NULL,
     disk_mtbf DECIMAL(5,2) DEFAULT NULL,
     battery_health TINYINT DEFAULT NULL,
-    battery_charge_cycles DECIMAL(5,2)
+    battery_charge_cycles DECIMAL(5,2),
     boot_time SMALLINT DEFAULT NULL
 );
 
