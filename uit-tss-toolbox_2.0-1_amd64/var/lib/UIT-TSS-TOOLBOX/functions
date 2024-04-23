@@ -30,7 +30,7 @@ function timeSinceLastMarker($key) {
 
     $count = $iterator->count();
 
-    while ($iterator->valid() && $count > 0) {
+    while ($iterator->valid() && $count > 1) {
         $previousVal = $iterator->seek($count - 2);
         $iterator->seek($count - 1);
         $curVal = $iterator->current();
