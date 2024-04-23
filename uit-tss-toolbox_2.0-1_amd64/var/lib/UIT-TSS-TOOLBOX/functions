@@ -34,9 +34,10 @@ function timeSinceLastMarker($key) {
         $execTime = round((end($timeArr) - reset($timeArr)) / 1e9, 4);
     }
 
-    foreach ($timeArr as $a => $b) {
-        $execTime = round($value - end(key($timeArr)) / 1e9, 4);
-        $a = $a + 1;
+    foreach (array_keys($timeArr) as $i) {
+        $currentVal = array_values($timeArr[$i]);
+        $previousVal = array_values($timeArr[$i-1]);
+        $execTime = round(($currentVal - $previousVal) / 1e9, 4);
     }
 
     echo $execTime;
