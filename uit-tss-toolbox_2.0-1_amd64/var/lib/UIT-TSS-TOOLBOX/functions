@@ -35,12 +35,10 @@ function timeSinceLastMarker($key) {
         $previousVal = $iterator->seek($curKey - 1);
     }
 
-    if ($curKey > 1) {
-        $iterator->rewind();
-        $start = $iterator->current();
-        $iterator->seek($curKey);
-        $end = $iterator->current();
-    }
+    $iterator->rewind();
+    $start = $iterator->current();
+    $iterator->seek($curKey);
+    $end = $iterator->current();
     
     if ($key == "start") {
         $execTime = $curVal;
