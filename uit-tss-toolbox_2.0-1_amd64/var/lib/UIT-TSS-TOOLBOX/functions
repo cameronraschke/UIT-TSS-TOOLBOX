@@ -24,6 +24,9 @@ function timeSinceLastMarker($key) {
     $start = null;
     $end = null;
     $execTime = null;
+    $curTime = null;
+
+    $curTime = array("0" => hrtime(true));
 
     if (filter($timeArr) == 1 || filter($arrayObject) == 1) {
         $timeArr = array();
@@ -31,13 +34,14 @@ function timeSinceLastMarker($key) {
         $iterator = $arrayObject->getIterator();
     }
 
-    $arrayObject->append(hrtime(true));
+    #$arrayObject->append(hrtime(true));
 
     $count = $iterator->count();
 
     if ($key == "start") {
         $iterator->rewind();
         $start = $iterator->current();
+        $iterator->next();
     } elseif ($key == "end") {
         $iterator->seek($count - 1);
         $end = $iterator->current();
