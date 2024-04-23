@@ -16,7 +16,6 @@ function clearArray() {
 }
 
 function timeSinceLastMarker($key) {
-    $value = hrtime(true);
     global $timeArr;
     global $execTime;
 
@@ -26,11 +25,11 @@ function timeSinceLastMarker($key) {
 
     if ($key == "start") {
         $timeArr = array();
-        array_push($timeArr, $value);
+        array_push($timeArr, hrtime(true));
     }
 
     if ($key == "end") {
-        array_push($timeArr, $value);
+        array_push($timeArr, hrtime(true));
         $execTime = round((end($timeArr) - reset($timeArr)) / 1e9, 4);
     }
 
