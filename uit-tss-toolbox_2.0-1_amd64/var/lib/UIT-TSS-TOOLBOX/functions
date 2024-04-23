@@ -40,7 +40,7 @@ function timeSinceLastMarker($key) {
             $previousVal = $timeArr[$i-1];
             $execTime = round(($currentVal - $previousVal) / 1e9, 4);
         } else {
-            $execTime = $currentVal;
+            $execTime = round($currentVal / 1e9, 4);
         }
     }
     echo $execTime;
