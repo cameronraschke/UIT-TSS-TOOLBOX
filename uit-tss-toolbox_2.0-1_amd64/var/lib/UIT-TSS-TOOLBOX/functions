@@ -21,6 +21,8 @@ function timeSinceLastMarker($key) {
     global $timeArr;
     $curVal = null;
     $previousVal = null;
+    $start = null;
+    $end = null;
 
     if (filter($timeArr) == 1 || filter($arrayObject) == 1) {
         $timeArr = array();
@@ -41,7 +43,7 @@ function timeSinceLastMarker($key) {
     if ($key == "start") {
         $iterator->rewind();
         $start = $iterator->current();
-        $execTime = $start;
+        $execTime = round(($start) / 1e9, 4);
     } elseif ($key == "end") {
         $iterator->seek($count - 1);
         $end = $iterator->current();
