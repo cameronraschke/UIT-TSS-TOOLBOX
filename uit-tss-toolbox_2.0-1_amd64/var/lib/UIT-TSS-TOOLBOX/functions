@@ -27,11 +27,11 @@ function timeSinceLastMarker($key) {
     if ($key == "start") {
         $timeArr = array();
         array_push($timeArr, hrtime(true));
-    }
-
-    if ($key == "end") {
+    } elseif ($key == "end") {
         array_push($timeArr, hrtime(true));
         $execTime = round((end($timeArr) - reset($timeArr)) / 1e9, 4);
+    } elseif (is_numeric($key)) {
+        array_push($timeArr, hrtime(true));
     }
 
     foreach (array_keys($timeArr) as $i) {
