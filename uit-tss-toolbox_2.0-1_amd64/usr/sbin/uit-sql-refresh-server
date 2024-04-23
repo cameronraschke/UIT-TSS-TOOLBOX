@@ -18,12 +18,15 @@ echo "Updating serverstats" . PHP_EOL;
 # Set $oldDate to the oldest date entry in the DB.
 $oldDate = "2023-01-09";
 
+echo "\t" . "Start: " . timeSinceLastMarker($start);
+
 # Iterate through all the dates between $oldDate and $date.
 dbSelect("CALL iterateDate('$oldDate', '$date')");
+echo "\t" . "Iterate all dates: " . timeSinceLastMarker(0);
 foreach ($arr as $key => $value) {
 
     # Start the timer that counts how much time each date takes to process.
-    $start = hrtime(true);
+    #$start = hrtime(true);
 
     # Set the variable $sqlDate to the iterated date.
     $sqlDate = $value["date"];
@@ -34,10 +37,12 @@ foreach ($arr as $key => $value) {
         echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
         dbInsertSS("$sqlDate");
     }
+    echo "\t" . "Insert dates: " . timeSinceLastMarker(0);
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
     dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND department = 'techComm'");
     dbUpdateSS("laptop_count", "$result", "$sqlDate");
+    echo "\t" . "Laptop Count: " . timeSinceLastMarker(0);
 
 
     # Update the average time taken to clone a computer.
