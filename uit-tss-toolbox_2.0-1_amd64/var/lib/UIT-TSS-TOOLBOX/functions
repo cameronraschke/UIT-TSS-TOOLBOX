@@ -38,14 +38,13 @@ function timeSinceLastMarker($key) {
         $curVal = $iterator->current();
     }
 
-    $iterator->rewind();
-    $start = $iterator->current();
-    $iterator->seek($count - 1);
-    $end = $iterator->current();
-    
     if ($key == "start") {
-        $execTime = $curVal;
+        $iterator->rewind();
+        $start = $iterator->current();
+        $execTime = $start;
     } elseif ($key == "end") {
+        $iterator->seek($count - 1);
+        $end = $iterator->current();
         $execTime = round(($end - $start) / 1e9, 4);
     } elseif (is_numeric($key)) {
         $execTime = round(($curVal - $previousVal) / 1e9, 4);
