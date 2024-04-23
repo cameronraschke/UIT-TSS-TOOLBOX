@@ -29,19 +29,19 @@ function timeSinceLastMarker($key) {
     $execTime = null;
     $curTime = null;
 
+    $curTime = array(hrtime(true));
+
     if (filter($timeArr) == 1) {
         $timeArr = array();
+        array_push($timeArr, $curTime);
     }
-
-    $curTime = array("0" => hrtime(true));
-    array_push($timeArr, $curTime);
 
     if (filter($arrayObject) == 1) {
         $arrayObject = new ArrayObject($timeArr);
         $iterator = $arrayObject->getIterator();
     }
 
-    #$arrayObject->append(hrtime(true));
+    $arrayObject->append(hrtime(true));
 
     $count = $iterator->count();
 
@@ -50,18 +50,18 @@ function timeSinceLastMarker($key) {
         $start = $iterator->current();
         $iterator->next();
     } elseif ($key == "end") {
-        $iterator->seek($count - 1);
+        $iterator->seek($count);
         $end = $iterator->current();
         $iterator->rewind();
         $start = $iterator->current();
-        $execTime = round(($end - $start) / 1e9, 4);
+        $execTime = round(($end[0] - $start[0]) / 1e9, 4);
     } elseif (is_numeric($key)) {
-        while ($iterator->valid() && $count > 1) {
-            $previousVal = $iterator->seek($count - 2);
-            $iterator->seek($count - 1);
+        while ($iterator->valid() && $count > 0) {
+            $previousVal = $iterator->seek($count - 1);
+            $iterator->seek($count);
             $curVal = $iterator->current();
         }
-        $execTime = round(($curVal - $previousVal) / 1e9, 4);
+        $execTime = round(($curVal[0] - $previousVal[0]) / 1e9, 4);
     }
 
     if (filter($execTime) == 0) {
