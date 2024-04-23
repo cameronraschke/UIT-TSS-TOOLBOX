@@ -31,8 +31,8 @@ function timeSinceLastMarker($key) {
     while ($iterator->valid()) {
         $curKey = $iterator->count();
         $previousVal = $iterator->seek($curKey - 1);
-        $curVal = $iterator->seek($curKey);
-        $iterator->next();
+        $iterator->seek($curKey);
+        $curVal = $iterator->current();
     }
 
     $iterator->rewind();
