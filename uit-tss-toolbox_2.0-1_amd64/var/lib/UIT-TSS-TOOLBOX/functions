@@ -18,8 +18,8 @@ function clearArray() {
 }
 
 function timeSinceLastMarker($key) {
-    global $timeArr;
-    global $execTime;
+
+    $arrayobject = new ArrayObject($timeArr);
 
     if (filter($timeArr) == 1) {
         $timeArr = array();
@@ -34,8 +34,6 @@ function timeSinceLastMarker($key) {
     } elseif (is_numeric($key)) {
         array_push($timeArr, hrtime(true));
     }
-
-    $arrayobject = new ArrayObject($timeArr);
 
     for($iterator = $arrayobject->getIterator();
     $iterator->valid();
