@@ -29,7 +29,7 @@ function timeSinceLastMarker($key) {
     $execTime = null;
     $curTime = null;
 
-    $curTime = array(hrtime(true));
+    $curTime = hrtime(true);
 
     if (filter($timeArr) == 1) {
         $timeArr = array();
