@@ -43,7 +43,7 @@ function timeSinceLastMarker($key) {
 
     $arrayObject->append(hrtime(true));
 
-    $count = $iterator->count();
+    $count = $iterator->count() - 1;
 
     if ($key == "start") {
         $iterator->rewind();
@@ -57,7 +57,7 @@ function timeSinceLastMarker($key) {
         $execTime = round(($end[0] - $start[0]) / 1e9, 4);
     } elseif (is_numeric($key)) {
         while ($iterator->valid() && $count > 0) {
-            $previousVal = $iterator->seek($count - 1);
+            $previousVal = $iterator->seek($count);
             $iterator->seek($count);
             $curVal = $iterator->current();
         }
