@@ -28,8 +28,7 @@ DELIMITER //
 CREATE PROCEDURE iterateJobLabels()
 DETERMINISTIC
 BEGIN
-SELECT tagnumber as 'Tag', time as 'Date Time' from jobstats;
-/*SELECT 'UUID','Tag','Ethernet MAC','WiFi MAC','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Last Update',
+(SELECT 'UUID','Tag','Ethernet MAC','WiFi MAC','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Last Update',
     'BIOS Revision','BIOS Firmware','System Manufacturer','System Model','System Serial','System UUID',
     'System SKU','Motherboard Manufacturer','Motherboard Serial','Chassis Manufcaturer',
     'Chassis Type','Chassis Serial','Chassis Tag','CPU Manufacturer',
@@ -38,9 +37,10 @@ SELECT tagnumber as 'Tag', time as 'Date Time' from jobstats;
     'Boot Time','Job Type','Did Sleep (Boolean)','Disk','Disk Type','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware',
     'Disk Power on Hours','Disk Temperature','Disk Reads (TB)','Disk Writes (TB)',
     'Total Time for Jobs','Erase Successful','Erase Mode','Total Erase Time','Disk Erased %',
-    'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update'
+    'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update')
 UNION
-SELECT * FROM jobstats WHERE department = 'techComm' ORDER BY Time DESC; */
+(SELECT * FROM jobstats WHERE department = 'techComm')
+ORDER BY Time DESC;
 END; //
 
 DELIMITER ;
