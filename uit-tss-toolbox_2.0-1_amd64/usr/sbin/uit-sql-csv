@@ -10,24 +10,16 @@ $time = $dt->format('Y-m-d-His');
 
 #Job Table
 $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'w');
-dbSelect("CALL iterateJobLabels()");
+dbSelect("CALL iterateJobCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
+$file = null;
 
 
 #Client Table
 $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'w');
-dbSelect("CALL iterateClientLabels()");
-foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-}
-
-$sql = "SELECT tagnumber,system_serial,system_manufacturer,system_model,last_job_time,";
-$sql .= "CONCAT(battery_health, '%'),CONCAT(tbw_pcnt, '%'),";
-$sql .= "CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all_jobs ";
-$sql .= "FROM clientstats ORDER BY last_job_time DESC";
-dbSelect($sql);
+dbSelect("CALL iterateClientCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
@@ -37,14 +29,6 @@ $file = null;
 #Server Table
 $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'w');
 dbSelect("CALL iterateServerLabels()");
-foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-}
-
-$sql = "SELECT date,laptop_count,CONCAT(tbw_pcnt, '%'),CONCAT(disk_mtbf, '%'),CONCAT(battery_health, '%'),all_jobs,clone_jobs,erase_jobs,";
-$sql .= "CONCAT(clone_avgtime, ' minutes'),CONCAT(nvme_erase_avgtime, ' minutes'),CONCAT(sata_erase_avgtime, ' minutes'),last_image_update ";
-$sql .= "FROM serverstats ORDER BY date DESC";
-dbSelect($sql);
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }

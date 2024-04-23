@@ -1,6 +1,7 @@
+-- Iterate through dates
 DROP PROCEDURE IF EXISTS iterateDate;
 DELIMITER //
-CREATE PROCEDURE iterateDate(date1 date, date2 date)
+CREATE PROCEDURE iterateDate(date1 DATE, date2 DATE)
 DETERMINISTIC
 BEGIN
 DROP TEMPORARY TABLE IF EXISTS tbl_results;
@@ -23,9 +24,12 @@ END; //
 
 DELIMITER ;
 
+
+-- Job table CSV
 DROP PROCEDURE IF EXISTS iterateJobLabels;
+DROP PROCEDURE IF EXISTS iterateJobCSV;
 DELIMITER //
-CREATE PROCEDURE iterateJobLabels()
+CREATE PROCEDURE iterateJobCSV()
 DETERMINISTIC
 BEGIN
 (SELECT 'UUID','Tag','Ethernet MAC','WiFi MAC','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Last Update',
@@ -44,46 +48,69 @@ END; //
 
 DELIMITER ;
 
+
+-- Client table CSV
 DROP PROCEDURE IF EXISTS iterateClientLabels;
+DROP PROCEDURE IF EXISTS iterateClientCSV;
 DELIMITER //
-CREATE PROCEDURE iterateClientLabels()
+CREATE PROCEDURE iterateClientCSV()
 DETERMINISTIC
 BEGIN
-SELECT 'Tag','Serial Number','System Manufacturer','System Model','Last Job Time',
+(SELECT 'Tag','Serial Number','System Manufacturer','System Model','Last Job Time',
     'Battery Max Charge','Terabytes Written (TBW)',
-    'Erase Time','Clone Time','Total Jobs';
+    'Erase Time','Clone Time','Total Jobs')
+UNION
+(SELECT tagnumber,system_serial,system_manufacturer,system_model,last_job_time,
+    CONCAT(battery_health, '%'),CONCAT(tbw_pcnt, '%'),
+    CONCAT(erase_avgtime, ' minutes'),CONCAT(clone_avgtime, ' minutes'),all_jobs
+    FROM clientstats ORDER BY last_job_time DESC);
 END; //
 
 DELIMITER ;
 
 
+-- Server table CSV
 DROP PROCEDURE IF EXISTS iterateServerLabels;
+DROP PROCEDURE IF EXISTS iterateServerCSV;
 DELIMITER //
-CREATE PROCEDURE iterateServerLabels()
+CREATE PROCEDURE iterateServerCSV()
 DETERMINISTIC
 BEGIN
 
-SELECT 'Date','Computer Count','Disk Wear','Disk MTBF','Battery Max Charge Level',
-    'Total Jobs','Clone Jobs','Erase Jobs',
-    'Clone Time','NVME Erase Time','SATA Erase Time','Last Image Update';
+(SELECT 'Date','Computer Count','Disk Wear','Disk MTBF','Battery Max Charge Level',
+    'Battery Charge Cycles','Total Jobs','Clone Jobs','Erase Jobs',
+    'Clone Time','NVME Erase Time','SATA Erase Time','Last Image Update')
+UNION
+(SELECT date,laptop_count,CONCAT(tbw_pcnt, '%'),CONCAT(disk_mtbf, '%'),CONCAT(battery_health, '%'),CONCAT(battery_charge_cycles, '%')
+    all_jobs,clone_jobs,erase_jobs,CONCAT(clone_avgtime, ' minutes'),CONCAT(nvme_erase_avgtime, ' minutes'),
+    CONCAT(sata_erase_avgtime, ' minutes'),last_image_update
+    FROM serverstats
+    ORDER BY date DESC);
 
 END; //
 
 DELIMITER ;
 
 
+-- Location table CSV
 DROP PROCEDURE IF EXISTS iterateLocationLabels;
 DELIMITER //
 CREATE PROCEDURE iterateLocationLabels()
 DETERMINISTIC
 BEGIN
 
-SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Entry';
+(SELECT 'Tagnumber', 'Serial Number', 'Location', 'Status', 'Description of Problem', 'Most Recent Entry')
+UNION
+(SELECT tagnumber,system_serial,location,status,problem,time 
+    FROM locations 
+    WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber));
 
 END; //
 
 DELIMITER ;
 
+
+-- SQL permissions and user creation
 DROP PROCEDURE IF EXISTS sqlPermissions;
 DELIMITER //
 CREATE PROCEDURE sqlPermissions()
@@ -98,3 +125,4 @@ GRANT INSERT, SELECT, UPDATE ON shrl.* TO 'shrl'@'10.0.0.0/255.0.0.0';
 END; //
 
 DELIMITER ;
+
