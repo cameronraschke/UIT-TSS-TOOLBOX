@@ -37,7 +37,7 @@ $file = null;
 
 #Locations Table
 $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'w');
-dbSelect("CALL iterateLocationCSV()");
+dbSelect("CALL iterateLocationsCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
