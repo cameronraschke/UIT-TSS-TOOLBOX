@@ -28,16 +28,17 @@ function timeSinceLastMarker($key) {
 
     $arrayObject->append(hrtime(true));
 
+    $count = $iterator->count();
+
     while ($iterator->valid()) {
-        $curKey = $iterator->count();
-        $previousVal = $iterator->seek($curKey - 1);
-        $iterator->seek($curKey);
+        $previousVal = $iterator->seek($count - 1);
+        $iterator->seek($count);
         $curVal = $iterator->current();
     }
 
     $iterator->rewind();
     $start = $iterator->current();
-    $iterator->seek($curKey);
+    $iterator->seek($count);
     $end = $iterator->current();
     
     if ($key == "start") {
