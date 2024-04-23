@@ -39,8 +39,7 @@ BEGIN
     'Total Time for Jobs','Erase Successful','Erase Mode','Total Erase Time','Disk Erased %',
     'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update')
 UNION
-(SELECT * FROM jobstats WHERE department = 'techComm')
-ORDER BY Time DESC;
+SELECT * FROM jobstats WHERE department = 'techComm' ORDER BY time DESC;
 END; //
 
 DELIMITER ;
