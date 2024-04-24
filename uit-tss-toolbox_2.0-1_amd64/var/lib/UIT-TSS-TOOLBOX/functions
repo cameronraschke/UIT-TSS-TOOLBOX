@@ -71,6 +71,7 @@ function timeSinceLastMarker($key, $string) {
         $iterator->rewind();
         $start = $iterator->current();
         $execTime = round(($end - $start) / 1e9, 4);
+        $tmpArray = array();
     } elseif (is_numeric($key)) {
         $iterator->seek($count - 1);
         $previousVal = $iterator->current();
