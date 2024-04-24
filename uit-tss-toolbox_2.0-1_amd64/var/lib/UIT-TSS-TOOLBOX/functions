@@ -38,7 +38,7 @@ function timeSinceLastMarker($key, $string) {
     $markerStart = null;
     $markerEnd = null;
 
-    $curTime = microtime(true);
+    $curTime = hrtime(true);
 
     if (filter($tmpArray) == 1) {
         $tmpArray = array();
