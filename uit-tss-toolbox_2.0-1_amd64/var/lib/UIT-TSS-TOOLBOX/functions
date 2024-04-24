@@ -21,19 +21,19 @@ function clearGlobals() {
 }
 
 function timeSinceLastMarker($key, $string) {
-    global $timeArr;
-    global $arrayObject;
-    global $iterator;
     global $tmpArray;
     global $tmpArrayObject;
     global $tmpIterator;
+    global $timeArr;
+    global $arrayObject;
+    global $iterator;
 
+    $curTime = null;
     $curVal = null;
     $previousVal = null;
     $start = null;
     $end = null;
     $execTime = null;
-    $curTime = null;
     $count = null;
     $markerStart = null;
     $markerEnd = null;
@@ -72,7 +72,7 @@ function timeSinceLastMarker($key, $string) {
     } elseif ($key == "markerEnd") {
         $iterator->seek($count);
         $markerEnd = $iterator->current();
-        $markerStart = $tmpIterator->rewind();
+        $tmpIterator->rewind();
         $markerStart = $tmpIterator->current();
         $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
     } elseif ($key == "end") {

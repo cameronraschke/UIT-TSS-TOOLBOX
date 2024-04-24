@@ -18,7 +18,7 @@ $oldDate = "2023-01-09";
 
 clearGlobals();
 
-echo "\t" . timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
+echo timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
 
 # Iterate through all the dates between $oldDate and $date.
 dbSelect("CALL iterateDate('$oldDate', '$date')");
@@ -220,5 +220,7 @@ foreach ($arr as $key => $value) {
 }
 
 echo timeSinceLastMarker("end", "Total Time to Update Serverstats: ") . PHP_EOL;
+
+clearGlobals();
 
 ?>
