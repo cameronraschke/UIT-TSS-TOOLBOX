@@ -16,12 +16,14 @@ function clearArray() {
     unset($GLOBALS["execTime"]);
     unset($GLOBALS["arrayobject"]);
     unset($GLOBALS["iterator"]);
+    unset($GLOBALS["tmpArray"]);
 }
 
 function timeSinceLastMarker($key, $string) {
     global $timeArr;
     global $arrayObject;
     global $iterator;
+    global $tmpArray;
     $curVal = null;
     $previousVal = null;
     $start = null;
@@ -39,6 +41,10 @@ function timeSinceLastMarker($key, $string) {
         array_push($timeArr, $curTime);
     }
 
+    if (filter($tmpArray) == 1) {
+        $tmpArray = array();
+    }
+
     if (filter($arrayObject) == 1) {
         $arrayObject = new ArrayObject($timeArr);
     }
@@ -49,15 +55,15 @@ function timeSinceLastMarker($key, $string) {
     $count = $iterator->count() - 1;
 
     if ($key == "start") {
-        $iterator->rewind();
-        $start = $iterator->current();
+        $execTime = "...";
     } elseif ($key == "markerStart") {
-        $iterator->rewind();
-        $markerStart = $iterator->current();
+        array_push($tmpArray, $curTime);
         $execTime = "...";
     } elseif ($key == "markerEnd") {
         $iterator->seek($count);
         $markerEnd = $iterator->current();
+        $iterator->rewind();
+        $markerStart = $tmpArray[0];
         $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
     } elseif ($key == "end") {
         $iterator->seek($count);

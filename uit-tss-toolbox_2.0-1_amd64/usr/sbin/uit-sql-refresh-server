@@ -13,12 +13,10 @@ $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
-echo "Updating serverstats" . PHP_EOL;
-
 # Set $oldDate to the oldest date entry in the DB.
 $oldDate = "2023-01-09";
 
-echo "\t" . timeSinceLastMarker("start", "Start: ") . PHP_EOL;
+echo "\t" . timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
 
 # Iterate through all the dates between $oldDate and $date.
 dbSelect("CALL iterateDate('$oldDate', '$date')");
