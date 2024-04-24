@@ -47,20 +47,20 @@ function timeSinceLastMarker($key, $string) {
     $arrayObject->append(hrtime(true));
 
     $count = $iterator->count() - 1;
-    
-    $iterator->seek($count);
 
     if ($key == "start") {
         $iterator->rewind();
         $start = $iterator->current();
-        $iterator->seek($count);
     } elseif ($key == "markerStart") {
+        $iterator->rewind();
         $markerStart = $iterator->current();
         $execTime = "...";
     } elseif ($key == "markerEnd") {
+        $iterator->seek($count);
         $markerEnd = $iterator->current();
         $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
     } elseif ($key == "end") {
+        $iterator->seek($count);
         $end = $iterator->current();
         $iterator->rewind();
         $start = $iterator->current();
