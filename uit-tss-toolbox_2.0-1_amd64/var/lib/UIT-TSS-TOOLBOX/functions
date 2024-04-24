@@ -39,9 +39,9 @@ function timeSinceLastMarker($key) {
 
     if (filter($arrayObject) == 1) {
         $arrayObject = new ArrayObject($timeArr);
-        $iterator = $arrayObject->getIterator();
     }
 
+    $iterator = $arrayObject->getIterator();
     $arrayObject->append(hrtime(true));
 
     $count = $iterator->count() - 1;
