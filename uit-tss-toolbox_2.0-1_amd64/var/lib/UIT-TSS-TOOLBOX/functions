@@ -69,13 +69,13 @@ function timeSinceLastMarker($key, $string) {
     } elseif ($key == "markerEnd") {
         $iterator->seek($count);
         $markerEnd = $iterator->current();
-        $tmpIterator->seek(1);
+        $tmpIterator->seek(0);
         $markerStart = $tmpIterator->current();
         $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
     } elseif ($key == "end") {
         $iterator->seek($count);
         $end = $iterator->current();
-        $iterator->seek(1);
+        $iterator->seek(0);
         $start = $iterator->current();
         $execTime = round(($end - $start) / 1e9, 4);
     } elseif (is_numeric($key)) {
