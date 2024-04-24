@@ -65,7 +65,7 @@ function timeSinceLastMarker($key) {
     }
 
     if (filter($execTime) == 0) {
-        echo $execTime;
+        return $execTime;
     }
 }
 
