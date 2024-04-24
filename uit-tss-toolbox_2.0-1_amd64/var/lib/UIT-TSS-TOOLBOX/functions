@@ -92,7 +92,7 @@ function timeSinceLastMarker($key, $string) {
     }
 
     if (filter($execTime) == 0) {
-        echo $string . $execTime;
+        return $string . $execTime;
     }
 }
 
