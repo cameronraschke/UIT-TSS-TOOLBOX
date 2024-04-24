@@ -13,10 +13,11 @@ function clearGlobals() {
     unset($GLOBALS["result"]);
     unset($GLOBALS["arr"]);
     unset($GLOBALS["timeArr"]);
-    unset($GLOBALS["execTime"]);
-    unset($GLOBALS["arrayobject"]);
+    unset($GLOBALS["arrayObject"]);
     unset($GLOBALS["iterator"]);
     unset($GLOBALS["tmpArray"]);
+    unset($GLOBALS["tmpArrayObject"]);
+    unset($GLOBALS["tmpIterator"]);
 }
 
 function timeSinceLastMarker($key, $string) {
@@ -24,6 +25,9 @@ function timeSinceLastMarker($key, $string) {
     global $arrayObject;
     global $iterator;
     global $tmpArray;
+    global $tmpArrayObject
+    global $tmpIterator;
+
     $curVal = null;
     $previousVal = null;
     $start = null;
