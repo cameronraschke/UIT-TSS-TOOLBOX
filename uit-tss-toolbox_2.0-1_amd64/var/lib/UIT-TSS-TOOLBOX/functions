@@ -25,7 +25,7 @@ function timeSinceLastMarker($key, $string) {
     global $arrayObject;
     global $iterator;
     global $tmpArray;
-    global $tmpArrayObject
+    global $tmpArrayObject;
     global $tmpIterator;
 
     $curVal = null;
