@@ -58,7 +58,7 @@ function timeSinceLastMarker($key, $string) {
         $iterator->next();
     } elseif ($key == "markerEnd") {
         $iterator->seek($count);
-        $markerStart = $iterator->current();
+        $markerEnd = $iterator->current();
         $iterator->next();
         $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
     } elseif ($key == "end") {
