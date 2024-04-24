@@ -44,23 +44,20 @@ function timeSinceLastMarker($key, $string) {
         $tmpArray = array();
         array_push($tmpArray, $curTime);
     }
-
     if (filter($tmpArrayObject) == 1) {
         $tmpArrayObject = new ArrayObject($tmpArray);
     }
-
     $tmpIterator = $tmpArrayObject->getIterator();
 
     if (filter($timeArr) == 1) {
         $timeArr = array();
         array_push($timeArr, $curTime);
     }
-
     if (filter($arrayObject) == 1) {
         $arrayObject = new ArrayObject($timeArr);
     }
-
     $iterator = $arrayObject->getIterator();
+
     $arrayObject->append(hrtime(true));
     $count = $iterator->count() - 1;
 
