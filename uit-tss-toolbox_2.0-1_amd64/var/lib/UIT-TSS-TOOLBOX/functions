@@ -55,11 +55,9 @@ function timeSinceLastMarker($key, $string) {
     } elseif ($key == "markerStart") {
         $iterator->seek($count);
         $markerStart = $iterator->current();
-        $iterator->next();
     } elseif ($key == "markerEnd") {
         $iterator->seek($count);
         $markerEnd = $iterator->current();
-        $iterator->next();
         $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
     } elseif ($key == "end") {
         $iterator->seek($count);
@@ -76,7 +74,7 @@ function timeSinceLastMarker($key, $string) {
     }
 
     if (filter($execTime) == 0) {
-        return $string . ": " . $execTime;
+        return $string . $execTime;
     }
 }
 
