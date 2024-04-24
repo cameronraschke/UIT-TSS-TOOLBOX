@@ -18,7 +18,7 @@ function clearArray() {
     unset($GLOBALS["iterator"]);
 }
 
-function timeSinceLastMarker($key) {
+function timeSinceLastMarker($key, $string) {
     global $timeArr;
     global $arrayObject;
     global $iterator;
@@ -65,7 +65,7 @@ function timeSinceLastMarker($key) {
     }
 
     if (filter($execTime) == 0) {
-        return $execTime;
+        return $string . ": " . $execTime;
     }
 }
 

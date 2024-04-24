@@ -209,7 +209,7 @@ foreach ($arr as $key => $value) {
     } else {
         dbUpdateSS("battery_charge_cycles", "NULL", "$sqlDate");
     }
-    echo "\t" . "update battery charge cycles: " . timeSinceLastMarker(0) . PHP_EOL;
+    echo "\t" . timeSinceLastMarker(0, "update battery charge cycles") . PHP_EOL;
 
 
     # Output time taken for specific date
