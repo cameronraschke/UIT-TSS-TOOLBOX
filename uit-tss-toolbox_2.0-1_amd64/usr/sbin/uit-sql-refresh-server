@@ -24,13 +24,12 @@ echo "\t" . timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
 dbSelect("CALL iterateDate('$oldDate', '$date')");
 echo "\t" . timeSinceLastMarker(0, "Iterate All Dates: ") . PHP_EOL;
 foreach ($arr as $key => $value) {
-    echo timeSinceLastMarker("markerStart", "Updating $sqlDate") . PHP_EOL;
-
-    # Start the timer that counts how much time each date takes to process.
-    #$start = hrtime(true);
 
     # Set the variable $sqlDate to the iterated date.
     $sqlDate = $value["date"];
+
+    # Start the timer that counts how much time each date takes to process.
+    echo timeSinceLastMarker("markerStart", "Updating $sqlDate") . PHP_EOL;
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
     dbSelectVal("SELECT date AS result FROM serverstats WHERE date = '$sqlDate'");
