@@ -48,6 +48,7 @@ function timeSinceLastMarker($key, $string) {
         $tmpArrayObject = new ArrayObject($tmpArray);
     }
     $tmpIterator = $tmpArrayObject->getIterator();
+    $tmpCount = $tmpIterator->count() - 1;
 
     if (filter($timeArr) == 1) {
         $timeArr = array();
@@ -69,7 +70,11 @@ function timeSinceLastMarker($key, $string) {
     } elseif ($key == "markerEnd") {
         $iterator->seek($count);
         $markerEnd = $iterator->current();
-        $tmpIterator->rewind();
+        if ($tmpCount < 1) {
+            $tmpIterator->rewind();
+        } else {
+            $tmpIterator->seek(1);
+        }
         $markerStart = $tmpIterator->current();
         $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
     } elseif ($key == "end") {
