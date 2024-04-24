@@ -43,6 +43,7 @@ function timeSinceLastMarker($key, $string) {
 
     if (filter($tmpArray) == 1) {
         $tmpArray = array();
+        array_push($tmpArray, $curTime);
     }
 
     if (filter($arrayObject) == 1) {
