@@ -24,7 +24,7 @@ echo "\t" . timeSinceLastMarker("start", "Start: ") . PHP_EOL;
 dbSelect("CALL iterateDate('$oldDate', '$date')");
 echo "\t" . timeSinceLastMarker(0, "Iterate All Dates: ") . PHP_EOL;
 foreach ($arr as $key => $value) {
-    echo "\t" . timeSinceLastMarker("markerStart", "") . PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating $sqlDate: ") . PHP_EOL;
 
     # Start the timer that counts how much time each date takes to process.
     #$start = hrtime(true);
