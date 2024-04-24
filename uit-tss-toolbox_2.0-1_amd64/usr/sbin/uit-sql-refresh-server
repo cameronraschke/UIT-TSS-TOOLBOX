@@ -16,6 +16,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
 # Set $oldDate to the oldest date entry in the DB.
 $oldDate = "2023-01-09";
 
+clearGlobals();
+
 echo "\t" . timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
 
 # Iterate through all the dates between $oldDate and $date.

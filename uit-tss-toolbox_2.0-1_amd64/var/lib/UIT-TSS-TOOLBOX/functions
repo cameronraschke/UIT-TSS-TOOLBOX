@@ -9,7 +9,7 @@ function filter ($string) {
     }
 }
 
-function clearArray() {
+function clearGlobals() {
     unset($GLOBALS["result"]);
     unset($GLOBALS["arr"]);
     unset($GLOBALS["timeArr"]);
