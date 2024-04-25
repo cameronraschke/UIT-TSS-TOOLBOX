@@ -215,8 +215,8 @@ foreach ($arr as $key => $value) {
 
 
     # Output time taken for specific date
-    $end = hrtime(true);
-    $executionTime = round(($end - $start) / 1e9, 4);
+    #$end = hrtime(true);
+    #$executionTime = round(($end - $start) / 1e9, 4);
     echo "Updated serverstats for $sqlDate: " . $executionTime . " seconds" . PHP_EOL;
     echo "\t" . timeSinceLastMarker("markerEnd", "Time Taken for $sqlDate: ") . PHP_EOL;
 }
