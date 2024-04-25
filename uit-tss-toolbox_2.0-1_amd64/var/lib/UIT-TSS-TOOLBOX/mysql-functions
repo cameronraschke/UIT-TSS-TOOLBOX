@@ -155,7 +155,7 @@ function dbUpdateSS ($key, $value, $date) {
 }
 
 function dbInsertLocation ($time) {
-    if (filter($date) == 0) {
+    if (filter($time) == 0) {
         global $pdo;
         $sql = "INSERT INTO locations (time) VALUES (:time)";
         $stmt = $pdo->prepare($sql);
