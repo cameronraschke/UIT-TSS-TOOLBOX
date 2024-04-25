@@ -99,18 +99,4 @@ function timeSinceLastMarker($key, $string) {
     }
 }
 
-function avgTimeSinceLastMarker (string $string, $value) {
-    global $tmpArray;
-    global $tmpArrayObject;
-    global $tmpIterator;
-    global $timeArr;
-    global $timeArrayObject;
-    global $timeIterator;
-
-    foreach ($timeArrayObject as $key => $value) {
-        echo "$key: $value\n";
-    }
-
-}
-
 ?>
