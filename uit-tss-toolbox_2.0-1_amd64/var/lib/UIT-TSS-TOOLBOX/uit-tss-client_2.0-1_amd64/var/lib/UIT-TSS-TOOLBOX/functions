@@ -9,9 +9,94 @@ function filter ($string) {
     }
 }
 
-function clearGlobals() {
+function clearSQLGlobals() {
     unset($GLOBALS["result"]);
     unset($GLOBALS["arr"]);
+}
+
+function clearTimeGlobals() {
+    unset($GLOBALS["timeArr"]);
+    unset($GLOBALS["arrayObject"]);
+    unset($GLOBALS["iterator"]);
+    unset($GLOBALS["tmpArray"]);
+    unset($GLOBALS["tmpArrayObject"]);
+    unset($GLOBALS["tmpIterator"]);
+}
+
+function timeSinceLastMarker($key, $string) {
+    global $tmpArray;
+    global $tmpArrayObject;
+    global $tmpIterator;
+    global $timeArr;
+    global $arrayObject;
+    global $iterator;
+
+    $curTime = null;
+    $curVal = null;
+    $previousVal = null;
+    $start = null;
+    $end = null;
+    $execTime = null;
+    $count = null;
+    $markerStart = null;
+    $markerEnd = null;
+
+    $curTime = hrtime(true);
+
+    if (filter($tmpArray) == 1) {
+        $tmpArray = array();
+        array_push($tmpArray, $curTime);
+    }
+    if (filter($tmpArrayObject) == 1) {
+        $tmpArrayObject = new ArrayObject($tmpArray);
+    }
+    $tmpIterator = $tmpArrayObject->getIterator();
+    $tmpCount = $tmpIterator->count() - 1;
+
+    if (filter($timeArr) == 1) {
+        $timeArr = array();
+        array_push($timeArr, $curTime);
+    }
+    if (filter($arrayObject) == 1) {
+        $arrayObject = new ArrayObject($timeArr);
+    }
+    $iterator = $arrayObject->getIterator();
+
+    $arrayObject->append($curTime);
+    $count = $iterator->count() - 1;
+
+    if ($key == "start") {
+        $execTime = "...";
+    } elseif ($key == "markerStart") {
+        $tmpArrayObject->append($curTime);
+        $execTime = "...";
+    } elseif ($key == "markerEnd") {
+        $iterator->seek($count);
+        $markerEnd = $iterator->current();
+        if ($tmpCount < 1) {
+            $tmpIterator->rewind();
+        } else {
+            $tmpIterator->seek(1);
+        }
+        $markerStart = $tmpIterator->current();
+        $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
+    } elseif ($key == "end") {
+        $iterator->seek($count);
+        $end = $iterator->current();
+        $iterator->rewind();
+        $start = $iterator->current();
+        $execTime = round(($end - $start) / 1e9, 4);
+    } elseif (is_numeric($key)) {
+        $iterator->seek($count - 1);
+        $previousVal = $iterator->current();
+        $iterator->seek($count);
+        $curVal = $iterator->current();
+        $execTime = round(($curVal - $previousVal) / 1e9, 4);
+    }
+
+    if (filter($execTime) == 0) {
+        return $string . $execTime;
+    }
 }
 
 ?>

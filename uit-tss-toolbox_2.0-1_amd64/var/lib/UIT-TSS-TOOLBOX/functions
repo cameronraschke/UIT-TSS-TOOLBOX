@@ -9,9 +9,12 @@ function filter ($string) {
     }
 }
 
-function clearGlobals() {
+function clearSQLGlobals() {
     unset($GLOBALS["result"]);
     unset($GLOBALS["arr"]);
+}
+
+function clearTimeGlobals() {
     unset($GLOBALS["timeArr"]);
     unset($GLOBALS["arrayObject"]);
     unset($GLOBALS["iterator"]);

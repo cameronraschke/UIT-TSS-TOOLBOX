@@ -10,6 +10,9 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
 echo "Updating clientstats" . PHP_EOL;
 
+clearSQLGlobals();
+clearTimeGlobals();
+
 # Get stdin
 $stdin = fopen('php://stdin', 'r');
 $line = trim(fgets(STDIN));
@@ -140,5 +143,8 @@ foreach ($arr as $key => $value) {
     $executionTime = round(($end - $start) / 1e9, 4);
     echo "Updated client $tagNum: " . $executionTime . " seconds" . PHP_EOL;
 }
+
+clearSQLGlobals();
+clearTimeGlobals();
 
 ?>

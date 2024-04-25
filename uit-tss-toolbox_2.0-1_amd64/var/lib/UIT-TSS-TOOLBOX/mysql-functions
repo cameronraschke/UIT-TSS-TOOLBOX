@@ -4,7 +4,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
 include('/var/lib/UIT-TSS-TOOLBOX/functions');
 
 function dbSelect ($sql) {
-    clearGlobals();
+    clearSQLGlobals();
     if (filter($sql) == 0) {
         global $pdo;
         global $arr;
@@ -21,7 +21,7 @@ function dbSelect ($sql) {
 }
 
 function dbSelectVal ($sql) {
-    clearGlobals();
+    clearSQLGlobals();
     if (filter($sql) == 0) {
         global $pdo;
         global $result;
