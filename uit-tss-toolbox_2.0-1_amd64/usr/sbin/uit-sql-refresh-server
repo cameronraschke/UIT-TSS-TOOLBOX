@@ -31,7 +31,8 @@ foreach ($arr as $key => $value) {
 
     # Start the timer that counts how much time each date takes to process.
     #$start = hrtime(true);
-    echo timeSinceLastMarker("markerStart", "Updating $sqlDate") . PHP_EOL;
+    echo PHP_EOL;
+    echo "\t" . timeSinceLastMarker("markerStart", "Updating $sqlDate") . PHP_EOL;
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
     dbSelectVal("SELECT date AS result FROM serverstats WHERE date = '$sqlDate'");
@@ -217,8 +218,8 @@ foreach ($arr as $key => $value) {
     # Output time taken for specific date
     #$end = hrtime(true);
     #$executionTime = round(($end - $start) / 1e9, 4);
-    echo "Updated serverstats for $sqlDate: " . $executionTime . " seconds" . PHP_EOL;
-    echo "\t" . timeSinceLastMarker("markerEnd", "Time Taken for $sqlDate: ") . PHP_EOL;
+    #echo "Updated serverstats for $sqlDate: " . $executionTime . " seconds" . PHP_EOL;
+    echo timeSinceLastMarker("markerEnd", "Time Taken for $sqlDate: ") . PHP_EOL;
 }
 
 echo timeSinceLastMarker("end", "Total Time to Update Serverstats: ") . PHP_EOL;
