@@ -28,8 +28,8 @@ function timeSinceLastMarker($key, $string) {
     global $tmpArrayObject;
     global $tmpIterator;
     global $timeArr;
-    global $arrayObject;
-    global $iterator;
+    global $timeArrayObject;
+    global $timeIterator;
 
     $curTime = null;
     $curVal = null;
@@ -57,13 +57,13 @@ function timeSinceLastMarker($key, $string) {
         $timeArr = array();
         array_push($timeArr, $curTime);
     }
-    if (filter($arrayObject) == 1) {
-        $arrayObject = new ArrayObject($timeArr);
+    if (filter($timeArrayObject) == 1) {
+        $timeArrayObject = new ArrayObject($timeArr);
     }
-    $iterator = $arrayObject->getIterator();
+    $timeIterator = $timeArrayObject->getIterator();
 
-    $arrayObject->append($curTime);
-    $count = $iterator->count() - 1;
+    $timeArrayObject->append($curTime);
+    $count = $timeIterator->count() - 1;
 
     if ($key == "start") {
         $execTime = "...";
@@ -71,8 +71,8 @@ function timeSinceLastMarker($key, $string) {
         $tmpArrayObject->append($curTime);
         $execTime = "...";
     } elseif ($key == "markerEnd") {
-        $iterator->seek($count);
-        $markerEnd = $iterator->current();
+        $timeIterator->seek($count);
+        $markerEnd = $timeIterator->current();
         if ($tmpCount < 1) {
             $tmpIterator->rewind();
         } else {
@@ -81,22 +81,36 @@ function timeSinceLastMarker($key, $string) {
         $markerStart = $tmpIterator->current();
         $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
     } elseif ($key == "end") {
-        $iterator->seek($count);
-        $end = $iterator->current();
-        $iterator->rewind();
-        $start = $iterator->current();
+        $timeIterator->seek($count);
+        $end = $timeIterator->current();
+        $timeIterator->rewind();
+        $start = $timeIterator->current();
         $execTime = round(($end - $start) / 1e9, 4);
     } elseif (is_numeric($key)) {
-        $iterator->seek($count - 1);
-        $previousVal = $iterator->current();
-        $iterator->seek($count);
-        $curVal = $iterator->current();
+        $timeIterator->seek($count - 1);
+        $previousVal = $timeIterator->current();
+        $timeIterator->seek($count);
+        $curVal = $timeIterator->current();
         $execTime = round(($curVal - $previousVal) / 1e9, 4);
     }
 
     if (filter($execTime) == 0) {
         return $string . $execTime;
     }
+}
+
+function avgTimeSinceLastMarker (string $string, $value) {
+    global $tmpArray;
+    global $tmpArrayObject;
+    global $tmpIterator;
+    global $timeArr;
+    global $timeArrayObject;
+    global $timeIterator;
+
+    foreach ($timeArrayObject as $key => $value) {
+        echo "$key: $value\n";
+    }
+
 }
 
 ?>
