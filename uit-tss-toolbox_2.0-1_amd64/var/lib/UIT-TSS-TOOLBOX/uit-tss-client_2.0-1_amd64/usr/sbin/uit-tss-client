@@ -1591,7 +1591,7 @@ function terminate {
 		echo "Total jobs today: ${jobsToday}"
 		)
 
-		echo "general|os_installed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		#echo "general|os_installed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "general|clone_master|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
