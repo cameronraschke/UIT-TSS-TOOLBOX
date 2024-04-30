@@ -93,7 +93,10 @@ function execute {
                 echo "Making FAT filesystem on ${CLIENTDISK}"
                 mkfs.vfat -I -F 32 /dev/${CLIENTDISK} &>/dev/null
                 echo "Writing ISO to ${CLIENTDISK}, this may take a while..."
-                /usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${CLIENTDISK}
+                #/usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${CLIENTDISK}
+				mkdir -p /mnt/usb/
+				mount /dev/${CLIENTDISK} /mnt/usb/
+				rsync -Pav --exclude="filesystem.squashfs" /var/www/html/live/ /mnt/usb/
                 echo "Creating new label on disk ${CLIENTDISK}: UITTOOLBX"
                 fatlabel /dev/${CLIENTDISK} "UITTOOLBX" &>/dev/null
                 fatlabel /dev/${CLIENTDISK}1 "UITTOOLBX" &>/dev/null
