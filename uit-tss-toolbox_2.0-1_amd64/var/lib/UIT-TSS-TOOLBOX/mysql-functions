@@ -30,10 +30,11 @@ function dbSelectVal ($sql) {
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
         foreach ($arr as $key => $value) {
-            $result = $value["result"];
-        }
-        if (filter($result) == 1) {
-            $result = "NULL";
+            if (filter($result) == 0) {
+                $result = $value["result"];
+            } else {
+                $result = "NULL";
+            }
         }
     } else {
         exit();
