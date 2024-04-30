@@ -8,8 +8,6 @@ fclose($stdin);
 
 dbSelectVal("$input");
 
-foreach ($arr as $key => $value) {
-    echo $value["result"] . PHP_EOL;
-}
+echo $result . PHP_EOL;
 
 ?>
