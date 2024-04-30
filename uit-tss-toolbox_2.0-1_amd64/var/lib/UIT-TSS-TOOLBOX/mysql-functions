@@ -29,11 +29,11 @@ function dbSelectVal ($sql) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($arr as $key => $value) {
-            if (filter($result) == 0) {
+        if (filter($arr) == 0) {
+            $result = "NULL";
+        } elseif (filter($arr) == 1) {
+            foreach ($arr as $key => $value) {
                 $result = $value["result"];
-            } else {
-                $result = "NULL";
             }
         }
     } else {
