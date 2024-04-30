@@ -1642,7 +1642,6 @@ function main {
 		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
-			echo "general|clone_linuxuser|${linuxUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
@@ -1663,7 +1662,6 @@ function main {
 		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
-			echo "general|clone_linuxuser|${linuxUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
@@ -1684,7 +1682,6 @@ function main {
 		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
-			echo "general|clone_linuxuser|${linuxUser}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
