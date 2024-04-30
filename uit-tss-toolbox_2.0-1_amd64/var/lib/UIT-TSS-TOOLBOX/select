@@ -6,7 +6,7 @@ $stdin = fopen('php://stdin', 'r');
 $input = trim(fgets(STDIN));
 fclose($stdin);
 
-dbSelect("$input");
+dbSelectVal("$input");
 
 foreach ($arr as $key => $value) {
     echo $value["result"] . PHP_EOL;
