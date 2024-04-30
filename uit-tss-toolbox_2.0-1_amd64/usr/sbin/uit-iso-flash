@@ -97,9 +97,10 @@ function execute {
 				mkdir -p /mnt/usb/
 				mount /dev/${CLIENTDISK} /mnt/usb/
 				rsync -Pav --exclude="filesystem.squashfs" /var/www/html/live/ /mnt/usb/
+				umount /dev/${CLIENTDISK}
                 echo "Creating new label on disk ${CLIENTDISK}: UITTOOLBX"
                 fatlabel /dev/${CLIENTDISK} "UITTOOLBX" &>/dev/null
-                fatlabel /dev/${CLIENTDISK}1 "UITTOOLBX" &>/dev/null
+                #fatlabel /dev/${CLIENTDISK}1 "UITTOOLBX" &>/dev/null
         else
                 echo ""
                 echo "Invalid block device or no USB drive found. Exiting...."
