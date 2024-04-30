@@ -88,16 +88,17 @@ function diskSelect {
 
 function execute {
         if [[ $CLIENTDISK =~ sd.* ]]; then
-                echo "Unmounting ${CLIENTDISK}"
+                echo "Unmounting ${BOLD}${CLIENTDISK}${RESET}"
                 umount /dev/${CLIENTDISK} &>/dev/null
-                echo "Making FAT filesystem on ${CLIENTDISK}"
+                echo "Making FAT32 filesystem on ${BOLD}${CLIENTDISK}${RESET}"
                 mkfs.vfat -I -F 32 /dev/${CLIENTDISK} &>/dev/null
-                echo "Writing ISO to ${CLIENTDISK}, this may take a while..."
+				echo "Mounting ${BOLD}${CLIENTDISK}${RESET}"
                 #/usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${CLIENTDISK}
 				mkdir -p /mnt/usb/
+				echo "Writing files to ${BOLD}${CLIENTDISK}${RESET}, this may take a while..."
 				mount /dev/${CLIENTDISK} /mnt/usb/
-				rsync -a --exclude="filesystem.squashfs" /var/www/html/live/ /mnt/usb/
-				rsync -a /home/cameron/bios-update/ /mnt/usb/
+				rsync -a --exclude="filesystem.squashfs" /var/www/html/live/ /mnt/usb/ 2>/dev/null
+				rsync -a /home/cameron/bios-update/ /mnt/usb/ 2>/dev/null
 				umount /dev/${CLIENTDISK}
                 echo "Creating new label on disk ${CLIENTDISK}: UITTOOLBX"
                 fatlabel /dev/${CLIENTDISK} "UITTOOLBX" &>/dev/null
