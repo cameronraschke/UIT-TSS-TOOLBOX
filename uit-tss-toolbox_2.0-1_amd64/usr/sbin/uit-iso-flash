@@ -96,7 +96,8 @@ function execute {
                 #/usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${CLIENTDISK}
 				mkdir -p /mnt/usb/
 				mount /dev/${CLIENTDISK} /mnt/usb/
-				rsync -Pav --exclude="filesystem.squashfs" /var/www/html/live/ /mnt/usb/
+				rsync -a --exclude="filesystem.squashfs" /var/www/html/live/ /mnt/usb/
+				rsync -a /home/cameron/bios-update/ /mnt/usb/
 				umount /dev/${CLIENTDISK}
                 echo "Creating new label on disk ${CLIENTDISK}: UITTOOLBX"
                 fatlabel /dev/${CLIENTDISK} "UITTOOLBX" &>/dev/null

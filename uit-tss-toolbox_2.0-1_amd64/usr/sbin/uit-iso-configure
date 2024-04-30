@@ -228,8 +228,8 @@ mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
 --output-document=/opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/oven.mp3
 
-mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.binary/
-cp -rv /home/cameron/bios-update/* /opt/UIT-TSS-TOOLBOX/config/includes.binary/
+#mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.binary/
+#cp -rv /home/cameron/bios-update/* /opt/UIT-TSS-TOOLBOX/config/includes.binary/
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root
 touch /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
