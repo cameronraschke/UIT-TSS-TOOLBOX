@@ -60,9 +60,9 @@ systemctl daemon-reload &>/dev/null
 /usr/bin/chronyc add server 10.0.0.1 iburst
 /usr/bin/chronyc makestep
 
-sql=$(echo "SELECT CURDATE() AS result" | /var/lib/UIT-TSS-TOOLBOX/select)
-while [[ $sql != $(date --iso) ]]; do
-	sleep 1
+sql=$(echo "SELECT CONCAT(CURDATE(), ' ', CURTIME()) AS result" | /var/lib/UIT-TSS-TOOLBOX/select)
+while [[ $sql != $(date '+%Y-%m-%d %H:%M:%S') ]]; do
+	sleep 0.01
 done
 echo "${GREEN}Done.${RESET}"
 
