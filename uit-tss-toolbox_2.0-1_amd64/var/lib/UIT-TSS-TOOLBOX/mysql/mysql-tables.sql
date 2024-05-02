@@ -39,6 +39,7 @@ CREATE TABLE clientstats (
     system_serial VARCHAR(16) DEFAULT NULL,
     cpu_model VARCHAR(64) DEFAULT NULL,
     cpu_cores TINYINT DEFAULT NULL,
+    ram_capacity DECIMAL(4,2) DEFAULT NULL,
     battery_health TINYINT DEFAULT NULL,
     boot_time TINYINT DEFAULT NULL
 );
@@ -75,6 +76,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
     cpu_threads TINYINT DEFAULT NULL,
     cpu_temp DECIMAL(5,2) DEFAULT NULL,
     ram_serial VARCHAR(24) DEFAULT NULL,
+    ram_capacity DECIMAL(4,2) DEFAULT NULL,
     battery_manufacturer VARCHAR(16) DEFAULT NULL,
     battery_name VARCHAR(16) DEFAULT NULL,
     battery_capacity MEDIUMINT DEFAULT NULL,
@@ -141,6 +143,7 @@ ALTER TABLE jobstats
     MODIFY COLUMN cpu_threads TINYINT DEFAULT NULL,
     MODIFY COLUMN cpu_temp DECIMAL(5,2) DEFAULT NULL,
     MODIFY COLUMN ram_serial VARCHAR(24) DEFAULT NULL,
+    MODIFY COLUMN ram_capacity DECIMAL(4,2) DEFAULT NULL,
     MODIFY COLUMN battery_manufacturer VARCHAR(16) DEFAULT NULL,
     MODIFY COLUMN battery_name VARCHAR(16) DEFAULT NULL,
     MODIFY COLUMN battery_capacity MEDIUMINT DEFAULT NULL,
