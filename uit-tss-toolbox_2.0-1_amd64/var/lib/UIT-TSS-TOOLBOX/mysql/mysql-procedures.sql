@@ -36,14 +36,20 @@ BEGIN
     'BIOS Revision','BIOS Firmware','System Manufacturer','System Model','System Serial','System UUID',
     'System SKU','Motherboard Manufacturer','Motherboard Serial','Chassis Manufcaturer',
     'Chassis Type','Chassis Serial','Chassis Tag','CPU Manufacturer',
-    'CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp','RAM Serial','Battery Manufacturer',
+    'CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp','RAM Serial','RAM Capacity (GB)','Battery Manufacturer',
     'Battery Name','Battery Capacity','Battery Serial Number','Battery Manufacture Date','Battery Max Charge %','Battery Charge Cycles',
     'Boot Time','Job Type','Did Sleep (Boolean)','Disk','Disk Type','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware',
     'Disk Power on Hours','Disk Temperature','Disk Reads (TB)','Disk Writes (TB)',
     'Total Time for Jobs','Erase Successful','Erase Mode','Total Erase Time','Disk Erased %',
     'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update')
 UNION
-(SELECT * FROM jobstats WHERE department = 'techComm' ORDER BY time DESC);
+(SELECT uuid, tagnumber, etheraddress, wifi_mac, date, time, department, bios_vendor, bios_version, bios_date, bios_revision, bios_firmware, system_manufacturer,
+    system_model, system_serial, system_uuid, system_sku, motherboard_manufacturer, motherboard_serial, chassis_manufacturer, chassis_type, chassis_serial, chassis_tag,
+    cpu_manufacturer, cpu_model, cpu_maxspeed, cpu_cores, cpu_threads, cpu_temp, ram_serial, ram_capacity, battery_manufacturer, battery_name, battery_capacity, battery_serial,
+    battery_manufacturedate, battery_health, battery_charge_cycles, boot_time, action, hibernate, disk, disk_type, disksizegb, disk_model, disk_serial, disk_firmware,
+    disk_power_on_hours, disk_temp, disk_reads, disk_writes, all_time, erase_completed, erase_mode, erase_time, erase_diskpercent, clone_completed, clone_mode, clone_time,
+    clone_master, clone_server, clone_image, clone_imageupdate
+FROM jobstats WHERE department = 'techComm' ORDER BY time DESC);
 END; //
 
 DELIMITER ;
