@@ -280,6 +280,8 @@ function hardwareData {
 	###Memory Data
 	memSerial=$(dmidecode --type memory | grep Serial | sed 's/Serial Number: //g' | sed 's/[[:space:]]//g' | perl -p -e 's/\n/ /')
 		echo "general|ram_serial|${memSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	memCapacity=$(grep MemTotal /proc/meminfo | awk '{ print $2 }')
+		echo "general|ram_capacity|${memCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Boot Times
 	bootTime=$(systemd-analyze | grep -oP '[0-9]+[0-9.]*' | head -n 1)
@@ -1657,7 +1659,7 @@ function terminate {
 		echo "Total jobs today: ${jobsToday}"
 		)		
 	fi
-	
+
 	if [[ $mainMenuOpt != 0 ]]; then
 		/usr/bin/play /root/oven.mp3 &> /dev/null
 	fi
