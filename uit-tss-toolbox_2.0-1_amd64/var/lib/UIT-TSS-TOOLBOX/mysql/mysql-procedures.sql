@@ -49,8 +49,8 @@ UNION
     battery_manufacturer, battery_name, CONCAT(battery_capacity, ' MWh'), battery_serial,
     battery_manufacturedate, CONCAT(battery_health, '%'), battery_charge_cycles, CONCAT(boot_time, 's'), action, hibernate, disk, disk_type, 
     CONCAT(disksizegb, ' GB'), disk_model, disk_serial, disk_firmware,
-    CONCAT(disk_power_on_hours, 'hrs'), CONCAT(disk_temp, ' C'), CONCAT(disk_reads, ' TB/R'), CONCAT(disk_writes, ' TB/W'), 
-    CONCAT(all_time, ' mins'), erase_completed, erase_mode, CONCAT(erase_time, ' secs'), erase_diskpercent, clone_completed, clone_mode, CONCAT(clone_time, ' secs'),
+    CONCAT(disk_power_on_hours, ' hrs'), CONCAT(disk_temp, ' C'), CONCAT(disk_reads, ' TB/R'), CONCAT(disk_writes, ' TB/W'), 
+    CONCAT(all_time, ' mins'), erase_completed, erase_mode, CONCAT(erase_time, 's'), erase_diskpercent, clone_completed, clone_mode, CONCAT(clone_time, 's'),
     clone_master, clone_server, clone_image, clone_imageupdate
 FROM jobstats WHERE department = 'techComm' ORDER BY time DESC);
 END; //
