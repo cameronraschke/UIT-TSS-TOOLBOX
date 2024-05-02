@@ -23,16 +23,15 @@ echo timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
 
 # Iterate through all the dates between $oldDate and $date.
 dbSelect("CALL iterateDate('$oldDate', '$date')");
-echo "\t" . timeSinceLastMarker(0, "Iterate All Dates: ") . PHP_EOL;
+#echo "\t" . timeSinceLastMarker(0, "Iterate All Dates: ") . PHP_EOL;
 foreach ($arr as $key => $value) {
 
     # Set the variable $sqlDate to the iterated date.
     $sqlDate = $value["date"];
 
     # Start the timer that counts how much time each date takes to process.
-    #$start = hrtime(true);
-    echo PHP_EOL;
-    echo "\t" . timeSinceLastMarker("markerStart", "Updating $sqlDate") . PHP_EOL;
+    #echo PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating $sqlDate") . PHP_EOL;
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
     dbSelectVal("SELECT date AS result FROM serverstats WHERE date = '$sqlDate'");
@@ -40,44 +39,44 @@ foreach ($arr as $key => $value) {
         echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
         dbInsertSS("$sqlDate");
     }
-    echo "\t" . timeSinceLastMarker(0, "Insert Dates: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Insert Dates: ") . PHP_EOL;
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
     dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND department = 'techComm'");
     dbUpdateSS("laptop_count", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "Laptop Count: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Laptop Count: ") . PHP_EOL;
 
 
     # Update the average time taken to clone a computer.
     dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     dbUpdateSS("clone_avgtime", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "Clone Time: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Clone Time: ") . PHP_EOL;
 
 
     # Update the average erase time of NVMe drives
     dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date BETWEEN '$oldDate' AND '$sqlDate'");
     dbUpdateSS("nvme_erase_avgtime", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "Erase Time NVMe: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Erase Time NVMe: ") . PHP_EOL;
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
     dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date BETWEEN '$oldDate' AND '$sqlDate'");
     dbUpdateSS("sata_erase_avgtime", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "Erase Time SATA: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Erase Time SATA: ") . PHP_EOL;
 
 
     # Update the number of erase jobs that have completed
     dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     $eraseJobsLC = $result;
     dbUpdateSS("erase_jobs", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "Erase Jobs: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Erase Jobs: ") . PHP_EOL;
 
 
     # Update the number of clone jobs that have completed
     dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     $cloneJobsLC = $result;
     dbUpdateSS("clone_jobs", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "Clone Jobs: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Clone Jobs: ") . PHP_EOL;
 
 
     # Update count of all jobs (erase jobs + clone jobs)
@@ -87,13 +86,13 @@ foreach ($arr as $key => $value) {
         $result = $eraseJobsLC + $cloneJobsLC;
     }
     dbUpdateSS("all_jobs", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "All Jobs: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "All Jobs: ") . PHP_EOL;
 
 
     # Update date of last image update
     dbSelectVal("SELECT date AS result FROM jobstats WHERE clone_master = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate' ORDER BY time DESC LIMIT 1");
     dbUpdateSS("last_image_update", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "Last Image Update: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Last Image Update: ") . PHP_EOL;
 
     # Set $arr1
     $arr1 = array();
@@ -113,7 +112,7 @@ foreach ($arr as $key => $value) {
             }
         }
     }
-    echo "\t" . timeSinceLastMarker(0, "AVG TBW: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "AVG TBW: ") . PHP_EOL;
 
     # Get average TBW and TBR of HDDs (reads and writes). This average takes into account drive model and specifications of the drive.
     dbSelect("SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats WHERE disk_type = 'hdd'");
@@ -132,7 +131,7 @@ foreach ($arr as $key => $value) {
             }
         }
     }
-    echo "\t" . timeSinceLastMarker(0, "AVG TBW/R (HDD): ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "AVG TBW/R (HDD): ") . PHP_EOL;
 
     # Update the average wear of disks based on reads and writes
     if (filter($arr1) == 0 && count($arr1) > 0) {
@@ -142,7 +141,7 @@ foreach ($arr as $key => $value) {
     } else {
         dbUpdateSS("tbw_pcnt", "NULL", "$sqlDate");
     }
-    echo "\t" . timeSinceLastMarker(0, "Update TBW: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Update TBW: ") . PHP_EOL;
 
 
     # Get the average disk power on hours (MTBF/MTTF) and average that against the disk's specifications.
@@ -162,7 +161,7 @@ foreach ($arr as $key => $value) {
             }
         }
     }
-    echo "\t" . timeSinceLastMarker(0, "Select MTBF: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Select MTBF: ") . PHP_EOL;
     # Update the MTBF for the disks. This average takes into account drive model and specifications of the drive.
     if (filter($arr1) == 0 && count($arr1) > 0) {
         $avg = array_filter($arr1);
@@ -171,13 +170,13 @@ foreach ($arr as $key => $value) {
     } else {
         dbUpdateSS("disk_mtbf", "NULL", "$sqlDate");
     }
-    echo "\t" . timeSinceLastMarker(0, "Update MTBF: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Update MTBF: ") . PHP_EOL;
 
 
     #Update the average boot time
     dbSelectVal("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE boot_time IS NOT NULL");
     dbUpdateSS("boot_time", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "Boot Time: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Boot Time: ") . PHP_EOL;
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
@@ -185,7 +184,7 @@ foreach ($arr as $key => $value) {
     $sql .= "AND battery_health IS NOT NULL GROUP BY tagnumber)";
     dbSelectVal($sql);
     dbUpdateSS("battery_health", "$result", "$sqlDate");
-    echo "\t" . timeSinceLastMarker(0, "Battery Health: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Battery Health: ") . PHP_EOL;
 
 
     # Get battery charge cycle stats
@@ -202,7 +201,7 @@ foreach ($arr as $key => $value) {
             array_push($arr1, $result);
         }
     }
-    echo "\t" . timeSinceLastMarker(0, "Select Battery Charge Cycles: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Select Battery Charge Cycles: ") . PHP_EOL;
 
     # Update the charge cycles for the batteries. This average takes into account battery name (model) and specifications of the battery.
     if (filter($arr1) == 0 && count($arr1) > 0) {
@@ -212,7 +211,7 @@ foreach ($arr as $key => $value) {
     } else {
         dbUpdateSS("battery_charge_cycles", "NULL", "$sqlDate");
     }
-    echo "\t" . timeSinceLastMarker(0, "Update Battery Charge Cycles: ") . PHP_EOL;
+    #echo "\t" . timeSinceLastMarker(0, "Update Battery Charge Cycles: ") . PHP_EOL;
 
 
     # Output time taken for specific date
