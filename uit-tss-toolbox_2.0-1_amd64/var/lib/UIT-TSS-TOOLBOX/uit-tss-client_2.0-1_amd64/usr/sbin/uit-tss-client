@@ -1561,48 +1561,51 @@ function terminate {
 	jobsToday=$(( cloneNumToday + eraseNumToday ))
 
 	echo ""
-	if [[ $cloneMode == "restoredisk" && ($APPSELECT == "C" || $APPSELECT == "EC") ]]; then
-		echo "general|clone_imageupdate|${imgUpdate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	if [[ $APPSELECT == "C" || $APPSELECT == "EC" ]]; then
+		if [[ $cloneMode == "restoredisk"]]; then
+			echo "general|clone_imageupdate|${imgUpdate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-		if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
-			terminateAction="Erased and cloned"
+			if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
+				terminateAction="Erased and cloned"
+			fi
+
+			if [[ $cloneMode == "restoredisk" && $APPSELECT == "C" ]]; then
+				terminateAction="Cloned"
+			fi
+
+			echo "general|clone_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+			if [[ $APPSELECT == "EC" ]]; then
+				echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			fi
+
+			terminateMessage=$(echo "Tag#: ${tagNum}"
+			echo "MAC: ${etherAddr}"
+			echo "Action: ${terminateAction}"
+			echo "Total time taken: ${totalElapsed} minutes"
+			echo "Server: \"${linuxDNS}\""
+			echo "Image: \"${cloneImgName}\""
+			echo "Total jobs today: ${jobsToday}"
+			)
 		fi
+		if [[ $cloneMode == "savedisk" ]]; then
+			echo "general|clone_master|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-		if [[ $cloneMode == "restoredisk" && $APPSELECT == "C" ]]; then
-			terminateAction="Cloned"
-		fi
-
-		terminateMessage=$(echo "Tag#: ${tagNum}"
-		echo "MAC: ${etherAddr}"
-		echo "Action: ${terminateAction}"
-		echo "Total time taken: ${totalElapsed} minutes"
-		echo "Server: \"${linuxDNS}\""
-		echo "Image: \"${cloneImgName}\""
-		echo "Total jobs today: ${jobsToday}"
-		)
-
-		echo "general|clone_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-
-		if [[ $APPSELECT == "EC" ]]; then
-			echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			terminateMessage=$(echo "Tag#: ${tagNum}"
+			echo "MAC: ${etherAddr}"
+			echo "Action: ${terminateAction}"
+			echo "Total time taken: ${totalElapsed} minutes"
+			echo "Server: \"${linuxDNS}\""
+			echo "Image: \"${cloneImgName}\""
+			echo "Total jobs today: ${jobsToday}"
+			)
 		fi
 	fi
 	
-	if [[ $cloneMode == "savedisk" && $APPSELECT == "C" ]]; then
-		terminateMessage=$(echo "Tag#: ${tagNum}"
-		echo "MAC: ${etherAddr}"
-		echo "Action: ${terminateAction}"
-		echo "Total time taken: ${totalElapsed} minutes"
-		echo "Server: \"${linuxDNS}\""
-		echo "Image: \"${cloneImgName}\""
-		echo "Total jobs today: ${jobsToday}"
-		)
-
-		#echo "general|os_installed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "general|clone_master|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	fi
 
 	if [[ $APPSELECT == "E" ]]; then
+		echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
 		terminateAction="erased"
 
 		terminateMessage=$(echo "Tag#: ${tagNum}"
@@ -1610,13 +1613,10 @@ function terminate {
 		echo "Action: ${terminateAction}"
 		echo "Total time taken: ${totalElapsed} minutes"
 		echo "Total jobs today: ${jobsToday}"
-		)
-
-		echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		)		
 	fi
 
 	echo "${terminateMessage}"
-	#echo "update|${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo ""
 	echo ""
 	read -p "${BOLD}Process has finished. Press ${GREEN}Enter${RESET}${BOLD} to shutdown...${RESET} "
