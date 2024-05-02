@@ -1590,15 +1590,9 @@ function terminate {
 
 	diskData
 	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	if [[ $mainMenuOpt != 0 ]]; then
-		/usr/bin/play /root/oven.mp3 &> /dev/null
-	fi
-	echo "${BOLD}Process has finished!${RESET}"
-	echo ""
+
 	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = 'Yes' AND department = 'techComm' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	imgUpdate=${imgUpdate::10}
-
-	location
 
 	cloneNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = 'Yes' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
@@ -1663,6 +1657,13 @@ function terminate {
 		echo "Total jobs today: ${jobsToday}"
 		)		
 	fi
+	
+	if [[ $mainMenuOpt != 0 ]]; then
+		/usr/bin/play /root/oven.mp3 &> /dev/null
+	fi
+	echo "${BOLD}Process has finished!${RESET}"
+	echo ""
+	location
 
 	echo "${terminateMessage}"
 	echo ""
