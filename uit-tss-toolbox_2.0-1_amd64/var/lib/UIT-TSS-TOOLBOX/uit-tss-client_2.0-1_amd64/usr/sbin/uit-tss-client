@@ -1558,7 +1558,7 @@ function terminate {
 
 	echo ""
 	if [[ $APPSELECT == "C" || $APPSELECT == "EC" ]]; then
-		if [[ $cloneMode == "restoredisk"]]; then
+		if [[ $cloneMode == "restoredisk" ]]; then
 			echo "general|clone_imageupdate|${imgUpdate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 			if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
