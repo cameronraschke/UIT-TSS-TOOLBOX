@@ -45,9 +45,12 @@ BEGIN
 UNION
 (SELECT uuid, tagnumber, etheraddress, wifi_mac, date, time, department, bios_vendor, bios_version, bios_date, bios_revision, bios_firmware, system_manufacturer,
     system_model, system_serial, system_uuid, system_sku, motherboard_manufacturer, motherboard_serial, chassis_manufacturer, chassis_type, chassis_serial, chassis_tag,
-    cpu_manufacturer, cpu_model, cpu_maxspeed, cpu_cores, cpu_threads, cpu_temp, ram_serial, ram_capacity, battery_manufacturer, battery_name, battery_capacity, battery_serial,
-    battery_manufacturedate, battery_health, battery_charge_cycles, boot_time, action, hibernate, disk, disk_type, disksizegb, disk_model, disk_serial, disk_firmware,
-    disk_power_on_hours, disk_temp, disk_reads, disk_writes, all_time, erase_completed, erase_mode, erase_time, erase_diskpercent, clone_completed, clone_mode, clone_time,
+    cpu_manufacturer, cpu_model, CONCAT(ROUND(cpu_maxspeed / 1000, 2), ' GHz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), ram_serial, CONCAT(ram_capacity, ' GB'), 
+    battery_manufacturer, battery_name, CONCAT(battery_capacity, 'MWh'), battery_serial,
+    battery_manufacturedate, CONCAT(battery_health, '%'), battery_charge_cycles, CONCAT(boot_time, 's'), action, hibernate, disk, disk_type, 
+    CONCAT(disksizegb, ' GB'), disk_model, disk_serial, disk_firmware,
+    CONCAT(disk_power_on_hours, 'hrs'), CONCAT(disk_temp, ' C'), CONCAT(disk_reads, ' TB/R'), CONCAT(disk_writes, ' TB/W'), 
+    CONCAT(all_time, ' mins'), erase_completed, erase_mode, CONCAT(erase_time, 'secs'), erase_diskpercent, clone_completed, clone_mode, CONCAT(clone_time, 'secs'),
     clone_master, clone_server, clone_image, clone_imageupdate
 FROM jobstats WHERE department = 'techComm' ORDER BY time DESC);
 END; //
