@@ -217,10 +217,6 @@ function hardwareData {
 		fi
 	done
 
-
-		
-	
-
 	###Battery Data
 	batChargeNow=$(cat /sys/class/power_supply/BAT0/charge_full)
 	batChargeFactory=$(cat /sys/class/power_supply/BAT0/charge_full_design)
