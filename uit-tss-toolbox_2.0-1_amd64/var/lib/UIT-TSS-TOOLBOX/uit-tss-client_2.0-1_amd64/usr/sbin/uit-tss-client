@@ -14,7 +14,11 @@ shredElapsed="0"
 
 echo ""
 echo "${BOLD}Changing font...${RESET}"
-/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz &>/dev/null
+if [[ $(dmidecode --string system-product-name) == "Latitude 3560" ]]; then
+	/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus28x14.psf.gz &>/dev/null
+else
+	/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz &>/dev/null
+fi
 echo "${GREEN}Done.${RESET}"
 
 echo ""
