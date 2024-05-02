@@ -523,7 +523,7 @@ function basicEraseMode_Shred {
 function advEraseMode_Shred {
 	tput reset
 	if [[ $(dmidecode --string system-product-name) == "Latitude 3560" ]]; then
-		setfont /usr/share/consolefonts/Lat7-Terminus20x10.psf.gz
+		setfont /usr/share/consolefonts/Lat7-Terminus24x12.psf.gz
 	else
 		setfont /usr/share/consolefonts/Lat7-Terminus28x14.psf.gz
 	fi
