@@ -30,7 +30,7 @@ foreach ($arr as $key => $value) {
     $sqlDate = $value["date"];
 
     # Start the timer that counts how much time each date takes to process.
-    #echo PHP_EOL;
+    echo PHP_EOL;
     echo timeSinceLastMarker("markerStart", "Updating $sqlDate") . PHP_EOL;
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
