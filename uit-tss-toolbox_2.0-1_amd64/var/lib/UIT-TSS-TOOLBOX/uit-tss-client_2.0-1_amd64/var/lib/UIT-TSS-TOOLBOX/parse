@@ -111,7 +111,7 @@ if ($arr[0] == "init") {
     if ($arr[1] == "cpu") {
         $cpuSum = null;
         $cpuLineCount = null;
-        $lines = file('/tmp/cpu-usage.txt')
+        $lines = file('/tmp/cpu-usage.txt');
         foreach ($lines as $lineNum => $line) {
             $cpuSum = $cpuSum + $line;
             $cpuLineCount = $cpuLineCount + 1;
