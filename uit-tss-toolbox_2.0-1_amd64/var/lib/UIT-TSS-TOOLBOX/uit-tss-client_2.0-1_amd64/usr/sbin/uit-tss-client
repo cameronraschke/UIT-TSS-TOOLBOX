@@ -12,6 +12,7 @@ cloneElapsed="0"
 shredElapsed="0"
 
 uit-cpu-stats &
+uit-network-stats &
 
 echo ""
 echo "${BOLD}Changing font...${RESET}"
