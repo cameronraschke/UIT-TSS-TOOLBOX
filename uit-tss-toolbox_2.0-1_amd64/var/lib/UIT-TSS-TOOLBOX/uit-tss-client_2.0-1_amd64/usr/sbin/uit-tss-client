@@ -105,6 +105,8 @@ linuxPath="images"
 
 tput reset
 
+uit-cpu-stats &
+
 function diskData {
 		###Disk Data
 	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
@@ -1497,7 +1499,6 @@ function execute_Shred {
 
 
 function execute {
-
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		echo "${RED}Cannot erase device and save its image.${RESET}"
 		read -p "${BOLD}Please press ${BOLD}${GREEN}enter${RESET} to restart UIT-TSS-TOOLBOX${RESET}."
@@ -1583,6 +1584,8 @@ function terminate {
 
 	diskData
 	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	echo "system-stats|cpu" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = 'Yes' AND department = 'techComm' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	imgUpdate=${imgUpdate::10}

@@ -107,6 +107,20 @@ if ($arr[0] == "init") {
 
     dbUpdateJob("$key", "$value", "$uuid");
 
+} elseif ($arr[0] == "system-stats") {
+    if ($arr[1] == "cpu") {
+        $cpuSum = null;
+        $cpuLineCount = null;
+        $lines = file('/tmp/cpu-usage.txt')
+        foreach ($lines as $lineNum => $line) {
+            $cpuSum = $cpuSum + $line;
+            $cpuLineCount = $cpuLineCount + 1;
+        }
+        $cpuAvg = $cpuSum / $lineNum;
+        dbUpdateJob("cpu_usage", "$cpuAvg", "$uuid");
+    } elseif ($arr[1] == "network") {
+        echo "bruh";
+    }
 } else {
     exit();
 }
