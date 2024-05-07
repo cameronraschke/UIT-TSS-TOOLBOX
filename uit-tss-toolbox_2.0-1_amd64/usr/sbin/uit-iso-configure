@@ -190,6 +190,8 @@ php-bcmath
 usbutils
 bc
 chrony
+netcat
+iperf3
 EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/

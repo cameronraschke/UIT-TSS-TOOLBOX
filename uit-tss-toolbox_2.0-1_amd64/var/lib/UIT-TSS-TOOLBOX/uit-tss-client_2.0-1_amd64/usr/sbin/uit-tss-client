@@ -283,6 +283,8 @@ function hardwareData {
 		echo "general|ram_serial|${memSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	memCapacity=$(grep MemTotal /proc/meminfo | awk '{ print $2 }')
 		echo "general|ram_capacity|${memCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	memSpeed=$(dmidecode --type 17 | grep '^[[:space:]]*Speed\:' | head -n1 | sed 's/[^0-9]'//g)
+		echo "general|ram_speed|${memCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Boot Times
 	bootTime=$(systemd-analyze | grep -oP '[0-9]+[0-9.]*' | head -n 1)
@@ -297,6 +299,7 @@ function hardwareData {
 		echo "general|wifi_mac|${wifiMac}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
@@ -1587,8 +1590,10 @@ function terminate {
 	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	kill $(ps | grep 'uit-cpu-stats' | awk '{ print $1 }')
+	kill $(ps | grep 'uit-network-stats' | awk '{ print $1 }')
 
 	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = 'Yes' AND department = 'techComm' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	imgUpdate=${imgUpdate::10}

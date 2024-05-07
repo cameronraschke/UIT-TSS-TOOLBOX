@@ -1,0 +1,17 @@
+#!/bin/bash
+while true; do
+    speed=$(cat /sys/class/net/enp1s0/speed)
+
+    oldTXBytes=$(cat /sys/class/net/enp1s0/statistics/tx_bytes)
+    oldRXBytes=$(cat /sys/class/net/enp1s0/statistics/rx_bytes)
+    sleep 1
+    newTXBytes=$(cat /sys/class/net/enp1s0/statistics/tx_bytes)
+    newRXBytes=$(cat /sys/class/net/enp1s0/statistics/rx_bytes)
+
+    TX=$(( newTXBytes - oldTXBytes ))
+    RX=$(( newRXBytes - oldRXBytes ))
+
+    SUM=$(( TX + RX ))
+    echo $SUM >> /tmp/network-usage.txt
+
+done

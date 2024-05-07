@@ -34,7 +34,7 @@ BEGIN
 (SELECT 'UUID','Tag','Ethernet MAC','WiFi MAC','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Last Update',
     'BIOS Revision','BIOS Firmware','System Manufacturer','System Model','System Serial','System UUID',
     'System SKU','Motherboard Manufacturer','Motherboard Serial','Chassis Manufcaturer',
-    'Chassis Type','Chassis Serial','Chassis Tag','CPU Manufacturer',
+    'Chassis Type','Chassis Serial','Chassis Tag','Network Usage','CPU Usage','CPU Manufacturer',
     'CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp','RAM Serial','RAM Capacity (GB)','Battery Manufacturer',
     'Battery Name','Battery Capacity','Battery Serial Number','Battery Manufacture Date','Battery Max Charge %','Battery Charge Cycles',
     'Boot Time','Did Sleep (Boolean)','Disk','Disk Type','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware',
@@ -43,9 +43,9 @@ BEGIN
     'Clone Successful','Total Clone Time','Master Image')
 UNION
 (SELECT uuid, tagnumber, etheraddress, wifi_mac, date, time, department, bios_vendor, bios_version, bios_date, bios_revision, bios_firmware, system_manufacturer,
-    system_model, system_serial, system_uuid, system_sku, motherboard_manufacturer, motherboard_serial, chassis_manufacturer, chassis_type, chassis_serial, chassis_tag,
-    cpu_manufacturer, cpu_model, CONCAT(ROUND(cpu_maxspeed / 1000, 2), ' GHz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), ram_serial, CONCAT(ram_capacity, ' GB'), 
-    battery_manufacturer, battery_name, CONCAT(battery_capacity, ' MWh'), battery_serial,
+    system_model, system_serial, system_uuid, system_sku, motherboard_manufacturer, motherboard_serial, chassis_manufacturer, chassis_type, chassis_serial, chassis_tag,network_usage,
+    cpu_usage, cpu_manufacturer, cpu_model, CONCAT(ROUND(cpu_maxspeed / 1000, 2), ' GHz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), ram_serial, CONCAT(ram_capacity, ' GB'), 
+    CONCAT(ram_speed, ' MHz'), battery_manufacturer, battery_name, CONCAT(battery_capacity, ' MWh'), battery_serial,
     battery_manufacturedate, CONCAT(battery_health, '%'), battery_charge_cycles, CONCAT(boot_time, 's'), hibernate, disk, disk_type, 
     CONCAT(disksizegb, ' GB'), disk_model, disk_serial, disk_firmware,
     CONCAT(disk_power_on_hours, ' hrs'), CONCAT(disk_temp, ' C'), CONCAT(disk_reads, ' TB/R'), CONCAT(disk_writes, ' TB/W'), 

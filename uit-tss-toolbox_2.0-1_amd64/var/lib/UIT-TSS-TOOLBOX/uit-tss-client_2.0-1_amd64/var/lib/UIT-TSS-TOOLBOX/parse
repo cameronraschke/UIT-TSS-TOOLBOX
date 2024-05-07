@@ -117,10 +117,19 @@ if ($arr[0] == "init") {
             $cpuSum = $cpuSum + $line;
             $cpuLineCount = $cpuLineCount + 1;
         }
-        $cpuAvg = $cpuSum / $lineNum;
+        $cpuAvg = $cpuSum / $cpuLineCount;
         dbUpdateJob("cpu_usage", "$cpuAvg", "$uuid");
     } elseif ($arr[1] == "network") {
-        echo "bruh";
+        $netSum = null;
+        $netLineCount = null;
+        $lines = file('/tmp/network-usage.txt');
+        foreach ($lines as $lineNum => $line) {
+            $netSum = $netSum + $line;
+            $netLineCount = $netLineCount + 1;
+        }
+        $netSum = $netSum / 1048576 * 8;
+        $netAvg = $netSum / $netLineCount;
+        dbUpdateJob("network_usage", "$netAvg", "$uuid");
     }
 } else {
     exit();
