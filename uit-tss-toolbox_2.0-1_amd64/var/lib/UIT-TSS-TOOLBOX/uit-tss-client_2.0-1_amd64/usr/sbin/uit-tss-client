@@ -1433,7 +1433,6 @@ function execute_Clone {
 	linuxPassword='UHouston!'
 	linuxServer="10.0.0.1"
 	linuxDNS="mickey.uit"
-	echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	modprobe fuse
