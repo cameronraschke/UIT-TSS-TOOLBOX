@@ -1503,6 +1503,9 @@ function execute_Shred {
 
 
 function execute {
+	rm /tmp/network-usage.txt
+	rm /tmp/cpu-usage.txt
+
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		echo "${RED}Cannot erase device and save its image.${RESET}"
 		read -p "${BOLD}Please press ${BOLD}${GREEN}enter${RESET} to restart UIT-TSS-TOOLBOX${RESET}."
