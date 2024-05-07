@@ -284,7 +284,7 @@ function hardwareData {
 	memCapacity=$(grep MemTotal /proc/meminfo | awk '{ print $2 }')
 		echo "general|ram_capacity|${memCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	memSpeed=$(dmidecode --type 17 | grep '^[[:space:]]*Speed\:' | head -n1 | sed 's/[^0-9]'//g)
-		echo "general|ram_speed|${memCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|ram_speed|${memSpeed}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Boot Times
 	bootTime=$(systemd-analyze | grep -oP '[0-9]+[0-9.]*' | head -n 1)
