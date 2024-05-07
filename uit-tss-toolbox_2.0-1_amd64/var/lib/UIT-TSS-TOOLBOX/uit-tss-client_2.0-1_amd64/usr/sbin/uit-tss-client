@@ -11,6 +11,7 @@ RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
+uit-cpu-stats &
 
 echo ""
 echo "${BOLD}Changing font...${RESET}"
@@ -104,8 +105,6 @@ DATE=$(date --iso)
 linuxPath="images"
 
 tput reset
-
-uit-cpu-stats &
 
 function diskData {
 		###Disk Data
@@ -296,6 +295,8 @@ function hardwareData {
 	###WiFi Info
 	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
 		echo "general|wifi_mac|${wifiMac}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
@@ -1584,6 +1585,8 @@ function terminate {
 
 	diskData
 	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	kill $(ps | grep 'uit-cpu-stats' | awk '{ print $1 }')
 
 	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
