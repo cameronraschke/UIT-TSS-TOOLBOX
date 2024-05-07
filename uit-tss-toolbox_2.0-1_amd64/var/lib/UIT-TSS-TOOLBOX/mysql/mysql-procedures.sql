@@ -26,7 +26,6 @@ DELIMITER ;
 
 
 -- Job table CSV
-DROP PROCEDURE IF EXISTS iterateJobLabels;
 DROP PROCEDURE IF EXISTS iterateJobCSV;
 DELIMITER //
 CREATE PROCEDURE iterateJobCSV()
@@ -38,20 +37,20 @@ BEGIN
     'Chassis Type','Chassis Serial','Chassis Tag','CPU Manufacturer',
     'CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp','RAM Serial','RAM Capacity (GB)','Battery Manufacturer',
     'Battery Name','Battery Capacity','Battery Serial Number','Battery Manufacture Date','Battery Max Charge %','Battery Charge Cycles',
-    'Boot Time','Job Type','Did Sleep (Boolean)','Disk','Disk Type','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware',
+    'Boot Time','Did Sleep (Boolean)','Disk','Disk Type','Disk Size (GB)','Disk Model','Disk Serial','Disk Firmware',
     'Disk Power on Hours','Disk Temperature','Disk Reads (TB)','Disk Writes (TB)',
-    'Total Time for Jobs','Erase Successful','Erase Mode','Total Erase Time','Disk Erased %',
-    'Clone Successful','Clone Mode','Total Clone Time','Master Image','Clone Server','Clone Image','Last Image Update')
+    'Erase Successful','Erase Mode','Total Erase Time','Disk Erased %',
+    'Clone Successful','Total Clone Time','Master Image')
 UNION
 (SELECT uuid, tagnumber, etheraddress, wifi_mac, date, time, department, bios_vendor, bios_version, bios_date, bios_revision, bios_firmware, system_manufacturer,
     system_model, system_serial, system_uuid, system_sku, motherboard_manufacturer, motherboard_serial, chassis_manufacturer, chassis_type, chassis_serial, chassis_tag,
     cpu_manufacturer, cpu_model, CONCAT(ROUND(cpu_maxspeed / 1000, 2), ' GHz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), ram_serial, CONCAT(ram_capacity, ' GB'), 
     battery_manufacturer, battery_name, CONCAT(battery_capacity, ' MWh'), battery_serial,
-    battery_manufacturedate, CONCAT(battery_health, '%'), battery_charge_cycles, CONCAT(boot_time, 's'), action, hibernate, disk, disk_type, 
+    battery_manufacturedate, CONCAT(battery_health, '%'), battery_charge_cycles, CONCAT(boot_time, 's'), hibernate, disk, disk_type, 
     CONCAT(disksizegb, ' GB'), disk_model, disk_serial, disk_firmware,
     CONCAT(disk_power_on_hours, ' hrs'), CONCAT(disk_temp, ' C'), CONCAT(disk_reads, ' TB/R'), CONCAT(disk_writes, ' TB/W'), 
-    CONCAT(all_time, ' mins'), erase_completed, erase_mode, CONCAT(erase_time, 's'), erase_diskpercent, clone_completed, clone_mode, CONCAT(clone_time, 's'),
-    clone_master, clone_server, clone_image, clone_imageupdate
+    erase_completed, erase_mode, CONCAT(erase_time, 's'), erase_diskpercent, clone_completed, CONCAT(clone_time, 's'),
+    clone_master
 FROM jobstats WHERE department = 'techComm' ORDER BY time DESC);
 END; //
 
@@ -59,7 +58,6 @@ DELIMITER ;
 
 
 -- Client table CSV
-DROP PROCEDURE IF EXISTS iterateClientLabels;
 DROP PROCEDURE IF EXISTS iterateClientCSV;
 DELIMITER //
 CREATE PROCEDURE iterateClientCSV()
@@ -93,7 +91,6 @@ DELIMITER ;
 
 
 -- Server table CSV
-DROP PROCEDURE IF EXISTS iterateServerLabels;
 DROP PROCEDURE IF EXISTS iterateServerCSV;
 DELIMITER //
 CREATE PROCEDURE iterateServerCSV()
@@ -136,7 +133,6 @@ DELIMITER ;
 
 
 -- Location table CSV
-DROP PROCEDURE IF EXISTS iterateLocationLabels;
 DROP PROCEDURE IF EXISTS iterateLocationsCSV;
 DELIMITER //
 CREATE PROCEDURE iterateLocationsCSV()

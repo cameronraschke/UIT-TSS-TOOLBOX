@@ -528,17 +528,14 @@ function appSelect {
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-		echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 	elif [[ $APPSELECT == "2" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-		echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
-		echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	else
 		echo ""
 		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
@@ -1401,23 +1398,18 @@ function clientselect_Clone {
 	case $CLIENTTYPE in
 	1)
 	cloneImgName='TechCommons-HP-Laptops'
-	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	;;
 	2)
 	cloneImgName='TechCommons-Dell-Laptops'
-	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	;;
 	3)
 	cloneImgName='TechCommons-Dell-Desktops'
-	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	;;
 	4)
 	cloneImgName='SHRL-Dell-Desktops'
-	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	;;
 	5)
 	cloneImgName='Ubuntu-Desktop'
-	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	;;
 	*)
 	clientselect_Clone
@@ -1542,7 +1534,6 @@ function execute {
 
 function totaltime {
 	totalElapsed=$(echo $(( (shredElapsed + cloneElapsed) / 60 )))
-	echo "general|all_time|${totalElapsed}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 
@@ -1607,7 +1598,6 @@ function terminate {
 	echo ""
 	if [[ $APPSELECT == "C" || $APPSELECT == "EC" ]]; then
 		if [[ $cloneMode == "restoredisk" ]]; then
-			echo "general|clone_imageupdate|${imgUpdate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 			if [[ $cloneMode == "restoredisk" && $APPSELECT == "EC" ]]; then
 				terminateAction="Erased and cloned"
@@ -1688,13 +1678,10 @@ function main {
 	if [[ $mainMenuOpt == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='nvme0n1'
 			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
-			echo "general|clone_mode|${cloneMode}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneImgName="TechCommons-HP-Laptops"
-			echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1702,19 +1689,15 @@ function main {
 		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
-			echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "2" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='nvme0n1'
 			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
-			echo "general|clone_mode|${cloneMode}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneImgName="TechCommons-Dell-Laptops"
-			echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1722,19 +1705,15 @@ function main {
 		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
-			echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "3" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='sda'
 			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
-			echo "general|clone_mode|${cloneMode}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneImgName="TechCommons-Dell-Laptops"
-			echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1742,13 +1721,11 @@ function main {
 		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
-			echo "general|clone_server|${linuxDNS}/${linuxServer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "4" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='nvme0n1'
 			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
@@ -1759,7 +1736,6 @@ function main {
 	elif [[ $mainMenuOpt == "5" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-			echo "general|action|${ACTION}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		CLIENTDISK='sda'
 			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
