@@ -1590,8 +1590,8 @@ function terminate {
 	diskData
 	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-	kill $(ps | grep 'uit-cpu-stats' | awk '{ print $1 }')
-	kill $(ps | grep 'uit-network-stats' | awk '{ print $1 }')
+	kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
+	kill $(ps | grep 'uit-network' | awk '{ print $1 }')
 
 	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
