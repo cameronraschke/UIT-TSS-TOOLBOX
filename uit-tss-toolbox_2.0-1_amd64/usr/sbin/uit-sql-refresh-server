@@ -189,7 +189,7 @@ foreach ($arr as $key => $value) {
     $sql .= "AND battery_health IS NOT NULL GROUP BY tagnumber)";
     dbSelectVal($sql);
     $batteryMaxCharge = $result;
-    if (filter($batteryMaxCharge) == 0 && $batteryMaxCharge > 0) {
+    if (filter($arr1) == 0 && filter($batteryMaxCharge) == 0 && $batteryMaxCharge > 0) {
         $avg = array_filter($arr1);
         $batteryMaxCharge = array_sum($avg) / count($avg);
     } else {
