@@ -135,20 +135,20 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT battery_health AS result FROM jobstats WHERE tagnumber = '$tagNum' AND battery_health IS NOT NULL ORDER BY time DESC LIMIT 1");
     dbUpdateCS("battery_health", "$result", "$tagNum");
 
-    # Update boot time in seconds
-    dbSelectVal("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL");
-    dbUpdateCS("boot_time", "$result", "$tagNum");
+    ## Update boot time in seconds
+    #dbSelectVal("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND boot_time IS NOT NULL");
+    #dbUpdateCS("boot_time", "$result", "$tagNum");
 
     # Update the uuid of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
     dbSelectVal("SELECT time AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
     dbUpdateCS("last_job_time", "$result", "$tagNum");
 
-    dbSelectVal("SELECT uuid AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
-    dbUpdateCS("last_job_uuid", "$result", "$tagNum");
+    #dbSelectVal("SELECT uuid AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
+    #dbUpdateCS("last_job_uuid", "$result", "$tagNum");
 
     # Update the system manufacturer
-    dbSelectVal("SELECT system_manufacturer AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_manufacturer IS NOT NULL ORDER BY time DESC LIMIT 1");
-    dbUpdateCS("system_manufacturer", "$result", "$tagNum");
+    #dbSelectVal("SELECT system_manufacturer AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_manufacturer IS NOT NULL ORDER BY time DESC LIMIT 1");
+    #dbUpdateCS("system_manufacturer", "$result", "$tagNum");
 
     # End the timer and print the time taken to iterate through a client.
     $end = hrtime(true);
