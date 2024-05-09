@@ -192,9 +192,9 @@ foreach ($arr as $key => $value) {
     $arr3 = array_filter($arr3);
     $batteryChargeCycles = array_sum($arr3);
     if (filter($batteryCharge) == 0 && filter($arr3) == 0 && $batteryCharge > 0 && count($arr3) > 0) {
-        $batteryHealth = round(($batteryChargeCycles + $batteryCharge) / 2, 2);
+        $batteryHealth = round(100 - (($batteryChargeCycles + $batteryCharge) / 2), 2);
     } elseif ($batteryCharge > 0 && (filter($batteryChargeCycles) == 1 || $batteryChargeCycles == 0)) {
-        $batteryHealth = round($batteryCharge, 2);
+        $batteryHealth = round(100 - $batteryCharge, 2);
     } else {
         $batteryHealth = "NULL";
     }
