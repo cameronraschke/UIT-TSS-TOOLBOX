@@ -128,7 +128,6 @@ foreach ($arr as $key => $value) {
     } else {
         $diskHealth = "NULL";
     }
-    
     dbUpdateCS("disk_health", "$diskHealth", "$tagNum");
 
     # Update the type of disk (nvme,ssd,hdd)
