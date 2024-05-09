@@ -139,7 +139,7 @@ foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
         $diskMaxMTBF = $value["disk_mtbf"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMaxMTBF' * 100, 2)) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
+        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMaxMTBF' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
         $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         dbSelect($sql);
         foreach ($arr as $key => $value) {
@@ -149,8 +149,9 @@ foreach ($arr as $key => $value) {
             }
         }
     }
-
+    
     # Update the MTBF for the disks. This average takes into account drive model and specifications of the drive.
+    $diskHealth = null;
     if (filter($arr1) == 0 && filter($arr2) == 0 && count($arr1) > 0 && count($arr2) == 0) {
         $diskHealth = round(($diskMTBF + $diskTBW) / 2, 2);
     } elseif ($diskTBW > 0 && (filter($diskMTBF) == 1 || $diskMTBF == 0)) {
