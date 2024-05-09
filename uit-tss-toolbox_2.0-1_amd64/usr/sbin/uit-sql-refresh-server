@@ -187,29 +187,27 @@ foreach ($arr as $key => $value) {
         # Select the most recent distinct tagnumber from jobstats
         $sql = "SELECT ROUND(AVG(battery_charge_cycles) / '$batteryMaxChargeCycles' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
         $sql .= "AND battery_charge_cycles IS NOT NULL AND battery_name = '$batteryName' GROUP BY tagnumber)";
-        dbSelectVal($sql);
-        if (filter($result) == 0) {
-            array_push($arr4, $result);
+        dbSelect($sql);
+        foreach ($arr as $key => $value) {
+            $result = $value["result"];
+            if (filter($result) == 0) {
+                array_push($arr4, $result);
+            }
         }
     }
 
-    # Update the charge cycles for the batteries. This average takes into account battery name (model) and specifications of the battery.
+    $arr3 = array_filter($arr3);
+    $batteryCharge = array_sum($arr3);
+    $arr4 = array_filter($arr4);
+    $batteryChargeCycles = array_sum($arr4);
     if (filter($arr3) == 0 && filter($arr4) == 0 && count($arr3) > 0 && count($arr4) > 0) {
-        $avg1 = array_filter($arr3);
-        $avg2 = array_filter($arr4);
-        $batteryChargeCycles = (array_sum($avg1) + array_sum($avg2)) / (count($avg1) + count($avg2));
+        $batteryHealth = round(($batteryChargeCycles + $batteryCharge) / 2, 2);
+    } elseif ($batteryCharge > 0 && (filter($batteryChargeCycles) == 1 || $batteryChargeCycles == 0)) {
+        $batteryHealth = round($batteryCharge, 2);
     } else {
-        $batteryChargeCycles = 0;
+        $batteryHealth = "NULL";
     }
-
-    if ($batteryChargeCycles > 0 && $batteryCharge > 0) {
-        $batteryHealth = round(($batteryCharge + $batteryChargeCycles) / 2, 2);
-        dbUpdateSS("battery_health", "$batteryHealth", "$sqlDate");
-    } else {
-        dbUpdateSS("battery_health", "NULL", "$sqlDate");
-    }
-
-    #echo "\t" . timeSinceLastMarker(0, "Update Battery Charge Cycles: ") . PHP_EOL;
+    dbUpdateSS("battery_health", "$batteryHealth", "$sqlDate");
 
 
     # Output time taken for specific date
