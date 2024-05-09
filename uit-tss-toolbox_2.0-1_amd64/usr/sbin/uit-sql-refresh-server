@@ -193,7 +193,7 @@ foreach ($arr as $key => $value) {
         $avg = array_filter($arr1);
         $batteryMaxCharge = array_sum($avg) / count($avg);
     } else {
-        $batteryMaxCharge = "NULL";
+        $batteryMaxCharge = 0;
     }
     
     #echo "\t" . timeSinceLastMarker(0, "Battery Health: ") . PHP_EOL;
@@ -220,7 +220,7 @@ foreach ($arr as $key => $value) {
         $avg = array_filter($arr1);
         $batteryChargeCycles = array_sum($avg) / count($avg);
     } else {
-        $batteryChargeCycles = "NULL";
+        $batteryChargeCycles = 0;
     }
 
     if ($batteryChargeCycles > 0 && $batteryMaxCharge > 0) {
