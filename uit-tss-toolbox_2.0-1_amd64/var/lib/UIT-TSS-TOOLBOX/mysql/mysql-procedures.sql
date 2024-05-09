@@ -67,22 +67,24 @@ DETERMINISTIC
 BEGIN
 (SELECT 'Tag',
     'Serial Number',
-    'System Manufacturer',
     'System Model',
     'Last Job Time',
     'Battery Max Charge',
-    'Terabytes Written (TBW)',
+    'Disk Health',
+    'Disk Type',
+    'BIOS Version',
     'Erase Time',
     'Clone Time',
     'Total Jobs')
 UNION
 (SELECT tagnumber,
     system_serial,
-    system_manufacturer,
     system_model,
     last_job_time,
     CONCAT(battery_health, '%'),
-    CONCAT(tbw_pcnt, '%'),
+    CONCAT(disk_health, '%'),
+    disk_type,
+    bios_version,
     CONCAT(erase_avgtime, ' minutes'),
     CONCAT(clone_avgtime, ' minutes'),
     all_jobs

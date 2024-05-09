@@ -20,23 +20,18 @@ CREATE TABLE serverstats (
 DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
     tagnumber MEDIUMINT NOT NULL PRIMARY KEY,
+    system_serial VARCHAR(16) DEFAULT NULL,
+    system_model VARCHAR(24) DEFAULT NULL,
     last_job_time DATETIME DEFAULT NULL,
-    all_avgtime SMALLINT DEFAULT NULL,
+    battery_health TINYINT DEFAULT NULL,
+    disk_health TINYINT DEFAULT NULL,
     erase_avgtime SMALLINT DEFAULT NULL,
     clone_avgtime TINYINT DEFAULT NULL,
     all_jobs SMALLINT DEFAULT NULL,
     erase_jobs SMALLINT DEFAULT NULL,
     clone_jobs SMALLINT DEFAULT NULL,
     disk_type VARCHAR(8) DEFAULT NULL,
-    disk_health TINYINT DEFAULT NULL,
-    system_model VARCHAR(24) DEFAULT NULL,
-    bios_date VARCHAR(12) DEFAULT NULL,
-    bios_version VARCHAR(24) DEFAULT NULL,
-    system_serial VARCHAR(16) DEFAULT NULL,
-    cpu_model VARCHAR(64) DEFAULT NULL,
-    cpu_cores TINYINT DEFAULT NULL,
-    ram_capacity DECIMAL(4,2) DEFAULT NULL,
-    battery_health TINYINT DEFAULT NULL
+    bios_version VARCHAR(24) DEFAULT NULL
 );
 
 

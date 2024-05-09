@@ -39,9 +39,9 @@ foreach ($arr as $key => $value) {
         dbInsertCS("$tagNum");
     }
 
-    # Update the date of the BIOS release
-    dbSelectVal("SELECT bios_date AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_date IS NOT NULL ORDER BY time DESC LIMIT 1");
-    dbUpdateCS("bios_date", "$result", "$tagNum");
+    ## Update the date of the BIOS release
+    #dbSelectVal("SELECT bios_date AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_date IS NOT NULL ORDER BY time DESC LIMIT 1");
+    #dbUpdateCS("bios_date", "$result", "$tagNum");
 
     # Update the BIOS version
     dbSelectVal("SELECT bios_version AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_version IS NOT NULL ORDER BY time DESC LIMIT 1");
@@ -55,13 +55,13 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
     dbUpdateCS("system_serial", "$result", "$tagNum");
 
-    # Update the CPU model
-    dbSelectVal("SELECT cpu_model AS result FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_model IS NOT NULL ORDER BY time DESC LIMIT 1");
-    dbUpdateCS("cpu_model", "$result", "$tagNum");
+    ## Update the CPU model
+    #dbSelectVal("SELECT cpu_model AS result FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_model IS NOT NULL ORDER BY time DESC LIMIT 1");
+    #dbUpdateCS("cpu_model", "$result", "$tagNum");
 
-    # Update the amount of CPU cores
-    dbSelectVal("SELECT cpu_cores AS result FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_cores IS NOT NULL ORDER BY time DESC LIMIT 1");
-    dbUpdateCS("cpu_cores", "$result", "$tagNum");
+    ## Update the amount of CPU cores
+    #dbSelectVal("SELECT cpu_cores AS result FROM jobstats WHERE tagnumber = '$tagNum' AND cpu_cores IS NOT NULL ORDER BY time DESC LIMIT 1");
+    #dbUpdateCS("cpu_cores", "$result", "$tagNum");
 
     # Update the average erase times for each client
     dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'");
