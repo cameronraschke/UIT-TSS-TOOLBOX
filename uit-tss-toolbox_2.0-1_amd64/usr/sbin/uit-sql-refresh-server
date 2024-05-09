@@ -131,14 +131,6 @@ foreach ($arr as $key => $value) {
         }
     }
 
-    # Update the average wear of disks based on reads and writes
-    if (filter($arr1) == 0 && count($arr1) > 0) {
-        $avg = array_filter($arr1);
-        $diskTBW = array_sum($avg) / count($avg);
-    } else {
-        $diskTBW = 0;
-    }
-
 
     # Get the average disk power on hours (MTBF/MTTF) and average that against the disk's specifications.
     $arr2 = array();
@@ -147,7 +139,7 @@ foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
         $diskMaxMTBF = $value["disk_mtbf"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMaxMTBF' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
+        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMaxMTBF' * 100, 2)) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
         $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         dbSelect($sql);
         foreach ($arr as $key => $value) {
@@ -157,15 +149,9 @@ foreach ($arr as $key => $value) {
             }
         }
     }
-    # Update the MTBF for the disks. This average takes into account drive model and specifications of the drive.
-    if (filter($arr2) == 0 && count($arr2) > 0) {
-        $avg = array_filter($arr2);
-        $diskMTBF = array_sum($avg) / count($avg);
-    } else {
-        $diskMTBF = 0;
-    }
 
-    if ($diskMTBF > 0 && $diskTBW > 0) {
+    # Update the MTBF for the disks. This average takes into account drive model and specifications of the drive.
+    if (filter($arr1) == 0 && filter($arr2) == 0 && count($arr1) > 0 && count($arr2) == 0) {
         $diskHealth = round(($diskMTBF + $diskTBW) / 2, 2);
     } elseif ($diskTBW > 0 && (filter($diskMTBF) == 1 || $diskMTBF == 0)) {
         $diskHealth = round($diskTBW, 2);
@@ -173,10 +159,6 @@ foreach ($arr as $key => $value) {
         $diskHealth = "NULL";
     }
     dbUpdateSS("disk_health", "$diskHealth", "$sqlDate");
-
-    #Update the average boot time
-    #dbSelectVal("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE boot_time IS NOT NULL");
-    #dbUpdateSS("boot_time", "$result", "$sqlDate");
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
