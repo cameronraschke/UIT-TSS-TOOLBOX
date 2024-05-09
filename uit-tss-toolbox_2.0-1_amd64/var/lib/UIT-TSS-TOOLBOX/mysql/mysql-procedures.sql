@@ -45,7 +45,7 @@ UNION
 (SELECT uuid, tagnumber, etheraddress, wifi_mac, date, time, department, bios_vendor, bios_version, bios_date,
     bios_revision, bios_firmware, system_manufacturer, system_model, system_serial, system_uuid,
     system_sku, motherboard_manufacturer, motherboard_serial, chassis_manufacturer, chassis_type, chassis_serial,
-    chassis_tag, network_usage, cpu_usage, cpu_manufacturer, cpu_model, CONCAT(ROUND(cpu_maxspeed / 1000, 2), ' GHz'),
+    chassis_tag, CONCAT(network_usage, ' Mbps'), CONCAT(cpu_usage, '%'), cpu_manufacturer, cpu_model, CONCAT(ROUND(cpu_maxspeed / 1000, 2), ' GHz'),
     cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), ram_serial, CONCAT(ram_capacity, ' GB'), CONCAT(ram_speed, ' MHz'), battery_manufacturer,
     battery_name, CONCAT(battery_capacity, ' MWh'), battery_serial,
     battery_manufacturedate, CONCAT(battery_health, '%'), battery_charge_cycles, CONCAT(boot_time, 's'), hibernate, disk, disk_type, 
@@ -141,7 +141,7 @@ CREATE PROCEDURE iterateLocationsCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Tagnumber',
+(SELECT 'Tag',
     'Serial Number',
     'Location',
     'Status',

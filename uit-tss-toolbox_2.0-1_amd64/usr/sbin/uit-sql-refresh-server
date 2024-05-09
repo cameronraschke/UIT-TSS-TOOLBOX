@@ -137,9 +137,9 @@ foreach ($arr as $key => $value) {
     if (filter($arr1) == 0 && count($arr1) > 0) {
         $avg = array_filter($arr1);
         $result = array_sum($avg) / count($avg);
-        dbUpdateSS("tbw_pcnt", "$result", "$sqlDate");
+        dbUpdateSS("disk_health", "$result", "$sqlDate");
     } else {
-        dbUpdateSS("tbw_pcnt", "NULL", "$sqlDate");
+        dbUpdateSS("disk_health", "NULL", "$sqlDate");
     }
     #echo "\t" . timeSinceLastMarker(0, "Update TBW: ") . PHP_EOL;
 
