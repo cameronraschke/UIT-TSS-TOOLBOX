@@ -93,7 +93,7 @@ foreach ($arr as $key => $value) {
         # If the disk type is an nvme or ssd, then $value is the average of disk writes over disk max writes as a percentage
         if ($diskType == "ssd" || $diskType == "nvme") {
             if ($diskReadsMax > 0 && $diskWritesMax > 0) {
-                $diskTBW = round(($diskWritesCur / $diskWritesMax) * 100, 0);
+                $diskTBW = round(($diskWritesCur / $diskWritesMax) * 100, 2);
             }
         # If the disk type is hdd
         } elseif ($diskType == "hdd") {
@@ -122,9 +122,9 @@ foreach ($arr as $key => $value) {
 
     # Multiply the disk TBW by the disk MTBF to get a general disk health percent;
     if ($diskTBW > 0 && $diskMTBF > 0) {
-        $diskHealth = round(($diskTBW + $diskMTBF) / 2, 0);
+        $diskHealth = round(100 - (($diskTBW + $diskMTBF) / 2), 2);
     } elseif ($diskTBW > 0 && (filter($diskMTBF) == 1 || $diskMTBF == 0)) {
-        $diskHealth = round($diskTBW, 0);
+        $diskHealth = round(100 - $diskTBW, 2);
     } else {
         $diskHealth = "NULL";
     }
