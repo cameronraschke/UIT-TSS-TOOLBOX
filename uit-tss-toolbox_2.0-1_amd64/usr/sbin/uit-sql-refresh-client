@@ -123,6 +123,8 @@ foreach ($arr as $key => $value) {
     # Multiply the disk TBW by the disk MTBF to get a general disk health percent;
     if ($diskTBW > 0 && $diskMTBF > 0) {
         $diskHealth = round(($diskTBW + $diskMTBF) / 2, 0);
+    } elseif ($diskTBW > 0 && (filter($diskMTBF) == 1 || $diskMTBF == 0)) {
+        $diskHealth = round($diskTBW, 0)
     } else {
         $diskHealth = "NULL";
     }
