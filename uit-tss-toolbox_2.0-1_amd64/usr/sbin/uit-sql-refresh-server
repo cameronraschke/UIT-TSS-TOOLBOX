@@ -224,7 +224,7 @@ foreach ($arr as $key => $value) {
     }
 
     if ($batteryChargeCycles > 0 && $batteryMaxCharge > 0) {
-        $batteryHealth = round($batteryMaxCharge * $batteryChargeCycles / 2 * 100, 2);
+        $batteryHealth = round($batteryMaxCharge + $batteryChargeCycles / 2, 2);
         dbUpdateSS("battery_health", "$batteryHealth", "$sqlDate");
     } else {
         dbUpdateSS("battery_health", "NULL", "$sqlDate");
