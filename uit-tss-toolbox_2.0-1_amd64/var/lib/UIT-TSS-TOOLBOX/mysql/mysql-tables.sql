@@ -3,7 +3,7 @@ CREATE TABLE serverstats (
     date DATE NOT NULL PRIMARY KEY,
     laptop_count SMALLINT DEFAULT NULL,
     disk_health DECIMAL(5,2) DEFAULT NULL,
-    battery_health SMALLINT DEFAULT NULL,
+    battery_health DECIMAL(5,2) DEFAULT NULL,
     all_jobs MEDIUMINT DEFAULT NULL,
     clone_jobs MEDIUMINT DEFAULT NULL,
     erase_jobs MEDIUMINT DEFAULT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE clientstats (
     system_serial VARCHAR(16) DEFAULT NULL,
     system_model VARCHAR(24) DEFAULT NULL,
     last_job_time DATETIME DEFAULT NULL,
-    battery_health DECIMAL(5,2) DEFAULT NULL,
+    battery_health SMALLINT DEFAULT NULL,
     disk_health DECIMAL(5,2) DEFAULT NULL,
     erase_avgtime SMALLINT DEFAULT NULL,
     clone_avgtime TINYINT DEFAULT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
     erase_diskpercent TINYINT DEFAULT NULL,
     clone_completed VARCHAR(3) DEFAULT NULL,
     clone_time SMALLINT DEFAULT NULL,
-    clone_master VARCHAR(8) DEFAULT NULL
+    clone_master VARCHAR(3) DEFAULT NULL
 );
 
 ALTER TABLE jobstats
@@ -156,7 +156,7 @@ ALTER TABLE jobstats
     MODIFY COLUMN erase_diskpercent TINYINT DEFAULT NULL,
     MODIFY COLUMN clone_completed VARCHAR(3) DEFAULT NULL,
     MODIFY COLUMN clone_time SMALLINT DEFAULT NULL,
-    MODIFY COLUMN clone_master VARCHAR(8) DEFAULT NULL;
+    MODIFY COLUMN clone_master VARCHAR(3) DEFAULT NULL;
 
 
 CREATE TABLE IF NOT EXISTS locations (
