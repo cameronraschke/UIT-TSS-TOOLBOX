@@ -9,7 +9,7 @@ CREATE TABLE serverstats (
     clone_avgtime SMALLINT DEFAULT NULL,
     nvme_erase_avgtime SMALLINT DEFAULT NULL,
     sata_erase_avgtime SMALLINT DEFAULT NULL,
-    tbw_pcnt TINYINT DEFAULT NULL,
+    disk_health TINYINT DEFAULT NULL,
     disk_mtbf DECIMAL(5,2) DEFAULT NULL,
     battery_health TINYINT DEFAULT NULL,
     battery_charge_cycles DECIMAL(5,2),
@@ -20,9 +20,7 @@ CREATE TABLE serverstats (
 DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
     tagnumber MEDIUMINT NOT NULL PRIMARY KEY,
-    --system_manufacturer VARCHAR(12) DEFAULT NULL,
     last_job_time DATETIME DEFAULT NULL,
-    --last_job_uuid VARCHAR(64) DEFAULT NULL,
     all_avgtime SMALLINT DEFAULT NULL,
     erase_avgtime SMALLINT DEFAULT NULL,
     clone_avgtime TINYINT DEFAULT NULL,
@@ -39,7 +37,6 @@ CREATE TABLE clientstats (
     cpu_cores TINYINT DEFAULT NULL,
     ram_capacity DECIMAL(4,2) DEFAULT NULL,
     battery_health TINYINT DEFAULT NULL
-    --boot_time TINYINT DEFAULT NULL
 );
 
 
