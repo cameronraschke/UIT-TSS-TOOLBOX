@@ -102,7 +102,7 @@ foreach ($arr as $key => $value) {
         $diskMaxTBW = $value["disk_tbw"];
         $diskModel = $value["disk_model"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW' * 100) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+        $sql = "SELECT ROUND(AVG(disk_writes) / '$diskMaxTBW' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
         $sql .= "AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
         dbSelect($sql);
         foreach ($arr as $key => $value) {
@@ -181,7 +181,7 @@ foreach ($arr as $key => $value) {
         $batteryMaxChargeCycles = $value["battery_charge_cycles"];
         $batteryName = $value["battery_name"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ROUND(AVG(battery_charge_cycles) / '$batteryMaxChargeCycles' * 100), 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+        $sql = "SELECT ROUND(AVG(battery_charge_cycles) / '$batteryMaxChargeCycles' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
         $sql .= "AND battery_charge_cycles IS NOT NULL AND battery_name = '$batteryName' GROUP BY tagnumber)";
         dbSelectVal($sql);
         if (filter($result) == 0) {
