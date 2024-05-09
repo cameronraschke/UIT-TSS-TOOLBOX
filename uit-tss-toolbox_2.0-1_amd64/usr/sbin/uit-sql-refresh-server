@@ -172,7 +172,7 @@ foreach ($arr as $key => $value) {
     #echo "\t" . timeSinceLastMarker(0, "Update MTBF: ") . PHP_EOL;
 
     if (filter($diskMTBF) == 0 && filter($diskTBW) == 0) {
-        $diskHealth = round($diskMTBF * $diskTBW / 2 * 100, 2);
+        $diskHealth = round(($diskMTBF + $diskTBW) / 2, 0);
         dbUpdateSS("disk_health", "$diskHealth", "$sqlDate");
     } else {
         dbUpdateSS("disk_health", "NULL", "$sqlDate");
@@ -224,7 +224,7 @@ foreach ($arr as $key => $value) {
     }
 
     if ($batteryChargeCycles > 0 && $batteryMaxCharge > 0) {
-        $batteryHealth = round($batteryMaxCharge + $batteryChargeCycles / 2, 2);
+        $batteryHealth = round(($batteryMaxCharge + $batteryChargeCycles) / 2, 0);
         dbUpdateSS("battery_health", "$batteryHealth", "$sqlDate");
     } else {
         dbUpdateSS("battery_health", "NULL", "$sqlDate");

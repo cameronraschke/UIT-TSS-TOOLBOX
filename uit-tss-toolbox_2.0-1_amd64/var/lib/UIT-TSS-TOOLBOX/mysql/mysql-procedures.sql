@@ -69,7 +69,7 @@ BEGIN
     'Serial Number',
     'System Model',
     'Last Job Time',
-    'Battery Max Charge',
+    'Battery Health',
     'Disk Health',
     'Disk Type',
     'BIOS Version',
