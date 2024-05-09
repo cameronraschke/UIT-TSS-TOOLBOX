@@ -103,30 +103,26 @@ BEGIN
 
 (SELECT 'Date',
     'Computer Count',
-    'Disk Wear',
-    'Disk MTBF',
-    'Battery Max Charge Level',
-    'Battery Charge Cycles',
+    'Disk Health',
+    'Battery Health',
     'Total Jobs',
     'Clone Jobs',
     'Erase Jobs',
     'Clone Time',
     'NVME Erase Time',
-    'SATA Erase Time',
+    'HDD Erase Time',
     'Last Image Update')
 UNION
 (SELECT date,
     laptop_count,
-    CONCAT(tbw_pcnt, '%'),
-    CONCAT(disk_mtbf, '%'),
+    CONCAT(disk_health, '%'),
     CONCAT(battery_health, '%'),
-    CONCAT(battery_charge_cycles, '%'),
     all_jobs,
     clone_jobs,
     erase_jobs,
-    CONCAT(clone_avgtime, ' minutes'),
-    CONCAT(nvme_erase_avgtime, ' minutes'),
-    CONCAT(sata_erase_avgtime, ' minutes'),
+    CONCAT(clone_avgtime, ' mins'),
+    CONCAT(nvme_erase_avgtime, ' mins'),
+    CONCAT(hdd_erase_avgtime, ' mins'),
     last_image_update
     FROM serverstats
     ORDER BY date DESC);

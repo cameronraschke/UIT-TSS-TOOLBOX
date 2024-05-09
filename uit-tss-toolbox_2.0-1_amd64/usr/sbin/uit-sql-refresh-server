@@ -61,7 +61,7 @@ foreach ($arr as $key => $value) {
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
     dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date BETWEEN '$oldDate' AND '$sqlDate'");
-    dbUpdateSS("sata_erase_avgtime", "$result", "$sqlDate");
+    dbUpdateSS("hdd_erase_avgtime", "$result", "$sqlDate");
     #echo "\t" . timeSinceLastMarker(0, "Erase Time SATA: ") . PHP_EOL;
 
 
@@ -99,10 +99,10 @@ foreach ($arr as $key => $value) {
     # Get average TBW of non-HDD drives (writes only, SSD and NVMe included). This average takes into account drive model and specifications of the drive.
     dbSelect("SELECT disk_model,disk_tbw FROM static_disk_stats WHERE NOT disk_type = 'hdd'");
     foreach ($arr as $key => $value) {
-        $diskTBW = $value["disk_tbw"];
+        $diskMaxTBW = $value["disk_tbw"];
         $diskModel = $value["disk_model"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT (AVG(disk_writes) / '$diskTBW' * 100) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+        $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW' * 100) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
         $sql .= "AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
         dbSelect($sql);
         foreach ($arr as $key => $value) {
@@ -117,11 +117,11 @@ foreach ($arr as $key => $value) {
     # Get average TBW and TBR of HDDs (reads and writes). This average takes into account drive model and specifications of the drive.
     dbSelect("SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats WHERE disk_type = 'hdd'");
     foreach ($arr as $key => $value) {
-        $diskTBW = $value["disk_tbw"];
-        $diskTBR = $value["disk_tbr"];
+        $diskMaxTBW = $value["disk_tbw"];
+        $diskMaxTBR = $value["disk_tbr"];
         $diskModel = $value["disk_model"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ((AVG(disk_writes) / '$diskTBW' * 100) + (AVG(disk_reads) / '$diskTBR' * 100)) / 2 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+        $sql = "SELECT ((AVG(disk_writes) / '$diskMaxTBW' * 100) + (AVG(disk_reads) / '$diskMaxTBR' * 100)) / 2 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
         $sql .= "AND (disk_writes IS NOT NULL OR disk_reads IS NOT NULL) AND disk_model = '$diskModel' GROUP BY tagnumber)";
         dbSelect($sql);
         foreach ($arr as $key => $value) {
@@ -136,11 +136,11 @@ foreach ($arr as $key => $value) {
     # Update the average wear of disks based on reads and writes
     if (filter($arr1) == 0 && count($arr1) > 0) {
         $avg = array_filter($arr1);
-        $result = array_sum($avg) / count($avg);
-        dbUpdateSS("disk_health", "$result", "$sqlDate");
+        $diskTBW = array_sum($avg) / count($avg);
     } else {
-        dbUpdateSS("disk_health", "NULL", "$sqlDate");
+        $diskTBW = "NULL";
     }
+
     #echo "\t" . timeSinceLastMarker(0, "Update TBW: ") . PHP_EOL;
 
 
@@ -149,9 +149,9 @@ foreach ($arr as $key => $value) {
     dbSelect("SELECT disk_model,disk_mtbf FROM static_disk_stats WHERE disk_mtbf IS NOT NULL");
     foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
-        $diskMTBF = $value["disk_mtbf"];
+        $diskMaxMTBF = $value["disk_mtbf"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMTBF' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
+        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMaxMTBF' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
         $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         dbSelect($sql);
         foreach ($arr as $key => $value) {
@@ -165,17 +165,22 @@ foreach ($arr as $key => $value) {
     # Update the MTBF for the disks. This average takes into account drive model and specifications of the drive.
     if (filter($arr1) == 0 && count($arr1) > 0) {
         $avg = array_filter($arr1);
-        $result = array_sum($avg) / count($avg);
-        dbUpdateSS("disk_mtbf", "$result", "$sqlDate");
+        $diskMTBF = array_sum($avg) / count($avg);
     } else {
-        dbUpdateSS("disk_mtbf", "NULL", "$sqlDate");
+        $diskMTBF = "NULL";
     }
     #echo "\t" . timeSinceLastMarker(0, "Update MTBF: ") . PHP_EOL;
 
+    if (filter($diskMTBF) == 0 && filter($diskTBW) == 0) {
+        $diskHealth = round($diskMTBF * $diskTBW / 2 * 100, 2)
+        dbUpdateSS("disk_health", "$diskHealth", "$sqlDate");
+    } else {
+        dbUpdateSS("disk_health", "NULL", "$sqlDate");
+    }
 
     #Update the average boot time
-    dbSelectVal("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE boot_time IS NOT NULL");
-    dbUpdateSS("boot_time", "$result", "$sqlDate");
+    #dbSelectVal("SELECT ROUND(AVG(boot_time), 0) AS result FROM jobstats WHERE boot_time IS NOT NULL");
+    #dbUpdateSS("boot_time", "$result", "$sqlDate");
     #echo "\t" . timeSinceLastMarker(0, "Boot Time: ") . PHP_EOL;
 
 

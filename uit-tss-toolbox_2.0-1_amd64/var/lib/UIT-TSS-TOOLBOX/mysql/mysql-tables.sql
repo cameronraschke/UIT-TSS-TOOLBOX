@@ -2,18 +2,15 @@ DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
     date DATE NOT NULL PRIMARY KEY,
     laptop_count SMALLINT DEFAULT NULL,
-    last_image_update DATE DEFAULT NULL,
+    disk_health DECIMAL(5,2) DEFAULT NULL,
+    battery_health DECIMAL(5,2) DEFAULT NULL,
     all_jobs MEDIUMINT DEFAULT NULL,
     clone_jobs MEDIUMINT DEFAULT NULL,
     erase_jobs MEDIUMINT DEFAULT NULL,
     clone_avgtime SMALLINT DEFAULT NULL,
     nvme_erase_avgtime SMALLINT DEFAULT NULL,
-    sata_erase_avgtime SMALLINT DEFAULT NULL,
-    disk_health TINYINT DEFAULT NULL,
-    disk_mtbf DECIMAL(5,2) DEFAULT NULL,
-    battery_health TINYINT DEFAULT NULL,
-    battery_charge_cycles DECIMAL(5,2),
-    boot_time SMALLINT DEFAULT NULL
+    hdd_erase_avgtime SMALLINT DEFAULT NULL,
+    last_image_update DATE DEFAULT NULL
 );
 
 
@@ -23,8 +20,8 @@ CREATE TABLE clientstats (
     system_serial VARCHAR(16) DEFAULT NULL,
     system_model VARCHAR(24) DEFAULT NULL,
     last_job_time DATETIME DEFAULT NULL,
-    battery_health TINYINT DEFAULT NULL,
-    disk_health TINYINT DEFAULT NULL,
+    battery_health DECIMAL(5,2) DEFAULT NULL,
+    disk_health DECIMAL(5,2) DEFAULT NULL,
     erase_avgtime SMALLINT DEFAULT NULL,
     clone_avgtime TINYINT DEFAULT NULL,
     all_jobs SMALLINT DEFAULT NULL,
@@ -160,6 +157,25 @@ ALTER TABLE jobstats
     MODIFY COLUMN clone_completed VARCHAR(3) DEFAULT NULL,
     MODIFY COLUMN clone_time SMALLINT DEFAULT NULL,
     MODIFY COLUMN clone_master VARCHAR(8) DEFAULT NULL;
+
+
+CREATE TABLE IF NOT EXISTS locations (
+    time DATETIME(3) NOT NULL PRIMARY KEY,
+    tagnumber MEDIUMINT DEFAULT NULL,
+    system_serial VARCHAR(16) DEFAULT NULL,
+    location VARCHAR(256) DEFAULT NULL,
+    status VARCHAR(12) DEFAULT NULL,
+    problem VARCHAR(512) DEFAULT NULL
+);
+
+ALTER TABLE locations
+    DROP PRIMARY KEY,
+    MODIFY COLUMN time DATETIME(3) NOT NULL PRIMARY KEY,
+    MODIFY COLUMN tagnumber MEDIUMINT DEFAULT NULL AFTER time,
+    MODIFY COLUMN system_serial VARCHAR(16) DEFAULT NULL AFTER tagnumber,
+    MODIFY COLUMN location VARCHAR(256) DEFAULT NULL AFTER system_serial,
+    MODIFY COLUMN status VARCHAR(12) DEFAULT NULL AFTER location,
+    MODIFY COLUMN problem VARCHAR(512) DEFAULT NULL AFTER status;
 
 
 DROP TABLE IF EXISTS static_disk_stats;
