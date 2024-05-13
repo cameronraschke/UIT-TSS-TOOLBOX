@@ -117,7 +117,7 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT disk_mtbf AS result FROM static_disk_stats WHERE disk_model = '$diskModel' AND disk_mtbf IS NOT NULL");
     $diskMaxMTBF = $result;
     # Select the most recent distinct tagnumber from jobstats
-    dbSelectVal("SELECT ROUND((100 - (AVG(disk_power_on_hours) / '$diskMaxMTBF') * 100), 2) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_power_on_hours IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbSelectVal("SELECT ROUND(100 - ((AVG(disk_power_on_hours) / '$diskMaxMTBF') * 100), 2) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_power_on_hours IS NOT NULL ORDER BY time DESC LIMIT 1");
     $diskMTBF = $result;
 
     # Multiply the disk TBW by the disk MTBF to get a general disk health percent;
