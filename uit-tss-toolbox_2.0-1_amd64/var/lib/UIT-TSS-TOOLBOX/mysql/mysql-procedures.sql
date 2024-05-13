@@ -190,7 +190,7 @@ SELECT time,
     network_usage,
     battery_health,
     disk_power_on_hours
-    FROM jobstats WHERE department = 'techComm' ORDER BY time DESC LIMIT 5;
+    FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC LIMIT 5;
 
 SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
 END; //
