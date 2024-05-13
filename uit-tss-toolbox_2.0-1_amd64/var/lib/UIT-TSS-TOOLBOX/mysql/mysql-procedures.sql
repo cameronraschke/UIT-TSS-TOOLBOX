@@ -176,3 +176,24 @@ END; //
 
 DELIMITER ;
 
+-- Select info about a tag
+DROP PROCEDURE IF EXISTS selectTag;
+DELIMITER //
+CREATE PROCEDURE selectTag(tag VARCHAR(8))
+DETERMINISTIC
+BEGIN
+SELECT time,
+    tagnumber,
+    bios_version,
+    system_model,
+    cpu_usage,
+    network_usage,
+    battery_health,
+    disk_power_on_hours
+    FROM jobstats WHERE department = 'techComm' ORDER BY time DESC LIMIT 5;
+
+SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
+END; //
+
+DELIMITER ;
+
