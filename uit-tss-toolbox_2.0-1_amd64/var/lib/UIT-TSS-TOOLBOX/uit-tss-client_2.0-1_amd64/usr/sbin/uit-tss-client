@@ -1505,6 +1505,7 @@ function execute_Shred {
 
 function execute {
 	rm /tmp/cpu-usage.txt
+	rm /tmp/network-usage.txt
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		echo "${RED}Cannot erase device and save its image.${RESET}"
