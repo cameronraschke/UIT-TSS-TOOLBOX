@@ -156,7 +156,7 @@ foreach ($arr as $key => $value) {
     $diskMTBF = array_sum($arr2);
     if (filter($arr1) == 0 && filter($arr2) == 0 && count($arr1) > 0 && count($arr2) > 0) {
         $diskHealth = round(100 - (($diskMTBF + $diskTBW) / 2), 2);
-    } elseif ($diskTBW > 0 && filter($diskMTBF) == 1) {
+    } elseif (filter($arr1) == 0 && count($arr1) > 0 && filter($arr2) == 0 && count($arr2) == 0) {
         $diskHealth = round(100 - $diskTBW, 2);
     } else {
         $diskHealth = "NULL";
