@@ -1427,6 +1427,7 @@ function clientselect_Clone {
 
 
 function execute_Clone {
+	rm /tmp/network-usage.txt
 	SECONDS=0
 	start_time=$SECONDS
 	linuxUser="cameron"
@@ -1503,7 +1504,6 @@ function execute_Shred {
 
 
 function execute {
-	rm /tmp/network-usage.txt
 	rm /tmp/cpu-usage.txt
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
