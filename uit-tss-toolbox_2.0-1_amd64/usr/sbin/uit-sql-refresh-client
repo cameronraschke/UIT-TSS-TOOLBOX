@@ -92,17 +92,17 @@ foreach ($arr as $key => $value) {
         $diskTBW = 0;
         # If the disk type is an nvme or ssd, then $value is the average of disk writes over disk max writes as a percentage
         if ($diskType == "ssd" || $diskType == "nvme") {
-            if ($diskReadsMax > 0 && $diskWritesMax > 0) {
+            if ($diskWritesCur > 0 && $diskWritesMax > 0) {
                 $diskTBW = round(($diskWritesCur / $diskWritesMax) * 100, 2);
             }
         # If the disk type is hdd
         } elseif ($diskType == "hdd") {
-            # Get current disk reads amount
-            dbSelectVal("SELECT disk_reads AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_reads IS NOT NULL ORDER BY time DESC LIMIT 1");
-            $diskReadsCur = $result;
             # Get maximum disk reads amount
             dbSelectVal("SELECT disk_tbr AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
             $diskReadsMax = $result;
+            # Get current disk reads amount
+            dbSelectVal("SELECT disk_reads AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_reads IS NOT NULL ORDER BY time DESC LIMIT 1");
+            $diskReadsCur = $result;
             $diskTBW = 0;
             # $value is the average of the average of disk read amount and disk write amount as a percentage
             if (filter($diskReadsMax) == 0 && filter($diskWritesMax) == 0) {
