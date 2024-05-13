@@ -93,7 +93,7 @@ foreach ($arr as $key => $value) {
         # If the disk type is an nvme or ssd, then $value is the average of disk writes over disk max writes as a percentage
         if ($diskType == "ssd" || $diskType == "nvme") {
             if ($diskWritesCur > 0 && $diskWritesMax > 0) {
-                $diskTBW = round(($diskWritesCur / $diskWritesMax) * 100, 2);
+                $diskTBW = round(100 - (($diskWritesCur / $diskWritesMax) * 100), 2);
             }
         # If the disk type is hdd
         } elseif ($diskType == "hdd") {
@@ -107,7 +107,7 @@ foreach ($arr as $key => $value) {
             # $value is the average of the average of disk read amount and disk write amount as a percentage
             if (filter($diskReadsMax) == 0 && filter($diskWritesMax) == 0) {
                 if ($diskReadsMax > 0 && $diskWritesMax > 0) {
-                    $diskTBW = round(((($diskReadsCur / $diskReadsMax) * 100 ) + ((($diskWritesCur / $diskWritesMax) * 100)) / 2), 2);
+                    $diskTBW = round(100 - (((($diskReadsCur / $diskReadsMax) * 100 ) + ((($diskWritesCur / $diskWritesMax) * 100)) / 2)), 2);
                 }
             }
         }
