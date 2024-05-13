@@ -121,7 +121,7 @@ foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
         # Select the most recent distinct tagnumber from jobstats
         $sql = "SELECT ((AVG(disk_writes) / '$diskMaxTBW' * 100) + (AVG(disk_reads) / '$diskMaxTBR' * 100)) / 2 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
-        $sql .= "AND (disk_writes IS NOT NULL OR disk_reads IS NOT NULL) AND disk_model = '$diskModel' GROUP BY tagnumber)";
+        $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
         dbSelect($sql);
         foreach ($arr as $key => $value) {
             $result = $value["result"];
