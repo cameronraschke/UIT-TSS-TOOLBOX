@@ -10,6 +10,7 @@ RESET=$(tput sgr0)
 while true; do
     echo ""
     echo ""
+    echo ""
     read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
     sql=$(echo "SELECT system_serial AS result FROM locations WHERE tagnumber = '${tagNum}' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     sqlTime=$(echo "SELECT time AS result FROM locations WHERE tagnumber = '${tagNum}' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
