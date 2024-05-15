@@ -149,7 +149,7 @@ UNION
 (SELECT tagnumber,
     system_serial,
     location,
-    status,
+    IF (status='0', "Working", "Broken"),
     note,
     time 
     FROM locations 
