@@ -27,13 +27,13 @@ while true; do
 
 	if [[ $status == "1" ]]; then
         echo ""
-		status="true"
+		status="TRUE"
 		read -p "Please enter a ${BOLD}${GREEN}note${GREEN}${RESET} (leave blank for no note): " note
 	elif [[ $status == "2" ]]; then
 		echo ""
 		sql=$(echo "SELECT note AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 		echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
-		status="false"
+		status="FALSE"
 		read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
 	else
 		status=""

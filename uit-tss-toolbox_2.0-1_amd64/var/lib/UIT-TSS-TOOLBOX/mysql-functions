@@ -176,6 +176,11 @@ function dbUpdateLocation ($key, $value, $time) {
         $stmt = $pdo->prepare($sql);
 
         if (filter($value) == 0) {
+            if ($value == "TRUE") {
+                $value = "0";
+            } elseif ($value == "FALSE") {
+                $value = "1";
+            }
             $stmt->bindParam(':value', $value, PDO::PARAM_STR);
             $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         } else {
