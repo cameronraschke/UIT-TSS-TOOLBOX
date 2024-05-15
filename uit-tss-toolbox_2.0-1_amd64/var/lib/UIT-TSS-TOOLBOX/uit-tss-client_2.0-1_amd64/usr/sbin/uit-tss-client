@@ -1570,19 +1570,19 @@ function location {
 
 	if [[ $status == "1" ]]; then
 		status="0"
-		problem=""
+		read -p "Please enter a ${BOLD}${GREEN}note${GREEN}${RESET} (leave blank for no note): " note
 	elif [[ $status == "2" ]]; then
 		echo ""
-		sql=$(echo "SELECT problem AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+		sql=$(echo "SELECT note AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 		echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
 		status="1"
-		read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
+		read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
 	else
 		status=""
-		problem=""
+		note=""
 	fi
 
-	echo "location|custom|${tagNum}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "location|custom|${tagNum}|${serial}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 

@@ -36,16 +36,16 @@ if ($arr[0] == "init") {
         $tagNum = $arr[2];
         $serial = $arr[3];
         $location = "Plugged in and booted on laptop table.";
-        $status = "functioning";
-        $problem = "";
+        $status = "0";
+        $note = "";
     }
 
     if ($arr[1] == "end") {
         $tagNum = $arr[2];
         $serial = $arr[3];
         $location = "Finished work on laptop table.";
-        $status = "functioning";
-        $problem = "";
+        $status = "0";
+        $note = "";
     }
 
     if ($arr[1] == "custom") {
@@ -53,7 +53,7 @@ if ($arr[0] == "init") {
         $serial = $arr[3];
         $location = $arr[4];
         $status = $arr[5];
-        $problem = $arr[6];
+        $note = $arr[6];
     }
 
     $uuid = uniqid("location-", true);
@@ -70,7 +70,7 @@ if ($arr[0] == "init") {
     dbUpdateLocation("system_serial", "$serial", "$time");
     dbUpdateLocation("location", "$location", "$time");
     dbUpdateLocation("status", "$status", "$time");
-    dbUpdateLocation("problem", "$problem", "$time");
+    dbUpdateLocation("note", "$note", "$time");
 
 } elseif ($arr[0] == "general") {
     $key = $arr[1];

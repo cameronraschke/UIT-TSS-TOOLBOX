@@ -143,14 +143,14 @@ BEGIN
     'Serial Number',
     'Location',
     'Status',
-    'Description of Problem',
+    'Notes',
     'Most Recent Entry')
 UNION
 (SELECT tagnumber,
     system_serial,
     location,
     status,
-    problem,
+    note,
     time 
     FROM locations 
     WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber));

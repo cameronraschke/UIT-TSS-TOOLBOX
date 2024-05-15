@@ -24,19 +24,19 @@ while true; do
     read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
     read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
 
-    if [[ $status == "1" ]]; then
-        status="0"
-        problem=""
-    elif [[ $status == "2" ]]; then
-        echo ""
-        sql=$(echo "SELECT problem AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-        echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
-        status="1"
-        read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
-    else
-        status=""
-        problem=""
-    fi
+	if [[ $status == "1" ]]; then
+		status="0"
+		read -p "Please enter a ${BOLD}${GREEN}note${GREEN}${RESET} (leave blank for no note): " note
+	elif [[ $status == "2" ]]; then
+		echo ""
+		sql=$(echo "SELECT note AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+		echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
+		status="1"
+		read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
+	else
+		status=""
+		note=""
+	fi
 
-    echo "location|${tagNum}|${serial}|${location}|${status}|${problem}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "location|custom|${tagNum}|${serial}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 done
