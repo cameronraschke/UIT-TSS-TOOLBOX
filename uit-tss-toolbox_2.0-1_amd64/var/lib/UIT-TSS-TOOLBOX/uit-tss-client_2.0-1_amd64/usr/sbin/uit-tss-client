@@ -1569,13 +1569,13 @@ function location {
 	read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
 
 	if [[ $status == "1" ]]; then
-		status="functioning"
+		status="0"
 		problem=""
 	elif [[ $status == "2" ]]; then
 		echo ""
 		sql=$(echo "SELECT problem AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 		echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
-		status="broken"
+		status="1"
 		read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " problem
 	else
 		status=""
