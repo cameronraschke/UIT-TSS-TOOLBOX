@@ -128,12 +128,12 @@ foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
         $diskMaxMTBF = $value["disk_mtbf"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT (AVG(disk_power_on_hours) / '$diskMaxMTBF') * 100 AS result FROM jobstats WHERE ";
+        $sql = "SELECT AVG(disk_power_on_hours) AS result FROM jobstats WHERE ";
         $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
         $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         dbSelect($sql);
         foreach ($arr as $key => $value) {
-            $result = $value["result"];
+            $result = ($value["result"] / $diskMaxMTBF) * 100;
             if (filter($result) == 0) {
                 array_push($arr2, $result);
             }
@@ -144,7 +144,7 @@ foreach ($arr as $key => $value) {
     $diskTBW = array_sum($arr1);
     $arr2 = array_filter($arr2);
     $diskMTBF = array_sum($arr2);
-    if (filter($arr1) == 0 && count($arr1) > 0 &&filter($arr2) == 0 &&  count($arr2) > 0) {
+    if (filter($arr1) == 0 && count($arr1) > 0 && filter($arr2) == 0 && count($arr2) > 0) {
         $diskHealth = round(100 - (($diskMTBF + $diskTBW) / 2), 2);
     } elseif (filter($arr1) == 0 && count($arr1) > 0 && filter($arr2) == 0 && count($arr2) == 0) {
         $diskHealth = round(100 - $diskTBW, 2);
@@ -155,7 +155,7 @@ foreach ($arr as $key => $value) {
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
-    $sql = "SELECT ROUND(AVG(battery_health), 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+    $sql = "SELECT AVG(battery_health) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
     $sql .= "AND battery_health IS NOT NULL GROUP BY tagnumber)";
     dbSelectVal($sql);
     if (filter($result) == 0 && $result > 0) {
@@ -171,10 +171,11 @@ foreach ($arr as $key => $value) {
         $batteryMaxChargeCycles = $value["battery_charge_cycles"];
         $batteryName = $value["battery_model"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ROUND(AVG(battery_charge_cycles) / '$batteryMaxChargeCycles' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+        $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
         $sql .= "AND battery_charge_cycles IS NOT NULL AND battery_model = '$batteryName' GROUP BY tagnumber)";
         dbSelectVal($sql);
         if (filter($result) == 0 && $result > 0) {
+            $result = ($value["result"] / $batteryMaxChargeCycles) * 100;
             array_push($arr3, $result);
         }
     }
