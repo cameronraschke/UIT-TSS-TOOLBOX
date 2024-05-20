@@ -125,7 +125,7 @@ function diskData {
 		diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/[^0-9]//g')
 			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $4}') / 1000000000 ))
-			echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_size|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/,//g' | awk '{print $4}')
 			echo "general|disk_reads|${diskReadsLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
@@ -146,7 +146,7 @@ function diskData {
 		diskTemp=$(cat /root/smartctl-data | grep '^194 Temperature_Celsius' | awk '{print $10}')
 			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep '^User Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
-			echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_size|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^242 Total_LBAs_Read' | awk '{print $10}')
 			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^241 Total_LBAs_Written' | sed 's/,//g' | awk '{print $10}')
@@ -238,7 +238,7 @@ function hardwareData {
 		diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/[^0-9]//g')
 			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $4}') / 1000000000 ))
-			echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_size|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/,//g' | awk '{print $4}')
 			echo "general|disk_reads|${diskReadsLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
@@ -259,7 +259,7 @@ function hardwareData {
 		diskTemp=$(cat /root/smartctl-data | grep '^194 Temperature_Celsius' | awk '{print $10}')
 			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep '^User Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
-			echo "general|disksizegb|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_size|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^242 Total_LBAs_Read' | awk '{print $10}')
 			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^241 Total_LBAs_Written' | sed 's/,//g' | awk '{print $10}')
@@ -506,7 +506,6 @@ function powerWarning {
 	read -n 1 -p  "${BOLD}Please enter [1-2]:${RESET} " restartBool
 	if [[ $restartBool == "1" ]]; then
 		tput reset
-		echo "general|hibernate|yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo -n mem > /sys/power/state
 		tput reset
 	elif [[ $restartBool == "2" ]]; then
@@ -752,7 +751,7 @@ function writeDisk_Shred {
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	echo "general|disksizegb|${DISKSIZEGB}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "general|disk_size|${DISKSIZEGB}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	SECTIONSIZEMB=$(( DISKSIZEMB / SECTIONS ))
 	COUNT=$(( SECTIONSIZEMB / 100 * PCNTOFSECTOR / 2 ))
 	PROCFAIL='0'
