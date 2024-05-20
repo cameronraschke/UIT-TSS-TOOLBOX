@@ -84,7 +84,9 @@ foreach ($arr as $key => $value) {
     # Get disk type (ssd/nvme/hdd).
     dbSelectVal("SELECT disk_type AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
     $diskType = $result;
-    if (filter($diskType) == 0 && filter($diskModel) == 0) {
+    if (filter($diskType) == 0 || filter($diskModel) == 0) {
+        # Update the type of disk (nvme,ssd,hdd)
+        dbUpdateCS("disk_type", "$diskType", "$tagNum");
         # Get most recent amount of disk writes.
         dbSelectVal("SELECT disk_writes AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_writes IS NOT NULL ORDER BY time DESC LIMIT 1");
         $diskWritesCur = $result;
@@ -124,16 +126,15 @@ foreach ($arr as $key => $value) {
         # Multiply the disk TBW by the disk MTBF to get a general disk health percent;
         if ($diskTBW > 0 && $diskMTBF > 0) {
             $diskHealth = round(($diskTBW + $diskMTBF) / 2, 2);
-        } elseif ($diskTBW > 0 && $diskMTBF == 0) {
+        } elseif ($diskTBW > 0 && filter($diskMTBF) == 1) {
             $diskHealth = round($diskTBW, 2);
         } else {
             $diskHealth = "NULL";
         }
-        dbUpdateCS("disk_health", "$diskHealth", "$tagNum");
-
-        # Update the type of disk (nvme,ssd,hdd)
-        dbUpdateCS("disk_type", "$diskType", "$tagNum");
+    } else {
+        $diskHealth = "NULL";
     }
+    dbUpdateCS("disk_health", "$diskHealth", "$tagNum");
 
 
 
