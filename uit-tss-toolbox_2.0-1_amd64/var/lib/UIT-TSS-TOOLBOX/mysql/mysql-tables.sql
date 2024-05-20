@@ -77,12 +77,12 @@ CREATE TABLE IF NOT EXISTS jobstats (
     cpu_usage DECIMAL(6,2) DEFAULT NULL,
     network_usage DECIMAL(5,2) DEFAULT NULL,
     boot_time DECIMAL(5,2) DEFAULT NULL,
-    erase_completed VARCHAR(3) DEFAULT NULL,
+    erase_completed BOOLEAN DEFAULT NULL,
     erase_mode VARCHAR(24) DEFAULT NULL,
     erase_diskpercent TINYINT DEFAULT NULL,
     erase_time SMALLINT DEFAULT NULL,
-    clone_completed VARCHAR(3) DEFAULT NULL,
-    clone_master VARCHAR(3) DEFAULT NULL,
+    clone_completed BOOLEAN DEFAULT NULL,
+    clone_master BOOLEAN DEFAULT NULL,
     clone_time SMALLINT DEFAULT NULL
 );
 
@@ -134,12 +134,12 @@ ALTER TABLE jobstats
     MODIFY COLUMN cpu_usage DECIMAL(6,2) DEFAULT NULL AFTER ram_speed,
     MODIFY COLUMN network_usage DECIMAL(5,2) DEFAULT NULL AFTER cpu_usage,
     MODIFY COLUMN boot_time DECIMAL(5,2) DEFAULT NULL AFTER network_usage,
-    MODIFY COLUMN erase_completed VARCHAR(3) DEFAULT NULL AFTER boot_time,
+    MODIFY COLUMN erase_completed BOOLEAN DEFAULT NULL AFTER boot_time,
     MODIFY COLUMN erase_mode VARCHAR(24) DEFAULT NULL AFTER erase_completed,
     MODIFY COLUMN erase_diskpercent TINYINT DEFAULT NULL AFTER erase_mode,
     MODIFY COLUMN erase_time SMALLINT DEFAULT NULL AFTER erase_diskpercent,
-    MODIFY COLUMN clone_completed VARCHAR(3) DEFAULT NULL AFTER erase_time,
-    MODIFY COLUMN clone_master VARCHAR(3) DEFAULT NULL AFTER clone_completed,
+    MODIFY COLUMN clone_completed BOOLEAN DEFAULT NULL AFTER erase_time,
+    MODIFY COLUMN clone_master BOOLEAN DEFAULT NULL AFTER clone_completed,
     MODIFY COLUMN clone_time SMALLINT DEFAULT NULL AFTER clone_master;
 
 

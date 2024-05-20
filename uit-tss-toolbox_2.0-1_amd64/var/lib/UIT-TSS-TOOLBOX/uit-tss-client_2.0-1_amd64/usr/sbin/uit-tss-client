@@ -168,14 +168,10 @@ function hardwareData {
 	#t4 = Processor
 	#t22 = Battery
 	#t32 = Boot Status
-	tZeroVendor=$(dmidecode --string bios-vendor)
-		echo "general|bios_vendor|${tZeroVendor}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroBiosVersion=$(dmidecode --string bios-version)
 		echo "general|bios_version|${tZeroBiosVersion}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroBiosReleaseDate=$(dmidecode --string bios-release-date)
 		echo "general|bios_date|${tZeroBiosReleaseDate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tZeroBiosRevision=$(dmidecode --string bios-revision)
-		echo "general|bios_revision|${tZeroBiosRevision}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroFirmwareRevision=$(dmidecode --string firmware-revision)
 		echo "general|bios_firmware|${tZeroFirmwareRevision}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneManufacturer=$(dmidecode --string system-manufacturer)
@@ -192,14 +188,8 @@ function hardwareData {
 		echo "general|motherboard_manufacturer|${tTwoManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
 		echo "general|motherboard_serial|${tTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tThreeManufacturer=$(dmidecode --string chassis-manufacturer)
-		echo "general|chassis_manufacturer|${tThreeManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tThreeType=$(dmidecode --string chassis-type)
 		echo "general|chassis_type|${tThreeType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tThreeSerialNumber=$(dmidecode --string chassis-serial-number)
-		echo "general|chassis_serial|${tThreeSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tThreeAssetTag=$(dmidecode --string chassis-asset-tag)
-		echo "general|chassis_tag|${tThreeAssetTag}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourManufacturer=$(dmidecode --string processor-manufacturer)
 		echo "general|cpu_manufacturer|${tFourManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourVersion=$(dmidecode --string processor-version)
@@ -210,8 +200,6 @@ function hardwareData {
 		echo "general|cpu_cores|${tFourCoreCount}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|cpu_threads|${tFourThreadCount}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tTwentyTwoManufacturer=$(dmidecode -t22 | grep 'Manufacturer' | sed 's/Manufacturer: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|battery_manufacturer|${tTwentyTwoManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|battery_name|${tTwentyTwoName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/[^0-9]//g')
@@ -1599,14 +1587,14 @@ function terminate {
 	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = 'Yes' AND department = 'techComm' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = '1' AND department = 'techComm' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	imgUpdate=${imgUpdate::10}
 
-	cloneNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = 'Yes' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
+	cloneNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = '1' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
-	eraseNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE erase_completed = 'Yes' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
+	eraseNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE erase_completed = '1' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
-	clientCloneTotal=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = 'Yes' AND tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
+	clientCloneTotal=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = '1' AND tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
 
 	jobsToday=$(( cloneNumToday + eraseNumToday ))
 
@@ -1622,10 +1610,10 @@ function terminate {
 				terminateAction="Cloned"
 			fi
 
-			echo "general|clone_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 			if [[ $APPSELECT == "EC" ]]; then
-				echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			fi
 
 			terminateMessage=$(echo "Tag#: ${tagNum}"
@@ -1638,7 +1626,7 @@ function terminate {
 			)
 		fi
 		if [[ $cloneMode == "savedisk" ]]; then
-			echo "general|clone_master|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_master|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 			terminateMessage=$(echo "Tag#: ${tagNum}"
 			echo "MAC: ${etherAddr}"
@@ -1653,7 +1641,7 @@ function terminate {
 	
 
 	if [[ $APPSELECT == "E" ]]; then
-		echo "general|erase_completed|Yes|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 		terminateAction="erased"
 

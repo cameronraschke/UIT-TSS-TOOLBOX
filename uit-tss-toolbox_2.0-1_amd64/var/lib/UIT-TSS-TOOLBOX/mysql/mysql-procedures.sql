@@ -31,16 +31,12 @@ DELIMITER //
 CREATE PROCEDURE iterateJobCSV()
 DETERMINISTIC
 BEGIN
-(SELECT 'UUID','Tag','Ethernet MAC','WiFi MAC','Date','Datetime','Department','BIOS Vendor','BIOS Version','BIOS Date',
-    'BIOS Revision','BIOS Firmware','System Manufacturer','System Model','System Serial','System UUID',
-    'System SKU','Motherboard Manufacturer','Motherboard Serial','Chassis Manufcaturer', 'Chassis Type','Chassis Serial',
-    'Chassis Tag','Network Usage','CPU Usage','CPU Manufacturer', 'CPU Model','CPU Max Speed',
-    'CPU Cores','CPU Threads','CPU Temp','RAM Serial','RAM Capacity','RAM Speed','Battery Manufacturer',
-    'Battery Name','Battery Capacity','Battery Serial Number','Battery Manufacture Date','Battery Max Charge','Battery Charge Cycles',
-    'Boot Time','Did Sleep','Disk','Disk Type','Disk Size','Disk Model','Disk Serial','Disk Firmware',
-    'Disk Power on Hours','Disk Temperature','Disk Reads','Disk Writes',
-    'Erase Successful','Erase Mode','Total Erase Time','Disk Erased',
-    'Clone Successful','Total Clone Time','Master Image')
+(SELECT 'UUID','Tag','Ethernet MAC','WiFi MAC','Date','Datetime','Department','System Manufacturer','Model','System Serial','System UUID',
+'System SKU', 'Chassis Type', 'Disk','Disk Model','Disk Type','Disk Size','Disk Serial','Disk Writes','Disk Reads','Disk Power on Hours','Disk Temp',
+'Disk Firmware','Battery Name','Battery Serial','Battery Health','Battery Charge Cycles','Battery Capacity','Battery Manufacture Date','CPU Manufacturer'
+'CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp','Motherboard Manufacturer','Motherboard Serial','BIOS Version','BIOS Date','BIOS Firmware',
+'RAM Serial','RAM Capacity','RAM Speed','CPU Usage','Network Usage','Boot Time','Erase Completed','Erase Mode','Erase Disk Percent','Erase Time','Clone Completed',
+'Clone Master','Clone Time')
 UNION
 (SELECT uuid, tagnumber, etheraddress, wifi_mac, date, time, department, bios_vendor, bios_version, bios_date,
     bios_revision, bios_firmware, system_manufacturer, system_model, system_serial, system_uuid,
