@@ -90,7 +90,7 @@ foreach ($arr as $key => $value) {
 
 
     # Update date of last image update
-    dbSelectVal("SELECT date AS result FROM jobstats WHERE clone_master = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate' ORDER BY time DESC LIMIT 1");
+    dbSelectVal("SELECT date AS result FROM jobstats WHERE clone_master = '1' AND date BETWEEN '$oldDate' AND '$sqlDate' ORDER BY time DESC LIMIT 1");
     dbUpdateSS("last_image_update", "$result", "$sqlDate");
     #echo "\t" . timeSinceLastMarker(0, "Last Image Update: ") . PHP_EOL;
 
