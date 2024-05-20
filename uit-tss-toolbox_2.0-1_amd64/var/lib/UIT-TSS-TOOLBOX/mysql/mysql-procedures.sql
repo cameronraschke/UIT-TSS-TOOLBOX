@@ -31,24 +31,21 @@ DELIMITER //
 CREATE PROCEDURE iterateJobCSV()
 DETERMINISTIC
 BEGIN
-(SELECT 'UUID','Tag','Ethernet MAC','WiFi MAC','Date','Datetime','Department','System Manufacturer','Model','System Serial','System UUID',
-'System SKU', 'Chassis Type', 'Disk','Disk Model','Disk Type','Disk Size','Disk Serial','Disk Writes','Disk Reads','Disk Power on Hours','Disk Temp',
-'Disk Firmware','Battery Name','Battery Serial','Battery Health','Battery Charge Cycles','Battery Capacity','Battery Manufacture Date','CPU Manufacturer'
-'CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp','Motherboard Manufacturer','Motherboard Serial','BIOS Version','BIOS Date','BIOS Firmware',
-'RAM Serial','RAM Capacity','RAM Speed','CPU Usage','Network Usage','Boot Time','Erase Completed','Erase Mode','Erase Disk Percent','Erase Time','Clone Completed',
-'Clone Master','Clone Time')
+(SELECT 'UUID','Tag','System Serial','Date','Datetime','Department','Ethernet MAC','WiFi MAC','System Manufacturer','Model','System UUID',
+'System SKU', 'Chassis Type', 'Disk','Disk Model','Disk Type','Disk Size','Disk Serial','Disk Writes','Disk Reads',
+'Disk Power on Hours','Disk Temp','Disk Firmware','Battery Model','Battery Serial','Battery Health','Battery Charge Cycles',
+'Battery Capacity','Battery Manufacture Date','CPU Manufacturer','CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp',
+'Motherboard Manufacturer','Motherboard Serial','BIOS Version','BIOS Date','BIOS Firmware','RAM Serial','RAM Capacity','RAM Speed','CPU Usage',
+'Network Usage','Boot Time','Erase Completed','Erase Mode','Erase Disk Percent','Erase Time',
+'Clone Completed','Clone Master','Clone Time')
 UNION
-(SELECT uuid, tagnumber, etheraddress, wifi_mac, date, time, department, bios_vendor, bios_version, bios_date,
-    bios_revision, bios_firmware, system_manufacturer, system_model, system_serial, system_uuid,
-    system_sku, motherboard_manufacturer, motherboard_serial, chassis_manufacturer, chassis_type, chassis_serial,
-    chassis_tag, CONCAT(network_usage, ' Mbps'), CONCAT(cpu_usage, '%'), cpu_manufacturer, cpu_model, CONCAT(ROUND(cpu_maxspeed / 1000, 2), ' GHz'),
-    cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), ram_serial, CONCAT(ram_capacity, ' GB'), CONCAT(ram_speed, ' MHz'), battery_manufacturer,
-    battery_name, CONCAT(battery_capacity, ' MWh'), battery_serial,
-    battery_manufacturedate, CONCAT(battery_health, '%'), battery_charge_cycles, CONCAT(boot_time, 's'), hibernate, disk, disk_type, 
-    CONCAT(disksizegb, ' GB'), disk_model, disk_serial, disk_firmware,
-    CONCAT(disk_power_on_hours, ' hrs'), CONCAT(disk_temp, ' C'), CONCAT(disk_reads, ' TB/R'), CONCAT(disk_writes, ' TB/W'), 
-    erase_completed, erase_mode, CONCAT(erase_time, 's'), erase_diskpercent, clone_completed, CONCAT(clone_time, 's'),
-    clone_master
+(SELECT uuid,tagnumber,system_serial,date,CONVERT(time, DATETIME),department,etheraddress,wifi_mac,system_manufacturer,system_model,system_uuid,
+system_sku,chassis_type,disk,disk_model,disk_type,CONCAT(disk_size, ' GB'),disk_serial,CONCAT(disk_writes, ' TB'),CONCAT(disk_reads, ' TB'),
+CONCAT(disk_power_on_hours, 'hrs'), CONCAT(disk_temp, ' C'),disk_firmware,battery_model,battery_serial,CONCAT(battery_health, '%'),battery_charge_cycles,
+battery_capacity, ' Wh',battery_manufacturedate,cpu_manufacturer,cpu_model,CONCAT(cpu_maxspeed, ' Ghz'),cpu_cores,cpu_threads,CONCAT(cpu_temp, ' C'),
+motherboard_manufacturer,motherboard_serial,bios_version,bios_date,bios_firmware,ram_serial,ram_capacity,CONCAT(ram_speed, 'Mhz'),CONCAT(cpu_usage, '%'),
+CONCAT(network_usage, 'mbps'),CONCAT(boot_time, 's'), REPLACE(erase_completed, '1', 'Yes'),erase_mode,CONCAT(erase_diskpercent, '%'),CONCAT(erase_time, 's'),
+REPLACE(clone_completed, '1', 'Yes'),REPLACE(clone_master, '1', 'Yes'),CONCAT(erase_time, 's')
 FROM jobstats WHERE department = 'techComm' ORDER BY time DESC);
 END; //
 

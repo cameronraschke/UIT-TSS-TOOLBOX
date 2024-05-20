@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
     disk_power_on_hours MEDIUMINT DEFAULT NULL,
     disk_temp TINYINT DEFAULT NULL,
     disk_firmware VARCHAR(10) DEFAULT NULL,
-    battery_name VARCHAR(16) DEFAULT NULL,
+    battery_model VARCHAR(16) DEFAULT NULL,
     battery_serial VARCHAR(8) DEFAULT NULL,
     battery_health TINYINT DEFAULT NULL,
     battery_charge_cycles SMALLINT DEFAULT NULL,
@@ -111,8 +111,8 @@ ALTER TABLE jobstats
     MODIFY COLUMN disk_power_on_hours MEDIUMINT DEFAULT NULL AFTER disk_reads,
     MODIFY COLUMN disk_temp TINYINT DEFAULT NULL AFTER disk_power_on_hours,
     MODIFY COLUMN disk_firmware VARCHAR(10) DEFAULT NULL AFTER disk_temp,
-    MODIFY COLUMN battery_name VARCHAR(16) DEFAULT NULL AFTER disk_firmware,
-    MODIFY COLUMN battery_serial VARCHAR(8) DEFAULT NULL AFTER battery_name,
+    MODIFY COLUMN battery_model VARCHAR(16) DEFAULT NULL AFTER disk_firmware,
+    MODIFY COLUMN battery_serial VARCHAR(8) DEFAULT NULL AFTER battery_model,
     MODIFY COLUMN battery_health TINYINT DEFAULT NULL AFTER battery_serial,
     MODIFY COLUMN battery_charge_cycles SMALLINT DEFAULT NULL AFTER battery_health,
     MODIFY COLUMN battery_capacity MEDIUMINT DEFAULT NULL AFTER battery_charge_cycles,
@@ -204,12 +204,12 @@ VALUES
 
 DROP TABLE IF EXISTS static_battery_stats;
 CREATE TABLE IF NOT EXISTS static_battery_stats (
-    battery_name VARCHAR(24) NOT NULL PRIMARY KEY,
+    battery_model VARCHAR(24) NOT NULL PRIMARY KEY,
     battery_charge_cycles SMALLINT DEFAULT NULL
 );
 
 INSERT INTO static_battery_stats
-    (battery_name,
+    (battery_model,
     battery_charge_cycles
     )
 VALUES 
