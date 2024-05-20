@@ -145,11 +145,11 @@ ALTER TABLE jobstats
 
 CREATE TABLE IF NOT EXISTS locations (
     time DATETIME(3) NOT NULL,
-    tagnumber MEDIUMINT DEFAULT NULL AFTER time,
-    system_serial VARCHAR(16) DEFAULT NULL AFTER tagnumber,
-    location VARCHAR(128) DEFAULT NULL AFTER system_serial,
-    status BOOLEAN DEFAULT NULL AFTER location,
-    note VARCHAR(256) DEFAULT NULL AFTER status
+    tagnumber MEDIUMINT DEFAULT NULL,
+    system_serial VARCHAR(16) DEFAULT NULL,
+    location VARCHAR(128) DEFAULT NULL,
+    status BOOLEAN DEFAULT NULL,
+    note VARCHAR(256) DEFAULT NULL
 );
 
 ALTER TABLE locations
