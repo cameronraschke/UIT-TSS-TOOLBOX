@@ -66,15 +66,15 @@ foreach ($arr as $key => $value) {
     #dbUpdateCS("cpu_cores", "$result", "$tagNum");
 
     # Update the average erase times for each client
-    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = 'Yes'");
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = '1'");
     dbUpdateCS("erase_avgtime", "$result", "$tagNum");
 
     # Update the average clone time for each client
-    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes'");
+    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = '1'");
     dbUpdateCS("clone_avgtime", "$result", "$tagNum");
 
     # Update count of total jobs. Total jobs count as every entry of clone_completed or erase_completed equal to "Yes" - One entry can be up to two jobs (clone + erase job).
-    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed= 'Yes')");
+    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = '1' OR erase_completed= '1')");
     dbUpdateCS("all_jobs", "$result", "$tagNum");
 
     # Disk Health
@@ -144,10 +144,10 @@ foreach ($arr as $key => $value) {
     #dbUpdateCS("boot_time", "$result", "$tagNum");
 
     # Update the uuid of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
-    dbSelectVal("SELECT time AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbSelectVal("SELECT time AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = '1' OR erase_completed = '1') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
     dbUpdateCS("last_job_time", "$result", "$tagNum");
 
-    #dbSelectVal("SELECT uuid AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = 'Yes' OR erase_completed = 'Yes') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
+    #dbSelectVal("SELECT uuid AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = '1' OR erase_completed = '1') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
     #dbUpdateCS("last_job_uuid", "$result", "$tagNum");
 
     # Update the system manufacturer

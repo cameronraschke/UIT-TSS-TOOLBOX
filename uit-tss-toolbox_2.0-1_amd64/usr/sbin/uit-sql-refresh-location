@@ -29,7 +29,7 @@ foreach ($arr as $key => $value) {
 
     /* Select the time of the most recent entry for a given client where the clone job has successfully completed. 
     This shows whether or not the OS is installed and at what time it was last installed. */
-    #$sql = "SELECT time FROM jobstats WHERE time IN (SELECT MAX(time) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = 'Yes') ORDER BY time DESC LIMIT 1";
+    #$sql = "SELECT time FROM jobstats WHERE time IN (SELECT MAX(time) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = '1') ORDER BY time DESC LIMIT 1";
     #dbUpdateLoc("os_installed", "$result", "$tagNum");
 
     # End the timer and print how long it took to update the location table for a specific tagnumber.

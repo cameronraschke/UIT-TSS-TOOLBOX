@@ -48,32 +48,32 @@ foreach ($arr as $key => $value) {
 
 
     # Update the average time taken to clone a computer.
-    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = '1' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     dbUpdateSS("clone_avgtime", "$result", "$sqlDate");
     #echo "\t" . timeSinceLastMarker(0, "Clone Time: ") . PHP_EOL;
 
 
     # Update the average erase time of NVMe drives
-    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date BETWEEN '$oldDate' AND '$sqlDate'");
     dbUpdateSS("nvme_erase_avgtime", "$result", "$sqlDate");
     #echo "\t" . timeSinceLastMarker(0, "Erase Time NVMe: ") . PHP_EOL;
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
-    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = 'yes' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date BETWEEN '$oldDate' AND '$sqlDate'");
     dbUpdateSS("hdd_erase_avgtime", "$result", "$sqlDate");
     #echo "\t" . timeSinceLastMarker(0, "Erase Time SATA: ") . PHP_EOL;
 
 
     # Update the number of erase jobs that have completed
-    dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = '1' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     $eraseJobsLC = $result;
     dbUpdateSS("erase_jobs", "$result", "$sqlDate");
     #echo "\t" . timeSinceLastMarker(0, "Erase Jobs: ") . PHP_EOL;
 
 
     # Update the number of clone jobs that have completed
-    dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = 'Yes' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = '1' AND date BETWEEN '$oldDate' AND '$sqlDate'");
     $cloneJobsLC = $result;
     dbUpdateSS("clone_jobs", "$result", "$sqlDate");
     #echo "\t" . timeSinceLastMarker(0, "Clone Jobs: ") . PHP_EOL;
