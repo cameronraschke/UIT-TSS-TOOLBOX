@@ -111,12 +111,9 @@ foreach ($arr as $key => $value) {
             $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
             $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
         }
-        dbSelect($sql);
-        foreach ($arr as $key => $value) {
-            $result = $value["result"];
-            if (filter($result) == 0) {
-                array_push($arr1, $result);
-            }
+        dbSelectVal($sql);
+        if (filter($result) == 0) {
+            array_push($arr1, $result);
         }
     }
 
@@ -131,12 +128,10 @@ foreach ($arr as $key => $value) {
         $sql = "SELECT AVG(disk_power_on_hours) AS result FROM jobstats WHERE ";
         $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
         $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
-        dbSelect($sql);
-        foreach ($arr as $key => $value) {
-            $result = ($value["result"] / $diskMaxMTBF) * 100;
-            if (filter($result) == 0) {
-                array_push($arr2, $result);
-            }
+        dbSelectVal($sql);
+        $result = ($result / $diskMaxMTBF) * 100;
+        if (filter($result) == 0) {
+            array_push($arr2, $result);
         }
     }
     
@@ -175,7 +170,7 @@ foreach ($arr as $key => $value) {
         $sql .= "AND battery_charge_cycles IS NOT NULL AND battery_model = '$batteryName' GROUP BY tagnumber)";
         dbSelectVal($sql);
         if (filter($result) == 0 && $result > 0) {
-            $result = ($value["result"] / $batteryMaxChargeCycles) * 100;
+            $result = ($result / $batteryMaxChargeCycles) * 100;
             array_push($arr3, $result);
         }
     }
