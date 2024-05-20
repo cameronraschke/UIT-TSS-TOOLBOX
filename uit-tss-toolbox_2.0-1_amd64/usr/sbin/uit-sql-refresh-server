@@ -97,31 +97,20 @@ foreach ($arr as $key => $value) {
     # Set $arr1
     $arr1 = array();
     # Get average TBW of non-HDD drives (writes only, SSD and NVMe included). This average takes into account drive model and specifications of the drive.
-    dbSelect("SELECT disk_model,disk_tbw FROM static_disk_stats WHERE NOT disk_type = 'hdd'");
+    dbSelect("SELECT disk_model,disk_type,disk_tbw,disk_tbr FROM static_disk_stats WHERE disk_type IS NOT NULL AND disk_tbw IS NOT NULL AND disk_tbr IS NOT NULL");
     foreach ($arr as $key => $value) {
-        $diskMaxTBW = $value["disk_tbw"];
         $diskModel = $value["disk_model"];
-        # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ROUND(AVG(disk_writes) / '$diskMaxTBW' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
-        $sql .= "AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
-        dbSelect($sql);
-        foreach ($arr as $key => $value) {
-            $result = $value["result"];
-            if (filter($result) == 0) {
-                array_push($arr1, $result);
-            }
-        }
-    }
-
-    # Get average TBW and TBR of HDDs (reads and writes). This average takes into account drive model and specifications of the drive.
-    dbSelect("SELECT disk_model,disk_tbw,disk_tbr FROM static_disk_stats WHERE disk_type = 'hdd'");
-    foreach ($arr as $key => $value) {
+        $diskType = $value["disk_type"];
         $diskMaxTBW = $value["disk_tbw"];
         $diskMaxTBR = $value["disk_tbr"];
-        $diskModel = $value["disk_model"];
-        # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ((AVG(disk_writes) / '$diskMaxTBW' * 100) + (AVG(disk_reads) / '$diskMaxTBR' * 100)) / 2 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
-        $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
+        if ($diskType == "hdd") {
+            $sql = "SELECT (((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) * 100) / 2 AS result FROM jobstats WHERE ";
+            $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+            $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
+        } else {
+            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
+            $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
+        }
         dbSelect($sql);
         foreach ($arr as $key => $value) {
             $result = $value["result"];
@@ -139,7 +128,8 @@ foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
         $diskMaxMTBF = $value["disk_mtbf"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT ROUND(AVG(disk_power_on_hours) / '$diskMaxMTBF' * 100, 2) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
+        $sql = "SELECT (AVG(disk_power_on_hours) / '$diskMaxMTBF') * 100 AS result FROM jobstats WHERE ";
+        $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
         $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         dbSelect($sql);
         foreach ($arr as $key => $value) {
@@ -154,7 +144,7 @@ foreach ($arr as $key => $value) {
     $diskTBW = array_sum($arr1);
     $arr2 = array_filter($arr2);
     $diskMTBF = array_sum($arr2);
-    if (filter($arr1) == 0 && filter($arr2) == 0 && count($arr1) > 0 && count($arr2) > 0) {
+    if (filter($arr1) == 0 && count($arr1) > 0 &&filter($arr2) == 0 &&  count($arr2) > 0) {
         $diskHealth = round(100 - (($diskMTBF + $diskTBW) / 2), 2);
     } elseif (filter($arr1) == 0 && count($arr1) > 0 && filter($arr2) == 0 && count($arr2) == 0) {
         $diskHealth = round(100 - $diskTBW, 2);
@@ -191,9 +181,9 @@ foreach ($arr as $key => $value) {
 
     $arr3 = array_filter($arr3);
     $batteryChargeCycles = array_sum($arr3);
-    if (filter($batteryCharge) == 0 && filter($arr3) == 0 && $batteryCharge > 0 && count($arr3) > 0) {
+    if (filter($arr3) == 0 && count($arr3) > 0) {
         $batteryHealth = round((($batteryChargeCycles + $batteryCharge) / 2), 2);
-    } elseif ($batteryCharge > 0 && (filter($batteryChargeCycles) == 1 || $batteryChargeCycles == 0)) {
+    } elseif (filter($arr3) == 0 && count($arr3) > 0 && (filter($batteryChargeCycles) == 1 || $batteryChargeCycles == 0)) {
         $batteryHealth = round($batteryCharge, 2);
     } else {
         $batteryHealth = "NULL";
