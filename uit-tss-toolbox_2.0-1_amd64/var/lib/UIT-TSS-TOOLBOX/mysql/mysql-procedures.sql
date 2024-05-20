@@ -206,7 +206,7 @@ SELECT time,
     disk_type, 
     disk_writes, 
     disk_reads, 
-    disk_power_on_hours, 
+    disk_power_on_hours 
     FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC;
 END; //
 
