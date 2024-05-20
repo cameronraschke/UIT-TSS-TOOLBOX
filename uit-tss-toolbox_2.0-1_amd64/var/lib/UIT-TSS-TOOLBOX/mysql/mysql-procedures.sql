@@ -202,9 +202,11 @@ CREATE PROCEDURE selectTagDisk(tag VARCHAR(8))
 DETERMINISTIC
 BEGIN
 SELECT time, 
-    disk_writes, disk_reads, 
+    disk_model, 
+    disk_type, 
+    disk_writes, 
+    disk_reads, 
     disk_power_on_hours, 
-    disk_type 
     FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC;
 END; //
 
