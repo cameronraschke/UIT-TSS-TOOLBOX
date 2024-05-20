@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
-    date DATE NOT NULL PRIMARY KEY,
+    date DATE NOT NULL PRIMARY KEY FIRST,
     laptop_count SMALLINT DEFAULT NULL,
     disk_health DECIMAL(5,2) DEFAULT NULL,
     battery_health DECIMAL(5,2) DEFAULT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE serverstats (
 
 DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
-    tagnumber MEDIUMINT NOT NULL PRIMARY KEY,
+    tagnumber MEDIUMINT NOT NULL PRIMARY KEY FIRST,
     system_serial VARCHAR(12) DEFAULT NULL,
     system_model VARCHAR(20) DEFAULT NULL,
     last_job_time DATETIME DEFAULT NULL,
