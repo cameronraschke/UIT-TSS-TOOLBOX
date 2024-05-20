@@ -31,7 +31,7 @@ CREATE TABLE clientstats (
 
 
 CREATE TABLE IF NOT EXISTS jobstats (
-    uuid VARCHAR(45) NOT NULL PRIMARY KEY,
+    uuid VARCHAR(45) NOT NULL,
     tagnumber MEDIUMINT DEFAULT NULL AFTER uuid,
     etheraddress VARCHAR(17) DEFAULT NULL AFTER tagnumber,
     wifi_mac VARCHAR(17) DEFAULT NULL AFTER etheraddress,
@@ -144,12 +144,12 @@ ALTER TABLE jobstats
 
 
 CREATE TABLE IF NOT EXISTS locations (
-time DATETIME(3) NOT NULL PRIMARY KEY,
-tagnumber MEDIUMINT DEFAULT NULL AFTER time,
-system_serial VARCHAR(16) DEFAULT NULL AFTER tagnumber,
-location VARCHAR(128) DEFAULT NULL AFTER system_serial,
-status BOOLEAN DEFAULT NULL AFTER location,
-note VARCHAR(256) DEFAULT NULL AFTER status
+    time DATETIME(3) NOT NULL,
+    tagnumber MEDIUMINT DEFAULT NULL AFTER time,
+    system_serial VARCHAR(16) DEFAULT NULL AFTER tagnumber,
+    location VARCHAR(128) DEFAULT NULL AFTER system_serial,
+    status BOOLEAN DEFAULT NULL AFTER location,
+    note VARCHAR(256) DEFAULT NULL AFTER status
 );
 
 ALTER TABLE locations
