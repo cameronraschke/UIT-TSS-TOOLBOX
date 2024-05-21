@@ -111,7 +111,7 @@ foreach ($arr as $key => $value) {
             $sql = "SELECT (((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) * 100) / 2 FROM jobstats INNER JOIN ";
             $sql .= "(SELECT MAX(time) AS time FROM jobstats GROUP BY tagnumber) maxtime ON jobstats.time = maxtime.time WHERE ";
             $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' ";
-            $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel')";
+            $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel'";
         } else {
             $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
             $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
