@@ -104,17 +104,20 @@ foreach ($arr as $key => $value) {
         $diskMaxTBW = $value["disk_tbw"];
         $diskMaxTBR = $value["disk_tbr"];
         if ($diskType == "hdd") {
-/*             $sql = "SELECT (((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) * 100) / 2 AS result FROM jobstats WHERE ";
-            $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
-            $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)"; */
+            // $sql = "SELECT (((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) * 100) / 2 AS result FROM jobstats WHERE ";
+            // $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+            // $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
 
             $sql = "SELECT (((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) * 100) / 2 AS result FROM jobstats INNER JOIN ";
             $sql .= "(SELECT MAX(time) AS time FROM jobstats GROUP BY tagnumber) maxtime ON jobstats.time = maxtime.time WHERE ";
-            $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' ";
-            $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel'";
+            $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel'";
         } else {
-            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
-            $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
+            // $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
+            // $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
+
+            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats INNER JOIN ";
+            $sql .= "(SELECT MAX(time) AS time FROM jobstats GROUP BY tagnumber) maxtime ON jobstats.time = maxtime.time WHERE ";
+            $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_writes IS NOT NULL AND disk_model = '$diskModel'";
         }
         dbSelectVal($sql);
         if (filter($result) == 0) {
@@ -130,9 +133,13 @@ foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
         $diskMaxMTBF = $value["disk_mtbf"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT AVG(disk_power_on_hours) AS result FROM jobstats WHERE ";
-        $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
-        $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
+        // $sql = "SELECT AVG(disk_power_on_hours) AS result FROM jobstats WHERE ";
+        // $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
+        // $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
+
+        $sql = "SELECT AVG(disk_power_on_hours) AS result FROM jobstats INNER JOIN ";
+        $sql .= "(SELECT MAX(time) AS time FROM jobstats GROUP BY tagnumber) maxtime ON jobstats.time = maxtime.time WHERE ";
+        $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' AND disk_power_on_hours IS NOT NULL";
         dbSelectVal($sql);
         $result = ($result / $diskMaxMTBF) * 100;
         if (filter($result) == 0) {
