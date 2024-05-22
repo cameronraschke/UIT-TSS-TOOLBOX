@@ -111,12 +111,14 @@ foreach ($arr as $key => $value) {
         $diskSql = null;
         foreach ($arr as $key => $value) {
             if (filter($diskSql) == 0) {
-                $diskSql = $diskSql . ", " . "'" . $value["result"] . "'";
+                #$diskSql = $diskSql . ", " . "'" . $value["result"] . "'";
+                $diskSql = $value["result"];
             } else {
-                $diskSql = "'" . $value["result"] . "'";
+                $diskSql = "NULL";
+                #$diskSql = "'" . $value["result"] . "'";
             }
+            dbSelect("INSERT INTO tmp_tbl (time) VALUES ($diskSql)");
         }
-        dbSelect("INSERT INTO tmp_tbl (time) VALUES ($diskSql)");
         if ($diskType == "hdd") {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
                 if ($diskMaxTBW == $diskMaxTBR) {
