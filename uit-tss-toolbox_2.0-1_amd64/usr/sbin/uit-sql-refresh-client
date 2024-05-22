@@ -66,53 +66,54 @@ foreach ($arr as $key => $value) {
     dbUpdateCS("all_jobs", "$result", "$tagNum");
 
     # Disk Health
-    $diskHealth = null;
     # Get disk model of the client.
     dbSelect("SELECT disk_model,disk_writes,disk_reads,disk_power_on_hours FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND disk_writes IS NOT NULL ORDER BY time LIMIT 1");
-    foreach ($arr as $key => $value) {
-        if (filterArr($arr) == 1) {
-            $diskHealth = "NULL";
-        }
-
-        $diskModel = $value["disk_model"];
-        $diskTBW = $value["disk_writes"];
-        $diskTBR = $value["disk_reads"];
-        $diskMTBF = $value["disk_power_on_hours"];
-
-        dbSelect("SELECT disk_type,disk_tbw,disk_tbr,disk_mtbf FROM static_disk_stats WHERE disk_model = '$diskModel'");
+    if (filterArr($arr) == 1) {
+        $diskHealth = "NULL";
+    } else {
         foreach ($arr as $key => $value) {
-            $diskType = $value["disk_type"];
-            $diskMaxTBW = $value["disk_tbw"];
-            $diskMaxTBR = $value["disk_tbr"];
-            $diskMaxMTBF = $value["disk_mtbf"];
-        }
+            $diskHealth = null;
 
-        dbUpdateCS("disk_type", "$diskType", "$tagNum");
+            $diskModel = $value["disk_model"];
+            $diskTBW = $value["disk_writes"];
+            $diskTBR = $value["disk_reads"];
+            $diskMTBF = $value["disk_power_on_hours"];
 
-        if ($diskType == "hdd") {
-            if (filterNum($diskTBW) == 0 && filterNum($diskMaxTBW) == 0 && filterNum($diskTBR) == 0 && filterNum($diskMaxTBR) == 0) {
-                if ($diskMaxTBW == $diskMaxTBR) {
-                    $diskHealthTBW = ($diskTBW + $diskTBR) / $diskMaxTBW;
+            dbSelect("SELECT disk_type,disk_tbw,disk_tbr,disk_mtbf FROM static_disk_stats WHERE disk_model = '$diskModel'");
+            foreach ($arr as $key => $value) {
+                $diskType = $value["disk_type"];
+                $diskMaxTBW = $value["disk_tbw"];
+                $diskMaxTBR = $value["disk_tbr"];
+                $diskMaxMTBF = $value["disk_mtbf"];
+            }
+
+            dbUpdateCS("disk_type", "$diskType", "$tagNum");
+
+            if ($diskType == "hdd") {
+                if (filterNum($diskTBW) == 0 && filterNum($diskMaxTBW) == 0 && filterNum($diskTBR) == 0 && filterNum($diskMaxTBR) == 0) {
+                    if ($diskMaxTBW == $diskMaxTBR) {
+                        $diskHealthTBW = ($diskTBW + $diskTBR) / $diskMaxTBW;
+                    } else {
+                        $diskHealthTBW = (($diskTBW / $diskMaxTBW) + ($diskTBR / $diskMaxTBR)) / 2;
+                    }
                 } else {
-                    $diskHealthTBW = (($diskTBW / $diskMaxTBW) + ($diskTBR / $diskMaxTBR)) / 2;
+                    $diskHealthTBW = 0;
+                }
+            } elseif ($diskType == "ssd" || $diskType == "nvme") {
+                if (filterNum($diskTBW) == 0 && filterNum($diskMaxTBW) == 0) {
+                    $diskHealthTBW = $diskTBW / $diskMaxTBW;
+                } else {
+                    $diskHealthTBW = 0;
                 }
             } else {
                 $diskHealthTBW = 0;
             }
-        } elseif ($diskType == "ssd" || $diskType == "nvme") {
-            if (filterNum($diskTBW) == 0 && filterNum($diskMaxTBW) == 0) {
-                $diskHealthTBW = $diskTBW / $diskMaxTBW;
-            } else {
-                $diskHealthTBW = 0;
-            }
-        } else {
-            $diskHealthTBW = 0;
-        }
 
-        if (filterNum($diskMTBF) == 0 && filterNum($diskMaxMTBF) == 0) {
-            $diskHealthMTBF = $diskMTBF / $diskMaxMTBF;
-        } else {
-            $diskHealthMTBF = 0;
+            if (filterNum($diskMTBF) == 0 && filterNum($diskMaxMTBF) == 0) {
+                $diskHealthMTBF = $diskMTBF / $diskMaxMTBF;
+            } else {
+                $diskHealthMTBF = 0;
+            }
         }
     }
 
