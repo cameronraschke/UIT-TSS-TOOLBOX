@@ -124,6 +124,7 @@ foreach ($arr as $key => $value) {
             }
         } else {
             #$sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT time FROM tmp_tbl) AND disk_model = '$diskModel'";
+            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN ";
             $sql .= "(SELECT MAX(time) FROM jobstats WHERE ";
             $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
         }
