@@ -97,16 +97,27 @@ foreach ($arr as $key => $value) {
     # Set $arr1
     $arr1 = array();
     # Get average TBW of non-HDD drives (writes only, SSD and NVMe included). This average takes into account drive model and specifications of the drive.
-    dbSelect("SELECT disk_model,disk_type,disk_tbw,disk_tbr FROM static_disk_stats WHERE disk_type IS NOT NULL AND disk_tbw IS NOT NULL AND disk_tbr IS NOT NULL");
+    dbSelect("SELECT disk_model,disk_type,disk_tbw,disk_tbr,disk_mtbf FROM static_disk_stats");
     foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
         $diskType = $value["disk_type"];
         $diskMaxTBW = $value["disk_tbw"];
         $diskMaxTBR = $value["disk_tbr"];
+        $diskMaxMTBF = $value["disk_mtbf"];
         if ($diskType == "hdd") {
-            $sql = "SELECT (((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) * 100) / 2 AS result FROM jobstats WHERE ";
-            $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
-            $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
+            if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
+                if ($diskMaxTBW == $diskMaxTBR) {
+                    $sql = "SELECT ((AVG(disk_writes + disk_reads) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE ";
+                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+                    $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
+                } else {
+                    $sql = "SELECT (((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) * 100) / 2 AS result FROM jobstats WHERE ";
+                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+                    $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
+                }
+            } else {
+                $sql = "SELECT NULL AS result"
+            }
         } else {
             $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
             $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_writes IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
@@ -115,21 +126,16 @@ foreach ($arr as $key => $value) {
         if (filter($result) == 0) {
             array_push($arr1, $result);
         }
-    }
 
+        if (filterNum($diskMaxMTBF) == 0) {
+            $sql = "SELECT AVG(disk_power_on_hours) AS result FROM jobstats WHERE ";
+            $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
+            $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
+        } else {
+            $sql = "SELECT NULL AS result"
+        }
 
-    # Get the average disk power on hours (MTBF/MTTF) and average that against the disk's specifications.
-    $arr2 = array();
-    dbSelect("SELECT disk_model,disk_mtbf FROM static_disk_stats WHERE disk_mtbf IS NOT NULL");
-    foreach ($arr as $key => $value) {
-        $diskModel = $value["disk_model"];
-        $diskMaxMTBF = $value["disk_mtbf"];
-        # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT AVG(disk_power_on_hours) AS result FROM jobstats WHERE ";
-        $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
-        $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         dbSelectVal($sql);
-        $result = ($result / $diskMaxMTBF) * 100;
         if (filter($result) == 0) {
             array_push($arr2, $result);
         }
@@ -139,10 +145,16 @@ foreach ($arr as $key => $value) {
     $diskTBW = array_sum($arr1);
     $arr2 = array_filter($arr2);
     $diskMTBF = array_sum($arr2);
-    if (filter($arr1) == 0 && count($arr1) > 0 && filter($arr2) == 0 && count($arr2) > 0) {
+    if (filterArr($arr1) == 0 && filterArr($arr2) == 0) {
+        $diskTBW = array_sum($arr1) / count($arr1);
+        $diskMTBF = array_sum($arr2) / count($arr2);
         $diskHealth = round(100 - (($diskMTBF + $diskTBW) / 2), 2);
-    } elseif (filter($arr1) == 0 && count($arr1) > 0 && filter($arr2) == 0 && count($arr2) == 0) {
+    } elseif (filterArr($arr1) == 0 && filterArr($arr2) == 1) {
+        $diskTBW = array_sum($arr1) / count($arr1);
         $diskHealth = round(100 - $diskTBW, 2);
+    } elseif (filterArr($arr1) == 1 && filterArr($arr2) == 0) {
+        $diskMTBF = array_sum($arr2) / count($arr2);
+        $diskHealth = round(100 - $diskMTBF, 2);
     } else {
         $diskHealth = "NULL";
     }

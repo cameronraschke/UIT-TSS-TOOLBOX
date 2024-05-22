@@ -9,6 +9,26 @@ function filter ($string) {
     }
 }
 
+function filterNum ($string) {
+    if (filter($string) == 0) {
+        if (is_numeric($string) && $string > 0) {
+            return 0;
+        } else {
+            return 1;
+        }
+    } else {
+        return 1;
+    }
+}
+
+function filterArr ($array) {
+    if (empty($array) || is_null($array) || count($array) <= 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 function clearSQLGlobals() {
     unset($GLOBALS["result"]);
     unset($GLOBALS["arr"]);
