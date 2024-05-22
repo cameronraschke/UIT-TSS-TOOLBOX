@@ -119,7 +119,7 @@ foreach ($arr as $key => $value) {
         }
 
         if (filterNum($diskMaxMTBF) == 0) {
-            $sql = "SELECT AVG(disk_power_on_hours) AS result FROM jobstats WHERE ";
+            $sql = "SELECT AVG(disk_power_on_hours / '$diskMaxMTBF') AS result FROM jobstats WHERE ";
             $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' ";
             $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         } else {
