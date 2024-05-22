@@ -106,7 +106,7 @@ foreach ($arr as $key => $value) {
         $diskMaxTBR = $value["disk_tbr"];
         $diskMaxMTBF = $value["disk_mtbf"];
         dbSelect("DROP TABLE IF EXISTS tmp_tbl");
-        dbSelect("CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tbl (time datetime(3))");
+        dbSelect("CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tbl (time datetime(3) DEFAULT NULL)");
         dbSelect("SELECT MAX(time) AS result FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' GROUP BY tagnumber");
         $diskSql = null;
         foreach ($arr as $key => $value) {
@@ -114,11 +114,9 @@ foreach ($arr as $key => $value) {
                 #$diskSql = $diskSql . ", " . "'" . $value["result"] . "'";
                 $diskSql = $value["result"];
                 dbSelect("INSERT INTO tmp_tbl (time) VALUES ('$diskSql')");
-            } else {
+            } #else {
                 #$diskSql = "'" . $value["result"] . "'";
-                $diskSql = "NULL";
-                dbSelect("INSERT INTO tmp_tbl (time) VALUES ($diskSql)");
-            }
+            #}
         }
         if ($diskType == "hdd") {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
