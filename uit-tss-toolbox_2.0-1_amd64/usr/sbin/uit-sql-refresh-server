@@ -85,10 +85,10 @@ foreach ($arr as $key => $value) {
     dbUpdateSS("last_image_update", "$result", "$curDate");
 
     # Set $arr1
-    $arr1 = array();
-    $arr2 = array();
     # Get average TBW of non-HDD drives (writes only, SSD and NVMe included). This average takes into account drive model and specifications of the drive.
     dbSelect("SELECT disk_model,disk_type,disk_tbw,disk_tbr,disk_mtbf FROM static_disk_stats");
+    $arr1 = array();
+    $arr2 = array();
     foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
         $diskType = $value["disk_type"];
@@ -114,7 +114,7 @@ foreach ($arr as $key => $value) {
             $sql .= "date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
         }
         dbSelectVal($sql);
-        if (filter($result) == 0) {
+        if (filterNum($result) == 0) {
             array_push($arr1, $result);
         }
 
@@ -127,7 +127,7 @@ foreach ($arr as $key => $value) {
         }
 
         dbSelectVal($sql);
-        if (filter($result) == 0) {
+        if (filterNum($result) == 0) {
             array_push($arr2, $result);
         }
     }
