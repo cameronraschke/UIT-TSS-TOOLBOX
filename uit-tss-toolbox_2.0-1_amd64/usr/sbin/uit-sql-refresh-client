@@ -69,7 +69,9 @@ foreach ($arr as $key => $value) {
     # Get disk model of the client.
     dbSelect("SELECT disk_model,disk_writes,disk_reads,disk_power_on_hours FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND disk_writes IS NOT NULL ORDER BY time LIMIT 1");
     foreach ($arr as $key => $value) {
-        $diskModel = $value["disk_model"];
+        if (filter($value["disk_model"]) == 0) {
+            $diskModel = $value["disk_model"];
+        }
         $diskTBW = $value["disk_writes"];
         $diskTBR = $value["disk_reads"];
         $diskMTBF = $value["disk_power_on_hours"];
