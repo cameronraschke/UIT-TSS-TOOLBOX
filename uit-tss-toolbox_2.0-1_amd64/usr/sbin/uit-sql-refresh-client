@@ -67,14 +67,14 @@ foreach ($arr as $key => $value) {
 
     # Disk Health
     # Get disk model of the client.
-    dbSelect("SELECT disk_model,disk_writes,disk_reads AS result FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND disk_writes IS NOT NULL ORDER BY time LIMIT 1");
+    dbSelect("SELECT disk_model,disk_writes,disk_reads FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND disk_writes IS NOT NULL ORDER BY time LIMIT 1");
     foreach ($arr as $key => $value) {
         $diskModel = $value["disk_model"];
         $diskTBW = $value["disk_writes"];
         $diskTBR = $value["disk_reads"];
         $diskMTBF = $value["disk_power_on_hours"];
 
-        dbSelect("SELECT disk_type,disk_tbw,disk_tbr,disk_mtbf AS result FROM static_disk_stats WHERE disk_model = '$diskModel'");
+        dbSelect("SELECT disk_type,disk_tbw,disk_tbr,disk_mtbf FROM static_disk_stats WHERE disk_model = '$diskModel'");
         foreach ($arr as $key => $value) {
             $diskType = $value["disk_type"];
             $diskMaxTBW = $value["disk_tbw"];
