@@ -82,9 +82,7 @@ foreach ($arr as $key => $value) {
             $diskMaxMTBF = $value["disk_mtbf"];
         }
 
-        if (filter($diskType) == 0) {
-            dbUpdateCS("disk_type", "$diskType", "$tagNum");
-        }
+        dbUpdateCS("disk_type", "$diskType", "$tagNum");
 
         if ($diskType == "hdd") {
             if (filterNum($diskTBW) == 0 && filterNum($diskMaxTBW) == 0 && filterNum($diskTBR) == 0 && filterNum($diskMaxTBR) == 0) {
