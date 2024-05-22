@@ -105,6 +105,8 @@ foreach ($arr as $key => $value) {
         $diskMaxTBW = $value["disk_tbw"];
         $diskMaxTBR = $value["disk_tbr"];
         $diskMaxMTBF = $value["disk_mtbf"];
+        dbSelect("DROP TABLE IF EXISTS tmp_tbl");
+        dbSelect("CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tbl (time datetime(3))");
         dbSelect("SELECT MAX(time) AS result FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' GROUP BY tagnumber");
         $diskSql = null;
         foreach ($arr as $key => $value) {
@@ -114,6 +116,7 @@ foreach ($arr as $key => $value) {
                 $diskSql = "'" . $value["result"] . "'";
             }
         }
+        dbSelect("INSERT INTO tmp_tbl (time) VALUES ($diskSql)");
         if ($diskType == "hdd") {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
                 if ($diskMaxTBW == $diskMaxTBR) {
@@ -129,7 +132,7 @@ foreach ($arr as $key => $value) {
                 $sql = "SELECT NULL AS result";
             }
         } else {
-            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN ($diskSql)";
+            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT time FROM tmp_tbl) AND disk_model = '$diskModel' GROUP BY tagnumber)";
             #$sql .= "(SELECT MAX(time) FROM jobstats WHERE ";
             #$sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
         }
@@ -150,6 +153,7 @@ foreach ($arr as $key => $value) {
         if (filter($result) == 0) {
             array_push($arr2, $result);
         }
+        dbSelect("DROP TABLE IF EXISTS tmp_tbl");
     }
     
     $arr1 = array_filter($arr1);
