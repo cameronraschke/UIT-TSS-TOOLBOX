@@ -106,8 +106,9 @@ foreach ($arr as $key => $value) {
         $diskMaxTBR = $value["disk_tbr"];
         $diskMaxMTBF = $value["disk_mtbf"];
         dbSelect("SELECT MAX(time) AS result FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' GROUP BY tagnumber");
+        $diskSql = null;
         foreach ($arr as $key => $value) {
-            $diskSQL = $diskSQL . ", " . "'" . $value["result"] . "'";
+            $diskSql = $diskSql . ", " . "'" . $value["result"] . "'";
         }
         if ($diskType == "hdd") {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
