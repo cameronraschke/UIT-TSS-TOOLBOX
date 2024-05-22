@@ -98,11 +98,11 @@ foreach ($arr as $key => $value) {
         if ($diskType == "hdd") {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
                 if ($diskMaxTBW == $diskMaxTBR) {
-                    $sql = "SELECT (AVG(disk_writes + disk_reads) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE ";
+                    $sql = "SELECT AVG(disk_writes + disk_reads) / '$diskMaxTBW' AS result FROM jobstats WHERE ";
                     $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
                     $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 } else {
-                    $sql = "SELECT (((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) * 100) / 2 AS result FROM jobstats WHERE ";
+                    $sql = "SELECT ((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) / 2 AS result FROM jobstats WHERE ";
                     $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
                     $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 }
@@ -110,7 +110,7 @@ foreach ($arr as $key => $value) {
                 $sql = "SELECT NULL AS result";
             }
         } else {
-            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
+            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
             $sql .= "date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
         }
         dbSelectVal($sql);
