@@ -116,7 +116,7 @@ foreach ($arr as $key => $value) {
                     $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 }
             } else {
-                $sql = "SELECT NULL AS result"
+                $sql = "SELECT NULL AS result";
             }
         } else {
             $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
@@ -132,7 +132,7 @@ foreach ($arr as $key => $value) {
             $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
             $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         } else {
-            $sql = "SELECT NULL AS result"
+            $sql = "SELECT NULL AS result";
         }
 
         dbSelectVal($sql);
