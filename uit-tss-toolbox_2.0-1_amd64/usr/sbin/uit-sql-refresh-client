@@ -69,6 +69,10 @@ foreach ($arr as $key => $value) {
     # Get disk model of the client.
     dbSelect("SELECT disk_model,disk_writes,disk_reads,disk_power_on_hours FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND disk_writes IS NOT NULL ORDER BY time LIMIT 1");
     foreach ($arr as $key => $value) {
+        if (filterArr($arr) == 1) {
+            $diskHealth = "NULL";
+        }
+
         $diskModel = $value["disk_model"];
         $diskTBW = $value["disk_writes"];
         $diskTBR = $value["disk_reads"];
@@ -109,19 +113,21 @@ foreach ($arr as $key => $value) {
         } else {
             $diskHealthMTBF = 0;
         }
-
-        # Multiply the disk TBW by the disk MTBF to get a general disk health percent;
-        if (filterNum($diskHealthTBW) == 0 && filterNum($diskHealthMTBF) == 0) {
-            $diskHealth = round(100 - ((($diskHealthTBW + $diskHealthMTBF) / 2) * 100), 2);
-        } elseif (filterNum($diskHealthTBW) == 0 && filterNum($diskHealthMTBF) == 1) {
-            $diskHealth = round(100 - ($diskHealthTBW * 100), 2);
-        } elseif (filterNum($diskHealthTBW) == 1 && filterNum($diskHealthMTBF) == 0) {
-            $diskHealth = round(100 - ($diskHealthMTBF * 100), 2);
-        } else {
-            $diskHealth = "NULL";
-        }
-        dbUpdateCS("disk_health", "$diskHealth", "$tagNum");
     }
+
+    # Multiply the disk TBW by the disk MTBF to get a general disk health percent;
+    if ($diskHealth == "NULL") {
+        $diskHealth = "NULL";
+    } elseif (filterNum($diskHealthTBW) == 0 && filterNum($diskHealthMTBF) == 0) {
+        $diskHealth = round(100 - ((($diskHealthTBW + $diskHealthMTBF) / 2) * 100), 2);
+    } elseif (filterNum($diskHealthTBW) == 0 && filterNum($diskHealthMTBF) == 1) {
+        $diskHealth = round(100 - ($diskHealthTBW * 100), 2);
+    } elseif (filterNum($diskHealthTBW) == 1 && filterNum($diskHealthMTBF) == 0) {
+        $diskHealth = round(100 - ($diskHealthMTBF * 100), 2);
+    } else {
+        $diskHealth = "NULL";
+    }
+    dbUpdateCS("disk_health", "$diskHealth", "$tagNum");
 
 
     # Update battery health as a percentage
