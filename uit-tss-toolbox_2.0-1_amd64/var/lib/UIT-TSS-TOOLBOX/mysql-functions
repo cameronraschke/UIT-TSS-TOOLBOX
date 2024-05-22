@@ -61,7 +61,7 @@ function dbUpdateJob ($key, $value, $uuid) {
         $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
         $stmt = $pdo->prepare($sql);
 
-        if (is_numeric($value) && $value <= 0) {
+        if (is_numeric($value) && filterNum($value) == 1) {
             $value = "NULL";
         }
 
@@ -99,7 +99,7 @@ function dbUpdateCS ($key, $value, $tagnumber) {
         $sql = "UPDATE clientstats SET $key = :value WHERE tagnumber = :tagnumber";
         $stmt = $pdo->prepare($sql);
 
-        if (is_numeric($value) && $value <= 0) {
+        if (is_numeric($value) && filterNum($value) == 1) {
             $value = "NULL";
         }
 
@@ -137,7 +137,7 @@ function dbUpdateSS ($key, $value, $date) {
         $sql = "UPDATE serverstats SET $key = :value WHERE date = :date";
         $stmt = $pdo->prepare($sql);
 
-        if (is_numeric($value) && $value <= 0) {
+        if (is_numeric($value) && filterNum($value) == 1) {
             $value = "NULL";
         }
 

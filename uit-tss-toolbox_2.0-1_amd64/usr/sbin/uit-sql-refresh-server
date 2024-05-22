@@ -23,60 +23,52 @@ echo timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
 
 # Iterate through all the dates between $oldDate and $date.
 dbSelect("CALL iterateDate('$oldDate', '$date')");
-#echo "\t" . timeSinceLastMarker(0, "Iterate All Dates: ") . PHP_EOL;
 foreach ($arr as $key => $value) {
 
-    # Set the variable $sqlDate to the iterated date.
-    $sqlDate = $value["date"];
+    # Set the variable $curDate to the iterated date.
+    $curDate = $value["date"];
 
     # Start the timer that counts how much time each date takes to process.
     echo PHP_EOL;
-    echo timeSinceLastMarker("markerStart", "Updating $sqlDate") . PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating $curDate") . PHP_EOL;
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
-    dbSelectVal("SELECT date AS result FROM serverstats WHERE date = '$sqlDate'");
+    dbSelectVal("SELECT date AS result FROM serverstats WHERE date = '$curDate'");
     if (filter($result) == 1) {
-        echo "Inserting new serverstats entry for $sqlDate." . PHP_EOL;
-        dbInsertSS("$sqlDate");
+        echo "Inserting new serverstats entry for $curDate." . PHP_EOL;
+        dbInsertSS("$curDate");
     }
-    #echo "\t" . timeSinceLastMarker(0, "Insert Dates: ") . PHP_EOL;
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
-    dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$sqlDate') AND department = 'techComm'");
-    dbUpdateSS("laptop_count", "$result", "$sqlDate");
-    #echo "\t" . timeSinceLastMarker(0, "Laptop Count: ") . PHP_EOL;
+    dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$curDate') AND department = 'techComm'");
+    dbUpdateSS("laptop_count", "$result", "$curDate");
 
 
     # Update the average time taken to clone a computer.
-    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = '1' AND date BETWEEN '$oldDate' AND '$sqlDate'");
-    dbUpdateSS("clone_avgtime", "$result", "$sqlDate");
-    #echo "\t" . timeSinceLastMarker(0, "Clone Time: ") . PHP_EOL;
+    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = '1' AND date BETWEEN '$oldDate' AND '$curDate'");
+    dbUpdateSS("clone_avgtime", "$result", "$curDate");
 
 
     # Update the average erase time of NVMe drives
-    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date BETWEEN '$oldDate' AND '$sqlDate'");
-    dbUpdateSS("nvme_erase_avgtime", "$result", "$sqlDate");
-    #echo "\t" . timeSinceLastMarker(0, "Erase Time NVMe: ") . PHP_EOL;
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date BETWEEN '$oldDate' AND '$curDate'");
+    dbUpdateSS("nvme_erase_avgtime", "$result", "$curDate");
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
-    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date BETWEEN '$oldDate' AND '$sqlDate'");
-    dbUpdateSS("hdd_erase_avgtime", "$result", "$sqlDate");
-    #echo "\t" . timeSinceLastMarker(0, "Erase Time SATA: ") . PHP_EOL;
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date BETWEEN '$oldDate' AND '$curDate'");
+    dbUpdateSS("hdd_erase_avgtime", "$result", "$curDate");
 
 
     # Update the number of erase jobs that have completed
-    dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = '1' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = '1' AND date BETWEEN '$oldDate' AND '$curDate'");
     $eraseJobsLC = $result;
-    dbUpdateSS("erase_jobs", "$result", "$sqlDate");
-    #echo "\t" . timeSinceLastMarker(0, "Erase Jobs: ") . PHP_EOL;
+    dbUpdateSS("erase_jobs", "$result", "$curDate");
 
 
     # Update the number of clone jobs that have completed
-    dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = '1' AND date BETWEEN '$oldDate' AND '$sqlDate'");
+    dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = '1' AND date BETWEEN '$oldDate' AND '$curDate'");
     $cloneJobsLC = $result;
-    dbUpdateSS("clone_jobs", "$result", "$sqlDate");
-    #echo "\t" . timeSinceLastMarker(0, "Clone Jobs: ") . PHP_EOL;
+    dbUpdateSS("clone_jobs", "$result", "$curDate");
 
 
     # Update count of all jobs (erase jobs + clone jobs)
@@ -85,14 +77,12 @@ foreach ($arr as $key => $value) {
     } else {
         $result = $eraseJobsLC + $cloneJobsLC;
     }
-    dbUpdateSS("all_jobs", "$result", "$sqlDate");
-    #echo "\t" . timeSinceLastMarker(0, "All Jobs: ") . PHP_EOL;
+    dbUpdateSS("all_jobs", "$result", "$curDate");
 
 
     # Update date of last image update
-    dbSelectVal("SELECT date AS result FROM jobstats WHERE clone_master = '1' AND date BETWEEN '$oldDate' AND '$sqlDate' ORDER BY time DESC LIMIT 1");
-    dbUpdateSS("last_image_update", "$result", "$sqlDate");
-    #echo "\t" . timeSinceLastMarker(0, "Last Image Update: ") . PHP_EOL;
+    dbSelectVal("SELECT date AS result FROM jobstats WHERE clone_master = '1' AND date BETWEEN '$oldDate' AND '$curDate' ORDER BY time DESC LIMIT 1");
+    dbUpdateSS("last_image_update", "$result", "$curDate");
 
     # Set $arr1
     $arr1 = array();
@@ -105,38 +95,32 @@ foreach ($arr as $key => $value) {
         $diskMaxTBW = $value["disk_tbw"];
         $diskMaxTBR = $value["disk_tbr"];
         $diskMaxMTBF = $value["disk_mtbf"];
-        #dbSelect("DROP TABLE IF EXISTS tmp_tbl");
-        #dbSelect("CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tbl (time datetime(3) DEFAULT NULL)");
-        #dbSelect("INSERT INTO tmp_tbl SELECT MAX(time) AS result FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' GROUP BY tagnumber;");
         if ($diskType == "hdd") {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
                 if ($diskMaxTBW == $diskMaxTBR) {
                     $sql = "SELECT (AVG(disk_writes + disk_reads) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE ";
-                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
                     $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 } else {
                     $sql = "SELECT (((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) * 100) / 2 AS result FROM jobstats WHERE ";
-                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
                     $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 }
             } else {
                 $sql = "SELECT NULL AS result";
             }
         } else {
-            #$sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT time FROM tmp_tbl) AND disk_model = '$diskModel'";
-            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN ";
-            $sql .= "(SELECT MAX(time) FROM jobstats WHERE ";
-            $sql .= "date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
+            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
+            $sql .= "date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
         }
         dbSelectVal($sql);
         if (filter($result) == 0) {
             array_push($arr1, $result);
         }
-        #dbSelect("DROP TABLE IF EXISTS tmp_tbl");
 
         if (filterNum($diskMaxMTBF) == 0) {
             $sql = "SELECT AVG(disk_power_on_hours) AS result FROM jobstats WHERE ";
-            $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' AND disk_model = '$diskModel' ";
+            $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' ";
             $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         } else {
             $sql = "SELECT NULL AS result";
@@ -161,11 +145,11 @@ foreach ($arr as $key => $value) {
     } else {
         $diskHealth = "NULL";
     }
-    dbUpdateSS("disk_health", "$diskHealth", "$sqlDate");
+    dbUpdateSS("disk_health", "$diskHealth", "$curDate");
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
-    $sql = "SELECT AVG(battery_health) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' GROUP BY tagnumber)";
+    $sql = "SELECT AVG(battery_health) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' GROUP BY tagnumber)";
     dbSelectVal($sql);
     if (filterNum($result) == 0) {
         $batteryCharge = $result;
@@ -180,11 +164,11 @@ foreach ($arr as $key => $value) {
         $batteryMaxChargeCycles = $value["battery_charge_cycles"];
         $batteryName = $value["battery_model"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+        $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
         $sql .= "AND battery_model = '$batteryName' GROUP BY tagnumber)";
 
         // $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats INNER JOIN ";
-        // $sql .= "(SELECT MAX(time) AS time FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
+        // $sql .= "(SELECT MAX(time) AS time FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
         // $sql .= "AND battery_charge_cycles IS NOT NULL AND battery_model = '$batteryName' GROUP BY tagnumber) maxtime ON jobstats.time = maxtime.time";
         dbSelectVal($sql);
         if (filterNum($result) == 0) {
@@ -202,14 +186,9 @@ foreach ($arr as $key => $value) {
     } else {
         $batteryHealth = "NULL";
     }
-    dbUpdateSS("battery_health", "$batteryHealth", "$sqlDate");
+    dbUpdateSS("battery_health", "$batteryHealth", "$curDate");
 
-
-    # Output time taken for specific date
-    #$end = hrtime(true);
-    #$executionTime = round(($end - $start) / 1e9, 4);
-    #echo "Updated serverstats for $sqlDate: " . $executionTime . " seconds" . PHP_EOL;
-    echo timeSinceLastMarker("markerEnd", "Time Taken for $sqlDate: ") . PHP_EOL;
+    echo timeSinceLastMarker("markerEnd", "Time Taken for $curDate: ") . PHP_EOL;
 }
 
 echo timeSinceLastMarker("end", "Total Time to Update Serverstats: ") . PHP_EOL;
