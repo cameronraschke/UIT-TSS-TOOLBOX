@@ -108,7 +108,11 @@ foreach ($arr as $key => $value) {
         dbSelect("SELECT MAX(time) AS result FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' GROUP BY tagnumber");
         $diskSql = null;
         foreach ($arr as $key => $value) {
-            $diskSql = $diskSql . ", " . "'" . $value["result"] . "'";
+            if (filter($diskSql) == 0) {
+                $diskSql = $diskSql . ", " . "'" . $value["result"] . "'";
+            } else {
+                $diskSql = "'" . $value["result"] . "'";
+            }
         }
         if ($diskType == "hdd") {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
