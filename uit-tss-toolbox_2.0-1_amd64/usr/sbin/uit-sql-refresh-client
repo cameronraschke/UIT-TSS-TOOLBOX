@@ -66,6 +66,7 @@ foreach ($arr as $key => $value) {
     dbUpdateCS("all_jobs", "$result", "$tagNum");
 
     # Disk Health
+    $diskHealth = null;
     # Get disk model of the client.
     dbSelect("SELECT disk_model,disk_writes,disk_reads,disk_power_on_hours FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND disk_writes IS NOT NULL ORDER BY time LIMIT 1");
     foreach ($arr as $key => $value) {
