@@ -134,9 +134,9 @@ foreach ($arr as $key => $value) {
     
     $arr1 = array_filter($arr1);
     $arr2 = array_filter($arr2);
-    $diskTBW = array_sum($arr1) / count($arr1) * 100;
-    $diskMTBF = array_sum($arr2) / count($arr2) * 100;
     if (filterArr($arr1) == 0 && filterArr($arr2) == 0) {
+        $diskTBW = array_sum($arr1) / count($arr1) * 100;
+        $diskMTBF = array_sum($arr2) / count($arr2) * 100;
         $diskHealth = round((($diskMTBF + $diskTBW) / 2), 2);
     } elseif (filterArr($arr1) == 0 && filterArr($arr2) == 1) {
         $diskTBW = array_sum($arr1) / count($arr1) * 100;
