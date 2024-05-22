@@ -61,7 +61,7 @@ function dbUpdateJob ($key, $value, $uuid) {
         $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
         $stmt = $pdo->prepare($sql);
 
-        if (is_numeric($value) && $value <= 0) {
+        if (is_numeric($value) && filterNum($value) == 1) {
             $value = "NULL";
         }
 
@@ -71,6 +71,82 @@ function dbUpdateJob ($key, $value, $uuid) {
         } else {
             $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
             $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+        }
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
+
+function dbInsertCS ($tagNum) {
+    if (filter($tagNum) == 0) {
+        global $pdo;
+        $sql = "INSERT INTO clientstats (tagnumber) VALUES (:tagNum)";
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
+
+function dbUpdateCS ($key, $value, $tagnumber) {
+    if (filter($key) == 0 && filter($tagnumber) == 0) {
+        global $pdo;
+        $sql = "UPDATE clientstats SET $key = :value WHERE tagnumber = :tagnumber";
+        $stmt = $pdo->prepare($sql);
+
+        if (is_numeric($value) && filterNum($value) == 1) {
+            $value = "NULL";
+        }
+
+        if (filter($value) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+        }
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
+
+function dbInsertSS ($date) {
+    if (filter($date) == 0) {
+        global $pdo;
+        $sql = "INSERT INTO serverstats (date) VALUES (:date)";
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
+
+function dbUpdateSS ($key, $value, $date) {
+    if (filter($key) == 0 && filter($date) == 0) {
+        global $pdo;
+        $sql = "UPDATE serverstats SET $key = :value WHERE date = :date";
+        $stmt = $pdo->prepare($sql);
+
+        if (is_numeric($value) && filterNum($value) == 1) {
+            $value = "NULL";
+        }
+
+        if (filter($value) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':date', $date, PDO::PARAM_STR);
         }
 
         if (filter($stmt) == 0) {
