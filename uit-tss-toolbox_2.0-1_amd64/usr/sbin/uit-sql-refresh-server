@@ -108,7 +108,7 @@ foreach ($arr as $key => $value) {
         if ($diskType == "hdd") {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
                 if ($diskMaxTBW == $diskMaxTBR) {
-                    $sql = "SELECT ((AVG(disk_writes + disk_reads) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE ";
+                    $sql = "SELECT (AVG(disk_writes + disk_reads) / '$diskMaxTBW') * 100 AS result FROM jobstats WHERE ";
                     $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$sqlDate' ";
                     $sql .= "AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 } else {
