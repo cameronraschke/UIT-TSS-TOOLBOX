@@ -217,7 +217,7 @@ DELIMITER ;
 -- Select job info about a tag
 DROP PROCEDURE IF EXISTS selectTagJob;
 DELIMITER //
-CREATE PROCEDURE selectTagDisk(tag VARCHAR(8))
+CREATE PROCEDURE selectTagJob(tag VARCHAR(8))
 DETERMINISTIC
 BEGIN
 SELECT time, 
