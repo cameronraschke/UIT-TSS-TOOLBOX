@@ -24,7 +24,7 @@ foreach ($arr as $key => $value) {
 
     # Set $serial to the iterated tagnumber.
     if (filter($value["system_serial"]) == 0) {
-        $serial = $value["serial"];
+        $serial = $value["system_serial"];
     } else {
         $serial = NULL;
     }
@@ -33,7 +33,7 @@ foreach ($arr as $key => $value) {
     echo PHP_EOL;
     echo timeSinceLastMarker("markerStart", "Updating $tagNum ($serial)") . PHP_EOL;
 
-    dbSelectVal("SELECT MAX(time) FROM locations WHERE tagnumber = '$tagNum'");
+    dbSelectVal("SELECT MAX(time) AS result FROM locations WHERE tagnumber = '$tagNum'");
     $curTime = $result;
 
     /* Select the time of the most recent entry for a given client where the clone job has successfully completed. 
