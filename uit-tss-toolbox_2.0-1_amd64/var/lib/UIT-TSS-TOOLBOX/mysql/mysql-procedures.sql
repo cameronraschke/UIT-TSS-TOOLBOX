@@ -214,5 +214,19 @@ END; //
 
 DELIMITER ;
 
+-- Select job info about a tag
+DROP PROCEDURE IF EXISTS selectTagJob;
+DELIMITER //
+CREATE PROCEDURE selectTagDisk(tag VARCHAR(8))
+DETERMINISTIC
+BEGIN
+SELECT time, 
+    tagnumber, 
+    erase_completed, 
+    clone_completed, 
+    clone_master 
+    FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC;
+    END; //
 
+DELIMITER ;
 
