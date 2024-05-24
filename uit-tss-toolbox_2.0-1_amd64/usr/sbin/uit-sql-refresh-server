@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /* "uit-sql-refresh-server" uses PHP to refresh the serverstats table in the mysql database. The
-serverstats table is a historical aggregation of the highest level of statistics in our database. 
+serverstats table is a table that contains the highest level of statistics in our database. 
 This script iterates through every date starting at 2023-01-09 (our first database entry) until the 
 current date and updates all of the entries accordingly. */
 
@@ -14,11 +14,13 @@ $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
 # Set $oldDate to the oldest date entry in the DB.
-$oldDate = "2023-01-09";
+$oldDate = '2023-01-09';
 
+# Clear globals
 clearSQLGlobals();
 clearTimeGlobals();
 
+# Start the serverstats timer
 echo timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
 
 # Iterate through all the dates between $oldDate and $date.
@@ -113,6 +115,7 @@ foreach ($arr as $key => $value) {
             $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
             $sql .= "date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
         }
+
         dbSelectVal($sql);
         if (filterNum($result) == 0) {
             array_push($arr1, $result);
@@ -168,10 +171,6 @@ foreach ($arr as $key => $value) {
         # Select the most recent distinct tagnumber from jobstats
         $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
         $sql .= "AND battery_model = '$batteryName' GROUP BY tagnumber)";
-
-        // $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats INNER JOIN ";
-        // $sql .= "(SELECT MAX(time) AS time FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
-        // $sql .= "AND battery_charge_cycles IS NOT NULL AND battery_model = '$batteryName' GROUP BY tagnumber) maxtime ON jobstats.time = maxtime.time";
         dbSelectVal($sql);
         if (filterNum($result) == 0) {
             $result = ($result / $batteryMaxChargeCycles) * 100;
@@ -190,11 +189,14 @@ foreach ($arr as $key => $value) {
     }
     dbUpdateSS("battery_health", "$batteryHealth", "$curDate");
 
+    # End the marker timer
     echo timeSinceLastMarker("markerEnd", "Time Taken for $curDate: ") . PHP_EOL;
 }
 
+# Stop the timer
 echo timeSinceLastMarker("end", "Total Time to Update Serverstats: ") . PHP_EOL;
 
+# Clear globals
 clearSQLGlobals();
 clearTimeGlobals();
 

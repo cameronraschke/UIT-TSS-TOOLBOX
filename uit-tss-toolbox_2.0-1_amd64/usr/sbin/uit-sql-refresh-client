@@ -8,10 +8,11 @@ $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
-echo "Updating clientstats" . PHP_EOL;
-
+# Clear globals
 clearSQLGlobals();
 clearTimeGlobals();
+
+echo timeSinceLastMarker("start", "Updating clientstats") . PHP_EOL;
 
 /* # Get stdin
 $stdin = fopen('php://stdin', 'r');
@@ -29,12 +30,14 @@ if (preg_match("/[0-9]{6}/", $line)) {
 dbSelect("SELECT tagnumber FROM jobstats WHERE department = 'techComm' AND tagnumber IS NOT NULL GROUP BY tagnumber");
 
 foreach ($arr as $key => $value) {
-    # Start the timer that counts how long it takes to update each tagnumber.
-    $start = hrtime(true);
-
+    # Set $tagNum to the iterated tagnumber.
     $tagNum = $value['tagnumber'];
 
-    # If tagnumber does not exist in the clientstats table, then insert it.
+    # Start the timer that counts how much time each tagnumber takes to process.
+    echo PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating $tagNum") . PHP_EOL;
+
+    # If tagnumber does not exist in the clientstats table, insert it.
     dbSelectVal("SELECT tagnumber AS result FROM clientstats WHERE tagnumber = '$tagNum'");
     if (filter($result) == 1) {
         echo "Inserting laptop: " . $tagNum . PHP_EOL;
@@ -53,12 +56,12 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
     dbUpdateCS("system_serial", "$result", "$tagNum");
 
-    # Update the average erase times for each client
-    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = '1'");
+    # Update the most recent average erase times for each client
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = '1')");
     dbUpdateCS("erase_avgtime", "$result", "$tagNum");
 
-    # Update the average clone time for each client
-    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = '1'");
+    # Update the most recent average clone time for each client
+    dbSelectVal("SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = '1' AND NOT clone_master = '1')");
     dbUpdateCS("clone_avgtime", "$result", "$tagNum");
 
     # Update count of total jobs. Total jobs count as every entry of clone_completed or erase_completed equal to "Yes" - One entry can be up to two jobs (clone + erase job).
@@ -136,16 +139,18 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT battery_health AS result FROM jobstats WHERE tagnumber = '$tagNum' AND battery_health IS NOT NULL ORDER BY time DESC LIMIT 1");
     dbUpdateCS("battery_health", "$result", "$tagNum");
 
-    # Update the uuid of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
-    dbSelectVal("SELECT time AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = '1' OR erase_completed = '1') AND date IS NOT NULL ORDER BY time DESC LIMIT 1");
+    # Update the time of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
+    dbSelectVal("SELECT time FROM jobstats WHERE department = 'techComm' AND tagnumber = '$tagNum'");
     dbUpdateCS("last_job_time", "$result", "$tagNum");
 
-    # End the timer and print the time taken to iterate through a client.
-    $end = hrtime(true);
-    $executionTime = round(($end - $start) / 1e9, 4);
-    echo "Updated client $tagNum: " . $executionTime . " seconds" . PHP_EOL;
+    # End the marker timer
+    echo timeSinceLastMarker("markerEnd", "Time Taken for $tagNum: ") . PHP_EOL;
 }
 
+# Stop the timer
+echo timeSinceLastMarker("end", "Total Time to Update Serverstats: ") . PHP_EOL;
+
+# Clear globals
 clearSQLGlobals();
 clearTimeGlobals();
 
