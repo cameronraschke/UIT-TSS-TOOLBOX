@@ -17,7 +17,7 @@ clearTimeGlobals();
 echo timeSinceLastMarker("start", "Updating locations") . PHP_EOL;
 
 # Iterate through distinct tagnumbers from jobstats with techComm UUIDs
-dbSelect("SELECT tagnumber FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber");
+dbSelect("SELECT tagnumber,system_serial FROM jobstats WHERE time IN (SELECT max(time) FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber)");
 foreach ($arr as $key => $value) {
     # Set $tagNum to the iterated tagnumber.
     $tagNum = $value["tagnumber"];
