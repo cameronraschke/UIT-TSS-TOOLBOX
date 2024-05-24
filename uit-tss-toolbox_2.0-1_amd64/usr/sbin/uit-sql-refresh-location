@@ -23,7 +23,11 @@ foreach ($arr as $key => $value) {
     $tagNum = $value["tagnumber"];
 
     # Set $serial to the iterated tagnumber.
-    $serial = $value["serial"];
+    if (filter($value["system_serial"]) == 0) {
+        $serial = $value["serial"];
+    } else {
+        $serial = NULL;
+    }
 
     # Start the timer that counts how much time each tagnumber takes to process.
     echo PHP_EOL;
