@@ -146,7 +146,7 @@ UNION
     IF (status='0', "Working", "Broken"),
     IF (os_installed='1', "Yes", "No"),
     note,
-    time 
+    CONVERT(time, DATETIME) 
     FROM locations 
     WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber));
 
