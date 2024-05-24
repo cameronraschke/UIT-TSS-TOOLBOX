@@ -136,6 +136,7 @@ BEGIN
     'Serial Number',
     'Location',
     'Status',
+    'OS Insalled',
     'Notes',
     'Most Recent Entry')
 UNION
@@ -143,6 +144,7 @@ UNION
     system_serial,
     location,
     IF (status='0', "Working", "Broken"),
+    IF (os_installed='1', "Yes", "No"),
     note,
     time 
     FROM locations 

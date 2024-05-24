@@ -147,7 +147,7 @@ foreach ($arr as $key => $value) {
 }
 
 # Stop the timer
-echo timeSinceLastMarker("end", "Total Time to Update Serverstats: ") . PHP_EOL;
+echo timeSinceLastMarker("end", "Total Time to Update clientstats: ") . PHP_EOL;
 
 # Clear globals
 clearSQLGlobals();
