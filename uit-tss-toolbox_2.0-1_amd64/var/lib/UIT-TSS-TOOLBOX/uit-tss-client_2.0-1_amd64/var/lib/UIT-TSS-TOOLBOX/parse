@@ -78,7 +78,7 @@ if ($arr[0] == "init") {
     $uuid = $arr[3];
 
     if ($key == "cpu_temp") {
-        $value = bcdiv("$value", 1000, 2);
+        $value = round(bcdiv("$value", 1000, 2), 0);
     }
 
     if (!empty($arr[4]) && $arr[4] == "nvme") {
@@ -102,7 +102,7 @@ if ($arr[0] == "init") {
     }
 
     if ($key == "ram_capacity") {
-        $value = round("$value" / 1000000, 2);
+        $value = round("$value" / 1000000, 0);
     }
 
     dbUpdateJob("$key", "$value", "$uuid");
