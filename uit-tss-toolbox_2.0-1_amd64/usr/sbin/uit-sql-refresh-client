@@ -21,17 +21,16 @@ fclose($stdin);
 # If stdin matches regex, then update that tagnumber, else update all tagnumbers.
 if (preg_match("/[0-9]{6}/", $line)) {
     # Iterate through distinct computers in the Tech Commons by tagnumber.
-    dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber = '$line' AND department = 'techComm' AND tagnumber IS NOT NULL");
+    dbSelect("SELECT DISTINCT tagnumber AS result FROM jobstats WHERE tagnumber = '$line' AND department = 'techComm' AND tagnumber IS NOT NULL");
 } else {
     # Iterate through distinct computers in the Tech Commons by tagnumber.
-    dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE department = 'techComm' AND tagnumber IS NOT NULL");
+    dbSelect("SELECT DISTINCT tagnumber AS result FROM jobstats WHERE department = 'techComm' AND tagnumber IS NOT NULL");
 } */
 
-dbSelect("SELECT tagnumber FROM jobstats WHERE department = 'techComm' AND tagnumber IS NOT NULL GROUP BY tagnumber");
-
+dbSelect("SELECT tagnumber AS result FROM jobstats WHERE department = 'techComm' AND tagnumber IS NOT NULL GROUP BY tagnumber");
 foreach ($arr as $key => $value) {
     # Set $tagNum to the iterated tagnumber.
-    $tagNum = $value['tagnumber'];
+    $tagNum = $value["tagnumber"];
 
     # Start the timer that counts how much time each tagnumber takes to process.
     echo PHP_EOL;
