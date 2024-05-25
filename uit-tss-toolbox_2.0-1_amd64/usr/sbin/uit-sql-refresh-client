@@ -56,13 +56,13 @@ foreach ($arr as $key => $value) {
     dbUpdateCS("system_serial", "$result", "$tagNum");
 
     # Update the most recent average erase times for each client
-    $sql = "SELECT ROUND(AVG(erase_time), 0) / 60 AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE erase_completed = '1' ";
+    $sql = "SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE erase_completed = '1' ";
     $sql .= "AND tagnumber = '$tagNum' ORDER BY TIME DESC LIMIT 3) AS time2 ON time1.time = time2.time";
     dbSelectVal($sql);
     dbUpdateCS("erase_avgtime", "$result", "$tagNum");
 
     # Update the most recent average clone time for each client
-    $sql = "SELECT ROUND(AVG(clone_time), 0) / 60 AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE clone_completed = '1' ";
+    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE clone_completed = '1' ";
     $sql .= "AND clone_master IS NULL AND tagnumber = '$tagNum' ORDER BY TIME DESC LIMIT 3) AS time2 ON time1.time = time2.time";
     dbSelectVal($sql);
     dbUpdateCS("clone_avgtime", "$result", "$tagNum");
