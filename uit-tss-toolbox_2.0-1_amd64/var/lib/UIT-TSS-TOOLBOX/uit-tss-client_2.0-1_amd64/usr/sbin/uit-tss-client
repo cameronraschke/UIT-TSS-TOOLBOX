@@ -1543,7 +1543,7 @@ function location {
 
 	echo ""
 	sql=$(echo "SELECT system_serial AS result FROM locations WHERE tagnumber = '${tagNum}' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-	echo "The last reported serial number for ${tagNum} was: ${BOLD}${sql}${RESET}"
+	echo "The last reported serial number for ${BOLD}${tagNum}${RESET} was: ${BOLD}${sql}${RESET}"
 	if [[ $sql == "NULL" ]]; then
 		read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
 	else
