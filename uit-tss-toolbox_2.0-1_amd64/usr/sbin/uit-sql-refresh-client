@@ -68,8 +68,12 @@ foreach ($arr as $key => $value) {
     dbUpdateCS("clone_avgtime", "$result", "$tagNum");
 
     # Update count of total jobs. Total jobs count as every entry of clone_completed or erase_completed equal to "Yes" - One entry can be up to two jobs (clone + erase job).
-    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND (clone_completed = '1' OR erase_completed= '1')");
-    dbUpdateCS("all_jobs", "$result", "$tagNum");
+    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = '1'");
+    $cloneLineCount = $result;
+    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = '1'");
+    $eraseLineCount = $result;
+    $allLineCount = $cloneLineCount + $eraseLineCount;
+    dbUpdateCS("all_jobs", "$allLineCount", "$tagNum");
 
     # Disk Health
     # Get disk model of the client.
