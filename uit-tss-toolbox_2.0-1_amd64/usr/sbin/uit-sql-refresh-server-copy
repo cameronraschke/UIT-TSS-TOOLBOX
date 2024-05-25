@@ -60,9 +60,11 @@ foreach ($arr as $key => $value) {
     $sql = "SELECT clone_time / 60 AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'";
     dbSelectVal($sql);
     if (filterNum($result) == 0) {
-        $cloneTime[] = $result;
-        $cloneTime = array_filter($cloneTime);
-        $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
+        if (filterArr($cloneTime) == 0) {
+            $cloneTime[] = $result;
+            $cloneTime = array_filter($cloneTime);
+            $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
+        }
     } else {
         $cloneTime = "NULL";
     }
@@ -104,7 +106,6 @@ foreach ($arr as $key => $value) {
         $eraseJobsLC = "NULL";
     }
     dbUpdateSS("erase_jobs", "$eraseJobsLC", "$curDate");
-
 
 
     # Update the number of clone jobs that have completed

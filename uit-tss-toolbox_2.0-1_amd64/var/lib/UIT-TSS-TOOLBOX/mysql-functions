@@ -12,7 +12,7 @@ function dbSelect ($sql) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
-        if (filter($arr) == 1) {
+        if (filterArr($arr) == 1) {
             $arr = array();
         }
     } else {
@@ -29,11 +29,11 @@ function dbSelectVal ($sql) {
         $sql = $pdo->prepare($sql);
         $sql->execute();
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
-        if (filter($arr) == 0) {
+        if (filterArr($arr) == 0) {
             foreach ($arr as $key => $value) {
                 $result = $value["result"];
             } 
-        } elseif (filter($arr) == 1) {
+        } elseif (filterArr($arr) == 1) {
             $result = "NULL";
         }
     } else {
