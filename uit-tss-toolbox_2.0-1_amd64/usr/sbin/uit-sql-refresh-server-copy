@@ -50,9 +50,9 @@ foreach ($arr as $key => $value) {
 
 
     # Update the average time taken to clone a computer.
-    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT MAX(time) FROM jobstats WHERE clone_completed = '1' ";
+    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE clone_completed = '1' ";
     $sql .= "AND date = '$curDate' GROUP BY tagnumber) AS time2 ON time1.time = time2.time";
-    dbSelectVal($sql);
+    dbSelect($sql);
     foreach ($arr as $key => $value) {
         $cloneTimeApp = array(
             "date" => "$curDate",
