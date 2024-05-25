@@ -96,8 +96,8 @@ BEGIN
 
 (SELECT 'Date',
     'Computer Count',
-    'Disk Health',
     'Battery Health',
+    'Disk Health',
     'Total Jobs',
     'Clone Jobs',
     'Erase Jobs',
@@ -108,8 +108,8 @@ BEGIN
 UNION
 (SELECT date,
     laptop_count,
-    CONCAT(disk_health, '%'),
     CONCAT(battery_health, '%'),
+    CONCAT(disk_health, '%'),
     all_jobs,
     clone_jobs,
     erase_jobs,

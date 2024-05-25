@@ -2,8 +2,8 @@ DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
     date DATE NOT NULL PRIMARY KEY,
     laptop_count SMALLINT DEFAULT NULL,
-    disk_health DECIMAL(5,2) DEFAULT NULL,
     battery_health DECIMAL(5,2) DEFAULT NULL,
+    disk_health DECIMAL(5,2) DEFAULT NULL,
     all_jobs MEDIUMINT DEFAULT NULL,
     clone_jobs MEDIUMINT DEFAULT NULL,
     erase_jobs MEDIUMINT DEFAULT NULL,
