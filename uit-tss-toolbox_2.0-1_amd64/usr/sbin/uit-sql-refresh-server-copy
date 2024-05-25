@@ -52,20 +52,20 @@ foreach ($arr as $key => $value) {
     # Update the average time taken to clone a computer.
     // $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE clone_completed = '1' ";
     // $sql .= "AND date = '$curDate' GROUP BY tagnumber) AS time2 ON time1.time = time2.time";
-    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'";
+    $sql = "SELECT clone_time / 60 AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'";
     dbSelectVal($sql);
     array_push($cloneTime, $result);
     $cloneTime = array_filter($cloneTime);
-    $cloneTime = array_sum($cloneTime) / count($cloneTime) * 100;
+    $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
     dbUpdateSS("clone_avgtime", "$cloneTime", "$curDate");
 
 
     # Update the average erase time of NVMe drives
-    $sql = "SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date = '$curDate'";
+    $sql = "SELECT erase_time / 60 AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date = '$curDate'";
     dbSelectVal($sql);
     array_push($nvmeEraseTime, $result);
     $nvmeEraseTime = array_filter($nvmeEraseTime);
-    $nvmeEraseTime = array_sum($nvmeEraseTime) / count($nvmeEraseTime) * 100;
+    $cloneTime = round(array_sum($nvmeEraseTime) / count($nvmeEraseTime) * 100, 0);
     dbUpdateSS("clone_avgtime", "$nvmeEraseTime", "$curDate");
 
 
@@ -114,11 +114,11 @@ foreach ($arr as $key => $value) {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
                 if ($diskMaxTBW == $diskMaxTBR) {
                     $sql = "SELECT AVG(disk_writes + disk_reads) / '$diskMaxTBW' AS result FROM jobstats WHERE ";
-                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
+                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' ";
                     $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 } else {
                     $sql = "SELECT ((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) / 2 AS result FROM jobstats WHERE ";
-                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
+                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' ";
                     $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 }
             } else {
@@ -126,7 +126,7 @@ foreach ($arr as $key => $value) {
             }
         } else {
             $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
-            $sql .= "date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
+            $sql .= "date = '$curDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
         }
 
         dbSelectVal($sql);
@@ -136,7 +136,7 @@ foreach ($arr as $key => $value) {
 
         if (filterNum($diskMaxMTBF) == 0) {
             $sql = "SELECT AVG(disk_power_on_hours / '$diskMaxMTBF') AS result FROM jobstats WHERE ";
-            $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' ";
+            $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' AND disk_model = '$diskModel' ";
             $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         } else {
             $sql = "SELECT NULL AS result";
