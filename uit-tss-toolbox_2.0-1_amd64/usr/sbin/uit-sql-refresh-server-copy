@@ -60,7 +60,7 @@ foreach ($arr as $key => $value) {
     $sql = "SELECT clone_time / 60 AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'";
     dbSelectVal($sql);
     if (filterNum($result) == 0) {
-        array_push($cloneTime, $result);
+        $cloneTime[] = $result;
         $cloneTime = array_filter($cloneTime);
         $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
     } else {
@@ -73,7 +73,7 @@ foreach ($arr as $key => $value) {
     $sql = "SELECT erase_time / 60 AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date = '$curDate'";
     dbSelectVal($sql);
     if (filterNum($result) == 0) {
-        array_push($nvmeEraseTime, $result);
+        $nvmeEraseTime[] = $result;
         $nvmeEraseTime = array_filter($nvmeEraseTime);
         $nvmeEraseTime = round(array_sum($nvmeEraseTime) / count($nvmeEraseTime) * 100, 0);
     } else {
@@ -86,7 +86,7 @@ foreach ($arr as $key => $value) {
     $sql = "SELECT erase_time / 60 AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date = '$curDate'";
     dbSelectVal($sql);
     if (filterNum($result) == 0) {
-        array_push($hddEraseTime, $result);
+        $hddEraseTime[] = $result;
         $hddEraseTime = array_filter($hddEraseTime);
         $hddEraseTime = round(array_sum($hddEraseTime) / count($hddEraseTime) * 100, 0);
     } else {
@@ -98,7 +98,7 @@ foreach ($arr as $key => $value) {
     # Update the number of erase jobs that have completed
     dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = '1' AND date = '$curDate'");
     if (filterNum($result) == 0) {
-        array_push($eraseJobsLC, $result);
+        $eraseJobsLC[] = $result;
         $eraseJobsLC = array_sum(array_filter($eraseJobsLC));
     } else {
         $eraseJobsLC = "NULL";
@@ -110,7 +110,7 @@ foreach ($arr as $key => $value) {
     # Update the number of clone jobs that have completed
     dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'");
     if (filterNum($result) == 0) {
-        array_push($cloneJobsLC, $result);
+        $cloneJobsLC[] = $result;
         $cloneJobsLC = array_sum(array_filter($cloneJobsLC));
     } else {
         $cloneJobsLC = "NULL";
