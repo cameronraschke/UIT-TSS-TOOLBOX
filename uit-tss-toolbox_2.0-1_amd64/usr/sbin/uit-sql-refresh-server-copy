@@ -59,41 +59,62 @@ foreach ($arr as $key => $value) {
     // $sql .= "AND date = '$curDate' GROUP BY tagnumber) AS time2 ON time1.time = time2.time";
     $sql = "SELECT clone_time / 60 AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'";
     dbSelectVal($sql);
-    array_push($cloneTime, $result);
-    $cloneTime = array_filter($cloneTime);
-    $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
+    if (filterNum($result) == 0) {
+        array_push($cloneTime, $result);
+        $cloneTime = array_filter($cloneTime);
+        $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
+    } else {
+        $cloneTime = "NULL";
+    }
     dbUpdateSS("clone_avgtime", "$cloneTime", "$curDate");
 
 
     # Update the average erase time of NVMe drives
     $sql = "SELECT erase_time / 60 AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date = '$curDate'";
     dbSelectVal($sql);
-    array_push($nvmeEraseTime, $result);
-    $nvmeEraseTime = array_filter($nvmeEraseTime);
-    $nvmeEraseTime = round(array_sum($nvmeEraseTime) / count($nvmeEraseTime) * 100, 0);
-    dbUpdateSS("clone_avgtime", "$nvmeEraseTime", "$curDate");
+    if (filterNum($result) == 0) {
+        array_push($nvmeEraseTime, $result);
+        $nvmeEraseTime = array_filter($nvmeEraseTime);
+        $nvmeEraseTime = round(array_sum($nvmeEraseTime) / count($nvmeEraseTime) * 100, 0);
+    } else {
+        $nvmeEraseTime = "NULL";
+    }
+    dbUpdateSS("nvme_erase_avgtime", "$nvmeEraseTime", "$curDate");
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
     $sql = "SELECT erase_time / 60 AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date = '$curDate'";
     dbSelectVal($sql);
-    array_push($hddEraseTime, $result);
-    $hddEraseTime = array_filter($hddEraseTime);
-    $hddEraseTime = round(array_sum($hddEraseTime) / count($hddEraseTime) * 100, 0);
-    dbUpdateSS("hdd_erase_avgtime", "$result", "$curDate");
+    if (filterNum($result) == 0) {
+        array_push($hddEraseTime, $result);
+        $hddEraseTime = array_filter($hddEraseTime);
+        $hddEraseTime = round(array_sum($hddEraseTime) / count($hddEraseTime) * 100, 0);
+    } else {
+        $hddEraseTime = "NULL";
+    }
+    dbUpdateSS("hdd_erase_avgtime", "$hddEraseTime", "$curDate");
 
 
     # Update the number of erase jobs that have completed
     dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = '1' AND date = '$curDate'");
-    array_push($eraseJobsLC, $result);
-    $eraseJobsLC = array_sum(array_filter($eraseJobsLC));
+    if (filterNum($result) == 0) {
+        array_push($eraseJobsLC, $result);
+        $eraseJobsLC = array_sum(array_filter($eraseJobsLC));
+    } else {
+        $eraseJobsLC = "NULL";
+    }
     dbUpdateSS("erase_jobs", "$eraseJobsLC", "$curDate");
+
 
 
     # Update the number of clone jobs that have completed
     dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'");
-    array_push($cloneJobsLC, $result);
-    $cloneJobsLC = array_sum(array_filter($cloneJobsLC));
+    if (filterNum($result) == 0) {
+        array_push($cloneJobsLC, $result);
+        $cloneJobsLC = array_sum(array_filter($cloneJobsLC));
+    } else {
+        $cloneJobsLC = "NULL";
+    }
     dbUpdateSS("clone_jobs", "$cloneJobsLC", "$curDate");
 
 
