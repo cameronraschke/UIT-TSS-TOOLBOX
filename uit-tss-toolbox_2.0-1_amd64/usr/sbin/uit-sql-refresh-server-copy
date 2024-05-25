@@ -25,6 +25,9 @@ echo timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
 
 $cloneTime = array();
 $nvmeEraseTime = array();
+$hddEraseTime = array();
+$eraseJobsLC = array();
+$cloneJobsLC = array();
 
 # Iterate through all the dates between $oldDate and $date.
 dbSelect("CALL iterateDate('$oldDate', '$date')");
