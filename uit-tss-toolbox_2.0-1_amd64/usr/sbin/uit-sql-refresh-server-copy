@@ -1,0 +1,222 @@
+#!/usr/bin/php
+<?php
+/* "uit-sql-refresh-server" uses PHP to refresh the serverstats table in the mysql database. The
+serverstats table is a table that contains the highest level of statistics in our database. 
+This script iterates through every date starting at 2023-01-09 (our first database entry) until the 
+current date and updates all of the entries accordingly. */
+
+# Connect to database and include custom functions
+include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
+
+# Set current date and time
+$dt = new DateTimeImmutable();
+$date = $dt->format('Y-m-d');
+$time = $dt->format('Y-m-d H:i:s.v');
+
+# Set $oldDate to the oldest date entry in the DB.
+$oldDate = '2023-01-09';
+
+# Clear globals
+clearSQLGlobals();
+clearTimeGlobals();
+
+# Start the serverstats timer
+echo timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
+
+$cloneTime = array();
+$nvmeEraseTime = array();
+
+# Iterate through all the dates between $oldDate and $date.
+dbSelect("CALL iterateDate('$oldDate', '$date')");
+foreach ($arr as $key => $value) {
+
+    # Set the variable $curDate to the iterated date.
+    $curDate = $value["date"];
+
+    # Start the timer that counts how much time each date takes to process.
+    echo PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating $curDate") . PHP_EOL;
+
+    # If the current date does not exist in the serverstats table, then create an entry for the current date.
+    dbSelectVal("SELECT date AS result FROM serverstats WHERE date = '$curDate'");
+    if (filter($result) == 1) {
+        echo "Inserting new serverstats entry for $curDate." . PHP_EOL;
+        dbInsertSS("$curDate");
+    }
+
+    # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
+    dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE (date BETWEEN '$oldDate' AND '$curDate') AND department = 'techComm'");
+    dbUpdateSS("laptop_count", "$result", "$curDate");
+
+
+    # Update the average time taken to clone a computer.
+    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT MAX(time) FROM jobstats WHERE clone_completed = '1' ";
+    $sql .= "AND date = '$curDate' GROUP BY tagnumber) AS time2 ON time1.time = time2.time";
+    dbSelectVal($sql);
+    foreach ($arr as $key => $value) {
+        $cloneTimeApp = array(
+            "date" => "$curDate",
+            "value" => $value["result"]
+        );
+        array_push($cloneTime, $cloneTimeApp);
+    }
+
+
+    # Update the average erase time of NVMe drives
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date = '$curDate'");
+    array_push($nvmeEraseTime, $result);
+
+
+    # Update the average erase time of SATA drives (SSDs and HDDs)
+    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date = '$curDate'");
+    dbUpdateSS("hdd_erase_avgtime", "$result", "$curDate");
+
+
+    # Update the number of erase jobs that have completed
+    dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = '1' AND date BETWEEN '$oldDate' AND '$curDate'");
+    $eraseJobsLC = $result;
+    dbUpdateSS("erase_jobs", "$result", "$curDate");
+
+
+    # Update the number of clone jobs that have completed
+    dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = '1' AND date BETWEEN '$oldDate' AND '$curDate'");
+    $cloneJobsLC = $result;
+    dbUpdateSS("clone_jobs", "$result", "$curDate");
+
+
+    # Update count of all jobs (erase jobs + clone jobs)
+    if (filter($eraseJobsLC) == 1 || filter($cloneJobsLC) == 1) {
+        $result = 0;
+    } else {
+        $result = $eraseJobsLC + $cloneJobsLC;
+    }
+    dbUpdateSS("all_jobs", "$result", "$curDate");
+
+
+    # Update date of last image update
+    dbSelectVal("SELECT date AS result FROM jobstats WHERE clone_master = '1' AND date BETWEEN '$oldDate' AND '$curDate' ORDER BY time DESC LIMIT 1");
+    dbUpdateSS("last_image_update", "$result", "$curDate");
+
+    # Set $arr1
+    $arr1 = array();
+    $arr2 = array();
+    # Get average TBW of non-HDD drives (writes only, SSD and NVMe included). This average takes into account drive model and specifications of the drive.
+    dbSelect("SELECT disk_model,disk_type,disk_tbw,disk_tbr,disk_mtbf FROM static_disk_stats");
+    foreach ($arr as $key => $value) {
+        $diskModel = $value["disk_model"];
+        $diskType = $value["disk_type"];
+        $diskMaxTBW = $value["disk_tbw"];
+        $diskMaxTBR = $value["disk_tbr"];
+        $diskMaxMTBF = $value["disk_mtbf"];
+        if ($diskType == "hdd") {
+            if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
+                if ($diskMaxTBW == $diskMaxTBR) {
+                    $sql = "SELECT AVG(disk_writes + disk_reads) / '$diskMaxTBW' AS result FROM jobstats WHERE ";
+                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
+                    $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
+                } else {
+                    $sql = "SELECT ((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) / 2 AS result FROM jobstats WHERE ";
+                    $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
+                    $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
+                }
+            } else {
+                $sql = "SELECT NULL AS result";
+            }
+        } else {
+            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
+            $sql .= "date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
+        }
+
+        dbSelectVal($sql);
+        if (filterNum($result) == 0) {
+            array_push($arr1, $result);
+        }
+
+        if (filterNum($diskMaxMTBF) == 0) {
+            $sql = "SELECT AVG(disk_power_on_hours / '$diskMaxMTBF') AS result FROM jobstats WHERE ";
+            $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' AND disk_model = '$diskModel' ";
+            $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
+        } else {
+            $sql = "SELECT NULL AS result";
+        }
+
+        dbSelectVal($sql);
+        if (filterNum($result) == 0) {
+            array_push($arr2, $result);
+        }
+    }
+    
+    $arr1 = array_filter($arr1);
+    $arr2 = array_filter($arr2);
+    if (filterArr($arr1) == 0 && filterArr($arr2) == 0) {
+        $diskTBW = 100 - (array_sum($arr1) / count($arr1)) * 100;
+        $diskMTBF = 100 - (array_sum($arr2) / count($arr2)) * 100;
+        $diskHealth = round((($diskMTBF + $diskTBW) / 2), 2);
+    } elseif (filterArr($arr1) == 0 && filterArr($arr2) == 1) {
+        $diskTBW = 100 - (array_sum($arr1) / count($arr1)) * 100;
+        $diskHealth = round($diskTBW, 2);
+    } elseif (filterArr($arr1) == 1 && filterArr($arr2) == 0) {
+        $diskMTBF = 100 - (array_sum($arr2) / count($arr2)) * 100;
+        $diskHealth = round($diskMTBF, 2);
+    } else {
+        $diskHealth = "NULL";
+    }
+    dbUpdateSS("disk_health", "$diskHealth", "$curDate");
+
+
+    #Update the average battery health by selecting the most recent distinct tagnumber
+    $sql = "SELECT AVG(battery_health) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' GROUP BY tagnumber)";
+    dbSelectVal($sql);
+    if (filterNum($result) == 0) {
+        $batteryCharge = $result;
+    } else {
+        $batteryCharge = 0;
+    }
+
+    # Get battery charge cycle stats
+    $arr3 = array();
+    dbSelect("SELECT battery_model,battery_charge_cycles FROM static_battery_stats");
+    foreach ($arr as $key => $value) {
+        $batteryMaxChargeCycles = $value["battery_charge_cycles"];
+        $batteryName = $value["battery_model"];
+        # Select the most recent distinct tagnumber from jobstats
+        $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
+        $sql .= "AND battery_model = '$batteryName' GROUP BY tagnumber)";
+        dbSelectVal($sql);
+        if (filterNum($result) == 0) {
+            $result = ($result / $batteryMaxChargeCycles) * 100;
+            array_push($arr3, $result);
+        }
+    }
+
+    $arr3 = array_filter($arr3);
+    $batteryChargeCycles = array_sum($arr3);
+    if (filterArr($arr3) == 0 && filterNum($batteryChargeCycles) == 0) {
+        $batteryHealth = round((($batteryChargeCycles + $batteryCharge) / 2), 2);
+    } elseif (filterArr($arr3) == 0 && filterNum($batteryChargeCycles) == 1) {
+        $batteryHealth = round($batteryCharge, 2);
+    } else {
+        $batteryHealth = "NULL";
+    }
+    dbUpdateSS("battery_health", "$batteryHealth", "$curDate");
+
+    # End the marker timer
+    echo timeSinceLastMarker("markerEnd", "Time Taken for $curDate: ") . PHP_EOL;
+}
+
+$cloneTime = array_filter($cloneTime);
+$cloneTime = array_sum($cloneTime) / count($cloneTime);
+dbUpdateSS("clone_avgtime", "$cloneTime", "$curDate");
+
+$nvmeEraseTime = array_filter($nvmeEraseTime);
+$nvmeEraseTime = array_sum($nvmeEraseTime) / count($nvmeEraseTime);
+dbUpdateSS("nvme_erase_avgtime", "$nvmeEraseTime", "$curDate");
+
+# Stop the timer
+echo timeSinceLastMarker("end", "Total Time to Update Serverstats: ") . PHP_EOL;
+
+# Clear globals
+clearSQLGlobals();
+clearTimeGlobals();
+
+?>
