@@ -60,11 +60,18 @@ foreach ($arr as $key => $value) {
         );
         array_push($cloneTime, $cloneTimeApp);
     }
+    $cloneTime = array_filter($cloneTime);
+    $cloneTime = array_sum(array_column($cloneTime,'value')) / count(array_column($cloneTime,'value')) * 100;
+    dbUpdateSS("clone_avgtime", "$cloneTime", "$curDate");
 
 
     # Update the average erase time of NVMe drives
     dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date = '$curDate'");
     array_push($nvmeEraseTime, $result);
+
+    $nvmeEraseTime = array_filter($nvmeEraseTime);
+    $cloneTime = array_sum(array_column($nvmeEraseTime,'value')) / count(array_column($nvmeEraseTime,'value')) * 100;
+    dbUpdateSS("nvme_erase_avgtime", "$nvmeEraseTime", "$curDate");
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
@@ -203,14 +210,6 @@ foreach ($arr as $key => $value) {
     # End the marker timer
     echo timeSinceLastMarker("markerEnd", "Time Taken for $curDate: ") . PHP_EOL;
 }
-
-$cloneTime = array_filter($cloneTime);
-$cloneTime = array_sum($cloneTime) / count($cloneTime);
-dbUpdateSS("clone_avgtime", "$cloneTime", "$curDate");
-
-$nvmeEraseTime = array_filter($nvmeEraseTime);
-$nvmeEraseTime = array_sum($nvmeEraseTime) / count($nvmeEraseTime);
-dbUpdateSS("nvme_erase_avgtime", "$nvmeEraseTime", "$curDate");
 
 # Stop the timer
 echo timeSinceLastMarker("end", "Total Time to Update Serverstats: ") . PHP_EOL;
