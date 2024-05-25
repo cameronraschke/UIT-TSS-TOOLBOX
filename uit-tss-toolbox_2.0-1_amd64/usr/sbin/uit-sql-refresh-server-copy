@@ -50,28 +50,23 @@ foreach ($arr as $key => $value) {
 
 
     # Update the average time taken to clone a computer.
-    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE clone_completed = '1' ";
-    $sql .= "AND date = '$curDate' GROUP BY tagnumber) AS time2 ON time1.time = time2.time";
-    dbSelect($sql);
-    foreach ($arr as $key => $value) {
-        $cloneTimeApp = array(
-            "date" => "$curDate",
-            "value" => $value["result"]
-        );
-        array_push($cloneTime, $cloneTimeApp);
-    }
+    // $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE clone_completed = '1' ";
+    // $sql .= "AND date = '$curDate' GROUP BY tagnumber) AS time2 ON time1.time = time2.time";
+    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'";
+    dbSelectVal($sql);
+    array_push($cloneTime, $result);
     $cloneTime = array_filter($cloneTime);
-    $cloneTime = array_sum(array_column($cloneTime,'value')) / count(array_column($cloneTime,'value')) * 100;
+    $cloneTime = array_sum($cloneTime) / count($cloneTime) * 100;
     dbUpdateSS("clone_avgtime", "$cloneTime", "$curDate");
 
 
     # Update the average erase time of NVMe drives
-    dbSelectVal("SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date = '$curDate'");
+    $sql = "SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date = '$curDate'";
+    dbSelectVal($sql);
     array_push($nvmeEraseTime, $result);
-
     $nvmeEraseTime = array_filter($nvmeEraseTime);
-    $cloneTime = array_sum(array_column($nvmeEraseTime,'value')) / count(array_column($nvmeEraseTime,'value')) * 100;
-    dbUpdateSS("nvme_erase_avgtime", "$nvmeEraseTime", "$curDate");
+    $nvmeEraseTime = array_sum($nvmeEraseTime) / count($nvmeEraseTime) * 100;
+    dbUpdateSS("clone_avgtime", "$nvmeEraseTime", "$curDate");
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
