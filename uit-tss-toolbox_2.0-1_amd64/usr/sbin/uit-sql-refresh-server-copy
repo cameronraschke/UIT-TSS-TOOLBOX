@@ -64,7 +64,7 @@ foreach ($arr as $key => $value) {
         $cloneTime = array_filter($cloneTime);
         $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
     } else {
-        $cloneTime = 0;
+        $cloneTime[] = 0;
     }
     dbUpdateSS("clone_avgtime", "$cloneTime", "$curDate");
 
@@ -77,7 +77,7 @@ foreach ($arr as $key => $value) {
         $nvmeEraseTime = array_filter($nvmeEraseTime);
         $nvmeEraseTime = round(array_sum($nvmeEraseTime) / count($nvmeEraseTime) * 100, 0);
     } else {
-        $nvmeEraseTime = 0;
+        $nvmeEraseTime[] = 0;
     }
     dbUpdateSS("nvme_erase_avgtime", "$nvmeEraseTime", "$curDate");
 
@@ -90,7 +90,7 @@ foreach ($arr as $key => $value) {
         $hddEraseTime = array_filter($hddEraseTime);
         $hddEraseTime = round(array_sum($hddEraseTime) / count($hddEraseTime) * 100, 0);
     } else {
-        $hddEraseTime = 0;
+        $hddEraseTime[] = 0;
     }
     dbUpdateSS("hdd_erase_avgtime", "$hddEraseTime", "$curDate");
 
@@ -101,7 +101,7 @@ foreach ($arr as $key => $value) {
         $eraseJobsLC[] = $result;
         $eraseJobsLC = array_sum(array_filter($eraseJobsLC));
     } else {
-        $eraseJobsLC = 0;
+        $eraseJobsLC[] = 0;
     }
     dbUpdateSS("erase_jobs", "$eraseJobsLC", "$curDate");
 
@@ -112,7 +112,7 @@ foreach ($arr as $key => $value) {
         $cloneJobsLC[] = $result;
         $cloneJobsLC = array_sum(array_filter($cloneJobsLC));
     } else {
-        $cloneJobsLC = 0;
+        $cloneJobsLC[] = 0;
     }
     dbUpdateSS("clone_jobs", "$cloneJobsLC", "$curDate");
 
