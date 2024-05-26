@@ -187,7 +187,9 @@ foreach ($arr as $key => $value) {
 
         dbSelect($sql);
         if (filterArr($arr) == 0) {
-            $arr1[] = $value["result"];
+            foreach ($arr as $key => $value) {
+                $arr1[] = $value["result"];
+            }
         }
 
         if (filterNum($diskMaxMTBF) == 0) {
@@ -199,7 +201,9 @@ foreach ($arr as $key => $value) {
         }
         dbSelect($sql);
         if (filterArr($arr) == 0) {
-            $arr2[] = $value["result"];
+            foreach ($arr as $key => $value) {
+                $arr2[] = $value["result"];
+            }
         }
     }
     
