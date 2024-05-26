@@ -169,53 +169,50 @@ foreach ($arr as $key => $value) {
         if ($diskType == "hdd") {
             if (filterNum($diskMaxTBW) == 0 && filterNum($diskMaxTBR) == 0) {
                 if ($diskMaxTBW == $diskMaxTBR) {
-                    $sql = "SELECT AVG(disk_writes + disk_reads) / '$diskMaxTBW' AS result FROM jobstats WHERE ";
+                    $sql = "SELECT (disk_writes + disk_reads) / '$diskMaxTBW' AS result FROM jobstats WHERE ";
                     $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' ";
                     $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 } else {
-                    $sql = "SELECT ((AVG(disk_writes) / '$diskMaxTBW') + (AVG(disk_reads) / '$diskMaxTBR')) / 2 AS result FROM jobstats WHERE ";
+                    $sql = "SELECT ((disk_writes / '$diskMaxTBW') + (disk_reads / '$diskMaxTBR')) / 2 AS result FROM jobstats WHERE ";
                     $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' ";
                     $sql .= "AND disk_model = '$diskModel' GROUP BY tagnumber)";
                 }
             } else {
-                $sql = "SELECT NULL AS result";
+                $sql = "SELECT '0' AS result";
             }
         } else {
-            $sql = "SELECT (AVG(disk_writes) / '$diskMaxTBW') AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
+            $sql = "SELECT disk_writes / '$diskMaxTBW' AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ";
             $sql .= "date = '$curDate' AND disk_model = '$diskModel' GROUP BY tagnumber)";
         }
 
-        dbSelectVal($sql);
-        if (filterNum($result) == 0) {
-            $arr1[] = $result;
+        dbSelect($sql);
+        if (filterArr($arr) == 0) {
+            $arr1[] = $value["result"];
         }
 
         if (filterNum($diskMaxMTBF) == 0) {
-            $sql = "SELECT AVG(disk_power_on_hours / '$diskMaxMTBF') AS result FROM jobstats WHERE ";
+            $sql = "SELECT disk_power_on_hours / '$diskMaxMTBF' AS result FROM jobstats WHERE ";
             $sql .= "time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' AND disk_model = '$diskModel' ";
             $sql .= "AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)";
         } else {
-            $sql = "SELECT NULL AS result";
+            $sql = "SELECT '0' AS result";
         }
-
-        dbSelectVal($sql);
-        if (filterNum($result) == 0) {
-            $arr2[] = $result;
+        dbSelect($sql);
+        if (filterArr($arr) == 0) {
+            $arr2[] = $value["result"];
         }
     }
     
     $arr1 = array_filter($arr1);
     $arr2 = array_filter($arr2);
+    $diskTBW = array_sum($arr1);
+    $diskMTBF = array_sum($arr2);
     if (filterArr($arr1) == 0 && filterArr($arr2) == 0) {
-        $diskTBW = 100 - (array_sum($arr1) / count($arr1)) * 100;
-        $diskMTBF = 100 - (array_sum($arr2) / count($arr2)) * 100;
-        $diskHealth = round((($diskMTBF + $diskTBW) / 2), 2);
+        $diskHealth = round(100 - (((($diskTBW / count($arr1)) * 100) + (($diskMTBF / count($arr2)) * 100)) / 2), 2);
     } elseif (filterArr($arr1) == 0 && filterArr($arr2) == 1) {
-        $diskTBW = 100 - (array_sum($arr1) / count($arr1)) * 100;
-        $diskHealth = round($diskTBW, 2);
+        $diskHealth = round(100 - ($diskTBW / count($arr1)) * 100, 2);
     } elseif (filterArr($arr1) == 1 && filterArr($arr2) == 0) {
-        $diskMTBF = 100 - (array_sum($arr2) / count($arr2)) * 100;
-        $diskHealth = round($diskMTBF, 2);
+        $diskHealth = round(100 - ($diskMTBF / count($arr2)) * 100, 2);
     } else {
         $diskHealth = "NULL";
     }
@@ -223,7 +220,7 @@ foreach ($arr as $key => $value) {
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
-    $sql = "SELECT battery_health AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' GROUP BY tagnumber)";
+    $sql = "SELECT battery_health AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' AND battery_health IS NOT NULL GROUP BY tagnumber)";
     dbSelect($sql);
     if (filterArr($arr) == 0) {
         foreach ($arr as $key => $value) {
