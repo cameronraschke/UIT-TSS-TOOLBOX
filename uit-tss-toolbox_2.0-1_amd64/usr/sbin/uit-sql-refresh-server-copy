@@ -255,6 +255,8 @@ foreach ($arr as $key => $value) {
         $batteryHealth = round(100 - ((($batteryCharge / count($arr3)) + ($batteryChargeCycles / count($arr4))) / 2), 2);
     } elseif (filterArr($arr3) == 0 && filterNum($batteryCharge) == 0 && (filterArr($arr4) == 1 || filterNum($batteryChargeCycles) == 1)) {
         $batteryHealth = round(100 - ($batteryCharge / count($arr3)), 2);
+    } elseif ((filterArr($arr3) == 1 || filterNum($batteryCharge) == 1) && filterArr($arr4) == 0 && filterNum($batteryChargeCycles) == 0) {
+        $batteryHealth = round(100 - ($batteryChargeCycles / count($arr4)), 2);
     } else {
         $batteryHealth = "NULL";
     }
