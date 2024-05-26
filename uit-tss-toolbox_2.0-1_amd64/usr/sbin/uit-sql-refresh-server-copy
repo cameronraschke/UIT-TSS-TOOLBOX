@@ -30,6 +30,8 @@ $eraseJobsLC = array();
 $cloneJobsLC = array();
 $arr1 = array();
 $arr2 = array();
+$arr3 = array();
+$arr4 = array();
 
 # Iterate through all the dates between $oldDate and $date.
 dbSelect("CALL iterateDate('$oldDate', '$date')");
@@ -185,7 +187,7 @@ foreach ($arr as $key => $value) {
 
         dbSelectVal($sql);
         if (filterNum($result) == 0) {
-            array_push($arr1, $result);
+            $arr1[] = $result;
         }
 
         if (filterNum($diskMaxMTBF) == 0) {
@@ -198,7 +200,7 @@ foreach ($arr as $key => $value) {
 
         dbSelectVal($sql);
         if (filterNum($result) == 0) {
-            array_push($arr2, $result);
+            $arr2[] = $result;
         }
     }
     
@@ -221,35 +223,37 @@ foreach ($arr as $key => $value) {
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
-    $sql = "SELECT AVG(battery_health) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' GROUP BY tagnumber)";
+    $sql = "SELECT AVG(battery_health) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' GROUP BY tagnumber)";
     dbSelectVal($sql);
     if (filterNum($result) == 0) {
-        $batteryCharge = $result;
+        $arr3[] = $result;
     } else {
-        $batteryCharge = 0;
+        $arr3[] = 0;
     }
 
     # Get battery charge cycle stats
-    $arr3 = array();
+    $arr4 = array();
     dbSelect("SELECT battery_model,battery_charge_cycles FROM static_battery_stats");
     foreach ($arr as $key => $value) {
         $batteryMaxChargeCycles = $value["battery_charge_cycles"];
         $batteryName = $value["battery_model"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date BETWEEN '$oldDate' AND '$curDate' ";
+        $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' ";
         $sql .= "AND battery_model = '$batteryName' GROUP BY tagnumber)";
         dbSelectVal($sql);
         if (filterNum($result) == 0) {
             $result = ($result / $batteryMaxChargeCycles) * 100;
-            array_push($arr3, $result);
+            $arr4[] = $result;
         }
     }
 
     $arr3 = array_filter($arr3);
-    $batteryChargeCycles = array_sum($arr3);
-    if (filterArr($arr3) == 0 && filterNum($batteryChargeCycles) == 0) {
+    $arr4 = array_filter($arr4);
+    $batteryCharge = array_sum($arr3);
+    $batteryChargeCycles = array_sum($arr4);
+    if (filterArr($arr3) == 0 && filterNum($batteryCharge) == 0 && filterArr($arr4) == 0 && filterNum($batteryChargeCycles) == 0) {
         $batteryHealth = round((($batteryChargeCycles + $batteryCharge) / 2), 2);
-    } elseif (filterArr($arr3) == 0 && filterNum($batteryChargeCycles) == 1) {
+    } elseif (filterArr($arr3) == 0 && filterNum($batteryCharge) == 0 && (filterArr($arr4) == 1 || filterNum($batteryChargeCycles) == 1)) {
         $batteryHealth = round($batteryCharge, 2);
     } else {
         $batteryHealth = "NULL";
