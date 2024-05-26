@@ -24,7 +24,7 @@ foreach ($arr as $key => $value) {
 
     # Start the timer that counts how much time each tagnumber takes to process.
     echo PHP_EOL;
-    echo timeSinceLastMarker("markerStart", "Updating $tagNum") . PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating location: $tagNum") . PHP_EOL;
 
     dbSelectVal("SELECT MAX(time) AS result FROM locations WHERE tagnumber = '$tagNum'");
     $maxTime = $result;
