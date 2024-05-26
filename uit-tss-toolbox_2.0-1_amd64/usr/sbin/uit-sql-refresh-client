@@ -156,11 +156,11 @@ foreach ($arr as $key => $value) {
     $batteryMaxCycles = $result;
 
     if (filterNum($batteryCharge) == 0 && filterNum($batteryCycles) == 0 && filterNum($batteryMaxCycles) == 0) { 
-        $batteryHealth = round(($batteryCharge + (($batteryCycles / $batteryMaxCycles) * 100)) / 2, 2);
+        $batteryHealth = round(($batteryCharge + (100 - (($batteryCycles / $batteryMaxCycles) * 100))) / 2, 0);
     } elseif (filterNum($batteryCharge) == 0 && (filterNum($batteryCycles) == 1 || filterNum($batteryMaxCycles) == 1)) {
         $batteryHealth = round($batteryCharge, 2);
     } elseif (filterNum($batteryCharge) == 1 && filterNum($batteryCycles) == 0 && filterNum($batteryMaxCycles) == 0) {
-        $batteryHealth = round(($batteryCycles / $batteryMaxCycles) * 100, 2);
+        $batteryHealth = round(100 - ((($batteryCycles / $batteryMaxCycles) * 100)), 0);
     } else {
         $batteryHealth = "NULL";
     }
