@@ -74,6 +74,7 @@ foreach ($arr as $key => $value) {
                     $avg = round(array_sum($avg), 0);
                 }
             }
+        }
     } else {
         $avg = 0;
     }
@@ -98,6 +99,7 @@ foreach ($arr as $key => $value) {
                     $avg = round(array_sum($avg), 0);
                 }
             }
+        }
     } else {
         $avg = 0;
     }
@@ -122,6 +124,7 @@ foreach ($arr as $key => $value) {
                     $avg = round(array_sum($avg), 0);
                 }
             }
+        }
     } else {
         $avg = 0;
     }
@@ -140,6 +143,7 @@ foreach ($arr as $key => $value) {
                 $eraseJobsLC[] = 0;
                 $sum = array_sum(array_filter($eraseJobsLC));
             }
+        }
     } else {
         $sum = 0;
     }
@@ -158,6 +162,7 @@ foreach ($arr as $key => $value) {
                 $cloneJobsLC[] = 0;
                 $sum = array_sum(array_filter($cloneJobsLC));
             }
+        }
     } else {
         $sum = 0;
     }
