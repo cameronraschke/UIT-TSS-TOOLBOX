@@ -242,7 +242,7 @@ foreach ($arr as $key => $value) {
         $sql .= "AND battery_model = '$batteryName' GROUP BY tagnumber)";
         dbSelectVal($sql);
         if (filterNum($result) == 0) {
-            $result = ($result / $batteryMaxChargeCycles) * 100;
+            $result = ($result / $batteryMaxChargeCycles);
             $arr4[] = $result;
         }
     }
