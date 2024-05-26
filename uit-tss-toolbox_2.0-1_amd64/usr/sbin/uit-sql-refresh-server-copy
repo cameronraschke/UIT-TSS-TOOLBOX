@@ -242,8 +242,7 @@ foreach ($arr as $key => $value) {
         dbSelect($sql);
         if (filterArr($arr) == 0) {
             foreach ($arr as $key => $value) {
-                $result = ($result / $batteryMaxChargeCycles);
-                $arr4[] = $value["result"];
+                $arr4[] = ($value["result"] / $batteryMaxChargeCycles);
             }
         }
     }
