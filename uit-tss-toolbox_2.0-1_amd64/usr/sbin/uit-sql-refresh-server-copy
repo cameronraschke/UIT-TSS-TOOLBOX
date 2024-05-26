@@ -223,10 +223,12 @@ foreach ($arr as $key => $value) {
 
 
     #Update the average battery health by selecting the most recent distinct tagnumber
-    $sql = "SELECT AVG(battery_health) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' GROUP BY tagnumber)";
-    dbSelectVal($sql);
-    if (filterNum($result) == 0) {
-        $arr3[] = $result;
+    $sql = "SELECT battery_health AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' GROUP BY tagnumber)";
+    dbSelect($sql);
+    if (filterArr($arr) == 0) {
+        foreach ($arr as $key => $value) {
+            $arr3[] = $value["result"];
+        }
     }
 
     # Get battery charge cycle stats
@@ -235,12 +237,14 @@ foreach ($arr as $key => $value) {
         $batteryMaxChargeCycles = $value["battery_charge_cycles"];
         $batteryName = $value["battery_model"];
         # Select the most recent distinct tagnumber from jobstats
-        $sql = "SELECT AVG(battery_charge_cycles) AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' ";
+        $sql = "SELECT battery_charge_cycles AS result FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date = '$curDate' ";
         $sql .= "AND battery_model = '$batteryName' GROUP BY tagnumber)";
-        dbSelectVal($sql);
-        if (filterNum($result) == 0) {
-            $result = ($result / $batteryMaxChargeCycles);
-            $arr4[] = $result * 100;
+        dbSelect($sql);
+        if (filterArr($arr) == 0) {
+            foreach ($arr as $key => $value) {
+                $result = ($result / $batteryMaxChargeCycles);
+                $arr4[] = $value["result"];
+            }
         }
     }
 
@@ -249,9 +253,9 @@ foreach ($arr as $key => $value) {
     $batteryCharge = array_sum($arr3);
     $batteryChargeCycles = array_sum($arr4);
     if (filterArr($arr3) == 0 && filterNum($batteryCharge) == 0 && filterArr($arr4) == 0 && filterNum($batteryChargeCycles) == 0) {
-        $batteryHealth = round((($batteryChargeCycles + $batteryCharge) / 2), 2);
+        $batteryHealth = round(((($batteryCharge / count($arr3)) + ($batteryChargeCycles / count($arr4))) / 2), 2);
     } elseif (filterArr($arr3) == 0 && filterNum($batteryCharge) == 0 && (filterArr($arr4) == 1 || filterNum($batteryChargeCycles) == 1)) {
-        $batteryHealth = round($batteryCharge, 2);
+        $batteryHealth = round(($batteryCharge / count($arr3)), 2);
     } else {
         $batteryHealth = "NULL";
     }
