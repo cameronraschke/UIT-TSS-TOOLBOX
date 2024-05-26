@@ -59,12 +59,10 @@ foreach ($arr as $key => $value) {
     // $sql .= "AND date = '$curDate' GROUP BY tagnumber) AS time2 ON time1.time = time2.time";
     $sql = "SELECT clone_time / 60 AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'";
     dbSelectVal($sql);
-    if (filterNum($result) == 0) {
-        if (filterArr($cloneTime) == 0) {
-            $cloneTime[] = $result;
-            $cloneTime = array_filter($cloneTime);
-            $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
-        }
+    if (filterNum($result) == 0 && filterArr($cloneTime) == 0) {
+        $cloneTime[] = $result;
+        $cloneTime = array_filter($cloneTime);
+        $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
     } else {
         $cloneTime = "NULL";
     }
