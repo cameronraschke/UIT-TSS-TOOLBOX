@@ -17,24 +17,17 @@ clearTimeGlobals();
 echo timeSinceLastMarker("start", "Updating locations") . PHP_EOL;
 
 # Iterate through distinct tagnumbers from jobstats with techComm UUIDs
-dbSelect("SELECT tagnumber,system_serial FROM jobstats WHERE time IN (SELECT max(time) FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber)");
+dbSelect("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber)");
 foreach ($arr as $key => $value) {
     # Set $tagNum to the iterated tagnumber.
     $tagNum = $value["tagnumber"];
 
-    # Set $serial to the iterated tagnumber.
-    if (filter($value["system_serial"]) == 0) {
-        $serial = $value["system_serial"];
-    } else {
-        $serial = NULL;
-    }
-
     # Start the timer that counts how much time each tagnumber takes to process.
     echo PHP_EOL;
-    echo timeSinceLastMarker("markerStart", "Updating $tagNum ($serial)") . PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating $tagNum") . PHP_EOL;
 
     dbSelectVal("SELECT MAX(time) AS result FROM locations WHERE tagnumber = '$tagNum'");
-    $curTime = $result;
+    $maxTime = $result;
 
     /* Select the time of the most recent entry for a given client where the clone job has successfully completed. 
     This shows whether or not the OS is installed and at what time it was last installed. */
@@ -53,12 +46,12 @@ foreach ($arr as $key => $value) {
             $osInstalled = 0;
         }
 
-        dbUpdateLocation("os_installed", "$osInstalled", "$curTime");
+        dbUpdateLocation("os_installed", "$osInstalled", "$maxTime");
     }
 
     # End the timer and print how long it took to update the location table for a specific tagnumber.
     # End the marker timer
-    echo timeSinceLastMarker("markerEnd", "Time Taken for $tagNum ($serial): ") . PHP_EOL;
+    echo timeSinceLastMarker("markerEnd", "Time Taken for $tagNum: ") . PHP_EOL;
 }
 
 # Stop the timer
