@@ -66,7 +66,7 @@ foreach ($arr as $key => $value) {
     } else {
         $cloneTime[] = 0;
         $avg = array_filter($cloneTime);
-        if (count($avg) <= 0) {
+        if (count($avg) >= 0) {
             $avg = round(array_sum($avg) / count($avg) * 100, 0);
         } else {
             $avg = round(array_sum($avg), 0);
@@ -85,7 +85,7 @@ foreach ($arr as $key => $value) {
     } else {
         $nvmeEraseTime[] = 0;
         $avg = array_filter($cloneTime);
-        if (count($avg) <= 0) {
+        if (count($avg) >= 0) {
             $avg = round(array_sum($avg) / count($avg) * 100, 0);
         } else {
             $avg = round(array_sum($avg), 0);
@@ -105,7 +105,7 @@ foreach ($arr as $key => $value) {
         $hddEraseTime[] = 0;
         $avg = array_filter($hddEraseTime);
         $avg = array_filter($cloneTime);
-        if (count($avg) <= 0) {
+        if (count($avg) >= 0) {
             $avg = round(array_sum($avg) / count($avg) * 100, 0);
         } else {
             $avg = round(array_sum($avg), 0);
