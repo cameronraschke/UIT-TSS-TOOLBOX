@@ -16,7 +16,7 @@ function dbSelect ($sql) {
             $arr = array();
         }
     } else {
-        exit();
+        $result = "NULL";
     }
 }
 
@@ -37,7 +37,7 @@ function dbSelectVal ($sql) {
             $result = "NULL";
         }
     } else {
-        exit();
+        $result = "NULL";
     }
 }
 
