@@ -188,7 +188,9 @@ foreach ($arr as $key => $value) {
         dbSelect($sql);
         if (filterArr($arr) == 0) {
             foreach ($arr as $key => $value) {
-                $arr1[] = $value["result"];
+                if (filterNum($value["result"]) == 0) {
+                    $arr1[] = $value["result"];
+                }
             }
         }
 
@@ -202,7 +204,9 @@ foreach ($arr as $key => $value) {
         dbSelect($sql);
         if (filterArr($arr) == 0) {
             foreach ($arr as $key => $value) {
-                $arr2[] = $value["result"];
+                if (filterNum($value["result"]) == 0) {
+                    $arr2[] = $value["result"];
+                }
             }
         }
     }
@@ -228,7 +232,9 @@ foreach ($arr as $key => $value) {
     dbSelect($sql);
     if (filterArr($arr) == 0) {
         foreach ($arr as $key => $value) {
-            $arr3[] = $value["result"];
+            if (filterNum($value["result"]) == 0) {
+                $arr3[] = $value["result"];
+            }
         }
     }
 
@@ -243,7 +249,9 @@ foreach ($arr as $key => $value) {
         dbSelect($sql);
         if (filterArr($arr) == 0) {
             foreach ($arr as $key => $value) {
-                $arr4[] = ($value["result"] / $batteryMaxChargeCycles);
+                if (filterNum($value["result"]) == 0) {
+                    $arr4[] = ($value["result"] / $batteryMaxChargeCycles);
+                }
             }
         }
     }
