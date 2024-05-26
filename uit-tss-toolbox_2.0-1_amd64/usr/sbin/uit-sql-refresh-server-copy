@@ -61,12 +61,14 @@ foreach ($arr as $key => $value) {
     dbSelectVal($sql);
     if (filterNum($result) == 0 && filterArr($cloneTime) == 0) {
         $cloneTime[] = $result;
-        $cloneTime = array_filter($cloneTime);
-        $cloneTime = round(array_sum($cloneTime) / count($cloneTime) * 100, 0);
+        $avg = array_filter($cloneTime);
+        $avg = round(array_sum($avg) / count($avg) * 100, 0);
     } else {
         $cloneTime[] = 0;
+        $avg = array_filter($cloneTime);
+        $avg = round(array_sum($avg) / count($avg) * 100, 0);
     }
-    dbUpdateSS("clone_avgtime", "$cloneTime", "$curDate");
+    dbUpdateSS("clone_avgtime", "$avg", "$curDate");
 
 
     # Update the average erase time of NVMe drives
@@ -74,12 +76,14 @@ foreach ($arr as $key => $value) {
     dbSelectVal($sql);
     if (filterNum($result) == 0) {
         $nvmeEraseTime[] = $result;
-        $nvmeEraseTime = array_filter($nvmeEraseTime);
-        $nvmeEraseTime = round(array_sum($nvmeEraseTime) / count($nvmeEraseTime) * 100, 0);
+        $avg = array_filter($nvmeEraseTime);
+        $avg = round(array_sum($avg) / count($avg) * 100, 0);
     } else {
         $nvmeEraseTime[] = 0;
+        $avg = array_filter($nvmeEraseTime);
+        $avg = round(array_sum($avg) / count($avg) * 100, 0);
     }
-    dbUpdateSS("nvme_erase_avgtime", "$nvmeEraseTime", "$curDate");
+    dbUpdateSS("nvme_erase_avgtime", "$avg", "$curDate");
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
@@ -87,43 +91,47 @@ foreach ($arr as $key => $value) {
     dbSelectVal($sql);
     if (filterNum($result) == 0) {
         $hddEraseTime[] = $result;
-        $hddEraseTime = array_filter($hddEraseTime);
-        $hddEraseTime = round(array_sum($hddEraseTime) / count($hddEraseTime) * 100, 0);
+        $avg = array_filter($hddEraseTime);
+        $avg = round(array_sum($avg) / count($avg) * 100, 0);
     } else {
         $hddEraseTime[] = 0;
+        $avg = array_filter($hddEraseTime);
+        $avg = round(array_sum($avg) / count($avg) * 100, 0);
     }
-    dbUpdateSS("hdd_erase_avgtime", "$hddEraseTime", "$curDate");
+    dbUpdateSS("hdd_erase_avgtime", "$avg", "$curDate");
 
 
     # Update the number of erase jobs that have completed
     dbSelectVal("SELECT COUNT(erase_completed) AS result FROM jobstats WHERE erase_completed = '1' AND date = '$curDate'");
     if (filterNum($result) == 0) {
         $eraseJobsLC[] = $result;
-        $eraseJobsLC = array_sum(array_filter($eraseJobsLC));
+        $sum = array_sum(array_filter($eraseJobsLC));
     } else {
         $eraseJobsLC[] = 0;
+        $sum = array_sum(array_filter($eraseJobsLC));
     }
-    dbUpdateSS("erase_jobs", "$eraseJobsLC", "$curDate");
+    dbUpdateSS("erase_jobs", "$sum", "$curDate");
 
 
     # Update the number of clone jobs that have completed
     dbSelectVal("SELECT COUNT(clone_completed) AS result FROM jobstats WHERE clone_completed = '1' AND date = '$curDate'");
     if (filterNum($result) == 0) {
         $cloneJobsLC[] = $result;
-        $cloneJobsLC = array_sum(array_filter($cloneJobsLC));
+        $sum = array_sum(array_filter($cloneJobsLC));
     } else {
         $cloneJobsLC[] = 0;
+        $sum = array_sum(array_filter($cloneJobsLC));
     }
-    dbUpdateSS("clone_jobs", "$cloneJobsLC", "$curDate");
+    dbUpdateSS("clone_jobs", "$sum", "$curDate");
 
 
     # Update count of all jobs (erase jobs + clone jobs)
     if (filterNum($eraseJobsLC) == 0 || filterNum($cloneJobsLC) == 0) {
-        $result = $eraseJobsLC + $cloneJobsLC;
+        $sum = $eraseJobsLC + $cloneJobsLC;
     } else {
-        $result = "NULL";
+        $sum = "NULL";
     }
-    dbUpdateSS("all_jobs", "$result", "$curDate");
+    dbUpdateSS("all_jobs", "$sum", "$curDate");
 
 
     # Update date of last image update
