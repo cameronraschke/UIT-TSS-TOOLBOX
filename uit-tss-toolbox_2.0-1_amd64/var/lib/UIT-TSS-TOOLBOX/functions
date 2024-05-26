@@ -38,15 +38,15 @@ function clearTimeGlobals() {
     unset($GLOBALS["timeArr"]);
     unset($GLOBALS["arrayObject"]);
     unset($GLOBALS["iterator"]);
-    unset($GLOBALS["tmpArray"]);
-    unset($GLOBALS["tmpArrayObject"]);
-    unset($GLOBALS["tmpIterator"]);
+    unset($GLOBALS["markerArr"]);
+    unset($GLOBALS["markerArrayObject"]);
+    unset($GLOBALS["markerIterator"]);
 }
 
 function timeSinceLastMarker($key, $string) {
-    global $tmpArray;
-    global $tmpArrayObject;
-    global $tmpIterator;
+    global $markerArr;
+    global $markerArrayObject;
+    global $markerIterator;
     global $timeArr;
     global $timeArrayObject;
     global $timeIterator;
@@ -63,19 +63,19 @@ function timeSinceLastMarker($key, $string) {
 
     $currentTime = hrtime(true);
 
-    if (filter($tmpArray) == 1) {
-        $tmpArray = array();
-        array_push($tmpArray, $currentTime);
+    if (filter($markerArr) == 1) {
+        $markerArr = array();
+        $markerArr[] = $currentTime;
     }
-    if (filter($tmpArrayObject) == 1) {
-        $tmpArrayObject = new ArrayObject($tmpArray);
+    if (filter($markerArrayObject) == 1) {
+        $markerArrayObject = new ArrayObject($markerArr);
     }
-    $tmpIterator = $tmpArrayObject->getIterator();
-    $tmpCount = $tmpIterator->count() - 1;
+    $markerIterator = $markerArrayObject->getIterator();
+    $tmpCount = $markerIterator->count() - 1;
 
     if (filter($timeArr) == 1) {
         $timeArr = array();
-        array_push($timeArr, $currentTime);
+        $timeArr[] = $currentTime;
     }
     if (filter($timeArrayObject) == 1) {
         $timeArrayObject = new ArrayObject($timeArr);
@@ -88,14 +88,14 @@ function timeSinceLastMarker($key, $string) {
     if ($key == "start") {
         $execTime = "...";
     } elseif ($key == "markerStart") {
-        $tmpArrayObject->append($currentTime);
+        $markerArrayObject->append($currentTime);
         $execTime = "...";
     } elseif ($key == "markerEnd") {
         $timeIterator->seek($count);
         $markerEnd = $timeIterator->current();
-        $tmpIterator->seek(1);
-        $markerStart = $tmpIterator->current();
-        unset($GLOBALS["tmpArrayObject"]);
+        $markerIterator->seek(1);
+        $markerStart = $markerIterator->current();
+        unset($GLOBALS["markerArrayObject"]);
         $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
     } elseif ($key == "end") {
         $timeIterator->seek($count);
