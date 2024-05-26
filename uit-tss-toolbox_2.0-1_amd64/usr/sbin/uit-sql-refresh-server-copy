@@ -227,12 +227,9 @@ foreach ($arr as $key => $value) {
     dbSelectVal($sql);
     if (filterNum($result) == 0) {
         $arr3[] = $result;
-    } else {
-        $arr3[] = 0;
     }
 
     # Get battery charge cycle stats
-    $arr4 = array();
     dbSelect("SELECT battery_model,battery_charge_cycles FROM static_battery_stats");
     foreach ($arr as $key => $value) {
         $batteryMaxChargeCycles = $value["battery_charge_cycles"];
@@ -243,7 +240,7 @@ foreach ($arr as $key => $value) {
         dbSelectVal($sql);
         if (filterNum($result) == 0) {
             $result = ($result / $batteryMaxChargeCycles);
-            $arr4[] = $result;
+            $arr4[] = $result * 100;
         }
     }
 
