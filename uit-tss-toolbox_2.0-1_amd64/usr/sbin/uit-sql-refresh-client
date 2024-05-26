@@ -155,7 +155,15 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT battery_charge_cycles AS result FROM static_battery_stats WHERE battery_model = '$batteryModel'");
     $batteryMaxCycles = $result;
 
-    $batteryHealth = ($batteryCharge + (($batteryCycles / $batteryMaxCycles) * 100)) / 2;
+    if (filterNum($batteryCharge) == 0 && filterNum($batteryCycles) == 0 && filterNum($batteryMaxCycles) == 0) { 
+        $batteryHealth = round(($batteryCharge + (($batteryCycles / $batteryMaxCycles) * 100)) / 2, 2);
+    } elseif (filterNum($batteryCharge) == 0 && (filterNum($batteryCycles) == 1 || filterNum($batteryMaxCycles) == 1)) {
+        $batteryHealth = round($batteryCharge, 2);
+    } elseif (filterNum($batteryCharge) == 1 && filterNum($batteryCycles) == 0 && filterNum($batteryMaxCycles) == 0) {
+        $batteryHealth = round(($batteryCycles / $batteryMaxCycles) * 100, 2);
+    } else {
+        $batteryHealth = "NULL";
+    }
     dbUpdateCS("battery_health", "$batteryHealth", "$tagNum");
 
     # Update the time of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
