@@ -269,9 +269,9 @@ foreach ($arr as $key => $value) {
     if (filterArr($arr3) == 0 && filterNum($batteryCharge) == 0 && filterArr($arr4) == 0 && filterNum($batteryChargeCycles) == 0) {
         $batteryHealth = round((($batteryCharge / count($arr3)) + (100 - ($batteryChargeCycles / count($arr4)))) / 2, 2);
     } elseif (filterArr($arr3) == 0 && filterNum($batteryCharge) == 0 && (filterArr($arr4) == 1 || filterNum($batteryChargeCycles) == 1)) {
-        $batteryHealth = round(($batteryCharge / count($arr3)) * 100, 2);
+        $batteryHealth = round(($batteryCharge / count($arr3)), 2);
     } elseif ((filterArr($arr3) == 1 || filterNum($batteryCharge) == 1) && filterArr($arr4) == 0 && filterNum($batteryChargeCycles) == 0) {
-        $batteryHealth = round(100 - (($batteryChargeCycles / count($arr4)) * 100), 2);
+        $batteryHealth = round(100 - ($batteryChargeCycles / count($arr4)), 2);
     } else {
         $batteryHealth = "NULL";
     }
