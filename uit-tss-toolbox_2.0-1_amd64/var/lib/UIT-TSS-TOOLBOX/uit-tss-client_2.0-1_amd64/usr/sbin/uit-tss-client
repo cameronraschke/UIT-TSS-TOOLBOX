@@ -154,9 +154,9 @@ function diskData {
 		diskType=$(lsblk --nodeps --output NAME,ROTA | grep -i "${DISK}"  | awk '{ print $2 }' | tail -n 1)
 			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			if [[ $diskType == "1" ]]; then
-				$diskType="hdd"
+				diskType="hdd"
 				else
-				$diskType="ssd"
+				diskType="ssd"
 			fi
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '9 Power_On_Hours' | awk '{print $10}')
 			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -260,9 +260,9 @@ function hardwareData {
 		diskType=$(lsblk --nodeps --output NAME,ROTA | grep -i "${DISK}"  | awk '{ print $2 }' | tail -n 1)
 			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			if [[ $diskType == "1" ]]; then
-				$diskType="hdd"
+				diskType="hdd"
 				else
-				$diskType="ssd"
+				diskType="ssd"
 			fi
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '9 Power_On_Hours' | awk '{print $10}')
 			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
