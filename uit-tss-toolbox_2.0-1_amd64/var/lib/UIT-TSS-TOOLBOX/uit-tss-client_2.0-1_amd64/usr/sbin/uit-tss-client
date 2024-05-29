@@ -734,6 +734,10 @@ function randPattern_Shred {
 
 
 function writeDisk_Shred {
+	if [[ -z $PCNTOFSECTOR ]]; then
+		PCNTOFSECTOR='100'
+	fi
+
 	SECTIONS='1000'
 	DIVPERSEC='2'
 	BS='1M'
@@ -752,10 +756,6 @@ function writeDisk_Shred {
 
 	if [[ -z $WMODE ]]; then
 		WMODE='zero'
-	fi
-
-	if [[ -z $PCNTOFSECTOR ]]; then
-		PCNTOFSECTOR='100'
 	fi
 	
 	if [[ $WMODE == "zero" ]]; then
