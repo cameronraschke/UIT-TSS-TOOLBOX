@@ -861,16 +861,16 @@ function vrfyDisk_Shred {
 	echo "Looking for non-${CHAR}'s on ${CLIENTDISK}...."
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		FULLVRFY=$(pv /dev/${CLIENTDISK} | grep --quiet --text -v -m 1 "${CHAR}")
-		if [[ ${PIPESTATUS[1]} = "1" ]]; then
-        	echo "${BOLD}The drive ${CLIENTDISK} is completely and securely wiped.${RESET}"
-			PROCFAIL='0'
-		else
-            PROCFAIL='1'
+		if [[ $(pv /dev/${CLIENTDISK} | grep --quiet --text -v -m 1 "${CHAR}"; echo ${PIPESTATUS[1]}) == '0' ]]
+		    PROCFAIL='1'
             echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 			echo ""
         	read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESET}"
 			return 1
+		else
+        	echo "${BOLD}The drive ${CLIENTDISK} is completely and securely wiped.${RESET}"
+			PROCFAIL='0'
+
 		fi
 	fi
 	
@@ -881,7 +881,7 @@ function vrfyDisk_Shred {
 
 		COUNT1=$(shuf -i 1-${COUNT} -n 1)
 		MATHONE=$(shuf -i 1-$(( SECTIONSIZEMB / DIVPERSEC )) -n 1)
-		SKIP1=$(( MATHONE + ${a} / 2 ))
+		SKIP1=$(( MATHONE + a / 2 ))
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP1} iflag=fullblock status=none 2>/dev/null \
         	| grep --quiet --text -v -m 1 "${CHAR}"; echo ${PIPESTATUS[1]}) == '0' ]]; then
             	PROCFAIL='1'
@@ -893,7 +893,7 @@ function vrfyDisk_Shred {
 
 		COUNT2=$(shuf -i 1-${COUNT} -n 1)
 		MATHTWO=$(shuf -i 1-$(( SECTIONSIZEMB + SECTIONSIZEMB - SECTIONSIZEMB / DIVPERSEC )) -n 1)
-    	SKIP2=$(( MATHTWO + ${a} ))
+    	SKIP2=$(( MATHTWO + a ))
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT2} skip=${SKIP2} iflag=fullblock status=none 2>/dev/null \
         	| grep --quiet --text -v -m 1 "${CHAR}"; echo ${PIPESTATUS[1]}) == '0' ]]; then
             	PROCFAIL='1'
