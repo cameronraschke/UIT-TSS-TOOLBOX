@@ -6,8 +6,15 @@ $stdin = fopen('php://stdin', 'r');
 $input = trim(fgets(STDIN));
 fclose($stdin);
 
-dbSelectVal("$input");
+dbSelect("$input");
 
-echo $result . PHP_EOL;
+if (filterArr($arr) == 0) {
+    foreach ($arr as $key => $value) {
+        echo $value["result"] . PHP_EOL;
+    }
+} else {
+    echo "NULL" . PHP_EOL;
+}
+
 
 ?>
