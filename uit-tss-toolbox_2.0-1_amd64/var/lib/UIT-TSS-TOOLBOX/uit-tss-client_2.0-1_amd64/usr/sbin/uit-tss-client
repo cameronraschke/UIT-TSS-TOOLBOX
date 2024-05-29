@@ -861,7 +861,7 @@ function vrfyDisk_Shred {
 	echo "Looking for non-${CHAR}'s on ${CLIENTDISK}...."
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		if [[ $(od -An -v /dev/${CLIENTDISK} | grep --quiet --text -m 1 -v "${CHAR}"; echo ${PIPESTATUS[1]}) == '0' ]]; then
+		if [[ $(od -An -v /dev/${CLIENTDISK} | grep --quiet m 1 -v "${CHAR}"; echo ${PIPESTATUS[1]}) == '0' ]]; then
 		    PROCFAIL='1'
             echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 			echo ""
@@ -883,7 +883,7 @@ function vrfyDisk_Shred {
 		MATHONE=$(shuf -i 1-$(( SECTIONSIZEMB / DIVPERSEC )) -n 1)
 		SKIP1=$(( MATHONE + a / 2 ))
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP1} iflag=fullblock status=none 2>/dev/null \
-        	| od -An -v | grep --quiet --text -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0' ]]; then
+        	| od -An -v | grep --quiet m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
@@ -895,7 +895,7 @@ function vrfyDisk_Shred {
 		MATHTWO=$(shuf -i 1-$(( SECTIONSIZEMB + SECTIONSIZEMB - SECTIONSIZEMB / DIVPERSEC )) -n 1)
     	SKIP2=$(( MATHTWO + a ))
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT2} skip=${SKIP2} iflag=fullblock status=none 2>/dev/null \
-        	| od -An -v | grep --quiet --text -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
+        	| od -An -v | grep --quiet m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
@@ -911,7 +911,7 @@ function vrfyDisk_Shred {
 	echo ""
 	echo "Verifing the first sector of the disk...."
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=0 iflag=fullblock status=none 2>/dev/null \
-        | od -An -v | grep --quiet --text -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
+        | od -An -v | grep --quiet m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
@@ -921,7 +921,7 @@ function vrfyDisk_Shred {
 	echo "Verifing the last sector of the disk...."
     if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) \
 		iflag=fullblock status=none 2>/dev/null \
-        | od -An -v | grep --quiet --text -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
+        | od -An -v | grep --quiet m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
             	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
 				echo ""
@@ -983,21 +983,21 @@ function nistMode_Shred {
 	echo ""
 
 	echo ""
-	echo "Step [1/3]:"
+	echo "Step [1/2]:"
 	PCNTOFSECTOR='25'
 	WMODE='random'
 	writeDisk_Shred
 	
 	echo ""
-	echo "Step [2/3]:"
+	echo "Step [2/2]:"
 	secErase_Shred
 	secUnlock_Shred
 	
-	echo ""
-	echo "Step [3/3]:"
-	PCNTOFSECTOR='10'
-	CHAR='0'
-	vrfyDisk_Shred
+	# echo ""
+	# echo "Step [3/3]:"
+	# PCNTOFSECTOR='10'
+	# CHAR='0'
+	# vrfyDisk_Shred
 }
 
 
@@ -1015,11 +1015,11 @@ function zeroMode_Shred {
 		echo "Step [1/1]: "
 		writeDisk_Shred
 	else
-		echo "Step [1/2]: "
+		echo "Step [1/1]: "
 		writeDisk_Shred
 		echo ""
-		echo "Step [2/2]: "
-		vrfyDisk_Shred
+		#echo "Step [2/2]: "
+		#vrfyDisk_Shred
 	fi
 }
 
