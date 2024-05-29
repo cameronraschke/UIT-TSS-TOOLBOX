@@ -545,7 +545,7 @@ function basicEraseMode_Shred {
 	RMODE='Autodetect'
 	if [[ $shredMode == 'autodetect' ]]; then
 		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
-			zeroQuick="1"
+			PCNTOFSECTOR="30"
 			shredMode='zero'
 			RMODE='Zero Mode'
 		elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
@@ -822,6 +822,10 @@ function writeDisk_Shred {
 
 
 function vrfyDisk_Shred {
+
+	if [[ $CLIENTDISK ~= $SSD_REGEX ]]; then
+		return 0
+	fi
 	
 	if [[ -z $SECTIONS ]]; then
 		SECTIONS='1000'
@@ -1011,11 +1015,6 @@ function zeroMode_Shred {
 
 	WMODE='zero'
 	CHAR='0'
-	if [[ $zeroQuick = "1" ]]; then
-		PCNTOFSECTOR='10'
-	else
-		:
-	fi
 	echo ""
 	echo "Step [1/2]: "
 	writeDisk_Shred
