@@ -278,7 +278,7 @@ function hardwareData {
 		echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Memory Data
-	memSerial=$(dmidecode --type memory | grep Serial | sed 's/Serial Number: //g' | sed 's/[[:space:]]//g' | perl -p -e 's/\n/ /')
+	memSerial=$(dmidecode --type memory | grep -P '\tSerial Number' | sed 's/Serial Number: //g' | tr '\n' ' ' | tr '\t' ' ' | sed 's/ Not Specified //g' | sed 's/^ //g' | tr ' ' '-' | sed 's/-$//g')
 		echo "general|ram_serial|${memSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	memCapacity=$(grep MemTotal /proc/meminfo | awk '{ print $2 }')
 		echo "general|ram_capacity|${memCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
