@@ -861,7 +861,7 @@ function vrfyDisk_Shred {
 	echo "Looking for non-${CHAR}'s on ${CLIENTDISK}...."
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		if [[ $(pv /dev/${CLIENTDISK} | grep --quiet --text -v -m 1 "${CHAR}"; echo ${PIPESTATUS[1]}) == '0' ]]
+		if [[ $(pv /dev/${CLIENTDISK} | grep --quiet --text -v -m 1 "${CHAR}"; echo ${PIPESTATUS[1]}) == '0' ]]; then
 		    PROCFAIL='1'
             echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 			echo ""
