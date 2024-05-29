@@ -823,7 +823,7 @@ function writeDisk_Shred {
 
 function vrfyDisk_Shred {
 
-	if [[ $CLIENTDISK ~= $SSD_REGEX ]]; then
+	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
 		return 0
 	fi
 	
