@@ -10,11 +10,14 @@ dbSelect("$input");
 
 if (filterArr($arr) == 0) {
     foreach ($arr as $key => $value) {
-        echo $value["result"] . PHP_EOL;
+        if (filter($value["result"]) == 0) {
+            echo $value["result"] . PHP_EOL;
+        } else {
+            echo "NULL" . PHP_EOL;
+        }
     }
 } else {
     echo "NULL" . PHP_EOL;
 }
-
 
 ?>
