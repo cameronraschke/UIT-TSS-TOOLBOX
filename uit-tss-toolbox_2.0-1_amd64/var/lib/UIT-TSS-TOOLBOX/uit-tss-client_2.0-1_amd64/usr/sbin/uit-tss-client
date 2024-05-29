@@ -315,7 +315,7 @@ function enterTag {
 		echo "location|begin|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
 	else
-		read -p "${BOLD}Please enter the ${BLUE}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
+		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo ""
 		echo "${BOLD}Please select the ${BLUE}department${RESET}${BOLD}:${RESET} "
 		echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}TechCommons${RESET}"
