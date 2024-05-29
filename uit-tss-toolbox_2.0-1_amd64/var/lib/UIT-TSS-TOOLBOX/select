@@ -20,5 +20,4 @@ if (filterArr($arr) == 0) {
     echo "NULL" . PHP_EOL;
 }
 
-
 ?>
