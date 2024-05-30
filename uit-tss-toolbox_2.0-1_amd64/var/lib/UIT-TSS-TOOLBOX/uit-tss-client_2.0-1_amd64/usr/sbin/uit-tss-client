@@ -308,7 +308,7 @@ function enterTag {
 	tput reset
 	echo ""
 
-	tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	if [[ $tagNum != "NULL" ]]; then
 		if [[ $sqlDepartment == "shrl" ]]; then
 			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
