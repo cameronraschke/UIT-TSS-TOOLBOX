@@ -61,5 +61,5 @@ while true; do
         note=""
     fi
 
-    echo "location|${tagNum}|${serial}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
+    echo "location|${tagNum}|${serial}|${location}|${department}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 done

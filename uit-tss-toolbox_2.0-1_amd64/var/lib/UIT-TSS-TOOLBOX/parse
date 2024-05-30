@@ -16,8 +16,9 @@ if ($arr[0] == "location") {
     $tagNum = $arr[1];
     $serial = $arr[2];
     $location = $arr[3];
-    $status = $arr[4];
-    $note = $arr[5];
+    $department = $arr[4];
+    $status = $arr[5];
+    $note = $arr[6];
 
     $uuid = uniqid("location-", true);
 
@@ -27,6 +28,7 @@ if ($arr[0] == "location") {
     dbUpdateJob("system_serial", "$serial", "$time");
     dbUpdateJob ("date", "$date", "$uuid");
     dbUpdateJob ("time", "$time", "$uuid");
+    dbUpdateJob ("department", "$department", "$uuid");
 
     # INSERT statement
     dbInsertLocation($time);
