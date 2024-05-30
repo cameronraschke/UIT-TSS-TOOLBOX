@@ -81,7 +81,7 @@ UNION
     CONCAT(erase_avgtime, ' minutes'),
     CONCAT(clone_avgtime, ' minutes'),
     all_jobs
-    FROM clientstats ORDER BY last_job_time DESC);
+    FROM clientstats WHERE tagnumber IS NOT NULL ORDER BY last_job_time DESC);
 END; //
 
 DELIMITER ;
@@ -148,7 +148,7 @@ UNION
     note,
     CONVERT(time, DATETIME) 
     FROM locations 
-    WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber));
+    WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber));
 
 END; //
 
