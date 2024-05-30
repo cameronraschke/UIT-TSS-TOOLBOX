@@ -15,12 +15,14 @@ $arr = explode('|', $input);
 if ($arr[0] == "init") {
     $uuid = $arr[1];
     $tagNum = $arr[2];
-    $macAddr = $arr[3];
-    $wifiMac = $arr[4];
+    $serial = $arr[3];
+    $macAddr = $arr[4];
+    $wifiMac = $arr[5];
 
     dbInsertJob($uuid);
 
     dbUpdateJob("tagnumber", "$tagNum", "$uuid");
+    dbUpdateJob("system_serial", "$serial", "$uuid");
     dbUpdateJob("etheraddress", "$macAddr", "$uuid");
     dbUpdateJob("wifi_mac", "$wifiMac", "$uuid");
     dbUpdateJob("date", "$date", "$uuid");
