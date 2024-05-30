@@ -30,7 +30,6 @@ while true; do
         echo "${BOLD}Please select the ${BLUE}department${RESET}${BOLD}:${RESET} "
         echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}TechCommons${RESET}"
         echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}SHRL${RESET}"
-        echo ""
         read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " input
         if [[ $input == "1" ]]; then
             department="techComm"
@@ -40,6 +39,7 @@ while true; do
             department=""
         fi
     fi
+    echo ""
     sql=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     sql1=$(echo "SELECT CONVERT(time, DATETIME) AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     echo "The last reported location for ${BOLD}${tagNum}${RESET} was: ${BOLD}${sql}${RESET} at ${BOLD}${sql1}${RESET}"
