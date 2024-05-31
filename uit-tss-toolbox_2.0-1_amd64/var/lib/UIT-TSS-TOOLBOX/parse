@@ -46,6 +46,7 @@ if ($arr[0] == "disk") {
     $diskModel = $arr[3];
     $diskSize = $arr[4];
     $diskSerial = $arr[5];
+    $department = $arr[6];
 
     $uuid = uniqid("disk-", true);
 
@@ -57,6 +58,7 @@ if ($arr[0] == "disk") {
     dbUpdateJob("disk_model", "$diskModel", "$uuid");
     dbUpdateJob("disk_size", "$diskSize", "$uuid");
     dbUpdateJob("disk_serial", "$diskSerial", "$uuid");
+    dbUpdateJob ("department", "$department", "$uuid");
 }
 
 ?>

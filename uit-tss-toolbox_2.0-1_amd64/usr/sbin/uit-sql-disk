@@ -20,6 +20,28 @@ while true; do
         serial="${sql}"
     fi
 
+    sql=$(echo "SELECT department AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND system_serial = '${serial}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+    if [[ $sql == "shrl" ]]; then
+        echo "The last reported department for ${BOLD}${tagNum}${RESET} was: ${BOLD}${sql}${RESET}"
+        department="shrl"
+    elif [[ $sql == "techComm" ]]; then
+        echo "The last reported department for ${BOLD}${tagNum}${RESET} was: ${BOLD}${sql}${RESET}"
+        department="techComm"
+    else
+        echo "Please select the ${BOLD}${GREEN}department${RESET}:"
+        echo "   ${BOLD}${GREEN}[1]${RESET} TechCommons"
+        echo "   ${BOLD}${GREEN}[2]${RESET} SHRL"
+        read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " input
+        echo ""
+        if [[ $input == "1" ]]; then
+                department="techComm"
+            elif [[ $input == "2" ]]; then
+                department="shrl"
+            else
+                department=""
+        fi
+    fi
+
     diskModel=$(echo "SELECT disk_model AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_model IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     diskSize=$(echo "SELECT disk_size AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_size IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     diskSerial=$(echo "SELECT disk_serial AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
@@ -33,7 +55,7 @@ while true; do
     fi
 
     if [[ $diskSerial == "NULL" ]]; then
-        read -p "Please enter the ${BOLD}${GREEN}disk serial number${RESET} in GB: " diskSerial
+        read -p "Please enter the ${BOLD}${GREEN}disk serial number${RESET}: " diskSerial
     fi
 
     echo "disk|${tagNum}|${serial}|${diskModel}|${diskSize}|${diskSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse
