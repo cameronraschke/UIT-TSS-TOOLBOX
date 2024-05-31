@@ -520,6 +520,17 @@ function powerWarning {
 }
 
 
+function monitorBattery {
+	footer
+	while sleep 10; do
+		batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+		batStatus=$(cat /sys/class/power_supply/BAT0/status)
+		echo "${BOLD}Battery Info:{$RESET}"
+		echo "Status: ${BOLD}${GREEN}${batStatus}${RESET}"
+		echo "Current Charge: ${BOLD}${GREEN}${batCharge}%${RESET}"
+	done
+}
+
 
 function appSelect {
 	footer
@@ -528,6 +539,7 @@ function appSelect {
 	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}erase and clone${RESET}"
 	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}only erase (advanced)${RESET}"
 	echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}only clone${RESET}"
+	echo "   ${BOLD}${GREEN}[4]${RESET} ${BOLD}monitor battery charge${RESET}"
 	read -n 1 -p "${BOLD}Please enter [1-3]:${RESET} " APPSELECT
 	if [[ $APPSELECT == "1" ]]; then
 		APPSELECT="EC"
@@ -540,9 +552,11 @@ function appSelect {
 	elif [[ $APPSELECT == "3" ]]; then
 		APPSELECT="C"
 		ACTION="clone"
+	elif [[ $APPSELECT == "4" ]]; then
+		APPSELECT="battery"
 	else
 		echo ""
-		echo "${BOLD}${RED}Please enter a valid number [1-3].${RESET}"
+		echo "${BOLD}${RED}Please enter a valid number [1-4].${RESET}"
 		sleep 0.5
 		appSelect
 	fi
@@ -1747,8 +1761,12 @@ function main {
 		execute
 	elif [[ $mainMenuOpt == "9" ]]; then
 		appSelect
-		diskSelect
-		execute
+		if [[ $APPSELECT != "battery" ]]; then
+			diskSelect
+			execute
+		else
+			monitorBattery
+		fi
 	elif [[ $mainMenuOpt == "0" ]]; then
 		:
 	else
