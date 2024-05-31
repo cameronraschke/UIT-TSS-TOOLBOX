@@ -50,6 +50,8 @@ if ($arr[0] == "disk") {
     $uuid = uniqid("disk-", true);
 
     dbInsertJob($uuid);
+    dbUpdateJob ("date", "$date", "$uuid");
+    dbUpdateJob ("time", "$time", "$uuid");
     dbUpdateJob("tagnumber", "$tagNum", "$uuid");
     dbUpdateJob("system_serial", "$serial", "$uuid");
     dbUpdateJob("disk_model", "$diskModel", "$uuid");
