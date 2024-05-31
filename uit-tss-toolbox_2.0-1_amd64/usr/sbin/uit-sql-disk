@@ -58,5 +58,5 @@ while true; do
         read -p "Please enter the ${BOLD}${GREEN}disk serial number${RESET}: " diskSerial
     fi
 
-    echo "disk|${tagNum}|${serial}|${diskModel}|${diskSize}|${diskSerial}" | /var/lib/UIT-TSS-TOOLBOX/parse
+    echo "disk|${tagNum}|${serial}|${diskModel}|${diskSize}|${diskSerial}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
 done
