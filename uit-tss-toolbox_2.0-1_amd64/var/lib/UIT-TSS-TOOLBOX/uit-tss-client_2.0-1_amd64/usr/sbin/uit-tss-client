@@ -524,16 +524,21 @@ function monitorBattery {
 	footer
 	lines=$(tput lines)
 	while sleep 1; do
-		batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
-		batStatus=$(cat /sys/class/power_supply/BAT0/status)
-		tput cup 1 0
-		echo "${BOLD}Battery Info:${RESET}"
-		tput cup 4 1
-		tput el
-		echo "Status: ${BOLD}${GREEN}${batStatus}${RESET}"
-		tput cup 5 1
-		tput el
-		echo "Current Charge: ${BOLD}${GREEN}${batCharge}%${RESET}"
+		read -t 0.25 -N 1 input
+		if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
+			break
+		else
+			batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+			batStatus=$(cat /sys/class/power_supply/BAT0/status)
+			tput cup 1 0
+			echo "${BOLD}Battery Info ${RESET}${DIM}(Press "Q" to exit)${BOLD}:${RESET}"
+			tput cup 4 1
+			tput el
+			echo "Status: ${BOLD}${GREEN}${batStatus}${RESET}"
+			tput cup 5 1
+			tput el
+			echo "Current Charge: ${BOLD}${GREEN}${batCharge}%${RESET}"
+		fi
 	done
 }
 
