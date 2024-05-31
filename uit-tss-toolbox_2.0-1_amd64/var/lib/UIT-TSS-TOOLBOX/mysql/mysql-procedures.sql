@@ -191,7 +191,7 @@ SELECT time,
     disk_power_on_hours
     FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC LIMIT 5;
 
-SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
+SELECT * FROM locations WHERE tagnumber = tag ORDER BY time ASC LIMIT 7;
 END; //
 
 DELIMITER ;
