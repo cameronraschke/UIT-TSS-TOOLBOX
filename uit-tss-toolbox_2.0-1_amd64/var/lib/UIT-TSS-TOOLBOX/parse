@@ -39,4 +39,22 @@ if ($arr[0] == "location") {
     dbUpdateLocation("note", "$note", "$time");
 }
 
+
+if ($arr[0] == "disk") {
+    $tagNum = $arr[1];
+    $serial = $arr[2];
+    $diskModel = $arr[3];
+    $diskSize = $arr[4];
+    $diskSerial = $arr[5];
+
+    $uuid = uniqid("disk-", true);
+
+    dbInsertJob($uuid);
+    dbUpdateJob("tagnumber", "$tagNum", "$uuid");
+    dbUpdateJob("system_serial", "$serial", "$uuid");
+    dbUpdateJob("disk_model", "$diskModel", "$uuid");
+    dbUpdateJob("disk_size", "$diskSize", "$uuid");
+    dbUpdateJob("disk_serial", "$diskSerial", "$uuid");
+}
+
 ?>
