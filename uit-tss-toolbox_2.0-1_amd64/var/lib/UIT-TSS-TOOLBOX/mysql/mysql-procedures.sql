@@ -205,6 +205,7 @@ DETERMINISTIC
 BEGIN
 SELECT time, 
     disk_model, 
+    disk_serial, 
     disk_type, 
     disk_writes, 
     disk_reads, 
