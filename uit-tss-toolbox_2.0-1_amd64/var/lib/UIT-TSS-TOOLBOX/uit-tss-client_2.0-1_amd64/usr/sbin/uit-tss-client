@@ -193,7 +193,7 @@ function hardwareData {
 		echo "general|motherboard_manufacturer|${tTwoManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
 		echo "general|motherboard_serial|${tTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tThreeType=$(dmidecode --string chassis-type)
+	tThreeType=$(dmidecode --string chassis-type | head -n1)
 		echo "general|chassis_type|${tThreeType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourManufacturer=$(dmidecode --string processor-manufacturer)
 		echo "general|cpu_manufacturer|${tFourManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
