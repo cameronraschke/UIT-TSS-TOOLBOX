@@ -62,30 +62,30 @@ while true; do
         read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " diskRemoved
         if [[ $diskRemoved == "1" ]]; then
                 diskRemoved="FALSE"
+                echo ""
+                diskModel=$(echo "SELECT disk_model AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_model IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+                diskSize=$(echo "SELECT disk_size AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_size IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+                diskSerial=$(echo "SELECT disk_serial AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+
+                if [[ $diskModel == "NULL" ]]; then
+                read -p "Please enter the ${BOLD}${GREEN}disk model${RESET}: " diskModel
+                fi
+
+                if [[ $diskSize == "NULL" ]]; then
+                read -p "Please enter the ${BOLD}${GREEN}disk size${RESET} in GB: " diskSize
+                fi
+
+                if [[ $diskSerial == "NULL" ]]; then
+                read -p "Please enter the ${BOLD}${GREEN}disk serial number${RESET}: " diskSerial
+                fi
+
+                echo "disk|${tagNum}|${serial}|${diskModel}|${diskSize}|${diskSerial}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
             elif [[ $diskRemoved == "2" ]]; then
                 diskRemoved="TRUE"
             else
                 diskRemoved=""
         fi
 
-        echo ""
-        diskModel=$(echo "SELECT disk_model AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_model IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-        diskSize=$(echo "SELECT disk_size AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_size IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-        diskSerial=$(echo "SELECT disk_serial AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-
-        if [[ $diskModel == "NULL" ]]; then
-        read -p "Please enter the ${BOLD}${GREEN}disk model${RESET}: " diskModel
-        fi
-
-        if [[ $diskSize == "NULL" ]]; then
-        read -p "Please enter the ${BOLD}${GREEN}disk size${RESET} in GB: " diskSize
-        fi
-
-        if [[ $diskSerial == "NULL" ]]; then
-        read -p "Please enter the ${BOLD}${GREEN}disk serial number${RESET}: " diskSerial
-        fi
-
-        echo "disk|${tagNum}|${serial}|${diskModel}|${diskSize}|${diskSerial}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
     else
         status=""
         note=""
