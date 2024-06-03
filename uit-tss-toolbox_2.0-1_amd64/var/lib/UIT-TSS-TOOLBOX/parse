@@ -18,7 +18,8 @@ if ($arr[0] == "location") {
     $location = $arr[3];
     $department = $arr[4];
     $status = $arr[5];
-    $note = $arr[6];
+    $diskRemoved = $arr[6];
+    $note = $arr[7];
 
     $uuid = uniqid("location-", true);
 
@@ -36,6 +37,7 @@ if ($arr[0] == "location") {
     dbUpdateLocation("system_serial", "$serial", "$time");
     dbUpdateLocation("location", "$location", "$time");
     dbUpdateLocation("status", "$status", "$time");
+    dbUpdateLocation("disk_removed", "$diskRemoved", "$time");
     dbUpdateLocation("note", "$note", "$time");
 }
 
