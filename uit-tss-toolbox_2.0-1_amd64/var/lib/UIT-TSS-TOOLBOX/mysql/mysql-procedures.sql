@@ -137,6 +137,7 @@ BEGIN
     'Location',
     'Status',
     'OS Insalled',
+    'Disk Removed',
     'Notes',
     'Most Recent Entry')
 UNION
@@ -145,6 +146,7 @@ UNION
     location,
     IF (status='0', "Working", "Broken"),
     IF (os_installed='1', "Yes", "No"),
+    IF (disk_removed='1', "Yes", "No"),
     note,
     CONVERT(time, DATETIME) 
     FROM locations 
