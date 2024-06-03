@@ -148,6 +148,7 @@ CREATE TABLE IF NOT EXISTS locations (
     tagnumber MEDIUMINT DEFAULT NULL,
     system_serial VARCHAR(16) DEFAULT NULL,
     location VARCHAR(128) DEFAULT NULL,
+    disk_removed BOOLEAN DEFAULT NULL,
     os_installed BOOLEAN DEFAULT NULL,
     note VARCHAR(256) DEFAULT NULL
 );
@@ -161,7 +162,7 @@ ALTER TABLE locations
     MODIFY COLUMN status BOOLEAN DEFAULT NULL AFTER location,
     MODIFY COLUMN os_installed BOOLEAN DEFAULT NULL AFTER status,
     MODIFY COLUMN disk_removed BOOLEAN DEFAULT NULL AFTER os_installed,
-    MODIFY COLUMN note VARCHAR(256) DEFAULT NULL AFTER os_installed;
+    MODIFY COLUMN note VARCHAR(256) DEFAULT NULL AFTER disk_removed;
 
 
 DROP TABLE IF EXISTS static_disk_stats;
