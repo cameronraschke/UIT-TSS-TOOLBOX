@@ -46,19 +46,6 @@ while true; do
     read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
     read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
 
-    echo ""
-    echo "Is the disk removed?:"
-    echo "   ${BOLD}${GREEN}[1]${RESET} No"
-    echo "   ${BOLD}${GREEN}[2]${RESET} Yes"
-    read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " diskRemoved
-    if [[ $diskRemoved == "1" ]]; then
-            diskRemoved="0"
-        elif [[ $diskRemoved == "2" ]]; then
-            diskRemoved="1"
-        else
-            diskRemoved=""
-    fi
-
     if [[ $status == "1" ]]; then
         echo ""
         status="TRUE"
@@ -68,6 +55,18 @@ while true; do
         sql=$(echo "SELECT note AS result FROM locations WHERE tagnumber = '${tagNum}' AND note IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
         echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
         status="FALSE"
+        echo ""
+        echo "Is the disk removed?:"
+        echo "   ${BOLD}${GREEN}[1]${RESET} Yes"
+        echo "   ${BOLD}${GREEN}[2]${RESET} No"
+        read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " diskRemoved
+        if [[ $diskRemoved == "1" ]]; then
+                diskRemoved="FALSE"
+            elif [[ $diskRemoved == "2" ]]; then
+                diskRemoved="TRUE"
+            else
+                diskRemoved=""
+        fi
         read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
     else
         status=""
