@@ -55,9 +55,7 @@ while true; do
         sql=$(echo "SELECT note AS result FROM locations WHERE tagnumber = '${tagNum}' AND note IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
         echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
         status="FALSE"
-        echo ""
         read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
-        echo ""
         echo "Is the disk removed?:"
         echo "   ${BOLD}${GREEN}[1]${RESET} Yes"
         echo "   ${BOLD}${GREEN}[2]${RESET} No"
@@ -69,6 +67,25 @@ while true; do
             else
                 diskRemoved=""
         fi
+
+        echo ""
+        diskModel=$(echo "SELECT disk_model AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_model IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+        diskSize=$(echo "SELECT disk_size AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_size IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+        diskSerial=$(echo "SELECT disk_serial AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+
+        if [[ $diskModel == "NULL" ]]; then
+        read -p "Please enter the ${BOLD}${GREEN}disk model${RESET}: " diskModel
+        fi
+
+        if [[ $diskSize == "NULL" ]]; then
+        read -p "Please enter the ${BOLD}${GREEN}disk size${RESET} in GB: " diskSize
+        fi
+
+        if [[ $diskSerial == "NULL" ]]; then
+        read -p "Please enter the ${BOLD}${GREEN}disk serial number${RESET}: " diskSerial
+        fi
+
+        echo "disk|${tagNum}|${serial}|${diskModel}|${diskSize}|${diskSerial}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
     else
         status=""
         note=""
