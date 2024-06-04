@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
     system_sku VARCHAR(16) DEFAULT NULL,
     chassis_type VARCHAR(8) DEFAULT NULL,
     disk VARCHAR(8) DEFAULT NULL,
-    disk_model VARCHAR(32) DEFAULT NULL,
+    disk_model VARCHAR(36) DEFAULT NULL,
     disk_type VARCHAR(4) DEFAULT NULL,
     disk_size SMALLINT DEFAULT NULL,
     disk_serial VARCHAR(32) DEFAULT NULL,
@@ -102,7 +102,7 @@ ALTER TABLE jobstats
     MODIFY COLUMN system_sku VARCHAR(16) DEFAULT NULL AFTER system_uuid,
     MODIFY COLUMN chassis_type VARCHAR(8) DEFAULT NULL AFTER system_sku,
     MODIFY COLUMN disk VARCHAR(8) DEFAULT NULL AFTER chassis_type,
-    MODIFY COLUMN disk_model VARCHAR(32) DEFAULT NULL AFTER disk,
+    MODIFY COLUMN disk_model VARCHAR(36) DEFAULT NULL AFTER disk,
     MODIFY COLUMN disk_type VARCHAR(4) DEFAULT NULL AFTER disk_model,
     MODIFY COLUMN disk_size SMALLINT DEFAULT NULL AFTER disk_type,
     MODIFY COLUMN disk_serial VARCHAR(32) DEFAULT NULL AFTER disk_size,
@@ -167,7 +167,7 @@ ALTER TABLE locations
 
 DROP TABLE IF EXISTS static_disk_stats;
 CREATE TABLE IF NOT EXISTS static_disk_stats (
-    disk_model VARCHAR(128) NOT NULL PRIMARY KEY,
+    disk_model VARCHAR(36) NOT NULL PRIMARY KEY,
     disk_write_speed SMALLINT DEFAULT NULL,
     disk_read_speed SMALLINT DEFAULT NULL,
     disk_mtbf MEDIUMINT DEFAULT NULL,
