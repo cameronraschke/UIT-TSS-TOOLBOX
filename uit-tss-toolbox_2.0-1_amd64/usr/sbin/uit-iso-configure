@@ -190,7 +190,7 @@ php-bcmath
 usbutils
 bc
 chrony
-netcat
+netcat-traditional
 iperf3
 EOF
 
