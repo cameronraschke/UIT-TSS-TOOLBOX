@@ -44,8 +44,8 @@ system_sku, chassis_type, disk, disk_model, disk_type, CONCAT(disk_size, ' GB'),
 CONCAT(disk_power_on_hours, 'hrs'), CONCAT(disk_temp, ' C'), disk_firmware, battery_model, battery_serial, CONCAT(battery_health, '%'), battery_charge_cycles, 
 CONCAT(battery_capacity, ' Wh'), battery_manufacturedate, cpu_manufacturer, cpu_model, CONCAT(cpu_maxspeed, ' Ghz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), 
 motherboard_manufacturer, motherboard_serial, bios_version, bios_date, bios_firmware, ram_serial, CONCAT(ram_capacity, ' GB') ,CONCAT(ram_speed, 'Mhz'), CONCAT(cpu_usage, '%'), 
-CONCAT(network_usage, 'mbps'), CONCAT(boot_time, 's'), REPLACE(erase_completed, '1', 'Yes'), erase_mode, CONCAT(erase_diskpercent, '%'), CONCAT(clone_time, 's'), 
-REPLACE(clone_completed, '1', 'Yes'), REPLACE(clone_master, '1', 'Yes'), CONCAT(erase_time, 's')
+CONCAT(network_usage, 'mbps'), CONCAT(boot_time, 's'), REPLACE(erase_completed, '1', 'Yes'), erase_mode, CONCAT(erase_diskpercent, '%'), CONCAT(erase_time, 's'), 
+REPLACE(clone_completed, '1', 'Yes'), REPLACE(clone_master, '1', 'Yes'), CONCAT(clone_time, 's')
 FROM jobstats WHERE department = 'techComm' ORDER BY time DESC);
 END; //
 
@@ -185,6 +185,7 @@ DETERMINISTIC
 BEGIN
 SELECT time,
     tagnumber,
+    system_serial,
     bios_version,
     system_model,
     cpu_usage,
