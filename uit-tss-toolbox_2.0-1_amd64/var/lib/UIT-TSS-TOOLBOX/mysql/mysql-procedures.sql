@@ -234,3 +234,22 @@ SELECT time,
 
 DELIMITER ;
 
+-- Select battery info about a tag
+DROP PROCEDURE IF EXISTS selectTagJob;
+DELIMITER //
+CREATE PROCEDURE selectTagJob(tag VARCHAR(8))
+DETERMINISTIC
+BEGIN
+SELECT time, 
+    tagnumber, 
+    battery_model, 
+    battery_serial, 
+    battery_capacity, 
+    battery_charge_cycles,
+    battery_health,
+    battery_manufacturedate 
+    FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC;
+    END; //
+
+DELIMITER ;
+
