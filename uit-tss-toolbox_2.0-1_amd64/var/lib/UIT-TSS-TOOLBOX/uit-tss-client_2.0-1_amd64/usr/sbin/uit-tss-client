@@ -206,10 +206,16 @@ function hardwareData {
 	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|cpu_threads|${tFourThreadCount}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
+	if [[ -z $tTwentyTwoName ]]; then
+		tTwentyTwoName=$(cat /sys/class/power_supply/BAT1/model_name)
+	fi
 		echo "general|battery_model|${tTwentyTwoName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/[^0-9]//g')
 		echo "general|battery_capacity|${tTwentyTwoCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
+	if [[ -z $tTwentyTwoSerialNumber ]]; then
+		tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial)
+	fi
 		echo "general|battery_serial|${tTwentyTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|battery_manufacturedate|${tTwentyTwoManufactureDate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -277,9 +283,9 @@ function hardwareData {
 			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		batChargeCycles=$(cat /sys/class/power_supply/BAT0/cycle_count)
 			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	elif [[ -f -f /sys/class/power_supply/BAT1/charge_full_design ]]; then
-		batChargeNow=$(cat /sys/class/power_supply/BAT1/charge_full)
-		batChargeFactory=$(cat /sys/class/power_supply/BAT1/charge_full_design)
+	elif [[ -f /sys/class/power_supply/BAT1/energy_full_design ]]; then
+		batChargeNow=$(cat /sys/class/power_supply/BAT1/energy_full)
+		batChargeFactory=$(cat /sys/class/power_supply/BAT1/energy_full_design)
 		batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
 			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		batChargeCycles=$(cat /sys/class/power_supply/BAT1/cycle_count)
