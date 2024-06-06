@@ -192,7 +192,7 @@ SELECT time,
     network_usage,
     battery_health,
     disk_power_on_hours
-    FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC LIMIT 5;
+    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 5;
 
 SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
 END; //
@@ -213,7 +213,7 @@ SELECT time,
     disk_writes, 
     disk_reads, 
     disk_power_on_hours 
-    FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC;
+    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC;
 END; //
 
 DELIMITER ;
@@ -229,15 +229,15 @@ SELECT time,
     erase_completed, 
     clone_completed, 
     clone_master 
-    FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC;
+    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC;
     END; //
 
 DELIMITER ;
 
 -- Select battery info about a tag
-DROP PROCEDURE IF EXISTS selectTagJob;
+DROP PROCEDURE IF EXISTS selectTagBattery;
 DELIMITER //
-CREATE PROCEDURE selectTagJob(tag VARCHAR(8))
+CREATE PROCEDURE selectTagBattery(tag VARCHAR(8))
 DETERMINISTIC
 BEGIN
 SELECT time, 
@@ -248,7 +248,7 @@ SELECT time,
     battery_charge_cycles,
     battery_health,
     battery_manufacturedate 
-    FROM jobstats WHERE tagnumber = tag AND department = 'techComm' ORDER BY time DESC;
+    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC;
     END; //
 
 DELIMITER ;
