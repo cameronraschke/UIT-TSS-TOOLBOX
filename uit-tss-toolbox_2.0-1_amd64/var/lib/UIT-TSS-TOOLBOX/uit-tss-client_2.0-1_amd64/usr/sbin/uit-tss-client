@@ -277,6 +277,13 @@ function hardwareData {
 			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		batChargeCycles=$(cat /sys/class/power_supply/BAT0/cycle_count)
 			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	elif [[ -f -f /sys/class/power_supply/BAT1/charge_full_design ]]; then
+		batChargeNow=$(cat /sys/class/power_supply/BAT1/charge_full)
+		batChargeFactory=$(cat /sys/class/power_supply/BAT1/charge_full_design)
+		batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
+			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		batChargeCycles=$(cat /sys/class/power_supply/BAT1/cycle_count)
+			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 
 	###Memory Data
