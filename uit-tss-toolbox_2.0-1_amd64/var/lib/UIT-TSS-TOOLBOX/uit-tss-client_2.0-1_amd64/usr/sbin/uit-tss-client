@@ -1263,7 +1263,7 @@ function gutmann {
 
 		if [[ $COUNT -le 4 ]]; then
 			echo ""
-			echo "[${COUNT}/35] Writing \"${RANDOMPATTERN}\" to ${CLIENTDISK}"
+			echo "[${COUNT}/35] Writing \"${RANDPATTERN}\" to ${CLIENTDISK}"
 			WMODE='randPattern_Shred'
 			PCNTOFSECTOR='100'
 			writeDisk_Shred
@@ -1282,7 +1282,7 @@ function gutmann {
 
 		if [[ $COUNT -gt 31 ]]; then
 			echo ""
-			echo "[${COUNT}/35] Writing \"${RANDOMPATTERN}\" to ${CLIENTDISK}"
+			echo "[${COUNT}/35] Writing \"${RANDPATTERN}\" to ${CLIENTDISK}"
 			WMODE='randPattern_Shred'
 			PCNTOFSECTOR='100'
 			writeDisk_Shred
