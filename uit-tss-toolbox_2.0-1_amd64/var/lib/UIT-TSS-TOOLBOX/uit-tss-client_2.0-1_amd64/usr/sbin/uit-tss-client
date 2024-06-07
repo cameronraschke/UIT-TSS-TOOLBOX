@@ -881,9 +881,6 @@ function writeDisk_Shred {
 
 function vrfyDisk_Shred {
 	footer
-	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
-		return 0
-	fi
 	
 	if [[ -z $SECTIONS ]]; then
 		SECTIONS='1000'
@@ -893,14 +890,12 @@ function vrfyDisk_Shred {
 		PCNTOFSECTOR='100'
 	fi
 
-	DIVPERSEC='2'
-	BS='1M'
-	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
+	sectorDivisions='2'
+	BS='512'
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	SECTIONSIZEMB=$(( DISKSIZEMB / SECTIONS ))
-	COUNT=$(( SECTIONSIZEMB / 100 * PCNTOFSECTOR / 2 ))
-	local a='0'
-	local i='0'
+	diskSizeBytes=$(blockdev --getsize64)
+	sectorSize=$(blocked --getsz /dev/${CLIENTDISK})
+	COUNT=$((sectorSize / 100 * PCNTOFSECTOR))
 	PROCFAIL='0'
 
 	if [[ -z $CHAR ]]; then
@@ -927,8 +922,7 @@ function vrfyDisk_Shred {
 		tput cuu1
 
 		COUNT1=$(shuf -i 1-${COUNT} -n 1)
-		MATHONE=$(shuf -i 1-$(( SECTIONSIZEMB / DIVPERSEC )) -n 1)
-		SKIP1=$(( MATHONE + a / 2 ))
+		SKIP1=$(shuf -i 1-$(( sectorSize / sectorDivisions * 100 )) -n 1)
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP1} iflag=fullblock status=none 2>/dev/null \
         	| od -An -v | grep --quiet -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
@@ -936,9 +930,8 @@ function vrfyDisk_Shred {
 				exit
     	fi
 
-		COUNT2=$(shuf -i 1-${COUNT} -n 1)
-		MATHTWO=$(shuf -i 1-$(( SECTIONSIZEMB + SECTIONSIZEMB - SECTIONSIZEMB / DIVPERSEC )) -n 1)
-    	SKIP2=$(( MATHTWO + a ))
+		COUNT2=$((COUNT - COUNT1))
+		SKIP2=$((sectorSize - COUNT))
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT2} skip=${SKIP2} iflag=fullblock status=none 2>/dev/null \
         	| od -An -v | grep --quiet -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
@@ -953,14 +946,14 @@ function vrfyDisk_Shred {
 
 	echo ""
 	echo "Verifing the first sector of the disk...."
-	if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=0 iflag=fullblock status=none 2>/dev/null \
+	if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorSize} skip=0 iflag=fullblock status=none 2>/dev/null \
         | od -An -v | grep --quiet -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
             	read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				exit
     fi
 	echo "Verifing the last sector of the disk...."
-    if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) \
+    if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorSize} skip=$(( ${sectorSize} - 1 )) \
 		iflag=fullblock status=none 2>/dev/null \
         | od -An -v | grep --quiet -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
