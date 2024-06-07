@@ -911,10 +911,8 @@ function vrfyDisk_Shred {
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		if [[ $(od -An -v /dev/${CLIENTDISK} | grep --quiet -m 1 -v "${CHAR}"; echo ${PIPESTATUS[1]}) == '0' ]]; then
 		    PROCFAIL='1'
-            echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}${BOLD}.${RESET}"
-			echo ""
-        	read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESET}"
-			return 1
+            read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+			exit
 		else
         	echo "${BOLD}The drive ${CLIENTDISK} is completely and securely wiped.${RESET}"
 			PROCFAIL='0'
@@ -933,10 +931,8 @@ function vrfyDisk_Shred {
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP1} iflag=fullblock status=none 2>/dev/null \
         	| od -An -v | grep --quiet -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
-            	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
-				echo ""
-        		read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESET}"
-				return 1
+            	read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+				exit
     	fi
 
 		COUNT2=$(shuf -i 1-${COUNT} -n 1)
@@ -945,10 +941,8 @@ function vrfyDisk_Shred {
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT2} skip=${SKIP2} iflag=fullblock status=none 2>/dev/null \
         	| od -An -v | grep --quiet -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
-            	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
-				echo ""
-        		read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESET}"
-				return 1
+            	read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+				exit
     	fi
 
 		i=$(( i + 1 ))
@@ -961,20 +955,16 @@ function vrfyDisk_Shred {
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=0 iflag=fullblock status=none 2>/dev/null \
         | od -An -v | grep --quiet -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
-            	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
-				echo ""
-        		read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESSET}"
-				return 1
+            	read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+				exit
     fi
 	echo "Verifing the last sector of the disk...."
     if [[ $(dd if=/dev/${CLIENTDISK} count=${SECTIONSIZEMB} skip=$(( ${DISKSIZEMB} - ${SECTIONSIZEMB} )) \
 		iflag=fullblock status=none 2>/dev/null \
         | od -An -v | grep --quiet -m 1 -v "${CHAR}"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
-            	echo "${BOLD}${RED}Bad bits found on device${RESET}${BOLD} ${CLIENTDISK}${RESET}"
-				echo ""
-        		read -p "${BOLD}Press ${BOLD}${GREEN}Enter ${RESET}${BOLD}to continue.${RESSET}"
-				return 1
+				read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+				exit
     fi
 
     echo "${PCNTOFSECTOR}% of ${CLIENTDISK} has been verified."
@@ -982,8 +972,8 @@ function vrfyDisk_Shred {
 		echo "Test passed successfully!"
 		return 0
 	else
-		echo "Test failed."
-		return 1
+		read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+		exit
 	fi
 }
 
