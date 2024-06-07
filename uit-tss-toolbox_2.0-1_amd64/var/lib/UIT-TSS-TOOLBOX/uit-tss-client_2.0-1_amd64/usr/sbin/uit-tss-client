@@ -395,12 +395,10 @@ function info {
 function footer {
 	tput reset
 	lines=$(tput lines)
-	batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
-	batStatus=$(cat /sys/class/power_supply/BAT0/status)
 	tput cup $(( lines - 3 )) 0
 	tput el
 	echo "Tag: ${tagNum}, Serial: ${tOneSerialNumber}"
-	tput cup $(( lines - 1 )) 0
+	tput cup $(( lines - 2 )) 0
 	tput el
 	echo "${DIM}UIT-TSS-TOOLBOX by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"
 	tput cup 1 0
