@@ -901,6 +901,7 @@ function vrfyDisk_Shred {
 	COUNT=$(( SECTIONSIZEMB / 100 * PCNTOFSECTOR / 2 ))
 	local a='0'
 	local i='0'
+	PROCFAIL='0'
 
 	if [[ -z $CHAR ]]; then
 		CHAR='0'
