@@ -800,8 +800,6 @@ function writeDisk_Shred {
 	DIVPERSEC='2'
 	BS='1M'
 	DISKSIZEMB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 ))
-	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	echo "general|disk_size|${DISKSIZEGB}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	SECTIONSIZEMB=$(( DISKSIZEMB / SECTIONS ))
 	COUNT=$(( SECTIONSIZEMB / 100 * PCNTOFSECTOR / 2 ))
 	PROCFAIL='0'
@@ -890,7 +888,6 @@ function vrfyDisk_Shred {
 		PCNTOFSECTOR='100'
 	fi
 
-	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
 	sectorDivisions='2'
 	BS='512'
 	diskSizeBytes=$(blockdev --getsize64 /dev/${CLIENTDISK})
@@ -1024,15 +1021,15 @@ function nistMode_Shred {
 	writeDisk_Shred
 	
 	echo ""
-	echo "Step [2/2]:"
+	echo "Step [2/3]:"
 	secErase_Shred
 	secUnlock_Shred
 	
-	# echo ""
-	# echo "Step [3/3]:"
-	# PCNTOFSECTOR='10'
-	# CHAR='0'
-	# vrfyDisk_Shred
+	echo ""
+	echo "Step [3/3]:"
+	PCNTOFSECTOR='10'
+	CHAR='0'
+	vrfyDisk_Shred
 }
 
 
@@ -1050,11 +1047,11 @@ function zeroMode_Shred {
 		echo "Step [1/1]: "
 		writeDisk_Shred
 	else
-		echo "Step [1/1]: "
+		echo "Step [1/2]: "
 		writeDisk_Shred
 		echo ""
-		#echo "Step [2/2]: "
-		#vrfyDisk_Shred
+		echo "Step [2/2]: "
+		vrfyDisk_Shred
 	fi
 }
 
@@ -1563,6 +1560,7 @@ function totaltime {
 
 
 function location {
+	footer
 	RED=$(tput setaf 1)
 	GREEN=$(tput setaf 2)
 	BLUE=$(tput setaf 4)
@@ -1682,13 +1680,13 @@ function terminate {
 		)		
 	fi
 
-	if [[ $mainMenuOpt != 0 || $APPSELECT != "battery" ]]; then
+	if [[ $mainMenuOpt != 0 ]]; then
 		/usr/bin/play /root/oven.mp3 &> /dev/null
 	fi
+	footer
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
 	location
-
 	echo ""
 	echo ""
 	echo "${terminateMessage}"
