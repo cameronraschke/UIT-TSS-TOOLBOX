@@ -893,8 +893,8 @@ function vrfyDisk_Shred {
 	sectorDivisions='2'
 	BS='512'
 	DISKSIZEGB=$(( $(blockdev --getsize64 /dev/${CLIENTDISK}) / 1000000 / 1000 ))
-	diskSizeBytes=$(blockdev --getsize64)
-	sectorSize=$(blocked --getsz /dev/${CLIENTDISK})
+	diskSizeBytes=$(blockdev --getsize64 /dev/${CLIENTDISK})
+	sectorSize=$(blockdev --getsz /dev/${CLIENTDISK})
 	COUNT=$((sectorSize / 100 * PCNTOFSECTOR))
 	PROCFAIL='0'
 
