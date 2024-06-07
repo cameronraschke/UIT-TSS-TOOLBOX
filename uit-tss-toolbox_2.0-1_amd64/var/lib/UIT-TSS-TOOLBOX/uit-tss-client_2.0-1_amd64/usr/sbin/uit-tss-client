@@ -1282,9 +1282,9 @@ function gutmann {
 
 
 function verifyMode_Shred {
-	clear
+	footer
 	echo ""
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Verifying disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
 	
 	echo ""
@@ -1343,39 +1343,39 @@ function verifyMode_Shred {
 	echo ""
 	echo "Mode is ${VRFYMODE}"
 	echo ""
-	read -p "Which character/pattern would you like to verify?: " CHAR
+	read -p "Which character/pattern would you like to verify?: " input
 	echo ""
 
 	if [[ $VRFYMODE == 'full' ]]; then
 		PCNTOFSECTOR='100'
-		CHAR=${CHAR}
+		CHAR="${input}"
 		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'moderate' ]]; then
 		SECTIONS='10000'
 		PCNTOFSECTOR='75'
-		CHAR=${CHAR}
+		CHAR="${input}"
 		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'medium' ]]; then
 		SECTIONS='5000'
 		PCNTOFSECTOR='50'
-		CHAR=${CHAR}
+		CHAR="${input}"
 		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'fast' ]]; then
 		SECTIONS='2500'
 		PCNTOFSECTOR='25'
-		CHAR=${CHAR}
+		CHAR="${input}"
 		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'vfast' ]]; then
 		PCNTOFSECTOR='10'
-		CHAR=${CHAR}
+		CHAR="${input}"
 		vrfyDisk_Shred
 	fi
 }
