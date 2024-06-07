@@ -205,20 +205,6 @@ function hardwareData {
 		echo "general|cpu_cores|${tFourCoreCount}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|cpu_threads|${tFourThreadCount}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
-	if [[ -z $tTwentyTwoName ]]; then
-		tTwentyTwoName=$(cat /sys/class/power_supply/BAT1/model_name)
-	fi
-		echo "general|battery_model|${tTwentyTwoName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/[^0-9]//g')
-		echo "general|battery_capacity|${tTwentyTwoCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
-	if [[ -z $tTwentyTwoSerialNumber ]]; then
-		tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
-	fi
-		echo "general|battery_serial|${tTwentyTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|battery_manufacturedate|${tTwentyTwoManufactureDate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Disk Data
 	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
@@ -291,6 +277,24 @@ function hardwareData {
 		batChargeCycles=$(cat /sys/class/power_supply/BAT1/cycle_count)
 			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
+	
+	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
+	if [[ -z $tTwentyTwoName ]]; then
+		tTwentyTwoName=$(cat /sys/class/power_supply/BAT1/model_name)
+	fi
+		echo "general|battery_model|${tTwentyTwoName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	
+	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/[^0-9]//g')
+		echo "general|battery_capacity|${tTwentyTwoCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
+	if [[ -z $tTwentyTwoSerialNumber ]]; then
+		tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
+	fi
+		echo "general|battery_serial|${tTwentyTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //g' | sed 's/^[[:space:]]*//g')
+		echo "general|battery_manufacturedate|${tTwentyTwoManufactureDate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Memory Data
 	memSerial=$(dmidecode --type memory | grep -P '\tSerial Number' | sed 's/Serial Number: //g' | tr '\n' ' ' | tr '\t' ' ' | sed 's/ Not Specified //g' | sed 's/^ //g' | tr ' ' '-' | sed 's/-$//g')
@@ -389,24 +393,25 @@ function info {
 
 
 function footer {
-	lines=$(tput lines)
 	tput reset
-	tput cup $(( lines - 3 ))
-	echo "Tagnumber: ${tagNum}, System Serial Number: ${tOneSerialNumber}"
-	echo ""
+	lines=$(tput lines)
+	batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+	batStatus=$(cat /sys/class/power_supply/BAT0/status)
+	tput cup $(( lines - 3 )) 0
+	tput el
+	echo "Tag: ${tagNum}, Serial: ${tOneSerialNumber}"
+	tput cup $(( lines - 1 )) 0
+	tput el
 	echo "${DIM}UIT-TSS-TOOLBOX by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"
-	tput cup 0 0
-	echo ""
+	tput cup 1 0
 	info
 }
 
 
 
 function logo {
-	tput reset
 	footer
-	echo -n "UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}. "
-	echo "${BOLD}${RED}Go coogs!!${RESET}"
+	echo "${RESET}Welcome to UIT-TSS-TOOLBOX by Cameron Raschke ${DIM}(caraschke@uh.edu).${RESET}"
 	echo ""
 	tput bold
 	tput setaf 1
@@ -433,18 +438,17 @@ function manualClient {
 	echo ""
 	echo "${BOLD}Please remove the thumb drive and select one of the following options:${RESET} "
 	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET} ${BOLD}an HP laptop${RESET}"
-	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET} ${BOLD}a SMALL Dell laptop${RESET}"
-	echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET} ${BOLD}a BIG Dell laptop${RESET}"
-	echo "   ${BOLD}${GREEN}[4]${RESET} ${BOLD}Simple erase NVME${RESET} ${DIM}(nvme0/nvme0n1)${RESET}"
-	echo "   ${BOLD}${GREEN}[5]${RESET} ${BOLD}Simple erase SATA${RESET} ${DIM}(sda)${RESET}"
+	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Clone ${DIM}(server -> laptop)${RESET} ${BOLD}a Dell laptop${RESET}"
+	echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}Simple erase ${RESET}${DIM}(NVMe, SSD, or HDD)${RESET}"
 	echo "   ${BOLD}${GREEN}[9]${RESET} ${BOLD}Other options${RESET} ${DIM}(advanced)${RESET}"
-	echo "   ${BOLD}${GREEN}[0]${RESET} ${BOLD}Associate Hardware Data${RESET}"
+	echo "   ${BOLD}${GREEN}[0]${RESET} ${BOLD}Enter Location${RESET}"
 	read -n 1 -p "${BOLD}Please enter [0-9]:${RESET} " mainMenuOpt
 }
 
 
 
 function autodetectClient {
+	footer
 	if [[ $(echo "${tOneManufacturer}" | grep -i "dell") ]]; then
 		systemManufacturer="dell"
 		elif [[ $(echo "${tOneManufacturer}" | grep -i "hp") ]]; then
@@ -470,20 +474,18 @@ function autodetectClient {
 	echo "${BOLD}Select mode:${RESET}"
 	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
 	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
-	read -n 1 -p "${BOLD}Enter [1,2]:${RESET} " autodetectMenu
+	read -n 1 -p "${BOLD}Enter [1,2]:${RESET} " input
 
-	if [[ $autodetectMenu == "1" ]]; then
+	if [[ $input == "1" ]]; then
 		if [[ $systemManufacturer == "hp" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
-			mainMenuOpt="1"
-			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
-				mainMenuOpt="2"
-			elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType != "nvme" ]]; then
-				mainMenuOpt="5"
-			else
-				echo ""
-				echo "${BOLD}${RED}Not enough info for autodetect.${RESET}"
-				sleep 0.5
-				manualClient
+		mainMenuOpt="1"
+		elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
+			mainMenuOpt="2"
+		else
+			echo ""
+			echo "${BOLD}${RED}Not enough info for autodetect.${RESET}"
+			sleep 0.5
+			manualClient
 		fi
 		echo ""
 		echo "------------------------------"
@@ -518,17 +520,17 @@ function powerWarning {
 	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Skip hibernate${RESET}"
 	read -n 1 -p  "${BOLD}Please enter [1-2]:${RESET} " restartBool
 	if [[ $restartBool == "1" ]]; then
-		tput reset
+		footer
 		echo -n mem > /sys/power/state
-		tput reset
+		footer
 	elif [[ $restartBool == "2" ]]; then
-		tput reset
+		footer
 		echo "${BOLD}${RED}*** WARNING ***${RESET}"
 		echo "${BOLD}It is dangerous to skip this step.${RESET}"
 		echo "${BOLD}${RED}*** WARNING ***${RESET}"
 		echo ""
 		read -p "Press ${BOLD}${RED}Enter${RESET} to skip this step and NOT hibernate ${RED}(DANGEROUS)${RESET}.... "
-		tput reset
+		footer
 	else
 		powerWarning
 	fi
@@ -543,8 +545,17 @@ function monitorBattery {
 		if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 			break
 		else
-			batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
-			batStatus=$(cat /sys/class/power_supply/BAT0/status)
+			if [[ -d /sys/class/power_supply/BAT0 ]]; then
+				batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+				batStatus=$(cat /sys/class/power_supply/BAT0/status)
+			elif [[ -d /sys/class/power_supply/BAT1 ]]; then
+				batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+				batStatus=$(cat /sys/class/power_supply/BAT0/status)
+			else
+				echo "${RESET}${BOLD}No battery found${RESET}"
+				manualClient
+			fi
+
 			tput cup 1 0
 			echo "${BOLD}Battery Info ${RESET}${DIM}(Press \"Q\" to exit)${BOLD}:${RESET}"
 			tput cup 4 1
@@ -612,7 +623,6 @@ function basicEraseMode_Shred {
 
 
 function advEraseMode_Shred {
-	tput reset
 	if [[ $(dmidecode --string system-product-name) == "Latitude 3560" ]]; then
 		setfont /usr/share/consolefonts/Lat7-Terminus24x12.psf.gz
 	else
@@ -705,7 +715,7 @@ function advEraseMode_Shred {
 
 	tput reset
 	setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz
-	echo ""
+	footer
 	read -p "Are you sure you want to use ${BOLD}${BLUE}${RMODE}${RESET} on ${BOLD}${BLUE}${CLIENTDISK}${RESET}? Press ${BOLD}${GREEN}Enter${RESET} to continue...${RESET} "
 
 	echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -714,15 +724,14 @@ function advEraseMode_Shred {
 
 
 function diskSelect {
+	footer
 	diskList=$(lsblk --nodeps --noheadings -o NAME,SIZE --exclude 1,2,7,11)
 	diskNames=$(echo "${diskList}" | awk '{print $1}')
 	CLIENTDISK=""
 	diskCount="0"
-	local diskConfirm=""
 	local a="0"
 	local n="0"
 	local diskArr=()
-	footer
 
 	for i in ${diskNames}; do
 		diskCount=$(( diskCount + 1 ))
@@ -734,8 +743,8 @@ function diskSelect {
 			CLIENTDISK=${diskArr[$i]}
 		done
 		echo "The disk ${BOLD}${BLUE}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
-		read -n 1 -p "Press ${BOLD}${GREEN}[1]${RESET} to confirm:${RESET} " diskConfirm
-		if [[ $diskConfirm != "1" ]]; then
+		read -n 1 -p "Press ${BOLD}${GREEN}[1]${RESET} to confirm:${RESET} " input
+		if [[ $input != "1" ]]; then
 			echo "${BOLD}${RED}Reselecting disk.${RESET}"
 			sleep 0.5
 			diskSelect
@@ -784,6 +793,7 @@ function randPattern_Shred {
 
 
 function writeDisk_Shred {
+	footer
 	if [[ -z $PCNTOFSECTOR ]]; then
 		PCNTOFSECTOR='100'
 	fi
@@ -872,7 +882,7 @@ function writeDisk_Shred {
 
 
 function vrfyDisk_Shred {
-
+	footer
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
 		return 0
 	fi
@@ -982,16 +992,19 @@ function vrfyDisk_Shred {
 
 
 function secErase_Shred {
+	footer
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
-		hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
-		hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
+		if [[ /dev/${CLIENTDISK} ]]; then
+			hdparm --user-master u --security-set-pass UHouston /dev/${CLIENTDISK} &>/dev/null
+			hdparm --user-master u --security-erase UHouston /dev/${CLIENTDISK} &>/dev/null
+		fi
 	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		echo "Using Secure Erase on ${CLIENTDISK:0:-2}. This can take a while, please keep the device powered on...."
-		nvme format /dev/${CLIENTDISK:0:-2} --ses=1 --namespace-id=1 &>/dev/null
-		nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
-	elif [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}. Continuing...."
+		if [[ /dev/${CLIENTDISK:0:-2} ]]; then
+			nvme format /dev/${CLIENTDISK:0:-2} --ses=1 --namespace-id=1 &>/dev/null
+			nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
+		fi
 	else
 		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}. Continuing...."
 	fi
@@ -1000,15 +1013,15 @@ function secErase_Shred {
 
 
 function secUnlock_Shred {
+	footer
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
-		hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
-		hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
-		echo "${CLIENTDISK} is successfully unlocked."
+		if [[ /dev/${CLIENTDISK} ]]; then
+			hdparm --user-master u --security-unlock UHouston /dev/${CLIENTDISK} &>/dev/null
+			hdparm --user-master u --security-disable UHouston /dev/${CLIENTDISK} &>/dev/null
+		fi
 	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		echo "NVME drives do not need to be unlocked. Continuing...."
-	elif [[ $CLIENTDISK =~ $SCSI_REGEX ]]; then
-		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}. Continuing...."
 	else
 		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}. Continuing...."
 	fi
@@ -1017,7 +1030,7 @@ function secUnlock_Shred {
 
 
 function nistMode_Shred {
-	clear
+	footer
 	echo ""
 	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BOLD}${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
@@ -1043,7 +1056,7 @@ function nistMode_Shred {
 
 
 function zeroMode_Shred {
-	clear
+	footer
 	echo ""
 		echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
@@ -1066,8 +1079,7 @@ function zeroMode_Shred {
 
 
 function dodMode_Shred {
-	
-	clear
+	footer
 	echo ""
 	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	echo ""
@@ -1419,7 +1431,6 @@ function clientselect_Clone {
 		;;
 	esac
 
-	footer
 	echo "${BOLD}Select which ${BOLD}${BLUE}image${RESET} you are cloning:${RESET} "
 	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Tech Commons HP laptops${RESET}"
 	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Tech Commons Dell laptops${RESET}"
@@ -1463,18 +1474,15 @@ function execute_Clone {
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
 	modprobe fuse
-	#sshfs -o allow_other,default_permissions ${linuxUser}@${linuxServer}:/home/${linuxPath} /home/partimag
 	mount -t nfs ${linuxServer}:/home/${linuxPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
-		tput reset
-		info
+		footer
 		sleep 1
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $cloneMode == "savedisk" ]]; then
-		tput reset
-		info
+		footer
 		sleep 1
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
 			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z0 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
@@ -1614,7 +1622,7 @@ function location {
 
 
 function terminate {
-	tput reset
+	footer
 	totaltime
 
 	diskData
@@ -1692,7 +1700,7 @@ function terminate {
 		)		
 	fi
 
-	if [[ $mainMenuOpt != 0 ]]; then
+	if [[ $mainMenuOpt != 0 || $APPSELECT != "battery" ]]; then
 		/usr/bin/play /root/oven.mp3 &> /dev/null
 	fi
 	echo "${BOLD}Process has finished!${RESET}"
@@ -1720,7 +1728,11 @@ function main {
 	if [[ $mainMenuOpt == "1" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-		CLIENTDISK='nvme0n1'
+		if [[ /dev/nvme0n1 ]]; then
+			CLIENTDISK='nvme0n1'
+		else
+			diskSelect
+		fi
 			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
 		cloneImgName="TechCommons-HP-Laptops"
@@ -1736,7 +1748,11 @@ function main {
 	elif [[ $mainMenuOpt == "2" ]]; then
 		APPSELECT="EC"
 		ACTION="erase and clone"
-		CLIENTDISK='nvme0n1'
+		if [[ /dev/nvme0n1 ]]; then
+			CLIENTDISK='nvme0n1'
+		else
+			diskSelect
+		fi
 			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
 		cloneImgName="TechCommons-Dell-Laptops"
@@ -1750,35 +1766,9 @@ function main {
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "3" ]]; then
-		APPSELECT="EC"
-		ACTION="erase and clone"
-		CLIENTDISK='sda'
-			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		cloneMode="restoredisk"
-		cloneImgName="TechCommons-Dell-Laptops"
-		shredMode="autodetect"
-		RMODE="autodetect"
-			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		linuxUser="cameron"
-		linuxPassword="UHouston!"
-		linuxServer="10.0.0.1"
-		linuxDNS="mickey.uit"
-		powerWarning
-		execute
-	elif [[ $mainMenuOpt == "4" ]]; then
 		APPSELECT="E"
 		ACTION="erase"
-		CLIENTDISK='nvme0n1'
-			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		shredMode="autodetect"
-		RMODE="autodetect"
-			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		powerWarning
-		execute
-	elif [[ $mainMenuOpt == "5" ]]; then
-		APPSELECT="E"
-		ACTION="erase"
-		CLIENTDISK='sda'
+		diskSelect
 			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"

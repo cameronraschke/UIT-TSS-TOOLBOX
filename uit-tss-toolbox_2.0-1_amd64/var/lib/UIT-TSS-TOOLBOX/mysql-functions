@@ -194,24 +194,4 @@ function dbUpdateLocation ($key, $value, $time) {
     }
 }
 
-function dbUpdateLocationSerial ($serial, $tagNum) {
-    if (filter($serial) == 0 && filter($tagNum) == 0) {
-        global $pdo;
-        $sql = "UPDATE locations SET system_serial = :serial WHERE tagnumber = :tagNum";
-        $stmt = $pdo->prepare($sql);
-
-        if (filter($serial) == 0) {
-            $stmt->bindParam(':serial', $serial, PDO::PARAM_STR);
-            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-        } else {
-            $stmt->bindParam(':serial', $serial, PDO::PARAM_NULL);
-            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-        }
-
-        if (filter($stmt) == 0) {
-            $stmt->execute();
-        }
-    }
-}
-
 ?>
