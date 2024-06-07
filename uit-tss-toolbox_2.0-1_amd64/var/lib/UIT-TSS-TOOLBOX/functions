@@ -2,7 +2,7 @@
 <?php
 
 function filter ($string) {
-    if ($string == "" || $string == " " || $string == "NULL" || empty($string) || is_null($string)) {
+    if ($string == "" || $string == " " || $string == "NULL" || empty($string) || is_null($string) || !is_set($string)) {
         return 1;
     } else {
         return 0;
@@ -22,7 +22,7 @@ function filterNum ($string) {
 }
 
 function filterArr ($array) {
-    if (empty($array) || is_null($array) || count($array) <= 0) {
+    if (empty($array) || is_null($array) || count($array) <= 0 || !isset($array)) {
         return 1;
     } else {
         return 0;

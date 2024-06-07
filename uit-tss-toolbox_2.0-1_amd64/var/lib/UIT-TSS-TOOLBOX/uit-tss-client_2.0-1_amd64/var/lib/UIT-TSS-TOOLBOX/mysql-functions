@@ -14,7 +14,7 @@ function dbSelect ($sql) {
         $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
     } else {
         $result = "NULL";
-        $arr = "NULL";
+        $arr = NULL;
     }
 }
 
@@ -33,11 +33,11 @@ function dbSelectVal ($sql) {
             }
         } else {
             $result = "NULL";
-            $arr = "NULL";
+            $arr = NULL;
         }
     } else {
         $result = "NULL";
-        $arr = "NULL";
+        $arr = NULL;
     }
 }
 
