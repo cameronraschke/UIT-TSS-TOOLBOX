@@ -511,7 +511,7 @@ function powerWarning {
 	footer
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo "${BOLD}It is highly recommended to put the computer into hibernate mode. This takes less than 5 seconds.${RESET}"
-	echo "${BOLD}Remember to wake up the system after it hibernates by pushing the power button.${RESET}]"
+	echo "${BOLD}Remember to wake up the system after it hibernates by pushing the power button.${RESET}"
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
 	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Hibernate (recommended)${RESET}"
@@ -740,15 +740,15 @@ function diskSelect {
 		for i in ${!diskArr[@]}; do
 			CLIENTDISK=${diskArr[$i]}
 		done
-		echo "The disk ${BOLD}${BLUE}${CLIENTDISK}${RESET} has been automatically selected because it is the only detected disk."
-		read -n 1 -p "Press ${BOLD}${GREEN}[1]${RESET} to confirm:${RESET} " input
+		echo "${BOLD}The disk ${BLUE}${CLIENTDISK}${RESET} ${BOLD}has been automatically selected because it is the only detected disk."
+		read -n 1 -p "Press ${BOLD}${GREEN}[1]${RESET} ${BOLD}to confirm:${RESET} " input
 		if [[ $input != "1" ]]; then
 			echo "${BOLD}${RED}Reselecting disk.${RESET}"
 			sleep 0.5
 			diskSelect
 		fi
 	else
-		echo "Which disk do you want to ${BOLD}${BLUE}${ACTION}${RESET}?"
+		echo "${BOLD}Which disk do you want to ${BLUE}${ACTION}${RESET}${BOLD}?"
 		while read -r line; do
 			a=$(( a + 1 ))
 			echo "${BOLD}${GREEN}[${a}]${RESET} $line"
