@@ -8,7 +8,6 @@ function dbSelect ($sql) {
     if (filter($sql) == 0) {
         global $pdo;
         global $arr;
-        global $result;
         $arr = array();
         $sql = $pdo->prepare($sql);
         $sql->execute();
@@ -23,7 +22,6 @@ function dbSelectVal ($sql) {
     clearSQLGlobals();
     if (filter($sql) == 0) {
         global $pdo;
-        global $arr;
         global $result;
         $arr = array();
         $sql = $pdo->prepare($sql);

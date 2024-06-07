@@ -183,7 +183,7 @@ foreach ($arr as $key => $value) {
         }
 
         dbSelect($sql);
-        if (filterArr($arr) == 0) {
+        if (empty($arr) || filterArr($arr) == 0) {
             foreach ($arr as $key => $value) {
                 if (filterNum($value["result"]) == 0) {
                     $arr1[] = $value["result"];
