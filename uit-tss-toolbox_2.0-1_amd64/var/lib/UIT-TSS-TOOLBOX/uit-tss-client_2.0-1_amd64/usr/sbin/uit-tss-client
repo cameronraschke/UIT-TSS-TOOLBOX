@@ -805,7 +805,6 @@ function writeDisk_Shred {
 	BS='512'
 	sectorSize=$(blockdev --getsz /dev/${CLIENTDISK})
 	sectorCount=$((sectorSize / 512 / SECTIONS))
-	COUNT=$((BS / 100 * PCNTOFSECTOR))
 
 	if [[ -z $CHAR ]]; then
 		CHAR='0'
@@ -854,6 +853,8 @@ function writeDisk_Shred {
 		i=$((i + 1))
 		sectorMin=$((i * sectorCount))
 		sectorMax=$((sectorMin + sectorCount))
+		sectorSum=$((sectorMin + sectorMax))
+		COUNT=$((sectorSum / PCNTOFSECTOR))
 		randSector=$(shuf -i ${sectorMin}-$((sectorMax - COUNT)) -n 1)
 		echo -e "Writing to section ${i}/${SECTIONS}"
 		tput cuu1
@@ -886,7 +887,6 @@ function vrfyDisk_Shred {
 	BS='512'
 	sectorSize=$(blockdev --getsz /dev/${CLIENTDISK})
 	sectorCount=$((sectorSize / 512 / SECTIONS))
-	COUNT=$((BS / 100 * PCNTOFSECTOR))
 	PROCFAIL='0'
 
 	if [[ -z $CHAR ]]; then
@@ -911,6 +911,8 @@ function vrfyDisk_Shred {
 		i=$((i + 1))
 		sectorMin=$((i * sectorCount))
 		sectorMax=$((sectorMin + sectorCount))
+		sectorSum=$((sectorMin + sectorMax))
+		COUNT=$((sectorSum / PCNTOFSECTOR))
 		randSector=$(shuf -i ${sectorMin}-$((sectorMax - COUNT)) -n 1)
 		echo "Verifying section ${i}/${SECTIONS}"
 		tput cuu1
