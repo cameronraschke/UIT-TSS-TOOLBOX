@@ -806,11 +806,6 @@ function writeDisk_Shred {
 	sectorSize=$(blockdev --getsz /dev/${CLIENTDISK})
 	sectorCount=$((sectorSize / 512 / SECTIONS))
 	COUNT=$((BS / 100 * PCNTOFSECTOR))
-	PROCFAIL='0'
-
-	if [[ -z $CHAR ]]; then
-		CHAR='0'
-	fi
 
 	if [[ -z $CHAR ]]; then
 		CHAR='0'
@@ -839,7 +834,7 @@ function writeDisk_Shred {
 	if [[ "$WMODE" == 'randPattern_Shred' ]]; then
 		randPattern_Shred
 		SOURCE="yes \"${RANDPATTERN}\""
-		BITS="a random bit (${RANDPATTERN})"
+		BITS="a random pattern (${RANDPATTERN})"
 	fi
 
 	if [[ "$WMODE" == 'char' ]]; then
@@ -858,7 +853,7 @@ function writeDisk_Shred {
 	while [[ $i -lt $SECTIONS ]]; do
 		i=$((i + 1))
 		sectorMin=$((i * sectorCount))
-		sectorMax=$((sectorMin + sectorCount + COUNT))
+		sectorMax=$((sectorMin + sectorCount))
 		randSector=$(shuf -i ${sectorMin}-$((sectorMax - COUNT)) -n 1)
 		echo -e "Writing to section ${i}/${SECTIONS}"
 		tput cuu1
@@ -915,7 +910,7 @@ function vrfyDisk_Shred {
 	while [[ $i -lt $SECTIONS && $PROCFAIL == '0' ]]; do
 		i=$((i + 1))
 		sectorMin=$((i * sectorCount))
-		sectorMax=$((sectorMin + sectorCount + COUNT))
+		sectorMax=$((sectorMin + sectorCount))
 		randSector=$(shuf -i ${sectorMin}-$((sectorMax - COUNT)) -n 1)
 		echo "Verifying section ${i}/${SECTIONS}"
 		tput cuu1
@@ -941,7 +936,7 @@ function vrfyDisk_Shred {
 	echo "Verifing the last sector of the disk...."
     if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorCount} skip=$(( ${sectorCount} - 1 )) \
 		iflag=fullblock status=none 2>/dev/null \
-        | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
+        | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
 				read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				exit
