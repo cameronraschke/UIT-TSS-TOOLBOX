@@ -902,7 +902,7 @@ function vrfyDisk_Shred {
 	echo "Looking for non-${CHAR}'s on ${CLIENTDISK}...."
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		if [[ $(xxd -p /dev/${CLIENTDISK} | grep --quiet -m 1 -v "[^${CHAR}]"; echo ${PIPESTATUS[1]}) == '0' ]]; then
+		if [[ $(xxd -p /dev/${CLIENTDISK} | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[1]}) == '0' ]]; then
 		    PROCFAIL='1'
             read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 			exit
@@ -924,7 +924,7 @@ function vrfyDisk_Shred {
 		COUNT1=$(shuf -i ${randSector}-${sectorMax} -n 1)
 		SKIP=$(shuf -i ${randSector}-${sectorMax} -n 1)
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP} iflag=fullblock status=none 2>/dev/null \
-        	| xxd -p | grep --quiet -m 1 -v "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
+        	| xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
             	read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				exit
@@ -935,7 +935,7 @@ function vrfyDisk_Shred {
 	echo ""
 	echo "Verifing the first sector of the disk...."
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorCount} skip=0 iflag=fullblock status=none 2>/dev/null \
-        | xxd -p | grep --quiet -m 1 -v "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
+        | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
             	read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				exit
