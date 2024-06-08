@@ -994,10 +994,9 @@ function secUnlock_Shred {
 
 function nistMode_Shred {
 	footer
-	echo ""
 	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BOLD}${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	
 	echo ""
-
 	echo ""
 	echo "Step [1/2]:"
 	PCNTOFSECTOR='25'
@@ -1020,13 +1019,12 @@ function nistMode_Shred {
 
 function zeroMode_Shred {
 	footer
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	
 	echo ""
-		echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
-	echo ""
-
+	echo ""	
 	WMODE='zero'
 	CHAR='0'
-	echo ""	
 	if [[ $diskType == "hdd" ]]; then
 		echo "Step [1/1]: "
 		writeDisk_Shred
