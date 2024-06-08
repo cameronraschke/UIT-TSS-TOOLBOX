@@ -850,8 +850,9 @@ function writeDisk_Shred {
 	
 	while [[ $i -lt $SECTIONS ]]; do
 		i=$((i + 1))
-		echo "Writing to section ${i}/${SECTIONS}"
 		tput cuu1
+		tput el
+		echo "Writing to section ${i}/${SECTIONS}"
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
 		sectorDiff=$((sectorMax - sectorMin))
@@ -907,8 +908,9 @@ function vrfyDisk_Shred {
 	
 	while [[ $i -lt $SECTIONS && $PROCFAIL == '0' ]]; do
 		i=$((i + 1))
-		echo "Verifying section ${i}/${SECTIONS}"
 		tput cuu1
+		tput el
+		echo "Verifying section ${i}/${SECTIONS}"
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
 		sectorDiff=$((sectorMax - sectorMin))
