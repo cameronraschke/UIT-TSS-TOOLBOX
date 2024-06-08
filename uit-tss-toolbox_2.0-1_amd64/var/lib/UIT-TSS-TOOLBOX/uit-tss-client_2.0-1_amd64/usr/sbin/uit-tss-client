@@ -863,9 +863,8 @@ function writeDisk_Shred {
 		echo -e "Writing to section ${i}/${SECTIONS}"
 		tput cuu1
 
-		COUNT1=$(shuf -i ${randSector}-${sectorMax} -n 1)
 		SKIP=$(shuf -i ${randSector}-${sectorMax} -n 1)
-    	${SOURCE} | dd bs=${BS} count=${COUNT1} seek=${SKIP} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
+    	${SOURCE} | dd bs=${BS} count=${COUNT} seek=${SKIP} of=/dev/${CLIENTDISK} iflag=fullblock status=none 2>/dev/null
 	done
 
 	echo ""
@@ -921,9 +920,8 @@ function vrfyDisk_Shred {
 		echo "Verifying section ${i}/${SECTIONS}"
 		tput cuu1
 
-		COUNT1=$(shuf -i ${randSector}-${sectorMax} -n 1)
 		SKIP=$(shuf -i ${randSector}-${sectorMax} -n 1)
-    	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT1} skip=${SKIP} iflag=fullblock status=none 2>/dev/null \
+    	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT} skip=${SKIP} iflag=fullblock status=none 2>/dev/null \
         	| xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
             	read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
