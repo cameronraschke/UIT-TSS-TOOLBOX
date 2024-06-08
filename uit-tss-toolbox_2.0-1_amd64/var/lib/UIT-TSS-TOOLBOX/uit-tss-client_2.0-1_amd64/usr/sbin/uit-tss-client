@@ -855,7 +855,7 @@ function writeDisk_Shred {
 		return 0
 	fi
 	
-	while [[ $i -le $SECTIONS ]]; do
+	while [[ $i -lt $SECTIONS ]]; do
 		i=$((i + 1))
 		sectorMin=$((i * sectorCount))
 		sectorMax=$((sectorMin + sectorCount))
@@ -913,7 +913,7 @@ function vrfyDisk_Shred {
 		fi
 	fi
 	
-	while [[ $i -eq $SECTIONS && $PROCFAIL == '0' ]]; do
+	while [[ $i -lt $SECTIONS && $PROCFAIL == '0' ]]; do
 		i=$((i + 1))
 		sectorMin=$((i * sectorCount))
 		sectorMax=$((sectorMin + sectorCount))
