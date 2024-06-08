@@ -858,7 +858,7 @@ function writeDisk_Shred {
 	while [[ $i -lt $SECTIONS ]]; do
 		i=$((i + 1))
 		sectorMin=$((i * sectorCount))
-		sectorMax=$((sectorMin + sectorCount))
+		sectorMax=$((sectorMin + sectorCount + COUNT))
 		randSector=$(shuf -i ${sectorMin}-$((sectorMax - COUNT)) -n 1)
 		echo -e "Writing to section ${i}/${SECTIONS}"
 		tput cuu1
@@ -915,7 +915,7 @@ function vrfyDisk_Shred {
 	while [[ $i -lt $SECTIONS && $PROCFAIL == '0' ]]; do
 		i=$((i + 1))
 		sectorMin=$((i * sectorCount))
-		sectorMax=$((sectorMin + sectorCount))
+		sectorMax=$((sectorMin + sectorCount + COUNT))
 		randSector=$(shuf -i ${sectorMin}-$((sectorMax - COUNT)) -n 1)
 		echo "Verifying section ${i}/${SECTIONS}"
 		tput cuu1
