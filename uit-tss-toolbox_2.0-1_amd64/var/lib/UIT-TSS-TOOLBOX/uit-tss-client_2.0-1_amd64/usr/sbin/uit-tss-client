@@ -1028,6 +1028,9 @@ function zeroMode_Shred {
 	if [[ $diskType == "hdd" ]]; then
 		echo "Step [1/1]: "
 		writeDisk_Shred
+		echo ""
+		echo "Step [2/2]: "
+		vrfyDisk_Shred
 	else
 		echo "Step [1/2]: "
 		writeDisk_Shred
@@ -1041,10 +1044,9 @@ function zeroMode_Shred {
 
 function dodMode_Shred {
 	footer
-	echo ""
 	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	
 	echo ""
-
 	echo ""
 	echo "Step [1/6]: "
 	echo ""
@@ -1092,12 +1094,10 @@ function dodMode_Shred {
 
 
 function rcmpMode_Shred {
-
-	clear
-	echo ""
+	footer
 	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	
 	echo ""
-
 	echo ""
 	echo "Step [1/8]: "
 	WMODE='zero'
@@ -1150,18 +1150,15 @@ function rcmpMode_Shred {
 	PCNTOFSECTOR='100'
 	CHAR="${RANDBIT}"
 	vrfyDisk_Shred
-
 }
 
 
 
 function schneierMode_Shred {
-
-	clear
-	echo ""
+	footer
 	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	
 	echo ""
-
 	echo ""
 	echo "Step [1/7]: "
 	WMODE='char'
@@ -1204,72 +1201,59 @@ function schneierMode_Shred {
 	WMODE='rand'
 	PCNTOFSECTOR='100'
 	writeDisk_Shred
-
 }
 
 
 
 function gutmann {
-	COUNT='0'
+	n='0'
 	GUTMANNARRAY=(01010101 10101010 10010010 01001001 00100100 00000000 00010001 00100010)
 	GUTMANNARRAY+=(00110011 01000100 01010101 01100110 01110111 10001000 10011001 10101010)
 	GUTMANNARRAY+=(10111011 11001100 11011101 11101110 11111111 10010010 01001001 00100100)
 	GUTMANNARRAY+=(01101101 10110110 11011011)
 
-	clear
-	echo ""
+	footer
 	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
-	echo ""
-
 	
-	while [[ $COUNT -le 35 ]]; do 
+	echo ""
+	echo ""	
+	while [[ $n -le 35 ]]; do 
 
-		if [[ $COUNT -le 4 ]]; then
-			echo ""
-			echo "[${COUNT}/35] Writing \"${RANDPATTERN}\" to ${CLIENTDISK}"
+		if [[ $n -le 4 ]]; then
+			echo "[${n}/35] Writing \"${RANDPATTERN}\" to ${CLIENTDISK}"
 			WMODE='randPattern_Shred'
 			PCNTOFSECTOR='100'
 			writeDisk_Shred
 		fi
 
-		if [[ $COUNT -le 31 && $COUNT -gt 4 ]]; then
+		if [[ $n -le 31 && $n -gt 4 ]]; then
 			WMODE='char'
 			PCNTOFSECTOR='100'
 			for i in ${GUTMANNARRAY[@]}; do
 				RANDNUM=$(shuf -i 1-26 -n 1)
 				CHAR=${GUTMANARRAY[$RANDNUM]}
 			done
-			echo "[${COUNT}/35] Writing pattern ${CHAR} to ${CLIENTDISK}"
+			echo "[${n}/35] Writing pattern ${CHAR} to ${CLIENTDISK}"
 			writeDisk_Shred
 		fi
 
-		if [[ $COUNT -gt 31 ]]; then
-			echo ""
-			echo "[${COUNT}/35] Writing \"${RANDPATTERN}\" to ${CLIENTDISK}"
+		if [[ $n -gt 31 ]]; then
+			echo "[${n}/35] Writing \"${RANDPATTERN}\" to ${CLIENTDISK}"
 			WMODE='randPattern_Shred'
 			PCNTOFSECTOR='100'
 			writeDisk_Shred
 		fi
 
 	done
-
-	echo ""
-	echo ""
-	echo "The drive ${CLIENTDISK} is erased using Gutmann's method."
 }
 
 
 
 function verifyMode_Shred {
 	footer
-	echo ""
 	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Verifying disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
-	echo ""
-	
-	echo ""
-	echo "Select the desired level of verification."
-	echo ""
 
+	echo ""
 	echo ""
 	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Full verification (Default)${RESET}
 	-Longest, verifies every bit on the disk"
@@ -1291,7 +1275,7 @@ function verifyMode_Shred {
 	-1000 divisions, 10% verified"
 
 	echo ""
-	read -n 1 -p "${BOLD}Please select [1-5]:${RESET} " VRFYSELECT
+	read -n 1 -p "${BOLD}Please select ${GREEN}[1-5]${RESET}${BOLD}:${RESET} " VRFYSELECT
 	echo ""
 
 	case $VRFYSELECT in
@@ -1313,8 +1297,8 @@ function verifyMode_Shred {
 	*)
 	echo ""
 	echo ""
-	echo "Incorrect input selected, please try again"
-	sleep 1
+	echo "${BOLD}Incorrect input selected, please try again${RESET}"
+	sleep 0.5
 	verifyMode_Shred
 	;;
 	esac
@@ -1353,6 +1337,7 @@ function verifyMode_Shred {
 	fi
 
 	if [[ $VRFYMODE == 'vfast' ]]; then
+		SECTIONS='1000'
 		PCNTOFSECTOR='10'
 		CHAR="${input}"
 		vrfyDisk_Shred
@@ -1362,11 +1347,11 @@ function verifyMode_Shred {
 
 
 function unlockMode_Shred {
-	clear
-	echo ""
+	footer
 	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
-	echo ""
 	
+	echo ""
+	echo ""
 	secUnlock_Shred
 }
 
@@ -1607,7 +1592,6 @@ function terminate {
 
 	jobsToday=$(( cloneNumToday + eraseNumToday ))
 
-	echo ""
 	if [[ $APPSELECT == "C" || $APPSELECT == "EC" ]]; then
 		if [[ $cloneMode == "restoredisk" ]]; then
 
@@ -1669,7 +1653,6 @@ function terminate {
 	echo "${BOLD}Process has finished!${RESET}"
 	echo ""
 	location
-	echo ""
 	echo ""
 	echo "${terminateMessage}"
 	echo ""
