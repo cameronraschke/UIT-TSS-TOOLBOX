@@ -791,8 +791,6 @@ function randPattern_Shred {
 
 
 function writeDisk_Shred {
-	footer
-	
 	if [[ -z $SECTIONS ]]; then
 		SECTIONS='1000'
 	fi
@@ -873,8 +871,6 @@ function writeDisk_Shred {
 
 
 function vrfyDisk_Shred {
-	footer
-	
 	if [[ -z $SECTIONS ]]; then
 		SECTIONS='1000'
 	fi
