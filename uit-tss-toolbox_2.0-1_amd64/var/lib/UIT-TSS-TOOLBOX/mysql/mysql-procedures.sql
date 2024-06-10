@@ -42,7 +42,7 @@ UNION
 (SELECT uuid, tagnumber, system_serial, date, CONVERT(time, DATETIME), department, etheraddress, wifi_mac, system_manufacturer, system_model, system_uuid, 
 system_sku, chassis_type, disk, disk_model, disk_type, CONCAT(disk_size, ' GB'), disk_serial, CONCAT(disk_writes, ' TB'), CONCAT(disk_reads, ' TB'), 
 CONCAT(disk_power_on_hours, 'hrs'), CONCAT(disk_temp, ' C'), disk_firmware, battery_model, battery_serial, CONCAT(battery_health, '%'), battery_charge_cycles, 
-CONCAT(battery_capacity, ' Wh'), battery_manufacturedate, cpu_manufacturer, cpu_model, CONCAT(cpu_maxspeed, ' Ghz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), 
+CONCAT(battery_capacity, ' Wh'), battery_manufacturedate, cpu_manufacturer, cpu_model, CONCAT(round(cpu_maxspeed / 1000, 2), ' Ghz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), 
 motherboard_manufacturer, motherboard_serial, bios_version, bios_date, bios_firmware, ram_serial, CONCAT(ram_capacity, ' GB') ,CONCAT(ram_speed, 'Mhz'), CONCAT(cpu_usage, '%'), 
 CONCAT(network_usage, 'mbps'), CONCAT(boot_time, 's'), REPLACE(erase_completed, '1', 'Yes'), erase_mode, CONCAT(erase_diskpercent, '%'), CONCAT(erase_time, 's'), 
 REPLACE(clone_completed, '1', 'Yes'), REPLACE(clone_master, '1', 'Yes'), CONCAT(clone_time, 's')
