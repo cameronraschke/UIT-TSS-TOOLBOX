@@ -1302,45 +1302,42 @@ function verifyMode_Shred {
 	;;
 	esac
 
-	footer
-	echo "Mode is ${VRFYMODE}"
 	echo ""
 	read -p "Which character/pattern would you like to verify?: " input
 	
-	footer
 	if [[ $VRFYMODE == 'full' ]]; then
 		PCNTOFSECTOR='100'
 		CHAR="${input}"
-		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'moderate' ]]; then
 		SECTIONS='10000'
 		PCNTOFSECTOR='75'
 		CHAR="${input}"
-		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'medium' ]]; then
 		SECTIONS='5000'
 		PCNTOFSECTOR='50'
 		CHAR="${input}"
-		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'fast' ]]; then
 		SECTIONS='2500'
 		PCNTOFSECTOR='25'
 		CHAR="${input}"
-		vrfyDisk_Shred
 	fi
 
 	if [[ $VRFYMODE == 'vfast' ]]; then
 		SECTIONS='1000'
 		PCNTOFSECTOR='10'
 		CHAR="${input}"
-		vrfyDisk_Shred
 	fi
+
+	footer
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${VRFYMODE}${RESET}${BOLD} verify mode. ${BLUE}${PCNTOFSECTOR}%${RESET}${BOLD} of ${BLUE}${CLIENTDISK}${RESET}${BOLD} is being verified."
+
+	vrfyDisk_Shred
 }
 
 
