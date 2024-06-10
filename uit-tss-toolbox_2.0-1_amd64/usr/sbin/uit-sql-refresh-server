@@ -14,7 +14,8 @@ $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
 # Set $startDate to the oldest date entry in the DB.
-$startDate = '2023-01-09';
+$startDate = $dt->sub(new DateInterval('P6M'));
+$startDate = $startDate->format('Y-m-d');
 
 # Clear globals
 clearSQLGlobals();
