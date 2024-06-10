@@ -1335,7 +1335,7 @@ function verifyMode_Shred {
 	fi
 
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${VRFYMODE}${RESET}${BOLD} verify mode. ${BLUE}${PCNTOFSECTOR}%${RESET}${BOLD} of ${BLUE}${CLIENTDISK}${RESET}${BOLD} is being verified."
+	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${VRFYMODE}${RESET}${BOLD} verify mode. ${BLUE}${PCNTOFSECTOR}%${RESET}${BOLD} of ${BLUE}${CLIENTDISK}${RESET}${BOLD} is being verified.${RESET}"
 
 	vrfyDisk_Shred
 }
