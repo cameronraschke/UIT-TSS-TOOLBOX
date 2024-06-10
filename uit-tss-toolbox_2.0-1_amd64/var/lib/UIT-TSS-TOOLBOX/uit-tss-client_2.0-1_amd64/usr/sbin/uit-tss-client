@@ -1302,12 +1302,12 @@ function verifyMode_Shred {
 	;;
 	esac
 
-	echo ""
+	footer
 	echo "Mode is ${VRFYMODE}"
 	echo ""
 	read -p "Which character/pattern would you like to verify?: " input
-	echo ""
-
+	
+	footer
 	if [[ $VRFYMODE == 'full' ]]; then
 		PCNTOFSECTOR='100'
 		CHAR="${input}"
