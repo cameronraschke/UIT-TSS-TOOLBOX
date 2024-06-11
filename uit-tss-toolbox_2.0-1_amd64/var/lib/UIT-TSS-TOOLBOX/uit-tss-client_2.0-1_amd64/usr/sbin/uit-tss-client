@@ -321,7 +321,7 @@ fi
 			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 	
-	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
+	tTwentyTwoName=$(cat /sys/class/power_supply/BAT0/model_name)
 	if [[ -z $tTwentyTwoName ]]; then
 		tTwentyTwoName=$(cat /sys/class/power_supply/BAT1/model_name)
 	fi
@@ -330,7 +330,7 @@ fi
 	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/[^0-9]//g')
 		echo "general|battery_capacity|${tTwentyTwoCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
+	tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT0/serial_number)
 	if [[ -z $tTwentyTwoSerialNumber ]]; then
 		tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
 	fi
