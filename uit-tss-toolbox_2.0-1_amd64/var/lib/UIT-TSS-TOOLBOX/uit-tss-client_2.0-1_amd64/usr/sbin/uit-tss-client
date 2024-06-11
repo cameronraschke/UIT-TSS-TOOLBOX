@@ -323,7 +323,11 @@ fi
 	
 	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
 	if [[ -z $tTwentyTwoName ]]; then
-		tTwentyTwoName=$(cat /sys/class/power_supply/BAT1/model_name)
+		if [[ -f /sys/class/power_supply/BAT0/model_name ]]; then
+			tTwentyTwoName=$(cat /sys/class/power_supply/BAT0/model_name)
+		elif [[ -f /sys/class/power_supply/BAT1/model_name ]]; then
+			tTwentyTwoName=$(cat /sys/class/power_supply/BAT1/model_name)
+		fi
 	fi
 		echo "general|battery_model|${tTwentyTwoName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	
@@ -332,7 +336,11 @@ fi
 
 	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
 	if [[ -z $tTwentyTwoSerialNumber ]]; then
-		tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
+		if [[ -f /sys/class/power_supply/BAT0/serial_number ]]; then
+			tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
+		elif [[ -f /sys/class/power_supply/BAT1/serial_number ]]; then
+			tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
+		fi
 	fi
 		echo "general|battery_serial|${tTwentyTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
