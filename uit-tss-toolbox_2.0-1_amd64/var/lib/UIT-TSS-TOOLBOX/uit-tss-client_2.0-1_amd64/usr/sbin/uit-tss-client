@@ -337,7 +337,7 @@ fi
 	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
 	if [[ -z $tTwentyTwoSerialNumber ]]; then
 		if [[ -f /sys/class/power_supply/BAT0/serial_number ]]; then
-			tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
+			tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT0/serial_number)
 		elif [[ -f /sys/class/power_supply/BAT1/serial_number ]]; then
 			tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
 		fi
