@@ -15,7 +15,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
 # Set sqlDate to the oldest entry in the report
 $sqlDate = $dt->sub(new DateInterval('P6M'));
-$sqlDate = $startDate->format('Y-m-d');
+$sqlDate = $sqlDate->format('Y-m-d');
 
 # Set $startDate to the oldest date entry in the DB.
 $startDate = '2023-01-09';
