@@ -13,10 +13,6 @@ $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
-# Set sqlDate to the oldest entry in the report
-$sqlDate = $dt->sub(new DateInterval('P6M'));
-$sqlDate = $sqlDate->format('Y-m-d');
-
 # Set $startDate to the oldest date entry in the DB.
 $startDate = '2023-01-09';
 
@@ -38,7 +34,7 @@ $arr3 = array();
 $arr4 = array();
 
 # Iterate through all the dates between $startDate and $date.
-dbSelect("CALL iterateDate('$sqlDate', '$date')");
+dbSelect("CALL iterateDate('$startDate', '$date')");
 foreach ($arr as $key => $value) {
 
     # Set the variable $itDate to the iterated date.
