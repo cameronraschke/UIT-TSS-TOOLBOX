@@ -173,7 +173,7 @@ if [[ $(tput cols) -gt 53 && $(tput lines) -gt 23 ]]; then
 tput reset
 echo ${BOLD}
 echo ${RED}
-tput cup 1 $(( terminalCols - 53 ))
+tput cup 1 0
 echo '
   __  __     _                  _ __               ___
  / / / /__  (_)  _____ _______ (_) /___ __   ___  / _/
@@ -185,7 +185,7 @@ echo '
 '
 echo ${RESET}
 echo ${BOLD}
-tput cup 9 $(( terminalCols - 53 ))
+tput cup 9 0
 echo '
 -----------------------------------------------------
    ____     _____                        __       
