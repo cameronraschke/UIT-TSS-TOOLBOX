@@ -440,7 +440,7 @@ function footer {
 	lines=$(tput lines)
 	tput cup $(( lines - 3 )) 0
 	tput el
-	echo "Tag: ${tagNum}, Serial: ${tOneSerialNumber}"
+	echo "Tag: ${tagNum}, Serial: ${tOneSerialNumber}, BIOS: ${tZeroBiosVersion}"
 	tput cup $(( lines - 2 )) 0
 	tput el
 	echo "${DIM}UIT-TSS-TOOLBOX by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"
