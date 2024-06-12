@@ -1,11 +1,11 @@
 #!/bin/bash
 
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-BLUE=$(tput setaf 4)
-BOLD=$(tput bold)
-DIM=$(tput dim)
-RESET=$(tput sgr0)
+RED=$(echo -ne "\033[31")
+GREEN=$(echo -ne "\033[32")
+BLUE=$(echo -ne "\033[34")
+BOLD=$(echo -ne "\033[1m")
+DIM=$(echo -ne "\033[2m")
+RESET=$(echo -ne "\033[0m")
 
 while true; do
     echo ""
