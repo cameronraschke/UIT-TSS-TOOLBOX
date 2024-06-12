@@ -47,7 +47,7 @@ while true; do
     echo "Please select the ${BOLD}${GREEN}status${RESET}:"
     echo "    ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning${RESET}"
     echo "    ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}"
-    read -n 1 -p "Please enter " status
+    read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " status
 
 
     if [[ $status == "1" ]]; then
