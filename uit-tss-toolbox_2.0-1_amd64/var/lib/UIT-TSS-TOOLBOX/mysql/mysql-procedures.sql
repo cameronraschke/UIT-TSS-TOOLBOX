@@ -191,7 +191,8 @@ SELECT time,
     cpu_usage,
     network_usage,
     battery_health,
-    disk_power_on_hours
+    disk_power_on_hours,
+    ram_serial
     FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 5;
 
 SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
@@ -213,7 +214,7 @@ SELECT time,
     disk_writes, 
     disk_reads, 
     disk_power_on_hours 
-    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC;
+    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
 END; //
 
 DELIMITER ;
@@ -229,7 +230,7 @@ SELECT time,
     erase_completed, 
     clone_completed, 
     clone_master 
-    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC;
+    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
     END; //
 
 DELIMITER ;
@@ -248,7 +249,7 @@ SELECT time,
     battery_charge_cycles,
     battery_health,
     battery_manufacturedate 
-    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC;
+    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
     END; //
 
 DELIMITER ;
