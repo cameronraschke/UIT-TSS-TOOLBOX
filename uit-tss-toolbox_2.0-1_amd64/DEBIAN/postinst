@@ -23,14 +23,6 @@ chmod 755 /home/cameron/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
 
 mysql laptopDB < /var/lib/UIT-TSS-TOOLBOX/mysql/mysql-procedures.sql
 
-# HP ProBook 450 G6 Notebook PC
-if [[ ! -f /home/cameron/sp152608.exe ]]; then
-    wget 'https://ftp.hp.com/pub/softpaq/sp152501-153000/sp152608.exe' --output-file /home/cameron/sp152608.exe
-fi
-if [[ $(md5sum /home/cameron/sp152608.exe | awk '{ print $1 }') != 'df86a5e3562a5025cabc7e20cc18a0c1' ]]; then
-     echo "CHECKSUM FAILED: sp152608.exe"
-fi
-
 # Dell Latitude 3460-3560
 if [[ ! -f /home/cameron/bios-update/Latitude_3460_3560_A19.exe ]]; then
     wget 'https://dl.dell.com/FOLDER06742651M/1/Latitude_3460_3560_A19.exe' --output-file /home/cameron/bios-update/Latitude_3460_3560_A19.exe
