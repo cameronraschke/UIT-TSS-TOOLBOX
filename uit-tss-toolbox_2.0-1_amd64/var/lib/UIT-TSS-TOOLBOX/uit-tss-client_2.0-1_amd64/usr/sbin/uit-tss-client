@@ -669,6 +669,7 @@ function basicEraseMode_Shred {
 			shredMode='nist'
 			RMODE='NIST 800-88r1 Mode'
 		else
+			PCNTOFSECTOR="30"
 			shredMode='zero'
 			RMODE='Zero Mode'
 		fi
@@ -1056,7 +1057,7 @@ function nistMode_Shred {
 	echo ""
 	echo ""
 	echo "Step [1/2]:"
-	PCNTOFSECTOR='25'
+	PCNTOFSECTOR='20'
 	WMODE='random'
 	writeDisk_Shred
 	
@@ -1067,7 +1068,7 @@ function nistMode_Shred {
 	
 	echo ""
 	echo "Step [3/3]:"
-	PCNTOFSECTOR='10'
+	PCNTOFSECTOR='5'
 	CHAR='0'
 	vrfyDisk_Shred
 }
