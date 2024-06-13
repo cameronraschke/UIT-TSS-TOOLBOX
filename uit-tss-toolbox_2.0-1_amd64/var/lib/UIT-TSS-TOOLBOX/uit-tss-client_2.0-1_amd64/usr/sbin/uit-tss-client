@@ -208,6 +208,7 @@ echo "${RESET}"
 echo "${BOLD}Inputing data into database...${RESET}"
 sleep 1
 fi
+	echo "general|host_connected|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	### DMI Data
 	#t0 = BIOS
 	#t1 = system

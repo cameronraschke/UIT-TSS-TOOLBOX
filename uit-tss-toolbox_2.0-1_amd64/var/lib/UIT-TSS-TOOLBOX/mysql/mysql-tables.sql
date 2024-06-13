@@ -83,7 +83,8 @@ CREATE TABLE IF NOT EXISTS jobstats (
     erase_time SMALLINT DEFAULT NULL,
     clone_completed BOOLEAN DEFAULT NULL,
     clone_master BOOLEAN DEFAULT NULL,
-    clone_time SMALLINT DEFAULT NULL
+    clone_time SMALLINT DEFAULT NULL,
+    host_connected BOOLEAN DEFAULT NULL
 );
 
 ALTER TABLE jobstats
@@ -140,7 +141,8 @@ ALTER TABLE jobstats
     MODIFY COLUMN erase_time SMALLINT DEFAULT NULL AFTER erase_diskpercent,
     MODIFY COLUMN clone_completed BOOLEAN DEFAULT NULL AFTER erase_time,
     MODIFY COLUMN clone_master BOOLEAN DEFAULT NULL AFTER clone_completed,
-    MODIFY COLUMN clone_time SMALLINT DEFAULT NULL AFTER clone_master;
+    MODIFY COLUMN clone_time SMALLINT DEFAULT NULL AFTER clone_master,
+    MODIFY COLUMN host_connected BOOLEAN DEFAULT NULL AFTER clone_time;
 
 
 CREATE TABLE IF NOT EXISTS locations (
