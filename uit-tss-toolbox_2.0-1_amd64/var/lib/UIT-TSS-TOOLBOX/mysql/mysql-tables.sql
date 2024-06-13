@@ -228,3 +228,21 @@ VALUES
     ('DELL N2K6205','300'),
     ('DELL 1VX1H93','300'),
     ('DELL W7NKD85','300');
+
+
+DROP TABLE IF EXISTS static_bios_stats;
+CREATE TABLE IF NOT EXISTS static_bios_stats (
+    system_model VARCHAR(20) NOT NULL PRIMARY KEY,
+    bios_version VARCHAR(24) DEFAULT NULL
+);
+
+INSERT INTO static_bios_stats
+    (
+        system_model,
+        bios_version
+    )
+    VALUES
+    ('HP ProBook 450 G6', 'R71 Ver. 01.27.00'),
+    ('Latitude 7400', '1.30.0'),
+    ('Latitude 3500', '1.32.0'),
+    ('Latitude 3560', 'A19');

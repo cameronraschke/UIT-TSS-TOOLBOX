@@ -43,13 +43,22 @@ foreach ($arr as $key => $value) {
         dbInsertCS("$tagNum");
     }
 
-    # Update the BIOS version
-    dbSelectVal("SELECT bios_version AS result FROM jobstats WHERE tagnumber = '$tagNum' AND bios_version IS NOT NULL ORDER BY time DESC LIMIT 1");
-    dbUpdateCS("bios_version", "$result", "$tagNum");
+    # Update the BIOS version and system model
+    dbSelect("SELECT system_model, bios_version FROM jobstats WHERE tagnumber = '$tagNum' AND system_model IS NOT NULL ORDER BY TIME DESC LIMIT 1");
+    foreach ($arr as $key => $value) {
+        $curSystemModel = $value["system_model"];
+        $curBiosVersion = $value["bios_version"];
 
-    # Update the system model
-    dbSelectVal("SELECT system_model AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_model IS NOT NULL ORDER BY time DESC LIMIT 1");
-    dbUpdateCS("system_model", "$result", "$tagNum");
+        dbUpdateCS("system_model", "$curSystemModel", "$tagNum");
+
+        dbSelectVal("SELECT bios_version AS result FROM static_disk_stats WHERE system_model = '$curSystemModel");
+        if ($result == $curBiosVersion) {
+            $biosBool = '0';
+        } else {
+            $biosBool = '1';
+        }
+        dbUpdateCS("bios_version", "$biosBool", "$tagNum");
+    }
 
     # Update the system serial number
     dbSelectVal("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
