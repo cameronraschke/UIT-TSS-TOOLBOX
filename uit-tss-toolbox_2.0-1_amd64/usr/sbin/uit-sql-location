@@ -42,7 +42,7 @@ while true; do
             else
             department=""
         fi
-    fi
+    # fi
     sql=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     sql1=$(echo "SELECT CONVERT(time, DATETIME) AS result FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     echo "Last location: ${BOLD}${sql}${RESET} at ${BOLD}${sql1}${RESET}"
