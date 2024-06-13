@@ -387,6 +387,9 @@ function enterTag {
 		elif [[ $sqlDepartment == "techComm" ]]; then
 			UUID=$(echo -n "techComm-"; cat /proc/sys/kernel/random/uuid)
 			department="techComm"
+		elif [[ $sqlDepartment == "property" ]]; then
+			UUID=$(echo -n "property-"; cat /proc/sys/kernel/random/uuid)
+			department="property"
 		else
 			UUID=$(cat /proc/sys/kernel/random/uuid)
 		fi
@@ -401,12 +404,15 @@ function enterTag {
 		echo "${BOLD}Please select the ${BLUE}department${RESET}${BOLD}:${RESET} "
 		echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}TechCommons${RESET}"
 		echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}SHRL${RESET}"
+		echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}Property Management${RESET}"
 		echo ""
-		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " input
+		read -n 1 -p "${BOLD}Please enter [1-3]:${RESET} " input
 		if [[ $input == "1" ]]; then
 			department="techComm"
 		elif [[ $input == "2" ]]; then
 			department="shrl"
+		elif [[ $input == "3" ]]; then
+			department="property"
 		else
 			enterTag
 		fi
