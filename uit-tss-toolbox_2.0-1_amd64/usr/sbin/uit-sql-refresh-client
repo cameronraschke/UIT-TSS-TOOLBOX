@@ -51,7 +51,7 @@ foreach ($arr as $key => $value) {
 
         dbUpdateCS("system_model", "$curSystemModel", "$tagNum");
 
-        dbSelectVal("SELECT bios_version AS result FROM static_disk_stats WHERE system_model = '$curSystemModel'");
+        dbSelectVal("SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '$curSystemModel'");
         if ($result == $curBiosVersion) {
             $biosBool = '1';
         } else {
