@@ -53,11 +53,11 @@ foreach ($arr as $key => $value) {
 
         dbSelectVal("SELECT bios_version AS result FROM static_disk_stats WHERE system_model = '$curSystemModel'");
         if ($result == $curBiosVersion) {
-            $biosBool = '0';
-        } else {
             $biosBool = '1';
+        } else {
+            $biosBool = '0';
         }
-        dbUpdateCS("bios_version", "$biosBool", "$tagNum");
+        dbUpdateCS("bios_updated", "$biosBool", "$tagNum");
     }
 
     # Update the system serial number

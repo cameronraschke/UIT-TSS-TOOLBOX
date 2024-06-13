@@ -23,7 +23,7 @@ CREATE TABLE clientstats (
     battery_health SMALLINT DEFAULT NULL,
     disk_health DECIMAL(5,2) DEFAULT NULL,
     disk_type VARCHAR(8) DEFAULT NULL,
-    bios_version VARCHAR(24) DEFAULT NULL,
+    bios_updated BOOLEAN DEFAULT NULL,
     erase_avgtime SMALLINT DEFAULT NULL,
     clone_avgtime TINYINT DEFAULT NULL,
     all_jobs SMALLINT DEFAULT NULL

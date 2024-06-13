@@ -65,7 +65,7 @@ BEGIN
     'Battery Health',
     'Disk Health',
     'Disk Type',
-    'BIOS Version',
+    'BIOS Updated',
     'Erase Time',
     'Clone Time',
     'Total Jobs')
@@ -77,7 +77,7 @@ UNION
     CONCAT(battery_health, '%'),
     CONCAT(disk_health, '%'),
     disk_type,
-    bios_version,
+    IF (bios_updated='1', "Yes", "No"),
     CONCAT(erase_avgtime, ' minutes'),
     CONCAT(clone_avgtime, ' minutes'),
     all_jobs
