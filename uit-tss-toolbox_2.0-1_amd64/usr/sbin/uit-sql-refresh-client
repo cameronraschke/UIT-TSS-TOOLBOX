@@ -176,7 +176,7 @@ foreach ($arr as $key => $value) {
     dbUpdateCS("battery_health", "$batteryHealth", "$tagNum");
 
     # Update the time of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
-    dbSelectVal("SELECT IF(host_connected='1', time, date) AS result FROM jobstats WHERE department = 'techComm' AND tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1");
+    dbSelectVal("SELECT IF(host_connected='1', time, substring(date, 1, 10)) AS result FROM jobstats WHERE department = 'techComm' AND tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1");
     dbUpdateCS("last_job_time", "$result", "$tagNum");
 
     # End the marker timer
