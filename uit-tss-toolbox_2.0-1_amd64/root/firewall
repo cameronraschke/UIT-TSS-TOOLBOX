@@ -36,7 +36,7 @@ iptables --table filter --append INPUT --in-interface "${lanif}" --jump ACCEPT
 iptables --table filter --append OUTPUT --out-interface "${lanif}" --jump ACCEPT
 
 # OUTPUT Traffic WAN
-iptables --table raw --append POSTROUTING ! --out-interface "${lanif}" --protocol udp --match multiport --source-ports 67 --jump DROP
+iptables --table raw --append OUTPUT ! --out-interface "${lanif}" --protocol udp --match multiport --source-ports 67 --jump DROP
 iptables --table filter --append OUTPUT --out-interface "${wanif}" --jump ACCEPT
 
 # OUTPUT Traffic LAN
