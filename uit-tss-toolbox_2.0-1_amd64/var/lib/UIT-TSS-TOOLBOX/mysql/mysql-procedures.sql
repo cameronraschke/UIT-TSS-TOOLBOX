@@ -259,6 +259,7 @@ DROP FUNCTION IF EXISTS mostRecentTime;
 DELIMITER //
 CREATE FUNCTION mostRecentTime(tag MEDIUMINT)
     RETURNS DATETIME(3)
+    DETERMINISTIC
     BEGIN
         DECLARE t DATETIME(3);
         SET t = (SELECT MAX(time) FROM jobstats WHERE tagnumber = tag);
