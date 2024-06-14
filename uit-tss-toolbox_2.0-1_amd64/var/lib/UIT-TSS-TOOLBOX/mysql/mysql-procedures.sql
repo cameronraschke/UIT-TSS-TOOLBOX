@@ -267,3 +267,17 @@ CREATE FUNCTION mostRecentTime(tag MEDIUMINT)
     END //
 
 DELIMITER ;
+
+-- Select most recent department
+DROP FUNCTION IF EXISTS mostRecentDepartment;
+DELIMITER //
+CREATE FUNCTION mostRecentDepartment(tag MEDIUMINT)
+    RETURNS VARCHAR(8)
+    DETERMINISTIC
+    BEGIN
+        DECLARE t VARCHAR(8);
+        SET t = (SELECT department FROM jobstats WHERE tagnumber = tag AND time = mostRecentTime(tag));
+        RETURN t;
+    END //
+
+DELIMITER ;
