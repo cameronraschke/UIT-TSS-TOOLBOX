@@ -108,9 +108,10 @@ function dbUpdateLocation ($key, $value, $time) {
                 $value = "1";
                 $stmt->bindParam(':value', $value, PDO::PARAM_STR);
                 $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+            } else {
+                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
             }
-            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         } else {
             $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
             $stmt->bindParam(':time', $time, PDO::PARAM_STR);
