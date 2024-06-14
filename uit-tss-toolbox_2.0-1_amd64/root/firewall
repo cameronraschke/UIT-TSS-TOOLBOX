@@ -1,34 +1,51 @@
 #!/bin/bash
+wanif='enx00e04c6805bb'
+wan='172.27.53.0/24'
+lanif='enp1s0'
+lan='10.0.0.0/24'
 
-wan='enx00e04c6805bb'
-lan='enp1s0'
-pc='172.27.53.0/24'
+# Disable IP forwarding and IPv6
+sysctl -w net.ipv4.ip_forward=0
+sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sysctl -w net.ipv6.conf.default.disable_ipv6=1
+sysctl -p
 
-ufw allow in on ${lan}
-ufw allow out on ${lan}
-ufw allow in on ${wan} from 172.27.53.0/24 proto tcp to any port 22
-ufw deny out on ${wan} proto udp to any port 67
-ufw deny out on ${wan} proto tcp to any port 67
-ufw deny out on ${wan} proto udp to 172.27.53.0/24 port 123
-ufw allow out on ${wan} proto udp to any port 123
-ufw deny out on ${wan} proto tcp to any port 123
-ufw default deny incoming
-ufw enable
-ufw reload
 
-#iptables -t filter -F
-#iptables -t filter -X
+# Clear Current Rules
+iptables --table raw --flush
+iptables --table raw --delete-chain
+iptables --table nat --flush
+iptables --table nat --delete-chain
+iptables --table mangle --flush
+iptables --table mangle --delete-chain
+iptables --table filter --flush
+iptables --table filter --delete-chain
 
-#iptables -t filter -A INPUT -i lo -j ACCEPT
+# Loopback Traffic
+iptables --table filter --append INPUT --in-interface lo --jump ACCEPT
+iptables --table filter --append OUTPUT --out-interface lo --jump ACCEPT
 
-#iptables -t filter -A INPUT -i $lan -j ACCEPT
-#iptables -t filter -A INPUT -i $lan -j DROP
+# INPUT Traffic WAN
+iptables --table filter --append INPUT --in-interface "${wanif}" --source "${wan}" --protocol tcp --match multiport --destination-ports 22 --jump ACCEPT
+iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate RELATED,ESTABLISHED --jump ACCEPT
+iptables --table filter --append INPUT --in-interface "${wanif}" --jump LOG --log-prefix "Input Drop: "
+iptables --table filter --append INPUT --in-interface "${wanif}" --jump DROP
 
-#iptables -t filter -A INPUT -i $wan -s $pc -p tcp --dport 22 -j ACCEPT
-#iptables -t filter -A INPUT -i $wan -p tcp --dport 22 -j DROP
-#iptables -t filter -A INPUT -i $wan -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-#iptables -t filter -A INPUT -j DROP
+# INPUT Traffic LAN
+iptables --table filter --append INPUT --in-interface "${lanif}" --jump ACCEPT
+iptables --table filter --append OUTPUT --out-interface "${lanif}" --jump ACCEPT
 
-#iptables -t filter -A OUTPUT -o $wan -p udp --sport 67 -j DROP
-#iptables -t filter -A OUTPUT -o $wan -p udp --sport 123 -j DROP
-#iptables -t filter -A OUTPUT -o $wan -j ACCEPT
+# OUTPUT Traffic WAN
+iptables --table raw --append POSTROUTING ! --out-interface "${lanif}" --protocol udp --match multiport --source-ports 67 --jump DROP
+iptables --table filter --append OUTPUT --out-interface "${wanif}" --jump ACCEPT
+
+# OUTPUT Traffic LAN
+iptables --table filter --append OUTPUT --out-interface "${lanif}" --jump ACCEPT
+
+# Default Policy
+iptables --table filter --append INPUT --jump LOG --log-prefix "Input Drop: "
+iptables --table filter --policy INPUT DROP
+iptables --table filter --append FORWARD --jump LOG --log-prefix "Forward Drop: "
+iptables --table filter --policy FORWARD DROP
+iptables --table filter --append OUTPUT --jump LOG --log-prefix "Output Drop: "
+iptables --table filter --policy OUTPUT DROP
