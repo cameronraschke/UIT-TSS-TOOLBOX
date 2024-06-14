@@ -28,8 +28,6 @@ iptables --table filter --append OUTPUT --out-interface lo --jump ACCEPT
 # INPUT Traffic WAN
 iptables --table filter --append INPUT --in-interface "${wanif}" --source "${wan}" --protocol tcp --match multiport --destination-ports 22 --jump ACCEPT
 iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate RELATED,ESTABLISHED --jump ACCEPT
-iptables --table filter --append INPUT --in-interface "${wanif}" --jump LOG --log-prefix "Input Drop: "
-iptables --table filter --append INPUT --in-interface "${wanif}" --jump DROP
 
 # INPUT Traffic LAN
 iptables --table filter --append INPUT --in-interface "${lanif}" --jump ACCEPT
