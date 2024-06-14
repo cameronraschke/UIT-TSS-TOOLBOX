@@ -47,6 +47,9 @@ while true; do
     sql1=$(echo "SELECT CONVERT(time, DATETIME) AS result FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     echo "Last location: ${BOLD}${sql}${RESET} at ${BOLD}${sql1}${RESET}"
     read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
+    if [[ $location == "" ]]; then
+        location="$sql"
+    fi
     echo "Please select the ${BOLD}${GREEN}status${RESET}:"
     echo "    ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning${RESET}"
     echo "    ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}"
@@ -63,6 +66,9 @@ while true; do
         sql=$(echo "SELECT note AS result FROM locations WHERE tagnumber = '${tagNum}' AND note IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
         echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
         read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
+        if [[ $note == "" ]]; then
+            note="$sql"
+        fi
         echo "Is the disk removed?:"
         echo "   ${BOLD}${GREEN}[1]${RESET} Yes"
         echo "   ${BOLD}${GREEN}[2]${RESET} No"
