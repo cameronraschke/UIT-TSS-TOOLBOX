@@ -43,7 +43,12 @@ iptables --table filter --append OUTPUT --out-interface "${wanif}" --jump ACCEPT
 iptables --table filter --append OUTPUT --out-interface "${lanif}" --jump ACCEPT
 
 # Default Policy
-iptables --table filter --append INPUT --jump LOG --log-prefix "Input Drop: "
+iptables --table filter --new-chain inputdrop
+iptables --table filter --append INPUT --jump inputdrop
+iptables --table filter --append inputdrop --in-interface "${wanif}" --protocol udp --match multiport --source-ports 137:138 --jump DROP
+iptables --table filter --append inputdrop --jump LOG --log-prefix "Input Drop: "
+iptables --table filter --append inputdrop --jump DROP
+
 iptables --table filter --policy INPUT DROP
 iptables --table filter --append FORWARD --jump LOG --log-prefix "Forward Drop: "
 iptables --table filter --policy FORWARD DROP
