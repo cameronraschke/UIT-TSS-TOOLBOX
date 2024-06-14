@@ -261,7 +261,7 @@ CREATE FUNCTION mostRecentTime(tag MEDIUMINT)
 
   BEGIN
     DECLARE t DATETIME(3);
-    SET t = SELECT MAX(time) FROM jobstats WHERE tagnumber = tag;
+    SET t = (SELECT MAX(time) FROM jobstats WHERE tagnumber = tag);
     RETURN t;
   END //
 
