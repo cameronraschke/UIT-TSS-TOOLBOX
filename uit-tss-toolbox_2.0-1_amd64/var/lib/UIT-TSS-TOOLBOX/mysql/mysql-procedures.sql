@@ -46,7 +46,7 @@ CONCAT(battery_capacity, ' Wh'), battery_manufacturedate, cpu_manufacturer, cpu_
 motherboard_manufacturer, motherboard_serial, bios_version, bios_date, bios_firmware, ram_serial, CONCAT(ram_capacity, ' GB') ,CONCAT(ram_speed, 'Mhz'), CONCAT(cpu_usage, '%'), 
 CONCAT(network_usage, 'mbps'), CONCAT(boot_time, 's'), REPLACE(erase_completed, '1', 'Yes'), erase_mode, CONCAT(erase_diskpercent, '%'), CONCAT(erase_time, 's'), 
 REPLACE(clone_completed, '1', 'Yes'), REPLACE(clone_master, '1', 'Yes'), CONCAT(clone_time, 's')
-FROM jobstats WHERE department = 'techComm' ORDER BY time DESC);
+FROM jobstats ORDER BY time DESC);
 END; //
 
 DELIMITER ;
@@ -254,3 +254,15 @@ SELECT time,
 
 DELIMITER ;
 
+DELIMITER //
+
+CREATE FUNCTION mostRecentTime(tag MEDIUMINT)
+  RETURNS DATETIME(3)
+
+  BEGIN
+    DECLARE t DATETIME(3);
+    SET t = SELECT MAX(time) FROM jobstats WHERE tagnumber = tag;
+    RETURN t;
+  END //
+
+DELIMITER ;
