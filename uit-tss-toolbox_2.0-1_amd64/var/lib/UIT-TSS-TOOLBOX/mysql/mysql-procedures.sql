@@ -150,7 +150,8 @@ UNION
     note,
     CONVERT(time, DATETIME) 
     FROM locations 
-    WHERE time IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department = 'techComm') GROUP BY tagnumber);
+    WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department = 'techComm')) GROUP BY tagnumber
+);
 END; //
 
 DELIMITER ;
@@ -175,7 +176,8 @@ UNION
     note,
     CONVERT(time, DATETIME) 
     FROM locations 
-    WHERE time IN (SELECT time FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber) AND department = 'property'));
+    WHERE time IN (SELECT time FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber) AND department = 'property')
+);
 END; //
 
 DELIMITER ;
