@@ -27,7 +27,7 @@ if (preg_match("/[0-9]{6}/", $line)) {
     dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE department = 'techComm' AND tagnumber IS NOT NULL");
 } */
 
-dbSelect("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL AND department = 'techComm'");
+dbSelect("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL AND department = 'techComm' GROUP BY tagnumber");
 foreach ($arr as $key => $value) {
     # Set $tagNum to the iterated tagnumber.
     $tagNum = $value["tagnumber"];
