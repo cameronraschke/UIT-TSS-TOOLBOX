@@ -43,4 +43,11 @@ foreach ($arr as $key => $value) {
 }
 $file = null;
 
+$file = new SplFileObject("/tmp/laptop-report-property-".$time.".csv", 'w');
+dbSelect("CALL iterateLocationsPropertyCSV()");
+foreach ($arr as $key => $value) {
+    $file->fputcsv($value);
+}
+$file = null;
+
 ?>

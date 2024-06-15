@@ -150,8 +150,36 @@ UNION
     note,
     CONVERT(time, DATETIME) 
     FROM locations 
-    WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber));
+    WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND time IN (SELECT MAX(time) FROM jobstats WHERE department = 'techComm' GROUP BY tagnumber) GROUP BY tagnumber));
+END; //
 
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS iterateLocationsPropertyCSV;
+DELIMITER //
+CREATE PROCEDURE iterateLocationsPropertyCSV()
+DETERMINISTIC
+BEGIN
+
+(SELECT 'Tag',
+    'Serial Number',
+    'Location',
+    'Status',
+    'OS Insalled',
+    'Disk Removed',
+    'Notes',
+    'Most Recent Entry')
+UNION
+(SELECT tagnumber,
+    system_serial,
+    location,
+    IF (status='0', "Working", "Broken"),
+    IF (os_installed='1', "Yes", "No"),
+    IF (disk_removed='1', "Yes", "No"),
+    note,
+    CONVERT(time, DATETIME) 
+    FROM locations 
+    WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND time IN (SELECT MAX(time) FROM jobstats WHERE department = 'property' GROUP BY tagnumber) GROUP BY tagnumber));
 END; //
 
 DELIMITER ;
@@ -176,6 +204,7 @@ GRANT INSERT, SELECT, UPDATE, EXECUTE ON shrl.* TO 'shrl'@'10.0.0.0/255.0.0.0';
 END; //
 
 DELIMITER ;
+
 
 -- Select info about a tag
 DROP PROCEDURE IF EXISTS selectTag;
