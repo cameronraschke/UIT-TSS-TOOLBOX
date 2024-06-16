@@ -2,16 +2,22 @@
 while true; do
     NIC=$(ip addr | awk '/state UP/ {print $2}' | sed 's/://g')
 
-    oldTXBytes=$(cat /sys/class/net/${NIC}/statistics/tx_bytes)
-    oldRXBytes=$(cat /sys/class/net/${NIC}/statistics/rx_bytes)
+    oldTXBytes=$(cat /sys/class/net/${NIC}/statistics/tx_bytes 2>/dev/null)
+    oldRXBytes=$(cat /sys/class/net/${NIC}/statistics/rx_bytes 2>/dev/null)
     sleep 1
-    newTXBytes=$(cat /sys/class/net/${NIC}/statistics/tx_bytes)
-    newRXBytes=$(cat /sys/class/net/${NIC}/statistics/rx_bytes)
+    newTXBytes=$(cat /sys/class/net/${NIC}/statistics/tx_bytes 2>/dev/null)
+    newRXBytes=$(cat /sys/class/net/${NIC}/statistics/rx_bytes 2>/dev/null)
 
+if [[ -z $oldTXBytes && -z $oldRXBytes && -z $newTXBytes && -z $newRXBytes ]]; then
     TX=$(( newTXBytes - oldTXBytes ))
     RX=$(( newRXBytes - oldRXBytes ))
+fi
 
+if [[ -z $TX && -z $RX ]]; then
     SUM=$(( TX + RX ))
-    echo $SUM >> /tmp/network-usage.txt
+    if [[ $SUM -gt 0 ]]; then
+        echo $SUM >> /tmp/network-usage.txt
+    fi
+fi
 
 done
