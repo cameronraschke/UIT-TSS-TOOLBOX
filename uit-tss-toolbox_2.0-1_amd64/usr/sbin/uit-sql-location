@@ -11,15 +11,15 @@ while true; do
     echo ""
     echo ""
     echo ""
-    read -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
-    sql=$(echo "SELECT system_serial AS result FROM locations WHERE tagnumber = '${tagNum}' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-    echo "Serial number: ${BOLD}${sql}${RESET}"
+    read -r -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
+    sql=$(echo 'SELECT system_serial AS result FROM locations WHERE tagnumber = '"${tagNum}"' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
+    echo 'Serial number: '"${BOLD}"''"${sql}'"'"${RESET}"'
     if [[ $sql == "NULL" ]]; then
-        read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
+        read -r -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
     else
         serial="${sql}"
     fi
-    # sql=$(echo "SELECT department AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND system_serial = '${serial}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+    sql=$(echo "SELECT department AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND system_serial = '${serial}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     # if [[ $sql == "shrl" ]]; then
     #     echo "Department: ${BOLD}${sql}${RESET}"
     #     department="shrl"
@@ -27,6 +27,7 @@ while true; do
     #     echo "Department: ${BOLD}${sql}${RESET}"
     #     department="techComm"
     # else
+        echo 'Department: '"${BOLD}"''"${sql}"''"${RESET}"''
         echo "Please select the ${BOLD}${GREEN}department${RESET}:"
         echo "   ${BOLD}${GREEN}[1]${RESET} TechCommons"
         echo "   ${BOLD}${GREEN}[2]${RESET} SHRL"
@@ -43,10 +44,10 @@ while true; do
             department=""
         fi
     # fi
-    sql=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-    sql1=$(echo "SELECT CONVERT(time, DATETIME) AS result FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-    echo "Last location: ${BOLD}${sql}${RESET} at ${BOLD}${sql1}${RESET}"
-    read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
+    sql=$(echo 'SELECT location AS result FROM locations WHERE tagnumber = '"${tagNum}"' AND location IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
+    sql1=$(echo 'SELECT CONVERT(time, DATETIME) AS result FROM locations WHERE tagnumber = '"${tagNum}"' AND location IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
+    echo 'Last location: '"${BOLD}"''"${sql}"''"${RESET}"' at '"${BOLD}"''"${sql1}"''"${RESET}"''
+    read -r -p 'Please enter the '"${BOLD}"''"${GREEN}"'location'"${RESET}"': ' location
     if [[ $location == "" ]]; then
         location="$sql"
     fi
@@ -59,13 +60,13 @@ while true; do
     if [[ $status == "1" ]]; then
         echo ""
         status="TRUE"
-        read -p "Please enter a ${BOLD}${GREEN}note${GREEN}${RESET} (leave blank for no note): " note
+        read -r -p "Please enter a ${BOLD}${GREEN}note${GREEN}${RESET} (leave blank for no note): " note
     elif [[ $status == "2" ]]; then
         echo ""
         status="FALSE"
-        sql=$(echo "SELECT note AS result FROM locations WHERE tagnumber = '${tagNum}' AND note IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-        echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
-        read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
+        sql=$(echo 'SELECT note AS result FROM locations WHERE tagnumber = '"${tagNum}"' AND note IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
+        echo 'The last reported issue for '"${tagNum}"' was: '"${BOLD}"''"${sql}"''"${RESET}"''
+        read -r -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
         if [[ $note == "" ]]; then
             note="$sql"
         fi
@@ -81,18 +82,18 @@ while true; do
                 diskSerial=$(echo "SELECT disk_serial AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND disk_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 
                 if [[ $diskModel == "NULL" ]]; then
-                read -p "Please enter the ${BOLD}${GREEN}disk model${RESET}: " diskModel
+                read -r -p "Please enter the ${BOLD}${GREEN}disk model${RESET}: " diskModel
                 fi
 
                 if [[ $diskSize == "NULL" ]]; then
-                read -p "Please enter the ${BOLD}${GREEN}disk size${RESET} in GB: " diskSize
+                read -r -p "Please enter the ${BOLD}${GREEN}disk size${RESET} in GB: " diskSize
                 fi
 
                 if [[ $diskSerial == "NULL" ]]; then
-                read -p "Please enter the ${BOLD}${GREEN}disk serial number${RESET}: " diskSerial
+                read -r -p "Please enter the ${BOLD}${GREEN}disk serial number${RESET}: " diskSerial
                 fi
 
-                echo "disk|${tagNum}|${serial}|${diskModel}|${diskSize}|${diskSerial}|${department}" | /var/lib/UIT-TSS-TOOLBOX/parse
+                echo 'disk|'"${tagNum}"'|'"${serial}"'|'"${diskModel}"'|'"${diskSize}"'|'"${diskSerial}"'|'"${department}"'' | /var/lib/UIT-TSS-TOOLBOX/parse
             elif [[ $diskRemoved == "2" ]]; then
                 diskRemoved="TRUE"
             else
@@ -104,5 +105,5 @@ while true; do
         note=""
     fi
 
-    echo "location|${tagNum}|${serial}|${location}|${department}|${status}|${diskRemoved}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
+    echo 'location|'"${tagNum}"'|'"${serial}"'|'"${location}"'|'"${department}"'|'"${status}"'|'"${diskRemoved}"'|'"${note}"'' | /var/lib/UIT-TSS-TOOLBOX/parse
 done
