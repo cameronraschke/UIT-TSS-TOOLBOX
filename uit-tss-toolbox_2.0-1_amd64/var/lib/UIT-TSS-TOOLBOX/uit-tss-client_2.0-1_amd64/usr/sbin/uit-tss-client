@@ -451,7 +451,7 @@ function info {
 
 
 function footer {
-	biosUpdatedSQL=$(echo 'SELECT bios_version FROM static_bios_stats WHERE system_model = '"${tOneProductName}"'' | /var/lib/UIT-TSS-TOOLBOX/select)
+	biosUpdatedSQL=$(echo 'SELECT bios_version FROM static_bios_stats WHERE system_model = '"'${tOneProductName}'"'' | /var/lib/UIT-TSS-TOOLBOX/select)
 	if [[ $biosUpdatedSQL == "NULL" ]]; then
 		biosUpdated="${tZeroBiosVersion}"
 	elif [[ $biosUpdatedSQL == $tZeroBiosVersion ]]; then

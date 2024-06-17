@@ -12,7 +12,7 @@ while true; do
     echo ""
     echo ""
     read -r -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
-    sql=$(echo 'SELECT system_serial AS result FROM locations WHERE tagnumber = '"${tagNum}"' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
+    sql=$(echo 'SELECT system_serial AS result FROM locations WHERE tagnumber = '"'${tagNum}'"' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
     echo 'Serial number: '"${BOLD}"''"${sql}"''"${RESET}"''
     if [[ $sql == "NULL" ]]; then
         read -r -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
@@ -44,8 +44,8 @@ while true; do
             department=""
         fi
     # fi
-    sql=$(echo 'SELECT location AS result FROM locations WHERE tagnumber = '"${tagNum}"' AND location IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
-    sql1=$(echo 'SELECT CONVERT(time, DATETIME) AS result FROM locations WHERE tagnumber = '"${tagNum}"' AND location IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
+    sql=$(echo 'SELECT location AS result FROM locations WHERE tagnumber = '"'${tagNum}'"' AND location IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
+    sql1=$(echo 'SELECT CONVERT(time, DATETIME) AS result FROM locations WHERE tagnumber = '"'${tagNum}'"' AND location IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
     echo 'Last location: '"${BOLD}"''"${sql}"''"${RESET}"' at '"${BOLD}"''"${sql1}"''"${RESET}"''
     read -r -p 'Please enter the '"${BOLD}"''"${GREEN}"'location'"${RESET}"': ' location
     if [[ $location == "" ]]; then
@@ -64,7 +64,7 @@ while true; do
     elif [[ $status == "2" ]]; then
         echo ""
         status="FALSE"
-        sql=$(echo 'SELECT note AS result FROM locations WHERE tagnumber = '"${tagNum}"' AND note IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
+        sql=$(echo 'SELECT note AS result FROM locations WHERE tagnumber = '"'${tagNum}'"' AND note IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
         echo 'The last reported issue for '"${tagNum}"' was: '"${BOLD}"''"${sql}"''"${RESET}"''
         read -r -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
         if [[ $note == "" ]]; then
