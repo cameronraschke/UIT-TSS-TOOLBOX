@@ -15,9 +15,7 @@ fi
 
 if [[ -z $TX && -z $RX ]]; then
     SUM=$(( TX + RX ))
-    if [[ $SUM -gt 0 ]]; then
         echo $SUM >> /tmp/network-usage.txt
-    fi
 fi
 
 done

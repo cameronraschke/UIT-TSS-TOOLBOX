@@ -130,7 +130,11 @@ if ($arr[0] == "init") {
             $netLineCount = $netLineCount + 1;
         }
         $netSum = $netSum / 1048576 * 8;
-        $netAvg = $netSum / $netLineCount;
+        if ($netLineCount > 0) {
+            $netAvg = $netSum / $netLineCount;
+        } else {
+            $netAvg = 0;
+        }
         dbUpdateJob("network_usage", "$netAvg", "$uuid");
     }
 } else {
