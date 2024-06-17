@@ -45,7 +45,7 @@ CONCAT(disk_power_on_hours, 'hrs'), CONCAT(disk_temp, ' C'), disk_firmware, batt
 CONCAT(battery_capacity, ' Wh'), battery_manufacturedate, cpu_manufacturer, cpu_model, CONCAT(round(cpu_maxspeed / 1000, 2), ' Ghz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), 
 motherboard_manufacturer, motherboard_serial, bios_version, bios_date, bios_firmware, ram_serial, CONCAT(ram_capacity, ' GB') ,CONCAT(ram_speed, 'Mhz'), CONCAT(cpu_usage, '%'), 
 CONCAT(network_usage, 'mbps'), CONCAT(boot_time, 's'), REPLACE(erase_completed, '1', 'Yes'), erase_mode, CONCAT(erase_diskpercent, '%'), CONCAT(erase_time, 's'), 
-REPLACE(clone_completed, '1', 'Yes'), REPLACE(clone_master, '1', 'Yes'), CONCAT(clone_time, 's')
+REPLACE(clone_completed, '1', 'Yes'), REPLACE(clone_master, '1', 'Yes'), CONCAT(clone_time, 's'), IF (host_connected='1', 'Yes', '')
 FROM jobstats ORDER BY time DESC);
 END; //
 
