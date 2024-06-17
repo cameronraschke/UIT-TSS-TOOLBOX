@@ -217,7 +217,8 @@ SELECT time,
     network_usage,
     battery_health,
     disk_power_on_hours,
-    ram_serial
+    ram_serial,
+    host_connected
     FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 5;
 
 SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
@@ -254,7 +255,8 @@ SELECT time,
     tagnumber, 
     erase_completed, 
     clone_completed, 
-    clone_master 
+    clone_master,
+    host_connected
     FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
     END; //
 
