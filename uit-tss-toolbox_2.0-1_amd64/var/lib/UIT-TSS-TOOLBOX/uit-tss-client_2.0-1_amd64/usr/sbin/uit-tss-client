@@ -455,9 +455,9 @@ function footer {
 	if [[ $biosUpdatedSQL == "NULL" ]]; then
 		biosUpdated="${tZeroBiosVersion}"
 	elif [[ $biosUpdatedSQL == $tZeroBiosVersion ]]; then
-		biosUpdated="${DIM}${GREEN}Updated${RESET}"
+		biosUpdated="${GREEN}Updated${RESET}"
 	elif [[ $biosUpdatedSQL != $tZeroBiosVersion ]]; then
-		biosUpdated="${DIM}${RED}Needs Update${RESET}"
+		biosUpdated="${RED}Needs Update${RESET}"
 	fi
 	tput reset
 	lines=$(tput lines)
