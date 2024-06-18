@@ -213,7 +213,7 @@ function dbInsertRemote ($tagNum) {
 }
 
 function dbUpdateRemote ($tagNum, $key, $value) {
-    if (filter($tagNum) == 0 && filter($task) == 0) {
+    if (filter($tagNum) == 0 && filter($key) == 0) {
         global $pdo;
         $sql = "UPDATE remote SET $key = :value WHERE tagnumber = :tagNum";
         $stmt = $pdo->prepare($sql);
