@@ -70,6 +70,8 @@ if ($arr[0] == "remote") {
         $task = "NULL";
     } elseif ($arr[2] == "1") {
         $task = "data collection";
+    } elseif ($arr[2] == "9") {
+        $task = "update";
     }
 
     dbUpdateRemote("$tagNum", "task", "$task");

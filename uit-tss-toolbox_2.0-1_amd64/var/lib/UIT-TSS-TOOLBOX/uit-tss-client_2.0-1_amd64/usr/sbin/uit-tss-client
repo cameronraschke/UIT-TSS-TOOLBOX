@@ -1714,6 +1714,8 @@ function autodetectClient {
 				status="0"
 				note="Unattended"
 				echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			elif [[ $task == "update" ]]; then
+				exit
 			fi
 			echo "UPDATE remote SET task = NULL WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
 		else
