@@ -36,7 +36,7 @@ foreach ($arr as $key => $value) {
     dbUpdateRemote("$tagNum", "date", $date2->format('Y-m-d'));
     $date3 = clone $date2;
     $date3->modify('+1 week');
-    if ($date2 < $date3) {
+    if ($date >= $date3) {
         dbUpdateRemote("$tagNum", "task", "data collection");
     } else {
         dbUpdateRemote("$tagNum", "task", "NULL");
@@ -49,7 +49,7 @@ foreach ($arr as $key => $value) {
 }
 
 # Stop the timer
-echo timeSinceLastMarker("end", "Total Time to Update clientstats: ") . PHP_EOL;
+echo timeSinceLastMarker("end", "Total Time to Update remote: ") . PHP_EOL;
 
 # Clear globals
 clearSQLGlobals();
