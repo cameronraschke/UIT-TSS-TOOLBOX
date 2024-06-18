@@ -11,7 +11,7 @@ REGEX='[[:digit:]]{6}'
 
 while true; do
     echo -e "\n\n\n"
-    read -p -r "${BOLD}Please enter the ${GREEN}tag${RESET}${BOLD}: " tagNum
+    read -r -p "${BOLD}Please enter the ${GREEN}tag${RESET}${BOLD}: " tagNum
 
     if [[ tagNum =~ $REGEX ]]; then
         sql=$(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
@@ -21,7 +21,7 @@ while true; do
     echo "The last task for ${tagNum} was ${sql}"
     echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
     echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
-    read -p -r "${BOLD}Which task do you want ${BLUE}${tagNum}${RESET}${BOLD} to do? ${BOLD}Select ${GREEN}[0,1]${RESET}" task
+    read -r -p "${BOLD}Which task do you want ${BLUE}${tagNum}${RESET}${BOLD} to do? ${BOLD}Select ${GREEN}[0,1]${RESET}" task
 
     echo "remote|${tagNum}|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
 done
