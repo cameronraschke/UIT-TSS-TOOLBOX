@@ -82,15 +82,9 @@ if ($arr[0] == "remote") {
         $time2 = new DateTime($value);
         $time2->modify('+1 minute');
         $time2 = $time2->format('Y-m-d H:i:s.v');
-        $sql = "SELECT present FROM remote WHERE tagnumber = '$tagNum'";
-        foreach ($pdo->query($sql) as row) {
-            $time1 = $row["present"];
-        }
-        if ($time1 >= $time2) {
-            $value = 1;
-        } else {
-            $value = 0;
-        }
+        dbSelectVal("SELECT present FROM remote WHERE tagnumber = '$tagNum'");
+        $time1 = $result;
+        $time1 = NULL;
         $time2 = NULL;
     }
 
