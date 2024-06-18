@@ -552,6 +552,7 @@ function autodetectClient {
 			if [[ $task == "data collection" ]]; then
 				hardwareData
 			fi
+			echo "UPDATE remote SET task = NULL WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
 		else
 			echo ""
 			echo "${BOLD}${tagNum} ${DIM}(${tOneSerialNumber}) ${RESET}${BOLD}has no scheduled tasks right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"

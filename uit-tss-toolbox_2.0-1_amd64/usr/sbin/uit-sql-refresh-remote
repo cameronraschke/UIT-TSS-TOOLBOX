@@ -14,19 +14,6 @@ clearTimeGlobals();
 
 echo timeSinceLastMarker("start", "Updating clientstats") . PHP_EOL;
 
-/* # Get stdin
-$stdin = fopen('php://stdin', 'r');
-$line = trim(fgets(STDIN));
-fclose($stdin);
-# If stdin matches regex, then update that tagnumber, else update all tagnumbers.
-if (preg_match("/[0-9]{6}/", $line)) {
-    # Iterate through distinct computers in the Tech Commons by tagnumber.
-    dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber = '$line' AND department = 'techComm' AND tagnumber IS NOT NULL");
-} else {
-    # Iterate through distinct computers in the Tech Commons by tagnumber.
-    dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE department = 'techComm' AND tagnumber IS NOT NULL");
-} */
-
 dbSelect("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL GROUP BY tagnumber");
 foreach ($arr as $key => $value) {
     # Set $tagNum to the iterated tagnumber.
@@ -40,13 +27,14 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT tagnumber AS result FROM remote WHERE tagnumber = '$tagNum'");
     if (filter($result) == 1) {
         echo "Inserting laptop: " . $tagNum . " into remote" . PHP_EOL;
-        dbUpdateRemote("$tagNum");
+        dbInsertRemote("$tagNum");
     }
 
     # Update the time of the last job.
-    dbSelectVal("SELECT date FROM remote WHERE tagnumber = '$tagNum'");
-    
-    dbUpdateCS("last_job_time", "$result", "$tagNum");
+    dbSelectVal("SELECT IF (date < oneWeekAhead(date), "0", "1") AS result FROM remote WHERE tagnumber = '$tagNum' AND task IS NULL");
+    if ($result == "1") {
+        dbUpdateRemote("$tagNum", "data collection");
+    }
 
     # End the marker timer
     echo timeSinceLastMarker("markerEnd", "Time Taken for $tagNum: ") . PHP_EOL;

@@ -198,6 +198,21 @@ function dbUpdateLocation ($key, $value, $time) {
     }
 }
 
+function dbInsertRemote ($tagNum) {
+    if (filter($tagNum) == 0) {
+        global $pdo;
+        $sql = "INSERT INTO remote VALUES (tagnumber, task) VALUES (:tagNum, :task)";
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        $stmt->bindParam(':task', $task, PDO::PARAM_NULL);
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
+
 function dbUpdateRemote ($tagNum, $task) {
     if (filter($tagNum) == 0 && filter($task) == 0) {
         global $pdo;
