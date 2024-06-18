@@ -68,7 +68,7 @@ if ($arr[0] == "remote") {
 
     if ($arr[2] == "0") {
         $task = "NULL";
-    } elseif ($task == "1") {
+    } elseif ($arr[2] == "1") {
         $task = "data collection";
     }
 
