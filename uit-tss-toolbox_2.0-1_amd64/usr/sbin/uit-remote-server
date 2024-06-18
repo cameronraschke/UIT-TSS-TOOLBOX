@@ -1,0 +1,10 @@
+#!/bin/bash
+#echo "online ${ipAddr} ${tOneSerialNumber}" >> '/home/remote/'"${tOneSerialNumber}"'.remote'
+while sleep 1; do
+    for i in $(find /home/remote/*.remote); do
+        file=$(basename "${i}" | sed 's/\/remote//g')
+        
+    done
+done
+
+
