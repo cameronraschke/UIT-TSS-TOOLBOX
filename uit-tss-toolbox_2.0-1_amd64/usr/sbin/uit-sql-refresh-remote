@@ -34,9 +34,8 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT date AS result FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1");
     $date2 = new DateTime($result);
     dbUpdateRemote("$tagNum", "date", $date2->format('Y-m-d'));
-    $date3 = clone $date2;
-    $date3->modify('+1 week');
-    if ($date >= $date3) {
+    $date2->modify('+1 week');
+    if ($date >= $date2) {
         dbUpdateRemote("$tagNum", "task", "data collection");
     } else {
         dbUpdateRemote("$tagNum", "task", "NULL");
