@@ -1699,7 +1699,10 @@ function autodetectClient {
 	while true; do
 		logo
 		remote
+		
 		echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
+		sql=$(echo "SELECT present AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
+		echo "remote|${tagNum}|presentBool|$(date '+%Y-%m-%d %H:%M:%S')|${sql}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		if [[ $task != "NULL" ]]; then
 			tput cuu1
 			tput el

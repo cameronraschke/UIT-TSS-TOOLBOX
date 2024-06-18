@@ -67,6 +67,9 @@ if ($arr[0] == "remote") {
     $tagNum = $arr[1];
     $key = $arr[2];
     $value = $arr[3];
+    if (!empty($arr[4])) {
+        $value2 = $arr[4];
+    }
 
     if ($key == "task") {
         if ($value == "0") {
@@ -78,14 +81,19 @@ if ($arr[0] == "remote") {
         }
     }
 
-    if ($key == "present") {
-        $time2 = new DateTime($value);
+    if ($key == "presentBool") {
+        $time1 = new DateTime($value);
+        $time2 = new DateTime($value2);
         $time2->modify('+1 minute');
+        $time1 = $time1->format('Y-m-d H:i:s.v');
         $time2 = $time2->format('Y-m-d H:i:s.v');
-        dbSelectVal("SELECT present AS result FROM remote WHERE tagnumber = '$tagNum'");
-        $time1 = $result;
+        if ($time1 < $time1) {
+            $value = 1;
+        } else {
+            $value = 0;
+        }
         $time1 = NULL;
-        $time2 = NULL;
+        $time1 = NULL;
     }
 
     dbUpdateRemote("$tagNum", "$key", "$value");
