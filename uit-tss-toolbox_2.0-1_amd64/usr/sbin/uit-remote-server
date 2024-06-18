@@ -21,7 +21,7 @@ while true; do
     echo "The last task for ${tagNum} was ${sql}"
     echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
     echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
-    read -r -p -N1 "${BOLD}Which task do you want ${BLUE}${tagNum}${RESET}${BOLD} to do? ${BOLD}Select ${GREEN}[0,1]${RESET}" task
+    read -r -N1 -p "${BOLD}Which task do you want ${BLUE}${tagNum}${RESET}${BOLD} to do? ${BOLD}Select ${GREEN}[0,1]${RESET} " task
 
     echo "remote|${tagNum}|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
 done

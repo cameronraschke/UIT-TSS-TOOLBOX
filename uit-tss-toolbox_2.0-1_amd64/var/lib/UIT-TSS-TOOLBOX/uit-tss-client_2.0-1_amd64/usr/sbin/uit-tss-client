@@ -103,7 +103,7 @@ ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1
 
 
 function remote {
-	task=$(echo 'SELECT task AS result FROM remote WHERE system_serial = '"'${tOneSerialNumber}'"' AND ready = "1"' | /var/lib/UIT-TSS-TOOLBOX/select)
+	task=$(echo 'SELECT task AS result FROM remote WHERE tagnumber = '"'${tagNum}'"'' | /var/lib/UIT-TSS-TOOLBOX/select)
 }
 
 function department {
