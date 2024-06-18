@@ -1715,6 +1715,13 @@ function autodetectClient {
 				note="Unattended"
 				echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			elif [[ $task == "update" ]]; then
+				echo "UPDATE remote SET task = NULL WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
+				scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
+				chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
+				chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
+				dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
+				dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
+				uit-tss-client
 				exit
 			fi
 			echo "UPDATE remote SET task = NULL WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
