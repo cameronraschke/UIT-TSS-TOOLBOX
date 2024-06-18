@@ -1700,6 +1700,7 @@ function autodetectClient {
 		logo
 		remote
 		if [[ $task != "NULL" ]]; then
+			echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
 			tput cuu1
 			tput el
 			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${task} in 5 seconds. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"

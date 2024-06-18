@@ -24,5 +24,5 @@ while true; do
     echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
     read -r -N1 -p "${BOLD}Which task do you want ${tagNum} to do? ${BOLD}Select ${GREEN}[0-9]${RESET} " task
 
-    echo "remote|${tagNum}|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
+    echo "remote|${tagNum}|task|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
 done

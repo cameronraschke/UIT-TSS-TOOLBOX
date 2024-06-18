@@ -141,4 +141,36 @@ if ($arr[0] == "init") {
     exit();
 }
 
+if ($arr[0] == "remote") {
+    $tagNum = $arr[1];
+    $key = $arr[2];
+    $value = $arr[3];
+
+    if ($key == "task") {
+        if ($value == "0") {
+            $value = "NULL";
+        } elseif ($value == "1") {
+            $value = "data collection";
+        } elseif ($value == "9") {
+            $value = "update";
+        }
+    }
+
+    if ($key == "present") {
+        $time2 = new DateTime($value);
+        dbUpdateRemote("$tagNum", "present", $time2->format('Y-m-d H:i:s.v'));
+        $time2->modify('+1 minute');
+        $time2 = $time2->format('Y-m-d');
+        if ($time >= $time2) {
+            $value = 1;
+        } else {
+            $value = 0;
+        }
+        $time2 = NULL;
+    }
+
+    dbUpdateRemote("$tagNum", "$key", "$value");
+
+}
+
 ?>
