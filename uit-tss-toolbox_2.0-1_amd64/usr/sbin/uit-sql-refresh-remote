@@ -33,7 +33,7 @@ foreach ($arr as $key => $value) {
     # Update the time of the last job.
     dbSelectVal("SELECT date AS result FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1");
     dbUpdateRemote("$tagNum", "date", "$result");
-    dbSelectVal("SELECT IF (date < oneWeekAhead(date), '0', '1') AS result FROM remote WHERE tagnumber = '$tagNum' AND task IS NULL");
+    dbSelectVal("SELECT IF (date < oneWeekAhead(date), '0', '1') AS result FROM remote WHERE tagnumber = '$tagNum'");
     if ($result == "1") {
         dbUpdateRemote("$tagNum", "task", "data collection");
     } elseif ($result == "0") {
