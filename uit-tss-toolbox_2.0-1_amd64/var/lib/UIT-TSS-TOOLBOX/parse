@@ -67,12 +67,12 @@ if ($arr[0] == "remote") {
     $tagNum = $arr[1];
 
     if ($arr[2] == "0") {
-        $task = "NULL"
+        $task = "NULL";
     } elseif ($task == "1") {
         $task = "data collection";
     }
 
-    dbUpdateRemote("$tagNum", "$task");
+    dbUpdateRemote("$tagNum", "task", "$task");
 
 }
 
