@@ -36,6 +36,8 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT IF (date < oneWeekAhead(date), '0', '1') AS result FROM remote WHERE tagnumber = '$tagNum' AND task IS NULL");
     if ($result == "1") {
         dbUpdateRemote("$tagNum", "task", "data collection");
+    } elseif ($result == "0") {
+        dbUpdateRemote("$tagNum", "task", "NULL");
     }
 
     # End the marker timer
