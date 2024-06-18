@@ -93,6 +93,8 @@ echo "${BOLD}Configuring audio...${RESET}"
 /usr/sbin/amixer set Speakers unmute &>/dev/null
 echo "${GREEN}Done.${RESET}"
 
+systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+
 
 etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do cat /sys/class/net/${i}/address; done)
 wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
