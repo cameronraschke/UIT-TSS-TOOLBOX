@@ -247,3 +247,16 @@ INSERT INTO static_bios_stats
     ('Latitude 3500', '1.32.0'),
     ('Latitude 3560', 'A19'),
     ('Latitude 3590', '1.26.0');
+
+
+CREATE TABLE IF NOT EXISTS remote (
+    tagnumber MEDIUMINT NOT NULL PRIMARY KEY,
+    task VARCHAR(24) DEFAULT NULL,
+    date DATE DEFAULT NULL
+);
+
+ALTER TABLE remote
+    DROP PRIMARY KEY,
+    MODIFY COLUMN tagnumber MEDIUMINT NOT NULL PRIMARY KEY FIRST,
+    MODIFY COLUMN task VARCHAR(24) DEFAULT NULL AFTER tagnumber,
+    MODIFY COLUMN date DATE DEFAULT NULL AFTER task;

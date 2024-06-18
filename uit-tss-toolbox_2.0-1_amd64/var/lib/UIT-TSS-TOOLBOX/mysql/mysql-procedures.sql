@@ -25,6 +25,21 @@ END; //
 DELIMITER ;
 
 
+-- One week ago
+DROP FUNCTION IF EXISTS oneWeekAgo;
+DELIMITER //
+CREATE FUNCTION oneWeekAgo(date1 DATE)
+    RETURNS DATE
+    DETERMINISTIC
+    BEGIN
+        DECLARE t DATE;
+        SET t = (SELECT DATE_SUB(date1, INTERVAL 1 WEEK));
+        RETURN t;
+    END //
+
+DELIMITER ;
+
+
 -- Job table CSV
 DROP PROCEDURE IF EXISTS iterateJobCSV;
 DELIMITER //

@@ -1,0 +1,57 @@
+#!/usr/bin/php
+<?php
+# Connect to database and include custom functions
+include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
+
+# Set current date and time
+$dt = new DateTimeImmutable();
+$date = $dt->format('Y-m-d');
+$time = $dt->format('Y-m-d H:i:s.v');
+
+# Clear globals
+clearSQLGlobals();
+clearTimeGlobals();
+
+echo timeSinceLastMarker("start", "Updating clientstats") . PHP_EOL;
+
+/* # Get stdin
+$stdin = fopen('php://stdin', 'r');
+$line = trim(fgets(STDIN));
+fclose($stdin);
+# If stdin matches regex, then update that tagnumber, else update all tagnumbers.
+if (preg_match("/[0-9]{6}/", $line)) {
+    # Iterate through distinct computers in the Tech Commons by tagnumber.
+    dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE tagnumber = '$line' AND department = 'techComm' AND tagnumber IS NOT NULL");
+} else {
+    # Iterate through distinct computers in the Tech Commons by tagnumber.
+    dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE department = 'techComm' AND tagnumber IS NOT NULL");
+} */
+
+dbSelect("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL GROUP BY tagnumber");
+foreach ($arr as $key => $value) {
+    # Set $tagNum to the iterated tagnumber.
+    $tagNum = $value["tagnumber"];
+
+    # Start the timer that counts how much time each tagnumber takes to process.
+    echo PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating $tagNum") . PHP_EOL;
+
+    # If tagnumber does not exist in the clientstats table, insert it.
+    dbSelectVal("SELECT tagnumber AS result FROM remote WHERE tagnumber = '$tagNum'");
+    if (filter($result) == 1) {
+        echo "Inserting laptop: " . $tagNum . " into remote" . PHP_EOL;
+        dbUpdateRemote("$tagNum");
+    }
+    
+    # End the marker timer
+    echo timeSinceLastMarker("markerEnd", "Time Taken for $tagNum: ") . PHP_EOL;
+}
+
+# Stop the timer
+echo timeSinceLastMarker("end", "Total Time to Update clientstats: ") . PHP_EOL;
+
+# Clear globals
+clearSQLGlobals();
+clearTimeGlobals();
+
+?>
