@@ -42,7 +42,12 @@ foreach ($arr as $key => $value) {
         echo "Inserting laptop: " . $tagNum . " into remote" . PHP_EOL;
         dbUpdateRemote("$tagNum");
     }
+
+    # Update the time of the last job.
+    dbSelectVal("SELECT date FROM remote WHERE tagnumber = '$tagNum'");
     
+    dbUpdateCS("last_job_time", "$result", "$tagNum");
+
     # End the marker timer
     echo timeSinceLastMarker("markerEnd", "Time Taken for $tagNum: ") . PHP_EOL;
 }

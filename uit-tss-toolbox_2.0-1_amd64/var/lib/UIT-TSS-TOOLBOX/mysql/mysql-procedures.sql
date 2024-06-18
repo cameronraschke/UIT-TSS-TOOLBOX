@@ -40,6 +40,21 @@ CREATE FUNCTION oneWeekAgo(date1 DATE)
 DELIMITER ;
 
 
+-- One week future
+DROP FUNCTION IF EXISTS oneWeekAhead;
+DELIMITER //
+CREATE FUNCTION oneWeekAhead(date1 DATE)
+    RETURNS DATE
+    DETERMINISTIC
+    BEGIN
+        DECLARE t DATE;
+        SET t = (SELECT ADDDATE(date1, INTERVAL 1 WEEK));
+        RETURN t;
+    END //
+
+DELIMITER ;
+
+
 -- Job table CSV
 DROP PROCEDURE IF EXISTS iterateJobCSV;
 DELIMITER //
