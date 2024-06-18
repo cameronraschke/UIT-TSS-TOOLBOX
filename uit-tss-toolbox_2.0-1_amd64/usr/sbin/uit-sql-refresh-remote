@@ -35,7 +35,7 @@ foreach ($arr as $key => $value) {
     $date2 = new DateTime($result);
     dbUpdateRemote("$tagNum", "date", $date2->format('Y-m-d'));
     $date3 = clone $date2;
-    $date3->modify('+1 week')
+    $date3->modify('+1 week');
     if ($date2 < $date3) {
         dbUpdateRemote("$tagNum", "task", "data collection");
     } else {
