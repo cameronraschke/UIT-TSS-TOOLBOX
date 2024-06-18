@@ -201,7 +201,7 @@ function dbUpdateLocation ($key, $value, $time) {
 function dbInsertRemote ($tagNum) {
     if (filter($tagNum) == 0) {
         global $pdo;
-        $sql = "INSERT INTO remote (tagnumber, task) VALUES (:tagNum, NULL)";
+        $sql = "INSERT INTO remote (tagnumber) VALUES (:tagNum)";
         $stmt = $pdo->prepare($sql);
 
         $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
@@ -212,18 +212,18 @@ function dbInsertRemote ($tagNum) {
     }
 }
 
-function dbUpdateRemote ($tagNum, $task) {
+function dbUpdateRemote ($tagNum, $key, $value) {
     if (filter($tagNum) == 0 && filter($task) == 0) {
         global $pdo;
-        $sql = "UPDATE remote SET task = :task WHERE tagnumber = :tagNum";
+        $sql = "UPDATE remote SET $key = :value WHERE tagnumber = :tagNum";
         $stmt = $pdo->prepare($sql);
 
-        if (filter($task) == 0) {
+        if (filter($value) == 0) {
             $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-            $stmt->bindParam(':task', $task, PDO::PARAM_STR);
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         } else {
             $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-            $stmt->bindParam(':task', $task, PDO::PARAM_NULL);
+            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
         if (filter($stmt) == 0) {
