@@ -1715,7 +1715,11 @@ function autodetectClient {
 				note="Unattended"
 				echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			elif [[ $task == "update" ]]; then
-				echo "UPDATE remote SET task = NULL WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
+				echo "UPDATE remote SET task = 'data collection' WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
+				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
+				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
+				rm /tmp/network-usage.txt
+				rm /tmp/cpu-usage.txt
 				scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
 				chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
 				chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
