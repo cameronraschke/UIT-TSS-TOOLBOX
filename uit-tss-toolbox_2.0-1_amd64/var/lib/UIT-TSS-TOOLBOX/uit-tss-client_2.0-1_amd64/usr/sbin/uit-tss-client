@@ -544,7 +544,7 @@ function autodetectClient {
 		logo
 		if [[ $task != "NULL" ]]; then
 			echo ""
-			echo "${BOLD}${tagNum} ${DIM}(${tOneSerialNumber}) ${RESET}${BOLD}is scheduled for ${task} in 5 seconds. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
+			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${task} in 5 seconds. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
 			read -t 5 -N 1 input
 			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 				break
@@ -555,7 +555,7 @@ function autodetectClient {
 			echo "UPDATE remote SET task = NULL WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
 		else
 			echo ""
-			echo "${BOLD}${tagNum} ${DIM}(${tOneSerialNumber}) ${RESET}${BOLD}has no scheduled tasks right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"
+			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) has no scheduled tasks right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"
 			read -t 60 -N 1 input
 			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 				break
