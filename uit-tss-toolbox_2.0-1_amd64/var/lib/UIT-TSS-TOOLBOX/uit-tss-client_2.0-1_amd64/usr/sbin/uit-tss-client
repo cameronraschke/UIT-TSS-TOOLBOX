@@ -519,94 +519,12 @@ function manualClient {
 
 
 
-function autodetectClient {
-	footer
-	if [[ $(echo "${tOneManufacturer}" | grep -i "dell") ]]; then
-		systemManufacturer="dell"
-		elif [[ $(echo "${tOneManufacturer}" | grep -i "hp") ]]; then
-			systemManufacturer="hp"
-		elif [[ $(echo "${tOneManufacturer}" | grep -i "hewlett") ]]; then
-			systemManufacturer="hp"
-		else
-			systemManufacturer="unknown"
-	fi
-
-	if [[ $(echo "${tThreeType}" | grep -i "notebook") ]]; then
-		chassisType="notebook"
-		elif [[ $(echo "${tThreeType}" | grep -i "desktop") ]]; then
-			chassisType="desktop"
-		else
-			chassisType="unknown"
-	fi
-
-	while true; do
-		remote
-		logo
-		if [[ $task != "NULL" ]]; then
-			echo ""
-			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${task} in 5 seconds. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
-			read -t 5 -N 1 input
-			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
-				break
-			fi
-			if [[ $task == "data collection" ]]; then
-				hardwareData
-			fi
-			echo "UPDATE remote SET task = NULL WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
-		else
-			echo ""
-			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) has no scheduled tasks right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"
-			read -t 60 -N 1 input
-			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
-				break
-			fi
-		fi
-	done
-
-
-	logo
-	echo "${BOLD}${BLUE}Autodetect mode${RESET}${BOLD} will destroy all data on this laptop and image it."
-	echo ""
-	echo "------------------------------"
-	echo "${BOLD}Select mode:${RESET}"
-	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
-	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
-	read -n 1 -p "${BOLD}Enter [1,2]:${RESET} " input
-
-	if [[ $input == "1" ]]; then
-		if [[ $systemManufacturer == "hp" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
-			mainMenuOpt="1"
-		elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
-			mainMenuOpt="2"
-		else
-			echo ""
-			echo "${BOLD}${RED}Not enough info for autodetect.${RESET}"
-			sleep 0.5
-			manualClient
-		fi
-		echo ""
-		echo "------------------------------"
-		echo "${BOLD}Is this information corect?${RESET}"
-		echo ""
-		echo "${BOLD}${BLUE}System Manufacturer${RESET}${BOLD}: ${systemManufacturer}${RESET}"
-		echo "${BOLD}${BLUE}Chassis Type${RESET}${BOLD}: ${chassisType}${RESET}"
-		echo "${BOLD}${BLUE}Disk type${RESET}${BOLD}: ${DISK}${RESET}"
-		echo ""
-		echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Yes, it is correct${RESET}"
-		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}No, start over${RESET}"
-		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " input
-		if [[ $input == "1" ]]; then
-				return
-			else
-				autodetectClient
-		fi
-		else
-			manualClient
-	fi
-}
 
 
 function powerWarning {
+	if [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
+		return
+	fi
 	footer
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo "${BOLD}It is highly recommended to put the computer into hibernate mode. This takes less than 5 seconds.${RESET}"
@@ -1757,6 +1675,99 @@ function terminate {
 	poweroff
 }
 
+
+function autodetectClient {
+	footer
+	if [[ $(echo "${tOneManufacturer}" | grep -i "dell") ]]; then
+		systemManufacturer="dell"
+		elif [[ $(echo "${tOneManufacturer}" | grep -i "hp") ]]; then
+			systemManufacturer="hp"
+		elif [[ $(echo "${tOneManufacturer}" | grep -i "hewlett") ]]; then
+			systemManufacturer="hp"
+		else
+			systemManufacturer="unknown"
+	fi
+
+	if [[ $(echo "${tThreeType}" | grep -i "notebook") ]]; then
+		chassisType="notebook"
+		elif [[ $(echo "${tThreeType}" | grep -i "desktop") ]]; then
+			chassisType="desktop"
+		else
+			chassisType="unknown"
+	fi
+
+	logo
+	while true; do
+		remote
+		if [[ $task != "NULL" ]]; then
+			tput cuu1
+			tput el
+			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${task} in 5 seconds. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
+			read -t 5 -N 1 input
+			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
+				break
+			fi
+			if [[ $task == "data collection" ]]; then
+				hardwareData
+				echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				location=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1")
+				status="0"
+				note="Unattended"
+				echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			fi
+			echo "UPDATE remote SET task = NULL WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
+		else
+			tput cuu1
+			tput el
+			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) has no scheduled tasks right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"
+			read -t 10 -N 1 input
+			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
+				break
+			fi
+		fi
+	done
+
+
+	logo
+	echo "${BOLD}${BLUE}Autodetect mode${RESET}${BOLD} will destroy all data on this laptop and image it."
+	echo ""
+	echo "------------------------------"
+	echo "${BOLD}Select mode:${RESET}"
+	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Autodetect${RESET}"
+	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Manual${RESET}"
+	read -n 1 -p "${BOLD}Enter [1,2]:${RESET} " input
+
+	if [[ $input == "1" ]]; then
+		if [[ $systemManufacturer == "hp" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
+			mainMenuOpt="1"
+		elif [[ $systemManufacturer == "dell" && $chassisType == "notebook" && $diskType == "nvme" ]]; then
+			mainMenuOpt="2"
+		else
+			echo ""
+			echo "${BOLD}${RED}Not enough info for autodetect.${RESET}"
+			sleep 0.5
+			manualClient
+		fi
+		echo ""
+		echo "------------------------------"
+		echo "${BOLD}Is this information corect?${RESET}"
+		echo ""
+		echo "${BOLD}${BLUE}System Manufacturer${RESET}${BOLD}: ${systemManufacturer}${RESET}"
+		echo "${BOLD}${BLUE}Chassis Type${RESET}${BOLD}: ${chassisType}${RESET}"
+		echo "${BOLD}${BLUE}Disk type${RESET}${BOLD}: ${DISK}${RESET}"
+		echo ""
+		echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Yes, it is correct${RESET}"
+		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}No, start over${RESET}"
+		read -n 1 -p "${BOLD}Please enter [1,2]:${RESET} " input
+		if [[ $input == "1" ]]; then
+				return
+			else
+				autodetectClient
+		fi
+		else
+			manualClient
+	fi
+}
 
 
 function main {
