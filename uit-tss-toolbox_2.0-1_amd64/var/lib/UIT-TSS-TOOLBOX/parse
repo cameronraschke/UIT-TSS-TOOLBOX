@@ -82,7 +82,7 @@ if ($arr[0] == "remote") {
         $time2 = new DateTime($value);
         $time2->modify('+1 minute');
         $time2 = $time2->format('Y-m-d H:i:s.v');
-        dbSelectVal("SELECT present FROM remote WHERE tagnumber = '$tagNum'");
+        dbSelectVal("SELECT present AS result FROM remote WHERE tagnumber = '$tagNum'");
         $time1 = $result;
         $time1 = NULL;
         $time2 = NULL;
