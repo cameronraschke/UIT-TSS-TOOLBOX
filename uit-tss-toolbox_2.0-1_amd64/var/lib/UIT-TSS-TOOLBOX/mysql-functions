@@ -201,7 +201,7 @@ function dbUpdateLocation ($key, $value, $time) {
 function dbInsertRemote ($tagNum) {
     if (filter($tagNum) == 0) {
         global $pdo;
-        $sql = "INSERT INTO remote VALUES (tagnumber) VALUES (:tagNum)";
+        $sql = "INSERT INTO remote (tagnumber, task) VALUES (:tagNum, NULL)";
         $stmt = $pdo->prepare($sql);
 
         $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
