@@ -41,13 +41,15 @@ DELIMITER ;
 
 
 -- One week future
-DROP PROCEDURE IF EXISTS oneWeekAhead;
+DROP FUNCTION IF EXISTS oneWeekAhead;
 DELIMITER //
-CREATE PROCEDURE oneWeekAhead(date1 DATE)
+CREATE FUNCTION oneWeekAhead(date1 DATE)
     RETURNS DATE
     DETERMINISTIC
     BEGIN
-        SELECT ADDDATE(date1, INTERVAL 1 WEEK);
+        DECLARE t DATE;
+        SET t = (SELECT ADDDATE(date1, INTERVAL 1 WEEK));
+        RETURN t;
     END //
 
 DELIMITER ;
