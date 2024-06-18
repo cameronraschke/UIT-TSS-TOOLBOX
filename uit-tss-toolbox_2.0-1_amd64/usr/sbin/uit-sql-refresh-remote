@@ -40,6 +40,8 @@ foreach ($arr as $key => $value) {
     } else {
         dbUpdateRemote("$tagNum", "task", "NULL");
     }
+    $date2 = NULL;
+    $date3 = NULL;
 
     # End the marker timer
     echo timeSinceLastMarker("markerEnd", "Time Taken for $tagNum: ") . PHP_EOL;
