@@ -63,4 +63,17 @@ if ($arr[0] == "disk") {
     dbUpdateJob ("department", "$department", "$uuid");
 }
 
+if ($arr[0] == "remote") {
+    $tagNum = $arr[1];
+
+    if ($arr[2] == "0") {
+        $task = "NULL"
+    } elseif ($task == "1") {
+        $task = "data collection";
+    }
+
+    dbUpdateRemote("$tagNum", "$task");
+
+}
+
 ?>

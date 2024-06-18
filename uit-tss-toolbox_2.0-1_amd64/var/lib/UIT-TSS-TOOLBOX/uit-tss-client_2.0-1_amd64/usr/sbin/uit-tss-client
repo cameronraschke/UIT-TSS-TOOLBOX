@@ -103,15 +103,7 @@ ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1
 
 
 function remote {
-	mkdir -p /home/remote
-	mount -t nfs 10.0.0.1:/home/remote /home/remote
-	while sleep 1; do
-		echo "online ${ipAddr} ${tOneSerialNumber}" >> '/home/remote/'"${tOneSerialNumber}"'.remote'
-		sleep 5
-		if [[ $(tail -n1 "/home/remote/${tOneSerialNumber}.execute") == "execute" ]]; do
-			"/home/remote/uit-remote-client-${tOneSerialNumber}"
-		done
-	done
+	task=$(echo 'SELECT task AS result FROM remote WHERE system_serial = '"'${tOneSerialNumber}'"' AND ready = "1"' | /var/lib/UIT-TSS-TOOLBOX/select)
 }
 
 function department {
@@ -546,6 +538,30 @@ function autodetectClient {
 		else
 			chassisType="unknown"
 	fi
+
+	while true; do
+		remote
+		logo
+		if [[ $task != "NULL" ]]; then
+			echo ""
+			echo "${BOLD}${tagNum} ${DIM}(${tOneSerialNumber}) ${RESET}${BOLD}is scheduled for ${task} in 5 seconds. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
+			read -t 5 -N 1 input
+			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
+				break
+			fi
+			if [[ $task == "data collection" ]]; then
+				hardwareData
+			fi
+		else
+			echo ""
+			echo "${BOLD}${tagNum} ${DIM}(${tOneSerialNumber}) ${RESET}${BOLD}has no scheduled tasks right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"
+			read -t 60 -N 1 input
+			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
+				break
+			fi
+		fi
+	done
+
 
 	logo
 	echo "${BOLD}${BLUE}Autodetect mode${RESET}${BOLD} will destroy all data on this laptop and image it."

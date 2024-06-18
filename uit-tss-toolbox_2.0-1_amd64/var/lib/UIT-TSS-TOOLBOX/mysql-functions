@@ -198,4 +198,24 @@ function dbUpdateLocation ($key, $value, $time) {
     }
 }
 
+function dbUpdateRemote ($tagNum, $task) {
+    if (filter($tagNum) == 0 && filter($task) == 0) {
+        global $pdo;
+        $sql = "UPDATE remote SET task = :task WHERE tagnumber = :tagNum";
+        $stmt = $pdo->prepare($sql);
+
+        if (filter($task) == 0) {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+            $stmt->bindParam(':task', $task, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+            $stmt->bindParam(':task', $task, PDO::PARAM_NULL);
+        }
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
+
 ?>
