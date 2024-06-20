@@ -11,9 +11,9 @@ RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
-kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
-kill $(ps | grep 'uit-network' | awk '{ print $1 }')
-kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
+kill $(ps | grep 'uit-cpu' | awk '{ print $1 }') 2>/dev/null
+kill $(ps | grep 'uit-network' | awk '{ print $1 }') 2>/dev/null
+kill $(ps | grep 'uit-sql' | awk '{ print $1 }') 2>/dev/null
 
 uit-cpu-stats &
 uit-network-stats &
@@ -1721,7 +1721,7 @@ function autodetectClient {
 				note="Unattended"
 				echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			elif [[ $task == "update" ]]; then
-				echo "remote|${tagNum}|task|data collection|" | /var/lib/UIT-TSS-TOOLBOX/select
+				echo "remote|${tagNum}|task|data collection" | /var/lib/UIT-TSS-TOOLBOX/select
 				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
 				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
 				kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
