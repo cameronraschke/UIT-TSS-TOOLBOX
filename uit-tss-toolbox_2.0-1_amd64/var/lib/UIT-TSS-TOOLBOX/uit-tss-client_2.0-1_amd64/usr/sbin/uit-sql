@@ -1,0 +1,6 @@
+#!/bin/bash
+$tagNum=$(cat -)
+while true; do
+    echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
+    sleep 45
+done

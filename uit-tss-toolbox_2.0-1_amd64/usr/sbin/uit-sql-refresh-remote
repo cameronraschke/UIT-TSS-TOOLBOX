@@ -44,7 +44,7 @@ foreach ($arr as $key => $value) {
     if (filter($result) == 0) {
         $time1 = new DateTime($result);
         $time1->modify('+1 minute');
-        $time1 = $time1->format('Y-m-d H:i:s.v');
+        $time1 = $time1->format('Y-m-d H:i:s');
         if ($time < $time1) {
             $value = 1;
         } else {
@@ -52,8 +52,6 @@ foreach ($arr as $key => $value) {
         }
         dbUpdateRemote("$tagNum", "present_bool", "$value");
         $time1 = NULL;
-    } else {
-        dbUpdateRemote("$tagNum", "present_bool", "0");
     }
 
 }
