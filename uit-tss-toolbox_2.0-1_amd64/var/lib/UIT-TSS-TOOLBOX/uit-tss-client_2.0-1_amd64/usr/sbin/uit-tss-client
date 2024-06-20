@@ -1697,10 +1697,14 @@ function autodetectClient {
 	fi
 
 	while true; do
+		echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
+		sleep 45
+	done &
+
+	while true; do
 		logo
 		remote
 		
-		echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
 		if [[ $task != "NULL" ]]; then
 			tput cuu1
 			tput el
