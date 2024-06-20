@@ -1,5 +1,5 @@
 #!/bin/bash
-$tagNum=$(cat -)
+$tagNum=$("SELECT tagnumber AS result FROM jobstats WHERE system_serial = $(dmidecode --string system-serial-number) ORDER BY time DESC LIMIT 1")
 while true; do
     echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
     sleep 45

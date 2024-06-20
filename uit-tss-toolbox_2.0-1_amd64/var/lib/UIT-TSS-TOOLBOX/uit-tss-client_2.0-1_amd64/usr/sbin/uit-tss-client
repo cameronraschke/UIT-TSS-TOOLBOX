@@ -1700,7 +1700,7 @@ function autodetectClient {
 			chassisType="unknown"
 	fi
 
-	echo "${tagNum}" | uit-sql &
+	uit-sql &
 
 	while true; do
 		logo
