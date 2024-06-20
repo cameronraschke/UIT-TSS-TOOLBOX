@@ -25,7 +25,7 @@ while true; do
         fi
 
         sql=$(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-        echo "The last task for ${tagNum} was ${sql}"
+        echo "The current task for ${tagNum} was ${sql}"
         echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
         echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package"
         echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"

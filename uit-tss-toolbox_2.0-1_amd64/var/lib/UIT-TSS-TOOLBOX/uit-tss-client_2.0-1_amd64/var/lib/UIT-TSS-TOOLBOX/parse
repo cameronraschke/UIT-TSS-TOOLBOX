@@ -145,9 +145,6 @@ if ($arr[0] == "remote") {
     $tagNum = $arr[1];
     $key = $arr[2];
     $value = $arr[3];
-    if (!empty($arr[4])) {
-        $value2 = $arr[4];
-    }
 
     if ($key == "task") {
         if ($value == "0") {
