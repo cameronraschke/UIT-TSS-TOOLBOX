@@ -49,7 +49,6 @@ while true; do
             echo "remote|${i}|task|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
         done
     fi
-    fi
 
 
 
