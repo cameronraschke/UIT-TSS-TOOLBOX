@@ -67,7 +67,7 @@ BEGIN
 'Battery Capacity','Battery Manufacture Date','CPU Manufacturer','CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp',
 'Motherboard Manufacturer','Motherboard Serial','BIOS Version','BIOS Date','BIOS Firmware','RAM Serial','RAM Capacity','RAM Speed','CPU Usage',
 'Network Usage','Boot Time','Erase Completed','Erase Mode','Erase Disk Percent','Erase Time',
-'Clone Completed','Clone Master','Clone Time')
+'Clone Completed','Clone Master','Clone Time', 'Connected to Host')
 UNION
 (SELECT uuid, tagnumber, system_serial, date, CONVERT(time, DATETIME), department, etheraddress, wifi_mac, system_manufacturer, system_model, system_uuid, 
 system_sku, chassis_type, disk, disk_model, disk_type, CONCAT(disk_size, ' GB'), disk_serial, CONCAT(disk_writes, ' TB'), CONCAT(disk_reads, ' TB'), 
