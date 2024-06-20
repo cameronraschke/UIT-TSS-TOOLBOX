@@ -1716,13 +1716,12 @@ function autodetectClient {
 			fi
 			if [[ $task == "data collection" ]]; then
 				hardwareData
-				echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				location=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 				status="0"
 				note="Unattended"
 				echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			elif [[ $task == "update" ]]; then
-				echo "UPDATE remote SET task = 'data collection' WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
+				echo "remote|${tagNum}|task|data collection|" | /var/lib/UIT-TSS-TOOLBOX/select
 				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
 				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
 				kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
