@@ -11,6 +11,10 @@ RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
+kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
+kill $(ps | grep 'uit-network' | awk '{ print $1 }')
+kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
+
 uit-cpu-stats &
 uit-network-stats &
 
@@ -1721,7 +1725,7 @@ function autodetectClient {
 				echo "UPDATE remote SET task = 'data collection' WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select
 				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
 				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
-				ill $(ps | grep 'uit-sql' | awk '{ print $1 }')
+				kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
 				rm /tmp/network-usage.txt
 				rm /tmp/cpu-usage.txt
 				scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
