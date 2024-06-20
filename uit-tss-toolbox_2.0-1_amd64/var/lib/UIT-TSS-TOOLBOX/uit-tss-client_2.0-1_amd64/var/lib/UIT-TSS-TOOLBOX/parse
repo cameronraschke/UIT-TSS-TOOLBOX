@@ -157,6 +157,8 @@ if ($arr[0] == "remote") {
             $value = "data collection";
         } elseif ($value == "9") {
             $value = "update";
+        } elseif ($value == "8") {
+            $value = "findmy";
         }
     }
 

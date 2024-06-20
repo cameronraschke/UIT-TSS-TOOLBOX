@@ -27,12 +27,14 @@ while true; do
         sql=$(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
         echo "The current task for ${tagNum} is ${sql}"
         echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
+        echo "  ${BOLD}${GREEN}[8]${RESET} ${BOLD}Play sound"
         echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package"
         echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
         read -r -N1 -p "${BOLD}Which task do you want ${tagNum} to do? ${BOLD}Select ${GREEN}[0-9]${RESET} " task
         echo "remote|${tagNum}|task|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
     else
         echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
+        echo "  ${BOLD}${GREEN}[8]${RESET} ${BOLD}Play sound"
         echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package"
         echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
         read -r -N1 -p "${BOLD}Which task do you want laptops in '${tagNum}' to do? ${BOLD}Select ${GREEN}[0-9]${RESET} " task
