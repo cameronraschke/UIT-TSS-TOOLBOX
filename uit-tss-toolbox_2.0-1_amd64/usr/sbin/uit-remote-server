@@ -9,20 +9,46 @@ RESET=$(echo -ne "\033[0m")
 
 REGEX='[[:digit:]]{6}'
 
-while true; do
-    echo -e "\n\n\n"
-    read -r -p "${BOLD}Please enter the ${GREEN}tag${RESET}${BOLD}: " tagNum
-
-    if [[ tagNum =~ $REGEX ]]; then
-        sql=$(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-    fi
-
-    echo ""
-    echo "The last task for ${tagNum} was ${sql}"
+function task {
     echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
     echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package"
     echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
     read -r -N1 -p "${BOLD}Which task do you want ${tagNum} to do? ${BOLD}Select ${GREEN}[0-9]${RESET} " task
+}
 
-    echo "remote|${tagNum}|task|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
+while true; do
+    echo -e "\n\n\n"
+    echo "Updating presence..."
+    uit-sql-refresh-remote
+    tput cuu1
+    tput el
+    read -r -p "${BOLD}Please enter the ${GREEN}tag${RESET}${BOLD}: " tagNum
+
+
+    if [[ tagNum =~ $REGEX ]]; then
+        sql=$(echo "SELECT present_bool AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
+        if [[ $sql == "NULL" ]]; then
+            echo "${BOLD}${RED}${i}${RESET}${BOLD} is not currently present.${RESET}"
+        fi
+
+        sql=$(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
+        echo ""
+        echo "The last task for ${tagNum} was ${sql}"
+        task
+        echo "remote|${tagNum}|task|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
+    elif [[ $tagNum =~ $REGEXLOC ]]; then
+        sql=$(echo "SELECT tagnumber AS result FROM remote WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = '${tagNum}')" | /var/lib/UIT-TSS-TOOLBOX/select)
+        for i in ${sql}; do
+            task
+            sql=$(echo "SELECT present_bool AS result FROM remote WHERE tagnumber = '${i}'" | /var/lib/UIT-TSS-TOOLBOX/select)
+            if [[ $sql == "NULL" ]]; then
+                echo "${BOLD}${RED}${i}${RESET}${BOLD} is not currently present.${RESET}"
+            fi
+            echo "remote|${i}|task|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
+        done
+    fi
+    fi
+
+
+
 done

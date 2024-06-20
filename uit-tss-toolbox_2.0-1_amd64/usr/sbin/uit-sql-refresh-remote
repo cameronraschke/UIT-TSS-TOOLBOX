@@ -12,21 +12,14 @@ $time = $dt->format('Y-m-d H:i:s.v');
 clearSQLGlobals();
 clearTimeGlobals();
 
-echo timeSinceLastMarker("start", "Updating clientstats") . PHP_EOL;
-
 dbSelect("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL GROUP BY tagnumber");
 foreach ($arr as $key => $value) {
     # Set $tagNum to the iterated tagnumber.
     $tagNum = $value["tagnumber"];
 
-    # Start the timer that counts how much time each tagnumber takes to process.
-    echo PHP_EOL;
-    echo timeSinceLastMarker("markerStart", "Updating $tagNum") . PHP_EOL;
-
     # If tagnumber does not exist in the clientstats table, insert it.
     dbSelectVal("SELECT tagnumber AS result FROM remote WHERE tagnumber = '$tagNum'");
     if (filter($result) == 1) {
-        echo "Inserting laptop: " . $tagNum . " into remote" . PHP_EOL;
         dbInsertRemote("$tagNum");
     }
 
@@ -42,14 +35,20 @@ foreach ($arr as $key => $value) {
         dbUpdateRemote("$tagNum", "task", "NULL");
     }
     $date2 = NULL;
-    $date3 = NULL;
 
-    # End the marker timer
-    echo timeSinceLastMarker("markerEnd", "Time Taken for $tagNum: ") . PHP_EOL;
+    dbSelectVal("SELECT present AS result FROM remote WHERE tagnumber = '$tagNum'");
+    $time1 = new DateTime($result);
+    $time1->modify('+1 minute');
+    $time1 = $time1->format('Y-m-d H:i:s.v');
+    if ($time < $time1) {
+        $value = 1;
+    } else {
+        $value = 0;
+    }
+    dbUpdateRemote("$tagNum", "present_bool", "$value");
+    $time1 = NULL;
+
 }
-
-# Stop the timer
-echo timeSinceLastMarker("end", "Total Time to Update remote: ") . PHP_EOL;
 
 # Clear globals
 clearSQLGlobals();

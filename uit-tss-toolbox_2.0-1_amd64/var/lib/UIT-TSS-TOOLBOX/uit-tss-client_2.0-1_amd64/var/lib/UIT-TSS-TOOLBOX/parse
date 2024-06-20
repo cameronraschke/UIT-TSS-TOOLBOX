@@ -159,21 +159,6 @@ if ($arr[0] == "remote") {
         }
     }
 
-    if ($key == "presentBool") {
-        $time1 = new DateTime($value);
-        $time2 = new DateTime($value2);
-        $time2->modify('+1 minute');
-        $time1 = $time1->format('Y-m-d H:i:s.v');
-        $time2 = $time2->format('Y-m-d H:i:s.v');
-        if ($time1 < $time1) {
-            $value = 1;
-        } else {
-            $value = 0;
-        }
-        $time1 = NULL;
-        $time1 = NULL;
-    }
-
     dbUpdateRemote("$tagNum", "$key", "$value");
 
 }
