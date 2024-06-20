@@ -1732,7 +1732,7 @@ function autodetectClient {
 				chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
 				dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
 				dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
-				uit-tss-client
+				exec uit-tss-client
 				exit
 			fi
 			echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
