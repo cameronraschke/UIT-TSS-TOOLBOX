@@ -25,7 +25,7 @@ while true; do
         fi
 
         sql=$(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-        echo "The current task for ${tagNum} was ${sql}"
+        echo "The current task for ${tagNum} is ${sql}"
         echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
         echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package"
         echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
@@ -37,7 +37,7 @@ while true; do
         echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
         read -r -N1 -p "${BOLD}Which task do you want laptops in '${tagNum}' to do? ${BOLD}Select ${GREEN}[0-9]${RESET} " task
         sql=$(echo "SELECT tagnumber AS result FROM remote WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = '${tagNum}')" | /var/lib/UIT-TSS-TOOLBOX/select)
-        for i in "${sql}"; do
+        for i in ${sql}; do
             sql=$(echo "SELECT present_bool AS result FROM remote WHERE tagnumber = '${i}'" | /var/lib/UIT-TSS-TOOLBOX/select)
             if [[ $sql == "NULL" ]]; then
                 echo "${BOLD}${RED}${i}${RESET}${BOLD} is not currently present.${RESET}"
