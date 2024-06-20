@@ -9,6 +9,8 @@ RESET=$(echo -ne "\033[0m")
 
 REGEX='[[:digit:]]{6}'
 
+REGEXLOC='[a-zA-Z]+'
+
 function task {
     echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
     echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package"
