@@ -21,11 +21,10 @@ while true; do
     if [[ $tagNum =~ $REGEX ]]; then
         sql=$(echo "SELECT present_bool AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
         if [[ $sql == "NULL" ]]; then
-            echo "${BOLD}${RED}${i}${RESET}${BOLD} is not currently present.${RESET}"
+            echo "${BOLD}${RED}${tagNum}${RESET}${BOLD} is not currently present.${RESET}"
         fi
 
         sql=$(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-        echo ""
         echo "The last task for ${tagNum} was ${sql}"
         echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
         echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package"
