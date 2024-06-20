@@ -18,6 +18,8 @@ kill $(ps | grep 'uit-sql' | awk '{ print $1 }') 2>/dev/null
 uit-cpu-stats &
 uit-network-stats &
 
+scp -r cameron@mickey.uit:/home/cameron/sounds/findmy1.mp3 /root &>/dev/null
+
 echo ""
 echo "${BOLD}Changing font...${RESET}"
 if [[ $(dmidecode --string system-product-name) == "Latitude 3560" ]]; then
@@ -1734,6 +1736,8 @@ function autodetectClient {
 				dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 				exec uit-tss-client
 				exit
+			elif [[ $task == "findmy" ]]; then
+				play /root/findmy1.mp3 &> /dev/null
 			fi
 			echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
