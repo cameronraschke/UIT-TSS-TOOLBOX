@@ -24,7 +24,7 @@ foreach ($arr as $key => $value) {
     }
 
     # Update the time of the last job.
-    dbSelectVal("SELECT IF (task=NULL, 0, 1) AS result FROM remote WHERE tagnumber = '$tagNum'");
+    dbSelectVal("SELECT IF (task IS NULL, 0, 1) AS result FROM remote WHERE tagnumber = '$tagNum'");
     $curTask = $result;
     dbSelectVal("SELECT date AS result FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1");
     $date2 = new DateTime($result);
