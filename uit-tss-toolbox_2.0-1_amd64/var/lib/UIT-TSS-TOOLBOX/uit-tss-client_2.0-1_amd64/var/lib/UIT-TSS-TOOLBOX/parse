@@ -28,7 +28,9 @@ if ($arr[0] == "init") {
     dbUpdateJob("date", "$date", "$uuid");
     dbUpdateJob("time", "$time", "$uuid");
 
-} elseif ($arr[0] == "location") {
+}
+
+if ($arr[0] == "location") {
 
     if (empty($arr[7])) {
         $arr[7] = "unknown";
@@ -74,7 +76,9 @@ if ($arr[0] == "init") {
     dbUpdateLocation("status", "$status", "$time");
     dbUpdateLocation("note", "$note", "$time");
 
-} elseif ($arr[0] == "general") {
+}
+
+if ($arr[0] == "general") {
     $key = $arr[1];
     $value = $arr[2];
     $uuid = $arr[3];
@@ -109,7 +113,9 @@ if ($arr[0] == "init") {
 
     dbUpdateJob("$key", "$value", "$uuid");
 
-} elseif ($arr[0] == "system-stats") {
+}
+
+if ($arr[0] == "system-stats") {
     $uuid = $arr[2];
     if ($arr[1] == "cpu") {
         $cpuSum = null;
@@ -137,8 +143,6 @@ if ($arr[0] == "init") {
         }
         dbUpdateJob("network_usage", "$netAvg", "$uuid");
     }
-} else {
-    exit();
 }
 
 if ($arr[0] == "remote") {
