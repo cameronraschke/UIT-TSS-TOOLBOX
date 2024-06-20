@@ -39,9 +39,9 @@ while true; do
         task
         echo "remote|${tagNum}|task|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
     elif [[ $tagNum =~ $REGEXLOC ]]; then
+        task
         sql=$(echo "SELECT tagnumber AS result FROM remote WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = '${tagNum}')" | /var/lib/UIT-TSS-TOOLBOX/select)
         for i in ${sql}; do
-            task
             sql=$(echo "SELECT present_bool AS result FROM remote WHERE tagnumber = '${i}'" | /var/lib/UIT-TSS-TOOLBOX/select)
             if [[ $sql == "NULL" ]]; then
                 echo "${BOLD}${RED}${i}${RESET}${BOLD} is not currently present.${RESET}"
