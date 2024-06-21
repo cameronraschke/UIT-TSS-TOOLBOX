@@ -1727,7 +1727,15 @@ function autodetectClient {
 			echo "remote|${tagNum}|status|waiting for task" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 		
-		monitorBattery
+		if [[ -d /sys/class/power_supply/BAT0 ]]; then
+			batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+			batStatus=$(cat /sys/class/power_supply/BAT0/status)
+		elif [[ -d /sys/class/power_supply/BAT1 ]]; then
+			batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+			batStatus=$(cat /sys/class/power_supply/BAT0/status)
+		else
+			batCharge="0"
+		fi
 		echo "remote|${tagNum}|battery_charge|$batCharge" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 		if [[ $task != "NULL" ]]; then
