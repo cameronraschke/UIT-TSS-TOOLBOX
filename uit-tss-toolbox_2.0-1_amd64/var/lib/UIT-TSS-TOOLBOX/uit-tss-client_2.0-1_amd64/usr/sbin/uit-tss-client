@@ -916,7 +916,7 @@ function vrfyDisk_Shred {
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		if [[ $(pv /dev/${CLIENTDISK} | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
 		    PROCFAIL='1'
-			echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
             read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 			uit-tss-client
 		else
@@ -941,7 +941,7 @@ function vrfyDisk_Shred {
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT} skip=${SKIP} iflag=fullblock status=none 2>/dev/null \
         	| xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
-				echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
             	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				uit-tss-client
     	fi
@@ -953,7 +953,7 @@ function vrfyDisk_Shred {
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorCount} skip=0 iflag=fullblock status=none 2>/dev/null \
         | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
-				echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
             	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				uit-tss-client
     fi
@@ -962,7 +962,7 @@ function vrfyDisk_Shred {
 		iflag=fullblock status=none 2>/dev/null \
         | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
-				echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 				read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				uit-tss-client
     fi
@@ -972,7 +972,7 @@ function vrfyDisk_Shred {
 		echo "Test passed successfully!"
 		return 0
 	else
-		echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 		read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 		uit-tss-client
 	fi
@@ -995,7 +995,7 @@ function secErase_Shred {
 			nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
 		fi
 	else
-		echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}. Continuing...."
 	fi
 }
@@ -1512,7 +1512,7 @@ function execute {
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		read -t 10 -p "${BOLD}Cannot erase device and save its image.${RESET}"
-		echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 		uit-tss-client
 	fi
 
@@ -1743,13 +1743,13 @@ function autodetectClient {
 			elif [[ $task == "findmy" ]]; then
 				play /root/findmy1.mp3 &> /dev/null
 			elif [[ $task == "hpEraseAndClone" ]]; then
-				echo "remote|status|0" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|0" | /var/lib/UIT-TSS-TOOLBOX/parse
 				APPSELECT="EC"
 				ACTION="erase and clone"
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
-					echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 					autodetectClient
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
