@@ -1714,6 +1714,10 @@ function autodetectClient {
 		unattended="true"
 		
 		if [[ $task != "NULL" ]]; then
+			location=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+			status="0"
+			note="Unattended"
+			echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			tput cuu1
 			tput el
 			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${task} in 5 seconds. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
