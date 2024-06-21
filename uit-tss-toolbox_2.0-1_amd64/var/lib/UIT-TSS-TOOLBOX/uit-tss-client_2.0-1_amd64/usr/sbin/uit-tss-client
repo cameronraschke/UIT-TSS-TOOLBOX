@@ -1904,7 +1904,7 @@ function main {
 	else
 		uit-tss-client
 	fi
-	if [[ $unattended == "true" ]]; then
+	if [[ $unattended == "false" ]]; then
 		terminate
 	fi
 }
