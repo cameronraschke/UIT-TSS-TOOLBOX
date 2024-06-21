@@ -558,6 +558,7 @@ function powerWarning {
 
 
 function monitorBattery {
+	echo "remote|${tagNum}|status|monitoring battery" | /var/lib/UIT-TSS-TOOLBOX/parse
 	footer
 	lines=$(tput lines)
 	while sleep 1; do
@@ -814,6 +815,7 @@ function randPattern_Shred {
 
 
 function writeDisk_Shred {
+	echo "remote|${tagNum}|status|erasing disk ($shredMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
 	if [[ -z $SECTIONS ]]; then
 		SECTIONS='1000'
 	fi
@@ -894,6 +896,7 @@ function writeDisk_Shred {
 
 
 function vrfyDisk_Shred {
+	echo "remote|${tagNum}|status|verifying erase ($shredMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
 	if [[ -z $SECTIONS ]]; then
 		SECTIONS='1000'
 	fi
@@ -916,7 +919,7 @@ function vrfyDisk_Shred {
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		if [[ $(pv /dev/${CLIENTDISK} | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
 		    PROCFAIL='1'
-			echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|status|fail - verifying erase" | /var/lib/UIT-TSS-TOOLBOX/parse
             read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 			uit-tss-client
 		else
@@ -941,7 +944,7 @@ function vrfyDisk_Shred {
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT} skip=${SKIP} iflag=fullblock status=none 2>/dev/null \
         	| xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
-				echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - verifying erase" | /var/lib/UIT-TSS-TOOLBOX/parse
             	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				uit-tss-client
     	fi
@@ -953,7 +956,7 @@ function vrfyDisk_Shred {
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorCount} skip=0 iflag=fullblock status=none 2>/dev/null \
         | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
-				echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - verifying erase" | /var/lib/UIT-TSS-TOOLBOX/parse
             	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				uit-tss-client
     fi
@@ -962,7 +965,7 @@ function vrfyDisk_Shred {
 		iflag=fullblock status=none 2>/dev/null \
         | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
-				echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - verifying erase" | /var/lib/UIT-TSS-TOOLBOX/parse
 				read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				uit-tss-client
     fi
@@ -972,7 +975,7 @@ function vrfyDisk_Shred {
 		echo "Test passed successfully!"
 		return 0
 	else
-		echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|fail - verifying erase" | /var/lib/UIT-TSS-TOOLBOX/parse
 		read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 		uit-tss-client
 	fi
@@ -981,6 +984,7 @@ function vrfyDisk_Shred {
 
 
 function secErase_Shred {
+	echo "remote|${tagNum}|status|secure erase" | /var/lib/UIT-TSS-TOOLBOX/parse
 	footer
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
@@ -995,14 +999,16 @@ function secErase_Shred {
 			nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
 		fi
 	else
-		echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
-		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}. Continuing...."
+		echo "remote|${tagNum}|status|fail - secure erase" | /var/lib/UIT-TSS-TOOLBOX/parse
+		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}."
+		uit-tss-client
 	fi
 }
 
 
 
 function secUnlock_Shred {
+	echo "remote|${tagNum}|status|unlock secure erase" | /var/lib/UIT-TSS-TOOLBOX/parse
 	footer
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
@@ -1013,7 +1019,9 @@ function secUnlock_Shred {
 	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		echo "NVME drives do not need to be unlocked. Continuing...."
 	else
-		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}. Continuing...."
+		echo "remote|${tagNum}|status|fail - secure unlock" | /var/lib/UIT-TSS-TOOLBOX/parse
+		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}."
+		uit-tss-client
 	fi
 }
 
@@ -1434,6 +1442,7 @@ function clientselect_Clone {
 
 
 function execute_Clone {
+	echo "remote|${tagNum}|status|cloning ($cloneMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
 	rm /tmp/network-usage.txt
 	SECONDS=0
 	start_time=$SECONDS
@@ -1512,7 +1521,7 @@ function execute {
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		read -t 10 -p "${BOLD}Cannot erase device and save its image.${RESET}"
-		echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|fail - can't erase master" | /var/lib/UIT-TSS-TOOLBOX/parse
 		uit-tss-client
 	fi
 
@@ -1753,7 +1762,7 @@ function autodetectClient {
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
-					echo "remote|${tagNum}|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /var/lib/UIT-TSS-TOOLBOX/parse
 					autodetectClient
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
