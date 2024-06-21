@@ -1774,7 +1774,7 @@ function autodetectClient {
 				echo "remote|${tagNum}|status|playing sound" | /var/lib/UIT-TSS-TOOLBOX/parse
 				play /root/findmy1.mp3 &> /dev/null
 			elif [[ $task == "hpEraseAndClone" ]]; then
-				echo "remote|${tagNum}|status|Starting hpEraseAndClone" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				APPSELECT="EC"
 				ACTION="erase and clone"
 				if [[ /dev/nvme0n1 ]]; then
@@ -1793,6 +1793,32 @@ function autodetectClient {
 				linuxPassword="UHouston!"
 				linuxServer="10.0.0.1"
 				linuxDNS="mickey.uit"
+				footer
+				rtcwake --mode mem --seconds 3
+				footer
+				execute
+				totaltime
+				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
+				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
+				kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
+				echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			elif [[ $task = "nvmeErase" ]]; then
+				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
+				APPSELECT="E"
+				ACTION="erase"
+				if [[ /dev/nvme0n1 ]]; then
+					CLIENTDISK='nvme0n1'
+				else
+					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /var/lib/UIT-TSS-TOOLBOX/parse
+					autodetectClient
+				fi
+					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				shredMode="autodetect"
+				RMODE="autodetect"
+					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				footer
 				rtcwake --mode mem --seconds 3
 				footer

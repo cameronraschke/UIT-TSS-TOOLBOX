@@ -157,6 +157,8 @@ if ($arr[0] == "remote") {
             $value = "data collection";
         } elseif ($value == "2") {
             $value = "hpEraseAndClone";
+        } elseif ($value == "3") {
+            $value = "nvmeErase";
         } elseif ($value == "9") {
             $value = "update";
         } elseif ($value == "8") {
@@ -167,5 +169,4 @@ if ($arr[0] == "remote") {
     dbUpdateRemote("$tagNum", "$key", "$value");
 
 }
-
 ?>
