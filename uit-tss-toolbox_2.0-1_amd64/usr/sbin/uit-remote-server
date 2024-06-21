@@ -15,7 +15,7 @@ while true; do
     uit-sql-refresh-remote
     tput cuu1
     tput el
-    read -r -p "${BOLD}Please enter the ${GREEN}tag${RESET}${BOLD}: " tagNum
+    read -r -p "${BOLD}Please enter the ${GREEN}tag${RESET}${BOLD}: ${RESET}" tagNum
 
 
     if [[ $tagNum =~ $REGEX ]]; then
@@ -26,17 +26,19 @@ while true; do
 
         sql=$(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
         echo "The current task for ${tagNum} is ${sql}"
-        echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
-        echo "  ${BOLD}${GREEN}[8]${RESET} ${BOLD}Play sound"
-        echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package"
-        echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
+        echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection${RESET}"
+        echo "  ${BOLD}${GREEN}[2]${RESET} ${BOLD}Erase and Clone HP Laptops${RESET}"
+        echo "  ${BOLD}${GREEN}[8]${RESET} ${BOLD}Play sound${RESET}"
+        echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package${RESET}"
+        echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task${RESET}"
         read -r -N1 -p "${BOLD}Which task do you want ${tagNum} to do? ${BOLD}Select ${GREEN}[0-9]${RESET} " task
         echo "remote|${tagNum}|task|${task}" | /var/lib/UIT-TSS-TOOLBOX/parse
     else
-        echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection"
-        echo "  ${BOLD}${GREEN}[8]${RESET} ${BOLD}Play sound"
-        echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package"
-        echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task"
+        echo "  ${BOLD}${GREEN}[1]${RESET} ${BOLD}Data collection${RESET}"
+        echo "  ${BOLD}${GREEN}[2]${RESET} ${BOLD}Erase and Clone HP Laptops${RESET}"
+        echo "  ${BOLD}${GREEN}[8]${RESET} ${BOLD}Play sound${RESET}"
+        echo "  ${BOLD}${GREEN}[9]${RESET} ${BOLD}Update Client Package${RESET}"
+        echo "  ${BOLD}${GREEN}[0]${RESET} ${BOLD}No task${RESET}"
         read -r -N1 -p "${BOLD}Which task do you want laptops in '${tagNum}' to do? ${BOLD}Select ${GREEN}[0-9]${RESET} " task
         echo ""
         sql=$(echo "SELECT tagnumber AS result FROM remote WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' GROUP BY tagnumber) AND location = '${tagNum}')" | /var/lib/UIT-TSS-TOOLBOX/select)
