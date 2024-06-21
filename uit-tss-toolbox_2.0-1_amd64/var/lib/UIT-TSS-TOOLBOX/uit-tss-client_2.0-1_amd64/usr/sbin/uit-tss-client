@@ -534,7 +534,6 @@ function powerWarning {
 	footer
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo "${BOLD}It is highly recommended to put the computer into hibernate mode. This takes less than 5 seconds.${RESET}"
-	echo "${BOLD}Remember to wake up the system after it hibernates by pushing the power button.${RESET}"
 	echo "${BOLD}${RED}*** WARNING ***${RESET}"
 	echo ""
 	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Hibernate (recommended)${RESET}"
@@ -542,7 +541,7 @@ function powerWarning {
 	read -n 1 -p  "${BOLD}Please enter [1-2]:${RESET} " restartBool
 	if [[ $restartBool == "1" ]]; then
 		footer
-		echo -n mem > /sys/power/state
+		rtcwake --mode mem --seconds 3
 		footer
 	elif [[ $restartBool == "2" ]]; then
 		footer
@@ -917,12 +916,12 @@ function vrfyDisk_Shred {
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		if [[ $(pv /dev/${CLIENTDISK} | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
 		    PROCFAIL='1'
-            read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
-			exit
+			echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+            read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+			uit-tss-client
 		else
         	echo "${BOLD}The drive ${CLIENTDISK} is completely and securely wiped.${RESET}"
 			PROCFAIL='0'
-
 		fi
 	fi
 	
@@ -942,8 +941,9 @@ function vrfyDisk_Shred {
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT} skip=${SKIP} iflag=fullblock status=none 2>/dev/null \
         	| xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
-            	read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
-				exit
+				echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+            	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+				uit-tss-client
     	fi
 
 	done
@@ -953,16 +953,18 @@ function vrfyDisk_Shred {
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorCount} skip=0 iflag=fullblock status=none 2>/dev/null \
         | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
-            	read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
-				exit
+				echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+            	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+				uit-tss-client
     fi
 	echo "Verifing the last sector of the disk...."
     if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorCount} skip=$(( ${sectorCount} - 1 )) \
 		iflag=fullblock status=none 2>/dev/null \
         | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
-				read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
-				exit
+				echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+				read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+				uit-tss-client
     fi
 
     echo "${PCNTOFSECTOR}% of ${CLIENTDISK} has been verified."
@@ -970,8 +972,9 @@ function vrfyDisk_Shred {
 		echo "Test passed successfully!"
 		return 0
 	else
-		read -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
-		exit
+		echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+		read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
+		uit-tss-client
 	fi
 }
 
@@ -992,7 +995,8 @@ function secErase_Shred {
 			nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
 		fi
 	else
-		echo "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}. Continuing...."
+		echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}. Continuing...."
 	fi
 }
 
@@ -1009,7 +1013,7 @@ function secUnlock_Shred {
 	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		echo "NVME drives do not need to be unlocked. Continuing...."
 	else
-		echo "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}. Continuing...."
+		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}. Continuing...."
 	fi
 }
 
@@ -1439,7 +1443,6 @@ function execute_Clone {
 	linuxDNS="mickey.uit"
 	umount /home/partimag &>/dev/null
 	mkdir -p /home/partimag
-	modprobe fuse
 	mount -t nfs ${linuxServer}:/home/${linuxPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
 		footer
@@ -1508,9 +1511,9 @@ function execute {
 	rm /tmp/network-usage.txt
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
-		echo "${RED}Cannot erase device and save its image.${RESET}"
-		read -p "${BOLD}Please press ${BOLD}${GREEN}enter${RESET} to restart UIT-TSS-TOOLBOX${RESET}."
-		exit 1
+		read -t 10 -p "${BOLD}Cannot erase device and save its image.${RESET}"
+		echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+		uit-tss-client
 	fi
 
 	if [[ $APPSELECT == "EC" ]]; then
@@ -1535,7 +1538,7 @@ function execute {
 	else
 		echo "${BOLD}${RED}Error - Invalid application selected.${RESET}"
 		sleep 0.5
-		exit
+		uit-tss-client
 	fi
 
 }
@@ -1707,6 +1710,8 @@ function autodetectClient {
 	while true; do
 		logo
 		remote
+
+		unattended="true"
 		
 		if [[ $task != "NULL" ]]; then
 			tput cuu1
@@ -1735,9 +1740,32 @@ function autodetectClient {
 				dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
 				dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 				exec uit-tss-client
-				exit
 			elif [[ $task == "findmy" ]]; then
 				play /root/findmy1.mp3 &> /dev/null
+			elif [[ $task == "hpEraseAndClone" ]]; then
+				echo "remote|status|0" | /var/lib/UIT-TSS-TOOLBOX/parse
+				APPSELECT="EC"
+				ACTION="erase and clone"
+				if [[ /dev/nvme0n1 ]]; then
+					CLIENTDISK='nvme0n1'
+				else
+					echo "remote|status|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+					autodetectClient
+				fi
+					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				cloneMode="restoredisk"
+				cloneImgName="TechCommons-HP-Laptops"
+				shredMode="autodetect"
+				RMODE="autodetect"
+					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				linuxUser="cameron"
+				linuxPassword="UHouston!"
+				linuxServer="10.0.0.1"
+				linuxDNS="mickey.uit"
+				footer
+				rtcwake --mode mem --seconds 3
+				footer
+				execute
 			fi
 			echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
@@ -1751,7 +1779,7 @@ function autodetectClient {
 		fi
 	done
 
-
+	unattended="false"
 	logo
 	echo "${BOLD}${BLUE}Autodetect mode${RESET}${BOLD} will destroy all data on this laptop and image it."
 	echo ""
@@ -1862,9 +1890,11 @@ function main {
 	elif [[ $mainMenuOpt == "0" ]]; then
 		:
 	else
-		exit 1
+		uit-tss-client
 	fi
-	terminate
+	if [[ $unattended == "true" ]]; then
+		terminate
+	fi
 }
 
 main
