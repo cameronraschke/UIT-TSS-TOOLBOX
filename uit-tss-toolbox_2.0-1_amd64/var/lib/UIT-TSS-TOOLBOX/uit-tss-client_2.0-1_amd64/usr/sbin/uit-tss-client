@@ -1763,7 +1763,7 @@ function autodetectClient {
 				note="Unattended"
 				echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			elif [[ $task == "update" ]]; then
-				echo "remote|${tagNum}|task|updating" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|updating" | /var/lib/UIT-TSS-TOOLBOX/parse
 				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
 				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
 				kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
