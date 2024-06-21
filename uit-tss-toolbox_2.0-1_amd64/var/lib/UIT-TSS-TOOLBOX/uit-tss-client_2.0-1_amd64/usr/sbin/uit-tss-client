@@ -1727,6 +1727,9 @@ function autodetectClient {
 			echo "remote|${tagNum}|status|waiting for task" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 		
+		monitorBattery
+		echo "remote|${tagNum}|battery_charge|$batCharge" | /var/lib/UIT-TSS-TOOLBOX/parse
+
 		if [[ $task != "NULL" ]]; then
 			location=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 			status="0"
