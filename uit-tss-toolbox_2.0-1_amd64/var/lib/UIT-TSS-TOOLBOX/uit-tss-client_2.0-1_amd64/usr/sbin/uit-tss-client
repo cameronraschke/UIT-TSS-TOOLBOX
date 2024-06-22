@@ -410,8 +410,6 @@ function enterTag {
 
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "general|department|${department}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		sql=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-		echo "location|begin|${tagNum}|${tOneSerialNumber}|${sql}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
 	else
 		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
@@ -436,8 +434,6 @@ function enterTag {
 
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "general|department|${department}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		sql=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-		echo "location|begin|${tagNum}|${tOneSerialNumber}|${sql}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		department
 		enterTag
 	fi
@@ -1607,7 +1603,6 @@ function terminate {
 	totaltime
 
 	diskData
-	echo "location|end|${tagNum}|${tOneSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
 	kill $(ps | grep 'uit-network' | awk '{ print $1 }')
