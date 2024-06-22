@@ -1754,7 +1754,7 @@ function autodetectClient {
 			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 				break
 			fi
-
+			remote
 			if [[ $task == "data collection" ]]; then
 				echo "remote|${tagNum}|status|data collection" | /var/lib/UIT-TSS-TOOLBOX/parse
 				hardwareData
@@ -1764,6 +1764,7 @@ function autodetectClient {
 				echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			elif [[ $task == "update" ]]; then
 				echo "remote|${tagNum}|status|updating" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
 				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
 				kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
