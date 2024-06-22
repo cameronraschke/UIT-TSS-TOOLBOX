@@ -1754,7 +1754,7 @@ function autodetectClient {
 			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 				break
 			fi
-			remote
+
 			if [[ $task == "data collection" ]]; then
 				echo "remote|${tagNum}|status|data collection" | /var/lib/UIT-TSS-TOOLBOX/parse
 				hardwareData
