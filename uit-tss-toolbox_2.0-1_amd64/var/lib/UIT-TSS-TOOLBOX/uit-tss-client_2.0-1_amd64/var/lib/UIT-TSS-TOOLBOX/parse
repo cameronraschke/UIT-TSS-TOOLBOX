@@ -39,7 +39,7 @@ if ($arr[0] == "location") {
     if ($arr[1] == "begin") {
         $tagNum = $arr[2];
         $serial = $arr[3];
-        $location = "Plugged in and booted on laptop table.";
+        $location = $arr[4];
         $status = "0";
         $note = "";
     }
@@ -47,7 +47,7 @@ if ($arr[0] == "location") {
     if ($arr[1] == "end") {
         $tagNum = $arr[2];
         $serial = $arr[3];
-        $location = "Finished work on laptop table.";
+        $location = $arr[4];
         $status = "0";
         $note = "";
     }
