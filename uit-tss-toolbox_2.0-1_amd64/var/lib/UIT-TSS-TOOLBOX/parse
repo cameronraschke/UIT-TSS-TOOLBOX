@@ -84,8 +84,11 @@ if ($arr[0] == "remote") {
         }
     }
 
-    dbUpdateRemote("$tagNum", "$key", "$value");
+    if ($key == "cpu_temp") {
+        $value = round(bcdiv("$value", 1000, 2), 0);
+    }
 
+    dbUpdateRemote("$tagNum", "$key", "$value");
 }
 
 ?>

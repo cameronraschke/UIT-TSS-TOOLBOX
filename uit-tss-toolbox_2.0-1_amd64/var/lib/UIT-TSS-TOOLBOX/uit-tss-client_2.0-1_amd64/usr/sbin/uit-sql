@@ -1,7 +1,22 @@
 #!/bin/bash
+while true; do
 serial=$(dmidecode --string system-serial-number)
 tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$serial' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-while true; do
-    echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
-    sleep 45
+echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+if [[ -d /sys/class/power_supply/BAT0 ]]; then
+    batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+    batStatus=$(cat /sys/class/power_supply/BAT0/status)
+elif [[ -d /sys/class/power_supply/BAT1 ]]; then
+    batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+    batStatus=$(cat /sys/class/power_supply/BAT0/status)
+else
+    batCharge="0"
+fi
+echo "remote|${tagNum}|battery_charge|${batCharge}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
+echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+sleep 45
 done
