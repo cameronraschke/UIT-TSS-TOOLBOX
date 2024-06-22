@@ -256,7 +256,8 @@ CREATE TABLE IF NOT EXISTS remote (
     present time DEFAULT NULL,
     present_bool BOOLEAN DEFAULT NULL,
     status VARCHAR(30) DEFAULT NULL,
-    battery_charge TINYINT DEFAULT NULL
+    battery_charge TINYINT DEFAULT NULL,
+    cpu_temp TINYINT DEFAULT NULL
 );
 
 ALTER TABLE remote
@@ -267,4 +268,5 @@ ALTER TABLE remote
     MODIFY COLUMN present time DEFAULT NULL AFTER date,
     MODIFY COLUMN present_bool BOOLEAN DEFAULT NULL AFTER present,
     MODIFY COLUMN status VARCHAR(30) DEFAULT NULL AFTER present_bool,
-    MODIFY COLUMN battery_charge TINYINT DEFAULT NULL AFTER status;
+    MODIFY COLUMN battery_charge TINYINT DEFAULT NULL AFTER status,
+    MODIFY COLUMN cpu_temp TINYINT DEFAULT NULL AFTER battery_charge;
