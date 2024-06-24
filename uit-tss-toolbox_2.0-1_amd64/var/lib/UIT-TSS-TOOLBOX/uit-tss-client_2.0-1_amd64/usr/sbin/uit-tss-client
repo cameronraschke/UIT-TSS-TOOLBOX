@@ -1713,6 +1713,8 @@ function autodetectClient {
 
 	uit-sql &
 
+	echo ""
+
 	while true; do
 		ACTION=""
 		CLIENTDISK=""
