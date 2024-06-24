@@ -11,12 +11,13 @@ RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
-kill $(ps | grep 'uit-cpu' | awk '{ print $1 }') 2>/dev/null
-kill $(ps | grep 'uit-network' | awk '{ print $1 }') 2>/dev/null
-kill $(ps | grep 'uit-sql' | awk '{ print $1 }') 2>/dev/null
+for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 
 uit-cpu-stats &
 uit-network-stats &
+uit-sql &
 
 scp -r cameron@mickey.uit:/home/cameron/sounds/findmy1.mp3 /root &>/dev/null
 
@@ -499,7 +500,6 @@ function logo {
 	tput sgr0
 	echo ""
 	echo "------------------------------"
-	echo ""
 }
 
 
@@ -1605,8 +1605,8 @@ function terminate {
 
 	diskData
 
-	kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
-	kill $(ps | grep 'uit-network' | awk '{ print $1 }')
+	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 
 	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1714,14 +1714,14 @@ function autodetectClient {
 
 	uit-sql &
 
-
-
 	while true; do
 		ACTION=""
 		CLIENTDISK=""
 		cloneMode=""
 		cloneImgName=""
 		logo
+		echo ""
+		echo ""
 		remote
 
 		unattended="true"
@@ -1754,9 +1754,9 @@ function autodetectClient {
 			elif [[ $task == "update" ]]; then
 				echo "remote|${tagNum}|status|updating" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
-				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
-				kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
+				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				rm /tmp/network-usage.txt
 				rm /tmp/cpu-usage.txt
 				scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
@@ -1793,9 +1793,9 @@ function autodetectClient {
 				footer
 				execute
 				totaltime
-				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
-				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
-				kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
+				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1819,9 +1819,9 @@ function autodetectClient {
 				footer
 				execute
 				totaltime
-				kill $(ps | grep 'uit-cpu' | awk '{ print $1 }')
-				kill $(ps | grep 'uit-network' | awk '{ print $1 }')
-				kill $(ps | grep 'uit-sql' | awk '{ print $1 }')
+				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
