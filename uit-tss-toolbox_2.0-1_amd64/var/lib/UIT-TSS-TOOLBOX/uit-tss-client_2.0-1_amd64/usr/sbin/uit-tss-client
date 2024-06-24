@@ -1712,8 +1712,6 @@ function autodetectClient {
 			chassisType="unknown"
 	fi
 
-	uit-sql &
-
 	while true; do
 		ACTION=""
 		CLIENTDISK=""
