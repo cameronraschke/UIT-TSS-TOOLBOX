@@ -1826,6 +1826,7 @@ function autodetectClient {
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			elif [[ $task == "shutdown" ]]; then
+				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				poweroff
 			fi
 			echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
