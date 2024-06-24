@@ -499,6 +499,7 @@ function logo {
 	tput sgr0
 	echo ""
 	echo "------------------------------"
+	echo ""
 }
 
 
@@ -1713,8 +1714,7 @@ function autodetectClient {
 
 	uit-sql &
 
-	echo ""
-	echo ""
+
 
 	while true; do
 		ACTION=""
