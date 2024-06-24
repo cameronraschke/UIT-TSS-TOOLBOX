@@ -1714,6 +1714,7 @@ function autodetectClient {
 	uit-sql &
 
 	echo ""
+	echo ""
 
 	while true; do
 		ACTION=""
