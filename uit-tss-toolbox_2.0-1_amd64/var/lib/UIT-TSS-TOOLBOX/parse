@@ -81,6 +81,8 @@ if ($arr[0] == "remote") {
             $value = "update";
         } elseif ($value == "8") {
             $value = "findmy";
+        } elseif ($value == "s") {
+            $value = "shutdown";
         }
     }
 
