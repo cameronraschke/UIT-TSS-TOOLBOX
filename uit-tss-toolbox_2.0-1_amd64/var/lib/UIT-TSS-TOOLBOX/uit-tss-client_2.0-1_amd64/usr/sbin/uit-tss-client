@@ -472,7 +472,7 @@ function footer {
 	elif [[ $biosUpdatedSQL != $tZeroBiosVersion ]]; then
 		biosUpdated="${RED}Needs Update${RESET}"
 	fi
-	sqlLocation=$(echo "SELECT location FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	sqlLocation=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	tput reset
 	lines=$(tput lines)
 	tput cup $(( lines - 3 )) 0
