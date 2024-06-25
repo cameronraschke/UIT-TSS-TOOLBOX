@@ -25,9 +25,7 @@ if [[ -d /sys/class/nvme/nvme0/hwmon2 ]]; then
     if [[ -f /sys/class/nvme/nvme0/hwmon2/temp1_input ]]; then
         diskMax=$(cat /sys/class/nvme/nvme0/hwmon2/temp1_max)
     fi
-    if [[ ! -z $diskTemp ]]; then
-        echo "remote|${tagNum}|disk_temp|${diskTemp}|${diskMax}" | /var/lib/UIT-TSS-TOOLBOX/parse
-    fi
+    echo "remote|${tagNum}|disk_temp|${diskTemp}|${diskMax}" | /var/lib/UIT-TSS-TOOLBOX/parse
 fi
 
 sleep 30
