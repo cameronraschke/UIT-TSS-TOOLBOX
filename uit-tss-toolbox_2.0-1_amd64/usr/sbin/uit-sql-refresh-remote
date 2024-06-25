@@ -41,18 +41,20 @@ foreach ($arr as $key => $value) {
     }
 
     dbSelectVal("SELECT IF (present IS NULL, 0, present) AS result FROM remote WHERE tagnumber = '$tagNum'");
+    $value = 0;
+    $time1 = NULL;
     if (filter($result) == 0) {
-        $time1 = new DateTime($result);
-        $time1->modify('+45 second');
-        $time1 = $time1->format('Y-m-d H:i:s');
-        if ($time < $time1) {
-            $value = 1;
-        } else {
-            $value = 0;
+        if ($result != "0") {
+            $time1 = new DateTime($result);
+            $time1->modify('+45 second');
+            $time1 = $time1->format('Y-m-d H:i:s');
+            if ($time < $time1) {
+                $value = 1;
+            }
         }
-        dbUpdateRemote("$tagNum", "present_bool", "$value");
-        $time1 = NULL;
     }
+    dbUpdateRemote("$tagNum", "present_bool", "$value");
+    $time1 = NULL;
 
 }
 
