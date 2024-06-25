@@ -1828,6 +1828,8 @@ function autodetectClient {
 			elif [[ $task == "shutdown" ]]; then
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				poweroff
+			elif [[ $task == "fail-test" ]]; then
+				echo "remote|${tagNum}|status|fail - test" | /var/lib/UIT-TSS-TOOLBOX/parse
 			fi
 			echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
