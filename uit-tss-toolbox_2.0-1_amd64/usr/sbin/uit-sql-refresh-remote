@@ -56,6 +56,14 @@ foreach ($arr as $key => $value) {
     dbUpdateRemote("$tagNum", "present_bool", "$value");
     $time1 = NULL;
 
+    dbSelectVal("SELECT disk_temp FROM remote WHERE tagnumber = '$tagNum'");
+    if (filter($result) == "0") {
+        if ($result >= "82") {
+            dbUpdateRemote("$tagNum", "status", "fail - high disk temp");
+            dbUpdateRemote("$tagNum", "task", "shutdown");
+        }
+    }
+
 }
 
 # Clear globals
