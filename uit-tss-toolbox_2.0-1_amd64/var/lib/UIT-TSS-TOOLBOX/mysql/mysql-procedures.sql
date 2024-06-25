@@ -339,3 +339,21 @@ CREATE FUNCTION mostRecentDepartment(tag MEDIUMINT)
     END //
 
 DELIMITER ;
+
+-- Select remote table data
+DROP PROCEDURE IF EXISTS selectRemote;
+DELIMITER //
+CREATE PROCEDURE selectRemote()
+DETERMINISTIC
+BEGIN
+SELECT tagnumber AS 'Tag', 
+    task AS 'Task', 
+    present AS 'Last Heard', 
+    status AS 'Status',
+    CONCAT(battery_charge, '%') AS 'Battery Charge', 
+    CONCAT(cpu_temp, 'C') AS 'CPU Temp',
+    CONCAT(disk_temp, 'C') AS 'Disk Temp'
+    FROM remote WHERE present_bool = '1' ORDER BY present DESC LIMIT 50;
+    END; //
+
+DELIMITER ;

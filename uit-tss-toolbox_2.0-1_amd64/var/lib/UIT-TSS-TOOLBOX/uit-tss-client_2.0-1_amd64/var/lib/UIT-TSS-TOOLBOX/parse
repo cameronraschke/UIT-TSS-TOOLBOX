@@ -173,7 +173,7 @@ if ($arr[0] == "remote") {
     if ($key == "disk_temp") {
         $cur = round(bcdiv("$value", 1000, 2), 0);
         $max = $arr[4];
-        $value = $cur . " C (" . round(($cur / $max) * 100, 2) . "%)";
+        $value = $cur;
     }
 
     dbUpdateRemote("$tagNum", "$key", "$value");
