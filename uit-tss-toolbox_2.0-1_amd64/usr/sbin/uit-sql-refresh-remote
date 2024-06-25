@@ -43,7 +43,7 @@ foreach ($arr as $key => $value) {
     dbSelectVal("SELECT IF (present IS NULL, 0, present) AS result FROM remote WHERE tagnumber = '$tagNum'");
     if (filter($result) == 0) {
         $time1 = new DateTime($result);
-        $time1->modify('+1 minute');
+        $time1->modify('+30 second');
         $time1 = $time1->format('Y-m-d H:i:s');
         if ($time < $time1) {
             $value = 1;

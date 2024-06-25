@@ -18,5 +18,5 @@ echo "remote|${tagNum}|battery_charge|${batCharge}" | /var/lib/UIT-TSS-TOOLBOX/p
 cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
 echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-sleep 45
+sleep 15
 done
