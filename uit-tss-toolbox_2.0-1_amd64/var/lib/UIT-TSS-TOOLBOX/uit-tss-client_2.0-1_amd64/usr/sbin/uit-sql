@@ -18,5 +18,17 @@ echo "remote|${tagNum}|battery_charge|${batCharge}" | /var/lib/UIT-TSS-TOOLBOX/p
 cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
 echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
+if [[ -d /sys/class/nvme/nvme0/hwmon2 ]]; then
+    if [[ -f /sys/class/nvme/nvme0/hwmon2/temp1_input ]]; then
+        diskTemp=$(cat /sys/class/nvme/nvme0/hwmon2/temp1_input)
+    fi
+    if [[ -f /sys/class/nvme/nvme0/hwmon2/temp1_input ]]; then
+        diskMax=$(cat /sys/class/nvme/nvme0/hwmon2/temp1_max)
+    fi
+    if [[ -z $diskTemp ]]; then
+        echo "remote|${tagNum}|disk_temp|${diskTemp}|${diskMax}" | /var/lib/UIT-TSS-TOOLBOX/parse
+    fi
+fi
+
 sleep 30
 done
