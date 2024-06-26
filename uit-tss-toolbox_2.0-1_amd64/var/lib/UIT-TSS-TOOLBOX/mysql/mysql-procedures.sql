@@ -373,7 +373,7 @@ SELECT tagnumber AS 'Tag',
     battery_status AS 'Battery Status',
     CONCAT(cpu_temp, '°C') AS 'CPU Temp',
     CONCAT(disk_temp, '°C') AS 'Disk Temp'
-    FROM remote WHERE present_bool = '0' OR status LIKE 'fail%' ORDER BY present DESC LIMIT 50;
+    FROM remote WHERE NOT present_bool = '1' ORDER BY present DESC LIMIT 50;
     END; //
 
 DELIMITER ;
