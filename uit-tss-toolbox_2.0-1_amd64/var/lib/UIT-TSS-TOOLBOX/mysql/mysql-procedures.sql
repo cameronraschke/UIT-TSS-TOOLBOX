@@ -378,3 +378,18 @@ SELECT tagnumber AS 'Tag',
     END; //
 
 DELIMITER ;
+
+-- Select remote table stats
+DROP PROCEDURE IF EXISTS selectRemoteStats;
+DELIMITER //
+CREATE PROCEDURE selectRemoteStats()
+DETERMINISTIC
+BEGIN
+SELECT CONCAT(ROUND(AVG(battery_charge), 0), '%') AS 'Avg. Battery Charge',
+    CONCAT(ROUND(AVG(cpu_temp), 0), '°C') AS 'CPU Temp',
+    CONCAT(ROUND(AVG(disk_temp), 0), '°C') AS 'Disk Temp',
+    CONCAT(ROUND(AVG(watts_now), 0), ' Watts') AS 'Power Draw'
+    FROM remote WHERE present_bool = '1';
+    END; //
+
+DELIMITER ;
