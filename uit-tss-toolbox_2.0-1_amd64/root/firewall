@@ -30,7 +30,7 @@ iptables --table filter --append INPUT --in-interface "${wanif}" --source "${wan
 iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate NEW,RELATED,ESTABLISHED --protocol udp --match multiport --destination-ports 68 --jump ACCEPT
 iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate RELATED,ESTABLISHED --protocol udp --match multiport --source-ports 53,123 --jump ACCEPT
 iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate RELATED,ESTABLISHED --protocol tcp --match multiport --source-ports 80,443 --jump ACCEPT
-iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate RELATED,ESTABLISHED --protocol icmp --jump ACCEPT
+iptables --table filter --append INPUT --in-interface "${wanif}" --protocol icmp --jump ACCEPT
 
 # INPUT Traffic LAN
 iptables --table filter --append INPUT --in-interface "${lanif}" --jump ACCEPT
