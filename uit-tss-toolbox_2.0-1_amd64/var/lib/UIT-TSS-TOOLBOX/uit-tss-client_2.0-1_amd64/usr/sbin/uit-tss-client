@@ -816,8 +816,8 @@ function randPattern_Shred {
 
 function writeDisk_Shred {
 	echo "remote|${tagNum}|status|erasing disk ($shredMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
-	if [[ -z $SECTIONS ]]; then
-		SECTIONS='1000'
+	if [[ -z $writeSections ]]; then
+		writeSections='1000'
 	fi
 
 	if [[ -z $PCNTOFSECTOR ]]; then
@@ -861,7 +861,7 @@ function writeDisk_Shred {
 
 	BS='512'
 	diskBytes=$(blockdev --getsize64 /dev/${CLIENTDISK})
-	sectorSize=$((diskBytes / BS / SECTIONS))
+	sectorSize=$((diskBytes / BS / writeSections))
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
 	echo "general|erase_diskpercent|${PCNTOFSECTOR}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -871,11 +871,11 @@ function writeDisk_Shred {
 		return 0
 	fi
 	
-	while [[ $i -lt $SECTIONS ]]; do
+	while [[ $i -lt $writeSections ]]; do
 		i=$((i + 1))
 		tput cuu1
 		tput el
-		echo "Writing to section ${i}/${SECTIONS}"
+		echo "Writing to section ${i}/${writeSections}"
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
 		sectorDiff=$((sectorMax - sectorMin))
@@ -897,8 +897,8 @@ function writeDisk_Shred {
 
 function vrfyDisk_Shred {
 	echo "remote|${tagNum}|status|verifying erase ($shredMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
-	if [[ -z $SECTIONS ]]; then
-		SECTIONS='1000'
+	if [[ -z $vrfySections ]]; then
+		vrfySections='1000'
 	fi
 
 	if [[ -z $PCNTOFSECTOR ]]; then
@@ -907,7 +907,7 @@ function vrfyDisk_Shred {
 
 	BS='512'
 	diskBytes=$(blockdev --getsize64 /dev/${CLIENTDISK})
-	sectorSize=$((diskBytes / BS / SECTIONS))
+	sectorSize=$((diskBytes / BS / vrfySections))
 	PROCFAIL='0'
 
 	if [[ -z $CHAR ]]; then
@@ -928,11 +928,11 @@ function vrfyDisk_Shred {
 		fi
 	fi
 	
-	while [[ $i -lt $SECTIONS && $PROCFAIL == '0' ]]; do
+	while [[ $i -lt $vrfySections && $PROCFAIL == '0' ]]; do
 		i=$((i + 1))
 		tput cuu1
 		tput el
-		echo "Verifying section ${i}/${SECTIONS}"
+		echo "Verifying section ${i}/${vrfySections}"
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
 		sectorDiff=$((sectorMax - sectorMin))
@@ -1347,25 +1347,25 @@ function verifyMode_Shred {
 	fi
 
 	if [[ $VRFYMODE == 'moderate' ]]; then
-		SECTIONS='10000'
+		vrfySections='10000'
 		PCNTOFSECTOR='75'
 		CHAR="${input}"
 	fi
 
 	if [[ $VRFYMODE == 'medium' ]]; then
-		SECTIONS='5000'
+		vrfySections='5000'
 		PCNTOFSECTOR='50'
 		CHAR="${input}"
 	fi
 
 	if [[ $VRFYMODE == 'fast' ]]; then
-		SECTIONS='2500'
+		vrfySections='2500'
 		PCNTOFSECTOR='25'
 		CHAR="${input}"
 	fi
 
 	if [[ $VRFYMODE == 'vfast' ]]; then
-		SECTIONS='1000'
+		vrfySections='1000'
 		PCNTOFSECTOR='10'
 		CHAR="${input}"
 	fi
@@ -1801,6 +1801,8 @@ function autodetectClient {
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			elif [[ $task = "nvmeErase" ]]; then
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
+				vrfySections=""
+				writeSections=""
 				APPSELECT="E"
 				ACTION="erase"
 				if [[ /dev/nvme0n1 ]]; then
