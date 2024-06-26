@@ -14,6 +14,7 @@ else
     batCharge="0"
 fi
 echo "remote|${tagNum}|battery_charge|${batCharge}" | /var/lib/UIT-TSS-TOOLBOX/parse
+echo "remote|${tagNum}|battery_status|${batStatus}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
 echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
