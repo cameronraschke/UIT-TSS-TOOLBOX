@@ -47,7 +47,7 @@ if [[ -d /sys/class/powercap ]]; then
         second=$(( n + i ))
     done
 
-    echo "remote|watts_now|${first}|${second}" | /var/lib/UIT-TSS-TOOLBOX/parse
+    echo "remote|${tagNum}|watts_now|${first}|${second}" | /var/lib/UIT-TSS-TOOLBOX/parse
 fi
 
 sleep 20
