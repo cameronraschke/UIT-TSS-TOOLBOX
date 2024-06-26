@@ -354,7 +354,7 @@ SELECT tagnumber AS 'Tag',
     battery_status AS 'Battery Status',
     CONCAT(cpu_temp, '°C') AS 'CPU Temp',
     CONCAT(disk_temp, '°C') AS 'Disk Temp',
-    CONCAT(watts_now, 'Watts') AS 'Power Draw'
+    CONCAT(watts_now, ' Watts') AS 'Power Draw'
     FROM remote WHERE present_bool = '1' OR status LIKE 'fail%' ORDER BY present DESC LIMIT 40;
     END; //
 
