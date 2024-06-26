@@ -388,7 +388,7 @@ BEGIN
 SELECT CONCAT(ROUND(AVG(battery_charge), 0), '%') AS 'Avg. Battery Charge',
     CONCAT(ROUND(AVG(cpu_temp), 0), '°C') AS 'Avg. CPU Temp',
     CONCAT(ROUND(AVG(disk_temp), 0), '°C') AS 'Avg. Disk Temp',
-    CONCAT(ROUND(AVG(watts_now), 0), ' Watts') AS 'Avg. Power Draw'
+    CONCAT(ROUND(AVG(watts_now), 0), ' Watts') AS 'Avg. Power Draw',
     CONCAT(ROUND(SUM(watts_now), 0), ' Watts') AS 'Total Power Draw'
     FROM remote WHERE present_bool = '1';
     END; //
