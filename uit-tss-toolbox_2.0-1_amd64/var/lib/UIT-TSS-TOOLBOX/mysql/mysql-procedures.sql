@@ -366,15 +366,18 @@ DELIMITER //
 CREATE PROCEDURE selectRemoteMissing()
 DETERMINISTIC
 BEGIN
-SELECT tagnumber AS 'Tag', 
-    task AS 'Task', 
-    present AS 'Last Heard', 
-    status AS 'Status',
-    CONCAT(battery_charge, '%') AS 'Battery Charge',
-    battery_status AS 'Battery Status',
-    CONCAT(cpu_temp, '°C') AS 'CPU Temp',
-    CONCAT(disk_temp, '°C') AS 'Disk Temp'
-    FROM remote WHERE present_bool IS NULL ORDER BY present DESC LIMIT 10;
+SELECT remote.tagnumber AS 'Tag', 
+    remote.task AS 'Task', 
+    remote.present AS 'Last Heard', 
+    remote.status AS 'Status',
+    CONCAT(remote.battery_charge, '%') AS 'Battery Charge',
+    remote.battery_status AS 'Battery Status',
+    CONCAT(remote.cpu_temp, '°C') AS 'CPU Temp',
+    CONCAT(remote.disk_temp, '°C') AS 'Disk Temp',
+    locations.tagnumber,
+    locations.location
+    FROM remote WHERE present_bool IS NULL ORDER BY present DESC LIMIT 10
+    INNER JOIN tagnumber ON remote.tagnumber = locations.tagnumber;
     END; //
 
 DELIMITER ;
