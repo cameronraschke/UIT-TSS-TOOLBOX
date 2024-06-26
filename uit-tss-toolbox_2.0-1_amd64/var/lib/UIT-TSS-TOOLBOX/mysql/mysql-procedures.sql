@@ -358,3 +358,22 @@ SELECT tagnumber AS 'Tag',
     END; //
 
 DELIMITER ;
+
+-- Select missing remote table data
+DROP PROCEDURE IF EXISTS selectRemoteMissing;
+DELIMITER //
+CREATE PROCEDURE selectRemoteMissing()
+DETERMINISTIC
+BEGIN
+SELECT tagnumber AS 'Tag', 
+    task AS 'Task', 
+    present AS 'Last Heard', 
+    status AS 'Status',
+    CONCAT(battery_charge, '%') AS 'Battery Charge',
+    battery_status AS 'Battery Status',
+    CONCAT(cpu_temp, '°C') AS 'CPU Temp',
+    CONCAT(disk_temp, '°C') AS 'Disk Temp'
+    FROM remote WHERE present_bool = '0' OR status LIKE 'fail%' ORDER BY present DESC LIMIT 50;
+    END; //
+
+DELIMITER ;
