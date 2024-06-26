@@ -390,7 +390,7 @@ SELECT CONCAT(ROUND(AVG(battery_charge), 0), '%') AS 'Avg. Battery Charge',
     CONCAT(ROUND(AVG(disk_temp), 0), '°C') AS 'Avg. Disk Temp',
     CONCAT(ROUND(AVG(watts_now), 0), ' Watts') AS 'Avg. Power Draw',
     CONCAT(ROUND(SUM(watts_now), 0), ' Watts') AS 'Total Power Draw',
-    CONCAT(ROUND(SUM(IF (battery_status='Charging', 55, NULL)), 0), ' Watts', ' (' , ROUND(SUM(IF (present_bool='1', 55, NULL)), 0), ' Watts Anticipated', ')') AS 'Power Draw from Wall'
+    CONCAT(ROUND(SUM(IF (battery_status IN ('Charging', 'Full'), 55, NULL)), 0), ' Watts', ' (' , ROUND(SUM(IF (present_bool='1', 55, NULL)), 0), ' Watts Anticipated', ')') AS 'Power Draw from Wall'
     FROM remote WHERE present_bool = '1';
     END; //
 
