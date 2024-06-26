@@ -1045,7 +1045,7 @@ function nistMode_Shred {
 	
 	echo ""
 	echo "Step [3/3]:"
-	PCNTOFSECTOR='5'
+	PCNTOFSECTOR='10'
 	CHAR='0'
 	vrfyDisk_Shred
 }
