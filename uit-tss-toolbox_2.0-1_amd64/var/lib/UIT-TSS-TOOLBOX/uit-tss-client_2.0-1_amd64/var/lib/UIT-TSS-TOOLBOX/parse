@@ -176,6 +176,15 @@ if ($arr[0] == "remote") {
         $value = $cur;
     }
 
+    if ($key == "watts_now") {
+        $first = $value;
+        $firstWatts = $first / 1e6;
+        $second = $arr[4];
+        $secWatts = $second / 1e6;
+
+        $value = $secWatts - $firstWatts;
+    }
+
     dbUpdateRemote("$tagNum", "$key", "$value");
 }
 

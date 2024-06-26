@@ -12,7 +12,7 @@ while true; do
     echo ""
     echo ""
     read -r -p "Please enter the ${BOLD}${GREEN}tagnumber${RESET}: " tagNum
-    sql=$(echo 'SELECT system_serial AS result FROM locations WHERE tagnumber = '"'${tagNum}'"' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
+    sql=$(echo 'SELECT system_serial AS result FROM jobstats WHERE tagnumber = '"'${tagNum}'"' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1' | /var/lib/UIT-TSS-TOOLBOX/select)
     echo 'Serial number: '"${BOLD}"''"${sql}"''"${RESET}"''
     if [[ $sql == "NULL" ]]; then
         read -r -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial

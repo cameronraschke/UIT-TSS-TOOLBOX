@@ -259,7 +259,8 @@ CREATE TABLE IF NOT EXISTS remote (
     battery_charge TINYINT DEFAULT NULL,
     battery_status VARCHAR(20) DEFAULT NULL,
     cpu_temp TINYINT DEFAULT NULL,
-    disk_temp TINYINT DEFAULT NULL
+    disk_temp TINYINT DEFAULT NULL,
+    watts_now SMALLINT DEFAULT NULL
 );
 
 ALTER TABLE remote
@@ -273,4 +274,5 @@ ALTER TABLE remote
     MODIFY COLUMN battery_charge TINYINT DEFAULT NULL AFTER status,
     MODIFY COLUMN battery_status VARCHAR(20) DEFAULT NULL AFTER battery_charge,
     MODIFY COLUMN cpu_temp TINYINT DEFAULT NULL AFTER status,
-    MODIFY COLUMN disk_temp TINYINT DEFAULT NULL AFTER cpu_temp;
+    MODIFY COLUMN disk_temp TINYINT DEFAULT NULL AFTER cpu_temp,
+    MODIFY COLUMN watts_now SMALLINT DEFAULT NULL AFTER disk_temp;

@@ -5,6 +5,8 @@ tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$
 echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 if [[ -d /sys/class/power_supply/BAT0 ]]; then
+    batCharge=0
+    batStatus=""
     batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
     batStatus=$(cat /sys/class/power_supply/BAT0/status)
 elif [[ -d /sys/class/power_supply/BAT1 ]]; then
@@ -20,6 +22,8 @@ cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
 echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 if [[ -d /sys/class/nvme/nvme0/hwmon2 ]]; then
+    diskTemp=0
+    diskMax=0
     if [[ -f /sys/class/nvme/nvme0/hwmon2/temp1_input ]]; then
         diskTemp=$(cat /sys/class/nvme/nvme0/hwmon2/temp1_input)
     fi
@@ -27,6 +31,23 @@ if [[ -d /sys/class/nvme/nvme0/hwmon2 ]]; then
         diskMax=$(cat /sys/class/nvme/nvme0/hwmon2/temp1_max)
     fi
     echo "remote|${tagNum}|disk_temp|${diskTemp}|${diskMax}" | /var/lib/UIT-TSS-TOOLBOX/parse
+fi
+
+if [[ -d /sys/class/powercap ]]; then
+    uj1=$(cat /sys/class/powercap/*/energy_uj 2>/dev/null)
+    sleep 1
+    uj2=$(cat /sys/class/powercap/*/energy_uj 2>/dev/null)
+    a=0
+    n=0
+    for i in $uj1; do
+        first=$(( a + i ))
+    done
+
+    for i in $uj2; do
+        second=$(( n + i ))
+    done
+
+    echo "remote|watts_now|${first}|${second}" | /var/lib/UIT-TSS-TOOLBOX/parse
 fi
 
 sleep 20
