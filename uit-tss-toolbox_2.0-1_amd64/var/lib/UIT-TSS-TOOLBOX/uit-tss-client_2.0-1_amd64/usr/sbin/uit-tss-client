@@ -1286,60 +1286,66 @@ function gutmann {
 
 function verifyMode_Shred {
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Verifying disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	if [[ $unattended == 'true' ]]; then
+		shredMode='verify'
+		VRFYMODE='vfast'
+		input='0'
+	else
+		echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Verifying disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 
-	echo ""
-	echo ""
-	echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Full verification (Default)${RESET}
-	-Longest, verifies every bit on the disk"
+		echo ""
+		echo ""
+		echo "${BOLD}${GREEN}[1]${RESET} ${BOLD}Full verification (Default)${RESET}
+		-Longest, verifies every bit on the disk"
 
-	echo ""
-	echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Moderate verification${RESET}
-	-10000 divisions, 75% verified"
+		echo ""
+		echo "${BOLD}${GREEN}[2]${RESET} ${BOLD}Moderate verification${RESET}
+		-10000 divisions, 75% verified"
 
-	echo ""
-	echo "${BOLD}${GREEN}[3]${RESET} ${BOLD}Medium verification${RESET}
-	-5000 divisions, 50% verified"
+		echo ""
+		echo "${BOLD}${GREEN}[3]${RESET} ${BOLD}Medium verification${RESET}
+		-5000 divisions, 50% verified"
 
-	echo ""
-	echo "${BOLD}${GREEN}[4]${RESET} ${BOLD}Fast verification${RESET}
-	-2500 divisions, 25% verified"
+		echo ""
+		echo "${BOLD}${GREEN}[4]${RESET} ${BOLD}Fast verification${RESET}
+		-2500 divisions, 25% verified"
 
-	echo ""
-	echo "${BOLD}${GREEN}[5]${RESET} ${BOLD}Very fast verification${RESET}
-	-1000 divisions, 10% verified"
+		echo ""
+		echo "${BOLD}${GREEN}[5]${RESET} ${BOLD}Very fast verification${RESET}
+		-1000 divisions, 10% verified"
 
-	echo ""
-	read -n 1 -p "${BOLD}Please select ${GREEN}[1-5]${RESET}${BOLD}:${RESET} " VRFYSELECT
-	echo ""
+		echo ""
+		read -n 1 -p "${BOLD}Please select ${GREEN}[1-5]${RESET}${BOLD}:${RESET} " VRFYSELECT
+		echo ""
 
-	case $VRFYSELECT in
-	1)
-	VRFYMODE='full'
-	;;
-	2)
-	VRFYMODE='moderate'
-	;;
-	3)
-	VRFYMODE='medium'
-	;;
-	4)
-	VRFYMODE='fast'
-	;;
-	5)
-	VRFYMODE='vfast'
-	;;
-	*)
-	echo ""
-	echo ""
-	echo "${BOLD}Incorrect input selected, please try again${RESET}"
-	sleep 0.5
-	verifyMode_Shred
-	;;
-	esac
+		case $VRFYSELECT in
+		1)
+		VRFYMODE='full'
+		;;
+		2)
+		VRFYMODE='moderate'
+		;;
+		3)
+		VRFYMODE='medium'
+		;;
+		4)
+		VRFYMODE='fast'
+		;;
+		5)
+		VRFYMODE='vfast'
+		;;
+		*)
+		echo ""
+		echo ""
+		echo "${BOLD}Incorrect input selected, please try again${RESET}"
+		sleep 0.5
+		verifyMode_Shred
+		;;
+		esac
 
-	echo ""
-	read -p "Which character/pattern would you like to verify?: " input
+		echo ""
+		read -p "Which character/pattern would you like to verify?: " input
+	fi
 	
 	if [[ $VRFYMODE == 'full' ]]; then
 		PCNTOFSECTOR='100'
@@ -1534,6 +1540,8 @@ function execute {
 		execute_Clone
 	elif [[ $APPSELECT == "E" ]]; then
 		if [[ -z $shredMode ]]; then
+			advEraseMode_Shred
+		elif [[ $shredMode == 'verify' ]]; then
 			advEraseMode_Shred
 		else
 			basicEraseMode_Shred
@@ -1812,8 +1820,8 @@ function autodetectClient {
 					autodetectClient
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				shredMode="autodetect"
-				RMODE="autodetect"
+				shredMode="verify"
+				RMODE="Verify Mode"
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				footer
 				rtcwake --mode mem --seconds 3
@@ -1828,6 +1836,28 @@ function autodetectClient {
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				exec uit-tss-client
+			elif [[ $task == "nvmeVerify" ]]; then
+				vrfySections=""
+				writeSections=""
+				PCNTOFSECTOR='10'
+				CHAR='0'
+				APPSELECT="E"
+				ACTION="erase"
+				if [[ /dev/nvme0n1 ]]; then
+					CLIENTDISK='nvme0n1'
+				else
+					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /var/lib/UIT-TSS-TOOLBOX/parse
+					autodetectClient
+				fi
+					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				shredMode="autodetect"
+				RMODE="autodetect"
+					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				footer
+				rtcwake --mode mem --seconds 3
+				footer
+				execute
+				totaltime
 			elif [[ $task == "shutdown" ]]; then
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				poweroff
