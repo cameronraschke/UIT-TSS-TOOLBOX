@@ -77,6 +77,8 @@ if ($arr[0] == "remote") {
             $value = "hpEraseAndClone";
         } elseif ($value == "3") {
             $value = "nvmeErase";
+        } elseif ($value == "4") {
+            $value = "nvmeVerify";
         } elseif ($value == "9") {
             $value = "update";
         } elseif ($value == "8") {
