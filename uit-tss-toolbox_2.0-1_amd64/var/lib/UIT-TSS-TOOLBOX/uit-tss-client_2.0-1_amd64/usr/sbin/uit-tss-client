@@ -15,9 +15,9 @@ for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null
 for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 
-uit-cpu-stats &
-uit-network-stats &
-uit-sql &
+coproc uit_cpu { uit-cpu-stats 2>/dev/null; }
+coproc uit_network { uit-network-stats 2>/dev/null; }
+coproc uit_sql { uit-sql 2>/dev/null; }
 
 scp -r cameron@mickey.uit:/home/cameron/sounds/findmy1.mp3 /root &>/dev/null
 
