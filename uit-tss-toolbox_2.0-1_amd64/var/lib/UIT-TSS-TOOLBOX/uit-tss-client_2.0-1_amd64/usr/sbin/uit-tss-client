@@ -1838,7 +1838,6 @@ function autodetectClient {
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1869,7 +1868,6 @@ function autodetectClient {
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
