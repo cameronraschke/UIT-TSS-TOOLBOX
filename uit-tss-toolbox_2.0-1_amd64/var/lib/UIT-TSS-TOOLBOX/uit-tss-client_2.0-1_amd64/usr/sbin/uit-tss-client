@@ -623,20 +623,26 @@ function appSelect {
 
 
 function basicEraseMode_Shred {
-	shredMode='autodetect'
-	RMODE='Autodetect'
-	if [[ $shredMode == 'autodetect' ]]; then
-		if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
-			PCNTOFSECTOR="30"
-			shredMode='zero'
-			RMODE='Zero Mode'
-		elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
-			shredMode='nist'
-			RMODE='NIST 800-88r1 Mode'
-		else
-			PCNTOFSECTOR="30"
-			shredMode='zero'
-			RMODE='Zero Mode'
+	if [[ $shredMode == 'verify' ]]; then
+		shredMode='verify'
+		RMODE='Verify Mode'
+		PCNTOFSECTOR='30'
+	else
+		shredMode='autodetect'
+		RMODE='Autodetect'
+		if [[ $shredMode == 'autodetect' ]]; then
+			if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then
+				PCNTOFSECTOR="30"
+				shredMode='zero'
+				RMODE='Zero Mode'
+			elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
+				shredMode='nist'
+				RMODE='NIST 800-88r1 Mode'
+			else
+				PCNTOFSECTOR="30"
+				shredMode='zero'
+				RMODE='Zero Mode'
+			fi
 		fi
 	fi
 	echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1541,8 +1547,6 @@ function execute {
 	elif [[ $APPSELECT == "E" ]]; then
 		if [[ -z $shredMode ]]; then
 			advEraseMode_Shred
-		elif [[ $shredMode == 'verify' ]]; then
-			advEraseMode_Shred
 		else
 			basicEraseMode_Shred
 		fi
@@ -1820,8 +1824,8 @@ function autodetectClient {
 					autodetectClient
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				shredMode="verify"
-				RMODE="Verify Mode"
+				shredMode="autodetect"
+				RMODE="Autodetect Mode"
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				footer
 				rtcwake --mode mem --seconds 3
@@ -1850,8 +1854,8 @@ function autodetectClient {
 					autodetectClient
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				shredMode="autodetect"
-				RMODE="autodetect"
+				shredMode="verify"
+				RMODE="Verify Mode"
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				footer
 				rtcwake --mode mem --seconds 3
