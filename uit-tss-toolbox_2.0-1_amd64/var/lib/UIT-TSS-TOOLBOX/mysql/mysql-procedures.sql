@@ -346,9 +346,9 @@ DELIMITER //
 CREATE PROCEDURE selectRemote()
 DETERMINISTIC
 BEGIN
-SELECT tagnumber AS 'Tag', 
-    task AS 'Pending Task', 
-    present AS 'Last Heard', 
+SELECT tagnumber AS 'Tag',
+    present AS 'Last Heard',
+    task AS 'Pending Task',
     status AS 'Status',
     CONCAT(battery_charge, '%') AS 'Battery Charge',
     battery_status AS 'Battery Status',
@@ -366,9 +366,9 @@ DELIMITER //
 CREATE PROCEDURE selectRemoteMissing()
 DETERMINISTIC
 BEGIN
-SELECT tagnumber AS 'Tag', 
-    task AS 'Pending Task', 
-    present AS 'Last Heard', 
+SELECT tagnumber AS 'Tag',
+    present AS 'Last Heard',
+    task AS 'Pending Task',
     status AS 'Status',
     CONCAT(battery_charge, '%') AS 'Battery Charge',
     battery_status AS 'Battery Status',
