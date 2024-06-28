@@ -464,7 +464,7 @@ function info {
 
 
 function footer {
-	biosUpdatedSQL=$(echo 'SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '"'${tOneProductName}'"'' | /var/lib/UIT-TSS-TOOLBOX/select)
+	biosUpdatedSQL=$(echo 'SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '"'${tOneProductName}'"'' | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
 	if [[ $biosUpdatedSQL == "NULL" ]]; then
 		biosUpdated="${tZeroBiosVersion}"
 	elif [[ $biosUpdatedSQL == $tZeroBiosVersion ]]; then
@@ -472,12 +472,24 @@ function footer {
 	elif [[ $biosUpdatedSQL != $tZeroBiosVersion ]]; then
 		biosUpdated="${RED}Needs Update${RESET}"
 	fi
-	sqlLocation=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	sqlLocation=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
+
+	if [[ -d /sys/class/power_supply/BAT0 ]]; then
+    batCharge=0
+    batStatus=""
+    batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+    batStatus=$(cat /sys/class/power_supply/BAT0/status)
+	elif [[ -d /sys/class/power_supply/BAT1 ]]; then
+		batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
+		batStatus=$(cat /sys/class/power_supply/BAT0/status)
+	else
+		batCharge="0"
+	fi
 	tput reset
 	lines=$(tput lines)
 	tput cup $(( lines - 3 )) 0
 	tput el
-	echo "Tag: ${tagNum}, Serial: ${tOneSerialNumber}, BIOS: ${biosUpdated}, Location: \"${sqlLocation}\"${RESET}"
+	echo "Tag: ${tagNum}, Serial: ${tOneSerialNumber}, BIOS: ${biosUpdated}, Location: \"${sqlLocation}\", Battery: ${batCharge}%${RESET}"
 	tput cup $(( lines - 2 )) 0
 	tput el
 	echo "${DIM}UIT-TSS-TOOLBOX by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"
