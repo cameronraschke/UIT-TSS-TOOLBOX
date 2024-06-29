@@ -11,17 +11,21 @@ def query_db():
     )
     cursor = cnx.cursor()
 
-    query = ("SELECT tagnumber, system_serial, time FROM jobstats "
-            "WHERE tagnumber = %s AND %s")
+    cursor.execute("SELECT tagnumber FROM jobstats limit 20")
 
-    tagnumber = "625958"
-    system_serial = "5CD014DJ2D"
+    result = cursor.fetchall()
 
-    cursor.execute(query, (tagnumber, system_serial))
+    # query = ("SELECT tagnumber, system_serial, time FROM jobstats "
+    #         "WHERE tagnumber = %s AND %s")
 
-    for (first_name, last_name, hire_date) in cursor:
-        result = print("{}, {} is in the DB".format(
-        tagnumber, system_serial))
+    # tagnumber = "625958"
+    # system_serial = "5CD014DJ2D"
+
+    # cursor.execute(query, (tagnumber, system_serial))
+
+    # for (first_name, last_name, hire_date) in cursor:
+    #     result = print("{}, {} is in the DB".format(
+    #     tagnumber, system_serial))
 
     cursor.close()
     cnx.close()
