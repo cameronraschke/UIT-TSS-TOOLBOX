@@ -6,24 +6,23 @@ window = tk.Tk()
 window.title("UIT-TSS-TOOLBOX Management")
 
 cnx = mysql.connector.connect(
-host="172.27.53.105",
+host="10.10.0.2",
 user="management",
 password="UHouston!",
 database="laptopDB"
 )
 
 cursor = cnx.cursor()
-cursor.execute("SELECT tagnumber FROM jobstats limit 20")
+cursor.execute("SELECT tagnumber, time FROM jobstats WHERE time IN (SELECT max(time) from jobstats group by tagnumber) ORDER BY time ASC limit 20")
 results = cursor.fetchall()
 
 reply = tk.Text(window)
 reply.pack()
-#reply.configure(state="readonly")
-# for i in results:
-#     print(i)
-#     reply.insert(0, i)
-reply.insert(0, "bruh")
-reply.pack()
+for (i) in results:
+    reply.insert("1.0", i)
+    reply.insert("1.0", "\n")
+    reply.pack()
+
 cursor.close()
 cnx.close()
 
