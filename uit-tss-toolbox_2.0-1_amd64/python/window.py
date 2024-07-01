@@ -68,7 +68,7 @@ def cxn_update_b():
     stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = 'b')"
     cxn_update(stmt)
 
-def cxn_update_b():
+def cxn_update_q():
     stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = 'q')"
     cxn_update(stmt)
 
@@ -83,7 +83,7 @@ btn_update_q = tk.Button(frm_buttons, text="Update Loc Q", command=cxn_update_q)
 btn_connect.grid(row=1, column=0, sticky="ew", padx=5)
 btn_query.grid(row=2, column=0, sticky="ew", padx=5, pady=5)
 btn_update_b.grid(row=3, column=0, sticky="ew", padx=5, pady=5)
-btn_update_q.grid(row=3, column=0, sticky="ew", padx=5, pady=5)
+btn_update_q.grid(row=4, column=0, sticky="ew", padx=5, pady=5)
 
 frm_buttons.grid(row=0, column=0, sticky="ns")
 reply.grid(row=0, column=1, sticky="nsew")
