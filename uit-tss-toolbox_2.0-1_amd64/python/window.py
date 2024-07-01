@@ -58,7 +58,7 @@ def cxn_q_all():
     cxn_query(stmt)
 
 def cxn_update_b():
-    stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = 'b'"
+    stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = 'b')"
     cxn_update(stmt)
 
 
