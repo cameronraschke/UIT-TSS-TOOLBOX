@@ -37,7 +37,7 @@ def cxn_query(stmt):
     cursor.close()
     cxn.close()
 
-def cxn_update(stmt):
+def cxn_update(stmt, info):
     global serverIP
     cxn = mysql.connector.connect(
     host=serverIP,
@@ -47,9 +47,12 @@ def cxn_update(stmt):
     )
     cursor = cxn.cursor()
 
+    reply.delete("1.0", tk.END)
+    nlines = 0
     cursor.execute(stmt)
     cxn.commit()
     nlines=f"({cursor.rowcount}, record(s) affected)"
+    reply.insert("1.0", f'{info}')
     reply.insert("1.0", f'Number of lines: {nlines}')
     reply.insert("1.0", "\n")
     cursor.close()
@@ -58,20 +61,33 @@ def cxn_update(stmt):
 
 def cxn_connect():
     stmt="SELECT 'Connected to 172.27.53.105'"
-    cxn_query(stmt)
+    info="Testing connection to the host."
+    cxn_query(stmt, info)
 
-def cxn_q_all():
+def cxn_query_all():
     stmt="SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND tagnumber IS NOT NULL GROUP BY tagnumber"
-    cxn_query(stmt)
+    info="Selecting all laptops in the database."
+    cxn_query(stmt, info)
 
 def cxn_update_b():
     stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = 'b')"
-    cxn_update(stmt)
+    info="Updating all laptops in box 'b'"
+    cxn_query(stmt, info)
 
 def cxn_update_q():
     stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = 'q')"
-    cxn_update(stmt)
+    info="Updating all laptops in box 'q'"
+    cxn_query(stmt, info)
 
+def cnx_update_all():
+    stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location LIKE '%')"
+    info="Updating all laptops."
+    cxn_query(stmt, info)
+
+def cnx_clear_all():
+    stmt="UPDATE remote SET task = NULL WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location LIKE '%')"
+    info="Clearing all tasks for all laptops."
+    cxn_query(stmt, info)
 
 frm_buttons = tk.Frame(window, relief=tk.RAISED, bd=2)
 
@@ -79,11 +95,15 @@ btn_connect = tk.Button(frm_buttons, text="Test Conn", command=cxn_connect)
 btn_query = tk.Button(frm_buttons, text="Query All", command=cxn_q_all)
 btn_update_b = tk.Button(frm_buttons, text="Update Loc B", command=cxn_update_b)
 btn_update_q = tk.Button(frm_buttons, text="Update Loc Q", command=cxn_update_q)
+btn_update_all = tk.Button(frm_buttons, text="Update All", command=cxn_update_q)
+btn_clear_all = tk.Button(frm_buttons, text="Clear All Tasks", command=cxn_update_q)
 
 btn_connect.grid(row=1, column=0, sticky="ew", padx=5)
 btn_query.grid(row=2, column=0, sticky="ew", padx=5, pady=5)
-btn_update_b.grid(row=3, column=0, sticky="ew", padx=5, pady=5)
-btn_update_q.grid(row=4, column=0, sticky="ew", padx=5, pady=5)
+btn_update_all.grid(row=3, column=0, sticky="ew", padx=5, pady=5)
+btn_clear_all.grid(row=4, column=0, sticky="ew", padx=5, pady=5)
+btn_update_b.grid(row=5, column=0, sticky="ew", padx=5, pady=5)
+btn_update_q.grid(row=6, column=0, sticky="ew", padx=5, pady=5)
 
 frm_buttons.grid(row=0, column=0, sticky="ns")
 reply.grid(row=0, column=1, sticky="nsew")
