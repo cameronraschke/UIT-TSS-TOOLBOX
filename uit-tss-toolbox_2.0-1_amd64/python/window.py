@@ -74,22 +74,22 @@ def cxn_query_all():
 def cxn_update_b():
     stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = 'b')"
     info="Updating all laptops in box 'b'"
-    cxn_query(stmt, info)
+    cxn_update(stmt, info)
 
 def cxn_update_q():
     stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = 'q')"
     info="Updating all laptops in box 'q'"
-    cxn_query(stmt, info)
+    cxn_update(stmt, info)
 
 def cnx_update_all():
     stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location LIKE '%')"
     info="Updating all laptops."
-    cxn_query(stmt, info)
+    cxn_update(stmt, info)
 
-def cnx_clear_all():
+def cnx_update_clear():
     stmt="UPDATE remote SET task = NULL WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location LIKE '%')"
     info="Clearing all tasks for all laptops."
-    cxn_query(stmt, info)
+    cxn_update(stmt, info)
 
 frm_buttons = tk.Frame(window, relief=tk.RAISED, bd=2)
 
@@ -98,7 +98,7 @@ btn_query = tk.Button(frm_buttons, text="Query All", command=cxn_query_all)
 btn_update_b = tk.Button(frm_buttons, text="Update Loc B", command=cxn_update_b)
 btn_update_q = tk.Button(frm_buttons, text="Update Loc Q", command=cxn_update_q)
 btn_update_all = tk.Button(frm_buttons, text="Update All", command=cnx_update_all)
-btn_clear_all = tk.Button(frm_buttons, text="Clear All Tasks", command=cnx_clear_all)
+btn_clear_all = tk.Button(frm_buttons, text="Clear All Tasks", command=cnx_update_clear)
 
 btn_connect.grid(row=1, column=0, sticky="ew", padx=5)
 btn_query.grid(row=2, column=0, sticky="ew", padx=5, pady=5)
