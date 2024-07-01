@@ -44,16 +44,7 @@ def cxn_update(stmt):
     cursor = cxn.cursor()
 
     cursor.execute(stmt)
-    results = cursor.fetchall()
-    reply.delete("1.0", tk.END)
-    nlines = 0
-    for (tagnumber) in results:
-        nlines = nlines + 1
-        print(tagnumber)
-        reply.insert("1.0", tagnumber)
-        reply.insert("1.0", "\n")
-    reply.insert("1.0", cursor.rowcount, "record(s) affected")
-    reply.insert("1.0", "\n")
+    cxn.commit()
     cursor.close()
     cxn.close()
 
@@ -67,7 +58,6 @@ def cxn_q_all():
     cxn_query(stmt)
 
 def cxn_update_b():
-    stmt=""
     stmt="UPDATE remote SET task = 'update' WHERE tagnumber IN (SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND location = 'b'"
     cxn_update(stmt)
 
