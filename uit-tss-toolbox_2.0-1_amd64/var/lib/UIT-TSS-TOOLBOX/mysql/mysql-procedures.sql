@@ -389,12 +389,12 @@ CREATE PROCEDURE selectRemoteStats()
 DETERMINISTIC
 BEGIN
 SELECT 
-    (SELECT COUNT(tagnumber) FROM remote WHERE present_bool = '1') AS 'Total Present Laptops',
+    (SELECT COUNT(tagnumber) FROM remote WHERE present_bool = '1') AS 'Present Laptops',
     CONCAT(ROUND(AVG(battery_charge), 0), '%') AS 'Avg. Battery Charge',
     CONCAT(ROUND(AVG(cpu_temp), 1), '°C') AS 'Avg. CPU Temp',
     CONCAT(ROUND(AVG(disk_temp), 1), '°C') AS 'Avg. Disk Temp',
-    CONCAT(ROUND(AVG(watts_now), 0), ' Watts') AS 'Avg. Power Draw',
-    CONCAT(ROUND(SUM(watts_now), 0), ' Watts') AS 'Total Power Draw',
+    CONCAT(ROUND(AVG(watts_now), 0), ' Watts') AS 'Avg. Real Power Draw',
+    CONCAT(ROUND(SUM(watts_now), 0), ' Watts') AS 'Real Power Draw',
     CONCAT(ROUND(SUM(IF (battery_status NOT IN ('Disharging', ''), 55, NULL)), 0), ' Watts', ' (' , ROUND(SUM(IF (present_bool='1', 55, NULL)), 0), ' Watts Anticipated', ')') AS 'Power Draw from Wall'
     FROM remote WHERE present_bool = '1';
     END; //
