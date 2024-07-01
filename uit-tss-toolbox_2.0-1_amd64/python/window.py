@@ -39,6 +39,34 @@ def cxn_query(stmt, info):
     cursor.close()
     cxn.close()
 
+
+def cxn_query_table(stmt, info):
+    global serverIP
+    cxn = mysql.connector.connect(
+    host=serverIP,
+    user="management",
+    password="UHouston!",
+    database="laptopDB"
+    )
+    cursor = cxn.cursor()
+
+    cursor.execute(stmt)
+    reply.delete("1.0", tk.END)
+    nlines = 0
+    for heading in [i[0] for i in cursor.description]:
+        nlines = nlines + 1
+        print(heading)
+        for result in cursor.fetchone():
+            reply.insert("1.0", result)
+            reply.insert("1.0", heading)
+            reply.insert("1.0", "\n")
+    reply.insert("1.0", "\n")
+    reply.insert("1.0", info)
+    reply.insert("1.0", "\n")
+    reply.insert("1.0", f'Number of lines selected: {nlines}')
+    cursor.close()
+    cxn.close()
+
 def cxn_update(stmt, info):
     global serverIP
     cxn = mysql.connector.connect(
@@ -50,7 +78,6 @@ def cxn_update(stmt, info):
     cursor = cxn.cursor()
 
     reply.delete("1.0", tk.END)
-    nlines = 0
     cursor.execute(stmt)
     cxn.commit()
     reply.insert("1.0", "\n")
@@ -62,9 +89,9 @@ def cxn_update(stmt, info):
 
 
 def cxn_connect():
-    stmt="SELECT 'Connected to 172.27.53.105'"
+    stmt="call selectRemoteStats()"
     info="Testing connection to the host."
-    cxn_query(stmt, info)
+    cxn_query_table(stmt, info)
 
 def cxn_query_all():
     stmt="SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND tagnumber IS NOT NULL GROUP BY tagnumber"
