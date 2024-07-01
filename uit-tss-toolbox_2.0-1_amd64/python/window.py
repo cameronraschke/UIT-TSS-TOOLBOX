@@ -56,9 +56,9 @@ def cxn_query_table(stmt, info):
     for heading in [i[0] for i in cursor.description]:
         nlines = nlines + 1
         print(heading)
-        for result in cursor.fetchone():
+        reply.insert("1.0", heading)
+        for result in cursor.fetchone:
             reply.insert("1.0", result)
-            reply.insert("1.0", heading)
             reply.insert("1.0", "\n")
     reply.insert("1.0", "\n")
     reply.insert("1.0", info)
