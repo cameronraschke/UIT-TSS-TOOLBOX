@@ -13,7 +13,7 @@ serverIP="172.27.53.105"
 
 reply = tk.Text(window)
 
-def cxn_query(stmt):
+def cxn_query(stmt, info):
     global serverIP
     cxn = mysql.connector.connect(
     host=serverIP,
@@ -32,8 +32,10 @@ def cxn_query(stmt):
         print(tagnumber)
         reply.insert("1.0", tagnumber)
         reply.insert("1.0", "\n")
-    reply.insert("1.0", f'Number of lines: {nlines}')
     reply.insert("1.0", "\n")
+    reply.insert("1.0", info)
+    reply.insert("1.0", "\n")
+    reply.insert("1.0", f'Number of lines selected: {nlines}')
     cursor.close()
     cxn.close()
 
@@ -51,10 +53,10 @@ def cxn_update(stmt, info):
     nlines = 0
     cursor.execute(stmt)
     cxn.commit()
-    nlines=f"({cursor.rowcount}, record(s) affected)"
-    reply.insert("1.0", f'{info}')
-    reply.insert("1.0", f'Number of lines: {nlines}')
     reply.insert("1.0", "\n")
+    reply.insert("1.0", f'{info}')
+    reply.insert("1.0", "\n")
+    reply.insert("1.0", f'Number of lines updated: {cursor.rowcount}')
     cursor.close()
     cxn.close()
 
@@ -92,11 +94,11 @@ def cnx_clear_all():
 frm_buttons = tk.Frame(window, relief=tk.RAISED, bd=2)
 
 btn_connect = tk.Button(frm_buttons, text="Test Conn", command=cxn_connect)
-btn_query = tk.Button(frm_buttons, text="Query All", command=cxn_q_all)
+btn_query = tk.Button(frm_buttons, text="Query All", command=cxn_query_all)
 btn_update_b = tk.Button(frm_buttons, text="Update Loc B", command=cxn_update_b)
 btn_update_q = tk.Button(frm_buttons, text="Update Loc Q", command=cxn_update_q)
-btn_update_all = tk.Button(frm_buttons, text="Update All", command=cxn_update_q)
-btn_clear_all = tk.Button(frm_buttons, text="Clear All Tasks", command=cxn_update_q)
+btn_update_all = tk.Button(frm_buttons, text="Update All", command=cnx_update_all)
+btn_clear_all = tk.Button(frm_buttons, text="Clear All Tasks", command=cnx_clear_all)
 
 btn_connect.grid(row=1, column=0, sticky="ew", padx=5)
 btn_query.grid(row=2, column=0, sticky="ew", padx=5, pady=5)
