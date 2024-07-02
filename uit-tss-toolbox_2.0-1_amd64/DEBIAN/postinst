@@ -47,13 +47,13 @@ if [[ $(md5sum /home/cameron/bios-update/Latitude_7X00_1.31.0.exe | awk '{ print
     echo "CHECKSUM FAILED: Latitude_7X00_1.31.0.exe"
 fi
 
-ln --symbolic /usr/sbin/uit-sql-refresh-server /var/www/html/management/uit-sql-refresh-server
-ln --symbolic /usr/sbin/uit-sql-refresh-client /var/www/html/management/uit-sql-refresh-client
-ln --symbolic /usr/sbin/uit-sql-refresh-location /var/www/html/management/uit-sql-refresh-location
-ln --symbolic /usr/sbin/uit-sql-refresh-remote /var/www/html/management/uit-sql-refresh-remote
+ln --force --symbolic /usr/sbin/uit-sql-refresh-server /var/www/html/management/uit-sql-refresh-server
+ln --force --symbolic /usr/sbin/uit-sql-refresh-client /var/www/html/management/uit-sql-refresh-client
+ln --force --symbolic /usr/sbin/uit-sql-refresh-location /var/www/html/management/uit-sql-refresh-location
+ln --force --symbolic /usr/sbin/uit-sql-refresh-remote /var/www/html/management/uit-sql-refresh-remote
 
-ln --symbolic /var/lib/UIT-TSS-TOOLBOX/PDO-connect /var/www/html/management/PDO-connect
-ln --symbolic /var/lib/UIT-TSS-TOOLBOX/functions /var/www/html/management/functions
-ln --symbolic /var/lib/UIT-TSS-TOOLBOX/mysql-functions /var/www/html/management/mysql-functions
-ln --symbolic /var/lib/UIT-TSS-TOOLBOX/parse /var/www/html/management/parse
-ln --symbolic /var/lib/UIT-TSS-TOOLBOX/select /var/www/html/management/select
+ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/PDO-connect /var/www/html/management/PDO-connect
+ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/functions /var/www/html/management/functions
+ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/mysql-functions /var/www/html/management/mysql-functions
+ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/parse /var/www/html/management/parse
+ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/select /var/www/html/management/select

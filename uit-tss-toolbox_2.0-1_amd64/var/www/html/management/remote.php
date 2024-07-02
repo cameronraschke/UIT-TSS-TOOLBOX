@@ -4,7 +4,7 @@
 require('./uit-sql-refresh-server');
 require('./mysql-functions');
 dbSelect("SELECT date FROM serverstats");
-foreach $arr as $key => $value {
+foreach ($arr as $key => $value) {
     echo "<p>$value</p>";
 }
 ?>
