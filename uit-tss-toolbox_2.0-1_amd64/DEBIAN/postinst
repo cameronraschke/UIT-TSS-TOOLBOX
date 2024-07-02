@@ -46,3 +46,14 @@ fi
 if [[ $(md5sum /home/cameron/bios-update/Latitude_7X00_1.31.0.exe | awk '{ print $1 }') != 'af5a3c0e14b91af6e6d41e1a19d6379d' ]]; then
     echo "CHECKSUM FAILED: Latitude_7X00_1.31.0.exe"
 fi
+
+ln --symbolic /usr/sbin/uit-sql-refresh-server /var/www/html/management/uit-sql-refresh-server
+ln --symbolic /usr/sbin/uit-sql-refresh-client /var/www/html/management/uit-sql-refresh-client
+ln --symbolic /usr/sbin/uit-sql-refresh-location /var/www/html/management/uit-sql-refresh-location
+ln --symbolic /usr/sbin/uit-sql-refresh-remote /var/www/html/management/uit-sql-refresh-remote
+
+ln --symbolic /var/lib/UIT-TSS-TOOLBOX/PDO-connect /var/www/html/management/PDO-connect
+ln --symbolic /var/lib/UIT-TSS-TOOLBOX/functions /var/www/html/management/functions
+ln --symbolic /var/lib/UIT-TSS-TOOLBOX/mysql-functions /var/www/html/management/mysql-functions
+ln --symbolic /var/lib/UIT-TSS-TOOLBOX/parse /var/www/html/management/parse
+ln --symbolic /var/lib/UIT-TSS-TOOLBOX/select /var/www/html/management/select
