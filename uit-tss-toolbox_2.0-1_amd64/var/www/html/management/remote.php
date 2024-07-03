@@ -79,8 +79,7 @@ foreach ($arr as $key => $value) {
         </tr>
 
 <?php
-
-dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY present DESC");
+dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY task, present DESC");
 foreach ($arr as $key => $value) {
     $tagNum = $value["tagnumber"];
     $lastHeard = $value["present"];
@@ -92,21 +91,17 @@ foreach ($arr as $key => $value) {
     $diskTemp = $value["disk_temp"];
     $powerDraw = $value["watts_now"];
 
-    if (isset($_POST['task'])) {
-        dbUpdateRemote("$tagNum", "task", $_POST['task']);
-        unset($_POST['task']);
-    }
-
     echo "<tr>";
     echo "<td>$tagNum</td>" . PHP_EOL;
+    $_POST['tagnumber'] = $tagNum;
     echo "<td>$lastHeard</td>" . PHP_EOL;
     echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
     if (filter($task) == 1) {
-        echo "<option value='NULL'>No Task</option>";
+        echo "<option value='$tagNum|NULL'>No Task</option>";
     } else {
-        echo "<option value='$task'>$task</option>";
+        echo "<option value='$tagNum|$task'>$task</option>";
     }
-    echo "<option value='update'>Update</option>";
+    echo "<option value='$tagNum|update'>Update</option>";
     echo "</select></form></td>" . PHP_EOL;
     echo "<td>$status</td>" . PHP_EOL;
     echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
@@ -115,6 +110,13 @@ foreach ($arr as $key => $value) {
     echo "<td>$diskTemp" . "°C</td>" . PHP_EOL;
     echo "<td>$powerDraw" . " Watts</td>" . PHP_EOL;
     echo "</tr>";
+
+    if (isset($_POST['task'])) {
+        $arrTask = explode('|', $_POST['task']);
+        echo $arrTask[0] . ", " . $arrTask[1];
+        dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
+        unset($_POST);
+    }
 }
 echo "</table>";
 echo "</div>";
