@@ -7,6 +7,7 @@ include('mysql/mysql-functions');
 <body>
 <h1>Remote Table</h1>
 <h3>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h3>
+<h4>Last updated: <?php echo $time; ?></h4>
 
 <?php
 dbSelect("CALL selectRemoteStats");
