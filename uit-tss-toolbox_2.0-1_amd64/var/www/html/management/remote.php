@@ -38,7 +38,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     <th>Total Power Draw From Wall</th>
                 </tr>
 <?php
-while true {
+while (true) {
     dbSelect("CALL selectRemoteStats");
     foreach ($arr as $key => $value) {
         $presentLaptops = $value['Present Laptops'];
