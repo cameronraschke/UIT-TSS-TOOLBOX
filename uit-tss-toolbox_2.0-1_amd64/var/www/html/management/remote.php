@@ -34,7 +34,7 @@ foreach ($arr as $key => $value) {
     $avgRealPowerDraw = $value['Avg. Real Power Draw'];
     $totalRealPowerDraw = $value['Real Power Draw'];
     $totalWallPowerDraw = $value['Power Draw from Wall'];
-    echo "<table style='border-collapse: collapse' border='1'>";
+    echo "<table style='text-align: center; border-collapse: collapse' border='1'>";
     echo "<tr>";
     echo "<th>Total Laptops Present</th>";
     echo "<th>Average Battery Charge</th>";
