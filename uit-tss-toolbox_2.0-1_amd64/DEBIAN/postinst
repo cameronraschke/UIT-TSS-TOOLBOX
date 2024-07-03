@@ -57,3 +57,5 @@ fi
 # ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/mysql-functions /var/www/html/management/mysql-functions
 # ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/parse /var/www/html/management/parse
 # ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/select /var/www/html/management/select
+
+chmod 644 /var/www/html/management -r

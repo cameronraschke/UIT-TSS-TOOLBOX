@@ -1,4 +1,4 @@
-<?php include('header.php'); ?>
+<?php require('header.php'); ?>
 <html>
     <head>
         <meta charset='UTF-8'>
@@ -10,7 +10,7 @@
         <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
         <p><span style='float: right;'>Logged in as <b>$login_user</b>.</span></p>
         <br>
-        <p><span style='float: right;'>Not <b>$login_user</b>? <a href='logout.php'>Click Here to Logout</a></p>
+        <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></p>
         </p>
         <br>
         <div class='pagetitle'>
