@@ -1856,6 +1856,7 @@ function autodetectClient {
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				exec uit-tss-client
 			elif [[ $task == "nvmeVerify" ]]; then
+				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				vrfySections=""
 				writeSections=""
 				PCNTOFSECTOR='10'
@@ -1886,6 +1887,7 @@ function autodetectClient {
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				exec uit-tss-client
 			elif [[ $task == "shutdown" ]]; then
+				echo "remote|${tagNum}|status|shutting down" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				poweroff
 			elif [[ $task == "fail-test" ]]; then

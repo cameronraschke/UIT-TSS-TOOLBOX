@@ -79,7 +79,13 @@ foreach ($arr as $key => $value) {
         </tr>
 
 <?php
-dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY task, present DESC");
+if (isset($_POST['task'])) {
+    $arrTask = explode('|', $_POST['task']);
+    echo "<p>Tagnumber <b>" . $arrTask[0] . "</b> is scheduled to: <b>" . $arrTask[1] . "</b></p>";
+    dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
+    unset($_POST);
+}
+dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY task DESC, status ASC, tagnumber DESC, present DESC");
 foreach ($arr as $key => $value) {
     $tagNum = $value["tagnumber"];
     $lastHeard = $value["present"];
@@ -92,7 +98,11 @@ foreach ($arr as $key => $value) {
     $powerDraw = $value["watts_now"];
 
     echo "<tr>";
-    echo "<td>$tagNum</td>" . PHP_EOL;
+    if ($status != "waiting for task") {
+        echo "<td>Working: <b>$tagNum</b></td>" . PHP_EOL;
+    } else {
+        echo "<td>$tagNum</td>" . PHP_EOL;
+    }
     $_POST['tagnumber'] = $tagNum;
     echo "<td>$lastHeard</td>" . PHP_EOL;
     echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
@@ -110,13 +120,6 @@ foreach ($arr as $key => $value) {
     echo "<td>$diskTemp" . "°C</td>" . PHP_EOL;
     echo "<td>$powerDraw" . " Watts</td>" . PHP_EOL;
     echo "</tr>";
-
-    if (isset($_POST['task'])) {
-        $arrTask = explode('|', $_POST['task']);
-        echo $arrTask[0] . ", " . $arrTask[1];
-        dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
-        unset($_POST);
-    }
 }
 echo "</table>";
 echo "</div>";
