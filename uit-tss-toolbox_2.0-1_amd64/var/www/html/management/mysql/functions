@@ -1,0 +1,118 @@
+<?php
+
+function filter ($string) {
+    if ($string == "" || $string == " " || $string == "NULL" || empty($string) || is_null($string) || !isset($string)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+function filterNum ($string) {
+    if (filter($string) == 0) {
+        if (is_numeric($string) && $string > 0) {
+            return 0;
+        } else {
+            return 1;
+        }
+    } else {
+        return 1;
+    }
+}
+
+function filterArr ($array) {
+    if (empty($array) || is_null($array) || count($array) <= 0 || !isset($array)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+function clearSQLGlobals() {
+    unset($GLOBALS["result"]);
+    unset($GLOBALS["arr"]);
+}
+
+function clearTimeGlobals() {
+    unset($GLOBALS["timeArr"]);
+    unset($GLOBALS["arrayObject"]);
+    unset($GLOBALS["iterator"]);
+    unset($GLOBALS["markerArr"]);
+    unset($GLOBALS["markerArrayObject"]);
+    unset($GLOBALS["markerIterator"]);
+}
+
+function timeSinceLastMarker($key, $string) {
+    global $markerArr;
+    global $markerArrayObject;
+    global $markerIterator;
+    global $timeArr;
+    global $timeArrayObject;
+    global $timeIterator;
+
+    $currentTime = null;
+    $curVal = null;
+    $previousVal = null;
+    $start = null;
+    $end = null;
+    $execTime = null;
+    $count = null;
+    $markerStart = null;
+    $markerEnd = null;
+
+    $currentTime = hrtime(true);
+
+    if (filter($markerArr) == 1) {
+        $markerArr = array();
+        $markerArr[] = $currentTime;
+    }
+    if (filter($markerArrayObject) == 1) {
+        $markerArrayObject = new ArrayObject($markerArr);
+    }
+    $markerIterator = $markerArrayObject->getIterator();
+    $tmpCount = $markerIterator->count() - 1;
+
+    if (filter($timeArr) == 1) {
+        $timeArr = array();
+        $timeArr[] = $currentTime;
+    }
+    if (filter($timeArrayObject) == 1) {
+        $timeArrayObject = new ArrayObject($timeArr);
+    }
+    $timeIterator = $timeArrayObject->getIterator();
+
+    $timeArrayObject->append($currentTime);
+    $count = $timeIterator->count() - 1;
+
+    if ($key == "start") {
+        $execTime = "...";
+    } elseif ($key == "markerStart") {
+        $markerArrayObject->append($currentTime);
+        $execTime = "...";
+    } elseif ($key == "markerEnd") {
+        $timeIterator->seek($count);
+        $markerEnd = $timeIterator->current();
+        $markerIterator->seek(1);
+        $markerStart = $markerIterator->current();
+        unset($GLOBALS["markerArrayObject"]);
+        $execTime = round(($markerEnd - $markerStart) / 1e9, 4);
+    } elseif ($key == "end") {
+        $timeIterator->seek($count);
+        $end = $timeIterator->current();
+        $timeIterator->rewind();
+        $start = $timeIterator->current();
+        $execTime = round(($end - $start) / 1e9, 4);
+    } elseif (is_numeric($key)) {
+        $timeIterator->seek($count - 1);
+        $previousVal = $timeIterator->current();
+        $timeIterator->seek($count);
+        $curVal = $timeIterator->current();
+        $execTime = round(($curVal - $previousVal) / 1e9, 4);
+    }
+
+    if (filter($execTime) == 0) {
+        return $string . $execTime;
+    }
+}
+
+?>

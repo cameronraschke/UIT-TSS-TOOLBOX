@@ -1,0 +1,22 @@
+<?php
+include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
+
+$stdin = fopen('php://stdin', 'r');
+$input = trim(fgets(STDIN));
+fclose($stdin);
+
+dbSelect("$input");
+
+if (filterArr($arr) == 0) {
+    foreach ($arr as $key => $value) {
+        if (filter($value["result"]) == 0) {
+            echo $value["result"] . PHP_EOL;
+        } else {
+            echo "NULL" . PHP_EOL;
+        }
+    }
+} else {
+    echo "NULL" . PHP_EOL;
+}
+
+?>
