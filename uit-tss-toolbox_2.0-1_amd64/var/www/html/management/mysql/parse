@@ -1,5 +1,5 @@
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
+include('mysql-functions');
 
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');

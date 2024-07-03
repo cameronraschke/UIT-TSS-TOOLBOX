@@ -1,5 +1,5 @@
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
+include('mysql-functions');
 
 $stdin = fopen('php://stdin', 'r');
 $input = trim(fgets(STDIN));

@@ -1,6 +1,6 @@
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/PDO-connect');
-include('/var/lib/UIT-TSS-TOOLBOX/functions');
+include('PDO-connect');
+include('functions');
 
 function dbSelect ($sql) {
     clearSQLGlobals();
