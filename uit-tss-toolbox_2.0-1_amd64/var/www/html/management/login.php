@@ -3,14 +3,14 @@
 session_start();
 include('mysql/mysql-functions');
 
-$uuid = md5(rand(100000000,999999999));
-unset($_SESSION['uuid']);
-$_SESSION['uuid'] = $uuid;
+// $uuid = md5(rand(100000000,999999999));
+// unset($_SESSION['uuid']);
+// $_SESSION['uuid'] = $uuid;
 
 unset($username);
 $username = ($_POST['username']);
 
-if (isset($_POST['username'])) {
+//if (isset($_POST['username'])) {
 	#$sql = "INSERT INTO logins (user, date, uuid, ip, hostname, uri) VALUES ('$username', '$time', '".$_SESSION['uuid']."', '".$_SERVER['REMOTE_ADDR']."', '".$_SERVER['REMOTE_HOST']."', '".$_SERVER['REQUEST_URI']."')";
 	#$results = $conn->query($sql);
 
@@ -22,7 +22,7 @@ if (isset($_POST['username'])) {
 	 		header("Location: index.php");
 	// 	}
 	// }
-}
+//}
 ?>
 
 <html>
