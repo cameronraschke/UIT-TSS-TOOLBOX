@@ -10,7 +10,7 @@ include('mysql/mysql-functions');
 unset($username);
 $username = ($_POST['username']);
 
-//if (isset($_POST['username'])) {
+if (isset($_POST['username'])) {
 	#$sql = "INSERT INTO logins (user, date, uuid, ip, hostname, uri) VALUES ('$username', '$time', '".$_SESSION['uuid']."', '".$_SERVER['REMOTE_ADDR']."', '".$_SERVER['REMOTE_HOST']."', '".$_SERVER['REQUEST_URI']."')";
 	#$results = $conn->query($sql);
 
@@ -22,7 +22,7 @@ $username = ($_POST['username']);
 	 		header("Location: index.php");
 	// 	}
 	// }
-//}
+}
 ?>
 
 <html>
@@ -86,7 +86,7 @@ $username = ($_POST['username']);
     </style>
     <body>
         <div class="logintitle1">
-            <h1>Plutomail Web Login</h1>
+            <h1>UIT-TSS-TOOLBOX Web Login</h1>
         </div>
         <div class="loginform1">
             <form method="post" class="styled-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
