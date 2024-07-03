@@ -33,8 +33,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     <th>Average Battery Charge</th>
                     <th>Average CPU Temp</th>
                     <th>Average Disk Temp</th>
-                    <th>Average Real Power Draw</th>
-                    <th>Total Real Power Draw</th>
+                    <th>Average Actual Power Draw</th>
+                    <th>Total Actual Power Draw</th>
                     <th>Total Power Draw From Wall</th>
                 </tr>
 <?php
@@ -61,29 +61,52 @@ foreach ($arr as $key => $value) {
     echo "</table>";
     echo "</div>";
 }
+?>
 
-echo "<br><br>";
-echo "<div class='styled-table'>";
-echo "<table style='border-collapse: collapse' border='1'>";
-echo "<tr>";
-echo "<th>Tagnumber</th>";
-echo "<th>Last Job Data</th>";
-echo "</tr>";
+        <br><br>
+        <div class='styled-table'>
+        <table style='border-collapse: collapse' border='1'>
+        <tr>
+        <th>Tagnumber</th>
+        <th>Last Heard</th>
+        <th>Pending Job</th>
+        <th>Current Status</th>
+        <th>Battery Charge</th>
+        <th>Battery Status</th>
+        <th>CPU Temp</th>
+        <th>Disk Temp</th>
+        <th>Actual Power Draw</th>
+        </tr>
 
-dbSelect("SELECT * FROM remote ORDER BY date DESC");
+<?php
+dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY present DESC");
 foreach ($arr as $key => $value) {
     $tagnumber = $value["tagnumber"];
-    $lastJob = $value["date"];
+    $lastHeard = $value["present"];
+    $task = $value["task"];
+    $status = $value["status"];
+    $batteryCharge = $value["battery_charge"];
+    $batteryStatus = $value["battery_status"];
+    $cpuTemp = $value["cpu_temp"];
+    $diskTemp = $value["disk_temp"];
+    $powerDraw = $value["watts_now"];
 
     echo "<tr>";
     echo "<td>$tagnumber</td>" . PHP_EOL;
-    echo "<td>$lastJob</td>" . PHP_EOL;
+    echo "<td>$lastHeard</td>" . PHP_EOL;
+    echo "<td>$task</td>" . PHP_EOL;
+    echo "<td>$status</td>" . PHP_EOL;
+    echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
+    echo "<td>$batteryStatus</td>" . PHP_EOL;
+    echo "<td>$cpuTemp</td>" . "°C" . PHP_EOL;
+    echo "<td>$diskTemp</td>" . "°C" . PHP_EOL;
+    echo "<td>$powerDraw</td>" . " Watts" . PHP_EOL;
     echo "</tr>";
 
+
 }
-
 echo "</table>";
+echo "</div>";
 ?>
-
     </body>
 </html>
