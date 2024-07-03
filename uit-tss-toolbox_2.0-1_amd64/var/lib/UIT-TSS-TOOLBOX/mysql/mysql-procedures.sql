@@ -228,9 +228,9 @@ GRANT INSERT, SELECT, UPDATE, EXECUTE ON laptopDB.* TO 'laptops'@'10.0.0.0/255.0
 CREATE USER IF NOT EXISTS 'shrl'@'10.0.0.0/255.0.0.0' IDENTIFIED BY 'UHouston!';
 GRANT INSERT, SELECT, UPDATE, EXECUTE ON shrl.* TO 'shrl'@'10.0.0.0/255.0.0.0';
 
-CREATE USER IF NOT EXISTS 'management'@'172.27.53.0/255.255.255.0' IDENTIFIED BY 'UHouston!';
-GRANT SELECT, UPDATE ON laptopDB.remote TO 'management'@'172.27.53.0/255.255.255.0';
-GRANT SELECT, EXECUTE ON laptopDB.* TO 'management'@'172.27.53.0/255.255.255.0';
+CREATE USER IF NOT EXISTS 'management'@'localhost' IDENTIFIED BY 'UHouston!';
+GRANT SELECT, UPDATE ON laptopDB.remote TO 'management'@'localhost';
+GRANT SELECT, EXECUTE ON laptopDB.* TO 'management'@'localhost';
 
 END; //
 
