@@ -1,5 +1,5 @@
 <?php
-include('header.php');
+require('header.php');
 include('mysql/mysql-functions');
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
@@ -7,10 +7,22 @@ $time = $dt->format('Y-m-d H:i:s.v');
 ?>
 
 <html>
-<body>
-<h1>Remote Table</h1>
-<h3>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h3>
-<h4>Last updated: <?php echo $time; ?></h4>
+    <head>
+        <meta charset='UTF-8'>
+        <link rel='stylesheet' type='text/css' href='/css/main.css' />
+        <title>UIT-TSS-Managment Site</title>
+    </head>
+    <body>
+        <div class='menubar'>
+        <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
+        <p><span style='float: right;'>Logged in as <b><?php echo "$login_user"; ?></b>.</span></p>
+        <br>
+        <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></p>
+        </p>
+        <br>
+        <h1>Remote Table</h1>
+        <h3>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h3>
+        <h4>Last updated: <?php echo $time; ?></h4>
 
 <?php
 dbSelect("CALL selectRemoteStats");
