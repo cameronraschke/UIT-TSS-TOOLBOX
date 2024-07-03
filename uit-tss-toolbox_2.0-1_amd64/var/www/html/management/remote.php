@@ -82,7 +82,7 @@ foreach ($arr as $key => $value) {
 
 dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY present DESC");
 foreach ($arr as $key => $value) {
-    $tagnumber = $value["tagnumber"];
+    $tagNum = $value["tagNum"];
     $lastHeard = $value["present"];
     $task = $value["task"];
     $status = $value["status"];
@@ -93,12 +93,12 @@ foreach ($arr as $key => $value) {
     $powerDraw = $value["watts_now"];
 
     if (isset($_POST['task'])) {
-        dbUpdateRemote("$tagNum", "task", "$_POST['task']");
+        dbUpdateRemote("$tagNum", "task", $_POST['task']);
         unset($_POST['task']);
     }
 
     echo "<tr>";
-    echo "<td>$tagnumber</td>" . PHP_EOL;
+    echo "<td>$tagNum</td>" . PHP_EOL;
     echo "<td>$lastHeard</td>" . PHP_EOL;
     echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
     if (filter($task) == 1) {
