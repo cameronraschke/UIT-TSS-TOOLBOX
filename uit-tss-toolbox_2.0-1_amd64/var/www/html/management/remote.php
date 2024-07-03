@@ -79,6 +79,7 @@ foreach ($arr as $key => $value) {
         </tr>
 
 <?php
+
 dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY present DESC");
 foreach ($arr as $key => $value) {
     $tagnumber = $value["tagnumber"];
@@ -91,10 +92,22 @@ foreach ($arr as $key => $value) {
     $diskTemp = $value["disk_temp"];
     $powerDraw = $value["watts_now"];
 
+    if (isset($_POST['task'])) {
+        dbUpdateRemote("$tagNum", "task", "$_POST['task']");
+        unset($_POST['task']);
+    }
+
     echo "<tr>";
     echo "<td>$tagnumber</td>" . PHP_EOL;
     echo "<td>$lastHeard</td>" . PHP_EOL;
-    echo "<td>$task</td>" . PHP_EOL;
+    echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
+    if (filter($task) == 1) {
+        echo "<option value='NULL'>No Task</option>";
+    } else {
+        echo "<option value='$task'>$task</option>";
+    }
+    echo "<option value='update'>Update</option>";
+    echo "</select></form></td>" . PHP_EOL;
     echo "<td>$status</td>" . PHP_EOL;
     echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
     echo "<td>$batteryStatus</td>" . PHP_EOL;
@@ -102,8 +115,6 @@ foreach ($arr as $key => $value) {
     echo "<td>$diskTemp" . "°C</td>" . PHP_EOL;
     echo "<td>$powerDraw" . " Watts</td>" . PHP_EOL;
     echo "</tr>";
-
-
 }
 echo "</table>";
 echo "</div>";
