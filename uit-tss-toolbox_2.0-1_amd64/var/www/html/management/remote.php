@@ -17,8 +17,8 @@ echo "</tr>";
 
 dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY date DESC");
 foreach ($arr as $key => $value) {
-    $tagnumber = $row["tagnumber"];
-    $lastJob = $row["date"];
+    $tagnumber = $value["tagnumber"];
+    $lastJob = $value["date"];
 
 	echo "<tr>";
 	echo "<td>$tagnumber</td>";
