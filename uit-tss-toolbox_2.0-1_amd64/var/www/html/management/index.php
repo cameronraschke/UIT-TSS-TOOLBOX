@@ -16,7 +16,6 @@
         <div class='pagetitle'>
                 <h2>Welcome to Plutomail Web, <?php echo("$login_user"); ?>!</h2>
         </div>
-        ?>
         <h1>UIT-TSS-Toolbox Management</h1>
         <br>
         <h3><a href="remote.php">Live Overview</a></h3>
