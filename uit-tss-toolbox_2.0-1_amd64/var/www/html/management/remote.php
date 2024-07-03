@@ -9,7 +9,7 @@ include('mysql/mysql-functions');
 <h3>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h3>
 
 <?php
-dbSelect("CALL selectRemoteStats")
+dbSelect("CALL selectRemoteStats");
 foreach ($arr as $key => $value) {
     $present = $value['Present Laptops'];
     echo "<table>";
