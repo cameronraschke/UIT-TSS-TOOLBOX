@@ -1,27 +1,27 @@
 <?php
 #login.php
 session_start();
-include('/var/www/html/mysql.php');
+include('mysql/mysql-functions');
 
 $uuid = md5(rand(100000000,999999999));
 unset($_SESSION['uuid']);
 $_SESSION['uuid'] = $uuid;
 
 unset($username);
-$username = test_input($_POST['username']);
+$username = ($_POST['username']);
 
 if (isset($_POST['username'])) {
-	$sql = "INSERT INTO logins (user, date, uuid, ip, hostname, uri) VALUES ('$username', '$time', '".$_SESSION['uuid']."', '".$_SERVER['REMOTE_ADDR']."', '".$_SERVER['REMOTE_HOST']."', '".$_SERVER['REQUEST_URI']."')";
-	$results = $conn->query($sql);
+	#$sql = "INSERT INTO logins (user, date, uuid, ip, hostname, uri) VALUES ('$username', '$time', '".$_SESSION['uuid']."', '".$_SERVER['REMOTE_ADDR']."', '".$_SERVER['REMOTE_HOST']."', '".$_SERVER['REQUEST_URI']."')";
+	#$results = $conn->query($sql);
 
-	$sql = "SELECT email FROM users WHERE email = '$username'";
-	$results = $conn->query($sql);
-	while ($row = $results->fetch_assoc()) {
-		if ($row['email'] == $username) {
-			$_SESSION['login_user'] = $_POST['username'];
-			header("Location: https://web.plutomail.io/two-factor.php");
-		}
-	}
+	// $sql = "SELECT email FROM users WHERE email = '$username'";
+	// $results = $conn->query($sql);
+	// while ($row = $results->fetch_assoc()) {
+	// 	if ($row['email'] == $username) {
+	// 		$_SESSION['login_user'] = $_POST['username'];
+	 		header("Location: index.php");
+	// 	}
+	// }
 }
 ?>
 
