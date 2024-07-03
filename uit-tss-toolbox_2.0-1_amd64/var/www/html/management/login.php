@@ -18,7 +18,7 @@ if (isset($_POST['username'])) {
 	// $results = $conn->query($sql);
 	// while ($row = $results->fetch_assoc()) {
 	// 	if ($row['email'] == $username) {
-	// 		$_SESSION['login_user'] = $_POST['username'];
+	 		$_SESSION['login_user'] = $_POST['username'];
 	 		header("Location: index.php");
 	// 	}
 	// }
