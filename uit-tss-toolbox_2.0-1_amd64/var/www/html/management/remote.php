@@ -121,5 +121,10 @@ foreach ($arr as $key => $value) {
 echo "</table>";
 echo "</div>";
 ?>
+    <script>
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
+    </script>
     </body>
 </html>
