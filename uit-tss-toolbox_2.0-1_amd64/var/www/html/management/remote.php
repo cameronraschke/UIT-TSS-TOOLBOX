@@ -98,9 +98,9 @@ foreach ($arr as $key => $value) {
     echo "<td>$status</td>" . PHP_EOL;
     echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
     echo "<td>$batteryStatus</td>" . PHP_EOL;
-    echo "<td>$cpuTemp</td>" . "°C" . PHP_EOL;
-    echo "<td>$diskTemp</td>" . "°C" . PHP_EOL;
-    echo "<td>$powerDraw</td>" . " Watts" . PHP_EOL;
+    echo "<td>$cpuTemp" . "°C</td>" . PHP_EOL;
+    echo "<td>$diskTemp" . "°C</td>" . PHP_EOL;
+    echo "<td>$powerDraw" . " Watts</td>" . PHP_EOL;
     echo "</tr>";
 
 
