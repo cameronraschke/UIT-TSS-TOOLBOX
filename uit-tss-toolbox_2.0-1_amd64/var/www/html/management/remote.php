@@ -84,11 +84,9 @@ while (true) {
     }
 
     echo "</table>";
-sleep 5
+sleep(5);
 }
 ?>
 
     </body>
 </html>
-
-?>
