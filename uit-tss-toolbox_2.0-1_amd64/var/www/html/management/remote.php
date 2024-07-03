@@ -38,54 +38,51 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     <th>Total Power Draw From Wall</th>
                 </tr>
 <?php
-while (true) {
-    dbSelect("CALL selectRemoteStats");
-    foreach ($arr as $key => $value) {
-        $presentLaptops = $value['Present Laptops'];
-        $avgBatteryCharge = $value['Avg. Battery Charge'];
-        $avgCPUTemp = $value['Avg. CPU Temp'];
-        $avgDiskTemp = $value['Avg. Disk Temp'];
-        $avgRealPowerDraw = $value['Avg. Real Power Draw'];
-        $totalRealPowerDraw = $value['Real Power Draw'];
-        $totalWallPowerDraw = $value['Power Draw from Wall'];
+dbSelect("CALL selectRemoteStats");
+foreach ($arr as $key => $value) {
+    $presentLaptops = $value['Present Laptops'];
+    $avgBatteryCharge = $value['Avg. Battery Charge'];
+    $avgCPUTemp = $value['Avg. CPU Temp'];
+    $avgDiskTemp = $value['Avg. Disk Temp'];
+    $avgRealPowerDraw = $value['Avg. Real Power Draw'];
+    $totalRealPowerDraw = $value['Real Power Draw'];
+    $totalWallPowerDraw = $value['Power Draw from Wall'];
 
 
-        echo "<tr>" . PHP_EOL;
-        echo "<td>$presentLaptops</td>" . PHP_EOL;
-        echo "<td>$avgBatteryCharge</td>" . PHP_EOL;
-        echo "<td>$avgCPUTemp</td>" . PHP_EOL;
-        echo "<td>$avgDiskTemp</td>" . PHP_EOL;
-        echo "<td>$avgRealPowerDraw</td>" . PHP_EOL;
-        echo "<td>$totalRealPowerDraw</td>" . PHP_EOL;
-        echo "<td>$totalWallPowerDraw</td>" . PHP_EOL;
-        echo "</tr>" . PHP_EOL;
-        echo "</table>";
-        echo "</div>";
-    }
+    echo "<tr>" . PHP_EOL;
+    echo "<td>$presentLaptops</td>" . PHP_EOL;
+    echo "<td>$avgBatteryCharge</td>" . PHP_EOL;
+    echo "<td>$avgCPUTemp</td>" . PHP_EOL;
+    echo "<td>$avgDiskTemp</td>" . PHP_EOL;
+    echo "<td>$avgRealPowerDraw</td>" . PHP_EOL;
+    echo "<td>$totalRealPowerDraw</td>" . PHP_EOL;
+    echo "<td>$totalWallPowerDraw</td>" . PHP_EOL;
+    echo "</tr>" . PHP_EOL;
+    echo "</table>";
+    echo "</div>";
+}
 
-    echo "<br><br>";
-    echo "<div class='styled-table'>";
-    echo "<table style='border-collapse: collapse' border='1'>";
+echo "<br><br>";
+echo "<div class='styled-table'>";
+echo "<table style='border-collapse: collapse' border='1'>";
+echo "<tr>";
+echo "<th>Tagnumber</th>";
+echo "<th>Last Job Data</th>";
+echo "</tr>";
+
+dbSelect("SELECT * FROM remote ORDER BY date DESC");
+foreach ($arr as $key => $value) {
+    $tagnumber = $value["tagnumber"];
+    $lastJob = $value["date"];
+
     echo "<tr>";
-    echo "<th>Tagnumber</th>";
-    echo "<th>Last Job Data</th>";
+    echo "<td>$tagnumber</td>" . PHP_EOL;
+    echo "<td>$lastJob</td>" . PHP_EOL;
     echo "</tr>";
 
-    dbSelect("SELECT * FROM remote ORDER BY date DESC");
-    foreach ($arr as $key => $value) {
-        $tagnumber = $value["tagnumber"];
-        $lastJob = $value["date"];
-
-        echo "<tr>";
-        echo "<td>$tagnumber</td>" . PHP_EOL;
-        echo "<td>$lastJob</td>" . PHP_EOL;
-        echo "</tr>";
-
-    }
-
-    echo "</table>";
-sleep(5);
 }
+
+echo "</table>";
 ?>
 
     </body>
