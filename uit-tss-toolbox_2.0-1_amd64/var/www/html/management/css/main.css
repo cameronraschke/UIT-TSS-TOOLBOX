@@ -20,7 +20,7 @@
 	top: 10%;
 	left: 35%;
     	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-	border-bottom: 2px solid #BE77D6;
+	border-bottom: 2px solid #C8102E;
 	margin: 2% 2% 2% 2%;
 }
 .billingform1 {
@@ -31,7 +31,7 @@
 	top: 17%;
 	left: 5%;
     	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-	border-bottom: 2px solid #BE77D6;
+	border-bottom: 2px solid #C8102E;
 	margin: 2% 2% 2% 2%;
 }
 
@@ -41,7 +41,7 @@
     	border-collapse: collapse;
 }
 .styled-table thead tr {
-    background-color: #BE77D6;
+    background-color: #C8102E;
     color: #ffffff;
     text-align: left;
 }
@@ -98,10 +98,10 @@
 	position: relative;
 	width: 100%;
 	top: 0%;
-	background-color: #EBDDEF;
+	background-color: #FFF9D9;
 	padding: 1% 5%;
     	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-	border-bottom: 2px solid #BE77D6;
+	border-bottom: 2px solid #C8102E;
 }
 
 .menubar button {
