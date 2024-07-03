@@ -39,6 +39,7 @@
 	position: relative;
 	width: 100%;
     	border-collapse: collapse;
+		text-align: center
 }
 .styled-table thead tr {
     background-color: #C8102E;
