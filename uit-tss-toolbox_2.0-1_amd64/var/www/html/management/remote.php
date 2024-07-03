@@ -9,32 +9,39 @@ include('mysql/mysql-functions');
 <h3>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h3>
 
 <?php
+dbSelect("CALL selectRemoteStats")
+foreach ($arr as $key => $value) {
+    $present = $value['Present Laptops'];
+    echo "<table>";
+    echo "<tr>";
+    echo "<th>Total Laptops Present</th>";
+    echo "</tr>";
+
+    echo "<tr>";
+    echo "<td>$present</td>" . PHP_EOL;
+    echo "</tr>";
+    echo "</table>";
+}
+
+echo "<br><br>";
 echo "<table style='border-collapse: collapse' border='1'>";
 echo "<tr>";
 echo "<th>Tagnumber</th>";
 echo "<th>Last Job Data</th>";
 echo "</tr>";
 
-dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY date DESC");
+dbSelect("SELECT * FROM remote ORDER BY date DESC");
 foreach ($arr as $key => $value) {
     $tagnumber = $value["tagnumber"];
     $lastJob = $value["date"];
 
 	echo "<tr>";
-	echo "<td>$tagnumber</td>";
-	echo "<td>$lastJob</td>";
+	echo "<td>$tagnumber</td>" . PHP_EOL;
+	echo "<td>$lastJob</td>" . PHP_EOL;
 	echo "</tr>";
 
 }
 
-echo "</table>";
-
-echo "<table>";
-echo "<th>Total Due</th>";
-echo "<br>";
-echo "<tr>";
-echo "<td><b style='color: red;'>bruh<b></td>";
-echo "</tr>";
 echo "</table>";
 
 echo "</body></html>";
