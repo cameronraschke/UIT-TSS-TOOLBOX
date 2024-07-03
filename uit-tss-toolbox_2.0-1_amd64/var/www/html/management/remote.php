@@ -27,14 +27,32 @@ $time = $dt->format('Y-m-d H:i:s.v');
 <?php
 dbSelect("CALL selectRemoteStats");
 foreach ($arr as $key => $value) {
-    $present = $value['Present Laptops'];
-    echo "<table>";
+    $presentLaptops = $value['Present Laptops'];
+    $avgBatteryCharge = $value['Avg. Battery Charge'];
+    $avgCPUTemp = $value['Avg. CPU Temp'];
+    $avgDiskTemp = $value['Avg. Disk Temp'];
+    $avgRealPowerDraw = $value['Avg. Real Power Draw'];
+    $totalRealPowerDraw = $value['Real Power Draw'];
+    $totalWallPowerDraw = $value['Power Draw from Wall'];
+    echo "<table style='border-collapse: collapse' border='1'>";
     echo "<tr>";
     echo "<th>Total Laptops Present</th>";
+    echo "<th>Average Battery Charge</th>";
+    echo "<th>Average CPU Temp</th>";
+    echo "<th>Average Disk Temp</th>";
+    echo "<th>Average Real Power Draw</th>";
+    echo "<th>Total Real Power Draw</th>";
+    echo "<th>Total Power Draw From Wall</th>";
     echo "</tr>";
 
     echo "<tr>";
-    echo "<td>$present</td>" . PHP_EOL;
+    echo "<td>$presentLaptops</td>" . PHP_EOL;
+    echo "<td>$avgBatteryCharge</td>" . PHP_EOL;
+    echo "<td>$avgCPUTemp</td>" . PHP_EOL;
+    echo "<td>$avgDiskTemp</td>" . PHP_EOL;
+    echo "<td>$avgRealPowerDraw</td>" . PHP_EOL;
+    echo "<td>$totalRealPowerDraw</td>" . PHP_EOL;
+    echo "<td>$totalWallPowerDraw</td>" . PHP_EOL;
     echo "</tr>";
     echo "</table>";
 }
