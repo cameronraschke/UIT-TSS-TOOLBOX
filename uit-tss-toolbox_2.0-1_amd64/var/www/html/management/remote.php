@@ -33,7 +33,7 @@ echo "<table>";
 echo "<th>Total Due</th>";
 echo "<br>";
 echo "<tr>";
-echo "<td><b style='color: red;'>\$$due_sum<b></td>";
+echo "<td><b style='color: red;'>bruh<b></td>";
 echo "</tr>";
 echo "</table>";
 
