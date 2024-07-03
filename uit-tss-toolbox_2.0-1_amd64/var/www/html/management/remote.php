@@ -82,7 +82,7 @@ foreach ($arr as $key => $value) {
 
 dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY present DESC");
 foreach ($arr as $key => $value) {
-    $tagNum = $value["tagNum"];
+    $tagNum = $value["tagnumber"];
     $lastHeard = $value["present"];
     $task = $value["task"];
     $status = $value["status"];
