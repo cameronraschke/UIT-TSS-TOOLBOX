@@ -18,6 +18,7 @@ if (isset($_POST['username'])) {
 	// $results = $conn->query($sql);
 	// while ($row = $results->fetch_assoc()) {
 	// 	if ($row['email'] == $username) {
+            setcookie ('authorized', 'yes', time() + (600), "/");
 	 		$_SESSION['login_user'] = $_POST['username'];
 	 		header("Location: index.php");
 	// 	}
@@ -44,7 +45,7 @@ if (isset($_POST['username'])) {
                 top: 10%;
                 left: 35%;
                 box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-                border-bottom: 2px solid #BE77D6;
+                border-bottom: 2px solid #C8102E;
                 margin: 5% 2% 2% 2%;
             padding: 1% 1% 1% 1%;
             text-align: center;
@@ -59,7 +60,7 @@ if (isset($_POST['username'])) {
                 top: 10%;
                 left: 35%;
                 box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-                border-bottom: 2px solid #BE77D6;
+                border-bottom: 2px solid #C8102E;
                 margin: 2% 2% 2% 2%;
         }
 
