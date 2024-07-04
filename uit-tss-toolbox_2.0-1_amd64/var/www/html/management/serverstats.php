@@ -20,7 +20,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle'><h1>Server Stats Table</h1></div>
+        <div class='pagetitle'><h1>Server Stats Table (Date Report)</h1></div>
         <div class='pagetitle'><h2>The server stats table shows aggregated information about every client and job.</h2></div>
         <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT date AS result FROM serverstats ORDER BY date DESC LIMIT 1"); echo $result; ?></h3></div>
 
@@ -62,7 +62,7 @@ foreach ($arr as $key => $value) {
         </table>
         </div>
         <div class="uit-footer">
-                <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
+            <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
         </div>
     </body>
 </html>

@@ -219,7 +219,7 @@ echo "</div>";
         }
     </script>
     <div class="uit-footer">
-            <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
+        <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
     </div>
     </body>
 </html>
