@@ -16,6 +16,7 @@
         <div class='pagetitle' style="text-align:center;"><h1 style="margin:auto;">Laptop Management Site</h1></div>
         <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
         <div class='page-content'><h3><a href="remote.php">Remote Management and Live Overview</a></h3></div>
+        <div class='page-content'><h3><a href="locations.php">Laptop Locations and Status</a></h3></div>
         <div class='page-content'><h3><a href="serverstats.php">Overview of All Laptops</a></h3></div>
         <div class='page-content'><h3><a href="clientstats.php">Per-Client Overview (WIP)</a></h3></div>
         <div class='page-content'><h3><a href="clientstats.php">Generate and Download Reports (WIP)</a></h3></div>
