@@ -71,35 +71,54 @@ foreach ($arr as $key => $value) {
 <table style='border-collapse: collapse' border='1'>
     <thead>
         <tr>
-        <th>Update Location</th>
+        <th>Location</th>
+        <th>Pending Job</th>
+        <th>Submit</th>
         </tr>
     </thead>
     <tbody>
+        <form action="#" method="post">
         <tr>
-        <td>
-            <form name='location' method='post'>
-            <select name='location' onchange='this.form.submit()'>
-            <option>--Please Select--</option>
-<?php
-if (isset($_POST['location'])) {
-    dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location = '" . $_POST['location'] . "' GROUP BY tagnumber)");
-    foreach ($arr as $key => $value) {
-        dbUpdateRemote($value["result"], "task", "update");
-    }
-    unset($_POST['location']);
-}
-    dbSelect("SELECT location AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE location IS NOT NULL GROUP BY location) ORDER BY location ASC");
-    foreach ($arr as $key => $value) {
-        $location = $value["result"];
-        echo "<option value='$location'>$location</option>" . PHP_EOL;
-    }
-?>
-        </select>
-        </form>
-        </td>
+            <td>
+                <select name="location" id="location">
+                <option>--Please Select--</option>
+                <?php
+                    dbSelect("SELECT location AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE location IS NOT NULL GROUP BY location) ORDER BY location ASC");
+                    foreach ($arr as $key => $value) {
+                        $location = $value["result"];
+                        echo "<option value='$location'>$location</option>" . PHP_EOL;
+                    }
+                ?>
+                </select>
+            </td>
+            <td>
+                <select name="location-action" id="location-action">
+                    <option value='update'>Update</option>
+                    <option value='nvmeErase'>Erase Only</option>
+                    <option value='hpEraseAndClone'>Erase + Clone</option>
+                    <option value='findmy'>Play Sound</option>
+                    <option value=' '>Clear Pending Tasks</option>
+                </select>
+            </td>
+            <td><input type="submit" value="Submit"></td>
         </tr>
+        </form>
     </tbody>
 </table>
+
+<?php
+if (isset($_POST['location']) && isset($_POST['location-action'])) {
+    echo $_POST['location'] . ", " . $_POST['location-action'];
+    $location = $_POST['location'];
+    $task = $_POST['location-action'];
+    dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location = '" . $location . "' GROUP BY tagnumber)");
+    foreach ($arr as $key => $value) {
+        dbUpdateRemote($value["result"], "task", $task);
+    }
+    unset($_POST['location']);
+    unset($_POST['location-action']);
+}
+?>
 
 </div>
 
