@@ -19,7 +19,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         unset($_POST['password']);
         header("Location: index.php");
     } else {
-        setcookie ('authorized', 'no', time() - (3600)), "/");
+        setcookie ('authorized', 'no', time() - (3600), "/");
         unset($_SESSION['login_user']);
         unset($_POST('username'));
         unset($_POST['password']);
