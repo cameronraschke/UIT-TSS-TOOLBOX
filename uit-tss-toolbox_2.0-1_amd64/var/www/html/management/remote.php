@@ -22,7 +22,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
             <br>
         </div>
         <div class='pagetitle'>
-        <h3>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h3>
+        <h3>Remote Management</h3>
+        <h4>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h3>
         </div>
         <h4>Last updated: <?php echo $time; ?></h4>
 
@@ -101,7 +102,7 @@ foreach ($arr as $key => $value) {
                     <option value=' '>Clear Pending Jobs</option>
                 </select>
             </td>
-            <td><input type="submit" value="Submit"></td>
+            <td><input class="styled-form" type="submit" value="Submit"></td>
         </tr>
         </form>
     </tbody>
