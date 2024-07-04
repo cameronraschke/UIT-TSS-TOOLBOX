@@ -141,10 +141,9 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 <?php
 if (isset($_POST['task'])) {
     $arrTask = explode('|', $_POST['task']);
-    if (filter($arrTask[1]) == 0) {
-        echo "<p>Tagnumber <b>" . $arrTask[0] . "</b> is scheduled to: <b>" . $arrTask[1] . "</b></p>";
+    if (filter($arrTask[0]) == 0 && filter($arrTask[1]) == 0) {
+        dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
     }
-    dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
     unset($_POST['task']);
 }
 dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY task DESC, status ASC, tagnumber DESC, present DESC");

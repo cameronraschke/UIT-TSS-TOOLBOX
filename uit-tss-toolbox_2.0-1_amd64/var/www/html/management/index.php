@@ -19,7 +19,7 @@
         <div class='page-content'><h3><a href="locations.php">Laptop Locations and Status</a></h3></div>
         <div class='page-content'><h3><a href="serverstats.php">Overview of All Laptops</a></h3></div>
         <div class='page-content'><h3><a href="clientstats.php">Per-Client Overview (WIP)</a></h3></div>
-        <div class='page-content'><h3><a href="clientstats.php">Generate and Download Reports (WIP)</a></h3></div>
+        <div class='page-content'><h3><a href="reports.php">Generate and Download Reports (WIP)</a></h3></div>
 
         <div class="uit-footer">
             <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
