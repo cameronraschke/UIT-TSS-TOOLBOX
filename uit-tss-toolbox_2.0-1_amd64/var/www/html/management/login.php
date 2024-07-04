@@ -27,8 +27,8 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         <title>TechComm Laptop Managment</title>
     </head>
     <body>
-        <div class="login-title">
-            <h1>TechComm Laptop Management Login</h1>
+        <div class="login-title" style="text-align:center;">
+            <h1 style="margin:auto;">TechComm Laptop Management Login</h1>
         </div>
         <div class="login-form">
             <form method="post" class="styled-form">
