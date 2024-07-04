@@ -71,7 +71,7 @@ foreach ($arr as $key => $value) {
 <table id="myTable" style='border-collapse: collapse' border='1'>
     <thead>
         <tr>
-        <th>Location</th>
+        <th>Update Location</th>
         </tr>
     </thead>
     <tbody>
