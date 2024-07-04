@@ -94,7 +94,7 @@ foreach ($arr as $key => $value) {
             </td>
             <td>
                 <select name="location-action" id="location-action">
-                    <option value=' '>No Task</option>
+                    <option class="dropdown-content" value=' '>No Task</option>
                     <option value='update'>Update</option>
                     <option value='nvmeErase'>Erase Only</option>
                     <option value='hpEraseAndClone'>Erase + Clone</option>
