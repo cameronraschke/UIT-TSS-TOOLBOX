@@ -28,6 +28,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='styled-table'>
             <table style='border-collapse: collapse' border='1'>
+                <thead>
                 <tr>
                     <th>Total Laptops Present</th>
                     <th>Average Battery Charge</th>
@@ -37,6 +38,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     <th>Total Actual Power Draw</th>
                     <th>Total Power Draw From Wall</th>
                 </tr>
+                </thead>
 <?php
 dbSelect("CALL selectRemoteStats");
 foreach ($arr as $key => $value) {
@@ -48,7 +50,7 @@ foreach ($arr as $key => $value) {
     $totalRealPowerDraw = $value['Real Power Draw'];
     $totalWallPowerDraw = $value['Power Draw from Wall'];
 
-
+    echo "<tbody>";
     echo "<tr>" . PHP_EOL;
     echo "<td>$presentLaptops</td>" . PHP_EOL;
     echo "<td>$avgBatteryCharge</td>" . PHP_EOL;
@@ -58,25 +60,31 @@ foreach ($arr as $key => $value) {
     echo "<td>$totalRealPowerDraw</td>" . PHP_EOL;
     echo "<td>$totalWallPowerDraw</td>" . PHP_EOL;
     echo "</tr>" . PHP_EOL;
+    echo "</tbody>";
     echo "</table>";
     echo "</div>";
 }
 ?>
 
-        <br><br>
+<br><br>
+<div class='styled-form2'>
+    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
+</div>
         <div class='styled-table'>
-        <table style='border-collapse: collapse' border='1'>
-        <tr>
-        <th>Tagnumber</th>
-        <th>Last Heard</th>
-        <th>Pending Job</th>
-        <th>Current Status</th>
-        <th>Battery Charge</th>
-        <th>Battery Status</th>
-        <th>CPU Temp</th>
-        <th>Disk Temp</th>
-        <th>Actual Power Draw</th>
-        </tr>
+        <table id="myTable" style='border-collapse: collapse' border='1'>
+        <thead>
+            <tr>
+            <th>Tagnumber</th>
+            <th>Last Heard</th>
+            <th>Pending Job</th>
+            <th>Current Status</th>
+            <th>Battery Charge</th>
+            <th>Battery Status</th>
+            <th>CPU Temp</th>
+            <th>Disk Temp</th>
+            <th>Actual Power Draw</th>
+            </tr>
+        </thead>
 
 <?php
 if (isset($_POST['task'])) {
@@ -97,6 +105,7 @@ foreach ($arr as $key => $value) {
     $diskTemp = $value["disk_temp"];
     $powerDraw = $value["watts_now"];
 
+    echo "<tbody>";
     echo "<tr>";
     if ($status != "waiting for task") {
         echo "<td>Working: <b>$tagNum</b></td>" . PHP_EOL;
@@ -120,6 +129,7 @@ foreach ($arr as $key => $value) {
     echo "<td>$diskTemp" . "°C</td>" . PHP_EOL;
     echo "<td>$powerDraw" . " Watts</td>" . PHP_EOL;
     echo "</tr>";
+    echo "</tbody>";
 }
 echo "</table>";
 echo "</div>";
@@ -127,6 +137,28 @@ echo "</div>";
     <script>
         if ( window.history.replaceState ) {
             window.history.replaceState( null, null, window.location.href );
+        }
+    </script>
+
+    <script>
+        function myFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+            }
+        }
         }
     </script>
     </body>

@@ -14,12 +14,12 @@
         </p>
         <br>
         <div class='pagetitle'>
-                <h2>Welcome to Plutomail Web, <?php echo("$login_user"); ?>!</h2>
+                <h2>Welcome to the Laptop Managment Site, <?php echo("$login_user"); ?>!</h2>
         </div>
         <h1>UIT-TSS-Toolbox Management</h1>
         <br>
         <h3><a href="remote.php">Live Overview</a></h3>
-        <h3><a href="serverstats.php">Overview of All Laptops</a></h3>
-        <h3><a href="clientstats.php">Per-Client Overview</a></h3>
+        <h3><a href="serverstats.php">Overview of All Laptops (WIP)</a></h3>
+        <h3><a href="clientstats.php">Per-Client Overview (WIP)</a></h3>
     </body>
 </html>
