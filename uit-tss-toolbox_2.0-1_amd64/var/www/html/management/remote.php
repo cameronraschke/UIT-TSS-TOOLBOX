@@ -160,7 +160,7 @@ foreach ($arr as $key => $value) {
 
     echo "<tbody>";
     echo "<tr>";
-    if ($status != "waiting for job" || $status != "waiting for task") {
+    if ($status != "waiting for job") {
         echo "<td>Working: <b>$tagNum</b></td>" . PHP_EOL;
     } else {
         echo "<td>$tagNum</td>" . PHP_EOL;
