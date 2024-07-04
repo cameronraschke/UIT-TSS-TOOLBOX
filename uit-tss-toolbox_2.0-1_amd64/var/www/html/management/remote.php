@@ -90,7 +90,7 @@ foreach ($arr as $key => $value) {
             </td>
             <td>
                 <select name="location-action" id="location-action">
-                    <option value=' '>No Task</option>
+                    <option value=' '>No Job</option>
                     <option value='update'>Update</option>
                     <option value='nvmeErase'>Erase Only</option>
                     <option value='hpEraseAndClone'>Erase + Clone</option>
@@ -169,7 +169,7 @@ foreach ($arr as $key => $value) {
     echo "<td>$lastHeard</td>" . PHP_EOL;
     echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
     if (filter($task) == 1) {
-        echo "<option value='$tagNum|NULL'>No Task</option>";
+        echo "<option value='$tagNum|NULL'>No Job</option>";
     } else {
         echo "<option value='$tagNum|$task'>$task</option>";
     }
