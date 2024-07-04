@@ -29,7 +29,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Laptop Count</th>
+                    <th>Computer Count</th>
                     <th>Battery Health</th>
                     <th>Disk Health</th>
                     <th>Total Jobs</th>
@@ -43,27 +43,16 @@ $time = $dt->format('Y-m-d H:i:s.v');
 <?php
 dbSelect("SELECT * from serverstats ORDER BY date DESC");
 foreach ($arr as $key => $value) {
-    $srvDate = $value['date'];
-    $srvLaptopCount = $value['laptop_count'];
-    $srvBatteryHealth = $value['battery_health'];
-    $srvDiskHealth = $value['disk_health'];
-    $srvTotalJobs = $value['all_jobs'];
-    $srvAvgCloneTime = $value['clone_avgtime'];
-    $srvAvgNvmeEraseTime = $value['nvme_erase_avgtime'];
-    $srvAvgHddEraseTime = $value['hdd_erase_avgtime'];
-    $srvLastImgUpdate = $value['last_image_update'];
-
-
     echo "<tr>" . PHP_EOL;
-    echo "<td>$srvDate</td>" . PHP_EOL;
-    echo "<td>$srvLaptopCount</td>" . PHP_EOL;
-    echo "<td>$srvBatteryHealth</td>" . PHP_EOL;
-    echo "<td>$srvDiskHealth</td>" . PHP_EOL;
-    echo "<td>$srvTotalJobs</td>" . PHP_EOL;
-    echo "<td>$srvAvgCloneTime</td>" . PHP_EOL;
-    echo "<td>$srvAvgNvmeEraseTime</td>" . PHP_EOL;
-    echo "<td>$srvAvgHddEraseTime</td>" . PHP_EOL;
-    echo "<td>$srvLastImgUpdate</td>" . PHP_EOL;
+    echo "<td>" . $value['date'] . "</td>" . PHP_EOL;
+    echo "<td>" . $value['laptop_count'] . "</td>" . PHP_EOL;
+    echo "<td>" . $value['battery_health'] . "%</td>" . PHP_EOL;
+    echo "<td>" . $value['disk_health'] . "%</td>" . PHP_EOL;
+    echo "<td>" . $value['all_jobs'] . "</td>" . PHP_EOL;
+    echo "<td>" . $value['clone_avgtime'] . " minutes</td>" . PHP_EOL;
+    echo "<td>" . $value['nvme_erase_avgtime'] . " minutes</td>" . PHP_EOL;
+    echo "<td>" . $value['hdd_erase_avgtime'] . " minutes</td>" . PHP_EOL;
+    echo "<td>" . $value['last_image_update'] . "</td>" . PHP_EOL;
     echo "</tr>" . PHP_EOL;
 
 }
