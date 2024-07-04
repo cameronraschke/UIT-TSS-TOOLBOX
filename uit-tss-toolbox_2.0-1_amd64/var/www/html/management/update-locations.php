@@ -25,26 +25,89 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
 
         <div class='location-form'>
-        <form method="post">
         <?php
-        if ($_POST['tagnumber']) {
-            echo "<label for='tagnumber'>Tag Number</label>";
-            echo "<input type='text' id='tagnumber' name='tagnumber'>";
-            echo "<input type='submit' value='Search'>";
-            echo "<label for='serial'>Serial Number</label>";
-            echo "<input type='text' id='serial' name='serial' value='$systemSerial' readonly>";
-            echo "<br>";
-            echo "<label for='location'>Location</label>";
-            echo "<input type='text' id='location' name='location'>";
+        if (!empty($_POST['tagnumber'])) {
+            dbSelect("SELECT * FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
+            if (!empty($arr)) {
+                foreach ($arr as $key => $value) {
+                    echo "<form method='post'>" . PHP_EOL;
+                    echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
+                    echo "<input type='text' id='tagnumber' name='tagnumber' value='" . $_POST['tagnumber'] . "' readonly>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
+                    echo "<label for='serial'>Serial Number</label>";
+                    echo "<br>" . PHP_EOL;
+                    echo "<input type='text' id='serial' name='serial' value='" . $value['system_serial'] . "' readonly>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
+                    echo "<label for='department'>Department</label>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
+                    echo "<select name='department' id='department'>" . PHP_EOL;
+                    echo "<option value='techComm'>Tech Comms (Default)</option>" . PHP_EOL;
+                    echo "<option value='property'>Property Management</option>" . PHP_EOL;
+                    echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
+                    echo "</select>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
+                    echo "<label for='location'>Location</label>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
+                    echo "<input type='text' id='location' name='location'>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
+                    echo "<label for='note'>Problem</label>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
+                    echo "<input type='text' id='note' name='note'>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
+                    echo "<input type='submit' value='Update Location'>" . PHP_EOL;
+                    echo "</form>" . PHP_EOL;
+                }
+            } else {
+                echo "<form method='post'>" . PHP_EOL;
+                echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
+                echo "<br>" . PHP_EOL;
+                echo "<input type='text' id='tagnumber' name='tagnumber' value='" . $_POST['tagnumber'] . "' readonly>" . PHP_EOL;
+                echo "<br>" . PHP_EOL;
+                echo "<label for='serial'>Serial Number</label>";
+                echo "<br>" . PHP_EOL;
+                echo "<input type='text' id='serial' name='serial'" . PHP_EOL;
+                echo "<br>" . PHP_EOL;
+                echo "<label for='department'>Department</label>" . PHP_EOL;
+                echo "<br>" . PHP_EOL;
+                echo "<select name='department' id='department'>" . PHP_EOL;
+                echo "<option value='techComm'>Tech Comms (Default)</option>" . PHP_EOL;
+                echo "<option value='property'>Property Management</option>" . PHP_EOL;
+                echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
+                echo "</select>" . PHP_EOL;
+                echo "<br>" . PHP_EOL;
+                echo "<label for='location'>Location</label>" . PHP_EOL;
+                echo "<br>" . PHP_EOL;
+                echo "<input type='text' id='location' name='location'>" . PHP_EOL;
+                echo "<br>" . PHP_EOL;
+                echo "<label for='note'>Problem</label>" . PHP_EOL;
+                echo "<br>" . PHP_EOL;
+                echo "<input type='text' id='note' name='note'>" . PHP_EOL;
+                echo "<br>" . PHP_EOL;
+                echo "<input type='submit' value='Update Location'>" . PHP_EOL;
+                echo "</form>" . PHP_EOL;
+            }
+            unset($_POST);
         } else {
-            echo "<label for='tagnumber'>Tag Number</label>";
+            echo "<form method='post'>" . PHP_EOL;
+            echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
+            echo "<br>" . PHP_EOL;
             echo "<input type='text' id='tagnumber' name='tagnumber'>";
+            echo "<br>" . PHP_EOL;
+            echo "<p>Please enter the status:</p>" . PHP_EOL;
+            echo "<input type='radio' id='status' name='status' value='0'>" . PHP_EOL;
+            echo "<label for='status'>Working</label>" . PHP_EOL;
+            echo "<br>" . PHP_EOL;
+            echo "<input type='radio' id='status' name='status' value='1'>" . PHP_EOL;
+            echo "<label for='status'>Broken</label>" . PHP_EOL;
+            echo "<br>" . PHP_EOL;
             echo "<input type='submit' value='Search'>";
-            echo "<br>";
+            echo "<br>" . PHP_EOL;
+            echo "</form>" . PHP_EOL;
         }
 
         ?>
-        </form>
+        
         </div>
     <div class="uit-footer">
         <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
