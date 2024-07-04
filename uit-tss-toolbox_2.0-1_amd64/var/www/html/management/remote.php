@@ -141,7 +141,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 <?php
 if (isset($_POST['task'])) {
     $arrTask = explode('|', $_POST['task']);
-    if (filter($arrTask[0]) == 0 && filter($arrTask[1]) == 0) {
+    if (filter($arrTask[0]) == 0) {
         dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
     }
     unset($_POST['task']);
