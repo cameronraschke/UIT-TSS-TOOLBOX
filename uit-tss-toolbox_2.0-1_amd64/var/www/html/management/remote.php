@@ -22,7 +22,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='pagetitle'><h1>Remote Management</h1></div>
         <div class='pagetitle'><h2>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h2></div>
-        <div class='pagetitle'><h4>Last updated: <?php echo $time; ?></h4></div>
+        <div class='pagetitle'><h3>Last updated: <?php echo $time; ?></h3></div>
 
         <div class='styled-table'>
             <table>

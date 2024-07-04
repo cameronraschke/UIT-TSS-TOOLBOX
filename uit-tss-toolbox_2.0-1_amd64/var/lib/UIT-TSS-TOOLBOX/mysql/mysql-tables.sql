@@ -276,3 +276,23 @@ ALTER TABLE remote
     MODIFY COLUMN cpu_temp TINYINT DEFAULT NULL AFTER status,
     MODIFY COLUMN disk_temp TINYINT DEFAULT NULL AFTER cpu_temp,
     MODIFY COLUMN watts_now SMALLINT DEFAULT NULL AFTER disk_temp;
+
+
+DROP table IF EXISTS logins;
+CREATE TABLE IF NOT EXISTS logins (
+    username VARCHAR(64) NOT NULL PRIMARY KEY,
+    password VARCHAR(128) NOT NULL
+);
+
+INSERT INTO logins
+    (
+        username,
+        password
+    )
+    VALUES
+    ('caraschk', 'UHouston!'),
+    ('mrharvey', 'UHouston!'),
+    ('ama', 'UHouston!'),
+    ('kvu', 'UHouston!'),
+    ('rcarroyo', 'UHouston!'),
+    ('isdavis', 'UHouston!');

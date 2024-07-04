@@ -3,12 +3,33 @@
 	padding: 0;
 	box-sizing: border-box;
 	font-size: 100%;
-    	font-family: sans-serif;
+    font-family: sans-serif;
 }
 
 table {
 	border-collapse: collapse;
 	border-width: 0;
+}
+
+.styled-form {
+	position: relative;
+	width: 100%;
+	margin: 5px 5px 5px 5px;
+	padding: 20px 20px;
+}
+.styled-form input[type=text] {
+	padding: 12px 20px;
+	margin: 2% 10% 2% 10%;
+	width: 80%;
+	border: 1px solid gray;
+}
+.styled-form input[type=text]:focus {
+	border: 1px solid black;
+}
+.styled-form input[type=submit] {
+	padding: 8px 10px;
+	width: 25%;
+	margin: 8% 65% 5% 35%;
 }
 
 .styled-form2 input[type=submit] {
@@ -21,29 +42,30 @@ table {
 	border: 1px solid gray;
 }
 
-
-.billingtable1,
-.billingtable2 {
-	position: relative;
+.login-form {
 	display: flex;
-	width: 50%;
+	position: relative;
+	width: 25%;
 	height: auto;
 	top: 10%;
 	left: 35%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 	border-bottom: 2px solid #C8102E;
 	margin: 2% 2% 2% 2%;
 }
-.billingform1 {
+
+.login-title {
 	display: flex;
-	position: absolute;
+	position: relative;
 	width: 25%;
 	height: auto;
-	top: 17%;
-	left: 5%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+	top: 10%;
+	left: 35%;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 	border-bottom: 2px solid #C8102E;
-	margin: 2% 2% 2% 2%;
+	margin: 5% 2% 2% 2%;
+	padding: 1% 1% 1% 1%;
+	text-align: center;
 }
 
 .styled-table {
