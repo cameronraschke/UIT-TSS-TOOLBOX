@@ -94,7 +94,7 @@ foreach ($arr as $key => $value) {
             </td>
             <td>
                 <select name="location-action" id="location-action">
-                    <option class="dropdown-content" value=' '>No Task</option>
+                    <option value=' '>No Task</option>
                     <option value='update'>Update</option>
                     <option value='nvmeErase'>Erase Only</option>
                     <option value='hpEraseAndClone'>Erase + Clone</option>
@@ -102,7 +102,7 @@ foreach ($arr as $key => $value) {
                     <option value=' '>Clear Pending Jobs</option>
                 </select>
             </td>
-            <td><input class="styled-form" type="submit" value="Submit"></td>
+            <td><input type="submit" value="Submit"></td>
         </tr>
         </form>
     </tbody>
