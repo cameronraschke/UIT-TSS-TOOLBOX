@@ -21,5 +21,6 @@
         <h3><a href="remote.php">Live Overview</a></h3>
         <h3><a href="serverstats.php">Overview of All Laptops (WIP)</a></h3>
         <h3><a href="clientstats.php">Per-Client Overview (WIP)</a></h3>
+        <h3><a href="clientstats.php">Generate and Download Reports (WIP)</a></h3>
     </body>
 </html>
