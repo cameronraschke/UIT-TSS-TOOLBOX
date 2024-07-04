@@ -68,7 +68,7 @@ foreach ($arr as $key => $value) {
 <br><br>
 
 <div class='styled-table'>
-<table id="myTable" style='border-collapse: collapse' border='1'>
+<table style='border-collapse: collapse' border='1'>
     <thead>
         <tr>
         <th>Update Location</th>
@@ -79,6 +79,7 @@ foreach ($arr as $key => $value) {
         <td>
             <form name='location' method='post'>
             <select name='location' onchange='this.form.submit()'>
+            <option>--Please Select--</option>
 <?php
 if (isset($_POST['location'])) {
     dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location = '" . $_POST['location'] . "' GROUP BY tagnumber)");
@@ -87,7 +88,7 @@ if (isset($_POST['location'])) {
     }
     unset($_POST['location']);
 }
-    dbSelect("SELECT location AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE location IS NOT NULL GROUP BY location)");
+    dbSelect("SELECT location AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE location IS NOT NULL GROUP BY location) ORDER BY location ASC");
     foreach ($arr as $key => $value) {
         $location = $value["result"];
         echo "<option value='$location'>$location</option>" . PHP_EOL;
@@ -106,6 +107,7 @@ if (isset($_POST['location'])) {
 <div class='styled-form2'>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
 </div>
+<br>
         <div class='styled-table'>
         <table id="myTable" style='border-collapse: collapse' border='1'>
         <thead>
@@ -125,7 +127,9 @@ if (isset($_POST['location'])) {
 <?php
 if (isset($_POST['task'])) {
     $arrTask = explode('|', $_POST['task']);
-    echo "<p>Tagnumber <b>" . $arrTask[0] . "</b> is scheduled to: <b>" . $arrTask[1] . "</b></p>";
+    if (filter($arrTask[1]) == 0) {
+        echo "<p>Tagnumber <b>" . $arrTask[0] . "</b> is scheduled to: <b>" . $arrTask[1] . "</b></p>";
+    }
     dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
     unset($_POST['task']);
 }
@@ -160,6 +164,7 @@ foreach ($arr as $key => $value) {
     echo "<option value='$tagNum|nvmeErase'>Erase Only</option>";
     echo "<option value='$tagNum|hpEraseAndClone'>Erase + Clone</option>";
     echo "<option value='$tagNum|findmy'>Play Sound</option>";
+    echo "<option value='$tagNum| '>Clear Pending Tasks</option>";
     echo "</select></form></td>" . PHP_EOL;
     echo "<td>$status</td>" . PHP_EOL;
     echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
