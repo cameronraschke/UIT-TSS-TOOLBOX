@@ -10,6 +10,12 @@
 	padding: 8px 10px;
 }
 
+.styled-form2 input[type=text] {
+	padding: 6px 10px;
+	margin: 0% 1% 0% 1%;
+	width: 20%;
+	border: 1px solid gray;
+}
 
 .billingtable1,
 .billingtable2 {
@@ -19,7 +25,7 @@
 	height: auto;
 	top: 10%;
 	left: 35%;
-    	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 	border-bottom: 2px solid #C8102E;
 	margin: 2% 2% 2% 2%;
 }
@@ -30,38 +36,55 @@
 	height: auto;
 	top: 17%;
 	left: 5%;
-    	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 	border-bottom: 2px solid #C8102E;
 	margin: 2% 2% 2% 2%;
 }
 
-.styled-table {
-	position: relative;
-	width: 100%;
-    border-collapse: collapse;
-	text-align: center;
-	margin: 1% 1% 1% 1%;
-}
-.styled-table thead tr {
-    background-color: #C8102E;
-    color: #ffffff;
-    text-align: left;
-}
-.styled-table th,
-.styled-table td {
-    	padding: 12px 15px;
-}
-.styled-table tbody tr {
-    	border-bottom: 1px solid #dddddd;
-}
-.styled-table tr:nth-child(odd) td{
-	background-color: #F2F2F2;
+table {
+	border-collapse: collapse;
+	border-width: 0;
 }
 
+.styled-table {
+	border-width: 0;
+	position: relative;
+	display: flex;
+	width: 100%;
+    border-collapse: collapse;
+	text-align: left;
+	margin: 1% 1% 1% 1%;
+
+}
+.styled-table thead {
+    text-align: left;
+}
+.styled-table th {
+	color: #FFFFFF;
+	padding: 6px 7px;
+	background-color: #C8102E;
+	border-bottom: 2px solid #888B8D;
+}
+.styled-table td {
+	padding: 8px 7px;
+	background-color: #FFFFFF;
+	border-bottom: 1px solid #888B8D;
+}
+.styled-table td:nth-child(odd) td{
+	padding: 8px 7px;
+	background-color: #F2F2F2;
+}
 .styled-table input[type=submit] {
-	padding: 8px 10px;
-	width: 25%;
-	margin: 8% 65% 5% 35%;
+	text-align: center;
+	padding: 5px 8px;
+	width: 100%;
+	margin: 1% 1% 1% 1%;
+}
+.styled-table select {
+	text-align: center;
+	padding: 1px 2px;
+	width: 100%;
+	margin: 1% 1% 1% 1%;
 }
 
 .styled-form {
@@ -97,9 +120,10 @@
 	border: 1px solid black;
 }
 .styled-form input[type=submit] {
+	text-align: center;
 	padding: 8px 10px;
-	width: 25%;
-	margin: 8% 65% 5% 35%;
+	width: 100%;
+	margin: 1% 1% 1% 1%;
 }
 
 .menubar {

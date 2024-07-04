@@ -16,10 +16,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo "$login_user"; ?></b>.</span></p>
-            <br>
             <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></p>
-            <br>
-            <br>
         </div>
         <div class='pagetitle'>
         <h3>Remote Management</h3>
@@ -28,7 +25,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <h4>Last updated: <?php echo $time; ?></h4>
 
         <div class='styled-table'>
-            <table style='border-collapse: collapse' border='1'>
+            <table>
                 <thead>
                 <tr>
                     <th>Total Laptops Present</th>
@@ -66,10 +63,9 @@ foreach ($arr as $key => $value) {
     echo "</div>";
 }
 ?>
-<br><br>
 
 <div class='styled-table'>
-<table style='border-collapse: collapse' border='1'>
+<table>
     <thead>
         <tr>
         <th>Location</th>
@@ -123,13 +119,11 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 
 </div>
 
-<br><br>
 <div class='styled-form2'>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
 </div>
-<br>
         <div class='styled-table'>
-        <table id="myTable" style='border-collapse: collapse' border='1'>
+        <table id="myTable">
         <thead>
             <tr>
             <th>Tagnumber</th>
