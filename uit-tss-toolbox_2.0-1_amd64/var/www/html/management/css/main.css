@@ -64,16 +64,6 @@
 	margin: 8% 65% 5% 35%;
 }
 
-.styled-table select,option {
-	display: none;
-	position: absolute;
-	background-color: #FFF9D9;
-	min-width: 160px;
-	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-	padding: 10px 14px;
-	z-index: 1;
-}
-
 .styled-form {
 	position: relative;
 	width: 100%;
@@ -155,20 +145,4 @@
 
 .menulink a {
         margin: 0% 5% 0% 5%;
-}
-
-.dropbtn {
-	background-color: #FFF9D9;
-	color: #888B8D;
-	padding: 16px;
-	font-size: 16px;
-	border: none;
-	cursor: pointer;
-}
-
-.dropdown-content select {
-	color: black;
-	padding: 12px 16px;
-	text-decoration: none;
-	display: block;
 }
