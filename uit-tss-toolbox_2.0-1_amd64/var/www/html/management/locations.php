@@ -10,7 +10,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT-TSS-Managment Site</title>
+        <title>TechComm Laptop Managment</title>
     </head>
     <body>
         <div class='menubar'>
@@ -21,7 +21,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         </div>
 
         <div class='pagetitle'><h1>Locations Table</h1></div>
-        <div class='pagetitle'><h2>See the location and status of all clients.</h2></div>
+        <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
         <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT CONVERT(time, DATETIME(0)) AS result FROM locations ORDER BY time DESC LIMIT 1"); echo $result; ?></h3></div>
 
         <div class='styled-form2'>

@@ -10,7 +10,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT-TSS-Managment Site</title>
+        <title>TechComm Laptop Managment</title>
     </head>
     <body>
         <div class='menubar'>
@@ -20,8 +20,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
             <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle'><h1>Serverstats Table</h1></div>
-        <div class='pagetitle'><h2>The serverstats table takes statistics over all jobs.</h2></div>
+        <div class='pagetitle'><h1>Server Stats Report</h1></div>
+        <div class='pagetitle'><h2>The server stats table shows aggregated information about every client and job.</h2></div>
         <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT date AS result FROM serverstats ORDER BY date DESC LIMIT 1"); echo $result; ?></h3></div>
 
         <div class='styled-table'>

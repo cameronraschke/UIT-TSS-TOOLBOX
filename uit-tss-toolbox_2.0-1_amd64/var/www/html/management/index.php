@@ -3,7 +3,7 @@
 <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT-TSS-Managment Site</title>
+        <title>TechComm Laptop Managment</title>
     </head>
     <body>
         <div class='menubar'>
@@ -13,7 +13,7 @@
             <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle' style="text-align:center;"><h1 style="margin:auto;">Laptop Management Site</h1></div>
+        <div class='pagetitle' style="text-align:center;"><h1 style="margin:auto;">TechComm Laptop Management Site</h1></div>
         <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
         <div class='page-content'><h3><a href="remote.php">Remote Management and Live Overview</a></h3></div>
         <div class='page-content'><h3><a href="locations.php">Laptop Locations and Status</a></h3></div>

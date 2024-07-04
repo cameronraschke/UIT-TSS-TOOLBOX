@@ -24,11 +24,11 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="/css/main.css" />
-        <title>UIT-TSS-Managment Site</title>
+        <title>TechComm Laptop Managment</title>
     </head>
     <body>
         <div class="login-title">
-            <h1>UIT-TSS-TOOLBOX Web Login</h1>
+            <h1>TechComm Laptop Management Login</h1>
         </div>
         <div class="login-form">
             <form method="post" class="styled-form">

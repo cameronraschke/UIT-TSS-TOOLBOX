@@ -10,7 +10,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT-TSS-Managment Site</title>
+        <title>TechComm Laptop Managment</title>
     </head>
     <body>
         <div class='menubar'>
@@ -21,7 +21,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         </div>
 
         <div class='pagetitle'><h1>Remote Management</h1></div>
-        <div class='pagetitle'><h2>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h2></div>
+        <div class='pagetitle'><h2>The remote table allows you to remotely control laptops currently plugged in to the server.</h2></div>
         <div class='pagetitle'><h3>Last updated: <?php echo $time; ?></h3></div>
 
         <div class='styled-table'>
