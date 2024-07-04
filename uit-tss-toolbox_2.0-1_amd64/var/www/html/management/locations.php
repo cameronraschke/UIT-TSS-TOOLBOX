@@ -22,7 +22,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='pagetitle'><h1>Locations Table</h1></div>
         <div class='pagetitle'><h2>See the location and status of all clients.</h2></div>
-        <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT date AS result FROM serverstats ORDER BY date DESC LIMIT 1"); echo $result; ?></h3></div>
+        <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT CONVERT(time, DATETIME(0)) AS result FROM locations ORDER BY time DESC LIMIT 1"); echo $result; ?></h3></div>
 
         <div class='styled-form2'>
             <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
@@ -44,7 +44,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 </thead>
                 <tbody>
 <?php
-dbSelect("SELECT tagnumber, system_serial, location, IF (status='0', 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, CONVERT(time, DATETIME) AS 'time' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department = 'techComm')) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
+dbSelect("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, CONVERT(time, DATETIME) AS 'time' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department = 'techComm')) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
 foreach ($arr as $key => $value) {
     echo "<tr>" . PHP_EOL;
     echo "<td>" . $value['tagnumber'] . "</td>" . PHP_EOL;
