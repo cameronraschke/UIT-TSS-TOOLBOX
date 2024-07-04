@@ -121,6 +121,9 @@ foreach ($arr as $key => $value) {
         echo "<option value='$tagNum|$task'>$task</option>";
     }
     echo "<option value='$tagNum|update'>Update</option>";
+    echo "<option value='$tagNum|nvmeErase'>Erase Only</option>";
+    echo "<option value='$tagNum|hpEraseAndClone'>Erase + Clone</option>";
+    echo "<option value='$tagNum|findmy'>Play Sound</option>";
     echo "</select></form></td>" . PHP_EOL;
     echo "<td>$status</td>" . PHP_EOL;
     echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
