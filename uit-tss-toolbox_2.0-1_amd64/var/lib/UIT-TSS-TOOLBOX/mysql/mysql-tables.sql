@@ -281,18 +281,20 @@ ALTER TABLE remote
 DROP table IF EXISTS logins;
 CREATE TABLE IF NOT EXISTS logins (
     username VARCHAR(64) NOT NULL PRIMARY KEY,
-    password VARCHAR(128) NOT NULL
+    password VARCHAR(128) NOT NULL,
+    name VARCHAR(36) NOT NULL
 );
 
 INSERT INTO logins
     (
         username,
-        password
+        password,
+        name
     )
     VALUES
-    ('caraschk', 'UHouston!'),
-    ('mrharvey', 'UHouston!'),
-    ('ama', 'UHouston!'),
-    ('kvu', 'UHouston!'),
-    ('rcarroyo', 'UHouston!'),
-    ('isdavis', 'UHouston!');
+    ('caraschk', 'UHouston!', 'Cameron'),
+    ('mrharvey', 'UHouston!', 'Matthew'),
+    ('ama', 'UHouston!', 'Amy'),
+    ('kvu', 'UHouston!', 'Kevin'),
+    ('rcarroyo', 'UHouston!', 'Rafael'),
+    ('isdavis', 'UHouston!', 'Ivey');
