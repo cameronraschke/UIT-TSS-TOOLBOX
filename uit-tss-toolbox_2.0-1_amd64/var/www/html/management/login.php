@@ -39,5 +39,8 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
                 <input type="submit" value="Login"></input>
             </form>
         </div>
+        <div class="uit-logo">
+            <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
+        </div>
     </body>
 </html>

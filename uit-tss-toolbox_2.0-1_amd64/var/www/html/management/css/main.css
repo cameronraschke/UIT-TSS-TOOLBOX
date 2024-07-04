@@ -26,6 +26,15 @@ table {
 .styled-form input[type=text]:focus {
 	border: 1px solid black;
 }
+.styled-form input[type=password] {
+	padding: 12px 20px;
+	margin: 2% 10% 2% 10%;
+	width: 80%;
+	border: 1px solid gray;
+}
+.styled-form input[type=password]:focus {
+	border: 1px solid black;
+}
 .styled-form input[type=submit] {
 	padding: 8px 10px;
 	width: 25%;
@@ -128,15 +137,41 @@ table {
 .pagetitle {
 	position: relative;
 	display: flex;
-	margin: 0 auto;
+	margin: auto auto;
 	padding: 1% 1% 1% 1%;
 	width: 100%;
-	height: auto;
 	text-align: center;
 }
 .pagetitle h1 {
 	font-size: 1.5em;
 }
+.pagetitle h2 {
+	font-size: 1.3em;
+}
+.pagetitle h3 {
+	font-size: 1.0em;
+}
 .pagetitle h4 {
-	font-size: 0.5em;
+	font-size: 0.7em;
+}
+
+.page-content {
+	position: relative;
+	display: flex;
+	margin: auto auto;
+	padding: 1% 1% 1% 1%;
+	width: 100%;
+	text-align: center;
+}
+.page-content h3 {
+	font-size: 1.0em;
+}
+
+.uit-logo {
+	background-color:#54585A;
+	padding: 1% 1% 1% 1%;
+}
+.uit-logo img {
+	max-width: 20%;
+	height: auto;
 }
