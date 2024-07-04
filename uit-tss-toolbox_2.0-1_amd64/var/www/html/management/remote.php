@@ -65,6 +65,42 @@ foreach ($arr as $key => $value) {
     echo "</div>";
 }
 ?>
+<br><br>
+
+<div class='styled-table'>
+<table id="myTable" style='border-collapse: collapse' border='1'>
+    <thead>
+        <tr>
+        <th>Location</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td>
+            <form name='location' method='post'>
+            <select name='location' onchange='this.form.submit()'>
+<?php
+if (isset($_POST['location'])) {
+    dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location = '" . $_POST['location'] . "' GROUP BY tagnumber)");
+    foreach ($arr as $key => $value) {
+        dbUpdateRemote($value["result"], "task", "update");
+    }
+    unset($_POST['location']);
+}
+    dbSelect("SELECT location AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE location IS NOT NULL GROUP BY location)");
+    foreach ($arr as $key => $value) {
+        $location = $value["result"];
+        echo "<option value='$location'>$location</option>" . PHP_EOL;
+    }
+?>
+        </select>
+        </form>
+        </td>
+        </tr>
+    </tbody>
+</table>
+
+</div>
 
 <br><br>
 <div class='styled-form2'>
@@ -91,7 +127,7 @@ if (isset($_POST['task'])) {
     $arrTask = explode('|', $_POST['task']);
     echo "<p>Tagnumber <b>" . $arrTask[0] . "</b> is scheduled to: <b>" . $arrTask[1] . "</b></p>";
     dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
-    unset($_POST);
+    unset($_POST['task']);
 }
 dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY task DESC, status ASC, tagnumber DESC, present DESC");
 foreach ($arr as $key => $value) {
