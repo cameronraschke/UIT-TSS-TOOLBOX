@@ -38,8 +38,9 @@
 .styled-table {
 	position: relative;
 	width: 100%;
-    	border-collapse: collapse;
-		text-align: center
+    border-collapse: collapse;
+	text-align: center;
+	margin: 2% 2% 10% 2%;
 }
 .styled-table thead tr {
     background-color: #C8102E;

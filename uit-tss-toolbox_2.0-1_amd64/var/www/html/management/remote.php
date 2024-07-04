@@ -93,11 +93,12 @@ foreach ($arr as $key => $value) {
             </td>
             <td>
                 <select name="location-action" id="location-action">
+                    <option value=' '>No Task</option>
                     <option value='update'>Update</option>
                     <option value='nvmeErase'>Erase Only</option>
                     <option value='hpEraseAndClone'>Erase + Clone</option>
                     <option value='findmy'>Play Sound</option>
-                    <option value=' '>Clear Pending Tasks</option>
+                    <option value=' '>Clear Pending Jobs</option>
                 </select>
             </td>
             <td><input type="submit" value="Submit"></td>
@@ -182,7 +183,7 @@ foreach ($arr as $key => $value) {
     echo "<option value='$tagNum|nvmeErase'>Erase Only</option>";
     echo "<option value='$tagNum|hpEraseAndClone'>Erase + Clone</option>";
     echo "<option value='$tagNum|findmy'>Play Sound</option>";
-    echo "<option value='$tagNum| '>Clear Pending Tasks</option>";
+    echo "<option value='$tagNum| '>Clear Pending Jobs</option>";
     echo "</select></form></td>" . PHP_EOL;
     echo "<td>$status</td>" . PHP_EOL;
     echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
