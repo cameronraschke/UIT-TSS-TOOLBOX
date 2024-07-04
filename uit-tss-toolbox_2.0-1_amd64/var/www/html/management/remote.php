@@ -108,7 +108,6 @@ foreach ($arr as $key => $value) {
 
 <?php
 if (isset($_POST['location']) && isset($_POST['location-action'])) {
-    echo $_POST['location'] . ", " . $_POST['location-action'];
     $location = $_POST['location'];
     $task = $_POST['location-action'];
     dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location = '" . $location . "' GROUP BY tagnumber)");
