@@ -6,16 +6,21 @@
     	font-family: sans-serif;
 }
 
+table {
+	border-collapse: collapse;
+	border-width: 0;
+}
+
 .styled-form2 input[type=submit] {
 	padding: 8px 10px;
 }
-
 .styled-form2 input[type=text] {
 	padding: 6px 10px;
 	margin: 0% 1% 0% 1%;
 	width: 20%;
 	border: 1px solid gray;
 }
+
 
 .billingtable1,
 .billingtable2 {
@@ -41,11 +46,6 @@
 	margin: 2% 2% 2% 2%;
 }
 
-table {
-	border-collapse: collapse;
-	border-width: 0;
-}
-
 .styled-table {
 	border-width: 0;
 	position: relative;
@@ -53,7 +53,7 @@ table {
 	width: 100%;
     border-collapse: collapse;
 	text-align: left;
-	margin: 1% 1% 1% 1%;
+	margin: 1% 1% 4% 1%;
 
 }
 .styled-table thead {
@@ -87,86 +87,34 @@ table {
 	margin: 1% 1% 1% 1%;
 }
 
-.styled-form {
-	position: relative;
-	width: 100%;
-	margin: 5px 5px 5px 5px;
-	padding: 20px 20px;
-}
-.styled-form input[type=text] {
-	padding: 12px 20px;
-	margin: 2% 2% 10% 2%;
-	width: 80%;
-	border: 1px solid gray;
-}
-.styled-form input[type=text]:focus {
-	border: 1px solid black;
-}
-.styled-form select {
-	padding: 5px 10px;
-	margin: 2% 2% 2% 2%;
-	border: 1px solid gray;
-}
-.styled-form select:focus {
-	border: 1px solid black;
-}
-.styled-form input[type=date] {
-	padding: 5px 10px;
-	margin: 2% 2% 2% 2%;
-	width: 50%;
-	border: 1px solid gray;
-}
-.styled-form input[type=date]:focus {
-	border: 1px solid black;
-}
-.styled-form input[type=submit] {
-	text-align: center;
-	padding: 8px 10px;
-	width: 100%;
-	margin: 1% 1% 1% 1%;
-}
 
 .menubar {
 	position: relative;
 	width: 100%;
 	top: 0%;
 	background-color: #FFF9D9;
-	padding: 1% 5%;
-    	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+	padding: 2% 2% 2% 2%;
+	margin: 0% 0% 1% 0%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 	border-bottom: 2px solid #C8102E;
 }
-
-.menubar button {
-	padding: 8px 10px;
-	margin: 1% 1% 1% 1%;
+.menubar a p span {
+	padding: 4px 5px;
 }
+
 
 .pagetitle {
 	position: relative;
 	display: flex;
-	margin: 1% 10% 1% 10%;
-	padding: 1% 10% 1% 10%;
-	width: 80%;
+	margin: 0 auto;
+	padding: 1% 1% 1% 1%;
+	width: 100%;
 	height: auto;
 	text-align: center;
 }
-
-.pagtitle h1,h2,h3 {
-	position: relative;
-	width: 80%;
-	margin: 1% 10% 1% 10%;
+.pagetitle h1 {
 	font-size: 1.5em;
 }
-
-.menulink {
-	position: relative;
-        display: flex;
-        margin: 0% 5% 0% 5%;
-        padding: 1% 1% 1% 1%;
-        height: auto;
-        text-align: left;
-}
-
-.menulink a {
-        margin: 0% 5% 0% 5%;
+.pagetitle h4 {
+	font-size: 0.5em;
 }

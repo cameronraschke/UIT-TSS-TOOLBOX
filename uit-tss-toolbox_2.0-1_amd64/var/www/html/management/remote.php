@@ -16,13 +16,13 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo "$login_user"; ?></b>.</span></p>
-            <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></p>
+            <br>
+            <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
-        <div class='pagetitle'>
-        <h3>Remote Management</h3>
-        <h4>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h3>
-        </div>
-        <h4>Last updated: <?php echo $time; ?></h4>
+
+        <div class='pagetitle'><h1>Remote Management</h1></div>
+        <div class='pagetitle'><h2>The remote table monitors laptops currently plugged into the UIT-TSS-TOOLBOX server.</h2></div>
+        <div class='pagetitle'><h4>Last updated: <?php echo $time; ?></h4></div>
 
         <div class='styled-table'>
             <table>
