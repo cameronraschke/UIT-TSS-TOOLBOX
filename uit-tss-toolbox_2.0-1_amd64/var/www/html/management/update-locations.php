@@ -58,7 +58,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<input type='submit' value='Update Location'>" . PHP_EOL;
                     echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
                     echo "</form>" . PHP_EOL;
-                    echo "<div class='page-content'><a href='update-locations.php'>Update a differnt laptop.</a></div>" . PHP_EOL;
+                    echo "<div class='page-content'><a href='update-locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
                 }
             } else {
                 echo "<form method='post'>" . PHP_EOL;
@@ -89,7 +89,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "<input type='submit' value='Update Location'>" . PHP_EOL;
                 echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
                 echo "</form>" . PHP_EOL;
-                echo "<div class='page-content'><a href='update-locations.php'>Update a differnt laptop.</a></div>" . PHP_EOL;
+                echo "<div class='page-content'><a href='update-locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
             }
             $uuid = uniqid("location-", true);
             $tagNum = $_POST['tagnumber'];
