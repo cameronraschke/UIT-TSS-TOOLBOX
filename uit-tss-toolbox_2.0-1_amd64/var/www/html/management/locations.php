@@ -135,6 +135,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 unset($_POST);
             }
             unset($_POST);
+            headr("Location: location.php");
         } else {
             echo "<div class='page-content'><h2>Update Laptop Locations</h2></div>" . PHP_EOL;
             echo "<div class='location-form'>";
