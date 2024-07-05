@@ -89,7 +89,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "<br>" . PHP_EOL;
                 echo "<label for='serial'>Serial Number</label>";
                 echo "<br>" . PHP_EOL;
-                echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial'>" . PHP_EOL;
+                echo "<input type='text' id='serial' name='serial'>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<label for='department'>Department</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
