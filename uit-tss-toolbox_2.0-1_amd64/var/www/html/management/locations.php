@@ -112,6 +112,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<input type='submit' value='Update Location (Working)'>" . PHP_EOL;
                 } else {
                     dbSelectVal("SELECT disk_removed AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
+                    echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
                     echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
                     echo "<option value='0'>No</option>" . PHP_EOL;
                     echo "<option value='1'>Yes</option>" . PHP_EOL;
