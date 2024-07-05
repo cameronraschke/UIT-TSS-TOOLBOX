@@ -13,6 +13,13 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <title>TechComm Laptop Managment</title>
     </head>
     <body>
+        <script> 
+            $(document).ready(function(){
+            setInterval(function(){
+                $("#dynamic").load(window.location.href + " #dynamic" );
+            }, 3000);
+            });
+        </script>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo "$login_user"; ?></b>.</span></p>
@@ -122,7 +129,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 <div class='styled-form2'>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
 </div>
-        <div class='styled-table'>
+        <div id='dynamic' class='styled-table'>
         <table id="myTable">
         <thead>
             <tr>
@@ -218,6 +225,7 @@ echo "</div>";
         }
         }
     </script>
+
     <div class="uit-footer">
         <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
     </div>
