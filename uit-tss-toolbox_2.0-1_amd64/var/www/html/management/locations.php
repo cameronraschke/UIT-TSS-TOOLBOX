@@ -133,7 +133,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 dbUpdateLocation("note", "$note", "$time");
                 echo "<div class='page-content'><h3>$tagNum is updated at $time. </h3></div>" . PHP_EOL;
                 unset($_POST);
-                header("Location: location.php");
+                header("Location: locations.php");
             }
             unset($_POST);
         } else {
