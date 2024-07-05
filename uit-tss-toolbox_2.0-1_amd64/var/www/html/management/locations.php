@@ -173,6 +173,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             echo "<br>" . PHP_EOL;
             echo "<input type='text' id='tagnumber' name='tagnumber' autofocus>" . PHP_EOL;
             echo "<label for='status'>Status</label>" . PHP_EOL;
+            echo "<br>" . PHP_EOL;
             echo "<select name='status' id='status' required>" . PHP_EOL;
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;
