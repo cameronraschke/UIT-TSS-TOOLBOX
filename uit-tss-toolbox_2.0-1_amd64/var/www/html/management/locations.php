@@ -123,26 +123,16 @@ $time = $dt->format('Y-m-d H:i:s.v');
             unset($_POST);
         } else {
             echo "<div class='page-content'><h2>Update Laptop Locations</h2></div>" . PHP_EOL;
-            echo "<div class='styled-table'>";
-            echo "<table id='otherTable'>";
-            echo "<thead>";
-            echo "<tr>";
-            echo "<th>Tagnumber</th>";
-            echo "<th>Status</th>";
-            echo "<th>Submit</th>";
-            echo "</tr>";
-            echo "</thead>";
-            echo "<tbody>";
+            echo "<div class='location-form'>";
             echo "<tr>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
-            echo "<td><input type='text' id='tagnumber' name='tagnumber'></td>" . PHP_EOL;
-            echo "<td><select name='status' id='status' required>" . PHP_EOL;
+            echo "<input type='text' id='tagnumber' name='tagnumber'>" . PHP_EOL;
+            echo "<select name='status' id='status' required>" . PHP_EOL;
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;
-            echo "</select></td>" . PHP_EOL;
-            echo "<td><input type='submit' value='Submit'></td>" . PHP_EOL;
+            echo "</select>" . PHP_EOL;
+            echo "<input type='submit' value='Submit'>" . PHP_EOL;
             echo "</form>" . PHP_EOL;
-            echo "</tr></tbody></table>" . PHP_EOL;
             echo "</div>";
         }
 
