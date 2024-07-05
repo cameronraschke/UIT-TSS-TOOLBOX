@@ -130,7 +130,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     <th>Submit</th>
                 </tr>
                 </thead>
-                <tbody>"
+                <tbody>";
             echo "<tr>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
             echo "<td><input type='text' id='tagnumber' name='tagnumber'></td>" . PHP_EOL;
