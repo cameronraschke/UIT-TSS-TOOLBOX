@@ -120,6 +120,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             }
             unset($_POST);
         } else {
+            echo "<div class='page-content'><h2>Update Laptop Locations</h2></div>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
             echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
             echo "<br>" . PHP_EOL;
@@ -131,13 +132,14 @@ $time = $dt->format('Y-m-d H:i:s.v');
             echo "<option value='1'>Broken</option>" . PHP_EOL;
             echo "</select>" . PHP_EOL;
             echo "<br>" . PHP_EOL;
-            echo "<input type='submit' value='Search'>";
+            echo "<input type='submit' value='Submit'>";
             echo "<br>" . PHP_EOL;
             echo "</form>" . PHP_EOL;
         }
 
         ?>
 
+        <div class='page-content'><h2>View and Search Current Locations</h2></div>
         <div class='styled-form2'>
             <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
             <input type="text" id="myInputLocations" onkeyup="myFunctionLocations()" placeholder="Search locations...">
