@@ -143,7 +143,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
         <div class='styled-form2'>
-            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
+            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber...">
             <input type="text" id="myInputLocations" onkeyup="myFunctionLocations()" placeholder="Search locations...">
         </div>
 
