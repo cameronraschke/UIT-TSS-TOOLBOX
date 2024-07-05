@@ -44,7 +44,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     dbSelectVal("SELECT department AS result FROM jobstats WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
                     echo "<select name='department' id='department'>" . PHP_EOL;
                     echo "<option value='$result'>$result</option>" . PHP_EOL;
-                    echo "<option value='techComm'>Tech Comms (Default)</option>" . PHP_EOL;
+                    echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                     echo "<option value='property'>Property Management</option>" . PHP_EOL;
                     echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
                     echo "</select>" . PHP_EOL;
@@ -96,7 +96,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 dbSelectVal("SELECT department AS result FROM jobstats WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
                 echo "<select name='department' id='department'>" . PHP_EOL;
                 echo "<option value='$result'>$result</option>" . PHP_EOL;
-                echo "<option value='techComm'>Tech Comms (Default)</option>" . PHP_EOL;
+                echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                 echo "<option value='property'>Property Management</option>" . PHP_EOL;
                 echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
                 echo "</select>" . PHP_EOL;
@@ -197,6 +197,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     <th>Tagnumber</th>
                     <th>System Serial</th>
                     <th>Location</th>
+                    <th>Department</th>
                     <th>Status</th>
                     <th>OS Installed</th>
                     <th>Note</th>
@@ -211,12 +212,13 @@ foreach ($arr as $key => $value) {
     echo "<td>" . $value['tagnumber'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['location'] . "</td>" . PHP_EOL;
+    dbSelectVal("SELECT IF (department='techComm', 'Tech Commons (TSS)', department) AS result FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
+    echo "<td>$result</td>" . PHP_EOL;
     echo "<td>" . $value['status'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['os_installed'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['note'] . " </td>" . PHP_EOL;
     echo "<td>" . $value['time'] . " </td>" . PHP_EOL;
-    dbSelectVal("SELECT department AS result FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
-    echo "<td>$result</td>" . PHP_EOL;
+
 }
 ?>
 </tr>
