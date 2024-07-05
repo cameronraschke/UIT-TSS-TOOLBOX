@@ -124,7 +124,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         } else {
             echo "<div class='page-content'><h2>Update Laptop Locations</h2></div>" . PHP_EOL;
             echo "<div class='styled-table'>";
-            echo "<table>";
+            echo "<table id='otherTable'>";
             echo "<thead>";
             echo "<tr>";
             echo "<th>Tagnumber</th>";
