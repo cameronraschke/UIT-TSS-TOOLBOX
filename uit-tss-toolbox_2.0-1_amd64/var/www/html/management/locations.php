@@ -24,9 +24,9 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
         <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT CONVERT(time, DATETIME(0)) AS result FROM locations ORDER BY time DESC LIMIT 1"); echo $result; ?></h3></div>
 
-        <div class='location-form'>
         <?php
         if (!empty($_POST['tagnumber'])) {
+            echo "<div class='location-form'>" . PHP_EOL;
             dbSelect("SELECT * FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
             if (!empty($arr)) {
                 foreach ($arr as $key => $value) {
@@ -59,6 +59,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
                     echo "</form>" . PHP_EOL;
                     echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
+                    echo "</div>";
                 }
             } else {
                 echo "<form method='post'>" . PHP_EOL;
@@ -90,6 +91,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
                 echo "</form>" . PHP_EOL;
                 echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
+                echo "</div>";
             }
             $uuid = uniqid("location-", true);
             $tagNum = $_POST['tagnumber'];
