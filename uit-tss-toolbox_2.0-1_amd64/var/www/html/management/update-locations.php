@@ -97,7 +97,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             #Not the same insert statment as client parse code, ether address is DEFAULT here.
             dbInsertJob($uuid);
             dbUpdateJob("tagnumber", "$tagNum", "$uuid");
-            dbUpdateJob("system_serial", , "$uuid");
+            dbUpdateJob("system_serial", "$serial", "$uuid");
             dbUpdateJob ("date", "$date", "$uuid");
             dbUpdateJob ("time", "$time", "$uuid");
             dbUpdateJob ("department", "$department", "$uuid");
