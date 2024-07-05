@@ -212,7 +212,7 @@ foreach ($arr as $key => $value) {
     echo "<td>" . $value['tagnumber'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['location'] . "</td>" . PHP_EOL;
-    dbSelectVal("SELECT IF (department='techComm', 'Tech Commons (TSS)', department) AS result FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbSelectVal("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS result FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
     echo "<td>$result</td>" . PHP_EOL;
     echo "<td>" . $value['status'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['os_installed'] . "</td>" . PHP_EOL;
