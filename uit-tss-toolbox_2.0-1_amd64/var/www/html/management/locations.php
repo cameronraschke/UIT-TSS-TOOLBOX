@@ -58,8 +58,12 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
                     echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
-                    echo "<input type='submit' value='Update Location'>" . PHP_EOL;
                     echo "<input type='hidden' name='status' value='" . $_POST['status'] . "'>";
+                    if ($_POST['status'] == 0) {
+                        echo "<input type='submit' value='Update Location (Working)'>" . PHP_EOL;
+                    } else { 
+                        echo "<input type='submit' value='Update Location (Broken)'>" . PHP_EOL;
+                    }
                     echo "</form>" . PHP_EOL;
                     echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
                     echo "</div>";
@@ -93,8 +97,12 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
                 echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                echo "<input type='submit' value='Update Location'>" . PHP_EOL;
                 echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
+                if ($_POST['status'] == 0) {
+                    echo "<input type='submit' value='Update Location (Working)'>" . PHP_EOL;
+                } else { 
+                    echo "<input type='submit' value='Update Location (Broken)'>" . PHP_EOL;
+                }
                 echo "</form>" . PHP_EOL;
                 echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
                 echo "</div>";
