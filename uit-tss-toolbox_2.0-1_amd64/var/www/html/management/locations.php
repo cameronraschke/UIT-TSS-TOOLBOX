@@ -59,10 +59,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
                     echo "<input type='hidden' name='status' value='" . $_POST['status'] . "'>";
-                    if ($_POST['status'] == 0) {
-                        echo "<input type='hidden' name='disk_removed' value='0'>";
-                        echo "<input type='submit' value='Update Location (Working)'>" . PHP_EOL;
-                    } else {
+                    if ($_POST['status'] == "1") {
                         dbSelectVal("SELECT disk_removed AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
                         echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
                         echo "<br>" . PHP_EOL;
@@ -72,6 +69,9 @@ $time = $dt->format('Y-m-d H:i:s.v');
                         echo "</select>" . PHP_EOL;
                         echo "<br>" . PHP_EOL;
                         echo "<input type='submit' value='Update Location (Broken)'>" . PHP_EOL;
+                    } else {
+                        echo "<input type='hidden' name='disk_removed' value='0'>";
+                        echo "<input type='submit' value='Update Location (Working)'>" . PHP_EOL;
                     }
                     echo "</form>" . PHP_EOL;
                     echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
@@ -107,10 +107,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
-                if ($_POST['status'] == 0) {
-                    echo "<input type='hidden' name='disk_removed' value='0'>";
-                    echo "<input type='submit' value='Update Location (Working)'>" . PHP_EOL;
-                } else {
+                if ($_POST['status'] == "1") {
                     dbSelectVal("SELECT disk_removed AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
                     echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
@@ -120,6 +117,9 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "</select>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
                     echo "<input type='submit' value='Update Location (Broken)'>" . PHP_EOL;
+                } else {
+                    echo "<input type='hidden' name='disk_removed' value='0'>";
+                    echo "<input type='submit' value='Update Location (Working)'>" . PHP_EOL;
                 }
                 echo "</form>" . PHP_EOL;
                 echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
