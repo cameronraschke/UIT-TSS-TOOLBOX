@@ -215,7 +215,7 @@ foreach ($arr as $key => $value) {
     echo "<td>" . $value['os_installed'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['note'] . " </td>" . PHP_EOL;
     echo "<td>" . $value['time'] . " </td>" . PHP_EOL;
-    dbSelectVal("SELECT department AS result WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
+    dbSelectVal("SELECT department AS result FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
     echo "<td>$result</td>" . PHP_EOL;
 }
 ?>
