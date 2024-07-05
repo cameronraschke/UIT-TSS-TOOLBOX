@@ -141,6 +141,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             echo "<td><input type='submit' value='Submit'></td>" . PHP_EOL;
             echo "</form>" . PHP_EOL;
             echo "</tr></tbody></table>" . PHP_EOL;
+            echo "</div>"
         }
 
         ?>
