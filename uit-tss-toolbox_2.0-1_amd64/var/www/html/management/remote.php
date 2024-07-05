@@ -218,11 +218,6 @@ echo "</div>";
         }
         }
     </script>
-    <script>
-            setInterval(function() {
-                $( "#dynamic" ).load(window.location.href + " #dynamic" );
-            }, 2000);
-    </script>
     <div class="uit-footer">
         <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
     </div>
