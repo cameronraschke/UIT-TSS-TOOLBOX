@@ -145,6 +145,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         }
 
         ?>
+        </div>
 
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
         <div class='styled-form2'>
