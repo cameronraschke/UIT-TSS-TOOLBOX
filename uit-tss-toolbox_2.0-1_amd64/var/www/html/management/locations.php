@@ -132,7 +132,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             $location = $_POST['location'];
             $status = $_POST['status'];
             $note = $_POST['note'];
-            $disk_removed = $_POST['disk_removed'];
+            $diskRemoved = $_POST['disk_removed'];
 
             if (isset($_POST['serial'])) {
                 #Not the same insert statment as client parse code, ether address is DEFAULT here.
