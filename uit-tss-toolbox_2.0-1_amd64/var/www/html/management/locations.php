@@ -55,8 +55,12 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<br>" . PHP_EOL;
                     echo "<label for='note'>Note</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
-                    dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
-                    echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
+                    if ($_POST['status'] == "1") {
+                        dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
+                        echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
+                    } else {
+                        echo "<input type='text' id='note' name='note'>" . PHP_EOL;
+                    }
                     echo "<br>" . PHP_EOL;
                     echo "<input type='hidden' name='status' value='" . $_POST['status'] . "'>";
                     if ($_POST['status'] == "1") {
@@ -103,8 +107,12 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "<br>" . PHP_EOL;
                 echo "<label for='note'>Note</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
-                echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
+                if ($_POST['status'] == "1") {
+                    dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
+                    echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
+                } else {
+                    echo "<input type='text' id='note' name='note'>" . PHP_EOL;
+                }
                 echo "<br>" . PHP_EOL;
                 echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
                 if ($_POST['status'] == "1") {
