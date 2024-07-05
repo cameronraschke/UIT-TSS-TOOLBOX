@@ -126,6 +126,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             echo "<div class='location-form'>";
             echo "<tr>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
+            echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
             echo "<input type='text' id='tagnumber' name='tagnumber'>" . PHP_EOL;
             echo "<select name='status' id='status' required>" . PHP_EOL;
             echo "<option value='0'>Working</option>" . PHP_EOL;
