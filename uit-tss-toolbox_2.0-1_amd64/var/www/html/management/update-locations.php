@@ -33,11 +33,11 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<form method='post'>" . PHP_EOL;
                     echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
-                    echo "<input type='text' id='tagnumber' name='tagnumber' value='" . $_POST['tagnumber'] . "' readonly>" . PHP_EOL;
+                    echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . $_POST['tagnumber'] . "' readonly>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
                     echo "<label for='serial'>Serial Number</label>";
                     echo "<br>" . PHP_EOL;
-                    echo "<input type='text' id='serial' name='serial' value='" . $value['system_serial'] . "' readonly>" . PHP_EOL;
+                    echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial' value='" . $value['system_serial'] . "' readonly>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
                     echo "<label for='department'>Department</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
@@ -49,20 +49,21 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<br>" . PHP_EOL;
                     echo "<label for='location'>Location</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
-                    echo "<input type='text' id='location' name='location'>" . PHP_EOL;
+                    echo "<input type='text' id='location' name='location' required>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
-                    echo "<label for='note'>Problem</label>" . PHP_EOL;
+                    echo "<label for='note'>Note</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
                     echo "<input type='text' id='note' name='note'>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
                     echo "<input type='submit' value='Update Location'>" . PHP_EOL;
+                    echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
                     echo "</form>" . PHP_EOL;
                 }
             } else {
                 echo "<form method='post'>" . PHP_EOL;
                 echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                echo "<input type='text' id='tagnumber' name='tagnumber' value='" . $_POST['tagnumber'] . "' readonly>" . PHP_EOL;
+                echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . $_POST['tagnumber'] . "' readonly>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<label for='serial'>Serial Number</label>";
                 echo "<br>" . PHP_EOL;
@@ -78,13 +79,14 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "<br>" . PHP_EOL;
                 echo "<label for='location'>Location</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                echo "<input type='text' id='location' name='location'>" . PHP_EOL;
+                echo "<input type='text' id='location' name='location' required>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                echo "<label for='note'>Problem</label>" . PHP_EOL;
+                echo "<label for='note'>Note</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<input type='text' id='note' name='note'>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<input type='submit' value='Update Location'>" . PHP_EOL;
+                echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
                 echo "</form>" . PHP_EOL;
             }
             $uuid = uniqid("location-", true);
@@ -94,22 +96,27 @@ $time = $dt->format('Y-m-d H:i:s.v');
             $location = $_POST['location'];
             $status = $_POST['status'];
             $note = $_POST['note'];
-            #Not the same insert statment as client parse code, ether address is DEFAULT here.
-            dbInsertJob($uuid);
-            dbUpdateJob("tagnumber", "$tagNum", "$uuid");
-            dbUpdateJob("system_serial", "$serial", "$uuid");
-            dbUpdateJob ("date", "$date", "$uuid");
-            dbUpdateJob ("time", "$time", "$uuid");
-            dbUpdateJob ("department", "$department", "$uuid");
+            if (isset($_POST['serial'])) {
+                #Not the same insert statment as client parse code, ether address is DEFAULT here.
+                dbInsertJob($uuid);
+                dbUpdateJob("tagnumber", "$tagNum", "$uuid");
+                dbUpdateJob("system_serial", "$serial", "$uuid");
+                dbUpdateJob ("date", "$date", "$uuid");
+                dbUpdateJob ("time", "$time", "$uuid");
+                dbUpdateJob ("department", "$department", "$uuid");
 
-            # INSERT statement
-            dbInsertLocation($time);
-            dbUpdateLocation("tagnumber", "$tagnumber", "$time");
-            dbUpdateLocation("system_serial", "$serial", "$time");
-            dbUpdateLocation("location", "$location", "$time");
-            dbUpdateLocation("status", "$status", "$time");
-            #dbUpdateLocation("disk_removed", "$diskRemoved", "$time");
-            dbUpdateLocation("note", "$note", "$time");
+                # INSERT statement
+                dbInsertLocation($time);
+                dbUpdateLocation("tagnumber", "$tagNum", "$time");
+                dbUpdateLocation("system_serial", "$serial", "$time");
+                dbUpdateLocation("location", "$location", "$time");
+                dbUpdateLocation("status", "$status", "$time");
+                #dbUpdateLocation("disk_removed", "$diskRemoved", "$time");
+                dbUpdateLocation("note", "$note", "$time");
+                echo "<div class='page-content'><h3>$tagNum is updated. </h3><a href='update-locations.php'>Update another laptop.</a></div>" . PHP_EOL;
+                unset($_POST);
+                
+            }
             unset($_POST);
         } else {
             echo "<form method='post'>" . PHP_EOL;
@@ -117,12 +124,11 @@ $time = $dt->format('Y-m-d H:i:s.v');
             echo "<br>" . PHP_EOL;
             echo "<input type='text' id='tagnumber' name='tagnumber'>";
             echo "<br>" . PHP_EOL;
-            echo "<p>Please enter the status:</p>" . PHP_EOL;
-            echo "<input type='radio' id='status1' name='status' value='0'>" . PHP_EOL;
-            echo "<label for='status'>Working</label>" . PHP_EOL;
-            echo "<br>" . PHP_EOL;
-            echo "<input type='radio' id='status2' name='status' value='1'>" . PHP_EOL;
-            echo "<label for='status'>Broken</label>" . PHP_EOL;
+            echo "<p>Please enter the status:</p>";
+            echo "<select name='status' id='status' required>" . PHP_EOL;
+            echo "<option value='0'>Working</option>" . PHP_EOL;
+            echo "<option value='1'>Broken</option>" . PHP_EOL;
+            echo "</select>" . PHP_EOL;
             echo "<br>" . PHP_EOL;
             echo "<input type='submit' value='Search'>";
             echo "<br>" . PHP_EOL;

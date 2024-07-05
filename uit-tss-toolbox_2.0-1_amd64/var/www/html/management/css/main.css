@@ -197,7 +197,7 @@ table {
 .location-form input[type=submit] {
 	padding: 8px 10px;
 	width: auto;
-	margin: 2% 2% 2% 2%;
+	margin: 1% 1% 1% 2%;
 }
 .location-form select {
 	text-align: center;
