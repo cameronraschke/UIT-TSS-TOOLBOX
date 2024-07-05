@@ -115,7 +115,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 dbUpdateLocation("status", "$status", "$time");
                 #dbUpdateLocation("disk_removed", "$diskRemoved", "$time");
                 dbUpdateLocation("note", "$note", "$time");
-                echo "<div class='page-content'><h3>$tagNum is updated. </h3><a href='update-locations.php'>Update another laptop.</a></div>" . PHP_EOL;
+                echo "<div class='page-content'><h3>$tagNum is updated at $time. </h3></div>" . PHP_EOL;
                 unset($_POST);
             }
             unset($_POST);
