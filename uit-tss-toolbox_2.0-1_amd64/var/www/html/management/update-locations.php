@@ -88,22 +88,28 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "</form>" . PHP_EOL;
             }
             $uuid = uniqid("location-", true);
+            $tagNum = $_POST['tagnumber'];
+            $serial = $_POST['serial'];
+            $department = $_POST['department'];
+            $location = $_POST['location'];
+            $status = $_POST['status'];
+            $note = $_POST['note'];
             #Not the same insert statment as client parse code, ether address is DEFAULT here.
             dbInsertJob($uuid);
-            dbUpdateJob("tagnumber", "$_POST['tagnumber']", "$uuid");
-            dbUpdateJob("system_serial", "$$_POST['serial']", "$uuid");
+            dbUpdateJob("tagnumber", "$tagNum", "$uuid");
+            dbUpdateJob("system_serial", , "$uuid");
             dbUpdateJob ("date", "$date", "$uuid");
             dbUpdateJob ("time", "$time", "$uuid");
-            dbUpdateJob ("department", "$_POST['department']", "$uuid");
+            dbUpdateJob ("department", "$department", "$uuid");
 
             # INSERT statement
             dbInsertLocation($time);
-            dbUpdateLocation("tagnumber", "$_POST['tagnumber']", "$time");
-            dbUpdateLocation("system_serial", "$$_POST['serial']", "$time");
-            dbUpdateLocation("location", "$_POST['location']", "$time");
-            dbUpdateLocation("status", "$_POST['status']", "$time");
+            dbUpdateLocation("tagnumber", "$tagnumber", "$time");
+            dbUpdateLocation("system_serial", "$serial", "$time");
+            dbUpdateLocation("location", "$location", "$time");
+            dbUpdateLocation("status", "$status", "$time");
             #dbUpdateLocation("disk_removed", "$diskRemoved", "$time");
-            dbUpdateLocation("note", "$_POST['note']", "$time");
+            dbUpdateLocation("note", "$note", "$time");
             unset($_POST);
         } else {
             echo "<form method='post'>" . PHP_EOL;
