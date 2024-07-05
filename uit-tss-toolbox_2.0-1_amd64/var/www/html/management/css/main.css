@@ -118,9 +118,9 @@ table {
 	margin: 1% 1% 1% 1%;
 }
 .styled-table input[type=text] {
-	padding: 6px 10px;
+	padding: 3% 45%;
 	margin: 0% 1% 0% 1%;
-	width: 100%;
+	width: 80%;
 	border: 1px solid gray;
 }
 .styled-table input[type=text]:focus {
