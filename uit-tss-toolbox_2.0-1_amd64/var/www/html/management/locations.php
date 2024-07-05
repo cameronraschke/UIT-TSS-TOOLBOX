@@ -60,8 +60,15 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<br>" . PHP_EOL;
                     echo "<input type='hidden' name='status' value='" . $_POST['status'] . "'>";
                     if ($_POST['status'] == 0) {
+                        echo "<input type='hidden' name='disk_removed' value='0'>";
                         echo "<input type='submit' value='Update Location (Working)'>" . PHP_EOL;
-                    } else { 
+                    } else {
+                        dbSelectVal("SELECT disk_removed AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
+                        echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
+                        echo "<option value='0'>No</option>" . PHP_EOL;
+                        echo "<option value='1'>Yes</option>" . PHP_EOL;
+                        echo "</select>" . PHP_EOL;
+                        echo "<br>" . PHP_EOL;
                         echo "<input type='submit' value='Update Location (Broken)'>" . PHP_EOL;
                     }
                     echo "</form>" . PHP_EOL;
@@ -99,8 +106,15 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "<br>" . PHP_EOL;
                 echo "<input type='hidden' name='status' value='" . $_POST['status']. "'>";
                 if ($_POST['status'] == 0) {
+                    echo "<input type='hidden' name='disk_removed' value='0'>";
                     echo "<input type='submit' value='Update Location (Working)'>" . PHP_EOL;
-                } else { 
+                } else {
+                    dbSelectVal("SELECT disk_removed AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
+                    echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
+                    echo "<option value='0'>No</option>" . PHP_EOL;
+                    echo "<option value='1'>Yes</option>" . PHP_EOL;
+                    echo "</select>" . PHP_EOL;
+                    echo "<br>" . PHP_EOL;
                     echo "<input type='submit' value='Update Location (Broken)'>" . PHP_EOL;
                 }
                 echo "</form>" . PHP_EOL;
@@ -114,6 +128,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
             $location = $_POST['location'];
             $status = $_POST['status'];
             $note = $_POST['note'];
+            $disk_removed = $_POST['disk_removed'];
+
             if (isset($_POST['serial'])) {
                 #Not the same insert statment as client parse code, ether address is DEFAULT here.
                 dbInsertJob($uuid);
@@ -129,7 +145,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 dbUpdateLocation("system_serial", "$serial", "$time");
                 dbUpdateLocation("location", "$location", "$time");
                 dbUpdateLocation("status", "$status", "$time");
-                #dbUpdateLocation("disk_removed", "$diskRemoved", "$time");
+                dbUpdateLocation("disk_removed", "$diskRemoved", "$time");
                 dbUpdateLocation("note", "$note", "$time");
                 echo "<div class='page-content'><h3>$tagNum is updated at $time. </h3></div>" . PHP_EOL;
                 unset($_POST);
