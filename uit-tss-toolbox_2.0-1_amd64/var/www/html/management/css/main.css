@@ -37,12 +37,13 @@ table {
 }
 .styled-form input[type=submit] {
 	padding: 8px 10px;
-	width: 25%;
+	width: auto;
 	margin: 8% 65% 5% 35%;
 }
 
 .styled-form2 input[type=submit] {
 	padding: 8px 10px;
+	width: auto;
 }
 .styled-form2 input[type=text] {
 	padding: 6px 10px;
