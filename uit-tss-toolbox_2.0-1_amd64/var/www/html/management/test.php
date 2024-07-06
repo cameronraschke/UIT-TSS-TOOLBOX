@@ -4,6 +4,11 @@ include('mysql/mysql-functions');
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
+
+function getTime() {
+        dbSelectVal("SELECT CURTIME() AS result");
+        echo $result;
+}
 ?>
 
 <html>
@@ -11,9 +16,21 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
         <title>TechComm Laptop Managment</title>
-        <script src="js/script.js"></script>
     </head>
-    <body>
-    <div id="div1">The text above has been created dynamically.</div>
+    <body onload="refresh()">
+    <div id="div1"></div>
+    <script>
+        let nIntervId;
+
+        function refresh() {
+            if (!nIntervId) {
+                nIntervId = setInterval(addElement, 1000);
+            }
+        }
+
+        function addElement() {
+                document.getElementById('div1').innerHTML = "<p><?php echo getTime(); ?></p>";
+        }
+    </script>
     </body>
 </html>
