@@ -6,8 +6,9 @@ $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
 function getTime() {
-        dbSelectVal("SELECT CURTIME() AS result");
-        echo $result;
+    dbSelectVal("SELECT CURTIME() AS result");
+    global $result;
+    return $result;
 }
 ?>
 
@@ -18,7 +19,6 @@ function getTime() {
         <title>TechComm Laptop Managment</title>
     </head>
     <body onload="refresh()">
-    <div id="div1"></div>
     <script>
         let nIntervId;
 
@@ -28,9 +28,12 @@ function getTime() {
             }
         }
 
-        function addElement() {
-                document.getElementById('div1').innerHTML = "<p><?php echo getTime(); ?></p>";
-        }
+        <?php
+            echo "function addElement() {" . PHP_EOL;
+            echo "              document.getElementById('div1').innerHTML = '<p>" . getTime() . "</p>';" . PHP_EOL;
+            echo "      }" . PHP_EOL;
+        ?>
     </script>
+    <div id="div1"></div>
     </body>
 </html>
