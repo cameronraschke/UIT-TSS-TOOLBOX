@@ -195,11 +195,9 @@ $time = $dt->format('Y-m-d H:i:s.v');
             echo "<td><select name='status' id='status' required>";
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;
-            echo "</select></td><td><input type='submit' value='Submit'></td></tr></form></tbody></table>" . PHP_EOL;
+            echo "</select></td><td><input type='submit' value='Submit'></td></tr></form></tbody></table></div>" . PHP_EOL;
         }
-
         ?>
-        </div>
 
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
         <div class='styled-form2'>

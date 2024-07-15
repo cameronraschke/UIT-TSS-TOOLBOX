@@ -123,9 +123,11 @@ table {
 	margin: 0% 1% 0% 1%;
 	width: 80%;
 	border: 1px solid gray;
+	color: black;
 }
 .styled-table input[type=text]:focus {
 	border: 1px solid black;
+	color: black;
 }
 
 .menubar {
