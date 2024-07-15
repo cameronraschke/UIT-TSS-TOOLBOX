@@ -122,21 +122,25 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 <div class='styled-form2'>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
 </div>
-        <div id='dynamic' class='styled-table'>
-        <table id="myTable">
-        <thead>
-            <tr>
-            <th>Tagnumber</th>
-            <th>Last Heard</th>
-            <th>Pending Job</th>
-            <th>Current Status</th>
-            <th>Battery Charge</th>
-            <th>Battery Status</th>
-            <th>CPU Temp</th>
-            <th>Disk Temp</th>
-            <th>Actual Power Draw</th>
-            </tr>
-        </thead>
+        <div class='styled-table' style="width: auto;">
+            <table width="100%">
+            <thead>
+                <tr>
+                <th>Tagnumber</th>
+                <th>Last Heard</th>
+                <th>Pending Job</th>
+                <th>Current Status</th>
+                <th>Battery Charge</th>
+                <th>Battery Status</th>
+                <th>CPU Temp</th>
+                <th>Disk Temp</th>
+                <th>Actual Power Draw</th>
+                </tr>
+            </thead>
+            </table>
+        </div>
+        <div class='styled-table' style="width: auto; height:50%; overflow:auto;">
+            <table id="myTable" width="100%">
 
 <?php
 if (isset($_POST['task'])) {
