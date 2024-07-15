@@ -64,6 +64,9 @@ foreach ($arr as $key => $value) {
 }
 ?>
 
+<div class='pagetitle'>
+    <h3>Update Jobs for a Given Location</h3>
+</div>
 <div class='styled-table'>
 <table>
     <thead>
@@ -116,9 +119,11 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
     unset($_POST['location-action']);
 }
 ?>
-
 </div>
 
+<div class='pagetitle'>
+    <h3>Laptops Currently Present</h3>
+</div>
 <div class='styled-form2'>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
 </div>
@@ -137,6 +142,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <th>Actual Power Draw</th>
                 </tr>
             </thead>
+            <tbody>
 
 <?php
 if (isset($_POST['task'])) {
@@ -146,51 +152,92 @@ if (isset($_POST['task'])) {
     }
     unset($_POST['task']);
 }
-dbSelect("SELECT * FROM remote WHERE present_bool = '1' ORDER BY task DESC, status ASC, tagnumber DESC, present DESC");
+dbSelect("SELECT tagnumber, date_format(present, '%b %D %Y, %r') AS 'present', task, status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY task DESC, status ASC, tagnumber DESC, present DESC");
 foreach ($arr as $key => $value) {
-    $tagNum = $value["tagnumber"];
-    $lastHeard = $value["present"];
-    $task = $value["task"];
-    $status = $value["status"];
-    $batteryCharge = $value["battery_charge"];
-    $batteryStatus = $value["battery_status"];
-    $cpuTemp = $value["cpu_temp"];
-    $diskTemp = $value["disk_temp"];
-    $powerDraw = $value["watts_now"];
-
-    echo "<tbody>";
     echo "<tr>";
-    if ($status != "waiting for job") {
-        echo "<td>Working: <b>$tagNum</b></td>" . PHP_EOL;
+    if ($value["status"] != "waiting for job") {
+        echo "<td>Working: <b>" . $value["tagnumber"] . "</b></td>" . PHP_EOL;
     } else {
-        echo "<td>$tagNum</td>" . PHP_EOL;
+        echo "<td>" . $value["tagnumber"] . "</td>" . PHP_EOL;
     }
-    $_POST['tagnumber'] = $tagNum;
-    echo "<td>$lastHeard</td>" . PHP_EOL;
+    $_POST['tagnumber'] = $value["tagnumber"];
+    echo "<td>" . $value["present"] . "</td>" . PHP_EOL;
     echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
-    if (filter($task) == 1) {
-        echo "<option value='$tagNum|NULL'>No Job</option>";
+    if (filter($value["task"]) == 1) {
+        echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
     } else {
-        echo "<option value='$tagNum|$task'>$task</option>";
+        echo "<option value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task"] . "</option>";
     }
-    echo "<option value='$tagNum|update'>Update</option>";
-    echo "<option value='$tagNum|nvmeErase'>Erase Only</option>";
-    echo "<option value='$tagNum|hpEraseAndClone'>Erase + Clone</option>";
-    echo "<option value='$tagNum|findmy'>Play Sound</option>";
-    echo "<option value='$tagNum| '>Clear Pending Jobs</option>";
+    echo "<option value='" . $value["tagnumber"] . "|update'>Update</option>";
+    echo "<option value='" . $value["tagnumber"] . "|nvmeErase'>Erase Only</option>";
+    echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
+    echo "<option value='" . $value["tagnumber"] . "|findmy'>Play Sound</option>";
+    echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
     echo "</select></form></td>" . PHP_EOL;
-    echo "<td>$status</td>" . PHP_EOL;
-    echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
-    echo "<td>$batteryStatus</td>" . PHP_EOL;
-    echo "<td>$cpuTemp" . "°C</td>" . PHP_EOL;
-    echo "<td>$diskTemp" . "°C</td>" . PHP_EOL;
-    echo "<td>$powerDraw" . " Watts</td>" . PHP_EOL;
+    echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["battery_status"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["cpu_temp"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["disk_temp"] . "</td>" . PHP_EOL;
+    echo "<td> " . $value["watts_now"] . "</td>" . PHP_EOL;
     echo "</tr>";
-    echo "</tbody>";
 }
+echo "</tbody>";
 echo "</table>";
 echo "</div>";
 ?>
+
+<div class='pagetitle' style="margin: 5% 0% 0% 0%;">
+    <h3>Laptops <u>NOT</u> Currently Present</h3>
+</div>
+<div class='styled-form2'>
+    <input type="text" id="myInput1" onkeyup="myFunction1()" placeholder="Search tagnumber..." autofocus>
+</div>
+        <div class='styled-table' style="width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;">
+            <table id="myTable1" width="100%">
+            <thead>
+                <tr>
+                <th>Tagnumber</th>
+                <th>Last Heard</th>
+                <th>Current Status</th>
+                <th>Battery Charge</th>
+                <th>Battery Status</th>
+                <th>CPU Temp</th>
+                <th>Disk Temp</th>
+                <th>Actual Power Draw</th>
+                </tr>
+            </thead>
+
+            <?php
+                dbSelect("SELECT * FROM remote WHERE present_bool IS NULL ORDER BY present DESC, tagnumber DESC");
+                foreach ($arr as $key => $value) {
+                    $tagNum = $value["tagnumber"];
+                    $lastHeard = $value["present"];
+                    $task = $value["task"];
+                    $status = $value["status"];
+                    $batteryCharge = $value["battery_charge"];
+                    $batteryStatus = $value["battery_status"];
+                    $cpuTemp = $value["cpu_temp"];
+                    $diskTemp = $value["disk_temp"];
+                    $powerDraw = $value["watts_now"];
+
+                    echo "<tbody>";
+                    echo "<tr>";
+                    echo "<td>$tagNum</td>" . PHP_EOL;
+                    echo "<td>$lastHeard</td>" . PHP_EOL;
+                    echo "<td>$status</td>" . PHP_EOL;
+                    echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
+                    echo "<td>$batteryStatus</td>" . PHP_EOL;
+                    echo "<td>$cpuTemp" . "°C</td>" . PHP_EOL;
+                    echo "<td>$diskTemp" . "°C</td>" . PHP_EOL;
+                    echo "<td>$powerDraw" . " Watts</td>" . PHP_EOL;
+                    echo "</tr>";
+                    echo "</tbody>";
+                }
+                echo "</table>";
+                echo "</div>";
+?>
+
     <script>
         if ( window.history.replaceState ) {
             window.history.replaceState( null, null, window.location.href );
@@ -203,6 +250,26 @@ echo "</div>";
         input = document.getElementById("myInput");
         filter = input.value.toUpperCase();
         table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+            }
+        }
+        }
+
+        function myFunction1() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInput1");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable1");
         tr = table.getElementsByTagName("tr");
 
         for (i = 0; i < tr.length; i++) {
