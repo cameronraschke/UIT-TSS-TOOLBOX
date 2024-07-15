@@ -165,40 +165,20 @@ $time = $dt->format('Y-m-d H:i:s.v');
             }
             unset($_POST);
         } else {
-            // echo "<div class='page-content'><h2>Update Laptop Locations</h2></div>" . PHP_EOL;
-            // echo "<div class='location-form'>";
-            // echo "<tr>" . PHP_EOL;
-            // echo "<form method='post'>" . PHP_EOL;
-            // echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
-            // echo "<input type='text' id='tagnumber' name='tagnumber' autofocus>" . PHP_EOL;
-            // echo "<label for='status'>Status</label>" . PHP_EOL;
-            // echo "<select name='status' id='status' required>" . PHP_EOL;
-            // echo "<option value='0'>Working</option>" . PHP_EOL;
-            // echo "<option value='1'>Broken</option>" . PHP_EOL;
-            // echo "</select>" . PHP_EOL;
-            // echo "<input type='submit' value='Submit'>" . PHP_EOL;
-            // echo "</form>" . PHP_EOL;
-            // echo "</div>";
-
-            echo "<div class='pagetitle'>";
-            echo "<h3>Update Jobs for a Given Location</h3>";
-            echo "</div>" . PHP_EOL;
-            echo "<div class='styled-table'>";
-            echo "<form action='#' method='post'>" . PHP_EOL;
-            echo "<table>";
-            echo "<thead>";
-            echo "<tr>";
-            echo "<th>Tag Number</th><th>Status</th><th>Submit</th></tr></thead>" . PHP_EOL;
-    
-            echo "<tbody>" . PHP_EOL;
-            echo "<tr><td><input type='text' name='tagnumber' id='tagnumber'></td>" . PHP_EOL;
-            echo "<td><select name='status' id='status' required>";
+            echo "<div class='page-content'><h2>Update Laptop Locations</h2></div>" . PHP_EOL;
+            echo "<div class='location-form'>";
+            echo "<tr>" . PHP_EOL;
+            echo "<form method='post'>" . PHP_EOL;
+            echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
+            echo "<input type='text' id='tagnumber' name='tagnumber' autofocus>" . PHP_EOL;
+            echo "<label for='status'>Status</label>" . PHP_EOL;
+            echo "<select name='status' id='status' required>" . PHP_EOL;
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;
-            echo "</select></td>" . PHP_EOL;
-            echo "<td><input type='submit' value='Submit'></td></tr></tbody></table>" . PHP_EOL;
+            echo "</select>" . PHP_EOL;
+            echo "<input type='submit' value='Submit'>" . PHP_EOL;
             echo "</form>" . PHP_EOL;
-            echo "</div>" . PHP_EOL;
+            echo "</div>";
         }
         ?>
 
