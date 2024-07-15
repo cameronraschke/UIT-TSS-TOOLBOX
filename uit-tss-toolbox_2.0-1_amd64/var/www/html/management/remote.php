@@ -208,34 +208,23 @@ echo "</div>";
                 </tr>
             </thead>
 
-            <?php
-                dbSelect("SELECT * FROM remote WHERE present_bool IS NULL ORDER BY present DESC, tagnumber DESC");
-                foreach ($arr as $key => $value) {
-                    $tagNum = $value["tagnumber"];
-                    $lastHeard = $value["present"];
-                    $task = $value["task"];
-                    $status = $value["status"];
-                    $batteryCharge = $value["battery_charge"];
-                    $batteryStatus = $value["battery_status"];
-                    $cpuTemp = $value["cpu_temp"];
-                    $diskTemp = $value["disk_temp"];
-                    $powerDraw = $value["watts_now"];
-
-                    echo "<tbody>";
-                    echo "<tr>";
-                    echo "<td>$tagNum</td>" . PHP_EOL;
-                    echo "<td>$lastHeard</td>" . PHP_EOL;
-                    echo "<td>$status</td>" . PHP_EOL;
-                    echo "<td>$batteryCharge" . "%" . "</td>" . PHP_EOL;
-                    echo "<td>$batteryStatus</td>" . PHP_EOL;
-                    echo "<td>$cpuTemp" . "°C</td>" . PHP_EOL;
-                    echo "<td>$diskTemp" . "°C</td>" . PHP_EOL;
-                    echo "<td>$powerDraw" . " Watts</td>" . PHP_EOL;
-                    echo "</tr>";
-                    echo "</tbody>";
-                }
-                echo "</table>";
-                echo "</div>";
+<?php
+dbSelect("SELECT tagnumber, date_format(present, '%b %D %Y, %r') AS 'present', status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool IS NULL ORDER BY present DESC, task DESC, status ASC, tagnumber DESC");
+foreach ($arr as $key => $value) {
+    echo "<tr>";
+    echo "<td>" . $value["tagnumber"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["present"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["battery_status"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["cpu_temp"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["disk_temp"] . "</td>" . PHP_EOL;
+    echo "<td> " . $value["watts_now"] . "</td>" . PHP_EOL;
+    echo "</tr>";
+}
+echo "</tbody>";
+echo "</table>";
+echo "</div>";
 ?>
 
     <script>
