@@ -152,7 +152,7 @@ if (isset($_POST['task'])) {
     }
     unset($_POST['task']);
 }
-dbSelect("SELECT tagnumber, date_format(present, '%b %D %Y, %r') AS 'present', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task IS NULL THEN 'No Job' END) AS task, status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY task DESC, status ASC, tagnumber DESC, present DESC");
+dbSelect("SELECT tagnumber, date_format(present, '%b %D %Y, %r') AS 'time', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task IS NULL THEN 'No Job' END) AS task, status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY task DESC, status ASC, tagnumber DESC, present DESC");
 foreach ($arr as $key => $value) {
     echo "<tr>";
     if ($value["status"] != "waiting for job") {
@@ -161,7 +161,7 @@ foreach ($arr as $key => $value) {
         echo "<td>" . $value["tagnumber"] . "</td>" . PHP_EOL;
     }
     $_POST['tagnumber'] = $value["tagnumber"];
-    echo "<td>" . $value["present"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["time"] . "</td>" . PHP_EOL;
     echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
     if (filter($value["task"]) == 1) {
         echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
@@ -209,11 +209,11 @@ echo "</div>";
             </thead>
 
 <?php
-dbSelect("SELECT tagnumber, date_format(present, '%b %D %Y, %r') AS 'present', status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool IS NULL ORDER BY present DESC, task DESC, status ASC, tagnumber DESC");
+dbSelect("SELECT tagnumber, date_format(present, '%b %D %Y, %r') AS 'time', status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool IS NULL ORDER BY present DESC, task DESC, status ASC, tagnumber DESC");
 foreach ($arr as $key => $value) {
     echo "<tr>";
     echo "<td>" . $value["tagnumber"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["present"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["time"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_status"] . "</td>" . PHP_EOL;
