@@ -22,7 +22,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='pagetitle'><h1>Locations Table</h1></div>
         <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
-        <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'result' FROM locations ORDER BY time DESC LIMIT 1"); echo $result; ?></h3></div>
+        <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'result' FROM locations ORDER BY time DESC LIMIT 1"); echo $result; ?></h3></div>
 
         <?php
         if (!empty($_POST['tagnumber'])) {

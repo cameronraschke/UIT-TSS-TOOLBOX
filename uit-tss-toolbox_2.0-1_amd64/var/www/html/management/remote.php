@@ -22,7 +22,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='pagetitle'><h1>Remote Management</h1></div>
         <div class='pagetitle'><h2>The remote table allows you to remotely control laptops currently plugged into the server.</h2></div>
-        <div class='pagetitle'><h3>Last updated: <?php echo $time; ?></h3></div>
+        <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT DATE_FORMAT(CONCAT(CURDATE(), CURTIME()), '%b %D %Y, %r') AS 'result' FROM locations ORDER BY time DESC LIMIT 1"); echo $result; ?></h3></div>
 
         <div class='styled-table'>
             <table>
