@@ -152,7 +152,7 @@ if (isset($_POST['task'])) {
     }
     unset($_POST['task']);
 }
-dbSelect("SELECT tagnumber, date_format(present, '%b %D %Y, %r') AS 'present', task, status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY task DESC, status ASC, tagnumber DESC, present DESC");
+dbSelect("SELECT tagnumber, date_format(present, '%b %D %Y, %r') AS 'present', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task IS NULL THEN 'No Job') AS task, status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY task DESC, status ASC, tagnumber DESC, present DESC");
 foreach ($arr as $key => $value) {
     echo "<tr>";
     if ($value["status"] != "waiting for job") {
@@ -191,7 +191,7 @@ echo "</div>";
     <h3>Laptops <u>NOT</u> Currently Present</h3>
 </div>
 <div class='styled-form2'>
-    <input type="text" id="myInput1" onkeyup="myFunction1()" placeholder="Search tagnumber..." autofocus>
+    <input type="text" id="myInput1" onkeyup="myFunction1()" placeholder="Search tagnumber...">
 </div>
         <div class='styled-table' style="width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;">
             <table id="myTable1" width="100%">
