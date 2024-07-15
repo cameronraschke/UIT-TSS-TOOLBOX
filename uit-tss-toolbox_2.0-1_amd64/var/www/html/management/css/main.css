@@ -89,7 +89,8 @@ table {
 
 }
 .styled-table thead {
-    text-align: left;
+	position: sticky;
+	text-align: left;
 }
 .styled-table th {
 	color: #FFFFFF;

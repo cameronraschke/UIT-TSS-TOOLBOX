@@ -122,8 +122,8 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 <div class='styled-form2'>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
 </div>
-        <div class='styled-table' style="width: auto; margin: 1% 1% 0% 1%;">
-            <table width="100%">
+        <div class='styled-table' style="width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;">
+            <table id="myTable" width="100%">
             <thead>
                 <tr>
                 <th>Tagnumber</th>
@@ -137,10 +137,6 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <th>Actual Power Draw</th>
                 </tr>
             </thead>
-            </table>
-        </div>
-        <div class='styled-table' style="width: auto; height:50%; overflow:auto;">
-            <table id="myTable" width="100%">
 
 <?php
 if (isset($_POST['task'])) {
