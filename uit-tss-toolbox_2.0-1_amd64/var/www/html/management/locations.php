@@ -184,18 +184,21 @@ $time = $dt->format('Y-m-d H:i:s.v');
             echo "<h3>Update Jobs for a Given Location</h3>";
             echo "</div>" . PHP_EOL;
             echo "<div class='styled-table'>";
+            echo "<form action='#' method='post'>" . PHP_EOL;
             echo "<table>";
             echo "<thead>";
             echo "<tr>";
             echo "<th>Tag Number</th><th>Status</th><th>Submit</th></tr></thead>" . PHP_EOL;
     
             echo "<tbody>" . PHP_EOL;
-            echo "<form action='#' method='post'>" . PHP_EOL;
             echo "<tr><td><input type='text' name='tagnumber' id='tagnumber'></td>" . PHP_EOL;
             echo "<td><select name='status' id='status' required>";
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;
-            echo "</select></td><td><input type='submit' value='Submit'></td></tr></form></tbody></table></div>" . PHP_EOL;
+            echo "</select></td>" . PHP_EOL;
+            echo "<td><input type='submit' value='Submit'></td></tr></tbody></table>" . PHP_EOL;
+            echo "</form>" . PHP_EOL;
+            echo "</div>" . PHP_EOL;
         }
         ?>
 
