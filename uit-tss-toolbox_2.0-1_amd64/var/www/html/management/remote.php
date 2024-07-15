@@ -122,7 +122,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 <div class='styled-form2'>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
 </div>
-        <div class='styled-table' style="width: auto;">
+        <div class='styled-table' style="width: auto; margin: 1% 1% 0% 1%;">
             <table width="100%">
             <thead>
                 <tr>
