@@ -83,7 +83,7 @@ foreach ($arr as $key => $value) {
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
-                    dbSelect("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE location IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
+                    dbSelect("SELECT location AS 'result' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE location IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
                     foreach ($arr as $key => $value) {
                         $location = $value["result"];
                         echo "<option value='$location'>$location</option>" . PHP_EOL;
