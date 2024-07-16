@@ -1769,11 +1769,8 @@ function autodetectClient {
 			remote
 			if [[ $task == "data collection" ]]; then
 				echo "remote|${tagNum}|status|data collection" | /var/lib/UIT-TSS-TOOLBOX/parse
-				hardwareData
-				location=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND (note IS NULL OR NOT note = 'Unattended') AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
-				status="0"
-				note="Unattended"
-				echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				exec uit-tss-client
 			elif [[ $task == "update" ]]; then
 				echo "remote|${tagNum}|status|updating" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
