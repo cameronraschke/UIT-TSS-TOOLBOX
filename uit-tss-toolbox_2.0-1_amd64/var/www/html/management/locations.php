@@ -192,14 +192,14 @@ $time = $dt->format('Y-m-d H:i:s.v');
             <table id="myTable">
                 <thead>
                 <tr>
-                    <th>Tagnumber</th>
-                    <th>System Serial</th>
-                    <th>Location</th>
-                    <th>Department</th>
-                    <th>Status</th>
-                    <th>OS Installed</th>
-                    <th>Note</th>
-                    <th>Time</th>
+                    <th onclick="sortTable(0)">Tagnumber</th>
+                    <th onclick="sortTable(1)">System Serial</th>
+                    <th onclick="sortTable(2)">Location</th>
+                    <th onclick="sortTable(3)">Department</th>
+                    <th onclick="sortTable(4)">Status</th>
+                    <th onclick="sortTable(5)">OS Installed</th>
+                    <th onclick="sortTable(6)">Note</th>
+                    <th onclick="sortTable(7)">Time</th>
                 </tr>
                 </thead>
                 <tbody>
