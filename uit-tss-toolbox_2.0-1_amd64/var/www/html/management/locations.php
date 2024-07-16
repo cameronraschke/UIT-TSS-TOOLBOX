@@ -41,7 +41,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<br>" . PHP_EOL;
                     echo "<label for='department'>Department</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
-                    dbSelectVal("SELECT department AS result FROM jobstats WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
+                    dbSelectVal("SELECT department AS result FROM jobstats WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
                     echo "<select name='department' id='department'>" . PHP_EOL;
                     echo "<option value='$result'>$result</option>" . PHP_EOL;
                     echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
