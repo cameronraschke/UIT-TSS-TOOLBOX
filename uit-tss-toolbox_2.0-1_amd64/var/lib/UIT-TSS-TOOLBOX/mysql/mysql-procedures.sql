@@ -173,7 +173,7 @@ UNION
 (SELECT tagnumber,
     system_serial,
     location,
-    IF (status='1' OR status IS NOT NULL, "Broken", "Working"),
+    IF (status='0' OR status IS NULL, "Working", "Broken"),
     IF (os_installed='1', "Yes", "No"),
     note,
     CONVERT(time, DATETIME) 
