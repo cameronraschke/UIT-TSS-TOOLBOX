@@ -25,6 +25,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="/css/main.css" />
         <title>TechComm Laptop Managment</title>
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     </head>
     <body>
         <div class="login-title" style="text-align:center;">
