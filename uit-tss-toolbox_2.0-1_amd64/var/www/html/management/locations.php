@@ -28,7 +28,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <?php
         if (!empty($_POST['tagnumber'])) {
             echo "<div class='location-form'>" . PHP_EOL;
-            dbSelect("SELECT system_serial, location, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
+            dbSelect("SELECT system_serial, location, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
             if (!empty($arr)) {
                 foreach ($arr as $key => $value) {
                     echo "<form method='post'>" . PHP_EOL;
