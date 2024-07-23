@@ -36,6 +36,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     <th>Average Actual Power Draw</th>
                     <th>Total Actual Power Draw</th>
                     <th>Total Power Draw From Wall</th>
+                    <th>Sum of OS's Installed</th>
                 </tr>
                 </thead>
 <?php
@@ -136,13 +137,14 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <tr>
                 <th onclick="sortTable(0)">Tagnumber</th>
                 <th style='cursor: default;'>Last Heard</th>
-                <th onclick="sortTable(2)">Pending Job</th>
-                <th onclick="sortTable(3)">Current Status</th>
+                <th onclick="sortTable(1)">Pending Job</th>
+                <th onclick="sortTable(2)">Current Status</th>
+                <th onclick="sortTable(3)">OS Installed</th>
                 <th style='cursor: default;'>Battery Charge</th>
-                <th onclick="sortTable(5)">Battery Status</th>
-                <th onclick="sortTable(6)">CPU Temp</th>
-                <th onclick="sortTable(7)">Disk Temp</th>
-                <th onclick="sortTable(8)">Actual Power Draw</th>
+                <th onclick="sortTable(4)">Battery Status</th>
+                <th onclick="sortTable(5)">CPU Temp</th>
+                <th onclick="sortTable(6)">Disk Temp</th>
+                <th onclick="sortTable(7)">Actual Power Draw</th>
                 </tr>
             </thead>
             <tbody>
@@ -155,7 +157,7 @@ if (isset($_POST['task'])) {
     }
     unset($_POST['task']);
 }
-dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task IS NULL THEN 'No Job' END) AS task, status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'fail-test', 'shutdown', 'findmy', 'update', 'nvmeErase', 'hpEraseAndClone', 'nvmeVerify',  'data collection') DESC, NOT FIELD (status, 'waiting for job') DESC, present DESC");
+dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task IS NULL THEN 'No Job' END) AS task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'fail-test', 'shutdown', 'findmy', 'update', 'nvmeErase', 'hpEraseAndClone', 'nvmeVerify',  'data collection') DESC, NOT FIELD (status, 'waiting for job') DESC, present DESC");
 foreach ($arr as $key => $value) {
     echo "<tr>";
     if ($value["status"] != "waiting for job") {
