@@ -206,7 +206,6 @@ echo "</div>";
                 <th>Tagnumber</th>
                 <th>Last Heard</th>
                 <th>Current Status</th>
-                <th>OS Installed</th>
                 <th>Battery Charge</th>
                 <th>Battery Status</th>
                 <th>CPU Temp</th>
