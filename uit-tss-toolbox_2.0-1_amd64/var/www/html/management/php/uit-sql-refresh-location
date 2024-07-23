@@ -1,6 +1,4 @@
-#!/usr/bin/php
 <?php
-
 # Connect to database and include custom functions
 include('/mysql/mysql-functions');
 
