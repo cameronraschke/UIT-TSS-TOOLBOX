@@ -66,6 +66,23 @@ foreach ($arr as $key => $value) {
         }
     }
 
+    dbSelect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1");
+    foreach ($arr as $key => $value) {
+        $eraseCompleted = $value["erase_completed"];
+        $cloneCompleted = $value["clone_completed"];
+        if ($eraseCompleted == '1' && $cloneCompleted == '1') {
+            $osInstalled = 1;
+        } elseif ($eraseCompleted == '1' && $cloneCompleted != '1') {
+            $osInstalled = 0;
+        } elseif ($eraseCompleted != '1' && $cloneCompleted == '1') {
+            $osInstalled = 1;
+        } else {
+            $osInstalled = 0;
+        }
+
+        dbUpdateRemote("$tagNum", "os_installed", "$osInstalled");
+    }
+
 }
 
 # Clear globals

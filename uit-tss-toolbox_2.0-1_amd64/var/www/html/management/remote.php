@@ -48,6 +48,7 @@ foreach ($arr as $key => $value) {
     $avgRealPowerDraw = $value['Avg. Real Power Draw'];
     $totalRealPowerDraw = $value['Real Power Draw'];
     $totalWallPowerDraw = $value['Power Draw from Wall'];
+    //$osInstalledSum
 
     echo "<tbody>";
     echo "<tr>" . PHP_EOL;
@@ -58,6 +59,7 @@ foreach ($arr as $key => $value) {
     echo "<td>$avgRealPowerDraw</td>" . PHP_EOL;
     echo "<td>$totalRealPowerDraw</td>" . PHP_EOL;
     echo "<td>$totalWallPowerDraw</td>" . PHP_EOL;
+    echo "<td>" . $value['OS Installed Sum'] . "</td>" . PHP_EOL;
     echo "</tr>" . PHP_EOL;
     echo "</tbody>";
     echo "</table>";
@@ -176,6 +178,7 @@ foreach ($arr as $key => $value) {
     echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
     echo "</select></form></td>" . PHP_EOL;
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["os_installed"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["cpu_temp"] . "</td>" . PHP_EOL;
@@ -216,6 +219,7 @@ foreach ($arr as $key => $value) {
     echo "<td>" . $value["tagnumber"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["os_installed"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["cpu_temp"] . "</td>" . PHP_EOL;
