@@ -46,8 +46,8 @@ foreach ($arr as $key => $value) {
     $avgBatteryCharge = $value['Avg. Battery Charge'];
     $avgCPUTemp = $value['Avg. CPU Temp'];
     $avgDiskTemp = $value['Avg. Disk Temp'];
-    $avgRealPowerDraw = $value['Avg. Real Power Draw'];
-    $totalRealPowerDraw = $value['Real Power Draw'];
+    $avgRealPowerDraw = $value['Avg. Actual Power Draw'];
+    $totalRealPowerDraw = $value['Actual Power Draw'];
     $totalWallPowerDraw = $value['Power Draw from Wall'];
     //$osInstalledSum
 
