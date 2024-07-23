@@ -87,7 +87,7 @@ foreach ($arr as $key => $value) {
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
-                    dbSelect("SELECT location AS 'result' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
+                    dbSelect("SELECT location AS 'result' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
                     foreach ($arr as $key => $value) {
                         $location = $value["result"];
                         echo "<option value='$location'>$location</option>" . PHP_EOL;
@@ -115,7 +115,7 @@ foreach ($arr as $key => $value) {
 if (isset($_POST['location']) && isset($_POST['location-action'])) {
     $location = $_POST['location'];
     $task = $_POST['location-action'];
-    dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location = '" . $location . "' GROUP BY tagnumber)");
+    dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND location = '" . $location . "' AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber)");
     foreach ($arr as $key => $value) {
         dbUpdateRemote($value["result"], "task", $task);
     }
