@@ -1,0 +1,90 @@
+#!/usr/bin/php
+<?php
+# Connect to database and include custom functions
+include('/mysql/mysql-functions');
+
+# Set current date and time
+$dt = new DateTimeImmutable();
+$date = $dt->format('Y-m-d');
+$time = $dt->format('Y-m-d H:i:s.v');
+
+# Clear globals
+clearSQLGlobals();
+clearTimeGlobals();
+
+dbSelect("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL GROUP BY tagnumber");
+foreach ($arr as $key => $value) {
+    # Set $tagNum to the iterated tagnumber.
+    $tagNum = $value["tagnumber"];
+
+    # If tagnumber does not exist in the clientstats table, insert it.
+    dbSelectVal("SELECT tagnumber AS result FROM remote WHERE tagnumber = '$tagNum'");
+    if (filter($result) == 1) {
+        dbInsertRemote("$tagNum");
+    }
+
+    # Update the time of the last job.
+    dbSelectVal("SELECT IF (task IS NULL, 0, 1) AS result FROM remote WHERE tagnumber = '$tagNum'");
+    $curTask = $result;
+    if ($curTask == 0) {
+        dbSelectVal("SELECT date AS result FROM jobstats WHERE tagnumber = '$tagNum' ORDER BY time DESC LIMIT 1");
+        $date2 = new DateTime($result);
+        dbUpdateRemote("$tagNum", "date", $date2->format('Y-m-d'));
+        $date2->modify('+1 week');
+        $date2 = $date2->format('Y-m-d');
+        if ($curTask == "0") {
+            if ($date >= $date2) {
+                dbUpdateRemote("$tagNum", "task", "data collection");
+            }
+        }
+        $date2 = NULL;
+    }
+
+    dbSelectVal("SELECT IF (present IS NULL, 0, present) AS result FROM remote WHERE tagnumber = '$tagNum'");
+    $value = 0;
+    $time1 = NULL;
+    if (filter($result) == 0) {
+        if ($result != "0") {
+            $time1 = new DateTime($result);
+            $time1->modify('+45 second');
+            $time1 = $time1->format('Y-m-d H:i:s');
+            if ($time < $time1) {
+                $value = 1;
+            }
+        }
+    }
+    dbUpdateRemote("$tagNum", "present_bool", "$value");
+    $time1 = NULL;
+
+    dbSelectVal("SELECT disk_temp AS result FROM remote WHERE tagnumber = '$tagNum'");
+    if (filter($result) == "0") {
+        if ($result >= "82") {
+            dbUpdateRemote("$tagNum", "status", "fail - high disk temp");
+            dbUpdateRemote("$tagNum", "task", "shutdown");
+        }
+    }
+
+    dbSelect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = '$tagNum' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1");
+    foreach ($arr as $key => $value) {
+        $eraseCompleted = $value["erase_completed"];
+        $cloneCompleted = $value["clone_completed"];
+        if ($eraseCompleted == '1' && $cloneCompleted == '1') {
+            $osInstalled = 1;
+        } elseif ($eraseCompleted == '1' && $cloneCompleted != '1') {
+            $osInstalled = 0;
+        } elseif ($eraseCompleted != '1' && $cloneCompleted == '1') {
+            $osInstalled = 1;
+        } else {
+            $osInstalled = 0;
+        }
+
+        dbUpdateRemote("$tagNum", "os_installed", "$osInstalled");
+    }
+
+}
+
+# Clear globals
+clearSQLGlobals();
+clearTimeGlobals();
+
+?>
