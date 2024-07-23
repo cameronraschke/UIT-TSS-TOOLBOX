@@ -137,14 +137,14 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <tr>
                 <th onclick="sortTable(0)">Tagnumber</th>
                 <th style='cursor: default;'>Last Heard</th>
-                <th onclick="sortTable(1)">Pending Job</th>
-                <th onclick="sortTable(2)">Current Status</th>
-                <th onclick="sortTable(3)">OS Installed</th>
+                <th onclick="sortTable(2)">Pending Job</th>
+                <th onclick="sortTable(3)">Current Status</th>
+                <th onclick="sortTable(4)">OS Installed</th>
                 <th style='cursor: default;'>Battery Charge</th>
-                <th onclick="sortTable(4)">Battery Status</th>
-                <th onclick="sortTable(5)">CPU Temp</th>
-                <th onclick="sortTable(6)">Disk Temp</th>
-                <th onclick="sortTable(7)">Actual Power Draw</th>
+                <th onclick="sortTable(6)">Battery Status</th>
+                <th onclick="sortTable(7)">CPU Temp</th>
+                <th onclick="sortTable(8)">Disk Temp</th>
+                <th onclick="sortTable(9)">Actual Power Draw</th>
                 </tr>
             </thead>
             <tbody>
@@ -206,6 +206,7 @@ echo "</div>";
                 <th>Tagnumber</th>
                 <th>Last Heard</th>
                 <th>Current Status</th>
+                <th>OS Installed</th>
                 <th>Battery Charge</th>
                 <th>Battery Status</th>
                 <th>CPU Temp</th>
