@@ -1,6 +1,6 @@
 <?php
-include('PDO-connect');
-include('functions');
+include('/var/www/html/management/mysql/PDO-connect');
+include('/var/www/html/management/mysql/functions');
 
 function dbSelect ($sql) {
     clearSQLGlobals();
