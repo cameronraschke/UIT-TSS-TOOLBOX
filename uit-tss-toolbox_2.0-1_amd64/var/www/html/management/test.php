@@ -1,6 +1,6 @@
 <?php
-require('header.php');
-include('mysql/mysql-functions');
+require('/var/www/html/management/header.php');
+include('/var/www/html/management/mysql/mysql-functions');
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');

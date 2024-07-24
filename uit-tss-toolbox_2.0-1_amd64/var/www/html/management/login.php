@@ -1,7 +1,7 @@
 <?php
 #login.php
 session_start();
-include('mysql/mysql-functions');
+include('/var/www/html/management/mysql/mysql-functions');
 if (isset($_POST['username']) && isset($_POST['password'])) {
 	dbSelectVal("SELECT name AS result FROM logins WHERE username = '" . $_POST['username'] . "' AND password = '" . $_POST['password'] . "'"); 
     if (filter($result) == 0) {

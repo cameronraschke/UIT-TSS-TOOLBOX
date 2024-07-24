@@ -1,7 +1,7 @@
 <?php
-require('header.php');
-include('mysql/mysql-functions');
-include('php/uit-sql-refresh-remote');
+require('/var/www/html/management/header.php');
+include('/var/www/html/management/mysql/mysql-functions');
+include('/var/www/html/management/php/uit-sql-refresh-remote');
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');

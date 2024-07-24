@@ -1,6 +1,6 @@
 <?php
 # Connect to database and include custom functions
-include('/mysql/mysql-functions');
+include('/var/www/html/management/mysql/mysql-functions');
 
 # Set current date and time
 $dt = new DateTimeImmutable();
