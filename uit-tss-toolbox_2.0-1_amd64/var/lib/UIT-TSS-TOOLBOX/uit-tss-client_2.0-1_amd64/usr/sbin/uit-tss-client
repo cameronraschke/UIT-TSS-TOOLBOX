@@ -19,6 +19,8 @@ coproc uit_cpu { uit-cpu-stats 2>/dev/null; }
 coproc uit_network { uit-network-stats 2>/dev/null; }
 coproc uit_sql { uit-sql 2>/dev/null; }
 
+umount /home/partimag 2>/dev/null
+
 scp -r cameron@mickey.uit:/home/cameron/sounds/findmy1.mp3 /root &>/dev/null
 
 echo ""
