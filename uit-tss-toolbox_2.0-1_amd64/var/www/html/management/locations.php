@@ -1,7 +1,9 @@
 <?php
 require('header.php');
 include('/var/www/html/management/mysql/mysql-functions');
-//include('/var/www/html/management/php/uit-sql-refresh-location');
+if ($_POST('refresh-stats')) {
+    include('/var/www/html/management/php/uit-sql-refresh-location');
+}
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
@@ -185,6 +187,14 @@ $time = $dt->format('Y-m-d H:i:s.v');
         ?>
 
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
+        <div>
+            <form>
+                <div>
+                    <button type="submit">Refresh Location Data</button>
+                </div>
+                <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
+            </form>
+        </div>
         <div class='styled-form2'>
             <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber...">
             <input type="text" id="myInputLocations" onkeyup="myFunctionLocations()" placeholder="Search locations...">
