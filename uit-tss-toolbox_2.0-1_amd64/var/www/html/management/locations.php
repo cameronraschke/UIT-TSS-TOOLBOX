@@ -187,8 +187,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
         ?>
 
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
-        <div>
-            <form>
+        <div class='styled-form'>
+            <form method='post'>
                 <div>
                     <button type="submit">Refresh Location Data</button>
                 </div>

@@ -82,7 +82,7 @@ foreach ($arr as $key => $value) {
         </tr>
     </thead>
     <tbody>
-        <form action="#" method="post">
+        <form method="post">
         <tr>
             <td>
                 <select name="location" id="location">
