@@ -1,7 +1,7 @@
 <?php
 require('header.php');
 include('/var/www/html/management/mysql/mysql-functions');
-if ($_POST('refresh-stats')) {
+if ($_POST['refresh-stats']) {
     include('/var/www/html/management/php/uit-sql-refresh-location');
 }
 $dt = new DateTimeImmutable();
