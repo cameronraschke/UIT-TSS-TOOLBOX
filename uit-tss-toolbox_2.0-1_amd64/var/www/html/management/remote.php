@@ -180,7 +180,6 @@ foreach ($arr as $key => $value) {
     echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
     echo "</select></form></td>" . PHP_EOL;
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["os_installed"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["cpu_temp"] . "</td>" . PHP_EOL;
