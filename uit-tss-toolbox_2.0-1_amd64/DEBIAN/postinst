@@ -58,7 +58,7 @@ fi
 # ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/parse /var/www/html/management/parse
 # ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/select /var/www/html/management/select
 
-wget 'https://uh.edu/favicon.ico' --output-file /var/www/html/management/favicon.ico
+wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico
 
 find /var/www/html/management/ -type f -exec chmod 644 {} \;
 find /var/www/html/management/ -type d -exec chmod 755 {} \;
