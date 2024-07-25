@@ -142,7 +142,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <th onclick="sortTable(3)">Current Status</th>
                 <th onclick="sortTable(4)">OS Installed</th>
                 <th style='cursor: default;'>Battery Charge</th>
-                <th onclick="sortTable(6)">Battery Status</th>
+                <th onclick="sortTable(6)">Uptime</th>
                 <th onclick="sortTable(7)">CPU Temp</th>
                 <th onclick="sortTable(8)">Disk Temp</th>
                 <th onclick="sortTable(9)">Actual Power Draw</th>
@@ -158,7 +158,7 @@ if (isset($_POST['task'])) {
     }
     unset($_POST['task']);
 }
-dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task IS NULL THEN 'No Job' END) AS task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'fail-test', 'shutdown', 'findmy', 'update', 'nvmeErase', 'hpEraseAndClone', 'nvmeVerify',  'data collection') DESC, NOT FIELD (status, 'waiting for job') DESC, os_installed DESC, present DESC");
+dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task IS NULL THEN 'No Job' END) AS task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', CONCAT(battery_charge, '%') AS 'battery_charge', SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'fail-test', 'shutdown', 'findmy', 'update', 'nvmeErase', 'hpEraseAndClone', 'nvmeVerify',  'data collection') DESC, NOT FIELD (status, 'waiting for job') DESC, os_installed DESC, present DESC");
 foreach ($arr as $key => $value) {
     echo "<tr>";
     if ($value["status"] != "waiting for job") {
@@ -183,7 +183,7 @@ foreach ($arr as $key => $value) {
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["os_installed"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["battery_status"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["uptime"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["cpu_temp"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["disk_temp"] . "</td>" . PHP_EOL;
     echo "<td> " . $value["watts_now"] . "</td>" . PHP_EOL;

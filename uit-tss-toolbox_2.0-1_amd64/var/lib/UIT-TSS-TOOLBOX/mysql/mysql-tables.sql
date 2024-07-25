@@ -256,12 +256,13 @@ CREATE TABLE IF NOT EXISTS remote (
     present DATETIME DEFAULT NULL,
     present_bool BOOLEAN DEFAULT NULL,
     status VARCHAR(30) DEFAULT NULL,
+    os_installed BOOLEAN DEFAULT NULL,
     battery_charge TINYINT DEFAULT NULL,
     battery_status VARCHAR(20) DEFAULT NULL,
+    uptime INT DEFAULT NULL,
     cpu_temp TINYINT DEFAULT NULL,
     disk_temp TINYINT DEFAULT NULL,
-    watts_now SMALLINT DEFAULT NULL,
-    os_installed BOOLEAN DEFAULT NULL
+    watts_now SMALLINT DEFAULT NULL
 );
 
 ALTER TABLE remote
@@ -272,12 +273,13 @@ ALTER TABLE remote
     MODIFY COLUMN present DATETIME DEFAULT NULL AFTER date,
     MODIFY COLUMN present_bool BOOLEAN DEFAULT NULL AFTER present,
     MODIFY COLUMN status VARCHAR(30) DEFAULT NULL AFTER present_bool,
-    MODIFY COLUMN battery_charge TINYINT DEFAULT NULL AFTER status,
+    MODIFY COLUMN os_installed BOOLEAN DEFAULT NULL AFTER status,
+    MODIFY COLUMN battery_charge TINYINT DEFAULT NULL AFTER os_installed,
     MODIFY COLUMN battery_status VARCHAR(20) DEFAULT NULL AFTER battery_charge,
-    MODIFY COLUMN cpu_temp TINYINT DEFAULT NULL AFTER status,
+    MODIFY COLUMN uptime INT DEFAULT NULL AFTER battery_status,
+    MODIFY COLUMN cpu_temp TINYINT DEFAULT NULL AFTER uptime,
     MODIFY COLUMN disk_temp TINYINT DEFAULT NULL AFTER cpu_temp,
-    MODIFY COLUMN watts_now SMALLINT DEFAULT NULL AFTER disk_temp,
-    MODIFY COLUMN os_installed BOOLEAN DEFAULT NULL AFTER watts_now;
+    MODIFY COLUMN watts_now SMALLINT DEFAULT NULL AFTER disk_temp;
 
 
 DROP table IF EXISTS logins;
