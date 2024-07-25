@@ -16,6 +16,8 @@ for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/
 for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 for i in $(ps | grep 'uit-status' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 
+echo "0" > /root/uptime
+
 coproc uit_cpu { uit-cpu-stats 2>/dev/null; }
 coproc uit_network { uit-network-stats 2>/dev/null; }
 coproc uit_sql { uit-sql 2>/dev/null; }
@@ -1546,6 +1548,7 @@ function execute_Shred {
 function execute {
 	rm /tmp/cpu-usage.txt
 	rm /tmp/network-usage.txt
+	echo "0" > /root/uptime
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		read -t 10 -p "${BOLD}Cannot erase device and save its image.${RESET}"
