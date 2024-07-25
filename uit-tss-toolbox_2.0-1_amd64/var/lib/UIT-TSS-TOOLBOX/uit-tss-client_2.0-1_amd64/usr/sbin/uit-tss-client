@@ -1493,6 +1493,7 @@ function execute_Clone {
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
 	echo "general|clone_time|${cloneElapsed}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	umount /home/partimag 2>/dev/null
 	return
 }
 
