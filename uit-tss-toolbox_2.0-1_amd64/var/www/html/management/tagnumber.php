@@ -84,7 +84,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', uuid, CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', CONCAT(boot_time, 's'), IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time' WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 10");
+                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', uuid, CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', CONCAT(boot_time, 's'), IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time' FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 10");
                 foreach ($arr as $key=>$value) {
                     echo "<tr>" . PHP_EOL;
                     echo "<td>" . $value['time_formatted'] . "</td>" . PHP_EOL;
