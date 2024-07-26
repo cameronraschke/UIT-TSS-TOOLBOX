@@ -24,6 +24,13 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <div class='pagetitle'><h1>Client Lookup (<?php echo $_GET['tagnumber']; ?>)</h1></div>
         <div class='pagetitle'><h2>Lookup data for a specific client.</h2></div>
         <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'result'"); echo $result; ?></h3></div>
+
+        <?php
+            dbSelectVal("SELECT system_model FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
+            if ($result == 'HP ProBook 450 G6') {
+                echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
+            }
+        ?>
         
         <div class='pagetitle'>
             <h3>General Client Info</h3>
@@ -42,7 +49,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT etheraddress, wifi_mac, department, system_manufacturer, system_model FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
+                dbSelect("SELECT etheraddress, wifi_mac, (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', system_manufacturer, system_model FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
                 foreach ($arr as $key => $value) {
                    echo "<tr>" . PHP_EOL;
                    echo "<td>" . $value['etheraddress'] . "</td>" . PHP_EOL;

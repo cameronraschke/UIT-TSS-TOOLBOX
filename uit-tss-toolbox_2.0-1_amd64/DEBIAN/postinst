@@ -60,5 +60,8 @@ fi
 
 wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico
 
+cp /home/cameron/hpProBook450G6.avif /var/www/html/management/images/
+cp /home/cameron/dellLatitude7400.avif /var/www/html/management/images/
+
 find /var/www/html/management/ -type f -exec chmod 644 {} \;
 find /var/www/html/management/ -type d -exec chmod 755 {} \;
