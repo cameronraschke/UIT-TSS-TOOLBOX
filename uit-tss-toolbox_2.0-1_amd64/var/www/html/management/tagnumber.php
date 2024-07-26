@@ -79,7 +79,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status='0' OR status IS NULL, 'Working', 'Broken') AS 'status', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (note IS NULL, NULL, note) FROM locations WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
+                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status='0' OR status IS NULL, 'Working', 'Broken') AS 'status', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND (note IS NULL OR NOT note = 'Unattended') ORDER BY time DESC LIMIT 1");
                 foreach ($arr as $key => $value) {
                 echo "<tr>" . PHP_EOL;
                 echo "<td>" . $value['time_formatted'] . "</td>" . PHP_EOL;
