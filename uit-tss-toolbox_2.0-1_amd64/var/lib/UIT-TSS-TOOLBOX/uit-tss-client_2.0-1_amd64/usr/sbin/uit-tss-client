@@ -1448,7 +1448,7 @@ function clientselect_Clone {
 	echo ""
 	case $CLIENTTYPE in
 	1)
-	cloneImgName='TechCommons-HP-Laptops'
+	cloneImgName='TechCommons-HP-LaptopsLZ4'
 	;;
 	2)
 	cloneImgName='TechCommons-Dell-Laptops'
@@ -1813,7 +1813,7 @@ function autodetectClient {
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				cloneMode="restoredisk"
-				cloneImgName="TechCommons-HP-Laptops"
+				cloneImgName="TechCommons-HP-LaptopsLZ4"
 				shredMode="autodetect"
 				RMODE="autodetect"
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1974,7 +1974,7 @@ function main {
 		fi
 			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
-		cloneImgName="TechCommons-HP-Laptops"
+		cloneImgName="TechCommons-HP-LaptopsLZ4"
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
