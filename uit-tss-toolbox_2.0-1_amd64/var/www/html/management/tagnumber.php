@@ -66,7 +66,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='pagetitle'><h3>General Client Info</h3></div>
 
-        <div class='styled-table' style="width: auto; height:10%; overflow:auto; margin: 1% 1% 0% 1%;">
+        <div class='styled-table' style="width: auto; height:30%; overflow:auto; margin: 1% 1% 0% 1%;">
         <table width="100%">
             <thead>
                 <tr>
@@ -95,7 +95,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         </div>
 
         <div class='pagetitle'><h3>Job Info</h3></div>
-        <div class='styled-table' style="width: auto; height:20%; overflow:auto; margin: 1% 1% 0% 1%;">
+        <div class='styled-table' style="width: auto; height:30%; overflow:auto; margin: 1% 1% 0% 1%;">
         <table width="100%">
             <thead>
                 <tr>
