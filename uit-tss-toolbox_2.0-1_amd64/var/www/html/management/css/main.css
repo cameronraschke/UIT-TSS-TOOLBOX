@@ -228,3 +228,11 @@ table {
 .location-form input[type=radio] {
 	margin: 1px 1px 1px 1px;
 }
+
+.laptop-images img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	height: auto;
+	max-width: 30%;
+}
