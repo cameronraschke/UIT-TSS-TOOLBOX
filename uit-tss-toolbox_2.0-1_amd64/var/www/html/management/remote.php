@@ -219,7 +219,7 @@ echo "</div>";
 dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool IS NULL ORDER BY present DESC, task DESC, status ASC, tagnumber DESC");
 foreach ($arr as $key => $value) {
     echo "<tr>";
-    echo "<td>" . $value["tagnumber"] . "</td>" . PHP_EOL;
+    echo "<td><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></td>" . PHP_EOL;
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
