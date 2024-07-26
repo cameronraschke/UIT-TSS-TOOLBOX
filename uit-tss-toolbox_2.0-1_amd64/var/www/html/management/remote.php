@@ -162,9 +162,9 @@ dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_format
 foreach ($arr as $key => $value) {
     echo "<tr>";
     if ($value["status"] != "waiting for job") {
-        echo "<td>Working: <b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
+        echo "<td>Working: <b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     } else {
-        echo "<td><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "'>" . $value["tagnumber"] . "</a></td>" . PHP_EOL;
+        echo "<td><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></td>" . PHP_EOL;
     }
     $_POST['tagnumber'] = $value["tagnumber"];
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
