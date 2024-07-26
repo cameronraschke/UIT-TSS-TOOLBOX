@@ -131,6 +131,10 @@ table {
 	color: black;
 }
 
+.styled-table a {
+	color: #C8102E;
+}
+
 .menubar {
 	position: relative;
 	width: 100%;
