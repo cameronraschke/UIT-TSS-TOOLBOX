@@ -26,8 +26,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'result'"); echo $result; ?></h3></div>
 
         <?php
-            dbSelectVal("SELECT system_model FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
-            if ($result == 'HP ProBook 450 G6') {
+            dbSelectVal("SELECT system_model AS 'result' FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
+            if ($result == "HP ProBook 450 G6") {
                 echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
             }
         ?>
