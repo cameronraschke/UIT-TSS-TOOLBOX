@@ -1479,7 +1479,7 @@ function execute_Clone {
 	linuxPassword='UHouston!'
 	linuxServer="10.0.0.1"
 	linuxDNS="mickey.uit"
-	umount /home/partimag &>/dev/null
+	umount /home/partimag 2>/dev/null
 	mkdir -p /home/partimag
 	mount -t nfs ${linuxServer}:/home/${linuxPath} /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
