@@ -76,7 +76,7 @@ CONCAT(t1.battery_capacity, ' Wh'), t1.battery_manufacturedate, t2.cpu_manufactu
 t2.motherboard_manufacturer, t2.motherboard_serial, t1.bios_version, t1.bios_date, t1.bios_firmware, t1.ram_serial, CONCAT(t1.ram_capacity, ' GB') ,CONCAT(t1.ram_speed, 'Mhz'), CONCAT(t1.cpu_usage, '%'), 
 CONCAT(t1.network_usage, 'mbps'), CONCAT(t1.boot_time, 's'), REPLACE(t1.erase_completed, '1', 'Yes'), t1.erase_mode, CONCAT(t1.erase_diskpercent, '%'), CONCAT(t1.erase_time, 's'), 
 REPLACE(t1.clone_completed, '1', 'Yes'), REPLACE(t1.clone_master, '1', 'Yes'), CONCAT(t1.clone_time, 's'), IF (t1.host_connected='1', 'Yes', '')
-FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber ORDER BY time DESC);
+FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber ORDER BY t1.time DESC);
 END; //
 
 DELIMITER ;
