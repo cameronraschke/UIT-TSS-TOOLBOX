@@ -302,3 +302,21 @@ INSERT INTO logins
     ('kvu', 'UHouston!', 'Kevin'),
     ('rcarroyo', 'UHouston!', 'Rafael'),
     ('isdavis', 'UHouston!', 'Ivey');
+
+
+CREATE TABLE IF NOT EXISTS system_data (
+    tagnumber MEDIUMINT NOT NULL PRIMARY KEY,
+    wifi_mac VARCHAR(17) DEFAULT NULL,
+    system_manufacturer VARCHAR(24) DEFAULT NULL,
+    system_model VARCHAR(20) DEFAULT NULL,
+    system_uuid VARCHAR(26) DEFAULT NULL,
+    system_sku VARCHAR(20) DEFAULT NULL,
+    chassis_type VARCHAR(16) DEFAULT NULL,
+    cpu_manufacturer VARCHAR(20) DEFAULT NULL,
+    cpu_model VARCHAR(46) DEFAULT NULL,
+    cpu_maxspeed SMALLINT DEFAULT NULL,
+    cpu_cores TINYINT DEFAULT NULL,
+    cpu_threads TINYINT DEFAULT NULL,
+    motherboard_manufacturer VARCHAR(24) DEFAULT NULL,
+    motherboard_serial VARCHAR(24) DEFAULT NULL
+);
