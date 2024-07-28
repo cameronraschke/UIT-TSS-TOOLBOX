@@ -61,7 +61,7 @@ DELIMITER //
 CREATE PROCEDURE iterateJobCSV()
 DETERMINISTIC
 BEGIN
-(SELECT 'UUID','Tag','System Serial','Date','Datetime','Department','Ethernet MAC','System Manufacturer','Model','System UUID',
+(SELECT 'UUID','Tag','System Serial','Date','Datetime','Department','Ethernet MAC','Wi-Fi MAC','System Manufacturer','Model','System UUID',
 'System SKU', 'Chassis Type', 'Disk','Disk Model','Disk Type','Disk Size','Disk Serial','Disk Writes','Disk Reads',
 'Disk Power on Hours','Disk Temp','Disk Firmware','Battery Model','Battery Serial','Battery Health','Battery Charge Cycles',
 'Battery Capacity','Battery Manufacture Date','CPU Manufacturer','CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp',
@@ -69,14 +69,14 @@ BEGIN
 'Network Usage','Boot Time','Erase Completed','Erase Mode','Erase Disk Percent','Erase Time',
 'Clone Completed','Clone Master','Clone Time', 'Connected to Host')
 UNION
-(SELECT uuid, tagnumber, system_serial, date, CONVERT(time, DATETIME), department, etheraddress, system_manufacturer, system_model, system_uuid, 
-system_sku, chassis_type, disk, disk_model, disk_type, CONCAT(disk_size, ' GB'), disk_serial, CONCAT(disk_writes, ' TB'), CONCAT(disk_reads, ' TB'), 
-CONCAT(disk_power_on_hours, 'hrs'), CONCAT(disk_temp, ' C'), disk_firmware, battery_model, battery_serial, CONCAT(battery_health, '%'), battery_charge_cycles, 
-CONCAT(battery_capacity, ' Wh'), battery_manufacturedate, cpu_manufacturer, cpu_model, CONCAT(round(cpu_maxspeed / 1000, 2), ' Ghz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), 
-motherboard_manufacturer, motherboard_serial, bios_version, bios_date, bios_firmware, ram_serial, CONCAT(ram_capacity, ' GB') ,CONCAT(ram_speed, 'Mhz'), CONCAT(cpu_usage, '%'), 
-CONCAT(network_usage, 'mbps'), CONCAT(boot_time, 's'), REPLACE(erase_completed, '1', 'Yes'), erase_mode, CONCAT(erase_diskpercent, '%'), CONCAT(erase_time, 's'), 
-REPLACE(clone_completed, '1', 'Yes'), REPLACE(clone_master, '1', 'Yes'), CONCAT(clone_time, 's'), IF (host_connected='1', 'Yes', '')
-FROM jobstats ORDER BY time DESC);
+(SELECT t1.uuid, t1.tagnumber, t1.system_serial, t1.date, CONVERT(t1.time, DATETIME), t1.department, t1.etheraddress, t2.wifi_mac, t1.system_manufacturer, t2.system_model, t1.system_uuid, 
+t1.system_sku, t1.chassis_type, t1.disk, t1.disk_model, t1.disk_type, CONCAT(t1.disk_size, ' GB'), t1.disk_serial, CONCAT(t1.disk_writes, ' TB'), CONCAT(t1.disk_reads, ' TB'), 
+CONCAT(t1.disk_power_on_hours, 'hrs'), CONCAT(t1.disk_temp, ' C'), t1.disk_firmware, t1.battery_model, t1.battery_serial, CONCAT(t1.battery_health, '%'), t1.battery_charge_cycles, 
+CONCAT(t1.battery_capacity, ' Wh'), t1.battery_manufacturedate, t1.cpu_manufacturer, t1.cpu_model, CONCAT(round(t1.cpu_maxspeed / 1000, 2), ' Ghz'), t1.cpu_cores, t1.cpu_threads, CONCAT(t1.cpu_temp, ' C'), 
+t1.motherboard_manufacturer, t1.motherboard_serial, t1.bios_version, t1.bios_date, t1.bios_firmware, t1.ram_serial, CONCAT(t1.ram_capacity, ' GB') ,CONCAT(t1.ram_speed, 'Mhz'), CONCAT(t1.cpu_usage, '%'), 
+CONCAT(t1.network_usage, 'mbps'), CONCAT(t1.boot_time, 's'), REPLACE(t1.erase_completed, '1', 'Yes'), t1.erase_mode, CONCAT(t1.erase_diskpercent, '%'), CONCAT(t1.erase_time, 's'), 
+REPLACE(t1.clone_completed, '1', 'Yes'), REPLACE(t1.clone_master, '1', 'Yes'), CONCAT(t1.clone_time, 's'), IF (t1.host_connected='1', 'Yes', '')
+FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber ORDER BY time DESC);
 END; //
 
 DELIMITER ;
@@ -244,17 +244,17 @@ CREATE PROCEDURE selectTag(tag VARCHAR(8))
 DETERMINISTIC
 BEGIN
 SELECT time,
-    tagnumber,
-    system_serial,
-    bios_version,
-    system_model,
-    cpu_usage,
-    network_usage,
-    battery_health,
-    disk_power_on_hours,
-    ram_serial,
-    host_connected
-    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 5;
+    t1.tagnumber,
+    t1.system_serial,
+    t1.bios_version,
+    t2.system_model,
+    t1.cpu_usage,
+    t1.network_usage,
+    t1.battery_health,
+    t1.disk_power_on_hours,
+    t1.ram_serial,
+    t1.host_connected
+    FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE tagnumber = tag ORDER BY time DESC LIMIT 5;
 
 SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
 END; //

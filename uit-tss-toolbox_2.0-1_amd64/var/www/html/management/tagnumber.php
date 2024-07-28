@@ -27,7 +27,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='laptop-images'>
         <?php
-            dbSelectVal("SELECT system_model AS 'result' FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
+            dbSelectVal("SELECT system_model AS 'result' FROM system_data WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
             if ($result == "HP ProBook 450 G6") {
                 echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
             }
@@ -49,7 +49,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT etheraddress, (SELECT wifi_mac FROM system_data WHERE tagnumber = '" . $_GET['tagnumber'] . "') AS 'wifi_mac', (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', system_manufacturer, system_model FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
+                dbSelect("SELECT t1.etheraddress, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t1.system_manufacturer, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
                 foreach ($arr as $key => $value) {
                    echo "<tr>" . PHP_EOL;
                    echo "<td>" . $value['etheraddress'] . "</td>" . PHP_EOL;

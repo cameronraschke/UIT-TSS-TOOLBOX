@@ -186,9 +186,13 @@ function diskData {
 
 
 function systemData {
-		###WiFi Info
-		wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
-		echo "system_data|${tagNum}|wifi_mac|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	# WiFi MAC Address
+	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
+	echo "system_data|${tagNum}|wifi_mac|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# System Model Name
+	tOneProductName=$(dmidecode --string system-product-name)
+	echo "general|system_model|${tOneProductName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 function hardwareData {
@@ -252,8 +256,6 @@ fi
 		echo "general|bios_firmware|${tZeroFirmwareRevision}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneManufacturer=$(dmidecode --string system-manufacturer)
 		echo "general|system_manufacturer|${tOneManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tOneProductName=$(dmidecode --string system-product-name)
-		echo "general|system_model|${tOneProductName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSerialNumber=$(dmidecode --string system-serial-number)
 		echo "general|system_serial|${tOneSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneUUID=$(dmidecode --string system-uuid)
