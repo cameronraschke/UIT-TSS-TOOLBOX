@@ -72,8 +72,8 @@ UNION
 (SELECT t1.uuid, t1.tagnumber, t1.system_serial, t1.date, CONVERT(t1.time, DATETIME), t1.department, t1.etheraddress, t2.wifi_mac, t1.system_manufacturer, t2.system_model, t2.system_uuid, 
 t2.system_sku, t2.chassis_type, t1.disk, t1.disk_model, t1.disk_type, CONCAT(t1.disk_size, ' GB'), t1.disk_serial, CONCAT(t1.disk_writes, ' TB'), CONCAT(t1.disk_reads, ' TB'), 
 CONCAT(t1.disk_power_on_hours, 'hrs'), CONCAT(t1.disk_temp, ' C'), t1.disk_firmware, t1.battery_model, t1.battery_serial, CONCAT(t1.battery_health, '%'), t1.battery_charge_cycles, 
-CONCAT(t1.battery_capacity, ' Wh'), t1.battery_manufacturedate, t2.cpu_manufacturer, t2.cpu_model, CONCAT(round(t2.cpu_maxspeed / 1000, 2), ' Ghz'), t2.cpu_cores, t1.cpu_threads, CONCAT(t1.cpu_temp, ' C'), 
-t1.motherboard_manufacturer, t1.motherboard_serial, t1.bios_version, t1.bios_date, t1.bios_firmware, t1.ram_serial, CONCAT(t1.ram_capacity, ' GB') ,CONCAT(t1.ram_speed, 'Mhz'), CONCAT(t1.cpu_usage, '%'), 
+CONCAT(t1.battery_capacity, ' Wh'), t1.battery_manufacturedate, t2.cpu_manufacturer, t2.cpu_model, CONCAT(round(t2.cpu_maxspeed / 1000, 2), ' Ghz'), t2.cpu_cores, t2.cpu_threads, CONCAT(t1.cpu_temp, ' C'), 
+t2.motherboard_manufacturer, t2.motherboard_serial, t1.bios_version, t1.bios_date, t1.bios_firmware, t1.ram_serial, CONCAT(t1.ram_capacity, ' GB') ,CONCAT(t1.ram_speed, 'Mhz'), CONCAT(t1.cpu_usage, '%'), 
 CONCAT(t1.network_usage, 'mbps'), CONCAT(t1.boot_time, 's'), REPLACE(t1.erase_completed, '1', 'Yes'), t1.erase_mode, CONCAT(t1.erase_diskpercent, '%'), CONCAT(t1.erase_time, 's'), 
 REPLACE(t1.clone_completed, '1', 'Yes'), REPLACE(t1.clone_master, '1', 'Yes'), CONCAT(t1.clone_time, 's'), IF (t1.host_connected='1', 'Yes', '')
 FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber ORDER BY time DESC);

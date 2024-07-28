@@ -221,6 +221,18 @@ function systemData {
 	# CPU Core Count
 	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //g' | sed 's/^[[:space:]]*//g')
 	echo "system_data|${tagNum}|cpu_cores|${tFourCoreCount}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# CPU Thread Count
+	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
+	echo "system_data|${tagNum}|cpu_threads|${tFourThreadCount}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# Motherboard Manufacturer
+	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
+	echo "system_data|${tagNum}|motherboard_manufacturer|${tTwoManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# Motherboard Serial
+	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
+	echo "system_data|${tagNum}|motherboard_serial|${tTwoSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 function hardwareData {
@@ -286,12 +298,6 @@ fi
 		echo "general|system_manufacturer|${tOneManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSerialNumber=$(dmidecode --string system-serial-number)
 		echo "general|system_serial|${tOneSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
-		echo "general|motherboard_manufacturer|${tTwoManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
-		echo "general|motherboard_serial|${tTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|cpu_threads|${tFourThreadCount}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	###Disk Data
 	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
