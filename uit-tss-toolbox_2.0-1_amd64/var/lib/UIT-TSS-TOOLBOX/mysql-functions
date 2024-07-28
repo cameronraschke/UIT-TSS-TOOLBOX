@@ -245,10 +245,10 @@ function dbUpdateSystemData ($tagNum, $key, $value) {
 
         if (filter($value) == 0) {
             $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-            $stmt->bindParam(':date', $tagNum, PDO::PARAM_STR);
+            $stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
         } else {
             $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-            $stmt->bindParam(':date', $tagNum, PDO::PARAM_STR);
+            $stmt->bindParam(':tagnumber', $tagNum, PDO::PARAM_STR);
         }
 
         if (filter($stmt) == 0) {
