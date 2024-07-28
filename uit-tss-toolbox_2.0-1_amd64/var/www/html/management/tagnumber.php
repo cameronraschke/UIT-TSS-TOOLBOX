@@ -49,7 +49,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT etheraddress, wifi_mac, (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', system_manufacturer, system_model FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
+                dbSelect("SELECT etheraddress, (SELECT wifi_mac FROM system_data WHERE tagnumber = '" . $_GET['tagnumber'] . "') AS 'wifi_mac', (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', system_manufacturer, system_model FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
                 foreach ($arr as $key => $value) {
                    echo "<tr>" . PHP_EOL;
                    echo "<td>" . $value['etheraddress'] . "</td>" . PHP_EOL;

@@ -254,6 +254,22 @@ function dbUpdateSystemData ($tagNum, $key, $value) {
         if (filter($stmt) == 0) {
             $stmt->execute();
         }
+        $stmt = null;
+        $sql = null;
+
+        $dt = new DateTimeImmutable();
+        $time = $dt->format('Y-m-d H:i:s.v');
+
+        $sql = "UPDATE system_data SET time = :clienttime WHERE tagnumber = :tagNum";
+        $stmt = $pdo->prepare($sql);
+
+        if (filter($time) == 0) {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+            $stmt->bindParam(':clienttime', $time, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+            $stmt->bindParam(':clienttime', $time, PDO::PARAM_NULL);
+        }
     }
 }
 

@@ -184,6 +184,13 @@ function diskData {
 	done
 }
 
+
+function systemData {
+		###WiFi Info
+		wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
+		echo "system_data|${tagNum}|wifi_mac|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
+}
+
 function hardwareData {
 # 53 cols in art
 terminalCols=$(( $(tput cols) / 2 ))
@@ -383,10 +390,6 @@ fi
 	###CPU Info
 	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
 		echo "general|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-
-	###WiFi Info
-	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
-		echo "general|wifi_mac|${wifiMac}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1961,6 +1964,7 @@ function main {
 	tput reset
 	department
 	enterTag
+	systemData
 	hardwareData
 	tput reset
 	autodetectClient

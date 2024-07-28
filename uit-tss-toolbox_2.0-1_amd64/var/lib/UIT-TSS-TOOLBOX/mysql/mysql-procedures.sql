@@ -61,7 +61,7 @@ DELIMITER //
 CREATE PROCEDURE iterateJobCSV()
 DETERMINISTIC
 BEGIN
-(SELECT 'UUID','Tag','System Serial','Date','Datetime','Department','Ethernet MAC','WiFi MAC','System Manufacturer','Model','System UUID',
+(SELECT 'UUID','Tag','System Serial','Date','Datetime','Department','Ethernet MAC','System Manufacturer','Model','System UUID',
 'System SKU', 'Chassis Type', 'Disk','Disk Model','Disk Type','Disk Size','Disk Serial','Disk Writes','Disk Reads',
 'Disk Power on Hours','Disk Temp','Disk Firmware','Battery Model','Battery Serial','Battery Health','Battery Charge Cycles',
 'Battery Capacity','Battery Manufacture Date','CPU Manufacturer','CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp',
@@ -69,7 +69,7 @@ BEGIN
 'Network Usage','Boot Time','Erase Completed','Erase Mode','Erase Disk Percent','Erase Time',
 'Clone Completed','Clone Master','Clone Time', 'Connected to Host')
 UNION
-(SELECT uuid, tagnumber, system_serial, date, CONVERT(time, DATETIME), department, etheraddress, wifi_mac, system_manufacturer, system_model, system_uuid, 
+(SELECT uuid, tagnumber, system_serial, date, CONVERT(time, DATETIME), department, etheraddress, system_manufacturer, system_model, system_uuid, 
 system_sku, chassis_type, disk, disk_model, disk_type, CONCAT(disk_size, ' GB'), disk_serial, CONCAT(disk_writes, ' TB'), CONCAT(disk_reads, ' TB'), 
 CONCAT(disk_power_on_hours, 'hrs'), CONCAT(disk_temp, ' C'), disk_firmware, battery_model, battery_serial, CONCAT(battery_health, '%'), battery_charge_cycles, 
 CONCAT(battery_capacity, ' Wh'), battery_manufacturedate, cpu_manufacturer, cpu_model, CONCAT(round(cpu_maxspeed / 1000, 2), ' Ghz'), cpu_cores, cpu_threads, CONCAT(cpu_temp, ' C'), 

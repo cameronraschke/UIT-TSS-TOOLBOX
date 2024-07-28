@@ -156,4 +156,61 @@ function dbUpdateRemote ($tagNum, $key, $value) {
     }
 }
 
+function dbUpdateSystemData ($tagNum, $key, $value) {
+    if (filter($tagNum) == 0 && filter($key) == 0) {
+        global $pdo;
+        $sql = "UPDATE system_data SET $key = :value WHERE tagnumber = :tagNum";
+        $stmt = $pdo->prepare($sql);
+
+        if (is_numeric($value) && filterNum($value) == 1) {
+            $value = "NULL";
+        }
+
+        if (filter($value) == 0) {
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        }
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+        $stmt = null;
+        $sql = null;
+
+        $dt = new DateTimeImmutable();
+        $time = $dt->format('Y-m-d H:i:s.v');
+
+        $sql = "UPDATE system_data SET time = :clienttime WHERE tagnumber = :tagNum";
+        $stmt = $pdo->prepare($sql);
+
+        if (filter($time) == 0) {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+            $stmt->bindParam(':clienttime', $time, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+            $stmt->bindParam(':clienttime', $time, PDO::PARAM_NULL);
+        }
+    }
+}
+
+function dbInsertSystemData ($tagNum) {
+    if (filter($tagNum) == 0) {
+        global $pdo;
+        $sql = "INSERT INTO system_data (tagnumber) VALUES (:tagNum)";
+        $stmt = $pdo->prepare($sql);
+
+        if (filter($tagNum) == 0) {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        }
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
 ?>

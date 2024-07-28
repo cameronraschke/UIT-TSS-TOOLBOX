@@ -24,7 +24,7 @@ if ($arr[0] == "init") {
     dbUpdateJob("tagnumber", "$tagNum", "$uuid");
     dbUpdateJob("system_serial", "$serial", "$uuid");
     dbUpdateJob("etheraddress", "$macAddr", "$uuid");
-    dbUpdateJob("wifi_mac", "$wifiMac", "$uuid");
+    dbUpdateSystemData("$tagNum", "wifi_mac", "$wifiMac");
     dbUpdateJob("date", "$date", "$uuid");
     dbUpdateJob("time", "$time", "$uuid");
 
@@ -115,6 +115,14 @@ if ($arr[0] == "general") {
 
 }
 
+if ($arr[0] == "system_data") {
+    $tagNum = $arr[1];
+    $key = $arr[2];
+    $value = $arr[3];
+
+    dbUpdateSystemData("$tagNum", "$key", "$value");
+}
+
 if ($arr[0] == "system-stats") {
     $uuid = $arr[2];
     if ($arr[1] == "cpu") {
@@ -187,5 +195,4 @@ if ($arr[0] == "remote") {
 
     dbUpdateRemote("$tagNum", "$key", "$value");
 }
-
 ?>
