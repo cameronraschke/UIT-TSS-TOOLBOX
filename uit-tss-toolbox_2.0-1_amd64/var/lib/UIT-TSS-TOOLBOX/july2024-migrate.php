@@ -19,8 +19,8 @@ include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
 
 dbSelect("SELECT tagnumber FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber");
 foreach ($arr as $key=>$value) {
-    echo "Working on" . $tagNum . PHP_EOL;
     $tagNum = $value['tagnumber'];
+    echo "Working on" . $tagNum . PHP_EOL;
 
     // Check if tag already exists, if not then insert it
     dbSelectVal("SELECT tagnumber AS 'result' FROM system_data WHERE tagnumber = '" . $tagNum . "'");
