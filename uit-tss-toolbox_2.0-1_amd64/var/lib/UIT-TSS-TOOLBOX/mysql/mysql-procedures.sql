@@ -69,7 +69,7 @@ BEGIN
 'Network Usage','Boot Time','Erase Completed','Erase Mode','Erase Disk Percent','Erase Time',
 'Clone Completed','Clone Master','Clone Time', 'Connected to Host')
 UNION
-(SELECT t1.uuid, t1.tagnumber, t1.system_serial, t1.date, CONVERT(t1.time, DATETIME), t1.department, t1.etheraddress, t2.wifi_mac, t1.system_manufacturer, t2.system_model, t2.system_uuid, 
+(SELECT t1.uuid, t1.tagnumber, t1.system_serial, t1.date, CONVERT(t1.time, DATETIME), t1.department, t1.etheraddress, t2.wifi_mac, t2.system_manufacturer, t2.system_model, t2.system_uuid, 
 t2.system_sku, t2.chassis_type, t1.disk, t1.disk_model, t1.disk_type, CONCAT(t1.disk_size, ' GB'), t1.disk_serial, CONCAT(t1.disk_writes, ' TB'), CONCAT(t1.disk_reads, ' TB'), 
 CONCAT(t1.disk_power_on_hours, 'hrs'), CONCAT(t1.disk_temp, ' C'), t1.disk_firmware, t1.battery_model, t1.battery_serial, CONCAT(t1.battery_health, '%'), t1.battery_charge_cycles, 
 CONCAT(t1.battery_capacity, ' Wh'), t1.battery_manufacturedate, t2.cpu_manufacturer, t2.cpu_model, CONCAT(round(t2.cpu_maxspeed / 1000, 2), ' Ghz'), t2.cpu_cores, t2.cpu_threads, CONCAT(t1.cpu_temp, ' C'), 

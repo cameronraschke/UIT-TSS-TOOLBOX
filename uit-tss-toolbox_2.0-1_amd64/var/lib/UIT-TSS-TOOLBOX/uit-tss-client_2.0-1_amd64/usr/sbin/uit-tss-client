@@ -233,6 +233,10 @@ function systemData {
 	# Motherboard Serial
 	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
 	echo "system_data|${tagNum}|motherboard_serial|${tTwoSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# System Manufacturer
+	tOneManufacturer=$(dmidecode --string system-manufacturer)
+	echo "system_data|${tagNum}|system_manufacturer|${tOneManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 function hardwareData {
@@ -294,8 +298,6 @@ fi
 		echo "general|bios_date|${tZeroBiosReleaseDate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tZeroFirmwareRevision=$(dmidecode --string firmware-revision)
 		echo "general|bios_firmware|${tZeroFirmwareRevision}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tOneManufacturer=$(dmidecode --string system-manufacturer)
-		echo "general|system_manufacturer|${tOneManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSerialNumber=$(dmidecode --string system-serial-number)
 		echo "general|system_serial|${tOneSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
