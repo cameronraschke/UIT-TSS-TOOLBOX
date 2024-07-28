@@ -192,7 +192,35 @@ function systemData {
 
 	# System Model Name
 	tOneProductName=$(dmidecode --string system-product-name)
-	echo "general|system_model|${tOneProductName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|system_model|${tOneProductName}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# System UUID
+	tOneUUID=$(dmidecode --string system-uuid)
+	echo "system_data|${tagNum}|system_uuid|${tOneUUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# System SKU
+	tOneSKU=$(dmidecode --string system-sku-number)
+	echo "system_data|${tagNum}|system_sku|${tOneSKU}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# Chassis Type
+	tThreeType=$(dmidecode --string chassis-type | head -n1)
+	echo "system_data|${tagNum}|chassis_type|${tThreeType}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# CPU Manufacturer
+	tFourManufacturer=$(dmidecode --string processor-manufacturer)
+	echo "system_data|${tagNum}|cpu_manufacturer|${tFourManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# CPU Model
+	tFourVersion=$(dmidecode --string processor-version)
+	echo "system_data|${tagNum}|cpu_model|${tFourVersion}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# CPU Max Speed
+	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/[^0-9]//g')
+	echo "system_data|${tagNum}|cpu_maxspeed|${tFourMaxSpeed}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+	# CPU Core Count
+	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //g' | sed 's/^[[:space:]]*//g')
+	echo "system_data|${tagNum}|cpu_cores|${tFourCoreCount}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
 function hardwareData {
@@ -258,24 +286,10 @@ fi
 		echo "general|system_manufacturer|${tOneManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tOneSerialNumber=$(dmidecode --string system-serial-number)
 		echo "general|system_serial|${tOneSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tOneUUID=$(dmidecode --string system-uuid)
-		echo "general|system_uuid|${tOneUUID}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tOneSKU=$(dmidecode --string system-sku-number)
-		echo "general|system_sku|${tOneSKU}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
 		echo "general|motherboard_manufacturer|${tTwoManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
 		echo "general|motherboard_serial|${tTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tThreeType=$(dmidecode --string chassis-type | head -n1)
-		echo "general|chassis_type|${tThreeType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourManufacturer=$(dmidecode --string processor-manufacturer)
-		echo "general|cpu_manufacturer|${tFourManufacturer}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourVersion=$(dmidecode --string processor-version)
-		echo "general|cpu_model|${tFourVersion}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/[^0-9]//g')
-		echo "general|cpu_maxspeed|${tFourMaxSpeed}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|cpu_cores|${tFourCoreCount}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
 		echo "general|cpu_threads|${tFourThreadCount}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
