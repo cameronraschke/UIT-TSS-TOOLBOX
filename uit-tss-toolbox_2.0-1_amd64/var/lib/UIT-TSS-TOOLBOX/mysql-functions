@@ -270,6 +270,12 @@ function dbUpdateSystemData ($tagNum, $key, $value) {
             $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
             $stmt->bindParam(':clienttime', $time, PDO::PARAM_NULL);
         }
+        
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+        $stmt = null;
+        $sql = null;
     }
 }
 
