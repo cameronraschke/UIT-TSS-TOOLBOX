@@ -256,4 +256,22 @@ function dbUpdateSystemData ($tagNum, $key, $value) {
         }
     }
 }
+
+function dbInsertSystemData ($tagNum) {
+    if (filter($tagNum) == 0) {
+        global $pdo;
+        $sql = "INSERT INTO system_data (tagnumber) VALUES (:tagNum)";
+        $stmt = $pdo->prepare($sql);
+
+        if (filter($tagNum) == 0) {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        } else {
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        }
+
+        if (filter($stmt) == 0) {
+            $stmt->execute();
+        }
+    }
+}
 ?>
