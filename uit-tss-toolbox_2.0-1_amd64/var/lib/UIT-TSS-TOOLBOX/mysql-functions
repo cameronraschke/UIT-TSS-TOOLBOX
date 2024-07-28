@@ -236,7 +236,7 @@ function dbUpdateRemote ($tagNum, $key, $value) {
 function dbUpdateSystemData ($tagNum, $key, $value) {
     if (filter($tagNum) == 0 && filter($key) == 0) {
         global $pdo;
-        $sql = "UPDATE serverstats SET $key = :value WHERE tagnumber = :tagNum";
+        $sql = "UPDATE system_data SET $key = :value WHERE tagnumber = :tagNum";
         $stmt = $pdo->prepare($sql);
 
         if (is_numeric($value) && filterNum($value) == 1) {
