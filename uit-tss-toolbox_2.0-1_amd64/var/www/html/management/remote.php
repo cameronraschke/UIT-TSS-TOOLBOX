@@ -101,8 +101,8 @@ foreach ($arr as $key => $value) {
                     <option value=' '>No Job</option>
                     <option value='update'>Update</option>
                     <option value='nvmeErase'>Erase Only</option>
-                    <option value='hpEraseAndClone'>Erase + Clone</option>
                     <option value='hpCloneOnly'>Clone Only</option>
+                    <option value='hpEraseAndClone'>Erase + Clone</option>
                     <option value='findmy'>Play Sound</option>
                     <option value=' '>Clear Pending Jobs</option>
                 </select>
@@ -177,8 +177,8 @@ foreach ($arr as $key => $value) {
     }
     echo "<option value='" . $value["tagnumber"] . "|update'>Update</option>";
     echo "<option value='" . $value["tagnumber"] . "|nvmeErase'>Erase Only</option>";
-    echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
     echo "<option value='" . $value["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
+    echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
     echo "<option value='" . $value["tagnumber"] . "|findmy'>Play Sound</option>";
     echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
     echo "</select></form></td>" . PHP_EOL;
