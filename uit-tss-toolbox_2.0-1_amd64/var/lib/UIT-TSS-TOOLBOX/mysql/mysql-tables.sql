@@ -283,7 +283,7 @@ CREATE TABLE IF NOT EXISTS system_data (
     wifi_mac VARCHAR(17) DEFAULT NULL,
     system_manufacturer VARCHAR(24) DEFAULT NULL,
     system_model VARCHAR(20) DEFAULT NULL,
-    system_uuid VARCHAR(26) DEFAULT NULL,
+    system_uuid VARCHAR(36) DEFAULT NULL,
     system_sku VARCHAR(20) DEFAULT NULL,
     chassis_type VARCHAR(16) DEFAULT NULL,
     cpu_manufacturer VARCHAR(20) DEFAULT NULL,
