@@ -1862,6 +1862,36 @@ function autodetectClient {
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				exec uit-tss-client
+				elif [[ $task == "hpCloneOnly" ]]; then
+				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
+				APPSELECT="C"
+				ACTION="clone"
+				if [[ /dev/nvme0n1 ]]; then
+					CLIENTDISK='nvme0n1'
+				else
+					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /var/lib/UIT-TSS-TOOLBOX/parse
+					autodetectClient
+				fi
+					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				cloneMode="restoredisk"
+				cloneImgName="TechCommons-HP-LaptopsLZ4"
+				linuxUser="cameron"
+				linuxPassword="UHouston!"
+				linuxServer="10.0.0.1"
+				linuxDNS="mickey.uit"
+				footer
+				rtcwake --mode mem --seconds 3
+				footer
+				execute
+				totaltime
+				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+				echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				exec uit-tss-client
 			elif [[ $task = "nvmeErase" ]]; then
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				vrfySections=""
