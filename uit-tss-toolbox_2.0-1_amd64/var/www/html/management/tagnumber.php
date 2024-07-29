@@ -27,7 +27,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='laptop-images'>
         <?php
-            dbSelectVal("SELECT system_model AS 'result' FROM system_data WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
+            dbSelectVal("SELECT system_model AS 'result' FROM system_data WHERE tagnumber = '" . $_GET['tagnumber'] . "'");
             if ($result == "HP ProBook 450 G6") {
                 echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
             }
