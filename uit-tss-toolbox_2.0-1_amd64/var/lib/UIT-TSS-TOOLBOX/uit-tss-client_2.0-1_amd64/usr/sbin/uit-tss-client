@@ -1862,7 +1862,7 @@ function autodetectClient {
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				exec uit-tss-client
-				elif [[ $task == "hpCloneOnly" ]]; then
+			elif [[ $task == "hpCloneOnly" ]]; then
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				APPSELECT="C"
 				ACTION="clone"
