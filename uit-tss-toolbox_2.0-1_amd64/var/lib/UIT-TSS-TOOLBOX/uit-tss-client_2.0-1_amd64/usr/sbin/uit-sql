@@ -54,9 +54,11 @@ elapsed=$(cat /root/uptime)
 if [[ -z $elapsed ]]; then
     elapsed=0
 fi
-elapsed=$(( elapsed + 30 ))
+
+sleep 15
+
+elapsed=$(( elapsed + 15 ))
 echo "$elapsed" > /root/uptime
 echo "remote|${tagNum}|uptime|$elapsed" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-sleep 30
 done
