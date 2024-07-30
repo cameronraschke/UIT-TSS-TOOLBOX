@@ -501,6 +501,7 @@ function footer {
 		biosUpdated="$(dmidecode --string bios-version)"
 	elif [[ $biosUpdatedSQL == $(dmidecode --string bios-version) ]]; then
 		biosUpdated="${GREEN}Updated${RESET}"
+		echo "remote|${tagNum}|bios_updated|" |  /var/lib/UIT-TSS-TOOLBOX/parse
 	elif [[ $biosUpdatedSQL != $(dmidecode --string bios-version) ]]; then
 		biosUpdated="${RED}Needs Update${RESET}"
 		echo "remote|${tagNum}|bios_updated|1" |  /var/lib/UIT-TSS-TOOLBOX/parse
