@@ -187,8 +187,8 @@ foreach ($arr as $key => $value) {
         echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
         echo "</select></form></td>" . PHP_EOL;
     } else {
-        echo "<td><i>BIOS Out of Date</i></td>";
-        echo "<option value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
+        echo "<td><i>BIOS Out of Date</i>";
+        echo "<option value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option></td>";
     }
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["os_installed"] . "</td>" . PHP_EOL;
