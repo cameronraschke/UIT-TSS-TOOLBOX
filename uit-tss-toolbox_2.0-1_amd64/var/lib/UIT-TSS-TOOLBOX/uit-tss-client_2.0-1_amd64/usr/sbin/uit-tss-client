@@ -1777,7 +1777,6 @@ function autodetectClient {
 		CLIENTDISK=""
 		cloneMode=""
 		cloneImgName=""
-		footer
 		logo
 		echo ""
 		echo ""
