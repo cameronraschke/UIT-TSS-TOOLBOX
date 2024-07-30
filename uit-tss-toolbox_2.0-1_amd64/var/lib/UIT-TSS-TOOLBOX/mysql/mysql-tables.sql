@@ -231,6 +231,7 @@ CREATE TABLE IF NOT EXISTS remote (
     present_bool BOOLEAN DEFAULT NULL,
     status VARCHAR(30) DEFAULT NULL,
     os_installed BOOLEAN DEFAULT NULL,
+    bios_updated BOOLEAN DEFAULT NULL,
     battery_charge TINYINT DEFAULT NULL,
     battery_status VARCHAR(20) DEFAULT NULL,
     uptime INT DEFAULT NULL,
@@ -249,7 +250,8 @@ ALTER TABLE remote
     MODIFY COLUMN status VARCHAR(30) DEFAULT NULL AFTER present_bool,
     MODIFY COLUMN os_installed BOOLEAN DEFAULT NULL AFTER status,
     MODIFY COLUMN battery_charge TINYINT DEFAULT NULL AFTER os_installed,
-    MODIFY COLUMN battery_status VARCHAR(20) DEFAULT NULL AFTER battery_charge,
+    MODIFY COLUMN bios_updated BOOLEAN DEFAULT NULL,
+    MODIFY COLUMN battery_status VARCHAR(20) DEFAULT NULL AFTER bios_updated,
     MODIFY COLUMN uptime INT DEFAULT NULL AFTER battery_status,
     MODIFY COLUMN cpu_temp TINYINT DEFAULT NULL AFTER uptime,
     MODIFY COLUMN disk_temp TINYINT DEFAULT NULL AFTER cpu_temp,
@@ -292,6 +294,6 @@ CREATE TABLE IF NOT EXISTS system_data (
     cpu_cores TINYINT DEFAULT NULL,
     cpu_threads TINYINT DEFAULT NULL,
     motherboard_manufacturer VARCHAR(24) DEFAULT NULL,
-    motherboard_serial VARCHAR(24) DEFAULT NULL, 
+    motherboard_serial VARCHAR(24) DEFAULT NULL,
     time DATETIME(3) DEFAULT NULL
 );

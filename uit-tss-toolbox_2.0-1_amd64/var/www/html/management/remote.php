@@ -159,7 +159,7 @@ if (isset($_POST['task'])) {
     }
     unset($_POST['task']);
 }
-dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', CONCAT(battery_charge, '%') AS 'battery_charge', SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'data collection', 'update', 'nvmeVerify', 'hpCloneOnly', 'nvmeErase', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, NOT FIELD (status, 'waiting for job') DESC, os_installed DESC, present DESC");
+dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', CONCAT(battery_charge, '%') AS 'battery_charge', SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'data collection', 'update', 'nvmeVerify', 'hpCloneOnly', 'nvmeErase', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, NOT FIELD (status, 'waiting for job') DESC, os_installed DESC, present DESC");
 foreach ($arr as $key => $value) {
     echo "<tr>";
     if ($value["status"] != "waiting for job") {
@@ -169,19 +169,23 @@ foreach ($arr as $key => $value) {
     }
     $_POST['tagnumber'] = $value["tagnumber"];
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
-    echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
-    if (filter($value["task"]) == 1) {
-        echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
+    if ($value['bios_updated'] == "Yes") {
+        echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
+        if (filter($value["task"]) == 1) {
+            echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
+        } else {
+            echo "<option value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task"] . "</option>";
+        }
+        echo "<option value='" . $value["tagnumber"] . "|update'>Update</option>";
+        echo "<option value='" . $value["tagnumber"] . "|nvmeErase'>Erase Only</option>";
+        echo "<option value='" . $value["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
+        echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
+        echo "<option value='" . $value["tagnumber"] . "|findmy'>Play Sound</option>";
+        echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
+        echo "</select></form></td>" . PHP_EOL;
     } else {
-        echo "<option value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task"] . "</option>";
+        echo "<td><i>BIOS Out of Date</i></td>"
     }
-    echo "<option value='" . $value["tagnumber"] . "|update'>Update</option>";
-    echo "<option value='" . $value["tagnumber"] . "|nvmeErase'>Erase Only</option>";
-    echo "<option value='" . $value["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
-    echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
-    echo "<option value='" . $value["tagnumber"] . "|findmy'>Play Sound</option>";
-    echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
-    echo "</select></form></td>" . PHP_EOL;
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["os_installed"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;

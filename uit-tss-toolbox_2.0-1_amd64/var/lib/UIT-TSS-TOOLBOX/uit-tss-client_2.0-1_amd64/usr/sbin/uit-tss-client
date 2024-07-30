@@ -503,6 +503,7 @@ function footer {
 		biosUpdated="${GREEN}Updated${RESET}"
 	elif [[ $biosUpdatedSQL != $tZeroBiosVersion ]]; then
 		biosUpdated="${RED}Needs Update${RESET}"
+		echo "remote|${tagNum}|bios_updated|1" |  /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 	sqlLocation=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
 
@@ -1776,6 +1777,7 @@ function autodetectClient {
 		CLIENTDISK=""
 		cloneMode=""
 		cloneImgName=""
+		footer
 		logo
 		echo ""
 		echo ""
