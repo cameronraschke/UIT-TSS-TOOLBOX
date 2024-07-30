@@ -33,8 +33,27 @@ $time = $dt->format('Y-m-d H:i:s.v');
             }
         ?>
         </div>
+
+        <div class="pagetitle"><h3>Update Job</h3></div>
+        <div>
+            <form name="task" method="post">
+                <select name="task" onchange='this.form.submit()'>
+                    <?php
+                    if (filter($_GET['task']) == 0) {
+                        echo "<option value='" . $value["tagnumber"] . "|update'>Update</option>";
+                        echo "<option value='" . $value["tagnumber"] . "|nvmeErase'>Erase Only</option>";
+                        echo "<option value='" . $value["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
+                        echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
+                        echo "<option value='" . $value["tagnumber"] . "|findmy'>Play Sound</option>";
+                        echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
+                    }
+                    ?>
+                </select>
+            </form>
+        </div>
+
         
-        <div class='pagetitle'><h3>General Client Info</h3></div>
+        <div class='pagetitle'><h3>General Client Info - <u><?php echo $_GET["tagnumber"]; ?></u></h3></div>
 
         <div class='styled-table' style="width: auto; height:10%; overflow:auto; margin: 1% 1% 0% 1%;">
         <table width="100%">
@@ -134,6 +153,12 @@ $time = $dt->format('Y-m-d H:i:s.v');
             </tbody>
         </table>
         </div>
+
+        <script>
+            if ( window.history.replaceState ) {
+                window.history.replaceState( null, null, window.location.href );
+            }
+        </script>
 
     <div class="uit-footer">
         <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
