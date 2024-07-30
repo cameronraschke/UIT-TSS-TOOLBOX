@@ -4,6 +4,14 @@ include('/var/www/html/management/mysql/mysql-functions');
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
+
+if (isset($_POST['task'])) {
+    $arrTask = explode('|', $_POST['task']);
+    if (filter($arrTask[0]) == 0) {
+        dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
+    }
+    unset($_POST['task']);
+}
 ?>
 
 <html>
@@ -40,12 +48,12 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 <select name="task" onchange='this.form.submit()'>
                     <?php
                     if (filter($_GET['task']) == 0) {
-                        echo "<option value='" . $value["tagnumber"] . "|update'>Update</option>";
-                        echo "<option value='" . $value["tagnumber"] . "|nvmeErase'>Erase Only</option>";
-                        echo "<option value='" . $value["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
-                        echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
-                        echo "<option value='" . $value["tagnumber"] . "|findmy'>Play Sound</option>";
-                        echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
+                        echo "<option value='" . $_GET["tagnumber"] . "|update'>Update</option>";
+                        echo "<option value='" . $_GET["tagnumber"] . "|nvmeErase'>Erase Only</option>";
+                        echo "<option value='" . $_GET["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
+                        echo "<option value='" . $_GET["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
+                        echo "<option value='" . $_GET["tagnumber"] . "|findmy'>Play Sound</option>";
+                        echo "<option value='" . $_GET["tagnumber"] . "| '>Clear Pending Jobs</option>";
                     }
                     ?>
                 </select>
