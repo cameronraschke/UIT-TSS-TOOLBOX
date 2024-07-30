@@ -139,7 +139,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <tr>
                 <th onclick="sortTable(0)">Tagnumber</th>
                 <th style='cursor: default;'>Last Heard</th>
-                <th onclick="sortTable(1)">Location</th>
+                <th style='cursor: default;'>Location</th>
                 <th onclick="sortTable(2)">Pending Job</th>
                 <th onclick="sortTable(3)">Current Status</th>
                 <th onclick="sortTable(4)">OS Installed</th>
