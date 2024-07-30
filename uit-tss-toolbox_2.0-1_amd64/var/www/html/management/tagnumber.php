@@ -47,7 +47,7 @@ if (isset($_POST['task'])) {
             <form name="task" method="post">
                 <select name="task" onchange='this.form.submit()'>
                     <?php
-                    if (filter($_GET['task']) == 0) {
+                    if ($_GET['tagnumber']) {
                         echo "<option value='" . $_GET["tagnumber"] . "|update'>Update</option>";
                         echo "<option value='" . $_GET["tagnumber"] . "|nvmeErase'>Erase Only</option>";
                         echo "<option value='" . $_GET["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
