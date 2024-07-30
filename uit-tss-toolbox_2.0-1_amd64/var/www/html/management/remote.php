@@ -139,6 +139,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <tr>
                 <th onclick="sortTable(0)">Tagnumber</th>
                 <th style='cursor: default;'>Last Heard</th>
+                <th style='cursor: default;'>Location</th>
                 <th onclick="sortTable(2)">Pending Job</th>
                 <th onclick="sortTable(3)">Current Status</th>
                 <th onclick="sortTable(4)">OS Installed</th>
@@ -169,6 +170,8 @@ foreach ($arr as $key => $value) {
     }
     $_POST['tagnumber'] = $value["tagnumber"];
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
+    dbSelectVal("SELECT location AS 'result' FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
+    echo "<td>" . $result . "</td>" . PHP_EOL;
     if ($value['bios_updated'] == "Yes") {
         echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
         if (filter($value["task"]) == 1) {
