@@ -49,11 +49,7 @@ if (isset($_POST['task'])) {
                     <?php
                     if ($_GET['tagnumber']) {
                         dbSelect("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task FROM remote");
-                        if (filter($value["task"]) == 1) {
-                            echo "<option value='" . $_GET["tagnumber"] . "|NULL'>No Job</option>";
-                        } else {
-                            echo "<option value='" . $_GET["tagnumber"] . "|" . $value["task"] . "'>" . $value["formatted_task"] . "</option>";
-                        }
+                        echo "<option value='" . $_GET["tagnumber"] . "|" . $value["task"] . "'>" . $value["formatted_task"] . "</option>";
                         echo "<option value='" . $_GET["tagnumber"] . "|update'>Update</option>";
                         echo "<option value='" . $_GET["tagnumber"] . "|nvmeErase'>Erase Only</option>";
                         echo "<option value='" . $_GET["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
