@@ -115,7 +115,7 @@ foreach ($arr as $key => $value) {
 
 <?php
 if (isset($_POST['location']) && isset($_POST['location-action'])) {
-    dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND location = '" . $_POST['location'] . "' AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber)");
+    dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) AND location = '" . $_POST['location'] . "' GROUP BY tagnumber)");
     if (filterArr($arr) == 0) {
         foreach ($arr as $key => $value) {
             dbUpdateRemote($value["result"], "task", $_POST['location-action']);
