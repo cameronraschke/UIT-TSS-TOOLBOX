@@ -243,7 +243,7 @@ DELIMITER //
 CREATE PROCEDURE selectTag(tag VARCHAR(8))
 DETERMINISTIC
 BEGIN
-SELECT time,
+SELECT t1.time,
     t1.tagnumber,
     t1.system_serial,
     t1.bios_version,
