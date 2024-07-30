@@ -254,7 +254,7 @@ SELECT t1.time,
     t1.disk_power_on_hours,
     t1.ram_serial,
     t1.host_connected
-    FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE tagnumber = tag ORDER BY t1.time DESC LIMIT 5;
+    FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = tag ORDER BY t1.time DESC LIMIT 5;
 
 SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
 END; //
