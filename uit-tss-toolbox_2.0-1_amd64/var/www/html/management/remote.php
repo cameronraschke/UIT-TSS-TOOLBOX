@@ -171,7 +171,7 @@ foreach ($arr as $key => $value) {
     $_POST['tagnumber'] = $value["tagnumber"];
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
     dbSelectVal("SELECT location AS 'result' FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
-    if (preg_match("/./", $result)) { 
+    if (preg_match("/^[a-zA-Z]$/", $result)) { 
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
     } else {
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
@@ -236,7 +236,7 @@ foreach ($arr as $key => $value) {
     echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
     dbSelectVal("SELECT location AS 'result' FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
-    if (preg_match("/./", $result)) { 
+    if (preg_match("/^[a-zA-Z]$/", $result)) { 
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
     } else {
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
