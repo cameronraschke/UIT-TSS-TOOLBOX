@@ -232,7 +232,7 @@ foreach ($arr as $key => $value) {
     echo "<tr>" . PHP_EOL;
     echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
-    if (preg_match("/^[a-zA-Z]$/", $result)) { 
+    if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"]) . "' target='_blank'>" . strtoupper($value["location"]) . "</a></b></td>" . PHP_EOL;
     } else {
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"]) . "' target='_blank'>" . $value["location"] . "</a></b></td>" . PHP_EOL;
