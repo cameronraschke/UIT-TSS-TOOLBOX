@@ -144,6 +144,7 @@ if (isset($_POST['task'])) {
                 <th>Clone Completed</th>
                 <th>Clone Master</th>
                 <th>Clone Time</th>
+                <th>BIOS Version</th>
                 </tr>
             </thead>
             <tbody>
