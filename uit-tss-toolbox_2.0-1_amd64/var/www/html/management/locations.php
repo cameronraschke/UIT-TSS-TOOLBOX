@@ -194,6 +194,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 </div>
                 <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
             </form>
+            <div><a href='locations.php'>Reset Filters</a></div>
         </div>
         <div class='styled-form2'>
             <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber...">
