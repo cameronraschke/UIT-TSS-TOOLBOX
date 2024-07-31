@@ -1758,12 +1758,16 @@ function autodetectClient {
 	footer
 	if [[ $(echo "${tOneManufacturer}" | grep -i "dell") ]]; then
 		systemManufacturer="dell"
+		cloneImgName='TechCommons-Dell-Laptops'
 		elif [[ $(echo "${tOneManufacturer}" | grep -i "hp") ]]; then
 			systemManufacturer="hp"
+			cloneImgName='TechCommons-HP-LaptopsLZ4'
 		elif [[ $(echo "${tOneManufacturer}" | grep -i "hewlett") ]]; then
 			systemManufacturer="hp"
+			cloneImgName='TechCommons-HP-LaptopsLZ4'
 		else
 			systemManufacturer="unknown"
+			cloneImgName='TechCommons-HP-LaptopsLZ4'
 	fi
 
 	if [[ $(echo "${tThreeType}" | grep -i "notebook") ]]; then
@@ -1778,7 +1782,6 @@ function autodetectClient {
 		ACTION=""
 		CLIENTDISK=""
 		cloneMode=""
-		cloneImgName=""
 		logo
 		echo ""
 		echo ""
@@ -1843,7 +1846,6 @@ function autodetectClient {
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				cloneMode="restoredisk"
-				cloneImgName="TechCommons-HP-LaptopsLZ4"
 				shredMode="autodetect"
 				RMODE="autodetect"
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1877,7 +1879,6 @@ function autodetectClient {
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				cloneMode="restoredisk"
-				cloneImgName="TechCommons-HP-LaptopsLZ4"
 				linuxUser="cameron"
 				linuxPassword="UHouston!"
 				linuxServer="10.0.0.1"
