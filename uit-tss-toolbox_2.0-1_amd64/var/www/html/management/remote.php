@@ -222,7 +222,6 @@ echo "</div>";
                 <th>Last Location</th>
                 <th>Current Status</th>
                 <th>Battery Charge</th>
-                <th>Battery Status</th>
                 <th>CPU Temp</th>
                 <th>Disk Temp</th>
                 <th>Actual Power Draw</th>
@@ -242,8 +241,7 @@ foreach ($arr as $key => $value) {
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
     }
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["battery_status"] . "</td>" . PHP_EOL;
+    echo "<td>" . $value["battery_charge"] . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
     echo "<td>" . $value["cpu_temp"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["disk_temp"] . "</td>" . PHP_EOL;
     echo "<td> " . $value["watts_now"] . "</td>" . PHP_EOL;
