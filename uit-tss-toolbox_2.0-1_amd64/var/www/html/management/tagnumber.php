@@ -43,7 +43,7 @@ if (isset($_POST['task'])) {
         </div>
 
         <div class="pagetitle"><h3>Update Job</h3></div>
-        <div>
+        <div class='page-content'>
             <form name="task" method="post">
                 <select name="task" onchange='this.form.submit()'>
                     <?php
