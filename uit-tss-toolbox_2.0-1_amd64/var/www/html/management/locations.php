@@ -187,6 +187,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         ?>
 
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
+        <div class='page-content'><h3>A checkmark (<span style='color: #008282'> &#10004;</span>) means a client is currently on and attached to the server.</h3></div>
         <div class='styled-form'>
             <form method='post'>
                 <div>
