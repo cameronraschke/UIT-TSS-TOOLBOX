@@ -200,6 +200,7 @@ table {
 	position: relative;
 	width: 100%;
 	margin: 1% 1% 2% 1%;
+	font-size: 18px;
 }
 .location-form input[type=text] {
 	padding: 6px 10px;
@@ -223,6 +224,10 @@ table {
 }
 .location-form label {
 	width: auto;
+}
+.location-form textarea {
+	width: 20%;
+	height: 12%;
 }
 
 .laptop-images {
