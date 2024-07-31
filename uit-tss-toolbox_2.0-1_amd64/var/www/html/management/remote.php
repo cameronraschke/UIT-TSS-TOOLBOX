@@ -171,7 +171,11 @@ foreach ($arr as $key => $value) {
     $_POST['tagnumber'] = $value["tagnumber"];
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
     dbSelectVal("SELECT location AS 'result' FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
-    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
+    if (preg_match("/./", $result)) { 
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
+    } else {
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
+    }
     if ($value['bios_updated'] == "Yes") {
         echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
         if (filter($value["task"]) == 1) {
@@ -232,7 +236,11 @@ foreach ($arr as $key => $value) {
     echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
     dbSelectVal("SELECT location AS 'result' FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
-    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
+    if (preg_match("/./", $result)) { 
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
+    } else {
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
+    }
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_charge"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_status"] . "</td>" . PHP_EOL;
