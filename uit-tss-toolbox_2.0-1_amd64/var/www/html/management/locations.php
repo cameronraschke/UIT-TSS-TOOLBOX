@@ -180,7 +180,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             echo "<tr>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
             echo "<label for='tagnumber'>Enter Location and Status: </label>" . PHP_EOL;
-            echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='tagnumber' autofocus>" . PHP_EOL;
+            echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='Tagnumber' autofocus>" . PHP_EOL;
             echo "<select name='status' id='status' required>" . PHP_EOL;
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;
