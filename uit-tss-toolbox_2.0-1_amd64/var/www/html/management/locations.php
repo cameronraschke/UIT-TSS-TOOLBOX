@@ -233,9 +233,9 @@ foreach ($arr as $key => $value) {
     echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
     if (preg_match("/^[a-zA-Z]$/", $result)) { 
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"]) . "' target='_blank'>" . strtoupper($value["location"]) . "</a></b></td>" . PHP_EOL;
     } else {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"]) . "' target='_blank'>" . $value["location"] . "</a></b></td>" . PHP_EOL;
     }
     dbSelectVal("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS result FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
     echo "<td>" . $result . "</td>" . PHP_EOL;
