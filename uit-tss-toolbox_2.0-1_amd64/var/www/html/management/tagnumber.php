@@ -137,7 +137,6 @@ if (isset($_POST['task'])) {
                 <th>Time</th>
                 <th>CPU Usage</th>
                 <th>Network Usage</th>
-                <th>Boot Time</th>
                 <th>Erase Completed</th>
                 <th>Erase Mode</th>
                 <th>Erase Time Elapsed</th>
