@@ -227,7 +227,7 @@ foreach ($arr as $key => $value) {
     echo "<tr>" . PHP_EOL;
     echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
-    echo "<td>" . $value['location'] . "</td>" . PHP_EOL;
+    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value['location']) . "'>" . $value['location'] . "</a></b></td>" . PHP_EOL;
     dbSelectVal("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS result FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
     echo "<td>" . $result . "</td>" . PHP_EOL;
     echo "<td>" . $value['status'] . "</td>" . PHP_EOL;
