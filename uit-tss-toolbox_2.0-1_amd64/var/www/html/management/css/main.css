@@ -205,6 +205,7 @@ table {
 	padding: 6px 10px;
 	width: 10%;
 	border: 1px solid gray;
+	margin: 1% 0% 1% 0%;
 }
 .location-form input[type=text]:focus {
 	border: 1px solid black;
@@ -212,17 +213,16 @@ table {
 .location-form input[type=submit] {
 	padding: 8px 10px;
 	width: auto;
+	margin: 1% 0% 1% 0%;
 }
 .location-form select {
 	text-align: center;
 	padding: 6px 10px;
 	width: auto;
+	margin: 1% 0% 1% 0%;
 }
 .location-form label {
 	width: auto;
-}
-.location-form input[type=radio] {
-	margin: 1px 1px 1px 1px;
 }
 
 .laptop-images {
