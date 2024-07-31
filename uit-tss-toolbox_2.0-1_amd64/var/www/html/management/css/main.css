@@ -199,13 +199,13 @@ table {
 .location-form {
 	position: relative;
 	width: 100%;
-	margin: 2% 1% 2% 1%;
+	margin: 1% 1% 2% 1%;
 }
 .location-form input[type=text] {
 	padding: 6px 10px;
 	width: 10%;
 	border: 1px solid gray;
-	margin: 1% 0% 1% 0%;
+	margin: 0% 0% 1% 0%;
 }
 .location-form input[type=text]:focus {
 	border: 1px solid black;
@@ -213,13 +213,13 @@ table {
 .location-form input[type=submit] {
 	padding: 8px 10px;
 	width: auto;
-	margin: 1% 0% 1% 0%;
+	margin: 0% 0% 1% 0%;
 }
 .location-form select {
 	text-align: center;
 	padding: 6px 10px;
 	width: auto;
-	margin: 1% 0% 1% 0%;
+	margin: 0% 0% 1% 0%;
 }
 .location-form label {
 	width: auto;
