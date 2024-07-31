@@ -8,7 +8,7 @@ do {
     try {
         $user = "cameron";
         $pass = "UHouston!";
-        $pdo = new PDO('mysql:host=localhost;dbname=laptopDB', $user, $pass, array(
+        $pdo = new PDO('mysql:host=localhost;dbname=laptopDB;charset=utf8mb4', $user, $pass, array(
             PDO::ATTR_PERSISTENT => true,
             PDO::ATTR_ERRMODE => true,
             PDO::ERRMODE_EXCEPTION => true
