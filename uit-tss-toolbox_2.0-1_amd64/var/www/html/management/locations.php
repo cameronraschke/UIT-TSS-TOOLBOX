@@ -183,8 +183,8 @@ $time = $dt->format('Y-m-d H:i:s.v');
             echo "<div class='location-form'>";
             echo "<tr>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
-            echo "<label for='tagnumber'>Enter Location and Status: </label>" . PHP_EOL;
-            echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='Tagnumber' autofocus>" . PHP_EOL;
+            echo "<label for='tagnumber'>Enter tag number and status: </label>" . PHP_EOL;
+            echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus>" . PHP_EOL;
             echo "<select name='status' id='status' required>" . PHP_EOL;
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;
@@ -215,7 +215,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             <table id="myTable">
                 <thead>
                 <tr>
-                    <th onclick="sortTable(0)">Tagnumber</th>
+                    <th onclick="sortTable(0)">Tag Number</th>
                     <th style='cursor: default;'>System Serial</th>
                     <th onclick="sortTable(2)">Location</th>
                     <th onclick="sortTable(3)">Department</th>

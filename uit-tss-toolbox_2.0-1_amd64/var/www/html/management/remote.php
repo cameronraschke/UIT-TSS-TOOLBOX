@@ -137,7 +137,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
             <table id="myTable" width="100%">
             <thead>
                 <tr>
-                <th onclick="sortTable(0)">Tagnumber</th>
+                <th onclick="sortTable(0)">Tag Number</th>
                 <th style='cursor: default;'>Last Heard</th>
                 <th style='cursor: default;'>Location</th>
                 <th onclick="sortTable(2)">Pending Job</th>
@@ -217,7 +217,7 @@ echo "</div>";
             <table id="myTable1" width="100%">
             <thead>
                 <tr>
-                <th>Tagnumber</th>
+                <th>Tag Number</th>
                 <th>Last Heard</th>
                 <th>Last Location</th>
                 <th>Current Status</th>
