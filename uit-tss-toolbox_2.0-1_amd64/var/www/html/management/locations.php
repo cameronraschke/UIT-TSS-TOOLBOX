@@ -232,7 +232,7 @@ foreach ($arr as $key => $value) {
     echo "<tr>" . PHP_EOL;
     dbSelectVal("SELECT present_bool FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "'");
     if (filter($result) == "0") {
-        echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . " <span style='color: #008282'> &#10004;</span>" . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] "</a></b> <span style='color: #008282'> &#10004;</span></td>" . PHP_EOL;
     } else {
         echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     }
