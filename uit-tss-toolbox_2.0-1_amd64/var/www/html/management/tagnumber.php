@@ -71,23 +71,25 @@ if (isset($_POST['task'])) {
         <table width="100%">
             <thead>
                 <tr>
-                <th>Ethernet MAC Address</th>
+                <th>System Serial</th>
                 <th>Wi-Fi MAC Address</th>
                 <th>Department</th>
                 <th>System Manufacturer</th>
                 <th>System Model</th>
+                <th>CPU Model</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT t1.etheraddress, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = '" . $_GET['tagnumber'] . "' AND t2.tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY t1.time DESC LIMIT 1");
+                dbSelect("SELECT t1.system_serial, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = '" . $_GET['tagnumber'] . "' AND t2.tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY t1.time DESC LIMIT 1");
                 foreach ($arr as $key => $value) {
                    echo "<tr>" . PHP_EOL;
-                   echo "<td>" . $value['etheraddress'] . "</td>" . PHP_EOL;
+                   echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
                    echo "<td>" . $value['wifi_mac'] . "</td>" . PHP_EOL;
                    echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
                    echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
                    echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
+                   echo "<td>" . $value['cpu_model'] . "</td>" . PHP_EOL;
                    echo "</tr>" . PHP_EOL;
                 }
                 ?>
@@ -104,18 +106,20 @@ if (isset($_POST['task'])) {
                 <th>Time</th>
                 <th>Location</th>
                 <th>Status</th>
+                <th>OS Installed</th>
                 <th>Disk Removed</th>
                 <th>Note</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status='0' OR status IS NULL, 'Working', 'Broken') AS 'status', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND (note IS NULL OR NOT note = 'Unattended') ORDER BY time DESC LIMIT 1");
+                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status='0' OR status IS NULL, 'Working', 'Broken') AS 'status', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', note FROM locations WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND (note IS NULL OR NOT note = 'Unattended') ORDER BY time DESC LIMIT 1");
                 foreach ($arr as $key => $value) {
                 echo "<tr>" . PHP_EOL;
                 echo "<td>" . $value['time_formatted'] . "</td>" . PHP_EOL;
                 echo "<td>" . $value['location'] . "</td>" . PHP_EOL;
                 echo "<td>" . $value['status'] . "</td>" . PHP_EOL;
+                echo "<td>" . $value['os_installed'] . "</td>" . PHP_EOL;
                 echo "<td>" . $value['disk_removed'] . "</td>" . PHP_EOL;
                 echo "<td>" . $value['note'] . "</td>" . PHP_EOL;
                 echo "</tr>" . PHP_EOL;
@@ -131,7 +135,6 @@ if (isset($_POST['task'])) {
             <thead>
                 <tr>
                 <th>Time</th>
-                <th>UUID</th>
                 <th>CPU Usage</th>
                 <th>Network Usage</th>
                 <th>Boot Time</th>
@@ -145,11 +148,10 @@ if (isset($_POST['task'])) {
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', uuid, CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', CONCAT(boot_time, 's'), IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time' FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 10");
+                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', CONCAT(boot_time, 's'), IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 10");
                 foreach ($arr as $key=>$value) {
                     echo "<tr>" . PHP_EOL;
                     echo "<td>" . $value['time_formatted'] . "</td>" . PHP_EOL;
-                    echo "<td>" . $value['uuid'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['cpu_usage'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['network_usage'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['boot_time'] . "</td>" . PHP_EOL;
@@ -159,6 +161,7 @@ if (isset($_POST['task'])) {
                     echo "<td>" . $value['clone_completed'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['clone_master'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['clone_time'] . "</td>" . PHP_EOL;
+                    echo "<td>" . $value['bios_version'] . "</td>" . PHP_EOL;
                     echo "</tr>" . PHP_EOL;
                 }
                 ?>
