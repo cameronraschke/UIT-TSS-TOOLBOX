@@ -204,6 +204,13 @@ if ($_GET["location"]) {
     $stmt->execute();
     $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $rowCount = $stmt->rowCount();
+    $onlineRowCount = 0;
+    foreach ($arr as $key => $value) {
+        dbSelectVal("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value["tagnumber"] . "'");
+        if (filterNum($result) == 0) {
+            $onlineRowCount = $onlineRowCount + 1;
+        }
+    }
 } else {
     dbSelect("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
 }
@@ -213,7 +220,7 @@ if ($_GET["location"]) {
         <div class='page-content'><h3>A checkmark (<span style='color: #008282'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
         <?php
         if ($_GET["location"]) {
-            echo "<div class='page-content'><h3><u>" . $rowCount . "</u> rows returned from your query.</h3></div>";
+            echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online from location '" . $value["location"] . "'.</h3></div>";
         }
         ?>
         <div class='styled-form'>
