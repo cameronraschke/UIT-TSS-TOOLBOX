@@ -68,7 +68,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                         echo "<textarea id='note' name='note'>" . htmlspecialchars($result) . "</textarea>" . PHP_EOL;
                     } else {
                         //echo "<input type='text' id='note' name='note'>" . PHP_EOL;
-                        echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
+                        echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($result) .  "'></textarea>" . PHP_EOL;
                     }
                     echo "<br>" . PHP_EOL;
                     echo "<input type='hidden' name='status' value='" . $_POST['status'] . "'>";
