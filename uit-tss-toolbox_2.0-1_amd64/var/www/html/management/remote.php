@@ -88,10 +88,13 @@ foreach ($arr as $key => $value) {
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
-                    dbSelect("SELECT location AS 'result' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
+                    dbSelect("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
                     foreach ($arr as $key => $value) {
-                        $location = $value["result"];
-                        echo "<option value='$location'>$location</option>" . PHP_EOL;
+                        if (preg_match("/^[a-zA-Z]$/", $result)) {
+                            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . strtoupper($value["location"]) . "</option>" . PHP_EOL;
+                        } else {
+                            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . $value["location"] . "</option>" . PHP_EOL;
+                        }
                     }
                 ?>
                 </select>
@@ -115,7 +118,13 @@ foreach ($arr as $key => $value) {
 
 <?php
 if (isset($_POST['location']) && isset($_POST['location-action'])) {
-    dbSelect("SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = '" . $_POST['location'] . "' GROUP BY tagnumber");
+    $sql="SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber";
+    $stmt = $pdo->prepare($sql);
+    $sqlLocation = htmlspecialchars_decode($_POST['location']);
+    $stmt->bindParam(':location', $sqlLocation, PDO::PARAM_STR);
+    $stmt->execute();
+    $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     if (filterArr($arr) == 0) {
         foreach ($arr as $key => $value) {
             dbUpdateRemote($value["result"], "task", $_POST['location-action']);
