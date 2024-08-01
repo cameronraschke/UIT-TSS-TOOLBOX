@@ -31,7 +31,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         <?php
         if (!empty($_POST['tagnumber'])) {
             echo "<div class='location-form'>" . PHP_EOL;
-            dbSelect("SELECT system_serial, location, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND (NOT note = 'Unattended' OR NOTE IS NULL) ORDER BY time DESC LIMIT 1");
+            dbSelect("SELECT system_serial, location, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
             if (!empty($arr)) {
                 foreach ($arr as $key => $value) {
                     echo "<form method='post'>" . PHP_EOL;
@@ -63,7 +63,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                     echo "<label for='note'>Note</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
                     if ($_POST['status'] == "1") {
-                        dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
+                        dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
                         //echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
                         echo "<textarea id='note' name='note'>" . htmlspecialchars($result) . "</textarea>" . PHP_EOL;
                     } else {
@@ -120,7 +120,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "<label for='note'>Note</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 if ($_POST['status'] == "1") {
-                    dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL AND NOT note = 'Unattended' ORDER BY time DESC LIMIT 1");
+                    dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
                     //echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
                     echo "<textarea id='note' name='note'>" . htmlspecialchars($result) . "</textarea>" . PHP_EOL;
                 } else {
