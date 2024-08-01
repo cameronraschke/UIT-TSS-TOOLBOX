@@ -40,15 +40,13 @@ foreach ($arr as $key => $value) {
         dbUpdateLocation("os_installed", "$osInstalled", "$maxTime");
     }
 
-    dbSelect("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE tagnumber = '" . $tagNum . "' AND t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1");
+    dbSelect("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = '" . $tagNum . "' AND t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1");
     foreach ($arr as $key => $value) {
-        $curSystemModel = $value["system_model"];
-        $curBiosVersion = $value["bios_version"];
 
-        dbUpdateCS("system_model", "$curSystemModel", "$tagNum");
+        dbUpdateCS("system_model", $value["system_model"], "$tagNum");
 
-        dbSelectVal("SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '$curSystemModel'");
-        if ($result == $curBiosVersion) {
+        dbSelectVal("SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '" . $value["system_model"] . "'");
+        if ($result == $value["bios_version"]) {
             $biosBool = '1';
         } else {
             $biosBool = '0';
