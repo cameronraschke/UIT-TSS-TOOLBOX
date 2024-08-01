@@ -18,7 +18,7 @@ if (isset($_POST['task'])) {
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>TechComm Laptop Managment</title>
+        <title>UIT Laptop Management - <?php echo $_GET['tagnumber']; ?></title>
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     </head>
     <body>

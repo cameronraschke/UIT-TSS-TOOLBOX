@@ -11,7 +11,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>TechComm Laptop Managment</title>
+        <title>UIT Laptop Managment - Remote Management</title>
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     </head>
     <body>

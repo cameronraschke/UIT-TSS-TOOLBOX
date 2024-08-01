@@ -3,7 +3,7 @@
 <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>TechComm Laptop Managment</title>
+        <title>UIT Laptop Managment</title>
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     </head>
     <body>
