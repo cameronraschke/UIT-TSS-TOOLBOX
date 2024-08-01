@@ -67,6 +67,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                         //echo "<input type='text' id='note' name='note' value = '" . htmlspecialchars($result) . "'>" . PHP_EOL;
                         echo "<textarea id='note' name='note'>" . htmlspecialchars($result) . "</textarea>" . PHP_EOL;
                     } else {
+                        dbSelectVal("SELECT note AS result FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
                         //echo "<input type='text' id='note' name='note'>" . PHP_EOL;
                         echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($result) .  "'></textarea>" . PHP_EOL;
                     }
