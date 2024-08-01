@@ -206,8 +206,8 @@ if ($_GET["location"]) {
     $rowCount = $stmt->rowCount();
     $onlineRowCount = 0;
     foreach ($arr as $key => $value) {
-        dbSelectVal("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value["tagnumber"] . "'");
-        if (filterNum($result) == 0) {
+        dbSelectVal("SELECT tagnumber AS 'result' FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value["tagnumber"] . "'");
+        if (filter($result) == 0) {
             $onlineRowCount = $onlineRowCount + 1;
         }
     }
