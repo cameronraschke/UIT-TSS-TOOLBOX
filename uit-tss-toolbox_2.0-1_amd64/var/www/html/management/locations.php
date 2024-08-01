@@ -227,7 +227,7 @@ if ($_GET["location"]) {
         <div class='styled-form'>
             <form method='post'>
                 <div>
-                    <button type="submit">Refresh Location Data</button>
+                    <button type="submit">Refresh OS/BIOS Data</button>
                 </div>
                 <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
             </form>
