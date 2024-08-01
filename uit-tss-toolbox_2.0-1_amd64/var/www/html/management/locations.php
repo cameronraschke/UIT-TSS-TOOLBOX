@@ -211,7 +211,11 @@ if ($_GET["location"]) {
 ?>
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
         <div class='page-content'><h3>A checkmark (<span style='color: #008282'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
-        <div class='page-content'><h3><b><?php echo $rowCount; ?></b>rows returned from your query.</h3></div>
+        <?php
+        if ($_GET["location"]) {
+            echo "<div class='page-content'><h3><b><i>" . $rowCount . "</i></b> rows returned from your query.</h3></div>";
+        }
+        ?>
         <div class='styled-form'>
             <form method='post'>
                 <div>
