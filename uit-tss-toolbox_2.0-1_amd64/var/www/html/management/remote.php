@@ -90,7 +90,7 @@ foreach ($arr as $key => $value) {
                 <?php
                     dbSelect("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
                     foreach ($arr as $key => $value) {
-                        if (preg_match("/^[a-zA-Z]$/", $result)) {
+                        if (preg_match("/^[a-zA-Z]$/", $value["location"])) {
                             echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . strtoupper($value["location"]) . "</option>" . PHP_EOL;
                         } else {
                             echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . $value["location"] . "</option>" . PHP_EOL;
