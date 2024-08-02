@@ -38,6 +38,12 @@ if (isset($_POST['task'])) {
             dbSelectVal("SELECT system_model AS 'result' FROM system_data WHERE tagnumber = '" . $_GET['tagnumber'] . "'");
             if ($result == "HP ProBook 450 G6") {
                 echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
+            } elseif ($result == "Latitude 7400") {
+                echo "<img src='/images/dellLatitude7400.avif'>"
+            } elseif ($result == "Latitude 3560") {
+                echo "<img src='/images/Latitude3560.jpg'>"
+            } elseif ($result == "Latitude 3500") {
+                echo "<img src='/images/Latitude3500.avif'>"
             }
         ?>
         </div>
