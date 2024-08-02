@@ -1712,6 +1712,7 @@ function terminate {
 		fi
 		if [[ $cloneMode == "savedisk" ]]; then
 			echo "general|clone_master|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 			terminateMessage=$(echo "Tag#: ${tagNum}"
 			echo "MAC: ${etherAddr}"
