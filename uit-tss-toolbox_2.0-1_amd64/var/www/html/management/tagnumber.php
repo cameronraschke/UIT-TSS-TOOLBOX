@@ -39,11 +39,11 @@ if (isset($_POST['task'])) {
             if ($result == "HP ProBook 450 G6") {
                 echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
             } elseif ($result == "Latitude 7400") {
-                echo "<img src='/images/dellLatitude7400.avif'>"
+                echo "<img src='/images/dellLatitude7400.avif'>" . PHP_EOL;
             } elseif ($result == "Latitude 3560") {
-                echo "<img src='/images/Latitude3560.jpg'>"
+                echo "<img src='/images/Latitude3560.jpg'>" . PHP_EOL;
             } elseif ($result == "Latitude 3500") {
-                echo "<img src='/images/Latitude3500.avif'>"
+                echo "<img src='/images/Latitude3500.avif'>" . PHP_EOL;
             }
         ?>
         </div>
