@@ -52,12 +52,12 @@ echo "${GREEN}Done.${RESET}"
 # sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
 # sysctl --quiet --load
 
-# for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
-#  	ip link set "${iface}" up
-#  	dhclient -r "${iface}"
-#  	dhclient -4 "${iface}"
-# done &>/dev/null
-# echo "${GREEN}Done.${RESET}"
+for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
+  	ip addr flush dev "${iface}"
+  	dhclient -r "${iface}"
+  	dhclient -4 "${iface}"
+ done &>/dev/null
+ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Syncing time...${RESET}"
