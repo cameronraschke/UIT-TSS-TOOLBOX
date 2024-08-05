@@ -73,7 +73,7 @@ if (isset($_POST['task'])) {
             </div>
             </div>
             
-            <div style='width: 25%; float: left;'>
+            <div style='width: 40%; float: left;'>
             <div class="pagetitle"><h3>Status</h3></div>
             <div class='page-content'>
                 <?php
