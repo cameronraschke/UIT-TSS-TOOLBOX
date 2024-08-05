@@ -48,7 +48,7 @@ if (isset($_POST['task'])) {
         ?>
         </div>
 
-        <div style='margin: 1% 0% 2% 0%'>
+        <div style='margin: 5% 0% 12% 1%'>
             <div style='width: 25%; float: left;'>
             <div class="pagetitle"><h3>Update Job</h3></div>
             <div class="page-content">
