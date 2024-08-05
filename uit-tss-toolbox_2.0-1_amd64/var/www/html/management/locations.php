@@ -218,7 +218,7 @@ if ($_GET["location"]) {
 // DON'T PUT ARR AFTER THIS UNTIL NEXT PHP BLOCK!!
 ?>
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
-        <div class='page-content'><h3>A checkmark (<span style='color: #008282'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
+        <div class='page-content'><h3>A checkmark (<span style='color: #00B388'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
         <?php
         if ($_GET["location"]) {
             echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online from location '" . $value["location"] . "'.</h3></div>";
@@ -269,7 +269,7 @@ foreach ($arr as $key => $value) {
     echo "<tr>" . PHP_EOL;
     dbSelectVal("SELECT present_bool AS 'result' FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "'");
     if ($result == "1") {
-        echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b> <span style='color: #008282'>&#10004;</span></td>" . PHP_EOL;
+        echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b> <span style='color: #00B388'>&#10004;</span></td>" . PHP_EOL;
     } else {
         echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     }

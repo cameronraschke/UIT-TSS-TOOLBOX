@@ -74,11 +74,17 @@ if (isset($_POST['task'])) {
             </div>
             
             <div style='width: 40%; float: left;'>
-            <div class="pagetitle"><h3>Status</h3></div>
-            <div class='page-content'>
+
                 <?php
-                dbSelect("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status FROM remote WHERE tagnumber = '" . $_GET["tagnumber"] . "'");
+                dbSelect("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool FROM remote WHERE tagnumber = '" . $_GET["tagnumber"] . "'");
                 foreach ($arr as $key=>$value) {
+                    if ($value["present_bool"] == 1) {
+                        $presentBool = "Online <span style='color: #00B388'>&#10004;</span>";
+                    } else {
+                        $presentBool = "Offline <span style='color: #C8102E'>&#10007;</span>";
+                    }
+                    echo "<div class='pagetitle'><h3>Status" . $presentBool . "</h3></div>";
+                    echo "<div class='page-content'>";
                     echo "<p><b>'" . $value["status"] . "'</b> at " . $value["time_formatted"] . "</p>" . PHP_EOL;
                 }
                 ?>
