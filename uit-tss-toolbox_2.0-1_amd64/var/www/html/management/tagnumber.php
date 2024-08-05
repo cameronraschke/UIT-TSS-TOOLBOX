@@ -71,12 +71,12 @@ if (isset($_POST['task'])) {
                 </form>
             </div>
 
+            <div class="pagetitle"><h3>Status</h3></div>
             <div class='page-content' style='width: 25%; float: left;'>
                 <?php
                 dbSelect("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status FROM remote WHERE tagnumber = '" . $_GET["tagnumber"] . "'");
                 foreach ($arr as $key=>$value) {
-                    echo "<h3>Status</h3>";
-                    echo "<p>" . $value["status"] . "</p>";
+                    echo "<p>" . $value["status"] . "at" . $value["time_formatted"] . "</p>" . PHP_EOL;
                 }
                 ?>
             </div>
