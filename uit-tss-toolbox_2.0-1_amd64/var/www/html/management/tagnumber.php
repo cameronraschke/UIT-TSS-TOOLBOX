@@ -111,7 +111,7 @@ if (isset($_POST['task'])) {
                    echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
                    echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
                    echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
-                   dbSelectVal("SELECT bios_version FROM jobstats WHERE bios_version IS NOT NULL AND tagnumber = '" . $_GET["tagnumber"] . "'");
+                   dbSelectVal("SELECT bios_version AS 'result' FROM jobstats WHERE bios_version IS NOT NULL AND tagnumber = '" . $_GET["tagnumber"] . "'");
                    echo "<td>" . $result . "</td>" . PHP_EOL;
                    echo "<td>" . $value['cpu_model'] . "</td>" . PHP_EOL;
                    echo "</tr>" . PHP_EOL;
