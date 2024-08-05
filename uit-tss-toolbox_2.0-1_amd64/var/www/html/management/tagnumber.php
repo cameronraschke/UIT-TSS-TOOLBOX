@@ -83,7 +83,7 @@ if (isset($_POST['task'])) {
                     } else {
                         $presentBool = "Offline <span style='color: #C8102E'>&#10007;</span>";
                     }
-                    echo "<div class='pagetitle'><h3>Status" . $presentBool . "</h3></div>";
+                    echo "<div class='pagetitle'><h3>Status (" . $presentBool . ")</h3></div>";
                     echo "<div class='page-content'>";
                     echo "<p><b>'" . $value["status"] . "'</b> at " . $value["time_formatted"] . "</p>" . PHP_EOL;
                 }
