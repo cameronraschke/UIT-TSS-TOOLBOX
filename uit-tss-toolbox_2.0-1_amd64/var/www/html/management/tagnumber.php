@@ -48,10 +48,9 @@ if (isset($_POST['task'])) {
         ?>
         </div>
 
-        <div>
-            <div class='page-content' style='width: 25%; float: left;'>
+        <div style='margin: 1% 0% 2% 0%'>
             <div class="pagetitle"><h3>Update Job</h3></div>
-            <br>
+            <div class='page-content' style='width: 25%; float: left;'>
                 <form name="task" method="post">
                     <select name="task" onchange='this.form.submit()'>
                         <?php
@@ -72,9 +71,8 @@ if (isset($_POST['task'])) {
                 </form>
             </div>
 
-            <div class='page-content' style='width: 25%; height: 5%; float: left;'>
             <div class="pagetitle"><h3>Status</h3></div>
-            <br>
+            <div class='page-content' style='width: 25%; height: 5%; float: left;'>
                 <?php
                 dbSelect("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status FROM remote WHERE tagnumber = '" . $_GET["tagnumber"] . "'");
                 foreach ($arr as $key=>$value) {
@@ -86,7 +84,6 @@ if (isset($_POST['task'])) {
 
         
         <div class='pagetitle'><h3>General Client Info - <u><?php echo $_GET["tagnumber"]; ?></u></h3></div>
-
         <div class='styled-table' style="width: auto; height:10%; overflow:auto; margin: 1% 1% 0% 1%;">
         <table width="100%">
             <thead>
