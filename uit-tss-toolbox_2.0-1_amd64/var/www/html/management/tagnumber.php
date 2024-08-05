@@ -48,26 +48,38 @@ if (isset($_POST['task'])) {
         ?>
         </div>
 
-        <div class="pagetitle"><h3>Update Job</h3></div>
-        <div class='page-content'>
-            <form name="task" method="post">
-                <select name="task" onchange='this.form.submit()'>
-                    <?php
-                    if ($_GET['tagnumber']) {
-                        dbSelect("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task FROM remote WHERE tagnumber = '" . $_GET["tagnumber"] . "'");
-                        foreach ($arr as $key => $value) {
-                            echo "<option value='" . $_GET["tagnumber"] . "|" . $value["task"] . "'>" . $value["formatted_task"] . "</option>";
-                            echo "<option value='" . $_GET["tagnumber"] . "|update'>Update</option>";
-                            echo "<option value='" . $_GET["tagnumber"] . "|nvmeErase'>Erase Only</option>";
-                            echo "<option value='" . $_GET["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
-                            echo "<option value='" . $_GET["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
-                            echo "<option value='" . $_GET["tagnumber"] . "|findmy'>Play Sound</option>";
-                            echo "<option value='" . $_GET["tagnumber"] . "| '>Clear Pending Jobs</option>";
+        <div>
+            <div class="pagetitle"><h3>Update Job</h3></div>
+            <div class='page-content' style='width: 25%; float: left;'>
+                <form name="task" method="post">
+                    <select name="task" onchange='this.form.submit()'>
+                        <?php
+                        if ($_GET['tagnumber']) {
+                            dbSelect("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task FROM remote WHERE tagnumber = '" . $_GET["tagnumber"] . "'");
+                            foreach ($arr as $key => $value) {
+                                echo "<option value='" . $_GET["tagnumber"] . "|" . $value["task"] . "'>" . $value["formatted_task"] . "</option>";
+                                echo "<option value='" . $_GET["tagnumber"] . "|update'>Update</option>";
+                                echo "<option value='" . $_GET["tagnumber"] . "|nvmeErase'>Erase Only</option>";
+                                echo "<option value='" . $_GET["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
+                                echo "<option value='" . $_GET["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
+                                echo "<option value='" . $_GET["tagnumber"] . "|findmy'>Play Sound</option>";
+                                echo "<option value='" . $_GET["tagnumber"] . "| '>Clear Pending Jobs</option>";
+                            }
                         }
-                    }
-                    ?>
-                </select>
-            </form>
+                        ?>
+                    </select>
+                </form>
+            </div>
+
+            <div class='page-content' style='width: 25%; float: left;'>
+                <?php
+                dbSelect("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status FROM remote WHERE tagnumber = '" . $_GET["tagnumber"] . "'");
+                foreach ($arr as $key=>$value) {
+                    echo "<h3>Status</h3>";
+                    echo "<p>" . $value["status"] . "</p>";
+                }
+                ?>
+            </div>
         </div>
 
         
