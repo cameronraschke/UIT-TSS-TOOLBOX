@@ -467,6 +467,7 @@ function enterTag {
 
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "general|department|${department}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "location|custom|${tagNum}|${tOneSerialNumber}||0|" | /var/lib/UIT-TSS-TOOLBOX/parse
 		department
 		enterTag
 	fi
