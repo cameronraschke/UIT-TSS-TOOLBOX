@@ -396,7 +396,7 @@ SELECT
     CONCAT(ROUND(AVG(disk_temp), 1), '°C') AS 'Avg. Disk Temp',
     CONCAT(ROUND(AVG(watts_now), 1), ' Watts') AS 'Avg. Actual Power Draw',
     CONCAT(ROUND(SUM(watts_now), 0), ' Watts') AS 'Actual Power Draw',
-    CONCAT(ROUND(SUM(IF (battery_status NOT IN ('Disharging', NULL), '55', '')), 0), ' Cur. Watts', '/' , ROUND(SUM(IF (present_bool='1', '55', '')), 0), ' Watts', ')') AS 'Power Draw from Wall',
+    CONCAT(ROUND(SUM(IF (battery_status NOT IN ('Disharging') AND present_bool = 1, 55, 0)), 0), ' Cur. Watts', '/' , ROUND(SUM(IF (present_bool = 1, 55, 0)), 0), ' Watts', ')') AS 'Power Draw from Wall',
     SUM(os_installed) AS 'OS Installed Sum'
     FROM remote WHERE present_bool = '1';
     END; //
