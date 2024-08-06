@@ -34,9 +34,9 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         <div class="login-form">
             <form method="post" class="styled-form">
                 <label for="username">Username</label>
-                <input type="text" name="username" autocomplete="email" required autofocus>
+                <input type="text" name="username" autocomplete="username" required autofocus>
                 <label for="password">Password</label>
-                <input type="password" name="password" required>
+                <input type="password" name="password" autocomplete="current-password" required>
                 <input type="submit" value="Login"></input>
             </form>
         </div>

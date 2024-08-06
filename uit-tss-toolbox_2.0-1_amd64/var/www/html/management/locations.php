@@ -95,7 +95,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 echo "<form method='post'>" . PHP_EOL;
                 echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . $_POST['tagnumber'] . "' readonly required>" . PHP_EOL;
+                echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . $_POST['tagnumber'] . "' autocomplete='off' readonly required>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<label for='serial'>Serial Number</label>";
                 echo "<br>" . PHP_EOL;
