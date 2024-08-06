@@ -171,6 +171,10 @@ table {
 	font-size: 0.7em;
 }
 
+.pagetitle a {
+	color: #C8102E;
+}
+
 .page-content {
 	position: relative;
 	display: flex;

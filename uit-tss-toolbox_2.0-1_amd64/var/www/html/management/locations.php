@@ -24,7 +24,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
             <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle'><h1>Locations Table</h1></div>
+        <div class='pagetitle'><h1>Locations Table (<i><a href='lost.php'>View Lost Clients</a></i>)</h1></div>
         <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
         <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'result' FROM locations ORDER BY time DESC LIMIT 1"); echo $result; ?></h3></div>
 
