@@ -249,7 +249,7 @@ if ($_GET["location"]) {
                     <th onclick="sortTable(4)">Status</th>
                     <th onclick="sortTable(5)">OS Installed</th>
                     <th onclick="sortTable(6)">BIOS Updated</th>
-                    <th onclick="sortTable(7)">Note</th>
+                    <th style='cursor: default;'>Note</th>
                     <th style='cursor: default;'>Time</th>
                 </tr>
                 </thead>

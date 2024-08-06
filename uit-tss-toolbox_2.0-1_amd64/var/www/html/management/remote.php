@@ -149,14 +149,14 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <th onclick="sortTable(0)">Tag Number</th>
                 <th style='cursor: default;'>Last Heard</th>
                 <th style='cursor: default;'>Location</th>
-                <th onclick="sortTable(2)">Pending Job</th>
-                <th onclick="sortTable(3)">Current Status</th>
-                <th onclick="sortTable(4)">OS Installed</th>
+                <th style='cursor: default;'>Pending Job</th>
+                <th style='cursor: default;'>Current Status</th>
+                <th style='cursor: default;'>OS Installed</th>
                 <th style='cursor: default;'>Battery Charge</th>
-                <th onclick="sortTable(6)">Uptime</th>
-                <th onclick="sortTable(7)">CPU Temp</th>
-                <th onclick="sortTable(8)">Disk Temp</th>
-                <th onclick="sortTable(9)">Actual Power Draw</th>
+                <th style='cursor: default;'>Uptime</th>
+                <th style='cursor: default;'>CPU Temp</th>
+                <th style='cursor: default;'>Disk Temp</th>
+                <th style='cursor: default;'>Actual Power Draw</th>
                 </tr>
             </thead>
             <tbody>
