@@ -6,7 +6,6 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
 
 class MySQLConn {
-    private $db;
     private static $user = "cameron";
     private static $pass = "UHouston!";
     private static $host = "localhost";
@@ -14,26 +13,26 @@ class MySQLConn {
     private static $charset = "utf8mb4";
     private static $options = array(PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => true, PDO::ERRMODE_EXCEPTION => true);
     public function dbObj() {
-        $this->db = new PDO("mysql:host=" . self::$host . ";dbname=" . self::$dbName . ";charset=" . self::$charset . ";", self::$user, self::$pass, self::$options);
-        return $this->db;
+        return new PDO("mysql:host=" . self::$host . ";dbname=" . self::$dbName . ";charset=" . self::$charset . ";", self::$user, self::$pass, self::$options);
     }
 }
 
 class db {
     private $sql;
     private $arr;
+    private $pdo;
 
-    function setSQL($sql) {
-        if (!isset($pdo)) { $db = new MySQLConn(); $pdo = $db->dbObj(); }
+    public function selectDB($sql) {
+        if (!isset($db)) { echo "new PDO" . PHP_EOL; $db = new MySQLConn(); $this->pdo = $db->dbObj(); }
         $this->sql = $sql;
         $this->arr = array();
-        $stmt = $pdo->prepare($sql);
+        $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         $this->arr = $stmt->fetchAll();
         $rowCount = $stmt->rowCount();
     }
 
-    function getSQL() {
+    public function getSQL() {
         if(is_array($this->arr) && count($this->arr) > 1) {
             return $this->arr;
         } else {
