@@ -21,8 +21,9 @@ class db {
     private $sql;
     private $arr;
     private $pdo;
+    private $db;
 
-    public function selectDB($sql) {
+    public function select($sql) {
         if (!isset($db)) { $db = new MySQLConn(); $this->pdo = $db->dbObj(); }
         $this->sql = $sql;
         $this->arr = array();
@@ -32,7 +33,7 @@ class db {
         $rowCount = $stmt->rowCount();
     }
 
-    public function getSQL() {
+    public function get() {
         if(is_array($this->arr) && count($this->arr) > 1) {
             return $this->arr;
         } else {
