@@ -23,7 +23,7 @@ class db {
     private $pdo;
 
     public function selectDB($sql) {
-        if (!isset($db)) { echo "new PDO" . PHP_EOL; $db = new MySQLConn(); $this->pdo = $db->dbObj(); }
+        if (!isset($pdo)) { echo "new PDO" . PHP_EOL; $db = new MySQLConn(); $this->pdo = $db->dbObj(); }
         $this->sql = $sql;
         $this->arr = array();
         $stmt = $this->pdo->prepare($sql);
