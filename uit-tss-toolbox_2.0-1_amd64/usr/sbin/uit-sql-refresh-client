@@ -202,7 +202,7 @@ foreach ($db->get() as $key => $value) {
     foreach ($db->get() as $key => $value1) {
         $db->updateCS("last_job_time", $value1["result"], $value["tagnumber"]);
     }
-    $unset($value1);
+    unset($value1);
 
     # End the marker timer
     echo timeSinceLastMarker("markerEnd", "Time Taken for " . $value["tagnumber"] . ": ") . PHP_EOL;
