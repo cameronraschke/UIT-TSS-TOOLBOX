@@ -2,10 +2,6 @@
 <?php
 include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d H:i:s.v');
-
 $fd = fopen('php://stdin', 'r');
 $input = trim(fgets(STDIN));
 fclose($fd);

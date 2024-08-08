@@ -1,16 +1,15 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
+include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d H:i:s.v');
 
 $fd = fopen('php://stdin', 'r');
 $input = trim(fgets(STDIN));
 fclose($fd);
 
 $arr = explode('|', $input);
+
+$db = new db();
 
 if ($arr[0] == "init") {
     $uuid = $arr[1];
@@ -19,14 +18,14 @@ if ($arr[0] == "init") {
     $macAddr = $arr[4];
     $wifiMac = $arr[5];
 
-    dbInsertJob($uuid);
+    $db->insertJob($uuid);
 
-    dbUpdateJob("tagnumber", "$tagNum", "$uuid");
-    dbUpdateJob("system_serial", "$serial", "$uuid");
-    dbUpdateJob("etheraddress", "$macAddr", "$uuid");
-    dbUpdateSystemData("$tagNum", "wifi_mac", "$wifiMac");
-    dbUpdateJob("date", "$date", "$uuid");
-    dbUpdateJob("time", "$time", "$uuid");
+    $db->updateJob("tagnumber", $tagNum, $uuid);
+    $db->updateJob("system_serial", $serial, $uuid);
+    $db->updateJob("etheraddress", $macAddr, $uuid);
+    $db->updateSystemData($tagNum, "wifi_mac", $wifiMac);
+    $db->updateJob("date", $date, $uuid);
+    $db->updateJob("time", $time, $uuid);
 
 }
 
@@ -62,19 +61,18 @@ if ($arr[0] == "location") {
 
     $uuid = uniqid("location-", true);
     
-    #Not the same insert statement as above, ether address is DEFAULT here.
-    dbInsertJob($uuid);
-    dbUpdateJob("tagnumber", "$tagNum", "$uuid");
-    dbUpdateJob("system_serial", "$serial", "$uuid");
-    dbUpdateJob("date", "$date", "$uuid");
-    dbUpdateJob("time", "$time", "$uuid");
+    $db->insertJob($uuid);
+    $db->updateJob("tagnumber", $tagNum, $uuid);
+    $db->updateJob("system_serial", $serial, $uuid);
+    $db->updateJob ("date", $date, $uuid);
+    $db->updateJob ("time", $time, $uuid);
 
-    dbInsertLocation("$time");
-    dbUpdateLocation("tagnumber", "$tagNum", "$time");
-    dbUpdateLocation("system_serial", "$serial", "$time");
-    dbUpdateLocation("location", "$location", "$time");
-    dbUpdateLocation("status", "$status", "$time");
-    dbUpdateLocation("note", "$note", "$time");
+    $db->insertLocation($time);
+    $db->updateLocation("tagnumber", $tagNum, $time);
+    $db->updateLocation("system_serial", $serial, $time);
+    $db->updateLocation("location", $location, $time);
+    $db->updateLocation("status", $status, $time);
+    $db->updateLocation("note", $note, $time);
 
 }
 
@@ -84,15 +82,15 @@ if ($arr[0] == "general") {
     $uuid = $arr[3];
 
     if ($key == "cpu_temp") {
-        $value = round(bcdiv("$value", 1000, 2), 0);
+        $value = round(bcdiv($value, 1000, 2), 0);
     }
 
     if (!empty($arr[4]) && $arr[4] == "nvme") {
-        $value = bcmul("$value", 512, 4);
-        $value = bcdiv("$value", 1000000000, 2);
+        $value = bcmul($value, 512, 4);
+        $value = bcdiv($value, 1000000000, 2);
     } elseif (!empty($arr[4]) && $arr[4] == "sata") {
-        $value = bcmul("$value", 512, 4);
-        $value = bcdiv("$value", 1000000000000, 2);
+        $value = bcmul($value, 512, 4);
+        $value = bcdiv($value, 1000000000000, 2);
     }
 
     if ($key == "disk_type") {
@@ -108,10 +106,10 @@ if ($arr[0] == "general") {
     }
 
     if ($key == "ram_capacity") {
-        $value = round("$value" / 1000000, 0);
+        $value = round($value / 1000000, 0);
     }
 
-    dbUpdateJob("$key", "$value", "$uuid");
+    $db->updateJob($key, $value, $uuid);
 
 }
 
@@ -120,7 +118,7 @@ if ($arr[0] == "system_data") {
     $key = $arr[2];
     $value = $arr[3];
 
-    dbUpdateSystemData("$tagNum", "$key", "$value");
+    $db->updateSystemData($tagNum, $key, $value);
 }
 
 if ($arr[0] == "system-stats") {
@@ -134,7 +132,7 @@ if ($arr[0] == "system-stats") {
             $cpuLineCount = $cpuLineCount + 1;
         }
         $cpuAvg = $cpuSum / $cpuLineCount;
-        dbUpdateJob("cpu_usage", "$cpuAvg", "$uuid");
+        dbUpdateJob("cpu_usage", $cpuAvg, $uuid);
     } elseif ($arr[1] == "network") {
         $netSum = null;
         $netLineCount = null;
@@ -149,7 +147,7 @@ if ($arr[0] == "system-stats") {
         } else {
             $netAvg = 0;
         }
-        dbUpdateJob("network_usage", "$netAvg", "$uuid");
+        $db->updateJob("network_usage", $netAvg, $uuid);
     }
 }
 
@@ -179,7 +177,7 @@ if ($arr[0] == "remote") {
     }
 
     if ($key == "disk_temp") {
-        $cur = round(bcdiv("$value", 1000, 2), 0);
+        $cur = round(bcdiv($value, 1000, 2), 0);
         $max = $arr[4];
         $value = $cur;
     }
@@ -193,6 +191,6 @@ if ($arr[0] == "remote") {
         $value = $secWatts - $firstWatts;
     }
 
-    dbUpdateRemote("$tagNum", "$key", "$value");
+    $db->updateRemote($tagNum, $key, $value);
 }
 ?>
