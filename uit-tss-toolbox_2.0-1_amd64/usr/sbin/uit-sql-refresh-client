@@ -30,11 +30,13 @@ foreach ($db->get() as $key => $value) {
     echo timeSinceLastMarker("markerStart", "Updating:" . $value["tagnumber"]) . PHP_EOL;
 
     # If tagnumber does not exist in the clientstats table, insert it.
-    $db->select("SELECT tagnumber AS 'result' FROM clientstats WHERE tagnumber = '" . $value["tagnumber"] . "'");
-    foreach ($db->get() as $key => $value1)
-    if (strFilter($value1["result"]) == 1) {
-        echo "Inserting laptop: " . $value1["tagnumber"] . PHP_EOL;
-        $db->insertCS($value1["tagnumber"]);
+    $db->select("SELECT tagnumber FROM clientstats WHERE tagnumber = '" . $value["tagnumber"] . "'");
+    if (arrFilter($db->get()) == 1) {
+        foreach ($db->get() as $key => $value1)
+        if (strFilter($value1["result"]) == 1) {
+            echo "Inserting laptop: " . $value1["tagnumber"] . PHP_EOL;
+            $db->insertCS($value1["tagnumber"]);
+        }
     }
     unset($value1);
 
