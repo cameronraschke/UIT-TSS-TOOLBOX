@@ -9,7 +9,7 @@ fclose($stdin);
 $db = new db();
 
 $db->select($input);
-if (strFilter($db->get()) == 0)  {
+if (arrFilter($db->get()) == 0)  {
     foreach ($db->get() as $key => $value) {
         if (strFilter($value["result"]) == 0) {
             echo $value["result"] . PHP_EOL;

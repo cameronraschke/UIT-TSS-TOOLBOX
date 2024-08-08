@@ -64,7 +64,7 @@ class db {
     }
 
     public function get() {
-        if(is_array($this->arr) && count($this->arr) > 1) {
+        if(is_array($this->arr) && arrFilter($this->arr) == 0) {
             return $this->arr;
         } else {
             return "NULL";
