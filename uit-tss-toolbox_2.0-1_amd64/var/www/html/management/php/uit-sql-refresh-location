@@ -2,57 +2,57 @@
 # Connect to database and include custom functions
 //include('/var/www/html/management/mysql/mysql-functions');
 
-# Set current date and time
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d H:i:s.v');
-
-# Clear globals
-clearSQLGlobals();
-clearTimeGlobals();
-
-# Iterate through distinct tagnumbers from jobstats with techComm UUIDs
-dbSelect("SELECT tagnumber FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber");
-foreach ($arr as $key => $value) {
-    dbSelectVal("SELECT MAX(time) AS result FROM locations WHERE tagnumber = '" . $value["tagnumber"] . "'");
-    $maxTime = $result;
-
-    /* Select the time of the most recent entry for a given client where the clone job has successfully completed. 
-    This shows whether or not the OS is installed and at what time it was last installed. */
-    $sql = "SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1";
-    dbSelect($sql);
-    foreach ($arr as $key => $value) {
-        if ($value["erase_completed"] == '1' && $value["clone_completed"] == '1') {
-            $osInstalled = 1;
-        } elseif ($value["erase_completed"] == '1' && $value["clone_completed"] != '1') {
-            $osInstalled = 0;
-        } elseif ($value["erase_completed"] != '1' && $value["clone_completed"] == '1') {
-            $osInstalled = 1;
-        } else {
-            $osInstalled = 0;
+$db->select("SELECT tagnumber FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber");
+foreach ($db->get() as $key => $value) {
+    $db->select("SELECT MAX(time) AS 'max_time' FROM locations WHERE tagnumber = '" . $value["tagnumber"] . "'");
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            $db->select("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1");
+            if (arrFilter($db->get()) === 0) {
+                foreach ($db->get() as $key => $value2) {
+                    if ($value2["erase_completed"] === '1' && $value2["clone_completed"] === '1') {
+                        $osInstalled = 1;
+                    } elseif ($value2["erase_completed"] === '1' && $value2["clone_completed"] !== '1') {
+                        $osInstalled = 0;
+                    } elseif ($value2["erase_completed"] !== '1' && $value2["clone_completed"] === '1') {
+                        $osInstalled = 1;
+                    } else {
+                        $osInstalled = 0;
+                    }
+            
+                    $db->updateLocation("os_installed", $osInstalled, $value1["max_time"]);
+                }
+            }
         }
-
-        dbUpdateLocation("os_installed", "$osInstalled", "$maxTime");
     }
+    unset($value1);
+    unset($value2);
+    unset($osInstalled);
 
-    dbSelect("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = '" . $value["tagnumber"] . "' AND t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
+    # Update the BIOS version and system model
+    $db->select("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL AND t1.tagnumber = '" . $value["tagnumber"] . "' ORDER BY t1.time DESC LIMIT 1");
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            $db->updateCS("system_model", $value1["system_model"], $value["tagnumber"]);
 
-        dbUpdateCS("system_model", $value["system_model"], $value["tagnumber"]);
-
-        dbSelectVal("SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '" . $value["system_model"] . "'");
-        if ($result == $value["bios_version"]) {
-            $biosBool = '1';
-        } else {
-            $biosBool = '0';
+            $db->select("SELECT bios_version FROM static_bios_stats WHERE system_model = '" . $value1["system_model"] . "'");
+            if (arrFilter($db->get()) == 0) {
+                foreach ($db->get() as $key => $value2) {
+                    if ($value2["bios_version"] === $value1["bios_version"]) {
+                        $biosBool = 1;
+                    } else {
+                        $biosBool = 0;
+                    }
+                }
+            } else { $biosBool = 0; }
         }
-        dbUpdateCS("bios_updated", "$biosBool", $value["tagnumber"]);
+    } else { $biosBool = 0; }
+    if (isset($biosBool)) {
+        $db->updateCS("bios_updated", $biosBool, $value["tagnumber"]);
     }
+    unset($value1);
+    unset($value2);
+    unset($biosBool);
 }
-
-
-# Clear globals
-clearSQLGlobals();
-clearTimeGlobals();
 
 ?>

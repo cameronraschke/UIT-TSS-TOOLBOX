@@ -37,6 +37,9 @@ foreach ($db->get() as $key => $value) {
             }
         }
     }
+    unset($value1);
+    unset($value2);
+    unset($osInstalled);
 
     # End the timer and print how long it took to update the location table for a specific tagnumber.
     # End the marker timer
