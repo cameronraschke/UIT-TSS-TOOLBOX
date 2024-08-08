@@ -199,7 +199,10 @@ foreach ($db->get() as $key => $value) {
 
     # Update the time of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
     $db->select("SELECT IF (host_connected='1', time, substring(date, 1, 10)) AS 'result' FROM jobstats WHERE department = 'techComm' AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY time DESC LIMIT 1");
-    $db->updateCS("last_job_time", "$result", $value["tagnumber"]);
+    foreach ($db->get() as $key => $value1) {
+        $db->updateCS("last_job_time", $value1["result"], $value["tagnumber"]);
+    }
+    $unset($value1);
 
     # End the marker timer
     echo timeSinceLastMarker("markerEnd", "Time Taken for " . $value["tagnumber"] . ": ") . PHP_EOL;
