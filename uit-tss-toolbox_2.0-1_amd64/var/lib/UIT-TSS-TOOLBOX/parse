@@ -92,7 +92,7 @@ if ($arr[0] == "remote") {
         $value = round(bcdiv($value, 1000, 2), 0);
     }
 
-    dbUpdateRemote($tagNum, $key, $value);
+    $db->updateRemote($tagNum, $key, $value);
 }
 
 ?>

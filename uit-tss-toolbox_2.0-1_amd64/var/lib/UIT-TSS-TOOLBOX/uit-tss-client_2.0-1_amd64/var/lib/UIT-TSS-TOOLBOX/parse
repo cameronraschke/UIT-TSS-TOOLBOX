@@ -132,7 +132,7 @@ if ($arr[0] == "system-stats") {
             $cpuLineCount = $cpuLineCount + 1;
         }
         $cpuAvg = $cpuSum / $cpuLineCount;
-        dbUpdateJob("cpu_usage", $cpuAvg, $uuid);
+        $db->updateJob("cpu_usage", $cpuAvg, $uuid);
     } elseif ($arr[1] == "network") {
         $netSum = null;
         $netLineCount = null;
