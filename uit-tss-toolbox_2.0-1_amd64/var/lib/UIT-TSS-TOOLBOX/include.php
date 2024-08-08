@@ -27,7 +27,7 @@ function numFilter ($string) {
 
 function arrFilter ($arr) {
     if (is_array($arr)) {
-        if (empty($arr) || is_null($arr) || count($arr) === 0) {
+        if (empty($arr)) {
             return 1;
         } else {
             return 0;
