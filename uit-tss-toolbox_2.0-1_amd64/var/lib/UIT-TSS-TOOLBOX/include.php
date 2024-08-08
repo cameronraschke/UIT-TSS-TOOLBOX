@@ -62,7 +62,7 @@ class db {
         }
     }
 
-    function insertJob ($uuid) {
+    public function insertJob ($uuid) {
         if (stringFilter($uuid) == 0) {
             $sql = "INSERT INTO jobstats (uuid) VALUES (:uuid)";
             $stmt = $this->pdo->prepare($sql);
@@ -74,7 +74,7 @@ class db {
         }
     }
 
-    function updateJob ($key, $value, $uuid) {
+    public function updateJob ($key, $value, $uuid) {
         if (stringFilter($key) == 0 && stringFilter($uuid) == 0) {
             $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
             $stmt = $this->pdo->prepare($sql);
