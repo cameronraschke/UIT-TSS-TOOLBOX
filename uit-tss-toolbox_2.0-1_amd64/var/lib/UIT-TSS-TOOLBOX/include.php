@@ -42,14 +42,10 @@ class db {
     private $sql;
     private $arr;
     private $pdo;
-    private $db;
-
-    public function conn {
-        if (!isset($pdo)) { $db = new MySQLConn(); $this->pdo = $db->dbObj(); }
-    }
 
     public function select($sql) {
-        conn();
+        $db = new MySQLConn();
+        $this->pdo = $db->dbObj();
         $this->sql = $sql;
         $this->arr = array();
         $stmt = $this->pdo->prepare($sql);
@@ -67,7 +63,8 @@ class db {
     }
 
     public function insertJob ($uuid) {
-        conn();
+        $db = new MySQLConn();
+        $this->pdo = $db->dbObj();
         if (stringFilter($uuid) == 0) {
             $sql = "INSERT INTO jobstats (uuid) VALUES (:uuid)";
             $stmt = $this->pdo->prepare($sql);
@@ -80,7 +77,8 @@ class db {
     }
 
     public function updateJob ($key, $value, $uuid) {
-        conn();
+        $db = new MySQLConn();
+        $this->pdo = $db->dbObj();
         if (stringFilter($key) == 0 && stringFilter($uuid) == 0) {
             $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
             $stmt = $this->pdo->prepare($sql);
