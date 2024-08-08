@@ -5,7 +5,7 @@ $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
 
-function filter ($string) {
+function stringFilter ($string) {
     if ($string == "" || $string == " " || $string == "NULL" || empty($string) || is_null($string) || !isset($string))  {
         return 1;
     } else {
@@ -13,8 +13,8 @@ function filter ($string) {
     }
 }
 
-function filterNum ($string) {
-    if (filter($string) == 0) {
+function numFilter ($string) {
+    if (stringFilter($string) == 0) {
         if (is_numeric($string) && $string > 0) {
             return 0;
         } else {
@@ -63,27 +63,27 @@ class db {
     }
 
     function insertJob ($uuid) {
-        if (filter($uuid) == 0) {
+        if (stringFilter($uuid) == 0) {
             $sql = "INSERT INTO jobstats (uuid) VALUES (:uuid)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
 
-            if (filter($stmt) == 0) {
+            if (stringFilter($stmt) == 0) {
                 $stmt->execute();
             }
         }
     }
 
     function updateJob ($key, $value, $uuid) {
-        if (filter($key) == 0 && filter($uuid) == 0) {
+        if (stringFilter($key) == 0 && stringFilter($uuid) == 0) {
             $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
             $stmt = $this->pdo->prepare($sql);
 
-            if (is_numeric($value) && filterNum($value) == 1) {
+            if (is_numeric($value) && numFilter($value) == 1) {
                 $value = "NULL";
             }
 
-            if (filter($value) == 0) {
+            if (stringFilter($value) == 0) {
                 $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
                 $stmt->bindParam(':value', $value, PDO::PARAM_STR);
             } else {
@@ -91,7 +91,7 @@ class db {
                 $stmt->bindParam('value', $value, PDO::PARAM_NULL);
             }
 
-            if (filter($stmt) == 0) {
+            if (stringFilter($stmt) == 0) {
                 $stmt->execute();
             }
         }
