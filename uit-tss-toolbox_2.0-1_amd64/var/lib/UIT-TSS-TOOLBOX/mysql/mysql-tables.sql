@@ -25,7 +25,7 @@ CREATE TABLE clientstats (
     disk_type VARCHAR(8) DEFAULT NULL,
     bios_updated BOOLEAN DEFAULT NULL,
     erase_avgtime SMALLINT DEFAULT NULL,
-    clone_avgtime TINYINT DEFAULT NULL,
+    clone_avgtime SMALLINT DEFAULT NULL,
     all_jobs SMALLINT DEFAULT NULL
 );
 

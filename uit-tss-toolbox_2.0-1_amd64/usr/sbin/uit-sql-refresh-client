@@ -44,15 +44,17 @@ foreach ($db->get() as $key => $value) {
             $db->updateCS("system_model", $value1["system_model"], $value["tagnumber"]);
 
             $db->select("SELECT bios_version FROM static_bios_stats WHERE system_model = '" . $value1["system_model"] . "'");
-            foreach ($db->get() as $key => $value2) {
-                if ($value2["bios_version"] == $value1["bios_version"]) {
-                    $biosBool = 1;
-                } else {
-                    $biosBool = 0;
+            if (arrFilter($db->get()) == 0) {
+                foreach ($db->get() as $key => $value2) {
+                    if ($value2["bios_version"] == $value1["bios_version"]) {
+                        $biosBool = 1;
+                    } else {
+                        $biosBool = 0;
+                    }
                 }
-            }
 
-            $db->updateCS("bios_updated", $biosBool, $value["tagnumber"]);
+                $db->updateCS("bios_updated", $biosBool, $value["tagnumber"]);
+            }
         }
     }
     unset($value1);
