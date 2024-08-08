@@ -35,9 +35,9 @@ function arrFilter ($arr) {
 
 
 class MySQLConn {
-    private static $user = "cameron";
+    private static $user = "laptops";
     private static $pass = "UHouston!";
-    private static $host = "localhost";
+    private static $host = "10.0.0.1";
     private static $dbName = "laptopDB";
     private static $charset = "utf8mb4";
     private static $options = array(PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => true, PDO::ERRMODE_EXCEPTION => true);
