@@ -45,7 +45,7 @@ class db {
     private $db;
 
     public function select($sql) {
-        if (!isset($db)) { $db = new MySQLConn(); $this->pdo = $db->dbObj(); }
+        if (!isset($pdo)) { $db = new MySQLConn(); $this->pdo = $db->dbObj(); }
         $this->sql = $sql;
         $this->arr = array();
         $stmt = $this->pdo->prepare($sql);
