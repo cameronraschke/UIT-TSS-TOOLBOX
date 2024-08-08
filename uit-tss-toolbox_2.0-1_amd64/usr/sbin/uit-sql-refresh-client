@@ -166,26 +166,34 @@ foreach ($db->get() as $key => $value) {
 
     # Update battery health as a percentage
     $db->select("SELECT battery_model FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND battery_model IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($db->get() as $key => $value1) {
-        $batteryModel = $value1["battery_model"];
+    if (arrFilter($db->get()) == 0) {
+        foreach ($db->get() as $key => $value1) {
+            $batteryModel = $value1["battery_model"];
+        }
     }
     unset($value1);
 
     $db->select("SELECT battery_health FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND battery_health IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($db->get() as $key => $value1) {
-        $batteryCharge = $value1["battery_health"];
+    if (arrFilter($db->get()) == 0) {
+        foreach ($db->get() as $key => $value1) {
+            $batteryCharge = $value1["battery_health"];
+        }
     }
     unset($value1);
     
     $db->select("SELECT battery_charge_cycles FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND battery_health IS NOT NULL ORDER BY time DESC LIMIT 1");
-    foreach ($db->get() as $key => $value1) {
-        $batteryCycles = $value1["battery_charge_cycles"];
+    if (arrFilter($db->get()) == 0) {
+        foreach ($db->get() as $key => $value1) {
+            $batteryCycles = $value1["battery_charge_cycles"];
+        }
     }
     unset($value1);
 
     $db->select("SELECT battery_charge_cycles FROM static_battery_stats WHERE battery_model = '" . $batteryModel . "'");
-    foreach ($db->get() as $key => $value1) {
-        $batteryMaxCycles = $value1["battery_charge_cycles"];
+    if (arrFilter($db->get()) == 0) {
+        foreach ($db->get() as $key => $value1) {
+            $batteryMaxCycles = $value1["battery_charge_cycles"];
+        }
     }
     unset($value1);
 
@@ -209,8 +217,10 @@ foreach ($db->get() as $key => $value) {
 
     # Update the time of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
     $db->select("SELECT IF (host_connected='1', time, substring(date, 1, 10)) AS 'result' FROM jobstats WHERE department = 'techComm' AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY time DESC LIMIT 1");
-    foreach ($db->get() as $key => $value1) {
-        $db->updateCS("last_job_time", $value1["result"], $value["tagnumber"]);
+    if (arrFilter($db->get()) == 0) {
+        foreach ($db->get() as $key => $value1) {
+            $db->updateCS("last_job_time", $value1["result"], $value["tagnumber"]);
+        }
     }
     unset($value1);
 
