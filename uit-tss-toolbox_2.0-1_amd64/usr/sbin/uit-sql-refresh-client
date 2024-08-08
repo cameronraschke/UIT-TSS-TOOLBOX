@@ -1,16 +1,9 @@
 #!/usr/bin/php
 <?php
 # Connect to database and include custom functions
-include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
+include('/var/lib/UIT-TSS-TOOLBOX/functions.php');
+include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
-# Set current date and time
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d H:i:s.v');
-
-# Clear globals
-clearSQLGlobals();
-clearTimeGlobals();
 
 echo timeSinceLastMarker("start", "Updating clientstats") . PHP_EOL;
 
@@ -27,52 +20,61 @@ if (preg_match("/[0-9]{6}/", $line)) {
     dbSelect("SELECT DISTINCT tagnumber FROM jobstats WHERE department = 'techComm' AND tagnumber IS NOT NULL");
 } */
 
-dbSelect("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL AND department = 'techComm' GROUP BY tagnumber");
-foreach ($arr as $key => $value) {
-    # Set $tagNum to the iterated tagnumber.
-    $tagNum = $value["tagnumber"];
+$db = new db();
+
+$db->select("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL AND department = 'techComm' GROUP BY tagnumber");
+foreach ($db->get() as $key => $value) {
 
     # Start the timer that counts how much time each tagnumber takes to process.
     echo PHP_EOL;
-    echo timeSinceLastMarker("markerStart", "Updating $tagNum") . PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating:" . $value["tagnumber"]) . PHP_EOL;
 
     # If tagnumber does not exist in the clientstats table, insert it.
-    dbSelectVal("SELECT tagnumber AS result FROM clientstats WHERE tagnumber = '$tagNum'");
-    if (filter($result) == 1) {
-        echo "Inserting laptop: " . $tagNum . PHP_EOL;
-        dbInsertCS("$tagNum");
+    $db->select("SELECT tagnumber AS 'result' FROM clientstats WHERE tagnumber = '" . $value["tagnumber"] . "'");
+    foreach ($db->get() as $key => $value1)
+    if (strFilter($value1["result"]) == 1) {
+        echo "Inserting laptop: " . $value1["tagnumber"] . PHP_EOL;
+        $db->insertCS($value1["tagnumber"]);
     }
+    unset($value1);
 
     # Update the BIOS version and system model
-    dbSelect("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1");
-    foreach ($arr as $key => $value) {
-        $curSystemModel = $value["system_model"];
-        $curBiosVersion = $value["bios_version"];
+    $db->select("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL AND t1.tagnumber = '" . $value["tagnumber"] . "' ORDER BY t1.time DESC LIMIT 1");
+    foreach ($db->get() as $key => $value1) {
 
-        dbUpdateCS("system_model", "$curSystemModel", "$tagNum");
+        $db->updateCS("system_model", $value1["system_model"], $value["tagnumber"]);
 
-        dbSelectVal("SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '$curSystemModel'");
-        if ($result == $curBiosVersion) {
-            $biosBool = '1';
-        } else {
-            $biosBool = '0';
+        $db->select("SELECT bios_version FROM static_bios_stats WHERE system_model = '" . $value1["system_model"] . "'");
+        foreach ($db->get() as $key => $value2) {
+            if ($value2["bios_version"] == $value1["bios_version"]) {
+                $biosBool = 1;
+            } else {
+                $biosBool = 0;
+            }
         }
-        dbUpdateCS("bios_updated", "$biosBool", "$tagNum");
+
+        $db->updateCS("bios_updated", $biosBool, $value["tagnumber"]);
     }
+    unset($value1);
+    unset($value2);
+    unset($biosBool);
 
     # Update the system serial number
-    dbSelectVal("SELECT system_serial AS result FROM jobstats WHERE tagnumber = '$tagNum' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
-    dbUpdateCS("system_serial", "$result", "$tagNum");
+    $db->select("SELECT system_serial FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1");
+    foreach ($db->get() as $key => $value1) {
+        $db->updateCS("system_serial", $value1["system_serial"], $value["tagnumber"]);
+    }
+    unset($value1);
 
     # Update the most recent average erase times for each client
-    $sql = "SELECT ROUND(AVG(erase_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE erase_completed = '1' ";
-    $sql .= "AND tagnumber = '$tagNum' ORDER BY TIME DESC LIMIT 3) AS time2 ON time1.time = time2.time";
-    dbSelectVal($sql);
-    dbUpdateCS("erase_avgtime", "$result", "$tagNum");
+    $db->select("SELECT ROUND(AVG(erase_time) / 60, 0) AS 'result' FROM jobstats WHERE erase_completed = '1' AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY TIME DESC LIMIT 3");
+    foreach ($db->get() as $value1) {
+        $db->updateCS("erase_avgtime", $value1["result"], $value["tagnumber"]);
+    }
+    unset($value1);
 
     # Update the most recent average clone time for each client
-    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE clone_completed = '1' ";
-    $sql .= "AND clone_master IS NULL AND tagnumber = '$tagNum' ORDER BY TIME DESC LIMIT 3) AS time2 ON time1.time = time2.time";
+    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = '1' AND tagnumber = '$tagNum' ORDER BY TIME DESC LIMIT 3s";
     dbSelectVal($sql);
     dbUpdateCS("clone_avgtime", "$result", "$tagNum");
 
