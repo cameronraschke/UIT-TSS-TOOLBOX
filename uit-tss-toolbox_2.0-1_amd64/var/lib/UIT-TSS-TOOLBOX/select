@@ -9,9 +9,8 @@ fclose($stdin);
 $db = new db();
 
 $db->select($input);
-$arr = $db->get();
-if (arrFilter($arr) == 0)  {
-    foreach ($arr as $key => $value) {
+if (strFilter($db->get()) == 0)  {
+    foreach ($db->get() as $key => $value) {
         if (strFilter($value["result"]) == 0) {
             echo $value["result"] . PHP_EOL;
         } else {
