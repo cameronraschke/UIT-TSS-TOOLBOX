@@ -74,22 +74,28 @@ foreach ($db->get() as $key => $value) {
     unset($value1);
 
     # Update the most recent average clone time for each client
-    $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats WHERE clone_completed = '1' AND tagnumber = '$tagNum' ORDER BY TIME DESC LIMIT 3s";
-    dbSelectVal($sql);
-    dbUpdateCS("clone_avgtime", "$result", "$tagNum");
+    $db->select("SELECT ROUND(AVG(clone_time) / 60, 0) AS 'result' FROM jobstats WHERE clone_completed = '1' AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY TIME DESC LIMIT 3");
+    foreach ($db->get() as $key => $value1) {
+        dbUpdateCS("clone_avgtime", $value1["result"], $value["tagnumber"]);
+    }
+    unset($value1);
 
     # Update count of total jobs. Total jobs count as every entry of clone_completed or erase_completed equal to "Yes" - One entry can be up to two jobs (clone + erase job).
-    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND clone_completed = '1'");
-    $cloneLineCount = $result;
-    dbSelectVal("SELECT COUNT(tagnumber) AS result FROM jobstats WHERE tagnumber = '$tagNum' AND erase_completed = '1'");
-    $eraseLineCount = $result;
-    $allLineCount = $cloneLineCount + $eraseLineCount;
-    dbUpdateCS("all_jobs", "$allLineCount", "$tagNum");
+    $db->select("SELECT COUNT(tagnumber) AS 'result' FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND (erase_completed = '1' OR clone_completed = '1')");
+    foreach ($db->get() as $key => $value1) {
+        $db->updateCS("all_jobs", $value1["result"], $value["tagnumber"]);
+    }
+    unset($value1);
 
     # Disk Health
     # Get disk model of the client.
-    dbSelect("SELECT disk_model,disk_writes,disk_reads,disk_power_on_hours FROM jobstats WHERE tagnumber = '$tagNum' AND disk_model IS NOT NULL AND disk_writes IS NOT NULL ORDER BY time LIMIT 1");
-    if (filterArr($arr) == 1) {
+    $db->select("SELECT disk_model, disk_writes, disk_reads, disk_power_on_hours FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND disk_model IS NOT NULL AND disk_writes IS NOT NULL ORDER BY time LIMIT 1");
+    foreach ($db->get() as $key => $value1) {
+        if (arrFilter($db->get()) == 0) {
+            
+        }
+    }
+    if (arrFilter($arr) == 1) {
         $diskHealth = "NULL";
     } else {
         foreach ($arr as $key => $value) {
