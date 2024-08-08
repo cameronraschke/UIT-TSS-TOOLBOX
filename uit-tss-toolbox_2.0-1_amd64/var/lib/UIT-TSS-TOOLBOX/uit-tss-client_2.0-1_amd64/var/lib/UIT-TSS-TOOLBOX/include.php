@@ -26,10 +26,14 @@ function numFilter ($string) {
 }
 
 function arrFilter ($arr) {
-    if (empty($arr) || is_null($arr) || count($arr) <= 0 || !isset($arr)) {
-        return 1;
+    if (is_array($arr)) {
+        if (empty($arr) || is_null($arr) || count($arr) <= 0 || !isset($arr)) {
+            return 1;
+        } else {
+            return 0;
+        }
     } else {
-        return 0;
+        return 1;
     }
 }
 
