@@ -31,7 +31,7 @@ foreach ($db->get() as $key => $value) {
 
     # If tagnumber does not exist in the clientstats table, insert it.
     $db->select("SELECT tagnumber FROM clientstats WHERE tagnumber = '" . $value["tagnumber"] . "'");
-    if (count($db->get()) == 0) {
+    if ($db->get() === "NULL") {
         echo "Inserting laptop: " . $value["tagnumber"] . PHP_EOL;
         $db->insertCS($value["tagnumber"]);
     }
