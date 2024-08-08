@@ -1,16 +1,18 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
+include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
 $stdin = fopen('php://stdin', 'r');
 $input = trim(fgets(STDIN));
 fclose($stdin);
 
-dbSelect("$input");
+$db = new db();
 
-if (filterArr($arr) == 0) {
+$db->select($input);
+$arr = $db->get();
+if (arrFilter($arr) == 0)  {
     foreach ($arr as $key => $value) {
-        if (filter($value["result"]) == 0) {
+        if (strFilter($value["result"]) == 0) {
             echo $value["result"] . PHP_EOL;
         } else {
             echo "NULL" . PHP_EOL;

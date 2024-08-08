@@ -6,7 +6,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
 
 function strFilter ($string) {
-    if ($string == "" || $string == " " || $string == "NULL" || empty($string) || is_null($string) || !isset($string))  {
+    if ($string == "" || $string == " " || $string == "NULL" || empty($string) || is_null($string) || !isset($string)) {
         return 1;
     } else {
         return 0;
@@ -22,6 +22,14 @@ function numFilter ($string) {
         }
     } else {
         return 1;
+    }
+}
+
+function arrFilter ($arr) {
+    if (empty($arr) || is_null($arr) || count($arr) <= 0 || !isset($arr)) {
+        return 1;
+    } else {
+        return 0;
     }
 }
 
