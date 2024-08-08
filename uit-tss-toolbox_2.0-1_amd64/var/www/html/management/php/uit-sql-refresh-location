@@ -2,6 +2,8 @@
 # Connect to database and include custom functions
 //include('/var/www/html/management/mysql/mysql-functions');
 
+$db = new db();
+
 $db->select("SELECT tagnumber FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber");
 foreach ($db->get() as $key => $value) {
     $db->select("SELECT MAX(time) AS 'max_time' FROM locations WHERE tagnumber = '" . $value["tagnumber"] . "'");
