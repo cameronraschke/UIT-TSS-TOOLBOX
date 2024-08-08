@@ -31,7 +31,7 @@ foreach ($db->get() as $key => $value) {
                     $osInstalled = 0;
                 }
         
-                dbUpdateLocation("os_installed", $osInstalled, $value1["max_time"]);
+                $db->updateLocation("os_installed", $osInstalled, $value1["max_time"]);
             }
         }
     }
