@@ -1,12 +1,15 @@
 <?php
 require('header.php');
 include('/var/www/html/management/mysql/mysql-functions');
+include('/var/www/html/management/php/include.php');
 if ($_POST['refresh-stats']) {
     include('/var/www/html/management/php/uit-sql-refresh-location');
 }
 $dt = new DateTimeImmutable();
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
+
+$db = new db();
 ?>
 
 <html>
