@@ -26,9 +26,9 @@ foreach ($db->get() as $key => $value) {
                 $time1 = $time1->format('Y-m-d H:i:s');
                 if ($time < $time1) {
                     $presentBool = 1;
+                    $db->updateRemote($value["tagnumber"], "present_bool", $presentBool);
                 }
             }
-            $db->updateRemote($value["tagnumber"], "present_bool", $presentBool);
         }
     }
     unset($value1);
