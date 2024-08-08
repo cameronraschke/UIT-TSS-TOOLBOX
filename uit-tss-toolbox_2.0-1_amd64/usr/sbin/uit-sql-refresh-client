@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 # Connect to database and include custom functions
-include('/var/lib/UIT-TSS-TOOLBOX/functions.php');
+include('/var/lib/UIT-TSS-TOOLBOX/functions');
 include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
 
