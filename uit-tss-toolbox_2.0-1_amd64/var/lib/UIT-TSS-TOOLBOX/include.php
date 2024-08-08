@@ -249,7 +249,7 @@ class db {
     
 
     // Remote table
-    public function dbInsertRemote ($tagNum) {
+    public function insertRemote ($tagNum) {
         if (strFilter($tagNum) == 0) {
             $db = new MySQLConn();
             $this->pdo = $db->dbObj();
