@@ -53,7 +53,7 @@ $db = new db();
                 // Get the department
                 if (arrFilter($arr) === 0) {
                     $db->select("SELECT department FROM jobstats WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
-                    if (arrFitler($db->get()) === 0) {
+                    if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1)
                         {
                             $department = $value1["department"];
