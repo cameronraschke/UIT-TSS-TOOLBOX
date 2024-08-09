@@ -100,7 +100,7 @@ $db = new db();
                     $db->select("SELECT note FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
-                            if ($_POST['status'] === 1) {
+                            if ($_POST["status"] == "1") {
                                 echo "<textarea id='note' name='note'" . htmlspecialchars($value1["note"]) .  "></textarea>" . PHP_EOL;
                             } else {
                                 echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($value1["note"]) .  "'></textarea>" . PHP_EOL;
@@ -115,7 +115,7 @@ $db = new db();
                 }
 
                 echo "<br>" . PHP_EOL;
-                echo "<input type='hidden' name='status' value='" . $_POST['status'] . "'>";
+                echo "<input type='hidden' name='status' value='" . $_POST["status"] . "'>";
                 echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
@@ -123,7 +123,7 @@ $db = new db();
                     $db->select("SELECT disk_removed FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
-                            if ($value1["disk_removed"] === 1) {
+                            if ($value1["disk_removed"] == "1") {
                                 echo "<option value='1'>Yes</option>" . PHP_EOL;
                                 echo "<option value='0'>No</option>" . PHP_EOL;
                             } else {
@@ -140,7 +140,7 @@ $db = new db();
 
                 echo "</select>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                if ($_POST["status"] === 1) {
+                if ($_POST["status"] == "1") {
                     echo "<input class='page-content' type='submit' value='Update Location Data (Broken)'>" . PHP_EOL;
                 } else {
                     echo "<input class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
@@ -156,7 +156,7 @@ $db = new db();
                 $serial = $_POST['serial'];
                 $department = $_POST['department'];
                 $location = $_POST['location'];
-                $status = $_POST['status'];
+                $status = $_POST["status"];
                 $note = $_POST['note'];
                 $diskRemoved = $_POST['disk_removed'];
 
