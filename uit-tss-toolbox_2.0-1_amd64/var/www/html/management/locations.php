@@ -106,8 +106,6 @@ $db = new db();
                                 echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($value1["note"]) .  "'></textarea>" . PHP_EOL;
                             }
                         }
-                    } else {
-                    echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
                     }
                     unset($value1);
                 } else {
