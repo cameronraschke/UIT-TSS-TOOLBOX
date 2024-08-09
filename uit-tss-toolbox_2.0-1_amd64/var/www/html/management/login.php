@@ -2,6 +2,9 @@
 #login.php
 session_start();
 include('/var/www/html/management/php/include.php');
+
+$db = new db();
+
 if (isset($_POST['username']) && isset($_POST['password'])) {
 	$db->select("SELECT name AS result FROM logins WHERE username = '" . $_POST['username'] . "' AND password = '" . $_POST['password'] . "'");
     if (arrFilter($db->get()) === 0) {
