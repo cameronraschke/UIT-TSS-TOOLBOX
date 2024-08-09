@@ -149,16 +149,17 @@ $db = new db();
                 echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
                 echo "</div>";
             }
-            $uuid = uniqid("location-", true);
-            $tagNum = $_POST['tagnumber'];
-            $serial = $_POST['serial'];
-            $department = $_POST['department'];
-            $location = $_POST['location'];
-            $status = $_POST['status'];
-            $note = $_POST['note'];
-            $diskRemoved = $_POST['disk_removed'];
 
             if (isset($_POST['serial'])) {
+                $uuid = uniqid("location-", true);
+                $tagNum = $_POST['tagnumber'];
+                $serial = $_POST['serial'];
+                $department = $_POST['department'];
+                $location = $_POST['location'];
+                $status = $_POST['status'];
+                $note = $_POST['note'];
+                $diskRemoved = $_POST['disk_removed'];
+
                 #Not the same insert statment as client parse code, ether address is DEFAULT here.
                 $db->insertJob($uuid);
                 $db->updateJob("tagnumber", $tagNum, $uuid);
