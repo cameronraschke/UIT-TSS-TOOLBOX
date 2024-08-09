@@ -293,10 +293,16 @@ foreach ($arr as $key => $value) {
     echo "<tr>" . PHP_EOL;
     $db->select("SELECT present_bool FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "'");
     if (arrFilter($db->get()) === 0) {
-        echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b> <span style='color: #00B388'>&#10004;</span></td>" . PHP_EOL;
+        foreach ($db->get() as $key => $value1) {
+            if (strFilter($value1["present_bool"])) {
+                echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b> <span style='color: #00B388'>&#10004;</span></td>" . PHP_EOL;
+            }
+        }
     } else {
         echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     }
+    unset($value1);
+
     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
     if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"]) . "' target='_blank'>" . strtoupper($value["location"]) . "</a></b></td>" . PHP_EOL;
