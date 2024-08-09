@@ -6,9 +6,6 @@ if ($_POST['refresh-stats']) {
 } else {
     include('/var/www/html/management/php/include.php');
 }
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d H:i:s.v');
 
 $db = new db();
 ?>

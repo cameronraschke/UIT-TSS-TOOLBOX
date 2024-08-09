@@ -1,10 +1,10 @@
 <?php
 #login.php
 session_start();
-include('/var/www/html/management/mysql/mysql-functions');
+include('/var/www/html/management/php/include.php');
 if (isset($_POST['username']) && isset($_POST['password'])) {
-	dbSelectVal("SELECT name AS result FROM logins WHERE username = '" . $_POST['username'] . "' AND password = '" . $_POST['password'] . "'"); 
-    if (filter($result) == 0) {
+	$db->select("SELECT name AS result FROM logins WHERE username = '" . $_POST['username'] . "' AND password = '" . $_POST['password'] . "'");
+    if (arrFilter($db->get()) === 0) {
         setcookie ('authorized', 'yes', time() + (10800), "/");
         $_SESSION['login_user'] = $result;
         unset($_POST['username']);

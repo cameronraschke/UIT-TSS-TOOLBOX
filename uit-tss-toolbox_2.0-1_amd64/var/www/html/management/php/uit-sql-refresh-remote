@@ -2,7 +2,6 @@
 <?php
 # Connect to database and include custom functions
 include('/var/lib/UIT-TSS-TOOLBOX/include.php');
-include('/var/lib/UIT-TSS-TOOLBOX/functions');
 
 
 $db = new db();
