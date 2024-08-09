@@ -101,7 +101,7 @@ $db = new db();
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
                             if ($_POST["status"] == "1") {
-                                echo "<textarea id='note' name='note'" . htmlspecialchars($value1["note"]) .  "></textarea>" . PHP_EOL;
+                                echo "<textarea id='note' name='note'>" . htmlspecialchars($value1["note"]) .  "</textarea>" . PHP_EOL;
                             } else {
                                 echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($value1["note"]) .  "'></textarea>" . PHP_EOL;
                             }
