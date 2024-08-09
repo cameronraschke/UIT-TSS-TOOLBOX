@@ -1,9 +1,8 @@
 <?php
 require('header.php');
+require('/var/www/html/management/php/include.php');
 if (isset($_POST['refresh-stats'])) {
     include('/var/www/html/management/php/uit-sql-refresh-location');
-} else {
-    include('/var/www/html/management/php/include.php');
 }
 
 $db = new db();
