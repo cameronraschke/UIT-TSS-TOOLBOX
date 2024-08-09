@@ -13,11 +13,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
             $_SESSION['login_user'] = $value["name"];
             unset($_POST["username"]);
             unset($_POST["password"]);
-            if (isset($_SERVER['REQUEST_URI'])) {
-                header("Location: " . $_SERVER['REQUEST_URI'] );
-            } else {
-                header("Location: index.php");
-            }
+            header("Location: index.php");
         }
     } else {
         setcookie ('authorized', 'no', time() - (3600), "/");
