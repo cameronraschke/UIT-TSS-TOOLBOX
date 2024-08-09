@@ -20,7 +20,6 @@ include('/var/www/html/management/php/include.php');
 
         <div class='pagetitle'><h1>Lost Table</h1></div>
         <div class='pagetitle'><h2>This table shows clients that haven't had a location update in over 60 days.</h2></div>
-        <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'result' FROM locations ORDER BY time DESC LIMIT 1"); echo $result; ?></h3></div>
 
         <div class='styled-form2'>
             <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber...">
