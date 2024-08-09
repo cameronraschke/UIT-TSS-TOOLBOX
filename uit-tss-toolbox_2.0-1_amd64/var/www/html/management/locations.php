@@ -309,6 +309,8 @@ foreach ($arr as $key => $value) {
         foreach ($db->get() as $key => $value1) {
             echo "<td>" . $value1["department_formatted"] . "</td>" . PHP_EOL;
         }
+    } else {
+        echo "<td>NULL</td>" . PHP_EOL;
     }
     unset($value1);
 
@@ -320,6 +322,8 @@ foreach ($arr as $key => $value) {
         foreach ($db->get() as $key => $value1) {
             echo "<td>" . $value1["bios_updated"] . "</td>" . PHP_EOL;
         }
+    } else {
+        echo "<td>NULL</td>" . PHP_EOL;
     }
     unset($value1);
 
