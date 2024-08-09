@@ -3,26 +3,22 @@
 session_start();
 include('/var/www/html/management/php/include.php');
 
-$db = new db();
 
-if (isset($_POST['username']) && isset($_POST['password'])) {
-	$db->select("SELECT username FROM logins WHERE username = '" . $_POST['username'] . "' AND password = '" . $_POST['password'] . "'");
+if (isset($_POST["username"]) && isset($_POST["password"])) {
+    $db = new db();
+	$db->select("SELECT username FROM logins WHERE username = '" . $_POST["username"] . "' AND password = '" . $_POST["password"] . "'");
     if (arrFilter($db->get()) === 0) {
-        foreach ($db->get() as $key => $value) {
-            if (strFilter($value["username"]) === 0) {
-                setcookie ('authorized', 'yes', time() + (10800), "/");
-                $_SESSION['login_user'] = $result;
-                unset($_POST['username']);
-                unset($_POST['password']);
-                header("Location: index.php");
-            } else {
-                setcookie ('authorized', 'no', time() - (3600), "/");
-                unset($_SESSION['login_user']);
-                unset($_POST['username']);
-                unset($_POST['password']);
-                header("Location: login.php");
-            }
-        }
+        setcookie ('authorized', 'yes', time() + (10800), "/");
+        $_SESSION['login_user'] = $result;
+        unset($_POST["username"]);
+        unset($_POST["password"]);
+        header("Location: index.php");
+    } else {
+        setcookie ('authorized', 'no', time() - (3600), "/");
+        unset($_SESSION['login_user']);
+        unset($_POST["username"]);
+        unset($_POST["password"]);
+        header("Location: login.php");
     }
 }
 ?>
