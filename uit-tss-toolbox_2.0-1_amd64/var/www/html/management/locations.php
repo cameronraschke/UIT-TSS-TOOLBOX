@@ -144,7 +144,11 @@ $db = new db();
 
                 echo "</select>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                echo "<input class='page-content' type='submit' value='Update Location Data" . if ($_POST["status"] === 1) { echo "(Broken)"; } . "'>" . PHP_EOL;
+                if ($_POST["status"] === 1) {
+                    echo "<input class='page-content' type='submit' value='Update Location Data (Broken)'>" . PHP_EOL;
+                } else {
+                    echo "<input class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
+                }
                 echo "</form>" . PHP_EOL;
                 echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
                 echo "</div>";
@@ -311,7 +315,7 @@ foreach ($arr as $key => $value) {
 
     echo "<td>" . $value['status'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['os_installed'] . "</td>" . PHP_EOL;
-    
+
     $db->select("SELECT IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated' FROM clientstats WHERE tagnumber = '" . $value['tagnumber'] . "'");
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
