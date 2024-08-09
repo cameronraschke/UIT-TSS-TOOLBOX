@@ -97,21 +97,17 @@ $db = new db();
 
                 if (arrFilter($arr) === 0) {
                     // Get the most recent note that's not null
-                    if ($_POST['status'] === 1) {
-                        $db->select("SELECT note FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
-                        if (arrFilter($db->get()) === 0) {
-                            foreach ($db->get as $key => $value1) {
+                    
+                    $db->select("SELECT note FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
+                    if (arrFilter($db->get()) === 0) {
+                        foreach ($db->get as $key => $value1) {
+                            if ($_POST['status'] === 1) {
                                 echo "<textarea id='note' name='note'" . htmlspecialchars($value1["note"]) .  "></textarea>" . PHP_EOL;
-                            }
-                        }
-                    } else {
-                        $db->select("SELECT note FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
-                        if (arrFilter($db->get()) === 0) {
-                            foreach ($db->get as $key => $value1) {
+                            } else {
                                 echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($value1["note"]) .  "'></textarea>" . PHP_EOL;
                             }
                         }
-                    }
+                    } echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
                     unset($value1);
                 } else {
                     echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
@@ -200,7 +196,7 @@ $db = new db();
         ?>
 
 <?php
-if ($_GET["location"]) {
+if (isset($_GET["location"])) {
     $sql = "SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC";
     $db = new MySQLConn();
     $pdo = $db->dbObj();
@@ -240,7 +236,7 @@ unset($value1);
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
         <div class='page-content'><h3>A checkmark (<span style='color: #00B388'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
         <?php
-        if ($_GET["location"]) {
+        if (isset($_GET["location"])) {
             echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online from location '" . $_GET["location"] . "'.</h3></div>";
         }
         ?>
@@ -275,7 +271,7 @@ unset($value1);
                 </thead>
                 <tbody>
 <?php
-if ($_GET["location"]) {
+if (isset($_GET["location"])) {
     $sql = "SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC";
     $db = new MySQLConn();
     $pdo = $db->dbObj();
