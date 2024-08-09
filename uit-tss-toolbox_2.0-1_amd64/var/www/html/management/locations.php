@@ -30,7 +30,7 @@ $db = new db();
         <div class='pagetitle'><h3>Last updated: <?php $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations ORDER BY time DESC LIMIT 1"); foreach ($db->get() as $key => $time) { echo $time["time_formatted"]; } ?></h3></div>
 
         <?php
-        if (strFilter($_POST['tagnumber'])) {
+        if (isset($_POST['tagnumber'])) {
             echo "<div class='location-form'>" . PHP_EOL;
             $db->select("SELECT system_serial, location, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
             if ($db->get() === "NULL") { $arr = array(); } else { $arr = $db->get(); }
@@ -160,22 +160,21 @@ $db = new db();
 
             if (isset($_POST['serial'])) {
                 #Not the same insert statment as client parse code, ether address is DEFAULT here.
-                dbInsertJob($uuid);
-                dbUpdateJob("tagnumber", "$tagNum", "$uuid");
-                dbUpdateJob("system_serial", "$serial", "$uuid");
-                dbUpdateJob ("date", "$date", "$uuid");
-                dbUpdateJob ("time", "$time", "$uuid");
-                dbUpdateJob ("department", "$department", "$uuid");
+                $db->insertJob($uuid);
+                $db->updateJob("tagnumber", $tagNum, $uuid);
+                $db->updateJob("system_serial", $serial, $uuid);
+                $db->updateJob ("date", $date, $uuid);
+                $db->updateJob ("time", $time, $uuid);
+                $db->updateJob ("department", $department, $uuid);
 
                 # INSERT statement
-                dbInsertLocation($time);
-                dbUpdateLocation("tagnumber", "$tagNum", "$time");
-                dbUpdateLocation("system_serial", "$serial", "$time");
-                dbUpdateLocation("location", "$location", "$time");
-                dbUpdateLocation("status", "$status", "$time");
-                dbUpdateLocation("disk_removed", "$diskRemoved", "$time");
-                dbUpdateLocation("note", "$note", "$time");
-                echo "<div class='page-content'><h3>$tagNum is updated at $time. </h3></div>" . PHP_EOL;
+                $db->insertLocation($time);
+                $db->updateLocation("tagnumber", $tagNum, $time);
+                $db->updateLocation("system_serial", $serial, $time);
+                $db->updateLocation("location", $location, $time);
+                $db->updateLocation("status", $status, $time);
+                $db->updateLocation("disk_removed", $diskRemoved, $time);
+                $db->updateLocation("note", $note, $time);
                 unset($_POST);
                 header("Location: locations.php");
             }
@@ -186,7 +185,7 @@ $db = new db();
             echo "<tr>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
             echo "<label for='tagnumber'>Enter tag number and status: </label>" . PHP_EOL;
-            echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus>" . PHP_EOL;
+            echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>" . PHP_EOL;
             echo "<select name='status' id='status' required>" . PHP_EOL;
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;
@@ -199,30 +198,47 @@ $db = new db();
 
 <?php
 if ($_GET["location"]) {
-    $sql = "SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC";
+    $sql = "SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC";
+    $db = new MySQLConn();
+    $pdo = $db->dbObj();
+    $arr = array();
     $stmt = $pdo->prepare($sql);
     $sqlLocation = htmlspecialchars_decode($_GET['location']);
     $stmt->bindParam(':location', $sqlLocation, PDO::PARAM_STR);
     $stmt->execute();
-    $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $arr = $stmt->fetchAll();
     $rowCount = $stmt->rowCount();
     $onlineRowCount = 0;
-    foreach ($arr as $key => $value) {
-        dbSelectVal("SELECT tagnumber AS 'result' FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value["tagnumber"] . "'");
-        if (filter($result) == 0) {
-            $onlineRowCount = $onlineRowCount + 1;
+    if (arrFilter($arr) === 0) {
+        foreach ($arr as $key => $value1) {
+            dbSelectVal("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value1["tagnumber"] . "'");
+            if (arrFilter($db->get()) === 0) {
+                $onlineRowCount = $onlineRowCount + 1;
+            }
         }
-    }
+    } else { $onlineRowCount = 0; }
 } else {
-    dbSelect("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
+    $onlineRowCount = 0;
+    $db->select("SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
+    $rowCount = count($db->get());
+    $onlineRowCount = 0;
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            dbSelectVal("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value1["tagnumber"] . "'");
+            if (arrFilter($db->get()) === 0) {
+                $onlineRowCount = $onlineRowCount + 1;
+            }
+        }
+    } else { $onlineRowCount = 0; }
 }
-// DON'T PUT ARR AFTER THIS UNTIL NEXT PHP BLOCK!!
+unset($arr);
+unset($value1);
 ?>
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
         <div class='page-content'><h3>A checkmark (<span style='color: #00B388'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
         <?php
         if ($_GET["location"]) {
-            echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online from location '" . $value["location"] . "'.</h3></div>";
+            echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online from location '" . $_GET["location"] . "'.</h3></div>";
         }
         ?>
         <div class='styled-form'>
@@ -258,18 +274,22 @@ if ($_GET["location"]) {
 <?php
 if ($_GET["location"]) {
     $sql = "SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC";
+    $db = new MySQLConn();
+    $pdo = $db->dbObj();
+    $arr = array();
     $stmt = $pdo->prepare($sql);
     $sqlLocation = htmlspecialchars_decode($_GET['location']);
     $stmt->bindParam(':location', $sqlLocation, PDO::PARAM_STR);
     $stmt->execute();
-    $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $arr = $stmt->fetchAll();
 } else {
-    dbSelect("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
+    $db->select("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
+    $arr = $db->get();
 }
-foreach ($arr as $key => $value) {
+foreach ($arr as $key => $value1) {
     echo "<tr>" . PHP_EOL;
-    dbSelectVal("SELECT present_bool AS 'result' FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "'");
-    if ($result == "1") {
+    $db->select("SELECT present_bool FROM remote WHERE tagnumber = '" . $value1["tagnumber"] . "'");
+    if (arrFilter($db->get()) === 0) {
         echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b> <span style='color: #00B388'>&#10004;</span></td>" . PHP_EOL;
     } else {
         echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
@@ -284,7 +304,7 @@ foreach ($arr as $key => $value) {
     echo "<td>" . $result . "</td>" . PHP_EOL;
     echo "<td>" . $value['status'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['os_installed'] . "</td>" . PHP_EOL;
-    dbSelectVal("SELECT IF (bios_updated = '1', 'Yes', 'No')  AS 'result' FROM clientstats WHERE tagnumber = '" . $value['tagnumber'] . "'");
+    dbSelectVal("SELECT IF (bios_updated = '1', 'Yes', 'No')  FROM clientstats WHERE tagnumber = '" . $value['tagnumber'] . "'");
     echo "<td>" . $result . "</td>" . PHP_EOL;
     echo "<td>" . $value['note'] . " </td>" . PHP_EOL;
     echo "<td>" . $value['time_formatted'] . " </td>" . PHP_EOL;
