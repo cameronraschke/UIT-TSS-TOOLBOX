@@ -23,7 +23,8 @@ foreach ($db->get() as $key => $value) {
                 $time1 = new DateTime($value1["present"]);
                 $time1->modify('+45 second');
                 $time1 = $time1->format('Y-m-d H:i:s');
-                if ($time < $time1) {
+                $tmpTime = $dt->format('Y-m-d H:i:s');
+                if ($tmpTime < $time1) {
                     $presentBool = 1;
                     $db->updateRemote($value["tagnumber"], "present_bool", $presentBool);
                 }
@@ -32,6 +33,7 @@ foreach ($db->get() as $key => $value) {
     }
     unset($value1);
     unset($time1);
+    unset($tmpTime);
     unset($presentBool);
 
 
