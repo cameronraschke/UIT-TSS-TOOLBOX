@@ -1,6 +1,6 @@
 <?php
 require('header.php');
-if ($_POST['refresh-stats']) {
+if (isset($_POST['refresh-stats'])) {
     include('/var/www/html/management/php/uit-sql-refresh-location');
 } else {
     include('/var/www/html/management/php/include.php');
@@ -100,14 +100,16 @@ $db = new db();
                     
                     $db->select("SELECT note FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
                     if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get as $key => $value1) {
+                        foreach ($db->get() as $key => $value1) {
                             if ($_POST['status'] === 1) {
                                 echo "<textarea id='note' name='note'" . htmlspecialchars($value1["note"]) .  "></textarea>" . PHP_EOL;
                             } else {
                                 echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($value1["note"]) .  "'></textarea>" . PHP_EOL;
                             }
                         }
-                    } echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
+                    } else {
+                    echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
+                    }
                     unset($value1);
                 } else {
                     echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
