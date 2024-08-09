@@ -1,6 +1,7 @@
 <?php
 #login.php
 session_start();
+$_SESSION['url'] = $_SERVER['REQUEST_URI']; 
 include('/var/www/html/management/php/include.php');
 
 
@@ -14,7 +15,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
             unset($_POST["username"]);
             unset($_POST["password"]);
             if (isset($_SERVER['REQUEST_URI'])) {
-                header("Location: " . $_SERVER['REQUEST_URI']);
+                header("Location: " . $_SESSION['url']);
             } else {
                 header("Location: index.php");
             }
