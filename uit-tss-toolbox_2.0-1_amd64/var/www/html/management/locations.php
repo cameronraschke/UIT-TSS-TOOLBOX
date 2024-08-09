@@ -198,8 +198,8 @@ $db = new db();
 <?php
 if (isset($_GET["location"])) {
     $sql = "SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC";
-    $db = new MySQLConn();
-    $pdo = $db->dbObj();
+    $conn = new MySQLConn();
+    $pdo = $conn->dbObj();
     $arr = array();
     $stmt = $pdo->prepare($sql);
     $sqlLocation = htmlspecialchars_decode($_GET['location']);
