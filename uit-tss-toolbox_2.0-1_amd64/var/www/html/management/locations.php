@@ -214,7 +214,7 @@ if ($_GET["location"]) {
     $onlineRowCount = 0;
     if (arrFilter($arr) === 0) {
         foreach ($arr as $key => $value1) {
-            dbSelectVal("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value1["tagnumber"] . "'");
+            $db->select("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value1["tagnumber"] . "'");
             if (arrFilter($db->get()) === 0) {
                 $onlineRowCount = $onlineRowCount + 1;
             }
@@ -227,7 +227,7 @@ if ($_GET["location"]) {
     $onlineRowCount = 0;
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            dbSelectVal("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value1["tagnumber"] . "'");
+            $db->select("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value1["tagnumber"] . "'");
             if (arrFilter($db->get()) === 0) {
                 $onlineRowCount = $onlineRowCount + 1;
             }
