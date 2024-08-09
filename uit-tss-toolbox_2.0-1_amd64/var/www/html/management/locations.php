@@ -286,9 +286,9 @@ if ($_GET["location"]) {
     $db->select("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
     $arr = $db->get();
 }
-foreach ($arr as $key => $value1) {
+foreach ($arr as $key => $value) {
     echo "<tr>" . PHP_EOL;
-    $db->select("SELECT present_bool FROM remote WHERE tagnumber = '" . $value1["tagnumber"] . "'");
+    $db->select("SELECT present_bool FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "'");
     if (arrFilter($db->get()) === 0) {
         echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b> <span style='color: #00B388'>&#10004;</span></td>" . PHP_EOL;
     } else {
@@ -300,12 +300,26 @@ foreach ($arr as $key => $value1) {
     } else {
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"]) . "' target='_blank'>" . $value["location"] . "</a></b></td>" . PHP_EOL;
     }
-    dbSelectVal("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS result FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
-    echo "<td>" . $result . "</td>" . PHP_EOL;
+
+    $db->select("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            echo "<td>" . $value1["department_formatted"] . "</td>" . PHP_EOL;
+        }
+    }
+    unset($value1);
+
     echo "<td>" . $value['status'] . "</td>" . PHP_EOL;
     echo "<td>" . $value['os_installed'] . "</td>" . PHP_EOL;
-    dbSelectVal("SELECT IF (bios_updated = '1', 'Yes', 'No')  FROM clientstats WHERE tagnumber = '" . $value['tagnumber'] . "'");
-    echo "<td>" . $result . "</td>" . PHP_EOL;
+    
+    $db->select("SELECT IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated' FROM clientstats WHERE tagnumber = '" . $value['tagnumber'] . "'");
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            echo "<td>" . $value1["bios_updated"] . "</td>" . PHP_EOL;
+        }
+    }
+    unset($value1);
+
     echo "<td>" . $value['note'] . " </td>" . PHP_EOL;
     echo "<td>" . $value['time_formatted'] . " </td>" . PHP_EOL;
 
