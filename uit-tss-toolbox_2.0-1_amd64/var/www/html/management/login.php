@@ -13,9 +13,8 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
             $_SESSION['login_user'] = $value["name"];
             unset($_POST["username"]);
             unset($_POST["password"]);
-            if (isset($_SERVER['REQUEST_URI'])) {
-                $url = $_SERVER['REQUEST_URI'];
-                header("Location: $url" );
+            if (isset($_REQUEST['redirurl'])) {
+                header("Location: " . $_REQUEST['redirurl'] );
             } else {
                 header("Location: index.php");
             }
