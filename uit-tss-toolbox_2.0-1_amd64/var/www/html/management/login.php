@@ -6,19 +6,23 @@ include('/var/www/html/management/php/include.php');
 $db = new db();
 
 if (isset($_POST['username']) && isset($_POST['password'])) {
-	$db->select("SELECT name AS result FROM logins WHERE username = '" . $_POST['username'] . "' AND password = '" . $_POST['password'] . "'");
+	$db->select("SELECT username FROM logins WHERE username = '" . $_POST['username'] . "' AND password = '" . $_POST['password'] . "'");
     if (arrFilter($db->get()) === 0) {
-        setcookie ('authorized', 'yes', time() + (10800), "/");
-        $_SESSION['login_user'] = $result;
-        unset($_POST['username']);
-        unset($_POST['password']);
-        header("Location: index.php");
-    } else {
-        setcookie ('authorized', 'no', time() - (3600), "/");
-        unset($_SESSION['login_user']);
-        unset($_POST['username']);
-        unset($_POST['password']);
-        header("Location: login.php");
+        foreach ($db->get() as $key => $value) {
+            if (strFilter($value["username"]) === 0) {
+                setcookie ('authorized', 'yes', time() + (10800), "/");
+                $_SESSION['login_user'] = $result;
+                unset($_POST['username']);
+                unset($_POST['password']);
+                header("Location: index.php");
+            } else {
+                setcookie ('authorized', 'no', time() - (3600), "/");
+                unset($_SESSION['login_user']);
+                unset($_POST['username']);
+                unset($_POST['password']);
+                header("Location: login.php");
+            }
+        }
     }
 }
 ?>
@@ -43,6 +47,11 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
                 <input type="submit" value="Login"></input>
             </form>
         </div>
+        <script>
+            if ( window.history.replaceState ) {
+                window.history.replaceState( null, null, window.location.href );
+            }
+        </script>
         <div class="uit-footer">
             <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
         </div>
