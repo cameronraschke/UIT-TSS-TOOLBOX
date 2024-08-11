@@ -1,6 +1,7 @@
 <?php
 require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
+
 if (isset($_POST['refresh-stats'])) {
     include('/var/www/html/management/php/uit-sql-refresh-location');
 }
@@ -18,9 +19,9 @@ $db = new db();
     <body>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-            <p><span style='float: right;'>Logged in as <b><?php echo "$login_user"; ?></b>.</span></p>
+            <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
             <br>
-            <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
+            <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
         <div class='pagetitle'><h1>Locations Table (<i><a href='lost.php' target="_blank">View Lost Clients</a></i>)</h1></div>
@@ -36,7 +37,7 @@ $db = new db();
                 echo "<form method='post'>" . PHP_EOL;
                 echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . $_POST['tagnumber'] . "' readonly required>" . PHP_EOL;
+                echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . htmlspecialchars($_POST['tagnumber']) . "' readonly required>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<label for='serial'>Serial Number</label>";
                 echo "<br>" . PHP_EOL;
@@ -113,7 +114,7 @@ $db = new db();
                 }
 
                 echo "<br>" . PHP_EOL;
-                echo "<input type='hidden' name='status' value='" . $_POST["status"] . "'>";
+                echo "<input type='hidden' name='status' value='" . htmlspecialchars($_POST["status"]) . "'>";
                 echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
@@ -237,7 +238,7 @@ unset($value1);
         <div class='page-content'><h3>A checkmark (<span style='color: #00B388'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
         <?php
         if (isset($_GET["location"])) {
-            echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online from location '" . $_GET["location"] . "'.</h3></div>";
+            echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
         }
         ?>
         <div class='styled-form'>

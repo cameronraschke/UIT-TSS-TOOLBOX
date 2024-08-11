@@ -1,7 +1,7 @@
 <?php
 #login.php
 session_start();
-include('/var/www/html/management/php/include.php');
+require('/var/www/html/management/php/include.php');
 
 
 if (isset($_POST["username"]) && isset($_POST["password"])) {

@@ -1,6 +1,7 @@
 <?php
 require('/var/www/html/management/header.php');
-include('/var/www/html/management/php/include.php');
+require('/var/www/html/management/php/include.php');
+
 $db = new db();
 ?>
 
@@ -14,9 +15,9 @@ $db = new db();
     <body>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-            <p><span style='float: right;'>Logged in as <b><?php echo "$login_user"; ?></b>.</span></p>
+            <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
             <br>
-            <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
+            <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
         <div class='pagetitle'><h1>Server Stats Table (Date Report)</h1></div>
@@ -43,15 +44,15 @@ $db->select("SELECT * from serverstats ORDER BY date DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
-        echo "<td>" . $value["date"] . "</td>" . PHP_EOL;
-        echo "<td>" . $value["laptop_count"] . "</td>" . PHP_EOL;
-        echo "<td>" . $value["battery_health"] . "%</td>" . PHP_EOL;
-        echo "<td>" . $value["disk_health"] . "%</td>" . PHP_EOL;
-        echo "<td>" . $value["all_jobs"] . "</td>" . PHP_EOL;
-        echo "<td>" . $value["clone_avgtime"] . " minutes</td>" . PHP_EOL;
-        echo "<td>" . $value["nvme_erase_avgtime"] . " minutes</td>" . PHP_EOL;
-        echo "<td>" . $value["hdd_erase_avgtime"] . " minutes</td>" . PHP_EOL;
-        echo "<td>" . $value["last_image_update"] . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["date"]) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["laptop_count"]) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["battery_health"]) . "%</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["disk_health"]) . "%</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["all_jobs"]) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["clone_avgtime"]) . " minutes</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["nvme_erase_avgtime"]) . " minutes</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["hdd_erase_avgtime"]) . " minutes</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["last_image_update"]) . "</td>" . PHP_EOL;
         echo "</tr>" . PHP_EOL;
     }
 }

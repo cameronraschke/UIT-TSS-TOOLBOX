@@ -17,18 +17,18 @@ if (isset($_POST["task"])) {
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Laptop Management - <?php echo htmlspecialchars($_GET['tagnumber']); ?></title>
+        <title>UIT Laptop Management - <?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></title>
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     </head>
     <body>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-            <p><span style='float: right;'>Logged in as <b><?php echo "$login_user"; ?></b>.</span></p>
+            <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
             <br>
-            <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
+            <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber']); ?>)</h1></div>
+        <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
         <div class='pagetitle'><h2>Lookup data for a specific client.</h2></div>
         <div class='pagetitle'><h3>Last updated: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
@@ -62,13 +62,13 @@ if (isset($_POST["task"])) {
                             $db->select("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
                             if (arrFilter($db->get()) === 0) {
                                 foreach ($db->get() as $key => $value) {
-                                    echo "<option value='" . $_GET["tagnumber"] . "|" . $value["task"] . "'>" . $value["formatted_task"] . "</option>";
-                                    echo "<option value='" . $_GET["tagnumber"] . "|update'>Update</option>";
-                                    echo "<option value='" . $_GET["tagnumber"] . "|nvmeErase'>Erase Only</option>";
-                                    echo "<option value='" . $_GET["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
-                                    echo "<option value='" . $_GET["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
-                                    echo "<option value='" . $_GET["tagnumber"] . "|findmy'>Play Sound</option>";
-                                    echo "<option value='" . $_GET["tagnumber"] . "| '>Clear Pending Jobs</option>";
+                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|" . htmlspecialchars($value["task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["formatted_task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>";
+                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
+                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
+                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
+                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
+                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
+                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
                                 }
                             }
                         }
@@ -81,7 +81,7 @@ if (isset($_POST["task"])) {
             <div style='width: 40%; float: left;'>
 
                 <?php
-                $db->select("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool FROM remote WHERE tagnumber = '" . $_GET["tagnumber"] . "'");
+                $db->select("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET["tagnumber"]) . "'");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
                         if ($value["present_bool"] == 1) {
@@ -89,9 +89,9 @@ if (isset($_POST["task"])) {
                         } else {
                             $presentBool = "Offline <span style='color: #C8102E'>&#10007;</span>";
                         }
-                        echo "<div class='pagetitle'><h3>Status (" . $presentBool . ")</h3></div>";
+                        echo "<div class='pagetitle'><h3>Status (" . htmlspecialchars($presentBool, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</h3></div>";
                         echo "<div class='page-content'>";
-                        echo "<p><b>'" . $value["status"] . "'</b> at " . $value["time_formatted"] . "</p>" . PHP_EOL;
+                        echo "<p><b>'" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
                     }
                 }
                 ?>
@@ -100,7 +100,7 @@ if (isset($_POST["task"])) {
         </div>
 
         
-        <div class='pagetitle'><h3>General Client Info - <u><?php echo $_GET["tagnumber"]; ?></u></h3></div>
+        <div class='pagetitle'><h3>General Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></u></h3></div>
         <div class='styled-table' style="width: auto; height:10%; overflow:auto; margin: 1% 1% 0% 1%;">
         <table width="100%">
             <thead>
@@ -161,12 +161,12 @@ if (isset($_POST["task"])) {
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
                     echo "<tr>" . PHP_EOL;
-                    echo "<td>" . $value['time_formatted'] . "</td>" . PHP_EOL;
-                    echo "<td>" . $value['location'] . "</td>" . PHP_EOL;
-                    echo "<td>" . $value['status'] . "</td>" . PHP_EOL;
-                    echo "<td>" . $value['os_installed'] . "</td>" . PHP_EOL;
-                    echo "<td>" . $value['disk_removed'] . "</td>" . PHP_EOL;
-                    echo "<td>" . $value['note'] . "</td>" . PHP_EOL;
+                    echo "<td>" . htmlspecialchars($value['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                    echo "<td>" . htmlspecialchars($value['location'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                    echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                    echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                    echo "<td>" . htmlspecialchars($value['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                    echo "<td>" . htmlspecialchars($value['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                     echo "</tr>" . PHP_EOL;
                     }
                 }
@@ -198,16 +198,16 @@ if (isset($_POST["task"])) {
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
                         echo "<tr>" . PHP_EOL;
-                        echo "<td>" . $value['time_formatted'] . "</td>" . PHP_EOL;
-                        echo "<td>" . $value['cpu_usage'] . "</td>" . PHP_EOL;
-                        echo "<td>" . $value['network_usage'] . "</td>" . PHP_EOL;
-                        echo "<td>" . $value['erase_completed'] . "</td>" . PHP_EOL;
-                        echo "<td>" . $value['erase_mode'] . "</td>" . PHP_EOL;
-                        echo "<td>" . $value['erase_time'] . "</td>" . PHP_EOL;
-                        echo "<td>" . $value['clone_completed'] . "</td>" . PHP_EOL;
-                        echo "<td>" . $value['clone_master'] . "</td>" . PHP_EOL;
-                        echo "<td>" . $value['clone_time'] . "</td>" . PHP_EOL;
-                        echo "<td>" . $value['bios_version'] . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['cpu_usage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['network_usage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['erase_completed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['erase_mode'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['erase_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['clone_completed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['clone_master'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['clone_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['bios_version'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "</tr>" . PHP_EOL;
                     }
                 }
