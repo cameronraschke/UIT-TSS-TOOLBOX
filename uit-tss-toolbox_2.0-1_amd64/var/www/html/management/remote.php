@@ -172,17 +172,17 @@ dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_format
 foreach ($arr as $key => $value) {
     echo "<tr>";
     if ($value["status"] != "waiting for job") {
-        echo "<td><b>Working: <a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
+        echo "<td><b>Working: <a href='tagnumber.php?tagnumber='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
     } else {
-        echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='tagnumber.php?tagnumber='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
     }
     $_POST['tagnumber'] = $value["tagnumber"];
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
     dbSelectVal("SELECT location AS 'result' FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
     if (preg_match("/^[a-zA-Z]$/", $result)) { 
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='locations.php?location='" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
     } else {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='locations.php?location='" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
     }
     if ($value['bios_updated'] == "Yes") {
         echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
@@ -240,13 +240,13 @@ echo "</div>";
 dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool IS NULL ORDER BY present DESC, task DESC, status ASC, tagnumber DESC");
 foreach ($arr as $key => $value) {
     echo "<tr>";
-    echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
+    echo "<td><b><a href='tagnumber.php?tagnumber='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
     dbSelectVal("SELECT location AS 'result' FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
     if (preg_match("/^[a-zA-Z]$/", $result)) { 
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='locations.php?location='" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
     } else {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='locations.php?location='" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
     }
     echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
     echo "<td>" . $value["battery_charge"] . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
