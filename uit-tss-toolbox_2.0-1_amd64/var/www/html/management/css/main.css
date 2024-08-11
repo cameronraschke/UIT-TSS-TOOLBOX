@@ -203,7 +203,7 @@ table {
 .location-form {
 	position: relative;
 	width: 100%;
-	margin: 1% 1% 2% 1%;
+	margin: 1% 1% 5% 1%;
 	font-size: 18px;
 }
 .location-form input[type=text] {

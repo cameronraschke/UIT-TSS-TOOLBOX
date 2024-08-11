@@ -20,7 +20,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
         unset($_SESSION['login_user']);
         unset($_POST["username"]);
         unset($_POST["password"]);
-        header("Location: login.php");
+        $err = "Invalid credentials, try again.";
     }
 }
 ?>
@@ -37,14 +37,16 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
             <h1 style="margin:auto;">TechComm Laptop Management Login</h1>
         </div>
         <div class="login-form">
-            <form method="post" class="styled-form">
-                <label for="username">Username</label>
-                <input type="text" name="username" autocomplete="username" required autofocus>
-                <label for="password">Password</label>
-                <input type="password" name="password" autocomplete="current-password" required>
-                <input type="submit" value="Login"></input>
-            </form>
-                <h3 style="color: #C8102E;"><?php if (arrFilter($db->get()) !== 0 && count($db->get()) !== 1) { echo "Invalid credentials, try again."; } ?></h3>
+            <div>
+                <form method="post" class="styled-form">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" id="username" autocomplete="username" required autofocus>
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" autocomplete="current-password" required>
+                    <?php if (isset($err)) { echo "<div><h3 style='color: #C8102E;'>Invalid credentials, try again. </h3></div>"; } ?>
+                    <input type="submit" value="Login"></input>
+                </form>
+            </div>
         </div>
         <script>
             if ( window.history.replaceState ) {

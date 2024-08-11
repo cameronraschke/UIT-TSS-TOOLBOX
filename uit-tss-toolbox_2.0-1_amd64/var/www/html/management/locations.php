@@ -180,7 +180,7 @@ $db = new db();
             }
             unset($_POST);
         } else {
-            echo "<div class='page-content'><h2>Update Laptop Locations</h2></div>" . PHP_EOL;
+            echo "<div class='page-content' style='margin: 5% 0% 0% 0%;'><h2>Update Laptop Locations</h2></div>" . PHP_EOL;
             echo "<div class='location-form'>";
             echo "<tr>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
