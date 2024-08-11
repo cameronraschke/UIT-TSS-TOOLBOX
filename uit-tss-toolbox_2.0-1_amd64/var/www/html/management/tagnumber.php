@@ -85,11 +85,10 @@ if (isset($_POST["task"])) {
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
                         if ($value["present_bool"] == 1) {
-                            $presentBool = "Online <span style='color: #00B388'>&#10004;</span>";
+                            echo "<div class='pagetitle'><h3>Status (Online <span style='color: #00B388'>&#10004;</span>)</h3></div>";
                         } else {
-                            $presentBool = "Offline <span style='color: #C8102E'>&#10007;</span>";
+                            echo "<div class='pagetitle'><h3>Status (Offline <span style='color: #C8102E'>&#10007;</span>)</h3></div>";
                         }
-                        echo "<div class='pagetitle'><h3>Status (" . htmlspecialchars($presentBool, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</h3></div>";
                         echo "<div class='page-content'>";
                         echo "<p><b>'" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
                     }
