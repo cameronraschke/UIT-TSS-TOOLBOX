@@ -44,6 +44,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
                 <input type="password" name="password" autocomplete="current-password" required>
                 <input type="submit" value="Login"></input>
             </form>
+                <h3 style="color: #C8102E;"><?php if (arrFilter($db->get()) !== 0 && count($db->get()) !== 1) { echo "Invalid credentials, try again."; } ?></h3>
         </div>
         <script>
             if ( window.history.replaceState ) {
