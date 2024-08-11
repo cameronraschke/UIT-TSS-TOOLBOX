@@ -1,10 +1,9 @@
 <?php
 require('/var/www/html/management/header.php');
 include('/var/www/html/management/mysql/mysql-functions');
-//include('/var/www/html/management/php/uit-sql-refresh-remote');
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d H:i:s.v');
+include('/var/www/html/management/php/include.php');
+
+$db = new db();
 ?>
 
 <html>
@@ -24,7 +23,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
 
         <div class='pagetitle'><h1>Remote Management</h1></div>
         <div class='pagetitle'><h2>The remote table allows you to remotely control laptops currently plugged into the server.</h2></div>
-        <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'result'"); echo $result; ?></h3></div>
+        <div class='pagetitle'><h3>Last updated: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
         <div class='styled-table'>
             <table>
@@ -173,9 +172,9 @@ dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_format
 foreach ($arr as $key => $value) {
     echo "<tr>";
     if ($value["status"] != "waiting for job") {
-        echo "<td><b>Working: <a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
+        echo "<td><b>Working: <a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
     } else {
-        echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
     }
     $_POST['tagnumber'] = $value["tagnumber"];
     echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;

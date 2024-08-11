@@ -1,5 +1,5 @@
 <?php
-require('header.php');
+require('/var/www/html/management/header.php');
 include('/var/www/html/management/php/include.php');
 ?>
 

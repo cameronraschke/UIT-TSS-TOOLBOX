@@ -1,16 +1,15 @@
 <?php
 require('/var/www/html/management/header.php');
-include('/var/www/html/management/mysql/mysql-functions');
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d H:i:s.v');
+require('/var/www/html/management/php/include.php');
 
-if (isset($_POST['task'])) {
-    $arrTask = explode('|', $_POST['task']);
-    if (filter($arrTask[0]) == 0) {
-        dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
+$db = new db();
+
+if (isset($_POST["task"])) {
+    $arrTask = explode('|', $_POST["task"]);
+    if (strFilter($arrTask[0]) === 0) {
+        $db->updateRemote($arrTask[0], "task", $arrTask[1]);
     }
-    unset($_POST['task']);
+    unset($_POST["task"]);
 }
 ?>
 
@@ -18,7 +17,7 @@ if (isset($_POST['task'])) {
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Laptop Management - <?php echo $_GET['tagnumber']; ?></title>
+        <title>UIT Laptop Management - <?php echo htmlspecialchars($_GET['tagnumber']); ?></title>
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     </head>
     <body>
@@ -29,21 +28,25 @@ if (isset($_POST['task'])) {
             <p><span style='float: right;'>Not <b><?php echo "$login_user"; ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle'><h1>Client Lookup (<?php echo $_GET['tagnumber']; ?>)</h1></div>
+        <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber']); ?>)</h1></div>
         <div class='pagetitle'><h2>Lookup data for a specific client.</h2></div>
-        <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'result'"); echo $result; ?></h3></div>
+        <div class='pagetitle'><h3>Last updated: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
         <div class='laptop-images'>
         <?php
-            dbSelectVal("SELECT system_model AS 'result' FROM system_data WHERE tagnumber = '" . $_GET['tagnumber'] . "'");
-            if ($result == "HP ProBook 450 G6") {
-                echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
-            } elseif ($result == "Latitude 7400") {
-                echo "<img src='/images/dellLatitude7400.avif'>" . PHP_EOL;
-            } elseif ($result == "Latitude 3560") {
-                echo "<img src='/images/Latitude3560.jpg'>" . PHP_EOL;
-            } elseif ($result == "Latitude 3500") {
-                echo "<img src='/images/Latitude3500.avif'>" . PHP_EOL;
+            $db->select("SELECT system_model FROM system_data WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
+            if (arrFilter($db->get()) === 0) {
+                foreach ($db->get() as $key => $value) {
+                    if ($result === "HP ProBook 450 G6") {
+                        echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
+                    } elseif ($result === "Latitude 7400") {
+                        echo "<img src='/images/dellLatitude7400.avif'>" . PHP_EOL;
+                    } elseif ($result === "Latitude 3560") {
+                        echo "<img src='/images/Latitude3560.jpg'>" . PHP_EOL;
+                    } elseif ($result === "Latitude 3500") {
+                        echo "<img src='/images/Latitude3500.avif'>" . PHP_EOL;
+                    }
+                }
             }
         ?>
         </div>
@@ -56,7 +59,7 @@ if (isset($_POST['task'])) {
                     <select name="task" onchange='this.form.submit()'>
                         <?php
                         if ($_GET['tagnumber']) {
-                            dbSelect("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task FROM remote WHERE tagnumber = '" . $_GET["tagnumber"] . "'");
+                            dbSelect("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
                             foreach ($arr as $key => $value) {
                                 echo "<option value='" . $_GET["tagnumber"] . "|" . $value["task"] . "'>" . $value["formatted_task"] . "</option>";
                                 echo "<option value='" . $_GET["tagnumber"] . "|update'>Update</option>";
@@ -109,7 +112,7 @@ if (isset($_POST['task'])) {
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT t1.system_serial, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = '" . $_GET['tagnumber'] . "' AND t2.tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' ORDER BY t1.time DESC LIMIT 1");
+                dbSelect("SELECT t1.system_serial, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND t2.tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND host_connected = '1' ORDER BY t1.time DESC LIMIT 1");
                 foreach ($arr as $key => $value) {
                    echo "<tr>" . PHP_EOL;
                    echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
@@ -143,7 +146,7 @@ if (isset($_POST['task'])) {
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status='0' OR status IS NULL, 'Working', 'Broken') AS 'status', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', note FROM locations WHERE tagnumber = '" . $_GET['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
+                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status='0' OR status IS NULL, 'Working', 'Broken') AS 'status', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', note FROM locations WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' ORDER BY time DESC LIMIT 1");
                 foreach ($arr as $key => $value) {
                 echo "<tr>" . PHP_EOL;
                 echo "<td>" . $value['time_formatted'] . "</td>" . PHP_EOL;
@@ -178,7 +181,7 @@ if (isset($_POST['task'])) {
             </thead>
             <tbody>
                 <?php
-                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . $_GET['tagnumber'] . "' AND host_connected = '1' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 10");
+                dbSelect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND host_connected = '1' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 10");
                 foreach ($arr as $key=>$value) {
                     echo "<tr>" . PHP_EOL;
                     echo "<td>" . $value['time_formatted'] . "</td>" . PHP_EOL;

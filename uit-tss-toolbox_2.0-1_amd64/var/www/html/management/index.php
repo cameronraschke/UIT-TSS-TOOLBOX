@@ -1,4 +1,4 @@
-<?php require('header.php'); ?>
+<?php require('/var/www/html/management/header.php'); ?>
 <html>
 <head>
         <meta charset='UTF-8'>

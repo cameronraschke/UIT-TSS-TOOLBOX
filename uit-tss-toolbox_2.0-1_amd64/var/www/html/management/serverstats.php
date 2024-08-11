@@ -1,9 +1,7 @@
 <?php
 require('/var/www/html/management/header.php');
-include('/var/www/html/management/mysql/mysql-functions');
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d H:i:s.v');
+include('/var/www/html/management/php/include.php');
+$db = new db();
 ?>
 
 <html>
@@ -22,8 +20,7 @@ $time = $dt->format('Y-m-d H:i:s.v');
         </div>
 
         <div class='pagetitle'><h1>Server Stats Table (Date Report)</h1></div>
-        <div class='pagetitle'><h2>The server stats table shows aggregated information about every client and job.</h2></div>
-        <div class='pagetitle'><h3>Last updated: <?php dbSelectVal("SELECT date AS result FROM serverstats ORDER BY date DESC LIMIT 1"); echo $result; ?></h3></div>
+        <div class='pagetitle'><h2>The date report shows aggregated statistics about every client and job.</h2></div>
 
         <div class='styled-table'>
             <table>
@@ -42,20 +39,21 @@ $time = $dt->format('Y-m-d H:i:s.v');
                 </thead>
                 <tbody>
 <?php
-dbSelect("SELECT * from serverstats ORDER BY date DESC");
-foreach ($arr as $key => $value) {
-    echo "<tr>" . PHP_EOL;
-    echo "<td>" . $value['date'] . "</td>" . PHP_EOL;
-    echo "<td>" . $value['laptop_count'] . "</td>" . PHP_EOL;
-    echo "<td>" . $value['battery_health'] . "%</td>" . PHP_EOL;
-    echo "<td>" . $value['disk_health'] . "%</td>" . PHP_EOL;
-    echo "<td>" . $value['all_jobs'] . "</td>" . PHP_EOL;
-    echo "<td>" . $value['clone_avgtime'] . " minutes</td>" . PHP_EOL;
-    echo "<td>" . $value['nvme_erase_avgtime'] . " minutes</td>" . PHP_EOL;
-    echo "<td>" . $value['hdd_erase_avgtime'] . " minutes</td>" . PHP_EOL;
-    echo "<td>" . $value['last_image_update'] . "</td>" . PHP_EOL;
-    echo "</tr>" . PHP_EOL;
-
+$db->select("SELECT * from serverstats ORDER BY date DESC");
+if (arrFilter($db->get()) === 0) {
+    foreach ($db->get() as $key => $value) {
+        echo "<tr>" . PHP_EOL;
+        echo "<td>" . $value["date"] . "</td>" . PHP_EOL;
+        echo "<td>" . $value["laptop_count"] . "</td>" . PHP_EOL;
+        echo "<td>" . $value["battery_health"] . "%</td>" . PHP_EOL;
+        echo "<td>" . $value["disk_health"] . "%</td>" . PHP_EOL;
+        echo "<td>" . $value["all_jobs"] . "</td>" . PHP_EOL;
+        echo "<td>" . $value["clone_avgtime"] . " minutes</td>" . PHP_EOL;
+        echo "<td>" . $value["nvme_erase_avgtime"] . " minutes</td>" . PHP_EOL;
+        echo "<td>" . $value["hdd_erase_avgtime"] . " minutes</td>" . PHP_EOL;
+        echo "<td>" . $value["last_image_update"] . "</td>" . PHP_EOL;
+        echo "</tr>" . PHP_EOL;
+    }
 }
 ?>
 
