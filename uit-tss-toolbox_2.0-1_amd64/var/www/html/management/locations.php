@@ -292,9 +292,9 @@ foreach ($arr as $key => $value) {
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             if ($value1["present_bool"] == "1") {
-                echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b> <span style='color: #00B388'>&#10004;</span></td>" . PHP_EOL;
+                echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span style='color: #00B388'>&#10004;</span></td>" . PHP_EOL;
             } else {
-                echo "<td><b><a href='tagnumber.php?tagnumber=" . $value["tagnumber"] . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
+                echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
             }
         }
     }
@@ -302,9 +302,9 @@ foreach ($arr as $key => $value) {
 
     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
     if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"]) . "' target='_blank'>" . strtoupper($value["location"]) . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper($value["location"]) . "</a></b></td>" . PHP_EOL;
     } else {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"]) . "' target='_blank'>" . $value["location"] . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $value["location"] . "</a></b></td>" . PHP_EOL;
     }
 
     $db->select("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
