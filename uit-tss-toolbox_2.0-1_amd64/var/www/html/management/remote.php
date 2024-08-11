@@ -81,18 +81,18 @@ foreach ($arr as $key => $value) {
         </tr>
     </thead>
     <tbody>
-        <form method="post">
         <tr>
             <td>
+                <form method="post">
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
                     dbSelect("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
                     foreach ($arr as $key => $value) {
                         if (preg_match("/^[a-zA-Z]$/", $value["location"])) {
-                            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . strtoupper($value["location"]) . "</option>" . PHP_EOL;
+                            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars(strtoupper($value["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
                         } else {
-                            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . $value["location"] . "</option>" . PHP_EOL;
+                            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
                         }
                     }
                 ?>
@@ -110,8 +110,8 @@ foreach ($arr as $key => $value) {
                 </select>
             </td>
             <td><input type="submit" value="Submit"></td>
+            </form>
         </tr>
-        </form>
     </tbody>
 </table>
 
