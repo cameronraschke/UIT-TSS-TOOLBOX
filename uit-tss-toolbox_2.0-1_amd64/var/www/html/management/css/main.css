@@ -99,7 +99,8 @@ table {
 	cursor: pointer;
 }
 .styled-table td {
-	word-break: break-word;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 	padding: 8px 7px;
 	background-color: #FFFFFF;
 	border-bottom: 1px solid #888B8D;
@@ -135,6 +136,7 @@ table {
 .styled-table a {
 	color: #C8102E;
 }
+
 
 .menubar {
 	position: relative;
