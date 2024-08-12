@@ -55,8 +55,8 @@ if (isset($_POST["task"])) {
             <table>
                 <thead>
                     <tr>
-                        <td>Update Job</td>
-                        <td>Current Status</td>
+                        <th>Update Job</th>
+                        <th>Current Status</th>
                     </tr>
                 </thead>
                 <tbody>
