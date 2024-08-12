@@ -111,7 +111,7 @@ $db = new db();
                     $db->select("SELECT note FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
-                            if ($_POST["status"] == "1") {
+                            if ($_POST["status"] === "1") {
                                 echo "<textarea id='note' name='note'>" . htmlspecialchars($value1["note"]) .  "</textarea>" . PHP_EOL;
                             } else {
                                 echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($value1["note"]) .  "'></textarea>" . PHP_EOL;
@@ -149,7 +149,7 @@ $db = new db();
 
                 echo "</select>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                if ($_POST["status"] === 1) {
+                if ($_POST["status"] === "1") {
                     echo "<input class='page-content' type='submit' value='Update Location Data (Broken)'>" . PHP_EOL;
                 } else {
                     echo "<input class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
