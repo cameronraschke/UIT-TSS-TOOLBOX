@@ -187,7 +187,7 @@ $db = new db();
                 $db->updateLocation("disk_removed", $diskRemoved, $time);
                 $db->updateLocation("note", $note, $time);
                 unset($_POST);
-                header("Location: locations.php" . $_SERVER['REQUEST_URI']);
+                header("Location: " . $_SERVER['REQUEST_URI']);
             }
             unset($_POST);
         } else {
