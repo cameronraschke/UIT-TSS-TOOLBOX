@@ -99,6 +99,7 @@ table {
 	cursor: pointer;
 }
 .styled-table td {
+	word-break: break-word;
 	padding: 8px 7px;
 	background-color: #FFFFFF;
 	border-bottom: 1px solid #888B8D;
