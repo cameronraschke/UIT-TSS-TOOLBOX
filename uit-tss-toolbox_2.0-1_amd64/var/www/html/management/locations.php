@@ -324,27 +324,27 @@ foreach ($arr as $key => $value) {
     $db->select("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            echo "<td>" . $value1["department_formatted"] . "</td>" . PHP_EOL;
+            echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         }
     } else {
         echo "<td>NULL</td>" . PHP_EOL;
     }
     unset($value1);
 
-    echo "<td>" . $value['status'] . "</td>" . PHP_EOL;
-    echo "<td>" . $value['os_installed'] . "</td>" . PHP_EOL;
+    echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+    echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 
     $db->select("SELECT IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated' FROM clientstats WHERE tagnumber = '" . $value['tagnumber'] . "'");
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            echo "<td>" . $value1["bios_updated"] . "</td>" . PHP_EOL;
+            echo "<td>" . htmlspecialchars($value1["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         }
     } else {
         echo "<td>NULL</td>" . PHP_EOL;
     }
 
-    echo "<td>" . $value['note'] . " </td>" . PHP_EOL;
-    echo "<td>" . $value['time_formatted'] . " </td>" . PHP_EOL;
+    echo "<td style='word-wrap: break-word; max-width: 20%;'>" . htmlspecialchars($value['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+    echo "<td>" . htmlspecialchars($value['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " </td>" . PHP_EOL;
 
 }
 unset($arr);
