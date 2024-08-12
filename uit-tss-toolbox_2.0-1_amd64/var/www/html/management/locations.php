@@ -26,8 +26,7 @@ $db = new db();
 
         <div class='pagetitle'><h1>Locations Table (<i><a href='lost.php' target="_blank">View Lost Clients</a></i>)</h1></div>
         <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
-        <div class='pagetitle'><h3>Last updated: <?php $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations ORDER BY time DESC LIMIT 1"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
-
+        
         <?php
         if (isset($_POST['tagnumber'])) {
             echo "<div class='location-form'>" . PHP_EOL;

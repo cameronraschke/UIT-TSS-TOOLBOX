@@ -51,53 +51,60 @@ if (isset($_POST["task"])) {
         ?>
         </div>
 
-        <div style='margin: 5% 0% 12% 1%'>
-            <div style='width: 25%; float: left;'>
-            <div class="pagetitle"><h3>Update Job</h3></div>
-            <div class="page-content">
-                <form name="task" method="post">
-                    <select name="task" onchange='this.form.submit()'>
-                        <?php
-                        if ($_GET['tagnumber']) {
-                            $db->select("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
-                            if (arrFilter($db->get()) === 0) {
-                                foreach ($db->get() as $key => $value) {
-                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|" . htmlspecialchars($value["task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["formatted_task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>";
-                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
-                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
-                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
-                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
-                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-                                    echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
-                                }
-                            } else {
-                                echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " is not in the DB :(</option>";
+        <div class="styled-table" style='margin: 5% 0% 12% 1%'>
+            <table>
+                <thead>
+                    <tr>
+                        <td>Update Job</td>
+                        <td>Current Status</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                        <form name="task" method="post">
+                            <select name="task" onchange='this.form.submit()'>
+                    <?php
+                    if ($_GET['tagnumber']) {
+                        $db->select("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
+                        if (arrFilter($db->get()) === 0) {
+                            foreach ($db->get() as $key => $value) {
+                                echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|" . htmlspecialchars($value["task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["formatted_task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>";
+                                echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
+                                echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
+                                echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
+                                echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
+                                echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
+                                echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
                             }
+                        } else {
+                            echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " is not in the DB :(</option>";
                         }
-                        ?>
-                    </select>
-                </form>
-            </div>
-            </div>
-            
-            <div style='width: 40%; float: left;'>
+                    }
+                    ?>
+                            </select>
+                        </form>
+                        </td>
 
+                        <td>
                 <?php
                 $db->select("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET["tagnumber"]) . "'");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
                         if ($value["present_bool"] == 1) {
-                            echo "<div class='pagetitle'><h3>Status (Online <span style='color: #00B388'>&#10004;</span>)</h3></div>";
+                            echo "Status (Online <span style='color: #00B388'>&#10004;</span>)";
                         } else {
-                            echo "<div class='pagetitle'><h3>Status (Offline <span style='color: #C8102E'>&#10007;</span>)</h3></div>";
+                            echo "Status (Offline <span style='color: #C8102E'>&#10007;</span>)";
                         }
-                        echo "<div class='page-content'>";
-                        echo "<p><b>'" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
+                        
+                        if (strFilter($value["status"]) === 0) {
+                            echo "<p><b>'" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
+                        }
                     }
                 }
                 ?>
-            </div>
-            </div>
+                </tr>
+            </table>
         </div>
 
         
