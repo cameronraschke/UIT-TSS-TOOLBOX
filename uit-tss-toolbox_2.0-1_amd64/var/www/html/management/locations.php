@@ -302,7 +302,7 @@ foreach ($arr as $key => $value) {
     $db->select("SELECT present_bool FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "'");
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            if ($value1["present_bool"] == "1") {
+            if ($value1["present_bool"] === 1) {
                 echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span style='color: #00B388'>&#10004;</span></td>" . PHP_EOL;
             } else {
                 echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
