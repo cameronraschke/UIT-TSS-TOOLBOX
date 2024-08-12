@@ -82,7 +82,7 @@ foreach ($db->get() as $key => $value) {
                 $osInstalled = 1;
             } elseif ($value2["erase_completed"] == "1" && $value2["clone_completed"] != "1") {
                 $osInstalled = 0;
-            } elseif ($value2["erase_completed"] !== "1" && $value2["clone_completed"] == "1") {
+            } elseif ($value2["erase_completed"] != "1" && $value2["clone_completed"] == "1") {
                 $osInstalled = 1;
             } else {
                 $osInstalled = 0;
