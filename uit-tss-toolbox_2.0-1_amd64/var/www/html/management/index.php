@@ -23,7 +23,7 @@
         <div class='page-content'><h3><a href="reports.php">Generate and Download Reports (WIP)</a></h3></div>
 
         <div class="uit-footer">
-            <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
+            <img src="images/uh-footer.svg">
         </div>
     </body>
 </html>

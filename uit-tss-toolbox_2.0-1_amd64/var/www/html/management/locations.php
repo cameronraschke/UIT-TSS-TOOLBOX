@@ -26,7 +26,7 @@ $db = new db();
 
         <div class='pagetitle'><h1>Locations Table (<i><a href='lost.php' target="_blank">View Lost Clients</a></i>)</h1></div>
         <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
-        
+
         <?php
         if (isset($_POST['tagnumber'])) {
             echo "<div class='location-form'>" . PHP_EOL;
@@ -455,7 +455,7 @@ unset($value1);
         }
     </script>
     <div class="uit-footer">
-        <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
+        <img src="images/uh-footer.svg">
     </div>
     </body>
 </html>

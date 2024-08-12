@@ -180,7 +180,7 @@ if (arrFilter($db->get()) === 0) {
         }
     </script>
     <div class="uit-footer">
-        <img src="https://uh.edu/infotech/_images/_reorg-images/uh-2ndry-uit-artboard_horiz-reverse_black.svg">
+        <img src="images/uh-footer.svg">
     </div>
     </body>
 </html>
