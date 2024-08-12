@@ -51,7 +51,7 @@ if (isset($_POST["task"])) {
         ?>
         </div>
 
-        <div class="styled-table" style='margin: 5% 0% 12% 1%'>
+        <div class="styled-table">
             <table>
                 <thead>
                     <tr>
@@ -96,13 +96,14 @@ if (isset($_POST["task"])) {
                         } else {
                             echo "Status (Offline <span style='color: #C8102E'>&#10007;</span>)";
                         }
-                        
+
                         if (strFilter($value["status"]) === 0) {
                             echo "<p><b>'" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
                         }
                     }
                 }
                 ?>
+                </td>
                 </tr>
             </table>
         </div>
