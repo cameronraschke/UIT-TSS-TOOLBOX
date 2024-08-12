@@ -107,7 +107,7 @@ table {
 }
 .styled-table td:nth-child(odd) td{
 	padding: 8px 7px;
-	background-color: #F2F2F2;
+	background-color: #c9c9c9;
 }
 .styled-table input[type=submit] {
 	text-align: center;
