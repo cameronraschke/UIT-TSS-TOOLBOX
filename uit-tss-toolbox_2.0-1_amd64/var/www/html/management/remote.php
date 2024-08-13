@@ -128,7 +128,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 
     if (arrFilter($arr) === 0) {
         foreach ($arr as $key => $value) {
-            $db->updateRemote($value["result"], "task", $_POST['location-action']);
+            $db->updateRemote($value["tagnumber"], "task", $_POST['location-action']);
         }
     }
     unset($sql);
