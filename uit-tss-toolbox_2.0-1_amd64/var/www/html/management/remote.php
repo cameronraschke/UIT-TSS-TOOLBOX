@@ -140,6 +140,10 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 </div>
 
 
+
+<div class='pagetitle'>
+    <h3>Laptops Currently Present</h3>
+</div>
 <div class='styled-form'>
     <form method='post'>
         <div>
@@ -147,10 +151,6 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
         </div>
         <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
     </form>
-</div>
-
-<div class='pagetitle'>
-    <h3>Laptops Currently Present</h3>
 </div>
 <div class='styled-form2'>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
