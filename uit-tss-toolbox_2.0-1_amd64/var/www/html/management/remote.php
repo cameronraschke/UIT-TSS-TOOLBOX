@@ -5,6 +5,7 @@ include('/var/www/html/management/mysql/mysql-functions');
 
 if (isset($_POST["refresh-stats"])) {
     include('/var/www/html/management/php/uit-sql-refresh-remote');
+    unset($_POST["refresh-stats"]);
 }
 
 $db = new db();

@@ -4,6 +4,7 @@ require('/var/www/html/management/php/include.php');
 
 if (isset($_POST['refresh-stats'])) {
     include('/var/www/html/management/php/uit-sql-refresh-location');
+    unset($_POST["refresh-stats"]);
 }
 
 $db = new db();
