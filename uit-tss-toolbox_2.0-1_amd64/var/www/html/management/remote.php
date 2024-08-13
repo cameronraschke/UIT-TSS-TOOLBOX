@@ -116,7 +116,10 @@ if (arrFilter($db->get()) === 0) {
 
 <?php
 if (isset($_POST['location']) && isset($_POST['location-action'])) {
-    $sql="SELECT tagnumber AS result FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber";
+    $sql="SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber";
+    $conn = new MySQLConn();
+    $pdo = $conn->dbObj();
+    $arr = array();
     $stmt = $pdo->prepare($sql);
     $sqlLocation = htmlspecialchars_decode($_POST['location']);
     $stmt->bindParam(':location', $sqlLocation, PDO::PARAM_STR);
