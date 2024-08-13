@@ -273,13 +273,13 @@ if (arrFilter($db->get()) === 0) {
         echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
         $db->select("SELECT location FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
         if (arrFilter($db->get()) === 0) {
-            foreach ($db->get() as $key => $value) {
-                if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper(htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "</a></b></td>" . PHP_EOL;
-                } elseif (preg_match("/^checkout$/", $value["location"])) {
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
+            foreach ($db->get() as $key => $value1) {
+                if (preg_match("/^[a-zA-Z]$/", $value1["location"])) { 
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper(htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "</a></b></td>" . PHP_EOL;
+                } elseif (preg_match("/^checkout$/", $value1["location"])) {
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
                 } else {
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
                 }
             }
         } else {
