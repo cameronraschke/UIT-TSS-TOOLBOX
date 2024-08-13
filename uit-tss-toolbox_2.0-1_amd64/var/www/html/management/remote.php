@@ -1,7 +1,6 @@
 <?php
 require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
-include('/var/www/html/management/mysql/mysql-functions');
 
 if (isset($_POST["refresh-stats"])) {
     include('/var/www/html/management/php/uit-sql-refresh-remote');
@@ -45,31 +44,24 @@ $db = new db();
                 </tr>
                 </thead>
 <?php
-dbSelect("CALL selectRemoteStats");
-foreach ($arr as $key => $value) {
-    $presentLaptops = $value['Present Laptops'];
-    $avgBatteryCharge = $value['Avg. Battery Charge'];
-    $avgCPUTemp = $value['Avg. CPU Temp'];
-    $avgDiskTemp = $value['Avg. Disk Temp'];
-    $avgRealPowerDraw = $value['Avg. Actual Power Draw'];
-    $totalRealPowerDraw = $value['Actual Power Draw'];
-    $totalWallPowerDraw = $value['Power Draw from Wall'];
-    //$osInstalledSum
-
-    echo "<tbody>";
-    echo "<tr>" . PHP_EOL;
-    echo "<td>$presentLaptops</td>" . PHP_EOL;
-    echo "<td>$avgBatteryCharge</td>" . PHP_EOL;
-    echo "<td>$avgCPUTemp</td>" . PHP_EOL;
-    echo "<td>$avgDiskTemp</td>" . PHP_EOL;
-    echo "<td>$avgRealPowerDraw</td>" . PHP_EOL;
-    echo "<td>$totalRealPowerDraw</td>" . PHP_EOL;
-    echo "<td>$totalWallPowerDraw</td>" . PHP_EOL;
-    echo "<td>" . $value['OS Installed Sum'] . "</td>" . PHP_EOL;
-    echo "</tr>" . PHP_EOL;
-    echo "</tbody>";
-    echo "</table>";
-    echo "</div>";
+$db->select("CALL selectRemoteStats");
+if (arrFilter($db->get()) === 0) {
+    foreach ($db->get() as $key => $value) {
+        echo "<tbody>";
+        echo "<tr>" . PHP_EOL;
+        echo "<td>" . $value['Present Laptops'] . "</td>" . PHP_EOL;
+        echo "<td>" . $value['Avg. Battery Charge'] . "</td>" . PHP_EOL;
+        echo "<td>" . $value['Avg. CPU Temp'] . "</td>" . PHP_EOL;
+        echo "<td>" . $value['Avg. Disk Temp'] . "</td>" . PHP_EOL;
+        echo "<td>" . $value['Avg. Actual Power Draw'] . "</td>" . PHP_EOL;
+        echo "<td>" . $value['Actual Power Draw'] . "</td>" . PHP_EOL;
+        echo "<td>" . $value['Power Draw from Wall'] . "</td>" . PHP_EOL;
+        echo "<td>" . $value['OS Installed Sum'] . "</td>" . PHP_EOL;
+        echo "</tr>" . PHP_EOL;
+        echo "</tbody>";
+        echo "</table>";
+        echo "</div>";
+    }
 }
 ?>
 
@@ -92,12 +84,14 @@ foreach ($arr as $key => $value) {
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
-                    dbSelect("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
-                    foreach ($arr as $key => $value) {
-                        if (preg_match("/^[a-zA-Z]$/", $value["location"])) {
-                            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars(strtoupper($value["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
-                        } else {
-                            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
+                    $db->select("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
+                    if (arrFilter($db->get()) === 0) {
+                        foreach ($db->get() as $key => $value) {
+                            if (preg_match("/^[a-zA-Z]$/", $value["location"])) {
+                                echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars(strtoupper($value["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
+                            } else {
+                                echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
+                            }
                         }
                     }
                 ?>
@@ -129,11 +123,15 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
     $stmt->execute();
     $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (filterArr($arr) == 0) {
+    if (arrFilter($arr) === 0) {
         foreach ($arr as $key => $value) {
-            dbUpdateRemote($value["result"], "task", $_POST['location-action']);
+            $db->updateRemote($value["result"], "task", $_POST['location-action']);
         }
     }
+    unset($sql);
+    unset($stmt);
+    unset($sqlLocation);
+    unset($arr);
     unset($_POST['location']);
     unset($_POST['location-action']);
 }
@@ -161,16 +159,16 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
             <thead>
                 <tr>
                 <th onclick="sortTable(0)">Tag Number</th>
-                <th style='cursor: default;'>Last Heard</th>
-                <th style='cursor: default;'>Location</th>
-                <th style='cursor: default;'>Pending Job</th>
-                <th style='cursor: default;'>Current Status</th>
-                <th style='cursor: default;'>OS Installed</th>
-                <th style='cursor: default;'>Battery Charge</th>
-                <th style='cursor: default;'>Uptime</th>
-                <th style='cursor: default;'>CPU Temp</th>
-                <th style='cursor: default;'>Disk Temp</th>
-                <th style='cursor: default;'>Actual Power Draw</th>
+                <th'>Last Heard</th>
+                <th'>Location</th>
+                <th'>Pending Job</th>
+                <th'>Current Status</th>
+                <th'>OS Installed</th>
+                <th'>Battery Charge</th>
+                <th'>Uptime</th>
+                <th'>CPU Temp</th>
+                <th'>Disk Temp</th>
+                <th'>Actual Power Draw</th>
                 </tr>
             </thead>
             <tbody>
@@ -178,52 +176,64 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 <?php
 if (isset($_POST['task'])) {
     $arrTask = explode('|', $_POST['task']);
-    if (filter($arrTask[0]) == 0) {
-        dbUpdateRemote($arrTask[0], "task", $arrTask[1]);
+    if (strFilter($arrTask[0]) === 0) {
+        $db->updateRemote($arrTask[0], "task", $arrTask[1]);
     }
     unset($_POST['task']);
 }
-dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'task_formatted', task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, NOT FIELD (status, 'waiting for job') DESC, os_installed DESC, present DESC");
-foreach ($arr as $key => $value) {
-    echo "<tr>";
-    if ($value["status"] != "waiting for job") {
-        echo "<td><b>Working: <a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
-    } else {
-        echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
-    }
-    $_POST['tagnumber'] = $value["tagnumber"];
-    echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
-    dbSelectVal("SELECT location AS 'result' FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
-    if (preg_match("/^[a-zA-Z]$/", $result)) { 
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
-    } else {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
-    }
-    if ($value['bios_updated'] == "Yes") {
-        echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
-        if (filter($value["task"]) == 1) {
-            echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
+$db->select("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'task_formatted', task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, NOT FIELD (status, 'waiting for job') DESC, os_installed DESC, present DESC");
+if (arrFilter($db->get()) === 0) {
+    foreach ($db->get() as $key => $value) {
+        echo "<tr>";
+        if ($value["status"] != "waiting for job") {
+            echo "<td><b>Working: <a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
         } else {
-            echo "<option value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
+            echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
         }
-        echo "<option value='" . $value["tagnumber"] . "|update'>Update</option>";
-        echo "<option value='" . $value["tagnumber"] . "|nvmeErase'>Erase Only</option>";
-        echo "<option value='" . $value["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
-        echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
-        echo "<option value='" . $value["tagnumber"] . "|findmy'>Play Sound</option>";
-        echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
-        echo "</select></form></td>" . PHP_EOL;
-    } else {
-        echo "<td><i>BIOS Out of Date</i></td>";
+        $_POST['tagnumber'] = $value["tagnumber"];
+        echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
+        $db->select("SELECT location FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
+        if (arrFilter($db->get()) === 0) {
+            foreach ($db->get() as $key => $value1) {
+                if (preg_match("/^[a-zA-Z]$/", $value1["location"])) { 
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper(htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "</a></b></td>" . PHP_EOL;
+                } elseif (preg_match("/^checkout$/", $value1["location"])) {
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
+                } else {
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+                }
+            }
+        } else {
+            echo "<td><b>" . "<i>No Location</i>" . "</b></td>" . PHP_EOL;
+        }
+        unset($value1);
+
+        if ($value["bios_updated"] === "Yes") {
+            echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
+            if (strFilter($value["task"]) === 1) {
+                echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
+            } else {
+                echo "<option value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
+            }
+            echo "<option value='" . $value["tagnumber"] . "|update'>Update</option>";
+            echo "<option value='" . $value["tagnumber"] . "|nvmeErase'>Erase Only</option>";
+            echo "<option value='" . $value["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
+            echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
+            echo "<option value='" . $value["tagnumber"] . "|findmy'>Play Sound</option>";
+            echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
+            echo "</select></form></td>" . PHP_EOL;
+        } else {
+            echo "<td><i>BIOS Out of Date</i></td>";
+        }
+        echo "<td>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["battery_charge"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["uptime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["cpu_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["disk_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td> " . htmlspecialchars($value["watts_now"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "</tr>";
     }
-    echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["os_installed"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["battery_charge"] . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
-    echo "<td>" . $value["uptime"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["cpu_temp"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["disk_temp"] . "</td>" . PHP_EOL;
-    echo "<td> " . $value["watts_now"] . "</td>" . PHP_EOL;
-    echo "</tr>";
 }
 echo "</tbody>";
 echo "</table>";
@@ -252,23 +262,34 @@ echo "</div>";
             </thead>
 
 <?php
-dbSelect("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool IS NULL ORDER BY present DESC, task DESC, status ASC, tagnumber DESC");
-foreach ($arr as $key => $value) {
-    echo "<tr>";
-    echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $value["tagnumber"] . "</a></b></td>" . PHP_EOL;
-    echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
-    dbSelectVal("SELECT location AS 'result' FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
-    if (preg_match("/^[a-zA-Z]$/", $result)) { 
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper($result) . "</a></b></td>" . PHP_EOL;
-    } else {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($result, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $result . "</a></b></td>" . PHP_EOL;
+$db->select("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool IS NULL ORDER BY present DESC, task DESC, status ASC, tagnumber DESC");
+if (arrFilter($db->get()) === 0) {
+    foreach ($db->get() as $key => $value) {
+        echo "<tr>";
+        echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+        echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
+        $db->select("SELECT location FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
+        if (arrFilter($db->get()) === 0) {
+            foreach ($db->get() as $key => $value) {
+                if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper(htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "</a></b></td>" . PHP_EOL;
+                } elseif (preg_match("/^checkout$/", $value["location"])) {
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
+                } else {
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+                }
+            }
+        } else {
+            echo "<td><b>" . "<i>No Location</i>" . "</b></td>" . PHP_EOL;
+        }
+
+        echo "<td>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["battery_charge"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["cpu_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["disk_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td> " . htmlspecialchars($value["watts_now"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "</tr>";
     }
-    echo "<td>" . $value["status"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["battery_charge"] . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
-    echo "<td>" . $value["cpu_temp"] . "</td>" . PHP_EOL;
-    echo "<td>" . $value["disk_temp"] . "</td>" . PHP_EOL;
-    echo "<td> " . $value["watts_now"] . "</td>" . PHP_EOL;
-    echo "</tr>";
 }
 echo "</tbody>";
 echo "</table>";
