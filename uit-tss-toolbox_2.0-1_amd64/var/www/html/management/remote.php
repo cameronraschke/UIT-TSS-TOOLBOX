@@ -3,6 +3,10 @@ require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
 include('/var/www/html/management/mysql/mysql-functions');
 
+if (isset($_POST["refresh-stats"])) {
+    include('/var/www/html/php/uit-sql-refresh-location');
+}
+
 $db = new db();
 ?>
 
@@ -133,6 +137,16 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
     unset($_POST['location-action']);
 }
 ?>
+</div>
+
+
+<div class='styled-form'>
+    <form method='post'>
+        <div>
+            <button type="submit">Refresh Table</button>
+        </div>
+        <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
+    </form>
 </div>
 
 <div class='pagetitle'>
