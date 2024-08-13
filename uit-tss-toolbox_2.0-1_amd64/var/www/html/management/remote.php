@@ -159,16 +159,16 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
             <thead>
                 <tr>
                 <th onclick="sortTable(0)">Tag Number</th>
-                <th'>Last Heard</th>
-                <th'>Location</th>
-                <th'>Pending Job</th>
-                <th'>Current Status</th>
-                <th'>OS Installed</th>
-                <th'>Battery Charge</th>
-                <th'>Uptime</th>
-                <th'>CPU Temp</th>
-                <th'>Disk Temp</th>
-                <th'>Actual Power Draw</th>
+                <th>Last Heard</th>
+                <th>Location</th>
+                <th>Pending Job</th>
+                <th>Current Status</th>
+                <th>OS Installed</th>
+                <th>Battery Charge</th>
+                <th>Uptime</th>
+                <th>CPU Temp</th>
+                <th>Disk Temp</th>
+                <th>Actual Power Draw</th>
                 </tr>
             </thead>
             <tbody>
