@@ -6,7 +6,7 @@ require('/var/www/html/management/php/include.php');
 
 if (isset($_POST["username"]) && isset($_POST["password"])) {
     $db = new db();
-	$db->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => $_POST["username"], ':password', $_POST["password"]));
+	$db->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => $_POST["username"], ':password' => $_POST["password"]));
     if (arrFilter($db->get()) === 0 && count($db->get()) === 1) {
         foreach ($db->get() as $key => $value) {
             setcookie ('authorized', 'yes', time() + (10800), "/");
