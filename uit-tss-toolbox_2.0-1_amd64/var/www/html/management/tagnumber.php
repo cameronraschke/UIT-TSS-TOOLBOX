@@ -185,7 +185,7 @@ if (isset($_POST["task"])) {
         </div>
 
         <div class='pagetitle'><h3>Job Info</h3></div>
-        <div class='styled-table' style="width: auto; height:10%; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
                 <tr>
