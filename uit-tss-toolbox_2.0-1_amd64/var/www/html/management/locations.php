@@ -31,7 +31,7 @@ $db = new db();
         <?php
         if (isset($_POST["tagnumber"])) {
             echo "<div class='location-form'>" . PHP_EOL;
-            $db->select("SELECT system_serial, location, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' ORDER BY time DESC LIMIT 1");
+            $db->Pselect("SELECT system_serial, location, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
             if ($db->get() === "NULL") {
                 $arr = array( array( "system_serial" => "NULL", "location" => "NULL", "time_formatted" => "NULL") );
             } else {
@@ -58,7 +58,7 @@ $db = new db();
                 // Get the department
                 if (arrFilter($db->get()) === 0) {
                     // Get a human readable department
-                    $db->select("SELECT department, (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = '" . $_POST["tagnumber"] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
+                    $db->Pselect("SELECT department, (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = :tagnumber AND department IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key =>$value1) {
                             $department = $value1["department"];
@@ -109,7 +109,7 @@ $db = new db();
                 if (arrFilter($db->get()) === 0) {
                     // Get the most recent note that's not null
                     
-                    $db->select("SELECT note FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' AND note IS NOT NULL ORDER BY time DESC LIMIT 1");
+                    $db->Pselect("SELECT note FROM locations WHERE tagnumber = :tagnumber AND note IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
                             if ($_POST["status"] === "1") {
@@ -132,7 +132,7 @@ $db = new db();
                 echo "<br>" . PHP_EOL;
                 echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
                 if (arrFilter($db->get()) === 0) {
-                    $db->select("SELECT disk_removed FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' ORDER BY time DESC LIMIT 1");
+                    $db->Pselect("SELECT disk_removed FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
                             if ($value1["disk_removed"] === 1) {
@@ -288,7 +288,7 @@ if (isset($_GET["location"])) {
 }
 foreach ($arr as $key => $value) {
     echo "<tr>" . PHP_EOL;
-    $db->select("SELECT present_bool FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "'");
+    $db->Pselect("SELECT present_bool FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             if ($value1["present_bool"] === 1) {
@@ -309,7 +309,7 @@ foreach ($arr as $key => $value) {
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . $value["location"] . "</a></b></td>" . PHP_EOL;
     }
 
-    $db->select("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = '" . $value['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
+    $db->Pselect("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = :tagnumber AND department IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value['tagnumber']));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
@@ -322,7 +322,7 @@ foreach ($arr as $key => $value) {
     echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
     echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 
-    $db->select("SELECT IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated' FROM clientstats WHERE tagnumber = '" . $value['tagnumber'] . "'");
+    $db->select("SELECT IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated' FROM clientstats WHERE tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             echo "<td>" . htmlspecialchars($value1["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
