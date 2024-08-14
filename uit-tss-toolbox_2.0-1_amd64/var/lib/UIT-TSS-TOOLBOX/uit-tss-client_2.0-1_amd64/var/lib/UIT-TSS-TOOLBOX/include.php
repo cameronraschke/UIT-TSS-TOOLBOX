@@ -66,15 +66,7 @@ class db {
         $this->arr = $stmt->fetchAll();
         $rowCount = $stmt->rowCount();
     }
-    
-    public function Pselect($sql, $var) {
-        $db = new MySQLConn();
-        $pdo = $db->dbObj();
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':var', $var, PDO::PARAM_STR);
-        $stmt->execute();
-        $this->arr = $stmt->fetchAll();
-    }
+
 
     public function get() {
         if(is_array($this->arr) && arrFilter($this->arr) == 0) {
