@@ -324,7 +324,7 @@ foreach ($arr as $key => $value) {
     echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
     echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 
-    $db->select("SELECT IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated' FROM clientstats WHERE tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
+    $db->Pselect("SELECT IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated' FROM clientstats WHERE tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             echo "<td>" . htmlspecialchars($value1["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
