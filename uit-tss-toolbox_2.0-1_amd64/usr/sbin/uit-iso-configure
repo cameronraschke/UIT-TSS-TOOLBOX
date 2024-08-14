@@ -19,7 +19,7 @@ function confirmDelete {
 confirmDelete
 
 apt purge live-build -y
-wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20230502_all.deb \
+wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20240810_all.deb \
 	--output-document=/tmp/debian-live.deb
 apt install /tmp/debian-live.deb -y
 
