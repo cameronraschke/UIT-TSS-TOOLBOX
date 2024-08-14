@@ -66,6 +66,7 @@ class db {
         $this->arr = $stmt->fetchAll();
         $rowCount = $stmt->rowCount();
     }
+    
 
     public function get() {
         if(is_array($this->arr) && arrFilter($this->arr) == 0) {

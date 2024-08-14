@@ -29,9 +29,9 @@ $db = new db();
         <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
 
         <?php
-        if (isset($_POST['tagnumber'])) {
+        if (isset($_POST["tagnumber"])) {
             echo "<div class='location-form'>" . PHP_EOL;
-            $db->select("SELECT system_serial, location, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
+            $db->select("SELECT system_serial, location, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' ORDER BY time DESC LIMIT 1");
             if ($db->get() === "NULL") {
                 $arr = array( array( "system_serial" => "NULL", "location" => "NULL", "time_formatted" => "NULL") );
             } else {
@@ -42,7 +42,7 @@ $db = new db();
                 echo "<form method='post'>" . PHP_EOL;
                 echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . htmlspecialchars($_POST['tagnumber']) . "' readonly required>" . PHP_EOL;
+                echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . htmlspecialchars($_POST["tagnumber"]) . "' readonly required>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<label for='serial'>Serial Number</label>";
                 echo "<br>" . PHP_EOL;
@@ -58,7 +58,7 @@ $db = new db();
                 // Get the department
                 if (arrFilter($db->get()) === 0) {
                     // Get a human readable department
-                    $db->select("SELECT department, (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = '" . $_POST['tagnumber'] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
+                    $db->select("SELECT department, (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = '" . $_POST["tagnumber"] . "' AND department IS NOT NULL ORDER BY time DESC LIMIT 1");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key =>$value1) {
                             $department = $value1["department"];
@@ -132,7 +132,7 @@ $db = new db();
                 echo "<br>" . PHP_EOL;
                 echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
                 if (arrFilter($db->get()) === 0) {
-                    $db->select("SELECT disk_removed FROM locations WHERE tagnumber = '" . $_POST['tagnumber'] . "' ORDER BY time DESC LIMIT 1");
+                    $db->select("SELECT disk_removed FROM locations WHERE tagnumber = '" . $_POST["tagnumber"] . "' ORDER BY time DESC LIMIT 1");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
                             if ($value1["disk_removed"] === 1) {
@@ -165,7 +165,7 @@ $db = new db();
 
             if (isset($_POST['serial'])) {
                 $uuid = uniqid("location-", true);
-                $tagNum = $_POST['tagnumber'];
+                $tagNum = $_POST["tagnumber"];
                 $serial = $_POST['serial'];
                 $department = $_POST['department'];
                 $location = $_POST['location'];
