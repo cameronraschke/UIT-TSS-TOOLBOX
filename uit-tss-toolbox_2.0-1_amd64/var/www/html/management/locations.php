@@ -212,16 +212,9 @@ $db = new db();
 
 <?php
 if (isset($_GET["location"])) {
-    $sql = "SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC";
-    $conn = new MySQLConn();
-    $pdo = $conn->dbObj();
-    $arr = array();
-    $stmt = $pdo->prepare($sql);
-    $sqlLocation = htmlspecialchars_decode($_GET['location']);
-    $stmt->bindParam(':location', $sqlLocation, PDO::PARAM_STR);
-    $stmt->execute();
-    $arr = $stmt->fetchAll();
-    $rowCount = $stmt->rowCount();
+    $db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC", array(':location' => htmlspecialchars_decode($_GET['location'])));
+    $arr = $db->get();
+    $rowCount = count($arr);
     $onlineRowCount = 0;
     if (arrFilter($arr) === 0) {
         foreach ($arr as $key => $value1) {
