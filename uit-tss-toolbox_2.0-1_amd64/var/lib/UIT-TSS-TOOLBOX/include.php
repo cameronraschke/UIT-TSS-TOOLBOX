@@ -67,6 +67,7 @@ class db {
         $rowCount = $stmt->rowCount();
     }
 
+    // MAKE $var an array and loop it.
     public function Pselect($sql, $var) {
         $db = new MySQLConn();
         $pdo = $db->dbObj();
