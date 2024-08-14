@@ -55,9 +55,9 @@ if [[ -z $elapsed ]]; then
     elapsed=0
 fi
 
-sleep 15
+sleep 10
 
-elapsed=$(( elapsed + 15 ))
+elapsed=$(( elapsed + 10 ))
 echo "$elapsed" > /root/uptime
 echo "remote|${tagNum}|uptime|$elapsed" | /var/lib/UIT-TSS-TOOLBOX/parse
 
