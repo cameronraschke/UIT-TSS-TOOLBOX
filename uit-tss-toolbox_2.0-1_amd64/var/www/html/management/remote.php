@@ -180,7 +180,7 @@ if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>";
         if ($value["status"] != "waiting for job") {
-            echo "<td><b>Working: <a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
+            echo "<td><b>In Progress: <a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
         } else {
             echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b></td>" . PHP_EOL;
         }
