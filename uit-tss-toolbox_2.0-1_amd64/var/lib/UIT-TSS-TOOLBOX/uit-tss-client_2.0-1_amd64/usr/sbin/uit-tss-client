@@ -1607,6 +1607,7 @@ function execute {
 		fi
 		execute_Clone
 	else
+		echo "remote|${tagNum}|status|fail - Invalid application selected" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "${BOLD}${RED}Error - Invalid application selected.${RESET}"
 		sleep 0.5
 		exec uit-tss-client
