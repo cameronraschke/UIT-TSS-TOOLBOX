@@ -190,7 +190,7 @@ if (arrFilter($db->get()) === 0) {
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
                 if (preg_match("/^[a-zA-Z]$/", $value1["location"])) { 
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper(htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "</a></b></td>" . PHP_EOL;
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value1["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
                 } elseif (preg_match("/^checkout$/", $value1["location"])) {
                     echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
                 } else {
@@ -266,7 +266,7 @@ if (arrFilter($db->get()) === 0) {
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
                 if (preg_match("/^[a-zA-Z]$/", $value1["location"])) { 
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . strtoupper(htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "</a></b></td>" . PHP_EOL;
+                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value1["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
                 } elseif (preg_match("/^checkout$/", $value1["location"])) {
                     echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
                 } else {
@@ -276,6 +276,7 @@ if (arrFilter($db->get()) === 0) {
         } else {
             echo "<td><b>" . "<i>No Location</i>" . "</b></td>" . PHP_EOL;
         }
+        unset($value1);
 
         echo "<td>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         if (strFilter($value["battery_charge"]) === 0) {
