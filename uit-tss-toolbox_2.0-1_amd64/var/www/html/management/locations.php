@@ -213,12 +213,11 @@ $db = new db();
 <?php
 if (isset($_GET["location"])) {
     $db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC", array(':location' => htmlspecialchars_decode($_GET['location'])));
-    $arr = $db->get();
-    $rowCount = count($arr);
+    $rowCount = count($db->get());
     $onlineRowCount = 0;
-    if (arrFilter($arr) === 0) {
-        foreach ($arr as $key => $value1) {
-            $db->select("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value1["tagnumber"] . "'");
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            $db->Pselect("SELECT tagnumber FROM remote WHERE present_bool = '1' AND tagnumber = :tagnumber", array(':tagnumber' => $value1["tagnumber"]));
             if (arrFilter($db->get()) === 0) {
                 $onlineRowCount = $onlineRowCount + 1;
             }
@@ -231,14 +230,13 @@ if (isset($_GET["location"])) {
     $onlineRowCount = 0;
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->select("SELECT tagnumber FROM remote WHERE present_bool = 1 AND tagnumber ='" . $value1["tagnumber"] . "'");
+            $db->Pselect("SELECT tagnumber FROM remote WHERE present_bool = '1' AND tagnumber = :tagnumber", array(':tagnumber' => $value1["tagnumber"]));
             if (arrFilter($db->get()) === 0) {
                 $onlineRowCount = $onlineRowCount + 1;
             }
         }
     } else { $onlineRowCount = 0; }
 }
-unset($arr);
 unset($value1);
 ?>
         <div class='page-content'><h2>View and Search Current Locations</h2></div>
@@ -246,6 +244,8 @@ unset($value1);
         <?php
         if (isset($_GET["location"])) {
             echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
+        } else {
+            echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online.</h3></div>";
         }
         ?>
         <div class='styled-form'>
