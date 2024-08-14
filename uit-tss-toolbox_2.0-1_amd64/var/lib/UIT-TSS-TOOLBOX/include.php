@@ -68,12 +68,11 @@ class db {
     }
 
     // MAKE $var an array and loop it.
-    public function Pselect($sql, $var) {
+    public function Pselect($sql, $arr) {
         $db = new MySQLConn();
         $pdo = $db->dbObj();
         $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':var', $var, PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt->execute($arr);
         $this->arr = $stmt->fetchAll();
     }
 
