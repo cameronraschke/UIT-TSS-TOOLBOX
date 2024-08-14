@@ -116,25 +116,16 @@ if (arrFilter($db->get()) === 0) {
 
 <?php
 if (isset($_POST['location']) && isset($_POST['location-action'])) {
-    $sql="SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber";
-    $conn = new MySQLConn();
-    $pdo = $conn->dbObj();
-    $arr = array();
-    $stmt = $pdo->prepare($sql);
-    $sqlLocation = htmlspecialchars_decode($_POST['location']);
-    $stmt->bindParam(':location', $sqlLocation, PDO::PARAM_STR);
-    $stmt->execute();
-    $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $db->Pselect("SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber", array(':location' => htmlspecialchars_decode($_POST['location'])));
 
-    if (arrFilter($arr) === 0) {
-        foreach ($arr as $key => $value) {
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value) {
             $db->updateRemote($value["tagnumber"], "task", $_POST['location-action']);
         }
     }
     unset($sql);
     unset($stmt);
     unset($sqlLocation);
-    unset($arr);
     unset($_POST['location']);
     unset($_POST['location-action']);
 }
@@ -195,7 +186,7 @@ if (arrFilter($db->get()) === 0) {
         }
         $_POST['tagnumber'] = $value["tagnumber"];
         echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
-        $db->select("SELECT location FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
+        $db->Pselect("SELECT location FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
                 if (preg_match("/^[a-zA-Z]$/", $value1["location"])) { 
@@ -271,7 +262,7 @@ if (arrFilter($db->get()) === 0) {
         echo "<tr>";
         echo "<td><b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
         echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
-        $db->select("SELECT location FROM locations WHERE tagnumber = '" . $value['tagnumber'] . "' AND location IS NOT NULL ORDER BY time DESC LIMIT 1");
+        $db->Pselect("SELECT location FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
                 if (preg_match("/^[a-zA-Z]$/", $value1["location"])) { 

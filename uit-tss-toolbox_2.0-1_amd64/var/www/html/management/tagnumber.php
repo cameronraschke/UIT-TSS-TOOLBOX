@@ -34,7 +34,7 @@ if (isset($_POST["task"])) {
 
         <div class='laptop-images'>
         <?php
-            $db->select("SELECT system_model FROM system_data WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
+            $db->Pselect("SELECT system_model FROM system_data WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
             if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value) {
                     if ($value["system_model"] === "HP ProBook 450 G6") {
