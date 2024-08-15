@@ -221,7 +221,24 @@ INSERT INTO static_bios_stats
     ('Latitude 7400', '1.31.0'),
     ('Latitude 3500', '1.32.0'),
     ('Latitude 3560', 'A19'),
-    ('Latitude 3590', '1.26.0');
+    ('Latitude 3590', '1.26.0'),
+    ('Latitude 7430', '1.23.0'),
+    ('Latitude 7490', '1.38.0'),
+    ('Latitude 7480', '1.37.0'),
+    ('Latitude E7470', '1.36.3'),
+    ('OptiPlex 9010 AIO', 'A25'),
+    ('Latitude E6430', 'A24'),
+    ('OptiPlex 790', 'A22'),
+    ('OptiPlex 780', 'A15'),
+    ('OptiPlex 7460 AIO', '1.35.0'),
+    ('Latitude 5590', '1.35.0'),
+    ('XPS 15 9560', '1.24.0'),
+    ('Latitude 5480', '1.36.0'),
+    ('Latitude 5289', '1.35.0'),
+    ('Surface Book', '92.3748.768'),
+    ('Aspire T3-710', 'R01-B1'),
+    ('Surface Pro', NULL),
+    ('Surface Pro 4', '109.3748.768');
 
 
 CREATE TABLE IF NOT EXISTS remote (
