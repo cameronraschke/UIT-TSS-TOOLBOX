@@ -49,14 +49,14 @@ if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tbody>";
         echo "<tr>" . PHP_EOL;
-        echo "<td>" . $value['Present Laptops'] . "</td>" . PHP_EOL;
-        echo "<td>" . $value['Avg. Battery Charge'] . "</td>" . PHP_EOL;
-        echo "<td>" . $value['Avg. CPU Temp'] . "</td>" . PHP_EOL;
-        echo "<td>" . $value['Avg. Disk Temp'] . "</td>" . PHP_EOL;
-        echo "<td>" . $value['Avg. Actual Power Draw'] . "</td>" . PHP_EOL;
-        echo "<td>" . $value['Actual Power Draw'] . "</td>" . PHP_EOL;
-        echo "<td>" . $value['Power Draw from Wall'] . "</td>" . PHP_EOL;
-        echo "<td>" . $value['OS Installed Sum'] . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value['Present Laptops'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value['Avg. Battery Charge'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value['Avg. CPU Temp'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value['Avg. Disk Temp'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value['Avg. Actual Power Draw'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value['Actual Power Draw'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value['Power Draw from Wall'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value['OS Installed Sum'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "</tr>" . PHP_EOL;
         echo "</tbody>";
         echo "</table>";
@@ -171,7 +171,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 if (isset($_POST['task'])) {
     $arrTask = explode('|', $_POST['task']);
     if (strFilter($arrTask[0]) === 0) {
-        $db->updateRemote($arrTask[0], "task", $arrTask[1]);
+        $db->updateRemote(htmlspecialchars_decode($arrTask[0]), "task", htmlspecialchars_decode($arrTask[1]));
     }
     unset($_POST['task']);
 }
@@ -209,12 +209,12 @@ if (arrFilter($db->get()) === 0) {
             } else {
                 echo "<option value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
             }
-            echo "<option value='" . $value["tagnumber"] . "|update'>Update</option>";
-            echo "<option value='" . $value["tagnumber"] . "|nvmeErase'>Erase Only</option>";
-            echo "<option value='" . $value["tagnumber"] . "|hpCloneOnly'>Clone Only</option>";
-            echo "<option value='" . $value["tagnumber"] . "|hpEraseAndClone'>Erase + Clone</option>";
-            echo "<option value='" . $value["tagnumber"] . "|findmy'>Play Sound</option>";
-            echo "<option value='" . $value["tagnumber"] . "| '>Clear Pending Jobs</option>";
+            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
+            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
+            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
+            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
+            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
+            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
             echo "</select></form></td>" . PHP_EOL;
         } else {
             echo "<td><i>BIOS Out of Date</i></td>";
