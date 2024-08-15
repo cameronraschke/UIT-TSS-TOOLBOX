@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS locations (
     location VARCHAR(128) DEFAULT NULL,
     disk_removed BOOLEAN DEFAULT NULL,
     os_installed BOOLEAN DEFAULT NULL,
+    bios_updated BOOLEAN DEFAULT NULL,
     note VARCHAR(256) DEFAULT NULL
 );
 
