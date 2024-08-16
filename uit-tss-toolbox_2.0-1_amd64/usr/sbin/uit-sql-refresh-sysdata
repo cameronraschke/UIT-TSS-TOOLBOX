@@ -60,7 +60,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT system_uuid FROM jobstats WHERE system_uuid IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "system_uuid", $value1["system_uuid"])
+            $db->updateSystemData($value["tagnumber"], "system_uuid", $value1["system_uuid"]);
         }
     }
     unset($value1);
@@ -69,7 +69,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT system_sku FROM jobstats WHERE system_sku IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "system_sku", $value1["system_sku"])
+            $db->updateSystemData($value["tagnumber"], "system_sku", $value1["system_sku"]);
         }
     }
     unset($value1);
@@ -78,7 +78,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT chassis_type FROM jobstats WHERE chassis_type IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "chassis_type", $value1["chassis_type"])
+            $db->updateSystemData($value["tagnumber"], "chassis_type", $value1["chassis_type"]);
         }
     }
     unset($value1);
@@ -87,7 +87,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT cpu_manufacturer FROM jobstats WHERE cpu_manufacturer IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "cpu_manufacturer", $value1["cpu_manufacturer"])
+            $db->updateSystemData($value["tagnumber"], "cpu_manufacturer", $value1["cpu_manufacturer"]);
         }
     }
     unset($value1);
@@ -96,7 +96,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT cpu_model FROM jobstats WHERE cpu_model IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "cpu_model", $value1["cpu_model"])
+            $db->updateSystemData($value["tagnumber"], "cpu_model", $value1["cpu_model"]);
         }
     }
     unset($value1);
@@ -105,7 +105,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT cpu_maxspeed FROM jobstats WHERE cpu_maxspeed IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "cpu_maxspeed", $value1["cpu_maxspeed"])
+            $db->updateSystemData($value["tagnumber"], "cpu_maxspeed", $value1["cpu_maxspeed"]);
         }
     }
     unset($value1);
@@ -114,7 +114,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT cpu_cores FROM jobstats WHERE cpu_cores IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "cpu_cores", $value1["cpu_cores"])
+            $db->updateSystemData($value["tagnumber"], "cpu_cores", $value1["cpu_cores"]);
         }
     }
     unset($value1);
@@ -123,7 +123,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT cpu_threads FROM jobstats WHERE cpu_threads IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "cpu_threads", $value1["cpu_threads"])
+            $db->updateSystemData($value["tagnumber"], "cpu_threads", $value1["cpu_threads"]);
         }
     }
     unset($value1);
@@ -132,7 +132,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT motherboard_manufacturer FROM jobstats WHERE motherboard_manufacturer IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "motherboard_manufacturer", $value1["motherboard_manufacturer"])
+            $db->updateSystemData($value["tagnumber"], "motherboard_manufacturer", $value1["motherboard_manufacturer"]);
         }
     }
     unset($value1);
@@ -141,7 +141,7 @@ foreach ($db->get() as $key=>$value) {
     $db->Pselect("SELECT motherboard_serial FROM jobstats WHERE motherboard_serial IS NOT NULL AND tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSystemData($value["tagnumber"], "motherboard_serial", $value1["motherboard_serial"])
+            $db->updateSystemData($value["tagnumber"], "motherboard_serial", $value1["motherboard_serial"]);
         }
     }
     unset($value1);
