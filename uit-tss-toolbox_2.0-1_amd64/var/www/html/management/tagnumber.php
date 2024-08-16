@@ -168,11 +168,7 @@ if (isset($_POST["task"])) {
                     foreach ($db->get() as $key => $value) {
                     echo "<tr>" . PHP_EOL;
                     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
-                    if (strFilter($value["etheraddress"]) === 0 && strFilter($value["wifi_mac"]) === 0) {
-                        echo "<td><table><tr><td>WiFi MAC</td></tr><tr><td>" . $value["wifi_mac"] . "</td></tr></table></td>" . PHP_EOL;
-                    } else {
-                        echo "<td></td>" . PHP_EOL;
-                    }
+                    echo "<td><table><tr><td>WiFi MAC</td></tr><tr><td>" . $value["wifi_mac"] . "</td></tr></table></td>" . PHP_EOL;
                     echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
