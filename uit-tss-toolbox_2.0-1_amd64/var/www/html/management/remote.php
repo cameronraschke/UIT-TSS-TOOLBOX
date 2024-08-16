@@ -152,7 +152,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
             <table id="myTable" width="100%">
             <thead>
                 <tr>
-                <th">Tag Number</th>
+                <th>Tag Number</th>
                 <th>Last Heard</th>
                 <th>Location</th>
                 <th>Pending Job</th>
