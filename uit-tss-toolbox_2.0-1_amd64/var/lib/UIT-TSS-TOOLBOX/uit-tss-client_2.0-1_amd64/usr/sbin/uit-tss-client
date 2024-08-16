@@ -500,10 +500,10 @@ function footer {
 	for i in $(ls /lib/modules); do
 		echo "${i}" | grep -i --quiet "$(uname -r)"
 		if [[ ${PIPESTATUS[1]} == "0" ]]; then
-			echo "remote|${tagNum}|kernel_updated|" | /var/lib/UIT-TSS-TOOLBOX/parse
-		else
 			echo "remote|${tagNum}|kernel_updated|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 			break
+		else
+			echo "remote|${tagNum}|kernel_updated|" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 	done
 
