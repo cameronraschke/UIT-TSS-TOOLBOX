@@ -170,7 +170,7 @@ if (isset($_POST["task"])) {
                     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
                     echo "<td>" . PHP_EOL;
                     if (strFilter($value["etheraddress"]) === 0 && strFilter($value["wifi_mac"]) === 0) {
-                        echo "<table><tr><th>WiFi MAC</th><th>Ethernet MAC</th></tr><tr><td>" . $value["wifi_mac"] . "</td><td>" . $value["etheraddress"] . "</td></tr></table>" . PHP_EOL;
+                        echo "<table><tr><td>WiFi MAC</td><td>Ethernet MAC</td></tr><tr><td>" . $value["wifi_mac"] . "</td><td>" . $value["etheraddress"] . "</td></tr></table>" . PHP_EOL;
                     } else {
                         echo "<td></td>" . PHP_EOL;
                     }
