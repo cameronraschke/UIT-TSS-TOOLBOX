@@ -20,7 +20,7 @@ require('/var/www/html/management/php/include.php');
 
         <div class='pagetitle'><h1>UIT-TSS-TOOLBOX Documentation</h1></div>
 
-        <div class='page-content'>
+        <div class='documentation'>
             <h3>Error - Kernel out of Date</h3>
             <p>The <i>Kernel Out of Date</i> error means that the running kernel on the client is not at the same version as the one in the client's filesystem. This can usually happen after updating the ISO file on the server.</p>
             <p>The clients get their running kernel from the USB sticks at boot time. Unfortunately, there is no easy way to update the kernel without rebooting the entire system.</p>
@@ -30,7 +30,7 @@ require('/var/www/html/management/php/include.php');
         </div>
 
         <div class="uit-footer">
-            <img src="images/uh-footer.svg">
+            <img src="/images/uh-footer.svg">
         </div>
     </body>
 </html>

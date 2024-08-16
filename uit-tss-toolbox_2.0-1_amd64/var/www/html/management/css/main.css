@@ -190,6 +190,15 @@ table {
 	font-size: 1.0em;
 }
 
+.documentation {
+	position: relative;
+	display: flex;
+	padding: 1% 1% 1% 1%;
+	width: 85%;
+	text-align: left;
+	margin: 2% 15% 2% 2%;
+}
+
 .uit-footer {
 	position: relative;
 	display: flex;
