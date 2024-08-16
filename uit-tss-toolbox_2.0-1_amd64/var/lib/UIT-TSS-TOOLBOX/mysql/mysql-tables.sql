@@ -238,7 +238,8 @@ INSERT INTO static_bios_stats
     ('Surface Book', '92.3748.768'),
     ('Aspire T3-710', 'R01-B1'),
     ('Surface Pro', NULL),
-    ('Surface Pro 4', '109.3748.768');
+    ('Surface Pro 4', '109.3748.768'),
+    ('OptiPlex 7000', '1.24.0');
 
 
 CREATE TABLE IF NOT EXISTS remote (
