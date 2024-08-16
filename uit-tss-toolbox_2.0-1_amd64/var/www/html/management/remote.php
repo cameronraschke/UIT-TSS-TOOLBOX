@@ -219,11 +219,12 @@ if (arrFilter($db->get()) === 0) {
         } elseif ($value["bios_updated"] !== "Yes" && strFilter($value["kernel_updated"]) === 1) {
             echo "<td><i>BIOS and Kernel Out of Date</i></td>" . PHP_EOL;
         } elseif ($value["bios_updated"] !== "Yes") {
-            echo "<td><i>BIOS Out of Date</i></td>" . PHP_EOL;
+            echo "<td><i><a style='color: gray;' href='/documentation/bios-update.php' target='_blank'>BIOS Out of Date</a></i></td>" . PHP_EOL;
         } elseif (strFilter($value["kernel_updated"]) === 1) {
-            echo "<td><i><a style='color: gray;' href='/documentation/kernel-update.php'>Kernel Out of Date</a></i></td>" . PHP_EOL;
+            echo "<td><i><a style='color: gray;' href='/documentation/kernel-update.php' target='_blank'>Kernel Out of Date</a></i></td>" . PHP_EOL;
         } else {
             echo "<td><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
+            echo "<td style='color: gray;'><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
         }
         echo "<td>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
