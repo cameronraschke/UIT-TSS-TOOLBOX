@@ -153,7 +153,7 @@ if (isset($_POST["task"])) {
             <thead>
                 <tr>
                 <th>System Serial</th>
-                <th>Wi-Fi MAC Address</th>
+                <th>MAC Address</th>
                 <th>Department</th>
                 <th>System Manufacturer</th>
                 <th>System Model</th>
@@ -163,12 +163,16 @@ if (isset($_POST["task"])) {
             </thead>
             <tbody>
                 <?php
-                $db->select("SELECT t1.system_serial, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND t2.tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND host_connected = '1' ORDER BY t1.time DESC LIMIT 1");
+                $db->select("SELECT t1.system_serial, t1.etheraddress, t2.chassis_type, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND t2.tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND host_connected = '1' ORDER BY t1.time DESC LIMIT 1");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
                     echo "<tr>" . PHP_EOL;
                     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
-                    echo "<td>" . $value['wifi_mac'] . "</td>" . PHP_EOL;
+                    if ($value["chassis_type"] === "Notebook" || $value["chassis_type"] === "Laptop") {
+                        echo "<td>" . $value["wifi_mac"] . " (WiFi)</td>" . PHP_EOL;
+                    } else {
+                        echo "<td>" . $value["etheraddress"] . " (Ethernet)</td>" . PHP_EOL;
+                    }
                     echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
