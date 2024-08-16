@@ -170,8 +170,10 @@ if (isset($_POST["task"])) {
                     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
                     if ($value["chassis_type"] === "Notebook" || $value["chassis_type"] === "Laptop") {
                         echo "<td>" . $value["wifi_mac"] . " (WiFi)</td>" . PHP_EOL;
-                    } else {
+                    } elseif (strFilter($value["chassis_type"]) === 0) {
                         echo "<td>" . $value["etheraddress"] . " (Ethernet)</td>" . PHP_EOL;
+                    } else {
+                        echo "<td></td>" . PHP_EOL;
                     }
                     echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
