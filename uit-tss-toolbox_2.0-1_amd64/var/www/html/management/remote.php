@@ -221,7 +221,7 @@ if (arrFilter($db->get()) === 0) {
         } elseif ($value["bios_updated"] !== "Yes") {
             echo "<td><i>BIOS Out of Date</i></td>" . PHP_EOL;
         } elseif (strFilter($value["kernel_updated"]) === 1) {
-            echo "<td><i>Kernel Out of Date</i></td>" . PHP_EOL;
+            echo "<td><i><a style='color: gray;' href='/documentation/kernel-update.php'>Kernel Out of Date</a></i></td>" . PHP_EOL;
         } else {
             echo "<td><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
         }
