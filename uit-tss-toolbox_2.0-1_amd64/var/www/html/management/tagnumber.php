@@ -163,7 +163,7 @@ if (isset($_POST["task"])) {
             </thead>
             <tbody>
                 <?php
-                $db->select("SELECT t1.system_serial, t1.etheraddress, t2.chassis_type, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = :tagnumber1 AND t2.tagnumber = :tagnumber2 AND t1.uuid NOT LIKE 'location-%' AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1", array(':tagnumber1' => htmlspecialchars_decode($_GET['tagnumber']), ':tagnumber2' => htmlspecialchars_decode($_GET['tagnumber'])));
+                $db->Pselect("SELECT t1.system_serial, t1.etheraddress, t2.chassis_type, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = :tagnumber1 AND t2.tagnumber = :tagnumber2 AND t1.uuid NOT LIKE 'location-%' AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1", array(':tagnumber1' => htmlspecialchars_decode($_GET['tagnumber']), ':tagnumber2' => htmlspecialchars_decode($_GET['tagnumber'])));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
                     echo "<tr>" . PHP_EOL;
