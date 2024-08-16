@@ -175,7 +175,7 @@ if (isset($_POST['task'])) {
     }
     unset($_POST['task']);
 }
-$db->select("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'task_formatted', task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', IF (kernel_updated = '1', 'No', 'Yes') AS 'kernel_updated', CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, FIELD (status, 'waiting for job', '%') ASC, os_installed DESC, present DESC");
+$db->select("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task IS NULL THEN 'No Job' END) AS 'task_formatted', task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', kernel_updated, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY FIELD(task, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, FIELD (status, 'waiting for job', '%') ASC, os_installed DESC, present DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>";
@@ -202,7 +202,7 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
-        if ($value["bios_updated"] === "Yes" && $value["kernel_updated"] === "Yes") {
+        if ($value["bios_updated"] === "Yes" && strFilter(["kernel_updated"] === 0)) {
             echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
             if (strFilter($value["task"]) === 1) {
                 echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
@@ -216,11 +216,11 @@ if (arrFilter($db->get()) === 0) {
             echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
             echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
             echo "</select></form></td>" . PHP_EOL;
-        } elseif ($value["bios_updated"] !== "Yes" && $value["kernel_updated"] !== "Yes") {
+        } elseif ($value["bios_updated"] !== "Yes" && strFilter(["kernel_updated"] === 1)) {
             echo "<td><i>BIOS and Kernel Out of Date</i></td>" . PHP_EOL;
         } elseif ($value["bios_updated"] !== "Yes") {
             echo "<td><i>BIOS Out of Date</i></td>" . PHP_EOL;
-        } elseif ($value["kernel_updated"] !== "Yes") {
+        } elseif (strFilter(["kernel_updated"] === 1)) {
             echo "<td><i>Kernel Out of Date</i></td>" . PHP_EOL;
         } else {
             echo "<td><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
