@@ -168,11 +168,15 @@ if (isset($_POST["task"])) {
                     foreach ($db->get() as $key => $value) {
                     echo "<tr>" . PHP_EOL;
                     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
-                    echo "<td><table>";
+                    echo "<td>";
                     if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-                        echo "<tr><td>" . $value["wifi_mac"] . " (Wi-Fi)</td></tr><tr><td>" . $value["etheraddress"] . " (Ethernet)</td></tr>" . PHP_EOL;
+                        echo "<table><tr><td>" . $value["wifi_mac"] . " (Wi-Fi)</td></tr><tr><td>" . $value["etheraddress"] . " (Ethernet)</td></tr></table>" . PHP_EOL;
+                    } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
+                        echo $value["wifi_mac"] . " (Wi-Fi)";
+                    } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
+                        echo $value["etheraddress"] . " (Ethernet)";
                     }
-                    echo "</table></td>" . PHP_EOL;
+                    echo "</td>" . PHP_EOL;
                     echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
