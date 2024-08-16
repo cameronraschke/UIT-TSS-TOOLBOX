@@ -169,12 +169,21 @@ if (isset($_POST["task"])) {
                     echo "<tr>" . PHP_EOL;
                     echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
                     echo "<td>";
-                    if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-                        echo "<table><tr><td>" . $value["wifi_mac"] . " (Wi-Fi)</td></tr><tr><td>" . $value["etheraddress"] . " (Ethernet)</td></tr></table>" . PHP_EOL;
-                    } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
-                        echo $value["wifi_mac"] . " (Wi-Fi)";
-                    } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
-                        echo $value["etheraddress"] . " (Ethernet)";
+                    // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
+                    if ($value["system_model"] !== "Latitude 7400") {
+                        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
+                            echo "<table><tr><td>" . $value["wifi_mac"] . " (Wi-Fi)</td></tr><tr><td>" . $value["etheraddress"] . " (Ethernet)</td></tr></table>" . PHP_EOL;
+                        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
+                            echo $value["wifi_mac"] . " (Wi-Fi)";
+                        } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
+                            echo $value["etheraddress"] . " (Ethernet)";
+                        }
+                    } elseif ($value["system_model"] === "Latitude 7400") {
+                        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
+                            echo $value["wifi_mac"] . " (Wi-Fi)";
+                        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
+                            echo $value["wifi_mac"] . " (Wi-Fi)";
+                        }
                     }
                     echo "</td>" . PHP_EOL;
                     echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
