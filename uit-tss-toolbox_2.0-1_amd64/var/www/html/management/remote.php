@@ -202,7 +202,7 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
-        if ($value["bios_updated"] === "Yes" && strFilter(["kernel_updated"] === 0)) {
+        if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
             echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
             if (strFilter($value["task"]) === 1) {
                 echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
@@ -216,11 +216,11 @@ if (arrFilter($db->get()) === 0) {
             echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
             echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
             echo "</select></form></td>" . PHP_EOL;
-        } elseif ($value["bios_updated"] !== "Yes" && strFilter(["kernel_updated"] === 1)) {
+        } elseif ($value["bios_updated"] !== "Yes" && strFilter($value["kernel_updated"]) === 1) {
             echo "<td><i>BIOS and Kernel Out of Date</i></td>" . PHP_EOL;
         } elseif ($value["bios_updated"] !== "Yes") {
             echo "<td><i>BIOS Out of Date</i></td>" . PHP_EOL;
-        } elseif (strFilter(["kernel_updated"] === 1)) {
+        } elseif (strFilter($value["kernel_updated"]) === 1) {
             echo "<td><i>Kernel Out of Date</i></td>" . PHP_EOL;
         } else {
             echo "<td><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
