@@ -118,6 +118,11 @@ if ($arr[0] == "system_data") {
     $key = $arr[2];
     $value = $arr[3];
 
+    $db->Pselect("SELECT tagnumber FROM system_data WHERE tagnumber = :tagnumber", array(':tagnumber' => $tagNum));
+    if (is_array($db->get()) === FALSE) {
+        $db->insertSystemData($tagNum);
+    }
+
     $db->updateSystemData($tagNum, $key, $value);
 }
 
