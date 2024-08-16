@@ -65,6 +65,8 @@ if (isset($_POST["task"])) {
                         echo "<img src='/images/latitudeE6430.jpg'>" . PHP_EOL;
                     } elseif ($value["system_model"] === "Latitude E7470") {
                         echo "<img src='/images/latitudeE7470.webp'>" . PHP_EOL;
+                    } elseif ($value["system_model"] === "Optiplex 7000") {
+                        echo "<img src='/images/optiplex7000.avif'>" . PHP_EOL;
                     } elseif ($value["system_model"] === "OptiPlex 7460 AIO") {
                         echo "<img src='/images/optiplex7460AIO.avif'>" . PHP_EOL;
                     } elseif ($value["system_model"] === "OptiPlex 780") {
