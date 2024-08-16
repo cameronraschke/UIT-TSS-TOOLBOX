@@ -89,7 +89,7 @@ if (isset($_POST["task"])) {
         ?>
         </div>
 
-        <div class="styled-table" style="width: auto; height:10%; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div class="styled-table" style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
             <table>
                 <thead>
                     <tr>
@@ -148,7 +148,7 @@ if (isset($_POST["task"])) {
 
         
         <div class='pagetitle'><h3>General Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></u></h3></div>
-        <div class='styled-table' style="width: auto; height:10%; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
                 <tr>
@@ -190,7 +190,7 @@ if (isset($_POST["task"])) {
 
         <div class='pagetitle'><h3>Location Info</h3></div>
 
-        <div class='styled-table' style="width: auto; height:10%; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
                 <tr>
