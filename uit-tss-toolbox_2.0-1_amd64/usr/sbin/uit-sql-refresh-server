@@ -6,19 +6,14 @@ This script iterates through every date starting at 2023-01-09 (our first databa
 current date and updates all of the entries accordingly. */
 
 # Connect to database and include custom functions
-include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
-
-# Set current date and time
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d H:i:s.v');
+include('/var/lib/UIT-TSS-TOOLBOX/include.php');
+include('/var/lib/UIT-TSS-TOOLBOX/functions');
 
 # Set $startDate to the oldest date entry in the DB.
 $startDate = '2023-01-09';
 
-# Clear globals
-clearSQLGlobals();
-clearTimeGlobals();
+// New DB connection
+$db = new db();
 
 # Start the serverstats timer
 echo timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
@@ -34,88 +29,69 @@ $arr3 = array();
 $arr4 = array();
 
 # Iterate through all the dates between $startDate and $date.
-dbSelect("CALL iterateDate('$startDate', '$date')");
-foreach ($arr as $key => $value) {
-
-    # Set the variable $itDate to the iterated date.
-    $itDate = $value["date"];
+$db->Pselect("CALL iterateDate(:startdate, :enddate)", array(':startdate' => $startDate, ':enddate' => $date));
+foreach ($db->get() as $key => $value) {
 
     # Start the timer that counts how much time each date takes to process.
     echo PHP_EOL;
-    echo timeSinceLastMarker("markerStart", "Updating $itDate") . PHP_EOL;
+    echo timeSinceLastMarker("markerStart", "Updating" . $value["date"]) . PHP_EOL;
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
-    dbSelectVal("SELECT date AS result FROM serverstats WHERE date = '$itDate'");
-    if (filter($result) == 1) {
-        echo "Inserting new serverstats entry for $itDate." . PHP_EOL;
-        dbInsertSS("$itDate");
+    $db->Pselect("SELECT date FROM serverstats WHERE date = :date", array(':date' => $value["date"]));
+    if (arrFilter($db->get()) === 1) {
+        echo "Inserting new serverstats entry for" . $value["date"] . PHP_EOL;
+        $db->insertSS($value["date"]);
     }
 
     # Update laptop count. A laptop counts as a distinct tagnumber in jobstats which is in the Tech Commons.
-    dbSelectVal("SELECT COUNT(DISTINCT tagnumber) AS result FROM jobstats WHERE department = 'techComm' AND date BETWEEN '$startDate' AND '$itDate'");
-    dbUpdateSS("laptop_count", "$result", "$itDate");
-
-
-    # Update the average time taken to clone a computer.
-    // $sql = "SELECT ROUND(AVG(clone_time) / 60, 0) AS result FROM jobstats AS time1 INNER JOIN (SELECT time FROM jobstats WHERE clone_completed = '1' ";
-    // $sql .= "AND date = '$itDate' GROUP BY tagnumber) AS time2 ON time1.time = time2.time";
-    $sql = "SELECT clone_time / 60 AS result FROM jobstats WHERE clone_completed = '1' AND date = '$itDate'";
-    dbSelect($sql);
-    if (filterArr($arr) == 0) {
-        foreach ($arr as $key => $value) {
-            $cloneTime[] = $value["result"];
-            $avg = array_filter($cloneTime);
-            $avg = round(array_sum($avg) / count($avg), 0);
-        }
-    } else {
-        $avg = array_filter($cloneTime);
-        if (count($avg) > 0) {
-            $avg = round(array_sum($avg) / count($avg), 0);
-        } else {
-            $avg = round(array_sum($avg), 0);
+    $db->Pselect("SELECT COUNT(tagnumber) AS 'count' FROM jobstats WHERE department IN ('techComm', 'shrl') AND date BETWEEN :startdate AND :itdate GROUP BY tagnumber", array(':startdate' => $startDate, ':itdate' => $value["date"]));
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            $db->updateSS("client_count", $value1["count"], $value["date"]);
         }
     }
-    dbUpdateSS("clone_avgtime", "$avg", "$itDate");
+    unset($value1);
+
+    # Update the average time taken to clone a computer.
+    $db->Pselect("SELECT (clone_time / 60) AS 'clone_time' FROM jobstats WHERE clone_completed = 1 AND date = :itdate", array(':itdate' => $value["date"]));
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            $arrCloneTime[] = $value1["clone_time"];
+        }
+        $avg = array_filter($arrCloneTime);
+        $avg = round(array_sum($avg) / count($avg), 0);
+        $db->updateSS("clone_avgtime", $avg, $value["date"]);
+    }
+    unset($value1);
+    unset($avg);
 
 
     # Update the average erase time of NVMe drives
-    $sql = "SELECT erase_time / 60 AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'nvme%' OR disk_type = 'nvme') AND date = '$itDate'";
-    dbSelect($sql);
-    if (filterArr($arr) == 0) {
-        foreach ($arr as $key => $value) {
-            $nvmeEraseTime[] = $value["result"];
-            $avg = array_filter($nvmeEraseTime);
-            $avg = round(array_sum($avg) / count($avg), 0);
+    $db->Pselect("SELECT (erase_time / 60) AS 'nvme_erase_time' FROM jobstats WHERE erase_completed = 1 AND disk_type = 'nvme' AND date = :itdate", array(':itdate' => $value["date"]));
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            $arrNvmeErase[] = $value1["nvme_erase_time"];
         }
-    } else {
-        $avg = array_filter($nvmeEraseTime);
-        if (count($avg) > 0) {
-            $avg = round(array_sum($avg) / count($avg), 0);
-        } else {
-            $avg = round(array_sum($avg), 0);
-        }
+        $avg = array_filter($arrNvmeErase);
+        $avg = round(array_sum($avg) / count($avg), 0);
+        $db->updateSS("nvme_erase_avgtime", $avg, $value["date"]);
     }
-    dbUpdateSS("nvme_erase_avgtime", "$avg", "$itDate");
+    unset($value1);
+    unset($avg);
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
-    $sql = "SELECT erase_time / 60 AS result FROM jobstats WHERE erase_completed = '1' AND (disk LIKE 'sd%' OR disk_type = 'hdd') AND date = '$itDate'";
-    dbSelect($sql);
-    if (filterArr($arr) == 0) {
-        foreach ($arr as $key => $value) {
-            $hddEraseTime[] = $value["result"];
-            $avg = array_filter($hddEraseTime);
-            $avg = round(array_sum($avg) / count($avg), 0);
+    $db->Pselect("SELECT (erase_time / 60) AS 'sata_erase_time' FROM jobstats WHERE erase_completed = 1 AND (disk_type = 'ssd' OR disk_type = 'hdd') AND date = :itdate", array((':itdate') => $value["date"]));
+    if (arrFilter($db->get()) === 0) {
+        foreach ($arr as $key => $value1) {
+            $arrSataErase[] = $value1["sata_erase_time"];
         }
-    } else {
-        $avg = array_filter($hddEraseTime);
-        if (count($avg) > 0) {
-            $avg = round(array_sum($avg) / count($avg), 0);
-        } else {
-            $avg = round(array_sum($avg), 0);
-        }
+        $avg = array_filter($arrSataErase);
+        $avg = round(array_sum($avg) / count($avg), 0);
+        $db->updateSS("hdd_erase_avgtime", $avg, $value["date"]);
     }
-    dbUpdateSS("hdd_erase_avgtime", "$avg", "$itDate");
+    unset($value1);
+    unset($avg);
 
 
     # Update the number of erase jobs that have completed
@@ -274,9 +250,5 @@ foreach ($arr as $key => $value) {
 
 # Stop the timer
 echo timeSinceLastMarker("end", "Total Time to Update Serverstats: ") . PHP_EOL;
-
-# Clear globals
-clearSQLGlobals();
-clearTimeGlobals();
 
 ?>

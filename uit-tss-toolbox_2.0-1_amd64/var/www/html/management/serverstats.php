@@ -20,8 +20,8 @@ $db = new db();
             <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle'><h1>Server Stats Table (Date Report)</h1></div>
-        <div class='pagetitle'><h2>The date report shows aggregated statistics about every client and job.</h2></div>
+        <div class='pagetitle'><h1>Daily Reports</h1></div>
+        <div class='pagetitle'><h2>The daily reports show aggregated statistics for each day the server has been online, going back to Jan 9th, 2023.</h2></div>
 
         <div class='styled-table'>
             <table>
@@ -40,26 +40,74 @@ $db = new db();
                 </thead>
                 <tbody>
 <?php
-$db->select("SELECT date, laptop_count, battery_health, disk_health, all_jobs, clone_jobs, erase_jobs, clone_avgtime, nvme_erase_avgtime, hdd_erase_avgtime, last_image_update FROM serverstats ORDER BY date DESC");
+$db->select("SELECT date, client_count, battery_health, disk_health, all_jobs, clone_jobs, erase_jobs, clone_avgtime, nvme_erase_avgtime, hdd_erase_avgtime, last_image_update FROM serverstats ORDER BY date DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
+
         //date
-        echo "<td>" 
+        echo "<td>";
         if (strFilter($vaule["date"]) === 0) {
             echo htmlspecialchars($value["date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
         }
         echo "</td>" . PHP_EOL;
 
+        //client_count
+        echo "<td>";
+        if (strFilter($value["client_count"]) === 0) {
+            echo htmlspecialchars($value["client_count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+        }
+        echo "</td>" . PHP_EOL;
 
-        echo "<td>" . htmlspecialchars($value["laptop_count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["battery_health"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "%</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["disk_health"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "%</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["all_jobs"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["clone_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["nvme_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["hdd_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["last_image_update"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        //battery_health
+        echo "<td>";
+        if (strFilter($value["battery_health"]) === 0) {
+            echo htmlspecialchars($value["battery_health"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "%";
+        }
+        echo "</td>" . PHP_EOL;
+
+        //disk_health
+        echo "<td>";
+        if (strFilter($value["disk_health"]) === 0) {
+            echo htmlspecialchars($value["disk_health"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "%";
+        }
+        echo "</td>" . PHP_EOL;
+
+        //all_jobs
+        echo "<td>";
+        if (strFilter($value["all_jobs"]) === 0) {
+            echo htmlspecialchars($value["all_jobs"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+        }
+        echo "</td>" . PHP_EOL;
+
+        //clone_avgtime
+        echo "<td>";
+        if (strFilter($value["clone_avgtime"]) === 0) {
+            echo htmlspecialchars($value["clone_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
+        }
+        echo "</td>" . PHP_EOL;
+
+        //nvme_erase_avgtime
+        echo "<td>";
+        if (strFilter($value["nvme_erase_avgtime"]) === 0) {
+            echo htmlspecialchars($value["nvme_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
+        }
+        echo "</td>" . PHP_EOL;
+
+        //hdd_erase_avgtime
+        echo "<td>";
+        if (strFilter($value["hdd_erase_avgtime"]) === 0) {
+            echo htmlspecialchars($value["hdd_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
+        }
+        echo "</td>" . PHP_EOL;
+
+        //last_image_update
+        echo "<td>";
+        if (strFilter($value["last_image_update"]) === 0) {
+            echo htmlspecialchars($value["last_image_update"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+        }
+        echo "</td>" . PHP_EOL;
+
         echo "</tr>" . PHP_EOL;
     }
 }

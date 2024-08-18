@@ -137,7 +137,7 @@ BEGIN
     'Last Image Update')
 UNION
 (SELECT date,
-    laptop_count,
+    client_count,
     CONCAT(battery_health, '%'),
     CONCAT(disk_health, '%'),
     all_jobs,
