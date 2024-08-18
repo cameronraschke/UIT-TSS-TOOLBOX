@@ -47,7 +47,7 @@ if (arrFilter($db->get()) === 0) {
 
         //date
         echo "<td>";
-        if (strFilter($vaule["date"]) === 0) {
+        if (strFilter($value["date"]) === 0) {
             echo htmlspecialchars($value["date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
         }
         echo "</td>" . PHP_EOL;
