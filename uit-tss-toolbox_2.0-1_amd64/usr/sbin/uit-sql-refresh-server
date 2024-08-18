@@ -18,7 +18,6 @@ $db = new db();
 # Start the serverstats timer
 echo timeSinceLastMarker("start", "Updating Serverstats") . PHP_EOL;
 
-$arrClientCount = array();
 $arrCloneTime = array();
 $arrNvmeErase = array();
 $arrSataErase = array();
@@ -45,14 +44,12 @@ foreach ($db->get() as $key => $value) {
     }
 
     # Update client count. A client counts as a distinct tagnumber in jobstats which is in the Tech Commons or SHRL department.
-    $db->Pselect("SELECT COUNT(tagnumber) AS 'tagnumber' FROM jobstats WHERE department IN ('techComm', 'shrl') AND date BETWEEN :startdate AND :itdate GROUP BY tagnumber", array(':startdate' => $startDate, ':itdate' => $value["date"]));
+    $db->Pselect("SELECT tagnumber FROM jobstats WHERE department IN ('techComm', 'shrl') AND date BETWEEN :startdate AND :itdate GROUP BY tagnumber", array(':startdate' => $startDate, ':itdate' => $value["date"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $arrClientCount[] = $value1["tagnumber"];
+            $db->updateSS("client_count", count($db->get()), $value["date"]);
         }
     }
-    $clientCount = array_sum(array_filter($arrClientCount));
-    $db->updateSS("client_count", $clientCount, $value["date"]);
     unset($value1);
 
     # Update the average time taken to clone a computer.
@@ -71,7 +68,7 @@ foreach ($db->get() as $key => $value) {
 
 
     # Update the average erase time of NVMe drives
-    $db->Pselect("SELECT (erase_time / 60) AS 'nvme_erase_time' FROM jobstats WHERE erase_completed = 1 AND disk_type = 'nvme' AND date = :itdate", array(':itdate' => $value["date"]));
+    $db->Pselect("SELECT (erase_time / 60) AS 'nvme_erase_time' FROM jobstats WHERE erase_completed = 1 AND (disk_type = 'ssd' OR disk_type = 'nvme') AND date = :itdate", array(':itdate' => $value["date"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             $arrNvmeErase[] = $value1["nvme_erase_time"];
@@ -86,7 +83,7 @@ foreach ($db->get() as $key => $value) {
 
 
     # Update the average erase time of SATA drives (SSDs and HDDs)
-    $db->Pselect("SELECT (erase_time / 60) AS 'sata_erase_time' FROM jobstats WHERE erase_completed = 1 AND (disk_type = 'ssd' OR disk_type = 'hdd') AND date = :itdate", array(':itdate' => $value["date"]));
+    $db->Pselect("SELECT (erase_time / 60) AS 'sata_erase_time' FROM jobstats WHERE erase_completed = 1 AND disk_type = 'hdd' AND date = :itdate", array(':itdate' => $value["date"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             $arrSataErase[] = $value1["sata_erase_time"];
