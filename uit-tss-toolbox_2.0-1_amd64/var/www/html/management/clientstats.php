@@ -42,7 +42,7 @@ $db = new db();
                 </thead>
                 <tbody>
 <?php
-$db->select("SELECT tagnumber, system_serial, system_model, last_job_time, battery_health, disk_health, disk_type, IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', erase_avgtime, clone_avgtime, all_jobs FROM serverstats WHERE tagnumber IS NOT NULL ORDER BY tagnumber DESC");
+$db->select("SELECT tagnumber, system_serial, system_model, last_job_time, battery_health, disk_health, disk_type, IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', erase_avgtime, clone_avgtime, all_jobs FROM clientstats WHERE tagnumber IS NOT NULL ORDER BY tagnumber DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
