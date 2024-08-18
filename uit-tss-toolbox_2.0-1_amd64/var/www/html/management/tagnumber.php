@@ -17,8 +17,8 @@ if (isset($_POST["task"])) {
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Laptop Management - <?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></title>
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <title>UIT Client Mgmt - <?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
         <div class='menubar'>
@@ -293,7 +293,7 @@ if (isset($_POST["task"])) {
         </script>
 
     <div class="uit-footer">
-        <img src="images/uh-footer.svg">
+        <img src="/images/uh-footer.svg">
     </div>
     </body>
 </html>

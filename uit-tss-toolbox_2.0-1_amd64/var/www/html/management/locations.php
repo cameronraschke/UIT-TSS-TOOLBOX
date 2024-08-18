@@ -14,8 +14,8 @@ $db = new db();
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Laptop Managment - Locations</title>
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <title>UIT Client Mgmt - Locations</title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
         <div class='menubar'>
@@ -409,7 +409,7 @@ unset($value1);
         }
     </script>
     <div class="uit-footer">
-        <img src="images/uh-footer.svg">
+        <img src="/images/uh-footer.svg">
     </div>
     </body>
 </html>

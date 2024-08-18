@@ -14,8 +14,8 @@ $db = new db();
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Laptop Managment - Remote Management</title>
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <title>UIT Client Mgmt - Remote Jobs</title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
         <div class='menubar'>
@@ -355,7 +355,7 @@ echo "</div>";
 
     </script>
     <div class="uit-footer">
-        <img src="images/uh-footer.svg">
+        <img src="/images/uh-footer.svg">
     </div>
     </body>
 </html>

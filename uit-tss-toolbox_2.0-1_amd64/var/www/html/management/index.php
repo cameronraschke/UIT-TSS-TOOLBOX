@@ -1,10 +1,10 @@
 <?php require('/var/www/html/management/header.php'); ?>
 <html>
-<head>
+    <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Laptop Managment</title>
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <title>UIT Client Managment</title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
         <div class='menubar'>
@@ -23,7 +23,7 @@
         <div class='page-content'><h3><a href="reports.php">Generate and Download Reports (WIP)</a></h3></div>
 
         <div class="uit-footer">
-            <img src="images/uh-footer.svg">
+            <img src="/images/uh-footer.svg">
         </div>
     </body>
 </html>

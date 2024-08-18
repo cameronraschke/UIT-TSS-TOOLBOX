@@ -8,8 +8,8 @@ $db = new db();
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Laptop Managment - Lost Clients</title>
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <title>UIT Client Mgmt - Lost Clients</title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
         <div class='menubar'>
@@ -180,7 +180,7 @@ if (arrFilter($db->get()) === 0) {
         }
     </script>
     <div class="uit-footer">
-        <img src="images/uh-footer.svg">
+        <img src="/images/uh-footer.svg">
     </div>
     </body>
 </html>

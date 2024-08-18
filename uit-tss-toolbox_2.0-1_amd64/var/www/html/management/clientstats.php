@@ -9,7 +9,7 @@ $db = new db();
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Client Mgmt - Date Reports</title>
+        <title>UIT Client Mgmt - Client Reports</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
@@ -40,26 +40,19 @@ $db = new db();
                 </thead>
                 <tbody>
 <?php
-$db->select("SELECT date, laptop_count, battery_health, disk_health, all_jobs, clone_jobs, erase_jobs, clone_avgtime, nvme_erase_avgtime, hdd_erase_avgtime, last_image_update FROM serverstats ORDER BY date DESC");
+$db->select("SELECT tagnumber, system_serial, system_model, last_job_time, battery_health, disk_health, disk_type, bios_updated, erase_avgtime, clone_avgtime, all_jobs FROM serverstats WHERE tagnumber IS NOT NULL ORDER BY tagnumber DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
-        //date
-        echo "<td>" 
-        if (strFilter($vaule["date"]) === 0) {
-            echo htmlspecialchars($value["date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
-        }
-        echo "</td>" . PHP_EOL;
-
-
-        echo "<td>" . htmlspecialchars($value["laptop_count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["battery_health"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "%</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["disk_health"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "%</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["all_jobs"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["clone_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["nvme_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["hdd_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["last_image_update"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["date"]) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["laptop_count"]) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["battery_health"]) . "%</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["disk_health"]) . "%</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["all_jobs"]) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["clone_avgtime"]) . " minutes</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["nvme_erase_avgtime"]) . " minutes</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["hdd_erase_avgtime"]) . " minutes</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["last_image_update"]) . "</td>" . PHP_EOL;
         echo "</tr>" . PHP_EOL;
     }
 }
@@ -69,7 +62,7 @@ if (arrFilter($db->get()) === 0) {
         </table>
         </div>
         <div class="uit-footer">
-            <img src="/images/uh-footer.svg">
+            <img src="images/uh-footer.svg">
         </div>
     </body>
 </html>

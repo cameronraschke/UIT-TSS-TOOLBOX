@@ -13,7 +13,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
             $_SESSION['login_user'] = $value["name"];
             unset($_POST["username"]);
             unset($_POST["password"]);
-            header("Location: index.php");
+            header("Location: /index.php");
         }
     } else {
         setcookie ('authorized', 'no', time() - (3600), "/");
@@ -29,8 +29,8 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="/css/main.css" />
-        <title>TechComm Laptop Managment</title>
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+        <title>UIT Client Mgmt - Login</title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
         <div class="login-title" style="text-align:center;">
@@ -54,7 +54,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
             }
         </script>
         <div class="uit-footer">
-            <img src="images/uh-footer.svg">
+            <img src="/images/uh-footer.svg">
         </div>
     </body>
 </html>
