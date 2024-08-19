@@ -45,7 +45,7 @@ foreach ($db->get() as $key => $value) {
 
     # End the timer and print how long it took to update the location table for a specific tagnumber.
     # End the marker timer
-    echo "Time taken to update" . $value["tagnumber"] . ": " . $timer->endMarker() . "s" . PHP_EOL;
+    echo "Time taken to update " . $value["tagnumber"] . ": " . $timer->endMarker() . "s" . PHP_EOL;
 }
 
 # Stop the timer

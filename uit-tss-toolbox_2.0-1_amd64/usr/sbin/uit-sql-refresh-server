@@ -34,6 +34,7 @@ $db->Pselect("CALL iterateDate(:startdate, :enddate)", array(':startdate' => $st
 foreach ($db->get() as $key => $value) {
 
     # Start the timer that counts how much time each date takes to process.
+    echo PHP_EOL;
     $timer->startMarker();
 
     # If the current date does not exist in the serverstats table, then create an entry for the current date.

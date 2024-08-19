@@ -12,7 +12,10 @@ $db = new db();
 
 $db->select("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL GROUP BY tagnumber");
 foreach ($db->get() as $key => $value) {
+
+    echo PHP_EOL;
     $timer->startMarker();
+
     # If tagnumber does not exist in the remote table, insert it.
     $db->select("SELECT tagnumber FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "'");
     if (is_array($db->get()) === FALSE) {
@@ -97,7 +100,7 @@ foreach ($db->get() as $key => $value) {
     }
     unset($value1);
 
-    echo "Time taken to update" . $value["tagnumber"] . ": " . $timer->endMarker() . "s" . PHP_EOL;
+    echo "Time taken to update " . $value["tagnumber"] . ": " . $timer->endMarker() . "s" . PHP_EOL;
 }
 echo "(Updated) remote: " . $timer->end() . " seconds" . PHP_EOL;
 
