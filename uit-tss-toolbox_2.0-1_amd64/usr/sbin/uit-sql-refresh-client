@@ -1,11 +1,13 @@
 #!/usr/bin/php
 <?php
 # Connect to database and include custom functions
-include('/var/lib/UIT-TSS-TOOLBOX/functions');
 include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
+$timer = new scriptTimer();
 
-echo timeSinceLastMarker("start", "Updating clientstats") . PHP_EOL;
+echo "Updating clientstats" . PHP_EOL;
+$timer->start();
+
 
 /* # Get stdin
 $stdin = fopen('php://stdin', 'r');
@@ -27,7 +29,7 @@ foreach ($db->get() as $key => $value) {
 
     # Start the timer that counts how much time each tagnumber takes to process.
     echo PHP_EOL;
-    echo timeSinceLastMarker("markerStart", "Updating:" . $value["tagnumber"]) . PHP_EOL;
+    $timer->startMarker();
 
     # If tagnumber does not exist in the clientstats table, insert it.
     $db->select("SELECT tagnumber FROM clientstats WHERE tagnumber = '" . $value["tagnumber"] . "'");
@@ -141,11 +143,11 @@ foreach ($db->get() as $key => $value) {
         # Multiply the disk TBW by the disk MTBF to get a general disk health percent;
         if ($diskHealth == "NULL") {
             $diskHealth = "NULL";
-        } elseif (filterNum($diskHealthTBW) == 0 && filterNum($diskHealthMTBF) == 0) {
+        } elseif (numFilter($diskHealthTBW) == 0 && numFilter($diskHealthMTBF) == 0) {
             $diskHealth = round(100 - ((($diskHealthTBW + $diskHealthMTBF) / 2) * 100), 2);
-        } elseif (filterNum($diskHealthTBW) == 0 && filterNum($diskHealthMTBF) == 1) {
+        } elseif (numFilter($diskHealthTBW) == 0 && numFilter($diskHealthMTBF) == 1) {
             $diskHealth = round(100 - ($diskHealthTBW * 100), 2);
-        } elseif (filterNum($diskHealthTBW) == 1 && filterNum($diskHealthMTBF) == 0) {
+        } elseif (numFilter($diskHealthTBW) == 1 && numFilter($diskHealthMTBF) == 0) {
             $diskHealth = round(100 - ($diskHealthMTBF * 100), 2);
         } else {
             $diskHealth = "NULL";
@@ -211,10 +213,10 @@ foreach ($db->get() as $key => $value) {
     unset($value1);
 
     # End the marker timer
-    echo timeSinceLastMarker("markerEnd", "Time Taken for " . $value["tagnumber"] . ": ") . PHP_EOL;
+    echo "Time taken for " . $value["tagnumber"] . ": " . $timer->endMarker() . PHP_EOL;
 }
 
 # Stop the timer
-echo timeSinceLastMarker("end", "Total Time to Update clientstats: ") . PHP_EOL;
+echo "(Updated) clientstats -" . $timer->end() . PHP_EOL;
 
 ?>

@@ -3,11 +3,16 @@
 # Connect to database and include custom functions
 include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
+$timer = new scriptTimer();
+
+echo "Updating locations" . PHP_EOL;
+$timer->start();
 
 $db = new db();
 
 $db->select("SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND department IS NOT NULL GROUP BY tagnumber");
 foreach ($db->get() as $key => $value) {
+    $timer->startMarker();
     # If tagnumber does not exist in the remote table, insert it.
     $db->select("SELECT tagnumber FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "'");
     if (is_array($db->get()) === FALSE) {
@@ -91,6 +96,9 @@ foreach ($db->get() as $key => $value) {
         }
     }
     unset($value1);
+
+    echo "Time taken for " . $value["tagnumber"] . ": " . $timer->endMarker() . PHP_EOL;
 }
+echo "(Updated) remote -" . $timer->end() . PHP_EOL;
 
 ?>

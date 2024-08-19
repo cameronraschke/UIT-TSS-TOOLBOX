@@ -3,10 +3,12 @@
 
 # Connect to database and include custom functions
 include('/var/lib/UIT-TSS-TOOLBOX/include.php');
-include('/var/lib/UIT-TSS-TOOLBOX/functions');
+
+$timer = new scriptTimer();
 
 # Start the timer
-echo timeSinceLastMarker("start", "Updating locations") . PHP_EOL;
+echo "Updating locations" . PHP_EOL;
+$timer->start();
 
 $db = new db();
 # Iterate through distinct tagnumbers from jobstats with techComm UUIDs
@@ -14,7 +16,7 @@ $db->select("SELECT tagnumber FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY
 foreach ($db->get() as $key => $value) {
     # Start the timer that counts how much time each tagnumber takes to process.
     echo PHP_EOL;
-    echo timeSinceLastMarker("markerStart", "Updating location for: " . $value["tagnumber"] . PHP_EOL);
+    $timer->startMarker();
 
     $db->select("SELECT MAX(time) AS 'max_time' FROM locations WHERE tagnumber = '" . $value["tagnumber"] . "'");
     if (arrFilter($db->get()) === 0) {
@@ -43,10 +45,10 @@ foreach ($db->get() as $key => $value) {
 
     # End the timer and print how long it took to update the location table for a specific tagnumber.
     # End the marker timer
-    echo timeSinceLastMarker("markerEnd", "Time Taken for " . $value["tagnumber"] . ": ") . PHP_EOL;
+    echo "Time taken for " . $value["tagnumber"] . ": " . $timer->endMarker() . PHP_EOL;
 }
 
 # Stop the timer
-echo timeSinceLastMarker("end", "Total Time to Update locations: ") . PHP_EOL;
+echo "(Updated) locations -" . $timer->end() . PHP_EOL;
 
 ?>
