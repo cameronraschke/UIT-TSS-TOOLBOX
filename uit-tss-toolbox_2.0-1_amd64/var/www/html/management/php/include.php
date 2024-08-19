@@ -38,6 +38,77 @@ function arrFilter ($arr) {
 }
 
 
+class scriptTimer {
+    private $arrMarker;
+    private $arrMarkerObj;
+    private $markerIt;
+    private $arrTime;
+    private $arrTimeObj;
+    private $timeIt;
+    private $curTime;
+
+    private function refreshTime() {
+        $this->curTime = hrtime(true);
+    }
+
+    private function clearTime() {
+        $this->arrTime = null;
+        $this->arrTimeObj = null;
+        $this->timeIt = null;
+    }
+
+    private function clearMarker() {
+        $this->arrMarker = null;
+        $this->arrMarkerObj = null;
+        $this->markerIt = null;
+    }
+
+    public function start() {
+        $this->clearTime();
+        $this->refreshTime();
+        $this->arrTime = array();
+        $this->arrTimeObj = new ArrayObject($this->arrTime);
+        $this->timeIt = $this->arrTimeObj->getIterator();
+        $this->arrTimeObj->append($this->curTime);
+    }
+
+    public function startMarker() {
+        $this->clearMarker();
+        $this->refreshTime();
+        $this->arrMarker = array();
+        $this->arrMarkerObj = new ArrayObject($this->arrMarker);
+        $this->markerIt = $this->arrMarkerObj->getIterator();
+        $this->arrMarkerObj->append($this->curTime);
+    }
+
+    public function endMarker() {
+        $this->refreshTime();
+        $this->arrMarkerObj->append($this->curTime);
+        $count = $this->markerIt->count() - 1;
+        $this->markerIt->seek($count);
+        $end = $this->markerIt->current();
+        $this->markerIt->rewind();
+        $start = $this->markerIt->current();
+        $execTime = round(($end - $start) / 1e9, 4);
+        return $execTime;
+        $this->clearMarker();
+    }
+
+    public function end() {
+        $this->refreshTime();
+        $this->arrTimeObj->append($this->curTime);
+        $count = $this->timeIt->count() - 1;
+        $this->timeIt->seek($count);
+        $end = $this->timeIt->current();
+        $this->timeIt->rewind();
+        $start = $this->timeIt->current();
+        $execTime = round(($end - $start) / 1e9, 4);
+        return $execTime;
+        $this->clearTime();
+    }
+}
+
+
 class MySQLConn {
     private static $user = "cameron";
     private static $pass = "UHouston!";
@@ -66,7 +137,6 @@ class db {
         $this->arr = $stmt->fetchAll();
         $rowCount = $stmt->rowCount();
     }
-
 
     public function Pselect($sql, $arr) {
         $db = new MySQLConn();
