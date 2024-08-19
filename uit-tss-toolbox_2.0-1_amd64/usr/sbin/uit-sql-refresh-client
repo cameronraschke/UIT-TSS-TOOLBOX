@@ -213,10 +213,10 @@ foreach ($db->get() as $key => $value) {
     unset($value1);
 
     # End the marker timer
-    echo "Time taken for " . $value["tagnumber"] . ": " . $timer->endMarker() . PHP_EOL;
+    echo "Time taken to update" . $value["tagnumber"] . ": " . $timer->endMarker() . "s" . PHP_EOL;
 }
 
 # Stop the timer
-echo "(Updated) clientstats -" . $timer->end() . PHP_EOL;
+echo "(Updated) clientstats: " . $timer->end() . " seconds" . PHP_EOL;
 
 ?>
