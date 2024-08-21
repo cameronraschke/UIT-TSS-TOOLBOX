@@ -30,7 +30,7 @@ if (isset($_POST["task"])) {
 
         <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
         <div class='pagetitle'><h2>Lookup data for a specific client.</h2></div>
-        <div class='pagetitle'><h3>Data on this page was last updated at: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%c/%e/%Y %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
+        <div class='pagetitle'><h3>Data on this page was last updated at: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
         <div class='laptop-images'>
         <?php
@@ -126,7 +126,7 @@ if (isset($_POST["task"])) {
 
                         <td>
                 <?php
-                $db->select("SELECT DATE_FORMAT(present, '%c/%e/%Y %r') AS 'time_formatted', status, present_bool FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET["tagnumber"]) . "'");
+                $db->select("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET["tagnumber"]) . "'");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
                         if ($value["present_bool"] == 1) {
@@ -221,7 +221,7 @@ if (isset($_POST["task"])) {
             </thead>
             <tbody>
                 <?php
-                $db->select("SELECT DATE_FORMAT(time, '%c/%e/%Y %r') AS 'time_formatted', location, IF (status='0' OR status IS NULL, 'Working', 'Broken') AS 'status', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', note FROM locations WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' ORDER BY time DESC LIMIT 1");
+                $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status='0' OR status IS NULL, 'Working', 'Broken') AS 'status', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', note FROM locations WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' ORDER BY time DESC LIMIT 1");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
                     echo "<tr>" . PHP_EOL;
@@ -264,7 +264,7 @@ if (isset($_POST["task"])) {
             </thead>
             <tbody>
                 <?php
-                $db->select("SELECT DATE_FORMAT(time, '%c/%e/%Y %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 10");
+                $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 10");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
                         echo "<tr>" . PHP_EOL;
