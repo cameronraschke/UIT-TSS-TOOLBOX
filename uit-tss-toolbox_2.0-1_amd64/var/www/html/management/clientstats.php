@@ -42,10 +42,10 @@ $db = new db();
                 </thead>
                 <tbody>
 <?php
-if (!isset($_GET["system_model"])) {
-    $db->Pselect("SELECT tagnumber, system_serial, system_model, last_job_time, battery_health, disk_health, disk_type, IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', erase_avgtime, clone_avgtime, all_jobs FROM clientstats WHERE tagnumber IS NOT NULL AND system_model = :systemmodel ORDER BY tagnumber ASC", array(':systemmodel' => htmlspecialchars_decode($_GET["system_model"])));
+if (isset($_GET["system_model"])) {
+    $db->Pselect("SELECT tagnumber, system_serial, system_model, DATE_FORMAT(last_job_time, '%c/%e/%Y %r'), battery_health, disk_health, disk_type, IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', erase_avgtime, clone_avgtime, all_jobs FROM clientstats WHERE tagnumber IS NOT NULL AND system_model = :systemmodel ORDER BY tagnumber ASC", array(':systemmodel' => htmlspecialchars_decode($_GET["system_model"])));
 } else {
-    $db->select("SELECT tagnumber, system_serial, system_model, last_job_time, battery_health, disk_health, disk_type, IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', erase_avgtime, clone_avgtime, all_jobs FROM clientstats WHERE tagnumber IS NOT NULL ORDER BY tagnumber ASC");
+    $db->select("SELECT tagnumber, system_serial, system_model, DATE_FORMAT(last_job_time, '%c/%e/%Y %r'), battery_health, disk_health, disk_type, IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', erase_avgtime, clone_avgtime, all_jobs FROM clientstats WHERE tagnumber IS NOT NULL ORDER BY tagnumber ASC");
 }
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
@@ -68,7 +68,7 @@ if (arrFilter($db->get()) === 0) {
         //system_model
         echo "<td>";
         if (strFilter($value["system_model"]) === 0) {
-            echo "<b><a href='/clientstats?system_model=" . htmlspecialchars($value["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
+            echo "<b><a href='/clientstats.php?system_model=" . htmlspecialchars($value["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
         }
         echo "</td>" . PHP_EOL;
 
