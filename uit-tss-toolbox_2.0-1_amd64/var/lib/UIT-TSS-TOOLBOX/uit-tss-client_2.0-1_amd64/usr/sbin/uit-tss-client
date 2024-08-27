@@ -11,6 +11,16 @@ RESET=$(tput sgr0)
 cloneElapsed="0"
 shredElapsed="0"
 
+while sleep 1; do
+	if [[ $(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
+		for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+		for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+		for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+		for i in $(ps | grep 'uit-status' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+		for i in $(ps | grep 'uit-tss' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+	fi
+done &
+
 for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -419,7 +429,14 @@ fi
 	echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 }
 
-
+function checkNetwork {
+	while sleep 1; do
+		ping -c 1 10.0.0.1 &>/dev/null
+		if [[ $? == 0 ]]; then
+			break
+		fi
+	done
+}
 
 function enterTag {
 	local regex="[[:digit:]]{6}"
@@ -599,6 +616,7 @@ function powerWarning {
 	if [[ $restartBool == "1" ]]; then
 		footer
 		rtcwake --mode mem --seconds 3
+		checkNetwork
 		footer
 	elif [[ $restartBool == "2" ]]; then
 		footer
@@ -1587,8 +1605,8 @@ function execute_Shred {
 
 
 function execute {
-	rm /tmp/cpu-usage.txt
-	rm /tmp/network-usage.txt
+	echo "0" > /tmp/cpu-usage.txt
+	echo "0" > /tmp/network-usage.txt
 	echo "0" > /root/uptime
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
@@ -1868,6 +1886,7 @@ function autodetectClient {
 				linuxDNS="mickey.uit"
 				footer
 				rtcwake --mode mem --seconds 3
+				checkNetwork
 				footer
 				execute
 				totaltime
@@ -1898,6 +1917,7 @@ function autodetectClient {
 				linuxDNS="mickey.uit"
 				footer
 				rtcwake --mode mem --seconds 3
+				checkNetwork
 				footer
 				execute
 				totaltime
@@ -1927,6 +1947,7 @@ function autodetectClient {
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				footer
 				rtcwake --mode mem --seconds 3
+				checkNetwork
 				footer
 				execute
 				totaltime
@@ -1958,6 +1979,7 @@ function autodetectClient {
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				footer
 				rtcwake --mode mem --seconds 3
+				checkNetwork
 				footer
 				execute
 				totaltime
