@@ -1,6 +1,7 @@
 #!/bin/bash
 wanif='enx00e04c6805bb'
-wan='172.27.53.0/24'
+wanif1='wlp2s0'
+wan='172.27.53.0/24,129.7.161.0/24'
 lanif='enp1s0'
 lan='10.0.0.0/24'
 
@@ -20,6 +21,9 @@ iptables --table mangle --flush
 iptables --table mangle --delete-chain
 iptables --table filter --flush
 iptables --table filter --delete-chain
+
+iptables --table raw --append PREROUTING --in-interface "${wanif1}" --jump DROP
+iptables --table raw --append POSTROUTING --out-interface "${wanif1}" --jump DROP
 
 # Loopback Traffic
 iptables --table filter --append INPUT --in-interface lo --jump ACCEPT
