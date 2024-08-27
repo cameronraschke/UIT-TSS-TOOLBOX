@@ -126,13 +126,15 @@ if (isset($_POST["task"])) {
 
                         <td>
                 <?php
-                $db->select("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET["tagnumber"]) . "'");
+                $db->select("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool, kernel_updated FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET["tagnumber"]) . "'");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
-                        if ($value["present_bool"] == 1) {
+                        if ($value["present_bool"] === 1 && $value["kernel_updated"] === 1) {
                             echo "Status (Online <span style='color: #00B388'>&#10004;</span>)";
-                        } else {
+                        } elseif ($value["present_bool"] !== 1 && $value["kernel_updated"] !== 1) {
                             echo "Status (Offline <span style='color: #C8102E'>&#10007;</span>)";
+                        } elseif ($value["present_bool"] !== 1 || $value["kernel_updated"] !== 1) {
+                            echo "Status (Warning <span style='color: #F6BE00'>&#9888;</span>)";
                         }
 
                         if (strFilter($value["status"]) === 0) {
@@ -159,11 +161,12 @@ if (isset($_POST["task"])) {
                 <th>System Model</th>
                 <th>BIOS Version</th>
                 <th>CPU Model</th>
+                <th>Disk Type</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                $db->Pselect("SELECT t1.system_serial, t1.etheraddress, t2.chassis_type, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = :tagnumber1 AND t2.tagnumber = :tagnumber2 AND t1.uuid NOT LIKE 'location-%' AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1", array(':tagnumber1' => htmlspecialchars_decode($_GET['tagnumber']), ':tagnumber2' => htmlspecialchars_decode($_GET['tagnumber'])));
+                $db->Pselect("SELECT t1.system_serial, t1.disk_type, t1.etheraddress, t2.chassis_type, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = :tagnumber1 AND t2.tagnumber = :tagnumber2 AND t1.uuid NOT LIKE 'location-%' AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1", array(':tagnumber1' => htmlspecialchars_decode($_GET['tagnumber']), ':tagnumber2' => htmlspecialchars_decode($_GET['tagnumber'])));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
                     echo "<tr>" . PHP_EOL;
@@ -197,6 +200,7 @@ if (isset($_POST["task"])) {
                     }
                     unset($value1);
                     echo "<td>" . $value['cpu_model'] . "</td>" . PHP_EOL;
+                    echo "<td>" . $value['disk_type'] . "</td>" . PHP_EOL;
                     echo "</tr>" . PHP_EOL;
                     }
                 }
@@ -245,7 +249,36 @@ if (isset($_POST["task"])) {
         </table>
         </div>
 
-        <div class='pagetitle'><h3>Job Info</h3></div>
+        <div class='pagetitle'><h3>Client Health</h3></div>
+        <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
+        <table width="100%">
+            <thead>
+                <tr>
+                <th>Erase Avg. Time</th>
+                <th>Clone Avg. Time</th>
+                <th>Battery Health</th>
+                <th>Disk Health</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $db->Pselect("SELECT CONCAT(erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clone_avgtime, ' mins') AS 'clone_avgtime', CONCAT(battery_health, '%') AS 'battery_health', CONCAT(disk_health) AS 'disk_health' FROM clientstats WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+                if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key=>$value) {
+                        echo "<tr>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['erase_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['clone_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['battery_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['disk_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "</tr>" . PHP_EOL;
+                    }
+                }
+                ?>
+            </tbody>
+        </table>
+        </div>
+
+        <div class='pagetitle'><h3>Job Log</h3></div>
         <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
@@ -264,7 +297,7 @@ if (isset($_POST["task"])) {
             </thead>
             <tbody>
                 <?php
-                $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 10");
+                $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
                         echo "<tr>" . PHP_EOL;
