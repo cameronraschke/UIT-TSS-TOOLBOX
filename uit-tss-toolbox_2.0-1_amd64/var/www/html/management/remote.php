@@ -180,7 +180,7 @@ if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
         echo "<td>" . PHP_EOL;
-        if ($value["status"] !== "waiting for job" || preg_match("/^fail\ \-.*$/", $value["status"])) {
+        if ($value["status"] !== "waiting for job" && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
             echo "<b>In Progress: </b>";
         }
 
