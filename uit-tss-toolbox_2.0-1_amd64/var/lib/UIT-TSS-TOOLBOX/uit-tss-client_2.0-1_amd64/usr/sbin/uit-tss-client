@@ -503,16 +503,6 @@ function info {
 
 
 function footer {
-	for i in $(ls /lib/modules); do
-		echo "${i}" | grep -i --quiet "$(uname -r)"
-		if [[ ${PIPESTATUS[1]} == "0" ]]; then
-			echo "remote|${tagNum}|kernel_updated|1" | /var/lib/UIT-TSS-TOOLBOX/parse
-			break
-		else
-			echo "remote|${tagNum}|kernel_updated|" | /var/lib/UIT-TSS-TOOLBOX/parse
-		fi
-	done
-
 	biosUpdatedSQL=$(echo 'SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '"'${tOneProductName}'"'' | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
 	if [[ $biosUpdatedSQL == "NULL" ]]; then
 		biosUpdated="$(dmidecode --string bios-version)"

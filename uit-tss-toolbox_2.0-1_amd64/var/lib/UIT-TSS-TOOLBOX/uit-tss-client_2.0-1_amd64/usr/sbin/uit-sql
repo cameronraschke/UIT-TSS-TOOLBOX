@@ -55,6 +55,16 @@ if [[ -z $elapsed ]]; then
     elapsed=0
 fi
 
+for i in $(ls /lib/modules); do
+    echo "${i}" | grep -i --quiet "$(uname -r)"
+    if [[ ${PIPESTATUS[1]} == "0" ]]; then
+        echo "remote|${tagNum}|kernel_updated|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+        break
+    else
+        echo "remote|${tagNum}|kernel_updated|" | /var/lib/UIT-TSS-TOOLBOX/parse
+    fi
+done
+
 if [[ $(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
     echo "remote|${tagNum}|task|" | /var/lib/UIT-TSS-TOOLBOX/parse
     echo "remote|${tagNum}|status|fail - Job cancelled :(" | /var/lib/UIT-TSS-TOOLBOX/parse
