@@ -113,15 +113,6 @@ wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
 tOneSerialNumber=$(dmidecode --string system-serial-number)
 ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1,3}/24' | sed 's/\/24//g')
 
-while sleep 1; do
-    if [[ $(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
-        echo "remote|${tagNum}|task|" | /var/lib/UIT-TSS-TOOLBOX/parse
-        echo "remote|${tagNum}|status|fail - Job cancelled :(" | /var/lib/UIT-TSS-TOOLBOX/parse
-		pkill --terminal tty1
-    fi
-done &
-
-
 function remote {
 	task=$(echo "SELECT task AS result FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 }
