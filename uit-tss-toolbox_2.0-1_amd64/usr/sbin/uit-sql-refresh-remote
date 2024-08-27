@@ -5,7 +5,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
 $timer = new scriptTimer();
 
-echo "Updating locations" . PHP_EOL;
+echo "Updating remote table" . PHP_EOL;
 $timer->start();
 
 $db = new db();
@@ -31,7 +31,8 @@ foreach ($db->get() as $key => $value) {
                 $time1 = new DateTime($value1["present"]);
                 $time1->modify('+45 second');
                 $time1 = $time1->format('Y-m-d H:i:s');
-                $tmpTime = $dt->format('Y-m-d H:i:s');
+                $dt1 = new DateTimeImmutable();
+                $tmpTime = $dt1->format('Y-m-d H:i:s');
                 if ($tmpTime < $time1) {
                     $db->updateRemote($value["tagnumber"], "present_bool", 1);
                 } else {
