@@ -138,7 +138,7 @@ if (isset($_POST["task"])) {
                         } elseif ($value["present_bool"] !== 1 && $value["kernel_updated"] === 1) {
                             echo "(Offline <span style='color: #C8102E'>&#10060;</span>)";
                         } else {
-                            echo "(Unknown <span style='color: #C8102E'>&#8265;&#65039;</span>)"
+                            echo "(Unknown <span style='color: #C8102E'>&#8265;&#65039;</span>)";
                         }
 
                         if (strFilter($value["status"]) === 0) {
