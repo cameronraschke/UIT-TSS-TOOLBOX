@@ -50,12 +50,12 @@ foreach ($db->get() as $key => $value) {
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             if (strFilter($value1["task"]) === 0) {
-                $db->select("SELECT date FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
+                $db->select("SELECT time FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
                 if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value2) {
                     $date2 = NULL;
-                    $date2 = new DateTime($value2["date"]);
-                    $db->updateRemote($value["tagnumber"], "date", $date2->format('Y-m-d'));
+                    $date2 = new DateTime($value2["time"]);
+                    $db->updateRemote($value["tagnumber"], "last_job_time", $date2->format('Y-m-d'));
                     $date2->modify('+1 week');
                     $date2 = $date2->format('Y-m-d');
                     if ($date >= $date2) {
