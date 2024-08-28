@@ -46,28 +46,20 @@ foreach ($db->get() as $key => $value) {
 
 
     # Update the time of the last job.
-    $db->select("SELECT task FROM remote WHERE tagnumber = '" . $value["tagnumber"] . "' AND present_bool = '1'");
+    $db->select("SELECT time FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND (erase_completed = 1 OR clone_completed = 1) AND host_connected = 1 ORDER BY time DESC LIMIT 1");
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            if (strFilter($value1["task"]) === 0) {
-                $db->select("SELECT time FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
-                if (arrFilter($db->get()) === 0) {
-                foreach ($db->get() as $key => $value2) {
-                    $date2 = NULL;
-                    $date2 = new DateTime($value2["time"]);
-                    $db->updateRemote($value["tagnumber"], "last_job_time", $value2["time"]);
-                    $date2->modify('+1 week');
-                    $date2 = $date2->format('Y-m-d');
-                    if ($date >= $date2) {
-                        $db->updateRemote($value["tagnumber"], "task", "data collection");
-                    }
-                }
-            }
+            $date2 = NULL;
+            $date2 = new DateTime($value1["time"]);
+            $db->updateRemote($value["tagnumber"], "last_job_time", $value1["time"]);
+            $date2->modify('+1 week');
+            $date2 = $date2->format('Y-m-d');
+            if ($date >= $date2) {
+                $db->updateRemote($value["tagnumber"], "task", "data collection");
             }
         }
     }
     unset($value1);
-    unset($value2);
     unset($date2);
 
 
