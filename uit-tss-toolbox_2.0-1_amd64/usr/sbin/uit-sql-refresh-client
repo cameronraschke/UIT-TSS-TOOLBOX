@@ -82,7 +82,7 @@ foreach ($db->get() as $key => $value) {
     unset($value1);
 
     # Update the most recent average clone time for each client
-    $db->select("SELECT ROUND(AVG(clone_time) / 60, 0) AS 'result' FROM jobstats WHERE clone_completed = '1' AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY TIME DESC LIMIT 3");
+    $db->select("SELECT AVG(t1.clone_time / 60) AS 'result' FROM (SELECT clone_time FROM jobstats t2 WHERE clone_completed = 1 AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY TIME DESC LIMIT 3) t1");
     if (arrFilter($db->get()) == 0) {
         foreach ($db->get() as $key => $value1) {
             $db->updateCS("clone_avgtime", $value1["result"], $value["tagnumber"]);
