@@ -55,7 +55,7 @@ foreach ($db->get() as $key => $value) {
                 foreach ($db->get() as $key => $value2) {
                     $date2 = NULL;
                     $date2 = new DateTime($value2["time"]);
-                    $db->updateRemote($value["tagnumber"], "last_job_time", $date2->format('Y-m-d'));
+                    $db->updateRemote($value["tagnumber"], "last_job_time", $value2["time"]);
                     $date2->modify('+1 week');
                     $date2 = $date2->format('Y-m-d');
                     if ($date >= $date2) {
