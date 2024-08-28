@@ -50,11 +50,6 @@ if [[ -d /sys/class/powercap ]]; then
     echo "remote|${tagNum}|watts_now|${first}|${second}" | /var/lib/UIT-TSS-TOOLBOX/parse
 fi
 
-elapsed=$(cat /root/uptime)
-if [[ -z $elapsed ]]; then
-    elapsed=0
-fi
-
 for i in $(ls /lib/modules); do
     echo "${i}" | grep -i --quiet "$(uname -r)"
     if [[ ${PIPESTATUS[1]} == "0" ]]; then
@@ -72,6 +67,12 @@ if [[ $(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" |
 fi
 
 sleep 10
+
+elapsed=0
+elapsed=$(cat /root/uptime)
+if [[ -z $elapsed ]]; then
+    elapsed=0
+fi
 
 elapsed=$(( elapsed + 10 ))
 echo "$elapsed" > /root/uptime
