@@ -21,6 +21,9 @@ iptables --table mangle --delete-chain
 iptables --table filter --flush
 iptables --table filter --delete-chain
 
+iptables --table raw --append PREROUTING --in-interface "${wanif1}" --jump DROP
+iptables --table raw --append OUTPUT --out-interface "${wanif1}" --jump DROP
+
 # Loopback Traffic
 iptables --table filter --append INPUT --in-interface lo --jump ACCEPT
 iptables --table filter --append OUTPUT --out-interface lo --jump ACCEPT

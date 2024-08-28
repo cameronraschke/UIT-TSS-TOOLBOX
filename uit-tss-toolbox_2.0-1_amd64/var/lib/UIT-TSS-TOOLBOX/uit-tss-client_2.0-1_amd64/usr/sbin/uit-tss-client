@@ -113,15 +113,6 @@ wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
 tOneSerialNumber=$(dmidecode --string system-serial-number)
 ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1,3}/24' | sed 's/\/24//g')
 
-while sleep 1; do
-    if [[ $(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
-        echo "remote|${tagNum}|task|" | /var/lib/UIT-TSS-TOOLBOX/parse
-        echo "remote|${tagNum}|status|fail - Job cancelled :(" | /var/lib/UIT-TSS-TOOLBOX/parse
-		pkill --terminal tty1
-    fi
-done &
-
-
 function remote {
 	task=$(echo "SELECT task AS result FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 }
@@ -512,16 +503,6 @@ function info {
 
 
 function footer {
-	for i in $(ls /lib/modules); do
-		echo "${i}" | grep -i --quiet "$(uname -r)"
-		if [[ ${PIPESTATUS[1]} == "0" ]]; then
-			echo "remote|${tagNum}|kernel_updated|1" | /var/lib/UIT-TSS-TOOLBOX/parse
-			break
-		else
-			echo "remote|${tagNum}|kernel_updated|" | /var/lib/UIT-TSS-TOOLBOX/parse
-		fi
-	done
-
 	biosUpdatedSQL=$(echo 'SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '"'${tOneProductName}'"'' | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
 	if [[ $biosUpdatedSQL == "NULL" ]]; then
 		biosUpdated="$(dmidecode --string bios-version)"
@@ -1025,7 +1006,6 @@ function vrfyDisk_Shred {
             	PROCFAIL='1'
 				echo "remote|${tagNum}|status|fail - verifying erase" | /var/lib/UIT-TSS-TOOLBOX/parse
             	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
-
 				pkill --terminal tty1
     	fi
 
@@ -1038,7 +1018,6 @@ function vrfyDisk_Shred {
             	PROCFAIL='1'
 				echo "remote|${tagNum}|status|fail - verifying erase" | /var/lib/UIT-TSS-TOOLBOX/parse
             	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
-
 				pkill --terminal tty1
     fi
 	echo "Verifing the last sector of the disk...."
@@ -1048,7 +1027,6 @@ function vrfyDisk_Shred {
             	PROCFAIL='1'
 				echo "remote|${tagNum}|status|fail - verifying erase" | /var/lib/UIT-TSS-TOOLBOX/parse
 				read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
-
 				pkill --terminal tty1
     fi
 
@@ -1059,8 +1037,7 @@ function vrfyDisk_Shred {
 	else
 		echo "remote|${tagNum}|status|fail - verifying erase" | /var/lib/UIT-TSS-TOOLBOX/parse
 		read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
-				pkill signal SIGINT --terminal tty1
-		pkill 		--terminal tty1
+		pkill --terminal tty1
 	fi
 }
 
@@ -1084,8 +1061,7 @@ function secErase_Shred {
 	else
 		echo "remote|${tagNum}|status|fail - secure erase" | /var/lib/UIT-TSS-TOOLBOX/parse
 		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}."
-				pkill signal SIGINT --terminal tty1
-		pkill 		--terminal tty1
+		pkill --terminal tty1
 	fi
 }
 
@@ -1105,8 +1081,7 @@ function secUnlock_Shred {
 	else
 		echo "remote|${tagNum}|status|fail - secure unlock" | /var/lib/UIT-TSS-TOOLBOX/parse
 		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}."
-				pkill signal SIGINT --terminal tty1
-		pkill 		--terminal tty1
+		pkill --terminal tty1
 	fi
 }
 
@@ -1616,8 +1591,7 @@ function execute {
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		read -t 10 -p "${BOLD}Cannot erase device and save its image.${RESET}"
 		echo "remote|${tagNum}|status|fail - can't erase master" | /var/lib/UIT-TSS-TOOLBOX/parse
-				pkill signal SIGINT --terminal tty1
-		pkill 		--terminal tty1
+		pkill --terminal tty1
 	fi
 
 	if [[ $APPSELECT == "EC" ]]; then
@@ -1643,8 +1617,7 @@ function execute {
 		echo "remote|${tagNum}|status|fail - Invalid application selected" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "${BOLD}${RED}Error - Invalid application selected.${RESET}"
 		sleep 0.5
-				pkill signal SIGINT --terminal tty1
-		pkill 		--terminal tty1
+		pkill --terminal tty1
 	fi
 
 }
@@ -1852,7 +1825,6 @@ function autodetectClient {
 				rm /tmp/network-usage.txt
 				rm /tmp/cpu-usage.txt
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
-
 				pkill --terminal tty1
 			elif [[ $task == "update" ]]; then
 				echo "remote|${tagNum}|status|updating" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1868,7 +1840,6 @@ function autodetectClient {
 				dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
 				dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
-
 				pkill --terminal tty1
 			elif [[ $task == "findmy" ]]; then
 				echo "remote|${tagNum}|status|playing sound" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1906,7 +1877,6 @@ function autodetectClient {
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
-
 				pkill --terminal tty1
 			elif [[ $task == "hpCloneOnly" ]]; then
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1937,7 +1907,6 @@ function autodetectClient {
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
-
 				pkill --terminal tty1
 			elif [[ $task == "nvmeErase" ]]; then
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1968,7 +1937,6 @@ function autodetectClient {
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
-
 				pkill --terminal tty1
 			elif [[ $task == "nvmeVerify" ]]; then
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -2001,7 +1969,6 @@ function autodetectClient {
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
-
 				pkill --terminal tty1
 			elif [[ $task == "shutdown" ]]; then
 				echo "remote|${tagNum}|status|shutting down" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -2134,8 +2101,7 @@ function main {
 	elif [[ $mainMenuOpt == "0" ]]; then
 		:
 	else
-				pkill signal SIGINT --terminal tty1
-		pkill 		--terminal tty1
+		pkill --terminal tty1
 	fi
 	if [[ $unattended == "false" ]]; then
 		terminate

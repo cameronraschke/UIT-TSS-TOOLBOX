@@ -5,7 +5,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
 $timer = new scriptTimer();
 
-echo "Updating locations" . PHP_EOL;
+echo "Updating remote table" . PHP_EOL;
 $timer->start();
 
 $db = new db();
