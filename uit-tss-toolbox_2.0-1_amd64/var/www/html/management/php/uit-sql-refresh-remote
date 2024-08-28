@@ -41,7 +41,7 @@ foreach ($db->get() as $key => $value) {
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             if (strFilter($value1["task"]) === 0) {
-                $db->select("SELECT time FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND host_connected = '1' ORDER BY time DESC LIMIT 1");
+                $db->select("SELECT time FROM jobstats WHERE tagnumber = '" . $value["tagnumber"] . "' AND (erase_completed = 1 OR clone_completed = 1) AND host_connected = 1 ORDER BY time DESC LIMIT 1");
                 if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value2) {
                     $date2 = NULL;
