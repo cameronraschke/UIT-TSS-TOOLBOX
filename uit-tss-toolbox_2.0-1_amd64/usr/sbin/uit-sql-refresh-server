@@ -157,16 +157,16 @@ foreach ($db->get() as $key => $value) {
             }
             unset($value2);
 
-            if (isset($tbw) || isset($mtbf)) {
-                if (numFilter($tbw) === 0 && numFilter($mtbf) === 0) {
+            if (isset($tbw) === TRUE || isset($mtbf) === TRUE) {
+                if (isset($tbw) === TRUE && isset($mtbf) === TRUE) {
                     $diskHealth = (($tbw + $mtbf) / 2);
-                } elseif (numFilter($tbw) === 0 && numFilter($mtbf) === 1) {
+                } elseif (isset($tbw) === TRUE && isset($mtbf) === FALSE) {
                     $diskHealth = $tbw;
-                } elseif (numFilter($tbw) === 1 && numFilter($mtbf) === 0) {
+                } elseif (isset($tbw) === FALSE && isset($mtbf) === TRUE) {
                     $diskHealth = $mtbf;
                 }
 
-                if (numFilter($diskHealth) === 0) {
+                if (isset($diskHealth) === TRUE) {
                     $db->updateSS("disk_health", $diskHealth, $value["date"]);
                 } else {
                     $db->updateSS("disk_health", 0, $value["date"]);
