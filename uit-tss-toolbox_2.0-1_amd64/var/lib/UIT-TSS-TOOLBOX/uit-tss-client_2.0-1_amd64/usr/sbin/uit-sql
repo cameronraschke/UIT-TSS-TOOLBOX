@@ -67,7 +67,7 @@ if [[ $(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" |
 fi
 
 #Network link speed
-etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do netSpeed=$(cat /sys/class/net/${i}/speed 2>/dev/null); done)
+for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do netSpeed=$(cat /sys/class/net/${i}/speed 2>/dev/null); done
     echo "remote|${tagNum}|network_speed|$netSpeed" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 sleep 10
