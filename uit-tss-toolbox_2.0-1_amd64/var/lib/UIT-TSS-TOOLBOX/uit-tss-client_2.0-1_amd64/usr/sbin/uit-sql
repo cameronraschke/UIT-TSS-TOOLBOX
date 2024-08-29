@@ -66,6 +66,10 @@ if [[ $(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" |
     pkill --terminal tty1
 fi
 
+#Network link speed
+etherAddr=$(for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); netSpeed=$(cat /sys/class/net/${i}/speed); done)
+    echo "remote|${tagNum}|network_speed|$netSpeed" | /var/lib/UIT-TSS-TOOLBOX/parse
+
 sleep 10
 
 elapsed=0
