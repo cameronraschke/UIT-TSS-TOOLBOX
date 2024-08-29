@@ -210,13 +210,13 @@ if (isset($_POST["task"])) {
                     unset($value1);
                     echo "<td>" . $value['cpu_model'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['disk_type'] . "</td>" . PHP_EOL;
-                    $db->Pselect("SELECT CONCAT(network_speed, 'mbps') AS 'network_speed' FROM remote WHERE tagnumber = :tagnumber", array(':network_speed' => htmlspecialchars_decode($_GET['tagnumber'])));
+                    $db->Pselect("SELECT CONCAT(network_speed, 'mbps') AS 'network_speed' FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
                             echo "<td>" . $value1['network_speed'] . "</td>" . PHP_EOL;
                         }
-                        unset($value1);
                     }
+                    unset($value1);
                     echo "</tr>" . PHP_EOL;
                     }
                 }
