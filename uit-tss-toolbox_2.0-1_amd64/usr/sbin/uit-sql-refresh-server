@@ -161,11 +161,11 @@ foreach ($db->get() as $key => $value) {
 
             if (isset($tbw) === TRUE || isset($mtbf) === TRUE) {
                 if (isset($tbw) === TRUE && isset($mtbf) === TRUE && count($tbw) > 0 && count($mtbf) > 0) {
-                    $diskHealth = round((((array_sum($tbw) / count($tbw)) + (array_sum($mtbf) / count($mtbf))) / 2), 2);
+                    $diskHealth = 100 - round((((array_sum($tbw) / count($tbw)) + (array_sum($mtbf) / count($mtbf))) / 2), 2);
                 } elseif (isset($tbw) === TRUE && isset($mtbf) === FALSE && count($tbw) > 0) {
-                    $diskHealth = round(array_sum($tbw) / $count($tbw), 2);
+                    $diskHealth = 100 - round(array_sum($tbw) / $count($tbw), 2);
                 } elseif (isset($tbw) === FALSE && isset($mtbf) === TRUE && count($mtbf) > 0) {
-                    $diskHealth = round(array_sum($mtbf) / count($mtbf), 2);
+                    $diskHealth = 100 - round(array_sum($mtbf) / count($mtbf), 2);
                 }
 
                 if (isset($diskHealth) === TRUE) {
