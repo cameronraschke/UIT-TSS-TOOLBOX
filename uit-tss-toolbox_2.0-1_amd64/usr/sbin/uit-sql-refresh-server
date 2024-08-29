@@ -55,11 +55,17 @@ foreach ($db->get() as $key => $value) {
 
     # Update the average time taken to clone a computer.
     //$db->Pselect("SELECT (clone_time / 60) AS 'clone_time' FROM jobstats WHERE clone_completed = 1 AND date = :itdate", array(':itdate' => $value["date"]));
+    $arrCloneTime = array();
     $db->Pselect("SELECT clone_time FROM (SELECT (clone_time / 60) AS 'clone_time', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY TIME DESC) AS 'n' FROM jobstats WHERE clone_completed = 1 AND clone_time IS NOT NULL AND date <= :itdate) t2 WHERE t2.n <= 3", array(':itdate' => $value["date"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            $db->updateSS("clone_avgtime", $value1["clone_time"], $value["date"]);
+            $arrCloneTime[] = $value1["clone_time"];
         }
+    }
+    if (arrFilter($arrCloneTime) === 0) {
+        $arrCloneTime = array_filter($arrCloneTime);
+        $cloneTime = round(array_sum($arrCloneTime) / count($arrCloneTime), 0);
+        $db->updateSS("clone_avgtime", $cloneTime, $value["date"]);
     }
     unset($value1);
 
