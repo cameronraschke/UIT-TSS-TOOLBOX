@@ -154,16 +154,20 @@ foreach ($db->get() as $key => $value) {
         }
         unset($value2);
 
-        if (numFilter($tbw) === 0 && numFilter($mtbf) === 0) {
-            $diskHealth = (($tbw + $mtbf) / 2);
-        } elseif (numFilter($tbw) === 0 && numFilter($mtbf) === 1) {
-            $diskHealth = $tbw;
-        } elseif (numFilter($tbw) === 1 && numFilter($mtbf) === 0) {
-            $diskHealth = $mtbf;
-        }
+        if (isset($tbw) || isset($mtbf)) {
+            if (numFilter($tbw) === 0 && numFilter($mtbf) === 0) {
+                $diskHealth = (($tbw + $mtbf) / 2);
+            } elseif (numFilter($tbw) === 0 && numFilter($mtbf) === 1) {
+                $diskHealth = $tbw;
+            } elseif (numFilter($tbw) === 1 && numFilter($mtbf) === 0) {
+                $diskHealth = $mtbf;
+            }
 
-        if (numFilter($diskHealth) === 0) {
-            $db->updateSS("disk_health", $diskHealth, $value["date"]);
+            if (numFilter($diskHealth) === 0) {
+                $db->updateSS("disk_health", $diskHealth, $value["date"]);
+            } else {
+                $db->updateSS("disk_health", 0, $value["date"]);
+            }
         } else {
             $db->updateSS("disk_health", 0, $value["date"]);
         }
