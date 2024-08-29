@@ -34,7 +34,7 @@ $db = new db();
                     <th>Total Jobs</th>
                     <th>Average Clone Time</th>
                     <th>Average NVMe Erase Time</th>
-                    <th>Average HDD Erase Time</th>
+                    <th>Average SATA Erase Time</th>
                     <th>Last Image Update</th>
                 </tr>
                 </thead>
