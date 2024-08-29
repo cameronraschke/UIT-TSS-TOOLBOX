@@ -139,7 +139,7 @@ foreach ($db->get() as $key => $value) {
                 $db->Pselect($sql, array(':disktbw' => $value1["disk_tbw"], ':itdate' => $value["date"], ':diskmodel' => $value1["disk_model"]));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value2) {
-                        if (numFilter($value2["tbw"])) {
+                        if (numFilter($value2["tbw"]) === 0) {
                             $tbw[] = $value2["tbw"];
                         }
                     }
@@ -151,7 +151,7 @@ foreach ($db->get() as $key => $value) {
                 $db->Pselect("SELECT ROUND(AVG(disk_power_on_hours / :diskmtbf), 2) AS 'mtbf' FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date <= :itdate AND disk_model = :diskmodel AND disk_power_on_hours IS NOT NULL GROUP BY tagnumber)", array(':diskmtbf' => $value1["disk_mtbf"], ':itdate' => $value["date"], ':diskmodel' => $value1["disk_model"]));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value2) {
-                        if (numFilter($value2["mtbf"])) {
+                        if (numFilter($value2["mtbf"]) === 0) {
                             $mtbf[] = $value2["mtbf"];
                         }
                     }
@@ -160,11 +160,11 @@ foreach ($db->get() as $key => $value) {
             unset($value2);
 
             if (isset($tbw) === TRUE || isset($mtbf) === TRUE) {
-                if (isset($tbw) === TRUE && isset($mtbf) === TRUE) {
-                    $diskHealth = round((((array_sum($tbw) / $count($tbw)) + (array_sum($mtbf) / count($mtbf))) / 2), 2);
-                } elseif (isset($tbw) === TRUE && isset($mtbf) === FALSE) {
+                if (isset($tbw) === TRUE && isset($mtbf) === TRUE && count($tbw) > 0 && count($mtbf) > 0) {
+                    $diskHealth = round((((array_sum($tbw) / count($tbw)) + (array_sum($mtbf) / count($mtbf))) / 2), 2);
+                } elseif (isset($tbw) === TRUE && isset($mtbf) === FALSE && count($tbw) > 0) {
                     $diskHealth = round(array_sum($tbw) / $count($tbw), 2);
-                } elseif (isset($tbw) === FALSE && isset($mtbf) === TRUE) {
+                } elseif (isset($tbw) === FALSE && isset($mtbf) === TRUE && count($mtbf) > 0) {
                     $diskHealth = round(array_sum($mtbf) / count($mtbf), 2);
                 }
 
