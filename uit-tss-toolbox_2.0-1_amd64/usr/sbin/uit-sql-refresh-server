@@ -125,10 +125,12 @@ foreach ($db->get() as $key => $value) {
     $db->select("SELECT disk_model, disk_type, disk_tbw, disk_tbr, disk_mtbf FROM static_disk_stats");
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-            if ($value1["disk_type"] === "hdd" && numFilter($value1["disk_tbw"]) === 0 && numFilter($value1["disk_tbw"]) === 0) {
+            if ($value1["disk_type"] === "hdd" && numFilter($value1["disk_tbw"]) === 0) {
                 $sql = "SELECT ROUND(AVG((disk_writes + disk_reads) / :disktbw), 2) AS 'tbw' FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date <= :itdate AND disk_model = :diskmodel AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL GROUP BY tagnumber)";
             } elseif (($value1["disk_type"] === "nvme" || $value1["disk_type"] === "ssd") && numFilter($value1["disk_tbw"]) === 0) {
                 $sql = "SELECT ROUND(AVG(disk_writes / :disktbw), 2) AS 'tbw' FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date <= :itdate AND disk_model = :diskmodel AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL GROUP BY tagnumber)";
+            } else {
+                $sql = null;
             }
 
             if (strFilter($sql) === 0 && numFilter($value1["disk_tbw"])) {
