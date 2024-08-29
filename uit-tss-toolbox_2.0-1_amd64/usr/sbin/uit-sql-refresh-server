@@ -132,10 +132,10 @@ foreach ($db->get() as $key => $value) {
             } elseif (($value1["disk_type"] === "nvme" || $value1["disk_type"] === "ssd") && numFilter($value1["disk_tbw"]) === 0) {
                 $sql = "SELECT disk_writes / :disktbw AS 'tbw' FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE date = :itdate AND disk_model = :diskmodel AND disk_writes IS NOT NULL AND disk_reads IS NOT NULL GROUP BY tagnumber)";
             } else {
-                $sql = null;
+                unset($sql);
             }
 
-            if (isset($sql) === TRUE && numFilter($value1["disk_tbw"]) === 0) {
+            if (isset($sql) === TRUE && numFilter($value1["disk_tbw"]) === 0 && strFilter($value1["disk_model"]) === 0) {
                 $db->Pselect($sql, array(':disktbw' => $value1["disk_tbw"], ':itdate' => $value["date"], ':diskmodel' => $value1["disk_model"]));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value2) {
@@ -222,7 +222,7 @@ foreach ($db->get() as $key => $value) {
     } elseif (arrFilter($arrBatteryCharge) === 1 && arrFilter($arrBatteryCycles) === 0) {
         $batteryHealth = round(100 - ($batteryChargeCycles / count($arrBatteryCycles)), 2);
     } else {
-        $batteryHealth = "NULL";
+        $batteryHealth = 0;
     }
     $db->updateSS("battery_health", $batteryHealth, $value["date"]);
 
