@@ -162,7 +162,7 @@ foreach ($db->get() as $key => $value) {
             $diskHealth = $mtbf;
         }
 
-        if (filterNum($diskHealth) === 0) {
+        if (numFilter($diskHealth) === 0) {
             $db->updateSS("disk_health", $diskHealth, $value["date"]);
         } else {
             $db->updateSS("disk_health", 0, $value["date"]);
