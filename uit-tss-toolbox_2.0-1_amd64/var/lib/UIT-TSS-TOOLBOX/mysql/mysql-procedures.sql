@@ -145,7 +145,7 @@ UNION
     erase_jobs,
     CONCAT(clone_avgtime, ' mins'),
     CONCAT(nvme_erase_avgtime, ' mins'),
-    CONCAT(hdd_erase_avgtime, ' mins'),
+    CONCAT(sata_erase_avgtime, ' mins'),
     last_image_update
     FROM serverstats
     ORDER BY date DESC);

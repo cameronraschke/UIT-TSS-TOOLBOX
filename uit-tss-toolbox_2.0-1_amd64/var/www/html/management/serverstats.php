@@ -40,7 +40,7 @@ $db = new db();
                 </thead>
                 <tbody>
 <?php
-$db->select("SELECT date, client_count, battery_health, disk_health, all_jobs, clone_jobs, erase_jobs, clone_avgtime, nvme_erase_avgtime, hdd_erase_avgtime, last_image_update FROM serverstats ORDER BY date DESC");
+$db->select("SELECT date, client_count, battery_health, disk_health, all_jobs, clone_jobs, erase_jobs, clone_avgtime, nvme_erase_avgtime, sata_erase_avgtime, last_image_update FROM serverstats ORDER BY date DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
@@ -94,10 +94,10 @@ if (arrFilter($db->get()) === 0) {
         }
         echo "</td>" . PHP_EOL;
 
-        //hdd_erase_avgtime
+        //sata_erase_avgtime
         echo "<td>";
-        if (strFilter($value["hdd_erase_avgtime"]) === 0) {
-            echo htmlspecialchars($value["hdd_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
+        if (strFilter($value["sata_erase_avgtime"]) === 0) {
+            echo htmlspecialchars($value["sata_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
         }
         echo "</td>" . PHP_EOL;
 

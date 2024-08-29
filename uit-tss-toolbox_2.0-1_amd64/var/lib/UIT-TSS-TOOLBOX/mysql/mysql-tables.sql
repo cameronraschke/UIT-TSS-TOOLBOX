@@ -9,7 +9,7 @@ CREATE TABLE serverstats (
     erase_jobs MEDIUMINT DEFAULT NULL,
     clone_avgtime SMALLINT DEFAULT NULL,
     nvme_erase_avgtime SMALLINT DEFAULT NULL,
-    hdd_erase_avgtime SMALLINT DEFAULT NULL,
+    sata_erase_avgtime SMALLINT DEFAULT NULL,
     last_image_update DATE DEFAULT NULL
 );
 
