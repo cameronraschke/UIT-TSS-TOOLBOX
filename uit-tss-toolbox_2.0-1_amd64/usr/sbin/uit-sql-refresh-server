@@ -21,6 +21,8 @@ $db = new db();
 
 $arrEraseJobsLC = array();
 $arrCloneJobsLC = array();
+$tbw = array();
+$mtbf = array();
 $arrBatteryCharge = array();
 $arrBatteryCycles = array();
 
@@ -138,7 +140,7 @@ foreach ($db->get() as $key => $value) {
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value2) {
                         if (numFilter($value2["tbw"])) {
-                            $tbw = $value2["tbw"];
+                            $tbw[] = $value2["tbw"];
                         }
                     }
                 }
@@ -150,7 +152,7 @@ foreach ($db->get() as $key => $value) {
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value2) {
                         if (numFilter($value2["mtbf"])) {
-                            $mtbf = $value2["mtbf"];
+                            $mtbf[] = $value2["mtbf"];
                         }
                     }
                 }
@@ -159,11 +161,11 @@ foreach ($db->get() as $key => $value) {
 
             if (isset($tbw) === TRUE || isset($mtbf) === TRUE) {
                 if (isset($tbw) === TRUE && isset($mtbf) === TRUE) {
-                    $diskHealth = (($tbw + $mtbf) / 2);
+                    $diskHealth = round((((array_sum($tbw) / $count($tbw)) + (array_sum($mtbf) / count($mtbf))) / 2), 2);
                 } elseif (isset($tbw) === TRUE && isset($mtbf) === FALSE) {
-                    $diskHealth = $tbw;
+                    $diskHealth = round(array_sum($tbw) / $count($tbw), 2);
                 } elseif (isset($tbw) === FALSE && isset($mtbf) === TRUE) {
-                    $diskHealth = $mtbf;
+                    $diskHealth = round(array_sum($mtbf) / count($mtbf), 2);
                 }
 
                 if (isset($diskHealth) === TRUE) {
@@ -176,9 +178,9 @@ foreach ($db->get() as $key => $value) {
             }
         }
     }
+    $tbw = array();
+    $mtbf = array();
     unset($sql);
-    unset($tbw);
-    unset($mtbf);
     unset($diskHealth);
     unset($value1);
     unset($value2);
