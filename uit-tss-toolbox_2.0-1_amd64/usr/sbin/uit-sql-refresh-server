@@ -133,7 +133,7 @@ foreach ($db->get() as $key => $value) {
                 $sql = null;
             }
 
-            if (strFilter($sql) === 0 && numFilter($value1["disk_tbw"])) {
+            if (isset($sql) === TRUE && numFilter($value1["disk_tbw"]) === 0) {
                 $db->Pselect($sql, array(':disktbw' => $value1["disk_tbw"], ':itdate' => $value["date"], ':diskmodel' => $value1["disk_model"]));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value2) {
