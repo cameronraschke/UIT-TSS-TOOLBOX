@@ -73,7 +73,7 @@ foreach ($db->get() as $key => $value) {
 
 
     # Update the average erase time of hard drives based on the previous three jobs per client.
-    $db->Pselect("SELECT AVG(erase_time) AS 'sata_erase_avgtime' FROM (SELECT (erase_time / 60) AS 'erase_time', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY TIME DESC) AS 'n' FROM jobstats WHERE erase_completed = 1 AND erase_time IS NOT NULL AND date <= :itdate AND (disk_type = 'hdd' OR disk_type = 'ssd' OR disk like 'sd%') t2 WHERE t2.n <= 3", array(':itdate' => $value["date"]));
+    $db->Pselect("SELECT AVG(erase_time) AS 'sata_erase_avgtime' FROM (SELECT (erase_time / 60) AS 'erase_time', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY TIME DESC) AS 'n' FROM jobstats WHERE erase_completed = 1 AND erase_time IS NOT NULL AND date <= :itdate AND (disk_type = 'hdd' OR disk_type = 'ssd' OR disk like 'sd%')) t2 WHERE t2.n <= 3", array(':itdate' => $value["date"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             $db->updateSS("sata_erase_avgtime", $value1["sata_erase_avgtime"], $value["date"]);
