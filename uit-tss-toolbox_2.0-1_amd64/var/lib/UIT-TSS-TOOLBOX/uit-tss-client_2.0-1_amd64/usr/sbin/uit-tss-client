@@ -436,6 +436,7 @@ function enterTag {
 
 	tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	if [[ $tagNum != "NULL" ]]; then
+		UUID=""
 		if [[ $sqlDepartment == "shrl" ]]; then
 			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
 			department="shrl"
@@ -1821,6 +1822,7 @@ function autodetectClient {
 			fi
 			remote
 			if [[ $task == "data collection" ]]; then
+				enterTag
 				echo "remote|${tagNum}|status|starting data collection" | /var/lib/UIT-TSS-TOOLBOX/parse
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1832,6 +1834,7 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "update" ]]; then
+				enterTag
 				echo "remote|${tagNum}|status|updating" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1852,6 +1855,7 @@ function autodetectClient {
 				echo "remote|${tagNum}|status|playing sound" | /var/lib/UIT-TSS-TOOLBOX/parse
 				play /root/findmy1.mp3 &> /dev/null
 			elif [[ $task == "hpEraseAndClone" ]]; then
+				enterTag
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				APPSELECT="EC"
 				ACTION="erase and clone"
@@ -1890,6 +1894,7 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "hpCloneOnly" ]]; then
+				enterTag
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				APPSELECT="C"
 				ACTION="clone"
@@ -1924,6 +1929,7 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "nvmeErase" ]]; then
+				enterTag
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				vrfySections=""
 				writeSections=""
@@ -1958,6 +1964,7 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "nvmeVerify" ]]; then
+				enterTag
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				vrfySections=""
 				writeSections=""
