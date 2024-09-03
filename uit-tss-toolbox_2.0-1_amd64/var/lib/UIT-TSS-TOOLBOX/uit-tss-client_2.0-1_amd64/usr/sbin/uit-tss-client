@@ -1675,6 +1675,11 @@ function location {
 
 
 function terminate {
+	echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "0" > /root/uptime
+	echo "0" > /tmp/cpu-usage.txt
+	echo "0" > /tmp/network-usage.txt
+	
 	footer
 	totaltime
 
