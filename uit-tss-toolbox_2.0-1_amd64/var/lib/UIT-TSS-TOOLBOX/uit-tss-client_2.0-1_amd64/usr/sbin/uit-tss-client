@@ -1822,7 +1822,10 @@ function autodetectClient {
 			fi
 			remote
 			if [[ $task == "data collection" ]]; then
+				department
 				enterTag
+				systemData
+				hardwareData
 				echo "remote|${tagNum}|status|starting data collection" | /var/lib/UIT-TSS-TOOLBOX/parse
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1834,7 +1837,10 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "update" ]]; then
+				department
 				enterTag
+				systemData
+				hardwareData
 				echo "remote|${tagNum}|status|updating" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1855,7 +1861,10 @@ function autodetectClient {
 				echo "remote|${tagNum}|status|playing sound" | /var/lib/UIT-TSS-TOOLBOX/parse
 				play /root/findmy1.mp3 &> /dev/null
 			elif [[ $task == "hpEraseAndClone" ]]; then
+				department
 				enterTag
+				systemData
+				hardwareData
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				APPSELECT="EC"
 				ACTION="erase and clone"
@@ -1894,7 +1903,10 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "hpCloneOnly" ]]; then
+				department
 				enterTag
+				systemData
+				hardwareData
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				APPSELECT="C"
 				ACTION="clone"
@@ -1929,7 +1941,10 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "nvmeErase" ]]; then
+				department
 				enterTag
+				systemData
+				hardwareData
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				vrfySections=""
 				writeSections=""
@@ -1964,7 +1979,10 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "nvmeVerify" ]]; then
+				department
 				enterTag
+				systemData
+				hardwareData
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
 				vrfySections=""
 				writeSections=""
