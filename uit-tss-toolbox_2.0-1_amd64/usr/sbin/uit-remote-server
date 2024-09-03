@@ -12,7 +12,7 @@ REGEX='[[:digit:]]{6}'
 while true; do
     echo -e "\n\n\n"
     echo "Updating presence..."
-    uit-sql-refresh-remote
+    uit-sql-refresh-remote 1>/dev/null
     tput cuu1
     tput el
     read -r -p "${BOLD}Please enter the ${GREEN}tag${RESET}${BOLD}: ${RESET}" tagNum
