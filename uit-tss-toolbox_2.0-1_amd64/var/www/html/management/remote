@@ -19,7 +19,6 @@
                 .then((html) => {
                         document.body.innerHTML = html
                 });
-                i++;
                 if (i == 1) {
                     fetchHTML();
                 }
