@@ -3,6 +3,7 @@ wanif='enx00e04c6805bb'
 wan='172.27.53.0/24,129.7.0.0/16,10.6.0.0/16'
 lanif='enp1s0'
 lan='10.0.0.0/24'
+wifiIF='wlp2s0'
 
 # Disable IP forwarding and IPv6
 sysctl -w net.ipv4.ip_forward=0
@@ -21,8 +22,10 @@ iptables --table mangle --delete-chain
 iptables --table filter --flush
 iptables --table filter --delete-chain
 
-iptables --table raw --append PREROUTING --in-interface "${wanif1}" --jump DROP
-iptables --table raw --append OUTPUT --out-interface "${wanif1}" --jump DROP
+# WiFi
+iptables --table filter --append INPUT --in-interface "${wifiIF}" --match conntrack --ctstate RELATED,ESTABLISHED --jump ACCEPT
+iptables --table filter --append INPUT --in-interface "${wifiIF}" --jump DROP
+iptables --table filter --append OUTPUT --out-interface "${wifiIF}" --jump ACCEPT
 
 # Loopback Traffic
 iptables --table filter --append INPUT --in-interface lo --jump ACCEPT
