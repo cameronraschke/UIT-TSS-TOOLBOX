@@ -205,7 +205,7 @@ if (arrFilter($db->get()) === 0) {
         unset($value1);
         echo "</td>" . PHP_EOL;
         $_POST['tagnumber'] = $value["tagnumber"];
-        echo "<td>" . $value["last_job_time_formatted"] . "</td>" . PHP_EOL;
+        echo "<td id='lastJobTime'>" . $value["last_job_time_formatted"] . "</td>" . PHP_EOL;
         $db->Pselect("SELECT location FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
@@ -362,8 +362,12 @@ echo "</div>";
                 //document.body.innerHTML = html
                 const parser = new DOMParser()
                 const doc = parser.parseFromString(html, "text/html")
-                const docContents = doc.getElementById('time').innerHTML
-                document.getElementById("time").innerHTML = docContents
+                //Update time at the top
+                const time = doc.getElementById('time').innerHTML
+                document.getElementById("time").innerHTML = time
+                //Update last job time
+                const lastJobTime = doc.getElementById('lastJobTime').innerHTML
+                document.getElementById("lastJobTime").innerHTML = lastJobTime
             });
             if (i == 1) {
                 fetchHTML();
