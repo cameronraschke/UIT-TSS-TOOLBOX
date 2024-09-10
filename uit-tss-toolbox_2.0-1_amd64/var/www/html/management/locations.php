@@ -25,12 +25,8 @@ $db = new db();
             <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
     <?php
-        if (isset($_GET["lost"])) {
-            if (isset($_GET["location"])) {
-                echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?location=" . htmlspecialchars($_GET["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "&lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
-            } else {
-                echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
-            }
+        if (isset($_GET["location"])) {
+            echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?location=" . htmlspecialchars($_GET["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "&lost='1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
         } else {
             echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
         }
