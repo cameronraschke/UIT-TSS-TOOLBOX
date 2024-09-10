@@ -31,6 +31,8 @@ $db = new db();
             } else {
                 echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
             }
+        } else {
+            echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
         }
     ?>
         <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
