@@ -20,10 +20,10 @@ $db = new db();
         </div>
 
         <div class='pagetitle'><h1>Lost Table</h1></div>
-        <div class='pagetitle'><h2>This table shows clients that haven't had a location update in over 60 days.</h2></div>
+        <div class='pagetitle'><h2>This table shows clients that haven't had a location update in over 90 days.</h2></div>
 
         <div class='styled-form2'>
-            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber...">
+            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">
             <input type="text" id="myInputLocations" onkeyup="myFunctionLocations()" placeholder="Search locations...">
         </div>
 

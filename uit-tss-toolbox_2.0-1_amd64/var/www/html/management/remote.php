@@ -146,7 +146,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
     </form>
 </div>
 <div class='styled-form2'>
-    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber..." autofocus>
+    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number..." autofocus>
 </div>
         <div class='styled-table' style="width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;">
             <table id="myTable" width="100%">
@@ -265,7 +265,7 @@ echo "</div>";
     <h3>Laptops <u>NOT</u> Currently Present</h3>
 </div>
 <div class='styled-form2'>
-    <input type="text" id="myInput1" onkeyup="myFunction1()" placeholder="Search tagnumber...">
+    <input type="text" id="myInput1" onkeyup="myFunction1()" placeholder="Search tag number...">
 </div>
         <div class='styled-table' style="width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;">
             <table id="myTable1" width="100%">

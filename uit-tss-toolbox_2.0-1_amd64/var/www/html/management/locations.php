@@ -303,7 +303,7 @@ unset($value1);
             <div style='margin: 1% 0% 0% 0%'><a href='locations.php'><button>Reset Filters</button></a></div>
         </div>
         <div class='styled-form2'>
-            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tagnumber...">
+            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">
             <input type="text" id="myInputSerial" onkeyup="myFunctionSerial()" placeholder="Search serial number...">
             <input type="text" id="myInputLocations" onkeyup="myFunctionLocations()" placeholder="Search locations...">
         </div>
