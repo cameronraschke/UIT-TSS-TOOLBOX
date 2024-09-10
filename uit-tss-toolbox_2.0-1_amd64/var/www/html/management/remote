@@ -12,7 +12,7 @@
             var i = 1;
             function fetchHTML() {
             setTimeout(function() {
-                fetch('/remote.php')
+                fetch('http://localhost:1411/remote.php')
                 .then((response) => {
                         return response.text();
                 })
