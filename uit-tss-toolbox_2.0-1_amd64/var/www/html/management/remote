@@ -8,11 +8,10 @@
     <body onload="fetchHTML()">
 
         <script type="text/javascript">
-
             var i = 1;
             function fetchHTML() {
             setTimeout(function() {
-                fetch('http://localhost:1411/remote.php')
+                fetch('/remote.php')
                 .then((response) => {
                         return response.text();
                 })

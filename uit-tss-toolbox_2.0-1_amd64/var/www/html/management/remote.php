@@ -359,12 +359,16 @@ echo "</div>";
                     return response.text();
             })
             .then((html) => {
-                    document.body.innerHTML = html
+                //document.body.innerHTML = html
+                const parser = new DOMParser()
+                const doc = parser.parseFromString(html, "text/html")
+                const docContents = doc.getElementById('time').innerHTML
+                document.getElementById("time").innerHTML = docContents
             });
             if (i == 1) {
                 fetchHTML();
             }
-        }, 5000)}
+        }, 3000)}
 
         fetchHTML();
         
