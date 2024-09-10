@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <link rel='stylesheet' type='text/css' href='/css/main.css' />
+        <title>UIT Client Mgmt - Remote Jobs</title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+    <body onload="fetchHTML()">
+
+        <script type="text/javascript">
+
+            var i = 1;
+            function fetchHTML() {
+            setTimeout(function() {
+                fetch('/remote.php')
+                .then((response) => {
+                        return response.text();
+                })
+                .then((html) => {
+                        document.body.innerHTML = html
+                });
+                i++;
+                if (i == 1) {
+                    fetchHTML();
+                }
+            }, 5000)}
+
+            fetchHTML();
+        </script>
+    </body>
+</html>
