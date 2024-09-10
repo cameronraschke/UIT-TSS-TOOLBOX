@@ -26,7 +26,7 @@ $db = new db();
         </div>
     <?php
         if (isset($_GET["location"])) {
-            echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?location=" . htmlspecialchars($_GET["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "&lost=1'>View Lost Clients</a></i>)</h1></div>";
+            echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?location=" . htmlspecialchars($_GET["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "&lost=1'>View Lost Clients from " . htmlspecialchars($_GET["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></i>)</h1></div>";
         } else {
             echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
         }
