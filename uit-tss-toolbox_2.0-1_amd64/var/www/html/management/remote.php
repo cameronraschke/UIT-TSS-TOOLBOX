@@ -17,7 +17,7 @@ $db = new db();
         <title>UIT Client Mgmt - Remote Jobs</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
-    <body>
+    <body onload="fetchHTML()">
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
@@ -351,6 +351,23 @@ echo "</div>";
     </script>
 
     <script>
+        var i = 1;
+        function fetchHTML() {
+        setTimeout(function() {
+            fetch('/remote.php')
+            .then((response) => {
+                    return response.text();
+            })
+            .then((html) => {
+                    document.body.innerHTML = html
+            });
+            if (i == 1) {
+                fetchHTML();
+            }
+        }, 5000)}
+
+        fetchHTML();
+        
         function myFunction() {
         var input, filter, table, tr, td, i, txtValue;
         input = document.getElementById("myInput");
