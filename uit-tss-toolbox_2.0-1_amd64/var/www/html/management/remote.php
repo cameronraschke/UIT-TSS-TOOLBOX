@@ -30,7 +30,7 @@ $db = new db();
         <div class='pagetitle' id='time'><h3>Last updated: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
         <div class='styled-table'>
-            <table>
+            <table id='remoteStats'>
                 <thead>
                 <tr>
                     <th>Total Laptops Present</th>
@@ -179,7 +179,7 @@ $db->select("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_for
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
-        echo "<td>" . PHP_EOL;
+        echo "<td>";
         if ($value["status"] !== "waiting for job" && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
             echo "<b>In Progress: </b>";
         }
@@ -210,11 +210,11 @@ if (arrFilter($db->get()) === 0) {
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
                 if (preg_match("/^[a-zA-Z]$/", $value1["location"])) { 
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value1["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+                    echo "<td id='presentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value1["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
                 } elseif (preg_match("/^checkout$/", $value1["location"])) {
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
+                    echo "<td id='presentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
                 } else {
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+                    echo "<td id='presentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
                 }
             }
         } else {
@@ -223,7 +223,7 @@ if (arrFilter($db->get()) === 0) {
         unset($value1);
 
         if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
-            echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
+            echo "<td id='pendingJob'><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
             if (strFilter($value["task"]) === 1) {
                 echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
             } else {
@@ -246,13 +246,13 @@ if (arrFilter($db->get()) === 0) {
             echo "<td><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
             echo "<td style='color: gray;'><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
         }
-        echo "<td>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td id='presentStatus'>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td id='osInstalled'>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "<td>" . htmlspecialchars($value["battery_charge"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["uptime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["cpu_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value["disk_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td> " . htmlspecialchars($value["watts_now"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td id='uptime'>" . htmlspecialchars($value["uptime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td id='presentCPUTemp'>" . htmlspecialchars($value["cpu_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td id='presentDiskTemp'>" . htmlspecialchars($value["disk_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td id='presentPowerDraw'> " . htmlspecialchars($value["watts_now"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "</tr>";
     }
 }
@@ -311,11 +311,11 @@ if (arrFilter($db->get()) === 0) {
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
                 if (preg_match("/^[a-zA-Z]$/", $value1["location"])) { 
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value1["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+                    echo "<td id='absentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value1["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
                 } elseif (preg_match("/^checkout$/", $value1["location"])) {
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
+                    echo "<td id='absentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
                 } else {
-                    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+                    echo "<td id='absentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
                 }
             }
         } else {
@@ -323,7 +323,7 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
-        echo "<td>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td id='absentStatus'>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         if (strFilter($value["battery_charge"]) === 0) {
             echo "<td>" . htmlspecialchars($value["battery_charge"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
             if (strFilter($value["battery_status"]) === 0) {
@@ -368,6 +368,37 @@ echo "</div>";
                 //Update last job time
                 const lastJobTime = doc.getElementById('lastJobTime').innerHTML
                 document.getElementById("lastJobTime").innerHTML = lastJobTime
+                //Update remote stats 
+                const remoteStats = doc.getElementById('remoteStats').innerHTML
+                document.getElementById("remoteStats").innerHTML = remoteStats
+                //presentStatus
+                const presentStatus = doc.getElementById('presentStatus').innerHTML
+                document.getElementById("presentStatus").innerHTML = presentStatus
+                //absentStatus
+                const absentStatus = doc.getElementById('absentStatus').innerHTML
+                document.getElementById("absentStatus").innerHTML = absentStatus
+                //uptime
+                const uptime = doc.getElementById('uptime').innerHTML
+                document.getElementById("uptime").innerHTML = uptime
+                //osInstalled
+                const osInstalled = doc.getElementById('osInstalled').innerHTML
+                document.getElementById("osInstalled").innerHTML = osInstalled
+                //presentLocation
+                const presentLocation = doc.getElementById('presentLocation').innerHTML
+                document.getElementById("presentLocation").innerHTML = presentLocation
+                //absentLocation
+                //pendingJob
+                const pendingJob = doc.getElementById('pendingJob').innerHTML
+                document.getElementById("pendingJob").innerHTML = pendingJob
+                //presentCPUTemp
+                const presentCPUTemp = doc.getElementById('presentCPUTemp').innerHTML
+                document.getElementById("presentCPUTemp").innerHTML = presentCPUTemp
+                //presentDiskTemp
+                const presentDiskTemp = doc.getElementById('presentDiskTemp').innerHTML
+                document.getElementById("presentDiskTemp").innerHTML = presentDiskTemp
+                //presentPowerDraw
+                const presentPowerDraw = doc.getElementById('presentPowerDraw').innerHTML
+                document.getElementById("presentPowerDraw").innerHTML = presentPowerDraw
             });
             if (i == 1) {
                 fetchHTML();
