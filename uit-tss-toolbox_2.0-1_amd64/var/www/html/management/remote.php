@@ -223,11 +223,11 @@ if (arrFilter($db->get()) === 0) {
         unset($value1);
 
         if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
-            echo "<td id='pendingJob'><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
+            echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
             if (strFilter($value["task"]) === 1) {
-                echo "<option value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
+                echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
             } else {
-                echo "<option value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
+                echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
             }
             echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
             echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
