@@ -27,6 +27,8 @@ $db = new db();
     <?php
         if (isset($_GET["location"])) {
             echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?location=" . htmlspecialchars($_GET["location"]) . "&lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
+        } else {
+            echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
         }
     ?>
         <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
@@ -337,7 +339,7 @@ if (isset($_GET["location"])) {
         $db->select("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
     }
 }
-if (arrFilter($arr) === 0 && isset($arr) === TRUE) {
+if (arrFilter($db->get()) === 0 && isset($db->get()) === TRUE) {
     $arr = $db->get();
 }
 foreach ($arr as $key => $value) {
