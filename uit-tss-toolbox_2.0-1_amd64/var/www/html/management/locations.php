@@ -20,15 +20,17 @@ $db = new db();
     <body>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-            <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
+            <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
             <br>
-            <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
+            <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
     <?php
-        if (isset($_GET["location"])) {
-            echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?location=" . htmlspecialchars($_GET["location"]) . "&lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
-        } else {
-            echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
+        if (isset($_GET["lost"])) {
+            if (isset($_GET["location"])) {
+                echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?location=" . htmlspecialchars($_GET["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "&lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
+            } else {
+                echo "<div class='pagetitle'><h1>Locations Table (<i><a href='/locations.php?lost=1' target='_blank'>View Lost Clients</a></i>)</h1></div>";
+            }
         }
     ?>
         <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
@@ -47,14 +49,14 @@ $db = new db();
                 echo "<form method='post'>" . PHP_EOL;
                 echo "<label for='tagnumber'>Tag Number</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
-                echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . htmlspecialchars($_POST["tagnumber"]) . "' readonly required>" . PHP_EOL;
+                echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . htmlspecialchars($_POST["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' readonly required>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<label for='serial'>Serial Number</label>";
                 echo "<br>" . PHP_EOL;
 
                 // Change appearance of serial number field based on sql data
                 if (arrFilter($db->get()) === 0) {
-                    echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial' value='" . $value['system_serial'] . "' readonly required>" . PHP_EOL;
+                    echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial' value='" . htmlspecialchars($value["system_serial"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' readonly required>" . PHP_EOL;
                 } else {
                     echo "<input type='text' id='serial' name='serial' autocomplete='off' autofocus required>" . PHP_EOL;
                 }
@@ -66,28 +68,30 @@ $db = new db();
                     $db->Pselect("SELECT department, (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = :tagnumber AND department IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key =>$value1) {
-                            $department = $value1["department"];
-                            $departmentFormatted = $value1["department_formatted"];
+                            $department = $value1["department"]
+                            $departmentHTML = htmlspecialchars($value1["department"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+                            $departmentFormatted = htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
                         }
                     }
                     unset($value1);
                 } else {
                     $department = "";
+                    $departmentHTML = "";
                     $departmentFormatted = "NULL";
                 }
                 echo "<label for='department'>Department</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<select name='department' id='department'>" . PHP_EOL;
                 if ($department === "techComm") {
-                    echo "<option value='$department'>$departmentFormatted</option>" . PHP_EOL;
+                    echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                     echo "<option value='property'>Property Management</option>" . PHP_EOL;
                     echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
                 } elseif ($department === "property") {
-                    echo "<option value='$department'>$departmentFormatted</option>" . PHP_EOL;
+                    echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                     echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                     echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
                 } elseif ($department === "shrl") {
-                    echo "<option value='$department'>$departmentFormatted</option>" . PHP_EOL;
+                    echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                     echo "<option value='property'>Property Management</option>" . PHP_EOL;
                     echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                 } else {
@@ -99,9 +103,9 @@ $db = new db();
                 echo "</select>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 if (arrFilter($db->get()) === 0) {
-                    echo "<label for='location'>Location (Last Updated: " . $value['time_formatted'] . ")</label>" . PHP_EOL;
+                    echo "<label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
-                    echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value['location']) . "' autofocus required style='width: 20%; height: 4%;'>" . PHP_EOL;
+                    echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' autofocus required style='width: 20%; height: 4%;'>" . PHP_EOL;
                 } else {
                     echo "<label for='location'>Location</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
@@ -118,9 +122,9 @@ $db = new db();
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
                             if ($_POST["status"] === "1") {
-                                echo "<textarea id='note' name='note'>" . htmlspecialchars($value1["note"]) .  "</textarea>" . PHP_EOL;
+                                echo "<textarea id='note' name='note'>" . htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
                             } else {
-                                echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($value1["note"]) .  "'></textarea>" . PHP_EOL;
+                                echo "<textarea id='note' name='note' placeholder='" . htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "'></textarea>" . PHP_EOL;
                             }
                         }
                     } else {
@@ -132,7 +136,7 @@ $db = new db();
                 }
 
                 echo "<br>" . PHP_EOL;
-                echo "<input type='hidden' name='status' value='" . htmlspecialchars($_POST["status"]) . "'>";
+                echo "<input type='hidden' name='status' value='" . htmlspecialchars($_POST["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>";
                 echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
                 echo "<br>" . PHP_EOL;
                 echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
@@ -293,9 +297,9 @@ unset($value1);
         <div class='page-content'><h3>A checkmark (<span style='color: #00B388'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
         <?php
         if (isset($_GET["location"])) {
-            echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
+            echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
         } else {
-            echo "<div class='page-content'><h3><u>" . $onlineRowCount . "/" . $rowCount . "</u> clients are online.</h3></div>";
+            echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online.</h3></div>";
         }
         ?>
         <div class='styled-form'>
@@ -305,7 +309,7 @@ unset($value1);
                 </div>
                 <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
             </form>
-            <div style='margin: 1% 0% 0% 0%'><a href='locations.php'><button>Reset Filters</button></a></div>
+            <div style='margin: 1% 0% 0% 0%'><a href='/locations.php'><button>Reset Filters</button></a></div>
         </div>
         <div class='styled-form2'>
             <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">
