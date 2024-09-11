@@ -4,7 +4,7 @@ include('/var/www/html/management/php/include.php');
 
 $db = new db();
 
-$db->select("SELECT date, nvme_erase_avgtime, clone_avgtime FROM serverstats ORDER BY date ASC");
+$db->select("SELECT DATE_FORMAT(date, '%m-%Y') AS 'date', AVG(clone_avgtime) AS 'clone_avgtime', AVG(AVG(nvme_erase_avgtime) + AVG(sata_erase_avgtime)) AS 'erase_avgtime' FROM serverstats GROUP BY date2 ORDER BY date2 ASC");
 ?>
 <html>
     <head>
@@ -47,7 +47,7 @@ $db->select("SELECT date, nvme_erase_avgtime, clone_avgtime FROM serverstats ORD
                 const data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
                 <?php
                 foreach ($db->get() as $key => $value) {
-                    echo "['" . $value["date"] . "', " . $value["clone_avgtime"] . ", " . $value["nvme_erase_avgtime"] . "], ";
+                    echo "['" . $value["date"] . "', " . $value["clone_avgtime"] . ", " . $value["erase_avgtime"] . "], ";
                 }
                 ?>
                 ]);
