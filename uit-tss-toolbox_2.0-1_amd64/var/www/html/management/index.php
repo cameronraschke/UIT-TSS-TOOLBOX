@@ -44,15 +44,15 @@ $db->select("SELECT date, nvme_erase_avgtime, clone_avgtime FROM serverstats ORD
             google.charts.setOnLoadCallback(drawChart);
 
             function drawChart() {
-                const data = google.visualization.arrayToDataTable([ ['Date', 'Time (minutes)'],
+                const data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
                 <?php
                 foreach ($db->get() as $key => $value) {
-                    echo "['" . $value["date"] . "', " . $value["clone_avgtime"] . "], ";
+                    echo "['" . $value["date"] . "', " . $value["clone_avgtime"] . ", " . $value["nvme_erase_avgtime"] . "], ";
                 }
                 ?>
                 ]);
 
-                const options = {title: 'Avg. Clone Time', hAxis: {title: 'Date'}, vAxis: {title: 'Time (minutes)'}, legend: 'none'  };
+                const options = {title: 'Avg. Clone and Erase Time', hAxis: {title: 'Date'}, vAxis: {title: 'Time (minutes)'}, legend: 'none'  };
                 const chart = new google.visualization.LineChart(document.getElementById('jobTimes'));
                 chart.draw(data, options);
             }
