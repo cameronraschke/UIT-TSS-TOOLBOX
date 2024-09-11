@@ -33,7 +33,7 @@ $db->select("SELECT date, nvme_erase_avgtime, clone_avgtime FROM serverstats ORD
                 <div><h3><a href="/reports.php">Generate and Download Reports (WIP)</a></h3></div>
             </div>
             <div style='width: 40%; float: right;'>
-                <div id="jobTimes" style='height: auto; width: 50%;'></div>
+                <div id="jobTimes" style='height: auto; width: 99%;'></div>
             </div>
         </div>
 
@@ -57,9 +57,5 @@ $db->select("SELECT date, nvme_erase_avgtime, clone_avgtime FROM serverstats ORD
                 chart.draw(data, options);
             }
         </script>
-
-        <div>
-            <img src="/images/uh-footer.svg">
-        </div>
     </body>
 </html>
