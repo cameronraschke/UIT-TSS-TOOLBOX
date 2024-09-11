@@ -26,13 +26,13 @@ $db->select("SELECT date, nvme_erase_avgtime, clone_avgtime FROM serverstats ORD
 
         <div>
             <div style='width: 50%; float: left;'>
-                <div><h3><a href="/remote.php">Remote Management and Live Overview</a></h3></div>
-                <div><h3><a href="/locations.php">Update and View Client Locations</a></h3></div>
-                <div><h3><a href="/serverstats.php">Daily Reports</a></h3></div>
-                <div><h3><a href="/clientstats.php">Client Report</a></h3></div>
-                <div><h3><a href="/reports.php">Generate and Download Reports (WIP)</a></h3></div>
+                <div><h3 class='page-content'><a href="/remote.php">Remote Management and Live Overview</a></h3></div>
+                <div><h3 class='page-content'><a href="/locations.php">Update and View Client Locations</a></h3></div>
+                <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
+                <div><h3 class='page-content'><a href="/clientstats.php">Client Report</a></h3></div>
+                <div><h3 class='page-content'><a href="/reports.php">Generate and Download Reports (WIP)</a></h3></div>
             </div>
-            <div style='width: 40%; float: right;'>
+            <div style='width: 50%; float: right;'>
                 <div id="jobTimes" style='height: auto; width: 99%;'></div>
             </div>
         </div>
