@@ -4,7 +4,7 @@ include('/var/www/html/management/php/include.php');
 
 $db = new db();
 
-$db->select("SELECT date, erase_avgtime, clone_avgtime FROM serverstats ORDER BY date ASC");
+$db->select("SELECT date, nvme_erase_avgtime, clone_avgtime FROM serverstats ORDER BY date ASC");
 ?>
 <html>
     <head>
@@ -25,12 +25,12 @@ $db->select("SELECT date, erase_avgtime, clone_avgtime FROM serverstats ORDER BY
         <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
 
         <div>
-            <div style='width: 50%;'>
-                <div class='page-content'><h3><a href="/remote.php">Remote Management and Live Overview</a></h3></div>
-                <div class='page-content'><h3><a href="/locations.php">Update and View Client Locations</a></h3></div>
-                <div class='page-content'><h3><a href="/serverstats.php">Daily Reports</a></h3></div>
-                <div class='page-content'><h3><a href="/clientstats.php">Client Report</a></h3></div>
-                <div class='page-content'><h3><a href="/reports.php">Generate and Download Reports (WIP)</a></h3></div>
+            <div style='width: 50%; float: left;'>
+                <div><h3><a href="/remote.php">Remote Management and Live Overview</a></h3></div>
+                <div><h3><a href="/locations.php">Update and View Client Locations</a></h3></div>
+                <div><h3><a href="/serverstats.php">Daily Reports</a></h3></div>
+                <div><h3><a href="/clientstats.php">Client Report</a></h3></div>
+                <div><h3><a href="/reports.php">Generate and Download Reports (WIP)</a></h3></div>
             </div>
             <div style='width: 40%; float: right;'>
                 <div id="jobTimes" style='height: auto; width: 50%;'></div>
@@ -40,25 +40,25 @@ $db->select("SELECT date, erase_avgtime, clone_avgtime FROM serverstats ORDER BY
         <script src="https://www.gstatic.com/charts/loader.js"></script>
 
         <script>
-        google.charts.load('current',{packages:['corechart']});
-        google.charts.setOnLoadCallback(drawChart);
+            google.charts.load('current',{packages:['corechart']});
+            google.charts.setOnLoadCallback(drawChart);
 
-        function drawChart() {
-            const data = google.visualization.arrayToDataTable([ ['Date', 'Time (minutes)'],
-            <?php
-            foreach ($db->get() as $key => $value) {
-                echo "['" . $value["date"] . "', " . $value["clone_avgtime"] . "], ";
+            function drawChart() {
+                const data = google.visualization.arrayToDataTable([ ['Date', 'Time (minutes)'],
+                <?php
+                foreach ($db->get() as $key => $value) {
+                    echo "['" . $value["date"] . "', " . $value["clone_avgtime"] . "], ";
+                }
+                ?>
+                ]);
+
+                const options = {title: 'Avg. Clone Time', hAxis: {title: 'Date'}, vAxis: {title: 'Time (minutes)'}, legend: 'none'  };
+                const chart = new google.visualization.LineChart(document.getElementById('jobTimes'));
+                chart.draw(data, options);
             }
-            ?>
-            ]);
+        </script>
 
-            const options = {title: 'Avg. Clone Time', hAxis: {title: 'Date'}, vAxis: {title: 'Time (minutes)'}, legend: 'none'  };
-            const chart = new google.visualization.LineChart(document.getElementById('jobTimes'));
-            chart.draw(data, options);
-        }
-</script>
-
-        <div class="uit-footer">
+        <div>
             <img src="/images/uh-footer.svg">
         </div>
     </body>
