@@ -53,7 +53,7 @@ $db->select("SELECT date, erase_avgtime, clone_avgtime FROM serverstats ORDER BY
             ]);
 
             const options = {title: 'Avg. Clone Time', hAxis: {title: 'Date'}, vAxis: {title: 'Time (minutes)'}, legend: 'none'  };
-            const chart = new google.visualization.LineChart(document.getElementById('myChart'));
+            const chart = new google.visualization.LineChart(document.getElementById('jobTimes'));
             chart.draw(data, options);
         }
 </script>
