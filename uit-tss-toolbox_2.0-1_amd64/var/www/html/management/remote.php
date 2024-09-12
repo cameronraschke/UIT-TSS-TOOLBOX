@@ -401,9 +401,16 @@ echo "</div>";
                 //Update time at the top
                 const time = doc.getElementById('time').innerHTML
                 document.getElementById("time").innerHTML = time
-                //Update the client table
+                //Update remote stats 
+                const remoteStats = doc.getElementById('remoteStats').innerHTML
+                document.getElementById("remoteStats").innerHTML = remoteStats
+                //Update client table
                 const myTable = doc.getElementById('myTable').innerHTML
                 document.getElementById("myTable").innerHTML = myTable
+                //absentStatus
+                const absentStatus = doc.getElementById('absentStatus').innerHTML
+                document.getElementById("absentStatus").innerHTML = absentStatus
+                //absentLocation (WIP)
             });
             if (i == 1) {
                 fetchHTML();
