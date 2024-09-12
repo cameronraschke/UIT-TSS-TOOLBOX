@@ -24,11 +24,11 @@ $db = new db();
         <script>
             function popup(tag) {
                 $( function() {
-                    $( "#" + "popup-" + tag).dialog({
+                    $( "#" + tag).dialog({
                         modal: true
                     });
                 } );
-                document.getElementById('popup' + tag).style.display = {style: "block"}
+                document.getElementById(tag).style.display = {style: "block"}
             }
         </script>
         <div class='menubar'>
@@ -235,7 +235,7 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
-        echo "<div style='display: none;' id='popup-" . $value["tagnumber"] . "' title='Change Job - " . $value["tagnumber"] . "'>";
+        echo "<div style='display: none;' id='" . $value["tagnumber"] . "' title='Change Job - " . $value["tagnumber"] . "'>";
         echo "<form name='task' method='post'>";
         echo "<select name='task'>";
         if (strFilter($value["task"]) === 1) {
