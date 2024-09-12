@@ -27,8 +27,8 @@ $db = new db();
                     $( "#" + "popup-" + tag).dialog({
                         modal: true
                     });
-                } );
-                document.getElementById('popup' + tag).style.display = {style: "block"}
+                });
+                document.getElementById('popup' + tag).style.display = {style: "block"};
             }
         </script>
         <div class='menubar'>
