@@ -24,7 +24,11 @@ $db = new db();
         <script>
             function popup() {
                 $( function() {
-                    $( "#popup" ).dialog();
+                    $( "#popup" ).dialog({
+                        height: auto,
+                        width: 400,
+                        modal: true,
+                    });
                 } );
                 document.getElementById('popup').style.display = block
             }
@@ -234,11 +238,12 @@ if (arrFilter($db->get()) === 0) {
         unset($value1);
 
         echo "<div style='display: none;' id='popup' title='Change Job - " . $value["tagnumber"] . "'>";
-        echo "<form name='task' method='post'><select name='task'>";
+        echo "<form name='task' method='post'>";
+        echo "<select name='task'>";
         if (strFilter($value["task"]) === 1) {
-            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
+            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job Queued</option>";
         } else {
-            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
+            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'><b>In progress: </b>" . $value["task_formatted"] . "</option>";
         }
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
@@ -246,7 +251,8 @@ if (arrFilter($db->get()) === 0) {
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
-        echo "</select><input type='submit'></form>";
+        echo "</select>" . PHP_EOL;
+        echo "<input type='submit' value='Submit'></form>";
         echo "</div>";
 
         if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
