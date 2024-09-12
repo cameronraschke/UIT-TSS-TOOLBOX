@@ -378,7 +378,7 @@ echo "</div>";
     <script>
         function func() {
         $( function() {
-            $( "#dialog" ).dialog();
+            $( "#popup" ).dialog();
         } );
         document.getElementById('popup').style.display = block
         }
