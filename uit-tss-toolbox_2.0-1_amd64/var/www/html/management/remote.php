@@ -19,6 +19,14 @@ $db = new db();
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body onload="fetchHTML()">
+        <script>
+            function popup() {
+                $( function() {
+                    $( "#popup" ).dialog();
+                } );
+                document.getElementById('popup').style.display = block
+            }
+        </script>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
@@ -373,15 +381,6 @@ echo "</div>";
     <script>
         if ( window.history.replaceState ) {
             window.history.replaceState( null, null, window.location.href );
-        }
-    </script>
-
-    <script>
-        function popup() {
-        $( function() {
-            $( "#popup" ).dialog();
-        } );
-        document.getElementById('popup').style.display = block
         }
     </script>
 
