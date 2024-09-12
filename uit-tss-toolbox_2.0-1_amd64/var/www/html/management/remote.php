@@ -267,13 +267,11 @@ if (arrFilter($db->get()) === 0) {
             // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
             // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
             // echo "</select></form></td>" . PHP_EOL;
-            echo "<td><select onchange='popup()'>";
+            echo "<td>";
         if (strFilter($value["task"]) === 1) {
-                echo "<option>No Job Queued</option>";
-                echo "<option>Change Job</option>";
+                echo "<button onclick='popup()'>Change Job</button>";
             } else {
-                echo "<option>" . $value["task_formatted"] . "</option>";
-                echo "<option>Change Job</option>";
+                echo "<p>" . $value["task_formatted"] . "</p>";
             }
             echo "</select></td>";
         } elseif ($value["bios_updated"] !== "Yes" && strFilter($value["kernel_updated"]) === 1) {
