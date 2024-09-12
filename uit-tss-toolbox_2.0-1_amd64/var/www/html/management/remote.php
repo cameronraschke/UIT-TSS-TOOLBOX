@@ -401,40 +401,9 @@ echo "</div>";
                 //Update time at the top
                 const time = doc.getElementById('time').innerHTML
                 document.getElementById("time").innerHTML = time
-                //Update last job time
-                const lastJobTime = doc.getElementById('lastJobTime').innerHTML
-                document.getElementById("lastJobTime").innerHTML = lastJobTime
-                //Update remote stats 
-                const remoteStats = doc.getElementById('remoteStats').innerHTML
-                document.getElementById("remoteStats").innerHTML = remoteStats
-                //presentStatus
-                const presentStatus = doc.getElementById('presentStatus').innerHTML
-                document.getElementById("presentStatus").innerHTML = presentStatus
-                //absentStatus
-                const absentStatus = doc.getElementById('absentStatus').innerHTML
-                document.getElementById("absentStatus").innerHTML = absentStatus
-                //uptime
-                const uptime = doc.getElementById('uptime').innerHTML
-                document.getElementById("uptime").innerHTML = uptime
-                //osInstalled
-                const osInstalled = doc.getElementById('osInstalled').innerHTML
-                document.getElementById("osInstalled").innerHTML = osInstalled
-                //presentLocation
-                const presentLocation = doc.getElementById('presentLocation').innerHTML
-                document.getElementById("presentLocation").innerHTML = presentLocation
-                //absentLocation
-                //pendingJob
-                const pendingJob = doc.getElementById('pendingJob').innerHTML
-                document.getElementById("pendingJob").innerHTML = pendingJob
-                //presentCPUTemp
-                const presentCPUTemp = doc.getElementById('presentCPUTemp').innerHTML
-                document.getElementById("presentCPUTemp").innerHTML = presentCPUTemp
-                //presentDiskTemp
-                const presentDiskTemp = doc.getElementById('presentDiskTemp').innerHTML
-                document.getElementById("presentDiskTemp").innerHTML = presentDiskTemp
-                //presentPowerDraw
-                const presentPowerDraw = doc.getElementById('presentPowerDraw').innerHTML
-                document.getElementById("presentPowerDraw").innerHTML = presentPowerDraw
+                //Update the client table
+                const myTable = doc.getElementById('myTable').innerHTML
+                document.getElementById("myTable").innerHTML = myTable
             });
             if (i == 1) {
                 fetchHTML();
