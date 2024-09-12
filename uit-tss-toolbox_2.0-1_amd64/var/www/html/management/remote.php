@@ -15,6 +15,8 @@ $db = new db();
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+        <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
         <title>UIT Client Mgmt - Remote Jobs</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
