@@ -24,7 +24,7 @@ $db = new db();
         $( function() {
             $( "#dialog" ).dialog();
         } );
-        document.getElementById(popup).style.display = block
+        document.getElementById('popup').style.display = block
         }
   </script>
     <body onload="fetchHTML()">
