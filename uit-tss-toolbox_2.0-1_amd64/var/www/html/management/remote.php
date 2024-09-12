@@ -25,9 +25,7 @@ $db = new db();
             function popup() {
                 $( function() {
                     $( "#popup" ).dialog({
-                        height: auto,
-                        width: 400,
-                        modal: true,
+                        modal: true
                     });
                 } );
                 document.getElementById('popup').style.display = block
