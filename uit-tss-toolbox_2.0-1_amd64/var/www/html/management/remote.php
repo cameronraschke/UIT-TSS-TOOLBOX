@@ -19,14 +19,6 @@ $db = new db();
         <title>UIT Client Mgmt - Remote Jobs</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
-    <script>
-        function func() {
-        $( function() {
-            $( "#dialog" ).dialog();
-        } );
-        document.getElementById('popup').style.display = block
-        }
-  </script>
     <body onload="fetchHTML()">
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
@@ -380,6 +372,15 @@ echo "</div>";
     <script>
         if ( window.history.replaceState ) {
             window.history.replaceState( null, null, window.location.href );
+        }
+    </script>
+
+    <script>
+        function func() {
+        $( function() {
+            $( "#dialog" ).dialog();
+        } );
+        document.getElementById('popup').style.display = block
         }
     </script>
 
