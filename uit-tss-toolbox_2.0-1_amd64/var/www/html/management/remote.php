@@ -22,9 +22,9 @@ $db = new db();
     </head>
     <body onload="fetchHTML()">
         <script>
-            function popup() {
+            function popup(tag) {
                 $( function() {
-                    $( "#popup" ).dialog({
+                    $( "#" + "popup-" + tag).dialog({
                         modal: true
                     });
                 } );
@@ -235,7 +235,7 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
-        echo "<div style='display: none;' id='popup' title='Change Job - " . $value["tagnumber"] . "'>";
+        echo "<div style='display: none;' id='popup-" . $value["tagnumber"] . "' title='Change Job - " . $value["tagnumber"] . "'>";
         echo "<form name='task' method='post'>";
         echo "<select name='task'>";
         if (strFilter($value["task"]) === 1) {
@@ -269,7 +269,7 @@ if (arrFilter($db->get()) === 0) {
             // echo "</select></form></td>" . PHP_EOL;
             echo "<td>";
         if (strFilter($value["task"]) === 1) {
-                echo "<button onclick='popup()'>Change Job</button>";
+                echo "<button onclick='popup('" . $value["tagnumber"] . "')'>Change Job</button>";
             } else {
                 echo "<p>" . $value["task_formatted"] . "</p>";
             }
