@@ -14,6 +14,8 @@ $db = new db();
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/base/jquery-ui.css">
+        <link rel="stylesheet" href="/resources/demos/style.css">
         <title>UIT Client Mgmt - Remote Jobs</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
@@ -146,7 +148,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
     </form>
 </div>
 <div class='styled-form2'>
-    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number..." autofocus>
+    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">
 </div>
         <div class='styled-table' style="width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;">
             <table id="myTable" width="100%">
@@ -222,20 +224,43 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
+        echo "<div style='display: none;' id='dialog' title='Change Job - " . $value["tagnumber"] . "'>";
+        echo "<form name='task' method='post'><select name='task'>";
+        if (strFilter($value["task"]) === 1) {
+            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
+        } else {
+            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
+        }
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
+        echo "</select><input type='submit'</form>";
+        echo "</div>";
+
         if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
-            echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
-            if (strFilter($value["task"]) === 1) {
-                echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
+            // echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
+            // if (strFilter($value["task"]) === 1) {
+            //     echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
+            // } else {
+            //     echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
+            // }
+            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
+            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
+            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
+            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
+            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
+            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
+            // echo "</select></form></td>" . PHP_EOL;
+            echo "<td><select>";
+        if (strFilter($value["task"]) === 1) {
+                echo "<option id='pendingJob' onclick='popup()'>No Job</option>";
             } else {
-                echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
+                echo "<option id='pendingJob' onclick='popup()'>" . $value["task_formatted"] . "</option>";
             }
-            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
-            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
-            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
-            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
-            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-            echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
-            echo "</select></form></td>" . PHP_EOL;
+            echo "</select></td>";
         } elseif ($value["bios_updated"] !== "Yes" && strFilter($value["kernel_updated"]) === 1) {
             echo "<td><i>BIOS and Kernel Out of Date</i></td>" . PHP_EOL;
         } elseif ($value["bios_updated"] !== "Yes") {
