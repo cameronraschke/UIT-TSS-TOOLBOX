@@ -223,7 +223,7 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
-        echo "<div style='display: none;' id='dialog' title='Change Job - " . $value["tagnumber"] . "'>";
+        echo "<div style='display: none;' id='popup' title='Change Job - " . $value["tagnumber"] . "'>";
         echo "<form name='task' method='post'><select name='task'>";
         if (strFilter($value["task"]) === 1) {
             echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
