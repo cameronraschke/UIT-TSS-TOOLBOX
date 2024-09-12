@@ -246,7 +246,7 @@ if (arrFilter($db->get()) === 0) {
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
-        echo "</select><input type='submit'</form>";
+        echo "</select><input type='submit'></form>";
         echo "</div>";
 
         if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
