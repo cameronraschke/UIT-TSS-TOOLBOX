@@ -28,7 +28,7 @@ $db = new db();
                         modal: true
                     });
                 } );
-                document.getElementById('popup').style.display = {style: "block"}
+                document.getElementById('popup' + tag).style.display = {style: "block"}
             }
         </script>
         <div class='menubar'>
