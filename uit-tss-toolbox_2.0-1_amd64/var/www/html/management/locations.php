@@ -25,7 +25,7 @@ $db = new db();
             $( function() {
             var availableTags = [
             <?php
-            $db->select("SELECT tagnumber FROM locations");
+            $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
             if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value) {
                     echo "'" . $value["tagnumber"] . "',";
