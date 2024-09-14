@@ -24,13 +24,15 @@ $db = new db();
         <script>
             function popup(tag) {
                 $( function() {
-                    $( "#" + "popup-" + tag).dialog({
-                        modal: true
+                    $( "#popup-" + tag ).dialog({
+                        modal: true,
+                        position: { my: "right center", at: "top+25%", of: window }
                     });
                 });
-                document.getElementById('popup' + tag).style.display = {style: "block"};
+                document.getElementById('popup-' + tag).style.display = {style: "block"};
             }
         </script>
+
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
@@ -143,6 +145,31 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
     unset($_POST['location-action']);
 }
 ?>
+
+<?php
+$db->select("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', DATE_FORMAT(last_job_time, '%b %D %Y, %r') AS 'last_job_time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task = 'cancel' THEN 'Cancel Running Jobs' WHEN task IS NULL THEN 'No Job' END) AS 'task_formatted', task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', kernel_updated, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY bios_updated DESC, kernel_updated DESC, FIELD(task, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, FIELD (status, 'waiting for job', '%') ASC, os_installed DESC, last_job_time DESC");
+if (arrFilter($db->get()) === 0) {
+    foreach ($db->get() as $key => $value) {
+        echo "<div style='display: none;' id='popup-" . $value["tagnumber"] . "' title='Change Job - " . $value["tagnumber"] . "'>" . PHP_EOL;
+        echo "<form name='task' method='post'>" . PHP_EOL;
+        echo "<select name='task'>" . PHP_EOL;
+        if (strFilter($value["task"]) === 1) {
+            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job Queued</option>" . PHP_EOL;
+        } else {
+            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'><b>In progress: </b>" . $value["task_formatted"] . "</option>" . PHP_EOL;
+        }
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
+        echo "</select>" . PHP_EOL;
+        echo "<input type='submit' value='Submit'></form>";
+        echo "</div>";
+    }
+}
+?>
 </div>
 
 
@@ -235,24 +262,6 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
-        echo "<div style='display: none;' id='popup-" . $value["tagnumber"] . "' title='Change Job - " . $value["tagnumber"] . "'>";
-        echo "<form name='task' method='post'>";
-        echo "<select name='task'>";
-        if (strFilter($value["task"]) === 1) {
-            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job Queued</option>";
-        } else {
-            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'><b>In progress: </b>" . $value["task_formatted"] . "</option>";
-        }
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
-        echo "</select>" . PHP_EOL;
-        echo "<input type='submit' value='Submit'></form>";
-        echo "</div>";
-
         if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
             // echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
             // if (strFilter($value["task"]) === 1) {
@@ -269,7 +278,7 @@ if (arrFilter($db->get()) === 0) {
             // echo "</select></form></td>" . PHP_EOL;
             echo "<td>";
         if (strFilter($value["task"]) === 1) {
-                echo "<button onclick='popup('" . $value["tagnumber"] . "')'>Change Job</button>";
+                echo "<button onclick='popup(" . $value["tagnumber"] . ")'>Change Job</button>";
             } else {
                 echo "<p>" . $value["task_formatted"] . "</p>";
             }
