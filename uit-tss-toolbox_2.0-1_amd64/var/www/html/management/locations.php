@@ -18,6 +18,23 @@ $db = new db();
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
+        <script>
+            $( function() {
+            var availableTags = [
+            <?php
+            $db->select("SELECT tagnumber FROM locations");
+            if (arrFilter($db->get()) === 0) {
+                foreach ($db->get() as $key => $value) {
+                    echo "'" . $value["tagnumber"] . "',";
+                }
+            }
+            ?>
+            ];
+            $( "#tagnumber" ).autocomplete({
+                source: availableTags
+            });
+        } );
+        </script>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
