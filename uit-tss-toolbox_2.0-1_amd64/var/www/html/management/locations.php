@@ -35,7 +35,7 @@ $db = new db();
                     $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value) {
-                            echo "'" . $value["tagnumber"] . "',";
+                            echo "'" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "',";
                         }
                     }
                 }
@@ -48,13 +48,19 @@ $db = new db();
 
             function locationAutocomplete() {
                 var availableLocations = [
-                        'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',"Danny's office",'property','On top of A','On top of B','On top of Q','On top of H','Desk behind laptop table','Checkout','Tech Commons','Junk pile near Maricela and Matthew','Junk pile near Mark','Help desk counter',"Mayor's box"
+                <?php
+                    $db->select("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location");
+                    if (arrFilter($db->get()) === 0) {
+                        foreach ($db->get() as $key => $value) {
+                            echo "'" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "',";
+                        }
+                    }
+                ?>
                 ];
                 $( "#location" ).autocomplete({
                     source: availableLocations
                 });
             }
-
         </script>
     </head>
     <body>
@@ -215,7 +221,7 @@ $db = new db();
                 $tagNum = $_POST["tagnumber"];
                 $serial = $_POST['serial'];
                 $department = $_POST['department'];
-                $location = $_POST['location'];
+                $location = htmlspecialchars_decode($_POST['location']);
                 $status = $_POST["status"];
                 $note = $_POST['note'];
                 $diskRemoved = $_POST['disk_removed'];
