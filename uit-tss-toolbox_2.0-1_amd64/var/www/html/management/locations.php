@@ -19,8 +19,6 @@ $db = new db();
         <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
         <title>UIT Client Mgmt - Locations</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    </head>
-    <body>
         <style>
         .ui-autocomplete {
             max-height: 100px;
@@ -30,22 +28,36 @@ $db = new db();
         }
         </style>
         <script>
-            $( function() {
-            var availableTags = [
-            <?php
-            $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
-            if (arrFilter($db->get()) === 0) {
-                foreach ($db->get() as $key => $value) {
-                    echo "'" . $value["tagnumber"] . "',";
+            function tagnumberAutocomplete() {
+                var availableTags = [
+                <?php
+                if (!isset($_POST['serial'])) {
+                    $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
+                    if (arrFilter($db->get()) === 0) {
+                        foreach ($db->get() as $key => $value) {
+                            echo "'" . $value["tagnumber"] . "',";
+                        }
+                    }
                 }
+                ?>
+                ];
+                $( "#tagnumber" ).autocomplete({
+                    source: availableTags
+                });
             }
-            ?>
-            ];
-            $( "#tagnumber" ).autocomplete({
-                source: availableTags
-            });
-        } );
+
+            function locationAutocomplete() {
+                var availableLocations = [
+                        'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',"Danny's office",'property','On top of A','On top of B','On top of Q','On top of H','Desk behind laptop table','Checkout','Tech Commons','Junk pile near Maricela and Matthew','Junk pile near Mark','Help desk counter',"Mayor's box"
+                ];
+                $( "#location" ).autocomplete({
+                    source: availableLocations
+                });
+            }
+
         </script>
+    </head>
+    <body>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
@@ -131,11 +143,11 @@ $db = new db();
                 if (arrFilter($db->get()) === 0) {
                     echo "<label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
-                    echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' autofocus required style='width: 20%; height: 4%;'>" . PHP_EOL;
+                    echo "<input type='text' id='location' name='location' onkeyup='locationAutocomplete()' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' autofocus required style='width: 20%; height: 4%;'>" . PHP_EOL;
                 } else {
                     echo "<label for='location'>Location</label>" . PHP_EOL;
                     echo "<br>" . PHP_EOL;
-                    echo "<input type='text' id='location' name='location' required style='width: 20%; height: 4%;'>" . PHP_EOL;
+                    echo "<input type='text' id='location' name='location' onkeyup='locationAutocomplete()' required style='width: 20%; height: 4%;'>" . PHP_EOL;
                 }
                 echo "<br>" . PHP_EOL;
                 echo "<label for='note'>Note</label>" . PHP_EOL;
@@ -279,7 +291,7 @@ $db = new db();
             echo "<tr>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
             echo "<label for='tagnumber'>Enter tag number and status: </label>" . PHP_EOL;
-            echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>" . PHP_EOL;
+            echo "<input type='text' id='tagnumber' name='tagnumber' onkeyup='tagnumberAutocomplete()' placeholder='Tag Number' autofocus required>" . PHP_EOL;
             echo "<select name='status' id='status' required>" . PHP_EOL;
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;

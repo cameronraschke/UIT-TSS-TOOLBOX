@@ -23,12 +23,10 @@ $db = new db();
     <body onload="fetchHTML()">
         <script>
             function popup(tag) {
-                $( function() {
                     $( "#popup-" + tag ).dialog({
                         modal: true,
                         position: { my: "right center", at: "top+25%", of: window }
                     });
-                });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
             }
         </script>
@@ -429,7 +427,7 @@ echo "</div>";
         }, 3000)}
 
         fetchHTML();
-        
+
         function myFunction() {
         var input, filter, table, tr, td, i, txtValue;
         input = document.getElementById("myInput");
