@@ -30,7 +30,7 @@ $db = new db();
                         position: { my: "right+50%", at: "top+50%", of: window }
                     });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
-                fetchHTML(tag);
+                fetchHTML();
             }
         </script>
 
@@ -426,7 +426,7 @@ echo "</div>";
 
     <script>
         var i = 0;
-        function fetchHTML(tag = 'NULL') {
+        function fetchHTML() {
             const var1 = setTimeout(function() {
             fetch('/remote.php')
             .then((response) => {
