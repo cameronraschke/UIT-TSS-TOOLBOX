@@ -30,7 +30,11 @@ $db = new db();
                         position: { my: "right+50%", at: "top+50%", of: window }
                     });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
-                fetchHTML(tag);
+
+                
+                setTimeout(function() {
+                    fetchHTML(tag);
+                }, 3000)
             }
         </script>
 
