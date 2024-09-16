@@ -425,7 +425,8 @@ echo "</div>";
     <script>
         function fetchHTML(tag = 'NULL') {
         setTimeout(function() {
-            var i = 1;
+            var i = 0;
+            var a = 1;
             fetch('/remote.php')
             .then((response) => {
                     return response.text();
@@ -449,6 +450,7 @@ echo "</div>";
                 //absentLocation (WIP)
                 //Update DIVs
                 if (tag !== "NULL") {
+                    var i = 0;
                     const divHtml = doc.getElementById('popup-' + tag).innerHTML
                     document.getElementById("popup-" + tag).innerHTML = divHtml
                     return;
@@ -456,9 +458,10 @@ echo "</div>";
             });
             if (i <= 5 && tag !== "NULL") {
                 fetchHTML(tag);
-                i++;
+                ++i;
             } else {
-                if (i === 1) {
+                if (a === 1) {
+                    var i = 0;
                     fetchHTML();
                 }
             }
