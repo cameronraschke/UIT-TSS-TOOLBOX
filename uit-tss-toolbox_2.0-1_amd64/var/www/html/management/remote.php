@@ -23,6 +23,7 @@ $db = new db();
     <body onload="fetchHTML()">
         <script>
             function popup(tag) {
+                var tagNum = tag;
                     $( "#popup-" + tag ).dialog({
                         modal: true,
                         width: 900,
@@ -30,7 +31,7 @@ $db = new db();
                         position: { my: "right+50%", at: "top+50%", of: window }
                     });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
-                fetchDiv(tag);
+                fetchDiv(tagNum);
             }
         </script>
 
@@ -423,9 +424,9 @@ echo "</div>";
     </script>
 
     <script>
-        var i = 1;
         function fetchHTML() {
         setTimeout(function() {
+            var i = 1;
             fetch('/remote.php')
             .then((response) => {
                     return response.text();
@@ -456,20 +457,20 @@ echo "</div>";
         fetchHTML();
 
 
-        var a = 1;
         function fetchDiv(tag) {
         setTimeout(function() {
+            var a = 1;
             fetch('/remote.php')
             .then((response) => {
                     return response.text();
             })
             .then((divHtmlRaw) => {
-                //document.body.innerHTML = html
+                //document.body.innerHTML = htmlRaw
                 const divParse = new DOMParser()
                 const divDoc = divParse.parseFromString(divHtmlRaw, "text/html")
                 //update the passed div
-                const divHtml = divDoc.getElementById('popup-' + tag).innerHTML
-                document.getElementById('popup-' + tag).innerHTML = divHtml
+                const divHtml = divDoc.getElementById("popup-" + tag).innerHTML
+                document.getElementById("popup-" + tag).innerHTML = divHtml
             });
             if (a == 1) {
                 fetchDiv();
