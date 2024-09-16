@@ -49,10 +49,10 @@ $db = new db();
             function locationAutocomplete() {
                 var availableLocations = [
                 <?php
-                    $db->select("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location");
+                    $db->select("CALL selectLocationAutocomplete()");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value) {
-                            echo "'" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "',";
+                            echo "'" . $value["location"] . "',";
                         }
                     }
                 ?>
