@@ -154,21 +154,6 @@ $db->select("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_for
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<div style='display: none;' id='popup-" . $value["tagnumber"] . "' title='Change Job - " . $value["tagnumber"] . "'>" . PHP_EOL;
-        echo "<form name='task' method='post'>" . PHP_EOL;
-        echo "<select name='task'>" . PHP_EOL;
-        if (strFilter($value["task"]) === 1) {
-            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job Queued</option>" . PHP_EOL;
-        } else {
-            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'><b>In progress: </b>" . $value["task_formatted"] . "</option>" . PHP_EOL;
-        }
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
-        echo "</select>" . PHP_EOL;
-        echo "<input type='submit' value='Submit'></form>";
         echo "<table class='styled-table'>";
         echo "<tr>";
         echo "<th>OS Installed</th>";
@@ -185,6 +170,21 @@ if (arrFilter($db->get()) === 0) {
         echo "<td>" . htmlspecialchars($value["kernel_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "</tr>";
         echo "</table>";
+        echo "<form name='task' method='post'>" . PHP_EOL;
+        echo "<select name='task'>" . PHP_EOL;
+        if (strFilter($value["task"]) === 1) {
+            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job Queued</option>" . PHP_EOL;
+        } else {
+            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'><b>In progress: </b>" . $value["task_formatted"] . "</option>" . PHP_EOL;
+        }
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
+        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
+        echo "</select>" . PHP_EOL;
+        echo "<input type='submit' value='Submit'></form>";
         echo "</div>";
     }
 }
