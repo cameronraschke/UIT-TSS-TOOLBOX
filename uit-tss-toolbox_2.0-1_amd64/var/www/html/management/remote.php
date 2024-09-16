@@ -166,7 +166,7 @@ if (arrFilter($db->get()) === 0) {
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
         echo "</select>" . PHP_EOL;
         echo "<input type='submit' value='Submit'></form>";
-        echo "<table class='styled-table' style='width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;'>";
+        echo "<table style='width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;'>";
         echo "<th>(WIP) OS Installed</th>";
         echo "<td>" . htmlspecialchars($value["os_installed"]) . "</td>";
         echo "</table>";
