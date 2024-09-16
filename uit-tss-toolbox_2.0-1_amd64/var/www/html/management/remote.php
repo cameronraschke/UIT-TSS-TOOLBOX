@@ -454,8 +454,13 @@ echo "</div>";
                     return;
                 }
             });
-            if (i == 1) {
+            if (i <= 5 && tag !== "NULL") {
                 fetchHTML(tag);
+                i++;
+            } else {
+                if (i === 1) {
+                    fetchHTML();
+                }
             }
         }, 3000)}
 
