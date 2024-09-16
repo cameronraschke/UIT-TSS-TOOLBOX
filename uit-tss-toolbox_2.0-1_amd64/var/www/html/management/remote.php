@@ -178,7 +178,7 @@ if (arrFilter($db->get()) === 0) {
         echo "<tbody>";
         echo "<tr>";
         echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
-        echo "<tr>";
+        echo "</tr>";
         echo "</tbody>";
         echo "</table>";
         echo "</div>";
