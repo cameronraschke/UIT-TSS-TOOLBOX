@@ -27,7 +27,7 @@ $db = new db();
                         modal: true,
                         width: 900,
                         height: 500,
-                        position: { my: "right center", at: "top+25%", of: window }
+                        position: { my: "right+50%", at: "top+50%", of: window }
                     });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
             }
