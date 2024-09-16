@@ -173,6 +173,10 @@ if (arrFilter($db->get()) === 0) {
         echo "<thead>";
         echo "<tr>";
         echo "<th>OS Installed</th>";
+        echo "<th>Last Job Time</th>";
+        echo "<th>Current Task</th>";
+        echo "<th>Bios Updated</th>";
+        echo "<th>Kernel Updated</th>";
         echo "</tr>";
         echo "</thead>";
         echo "<tbody>";
