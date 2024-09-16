@@ -14,9 +14,9 @@ $db = new db();
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/base/jquery-ui.css">
-        <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-        <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
+        <link rel="stylesheet" href="/jquery/jquery-ui.css">
+        <script src="/jquery/jquery.js"></script>
+        <script src="/jquery/jquery-ui.js"></script>
         <title>UIT Client Mgmt - Locations</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <style>
@@ -27,43 +27,44 @@ $db = new db();
             overflow-x: hidden;
         }
         </style>
-        <script>
-            function tagnumberAutocomplete() {
-                var availableTags = [
-                <?php
-                if (!isset($_POST['serial'])) {
-                    $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value) {
-                            echo "'" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "',";
-                        }
-                    }
-                }
-                ?>
-                ];
-                $( "#tagnumber" ).autocomplete({
-                    source: availableTags
-                });
-            }
 
-            function locationAutocomplete() {
-                var availableLocations = [
-                <?php
-                    $db->select("CALL selectLocationAutocomplete()");
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value) {
-                            echo "'" . $value["location"] . "',";
-                        }
-                    }
-                ?>
-                ];
-                $( "#location" ).autocomplete({
-                    source: availableLocations
-                });
-            }
-        </script>
     </head>
     <body>
+    <script>
+        function tagnumberAutocomplete() {
+            var availableTags = [
+            <?php
+            if (!isset($_POST['serial'])) {
+                $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
+                if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value) {
+                        echo "'" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "',";
+                    }
+                }
+            }
+            ?>
+            ];
+            $( "#tagnumber" ).autocomplete({
+                source: availableTags
+            });
+        }
+
+        function locationAutocomplete() {
+            var availableLocations = [
+            <?php
+                $db->select("CALL selectLocationAutocomplete()");
+                if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value) {
+                        echo "'" . $value["location"] . "',";
+                    }
+                }
+            ?>
+            ];
+            $( "#location" ).autocomplete({
+                source: availableLocations
+            });
+        }
+    </script>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>

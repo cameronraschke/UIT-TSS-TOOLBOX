@@ -64,5 +64,7 @@ fi
 
 rsync -Pav /home/cameron/laptop-pictures/ /var/www/html/management/images/
 
+rsync -Pav /home/cameron/jquery /var/www/html/management/
+
 find /var/www/html/management/ -type f -exec chmod 644 {} \;
 find /var/www/html/management/ -type d -exec chmod 755 {} \;
