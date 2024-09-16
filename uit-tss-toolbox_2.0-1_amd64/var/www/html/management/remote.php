@@ -170,7 +170,6 @@ if (arrFilter($db->get()) === 0) {
         echo "</select>" . PHP_EOL;
         echo "<input type='submit' value='Submit'></form>";
         echo "<table class='styled-table'>";
-        echo "<thead>";
         echo "<tr>";
         echo "<th>OS Installed</th>";
         echo "<th>Last Job Time</th>";
@@ -178,8 +177,6 @@ if (arrFilter($db->get()) === 0) {
         echo "<th>Bios Updated</th>";
         echo "<th>Kernel Updated</th>";
         echo "</tr>";
-        echo "</thead>";
-        echo "<tbody>";
         echo "<tr>";
         echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "<td>" . htmlspecialchars($value["last_job_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
@@ -187,7 +184,6 @@ if (arrFilter($db->get()) === 0) {
         echo "<td>" . htmlspecialchars($value["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "<td>" . htmlspecialchars($value["kernel_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "</tr>";
-        echo "</tbody>";
         echo "</table>";
         echo "</div>";
     }
