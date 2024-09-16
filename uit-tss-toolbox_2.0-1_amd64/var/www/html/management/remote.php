@@ -463,10 +463,10 @@ echo "</div>";
             .then((response) => {
                     return response.text();
             })
-            .then((divHtml) => {
+            .then((divHtmlRaw) => {
                 //document.body.innerHTML = html
                 const divParse = new DOMParser()
-                const divDoc = divParse.parseFromString(divHtml, "text/html")
+                const divDoc = divParse.parseFromString(divHtmlRaw, "text/html")
                 //update the passed div
                 const divHtml = divDoc.getElementById('popup-' + tag).innerHTML
                 document.getElementById('popup-' + tag).innerHTML = divHtml
