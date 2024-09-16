@@ -25,6 +25,8 @@ $db = new db();
             function popup(tag) {
                     $( "#popup-" + tag ).dialog({
                         modal: true,
+                        width: 900,
+                        height: 500,
                         position: { my: "right center", at: "top+25%", of: window }
                     });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
