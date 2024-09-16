@@ -30,7 +30,7 @@ $db = new db();
                         position: { my: "right+50%", at: "top+50%", of: window }
                     });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
-                fetchDiv(tag);
+                fetchHTML(tag);
             }
         </script>
 
@@ -423,7 +423,7 @@ echo "</div>";
     </script>
 
     <script>
-        function fetchHTML() {
+        function fetchHTML(tag = 'NULL') {
         setTimeout(function() {
             var i = 1;
             fetch('/remote.php')
@@ -447,6 +447,11 @@ echo "</div>";
                 const absentStatus = doc.getElementById('absentStatus').innerHTML
                 document.getElementById("absentStatus").innerHTML = absentStatus
                 //absentLocation (WIP)
+                //Update DIVs
+                if (tag !== "NULL") {
+                    const divHtml = doc.getElementById('popup-' + tag).innerHTML
+                    document.getElementById("popup-" + tag).innerHTML = divHtml
+                }
             });
             if (i == 1) {
                 fetchHTML();
@@ -455,26 +460,6 @@ echo "</div>";
 
         fetchHTML();
 
-
-        function fetchDiv(tag) {
-        setTimeout(function() {
-            var a = 1;
-            fetch('/remote.php')
-            .then((response) => {
-                    return response.text();
-            })
-            .then((divHtmlRaw) => {
-                //document.body.innerHTML = htmlRaw
-                const divParse = new DOMParser()
-                const divDoc = divParse.parseFromString(divHtmlRaw, "text/html")
-                //update the passed div
-                const divHtml = divDoc.getElementById("#popup-" + tag).innerHTML
-                document.getElementById("#popup-" + tag).innerHTML = divHtml
-            });
-            if (a == 1) {
-                fetchDiv();
-            }
-        }, 3000)}
 
         function myFunction() {
         var input, filter, table, tr, td, i, txtValue;
