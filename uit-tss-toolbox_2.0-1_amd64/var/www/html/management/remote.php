@@ -423,10 +423,10 @@ echo "</div>";
     </script>
 
     <script>
+        var a = 1;
+        var i = 0;
         function fetchHTML(tag = 'NULL') {
         setTimeout(function() {
-            var i = 0;
-            var a = 1;
             fetch('/remote.php')
             .then((response) => {
                     return response.text();
