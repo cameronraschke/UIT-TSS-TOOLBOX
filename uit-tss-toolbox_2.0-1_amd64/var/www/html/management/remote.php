@@ -455,7 +455,7 @@ echo "</div>";
                 }
             });
             if (i == 1) {
-                fetchHTML();
+                fetchHTML(tag);
             }
         }, 3000)}
 
