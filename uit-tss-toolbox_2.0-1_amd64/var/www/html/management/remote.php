@@ -423,8 +423,8 @@ echo "</div>";
     </script>
 
     <script>
+        var i = 0;
         function fetchHTML(tag = 'NULL') {
-            var i = 0;
             fetch('/remote.php')
             .then((response) => {
                     return response.text();
@@ -451,16 +451,16 @@ echo "</div>";
                     var i = 0;
                     const divHtml = doc.getElementById('popup-' + tag).innerHTML
                     document.getElementById("popup-" + tag).innerHTML = divHtml
-                    return;
                 }
             });
-            if (tag !== "NULL") {
-                var fetch = setInterval(function () {fetchHTML(tag)});
-                if ( i > 5 ) {clearInterval(fetch);}
-                ++i;
-            } else {
-                var fetch = setInterval(function () {fetchHTML()});
-            }
+        }
+
+        var var1 = setInterval(fetchHTML(tag), 3000);
+
+        if (i > 5 && tag !== "NULL") {
+            clearInterval(var1);
+        } else {
+            ++i;
         }
 
 
