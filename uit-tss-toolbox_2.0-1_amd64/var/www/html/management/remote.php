@@ -453,14 +453,13 @@ echo "</div>";
                     document.getElementById("popup-" + tag).innerHTML = divHtml
                 }
             });
-        }
+            var var1 = setInterval(fetchHTML(), 3000, tag);
 
-        var var1 = setInterval(fetchHTML(tag), 3000);
-
-        if (i > 5 && tag !== "NULL") {
-            clearInterval(var1);
-        } else {
-            ++i;
+            if (i > 5 && tag !== "NULL") {
+                clearInterval(var1);
+            } else {
+                ++i;
+            }
         }
 
 
