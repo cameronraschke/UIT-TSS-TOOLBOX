@@ -423,8 +423,6 @@ echo "</div>";
     </script>
 
     <script>
-        var a = 1;
-        var i = 0;
         function fetchHTML(tag = 'NULL') {
         setTimeout(function() {
             fetch('/remote.php')
@@ -456,14 +454,10 @@ echo "</div>";
                     return;
                 }
             });
-            if (i <= 5 && tag !== "NULL") {
+            if (tag !== "NULL") {
                 fetchHTML(tag);
-                ++i;
             } else {
-                if (a === 1) {
-                    var i = 0;
-                    fetchHTML();
-                }
+                fetchHTML();
             }
         }, 3000)}
 
