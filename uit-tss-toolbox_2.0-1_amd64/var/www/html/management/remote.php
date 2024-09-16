@@ -30,6 +30,7 @@ $db = new db();
                         position: { my: "right+50%", at: "top+50%", of: window }
                     });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
+                fetchDiv(tag);
             }
         </script>
 
@@ -167,7 +168,12 @@ if (arrFilter($db->get()) === 0) {
         echo "<td>" . htmlspecialchars($value["last_job_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "<td>" . htmlspecialchars($value["task_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "<td>" . htmlspecialchars($value["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
-        echo "<td>" . htmlspecialchars($value["kernel_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
+        if ($value["kernel_updated"] === 1) {
+            echo "<td>Yes</td>";
+        } else {
+            echo "<td>No</td>";
+        }
+        echo "<td>" . htmlspecialchars($value["uptime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "</tr>";
         echo "</table>";
         echo "<form name='task' method='post'>" . PHP_EOL;
@@ -447,6 +453,28 @@ echo "</div>";
         }, 3000)}
 
         fetchHTML();
+
+
+        var a = 1;
+        function fetchDiv(tag) {
+        setTimeout(function() {
+            fetch('/remote.php')
+            .then((response) => {
+                    return response.text();
+            })
+            .then((html) => {
+                //document.body.innerHTML = html
+                const parser = new DOMParser()
+                const doc = parser.parseFromString(html, "text/html")
+                //update the passed div
+                const div = doc.getElementById('popup-' + tag).innerHTML
+                document.getElementById('popup-' + tag).innerHTML = div
+                //absentLocation (WIP)
+            });
+            if (a == 1) {
+                fetchDiv();
+            }
+        }, 3000)}
 
         function myFunction() {
         var input, filter, table, tr, td, i, txtValue;
