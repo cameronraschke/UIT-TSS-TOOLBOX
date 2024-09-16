@@ -162,6 +162,7 @@ if (arrFilter($db->get()) === 0) {
         echo "<th>Current Task</th>";
         echo "<th>Bios Updated</th>";
         echo "<th>Kernel Updated</th>";
+        echo "<th>Uptime</th>";
         echo "</tr>";
         echo "<tr>";
         echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
@@ -462,14 +463,13 @@ echo "</div>";
             .then((response) => {
                     return response.text();
             })
-            .then((html) => {
+            .then((divHtml) => {
                 //document.body.innerHTML = html
-                const parser = new DOMParser()
-                const doc = parser.parseFromString(html, "text/html")
+                const divParse = new DOMParser()
+                const divDoc = divParse.parseFromString(divHtml, "text/html")
                 //update the passed div
-                const div = doc.getElementById('popup-' + tag).innerHTML
-                document.getElementById('popup-' + tag).innerHTML = div
-                //absentLocation (WIP)
+                const divHtml = divDoc.getElementById('popup-' + tag).innerHTML
+                document.getElementById('popup-' + tag).innerHTML = divHtml
             });
             if (a == 1) {
                 fetchDiv();
