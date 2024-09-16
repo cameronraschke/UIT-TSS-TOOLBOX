@@ -458,8 +458,6 @@ echo "</div>";
             }
         }, 3000)}
 
-        fetchHTML();
-
 
         function myFunction() {
         var input, filter, table, tr, td, i, txtValue;
