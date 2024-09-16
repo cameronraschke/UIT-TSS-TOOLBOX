@@ -451,6 +451,7 @@ echo "</div>";
                 if (tag !== "NULL") {
                     const divHtml = doc.getElementById('popup-' + tag).innerHTML
                     document.getElementById("popup-" + tag).innerHTML = divHtml
+                    return;
                 }
             });
             if (i == 1) {
