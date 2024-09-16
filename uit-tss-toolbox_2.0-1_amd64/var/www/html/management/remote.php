@@ -449,10 +449,8 @@ echo "</div>";
                 //absentLocation (WIP)
                 //Update DIVs
                 if (tag !== "NULL") {
-                    var i = 0;
                     const divHtml = doc.getElementById('popup-' + tag).innerHTML
                     document.getElementById("popup-" + tag).innerHTML = divHtml
-                    return;
                 }
             });
             if (i < 5 && tag !== "NULL") {
