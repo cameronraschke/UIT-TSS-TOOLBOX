@@ -23,7 +23,6 @@ $db = new db();
     <body onload="fetchHTML()">
         <script>
             function popup(tag) {
-                var tagNum = tag;
                     $( "#popup-" + tag ).dialog({
                         modal: true,
                         width: 900,
@@ -31,7 +30,7 @@ $db = new db();
                         position: { my: "right+50%", at: "top+50%", of: window }
                     });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
-                fetchDiv(tagNum);
+                fetchDiv(tag);
             }
         </script>
 
@@ -469,8 +468,8 @@ echo "</div>";
                 const divParse = new DOMParser()
                 const divDoc = divParse.parseFromString(divHtmlRaw, "text/html")
                 //update the passed div
-                const divHtml = divDoc.getElementById("popup-" + tag).innerHTML
-                document.getElementById("popup-" + tag).innerHTML = divHtml
+                const divHtml = divDoc.getElementById("#popup-" + tag).innerHTML
+                document.getElementById("#popup-" + tag).innerHTML = divHtml
             });
             if (a == 1) {
                 fetchDiv();
