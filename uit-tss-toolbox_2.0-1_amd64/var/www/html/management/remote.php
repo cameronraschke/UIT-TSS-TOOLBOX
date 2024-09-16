@@ -145,8 +145,6 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
     unset($_POST['location-action']);
 }
 ?>
-
-
 </div>
 
 
@@ -171,6 +169,18 @@ if (arrFilter($db->get()) === 0) {
         echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
         echo "</select>" . PHP_EOL;
         echo "<input type='submit' value='Submit'></form>";
+        echo "<table class='styled-table'>";
+        echo "<thead>";
+        echo "<tr>";
+        echo "<th>OS Installed</th>";
+        echo "</tr>";
+        echo "</thead>";
+        echo "<tbody>";
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
+        echo "<tr>";
+        echo "</tbody>";
+        echo "</table>";
         echo "</div>";
     }
 }
