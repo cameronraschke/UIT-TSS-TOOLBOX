@@ -71,10 +71,10 @@ $db = new db();
                 $db->select("SELECT (SELECT COUNT(tagnumber) FROM remote WHERE os_installed = 1 AND (NOT present_bool = 1 OR present_bool IS NULL)) AS 'os_installed_not_present', (SELECT COUNT(tagnumber) FROM remote WHERE (NOT os_installed = 1 OR os_installed IS NULL) AND (NOT present_bool = 1 OR present_bool IS NULL)) AS 'os_not_installed_not_present', (SELECT COUNT(tagnumber) FROM remote WHERE os_installed = 1 AND present_bool = 1) AS 'os_installed_present', (SELECT COUNT(tagnumber) FROM remote WHERE (NOT os_installed = 1 OR os_installed IS NULL) AND present_bool = 1) AS 'os_not_installed_present'");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
-                        echo "['OS NOT Installed, Not Online'," . $value["os_not_installed_not_present"] . "], ";
-                        echo "['OS NOT Installed, Online'," . $value["os_not_installed_present"] . "], ";
-                        echo "['OS Installed, Not Online'," . $value["os_installed_not_present"] . "], ";
-                        echo "['OS Installed, Online'," . $value["os_installed_present"] . "], ";
+                        echo "['OS NOT Installed, Not in Cart'," . $value["os_not_installed_not_present"] . "], ";
+                        echo "['OS NOT Installed, in Cart'," . $value["os_not_installed_present"] . "], ";
+                        echo "['OS Installed, Not in Cart'," . $value["os_installed_not_present"] . "], ";
+                        echo "['OS Installed, in Cart'," . $value["os_installed_present"] . "], ";
                     }
                 }
                 ?>
