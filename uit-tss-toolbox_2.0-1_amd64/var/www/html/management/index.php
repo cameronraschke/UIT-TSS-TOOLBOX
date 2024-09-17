@@ -34,7 +34,7 @@ $db = new db();
                 <div><h3 class='page-content'><a href="/reports.php">Generate and Download Reports (WIP)</a></h3></div>
             </div>
             <div style='width: 50%; float: right;'>
-                <div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 50% 1%;'>
+                <div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 5% 1%;'>
                             <?php
                                 $db->select("SELECT COUNT(tagnumber) AS 'count' FROM remote WHERE NOT task = 'waiting for job' AND present_bool = 1");
                                 if (arrFilter($db->get()) === 0) {
