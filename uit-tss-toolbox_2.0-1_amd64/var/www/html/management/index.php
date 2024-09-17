@@ -66,12 +66,12 @@ $db = new db();
             google.charts.setOnLoadCallback(numberImaged);
 
             function numberImaged() {
-                var data = google.visualization.arrayToDataTable([ ['OS Installed', 'Total Client Count'],
+                var data = google.visualization.arrayToDataTable([ ['OS Status', 'Client Count'],
                 <?php
                 $db->select("SELECT (SELECT COUNT(tagnumber) FROM remote WHERE os_installed = 1 AND (NOT present_bool = 1 OR present_bool IS NULL)) AS 'os_installed_not_present', (SELECT COUNT(tagnumber) FROM remote WHERE (NOT os_installed = 1 OR os_installed IS NULL) AND (NOT present_bool = 1 OR present_bool IS NULL)) AS 'os_not_installed_not_present', (SELECT COUNT(tagnumber) FROM remote WHERE os_installed = 1 AND present_bool = 1) AS 'os_installed_present'");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
-                        echo "['OS NOT Installed, Not Present'," . $value["client_count"] . "], ";
+                        echo "['OS NOT Installed, Not Present'," . $value["os_not_installed_not_present"] . "], ";
                         echo "['OS Installed, Not Present'," . $value["os_installed_not_present"] . "], ";
                         echo "['OS Installed, Present'," . $value["os_installed_present"] . "], ";
                     }
