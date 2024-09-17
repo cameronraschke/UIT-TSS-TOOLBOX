@@ -71,7 +71,7 @@ $db = new db();
                 $db->select("SELECT (SELECT COUNT(tagnumber) WHERE NOT os_installed = 1 FROM remote) AS 'client_count', (SELECT COUNT(tagnumber) WHERE os_installed = 1 FROM remote) AS 'os_installed'");
                 if (arrFilter($db->get()) === 0)
                     foreach ($db->get() as $key => $value) {
-                        echo "['" . $value["os_installed"] . "', " . $value["client_count"] . ", ";
+                        echo "[" . $value["os_installed"] . ", " . $value["client_count"] . ", ";
                     }
                 ?>
                 ]);
