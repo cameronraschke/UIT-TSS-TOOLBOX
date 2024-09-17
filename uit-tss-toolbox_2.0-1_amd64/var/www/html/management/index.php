@@ -3,13 +3,14 @@ require('/var/www/html/management/header.php');
 include('/var/www/html/management/php/include.php');
 
 $db = new db();
-
-$db->select("SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROUND(AVG(clone_avgtime), 0) AS 'clone_avgtime', ROUND((AVG(nvme_erase_avgtime) + AVG(sata_erase_avgtime)) / 2, 0) AS 'erase_avgtime' FROM serverstats GROUP BY dateByMonth ORDER BY dateByMonth ASC");
 ?>
 <html>
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
+        <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
+        <script src="/jquery/jquery-3.7.1.min.js"></script>
+        <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
         <title>UIT Client Managment</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
@@ -34,26 +35,49 @@ $db->select("SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROUND(AVG(clone
             </div>
             <div style='width: 50%; float: right;'>
                 <div id="jobTimes" style='height: auto; width: 99%;'></div>
+                <div id="numberImaged" style='height: auto; width: 99%;'></div>
             </div>
         </div>
 
-        <script src="https://www.gstatic.com/charts/loader.js"></script>
+        <script src="/google-charts/loader.js"></script>
 
         <script>
             google.charts.load('current',{packages:['corechart']});
-            google.charts.setOnLoadCallback(drawChart);
+            google.charts.setOnLoadCallback(jobTimes);
 
-            function drawChart() {
-                const data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
+            function jobTimes() {
+                var data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
                 <?php
-                foreach ($db->get() as $key => $value) {
-                    echo "['" . $value["dateByMonth"] . "', " . $value["clone_avgtime"] . ", " . $value["erase_avgtime"] . "], ";
-                }
+                $db->select("SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROUND(AVG(clone_avgtime), 0) AS 'clone_avgtime', ROUND((AVG(nvme_erase_avgtime) + AVG(sata_erase_avgtime)) / 2, 0) AS 'erase_avgtime' FROM serverstats GROUP BY dateByMonth ORDER BY dateByMonth ASC");
+                if (arrFilter($db->get()) === 0)
+                    foreach ($db->get() as $key => $value) {
+                        echo "['" . $value["dateByMonth"] . "', " . $value["clone_avgtime"] . ", " . $value["erase_avgtime"] . "], ";
+                    }
                 ?>
                 ]);
 
-                const options = {title: 'Avg. Clone and Erase Time', hAxis: {title: 'Date'}, vAxis: {title: 'Time (minutes)'}, legend: 'none'  };
-                const chart = new google.visualization.LineChart(document.getElementById('jobTimes'));
+                var options = {title: 'Avg. Clone and Erase Time', hAxis: {title: 'Date'}, vAxis: {title: 'Time (minutes)'}, legend: 'none'  };
+                var chart = new google.visualization.LineChart(document.getElementById('jobTimes'));
+                chart.draw(data, options);
+            }
+        </script>
+        <script>
+            google.charts.load('current',{packages:['corechart']});
+            google.charts.setOnLoadCallback(numberImaged);
+
+            function numberImaged() {
+                var data = google.visualization.arrayToDataTable([ ['OS Installed', 'Total Client Count'],
+                <?php
+                $db->select("SELECT (SELECT COUNT(tagnumber) WHERE NOT os_installed = 1 FROM remote) AS 'client_count', (SELECT COUNT(tagnumber) WHERE os_installed = 1 FROM remote) AS 'os_installed'");
+                if (arrFilter($db->get()) === 0)
+                    foreach ($db->get() as $key => $value) {
+                        echo "['" . $value["os_installed"] . "', " . $value["client_count"] . ", ";
+                    }
+                ?>
+                ]);
+
+                var options = {title: 'Number of OS\'s Installed' };
+                var chart = new google.visualization.LineChart(document.getElementById('numberImaged'));
                 chart.draw(data, options);
             }
         </script>

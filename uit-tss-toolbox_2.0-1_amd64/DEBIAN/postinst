@@ -62,9 +62,11 @@ if [[ ! -f /var/www/html/management/favicon.ico ]]; then
     wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico
 fi
 
-rsync -Pav /home/cameron/laptop-pictures/ /var/www/html/management/images/
+rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/management/images/
 
-rsync -Pav /home/cameron/jquery /var/www/html/management/
+rsync -Pav --delete /home/cameron/jquery /var/www/html/management/
+
+rsync -Pav --delete /home/cameron/google-charts /var/www/html/management/
 
 find /var/www/html/management/ -type f -exec chmod 644 {} \;
 find /var/www/html/management/ -type d -exec chmod 755 {} \;
