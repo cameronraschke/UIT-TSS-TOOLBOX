@@ -14,7 +14,7 @@ $db = new db();
         <title>UIT Client Managment</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
-    <body>
+    <body onload="fetchHTML()">
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
@@ -96,6 +96,24 @@ $db = new db();
                 var chart = new google.visualization.PieChart(document.getElementById('numberImaged'));
                 chart.draw(data, options);
             }
+        </script>
+        <script>
+            function fetchHTML() {
+                setTimeout(function() {
+                fetch('/index.php')
+                .then((response) => {
+                        return response.text();
+                })
+                .then((html) => {
+                    //document.body.innerHTML = html
+                    const parser = new DOMParser()
+                    const doc = parser.parseFromString(html, "text/html")
+                    //Update running jobs
+                    const runningJobs = doc.getElementById('runningJobs').innerHTML
+                    document.getElementById("runningJobs").innerHTML = runningJobs
+                });
+                fetchHTML();
+            }, 3000)}
         </script>
     </body>
 </html>
