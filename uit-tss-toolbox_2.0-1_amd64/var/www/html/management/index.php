@@ -34,28 +34,17 @@ $db = new db();
                 <div><h3 class='page-content'><a href="/reports.php">Generate and Download Reports (WIP)</a></h3></div>
             </div>
             <div style='width: 50%; float: right;'>
-                <div id="runningJobs">
-                    <table class='styled-table' style='height: auto; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 50% 1%;'>
-                        <tbody>
-                        <tr>
-                            <th>Running Jobs</th>
-                        </tr>
-                        <tr>
-                            <td>
+                <div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 50% 1%;'>
                             <?php
                                 $db->select("SELECT COUNT(tagnumber) AS 'count' FROM remote WHERE NOT task = 'waiting for job' AND present_bool = 1");
                                 if (arrFilter($db->get()) === 0) {
                                     foreach ($db->get() as $ley => $value) {
-                                        echo htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+                                        echo "<h3><b>Running Jobs:</b> " . htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</h3>";
                                     }
                                 } else {
-                                    echo "0";
+                                    echo "<h3><b>Running Jobs:</b>0</h3>";
                                 }
                             ?>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
                 </div>
                 <div id="jobTimes" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
                 <div id="numberImaged" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
