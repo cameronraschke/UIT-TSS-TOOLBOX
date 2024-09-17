@@ -79,7 +79,7 @@ $db = new db();
                 ]);
 
                 var options = {title: 'Number of OS\'s Installed' };
-                var chart = new google.visualization.LineChart(document.getElementById('numberImaged'));
+                var chart = new google.visualization.PieChart(document.getElementById('numberImaged'));
                 chart.draw(data, options);
             }
         </script>
