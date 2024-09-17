@@ -35,7 +35,8 @@ $db = new db();
             </div>
             <div style='width: 50%; float: right;'>
                 <div id="runningJobs">
-                    <table class='styled-table' style='height: auto; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 2% 1%;'>
+                    <table class='styled-table' style='height: auto; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 50% 1%;'>
+                        <tbody>
                         <tr>
                             <th>Running Jobs</th>
                         </tr>
@@ -53,6 +54,7 @@ $db = new db();
                             ?>
                             </td>
                         </tr>
+                        </tbody>
                     </table>
                 </div>
                 <div id="jobTimes" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
