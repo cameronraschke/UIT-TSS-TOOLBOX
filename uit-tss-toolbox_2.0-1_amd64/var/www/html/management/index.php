@@ -39,9 +39,11 @@ $db = new db();
                         <th>Running Jobs</th>
                         <td>
                             <?php
-                                $db->select("SELECT COUNT(tagnumber) AS 'count' FROM remote WHERE NOT task = 'waiting for job' AND present_bool = 1")
+                                $db->select("SELECT COUNT(tagnumber) AS 'count' FROM remote WHERE NOT task = 'waiting for job' AND present_bool = 1");
                                 if (arrFilter($db->get()) === 0) {
-                                    echo htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+                                    foreach ($db->get() as $ley => $value) {
+                                        echo htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+                                    }
                                 } else {
                                     echo "0";
                                 }
