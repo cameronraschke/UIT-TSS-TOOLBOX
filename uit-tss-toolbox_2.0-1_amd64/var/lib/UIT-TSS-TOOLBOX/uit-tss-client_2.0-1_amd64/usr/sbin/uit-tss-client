@@ -1951,8 +1951,10 @@ function autodetectClient {
 				systemData
 				hardwareData
 				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
-				vrfySections=""
-				writeSections=""
+				vrfySections="1000"
+				writeSections="1000"
+				PCNTOFSECTOR='10'
+				CHAR='0'
 				APPSELECT="E"
 				ACTION="erase"
 				if [[ /dev/nvme0n1 ]]; then
