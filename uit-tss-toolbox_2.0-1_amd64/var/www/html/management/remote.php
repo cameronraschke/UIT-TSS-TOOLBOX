@@ -158,7 +158,7 @@ if (arrFilter($db->get()) === 0) {
         echo "<table class='styled-table'>";
         echo "<tr>";
         echo "<th>Last Job Time</th>";
-        echo "<th>Pending/Current Task</th>";
+        echo "<th>Pending Job</th>";
         echo "<th>Current Status</th>";
         echo "<th>OS Installed</th>";
         echo "<th>Bios Updated</th>";
