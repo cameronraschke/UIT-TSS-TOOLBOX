@@ -149,7 +149,7 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 
 
 
-<div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 5% 1%;'>
+<div id="runningJobs" style='max-height: 20%; width: auto; margin: 1% 1% 1% 1%;'>
     <?php
         $db->select("SELECT COUNT(tagnumber) AS 'count', status FROM remote WHERE (task IS NOT NULL OR NOT status = 'waiting for job') AND present_bool = 1 GROUP BY status");
         if (arrFilter($db->get()) === 0) {
