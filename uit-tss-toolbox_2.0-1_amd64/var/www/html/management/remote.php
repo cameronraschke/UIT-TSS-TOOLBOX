@@ -465,6 +465,9 @@ echo "</div>";
                 //Update DIVs
                 const updatediv = doc.getElementById('updatediv').innerHTML
                 document.getElementById("updatediv").innerHTML = updatediv
+                //Runing jobs overview
+                const runningJobs = doc.getElementById('runningJobs').innerHTML
+                document.getElementById("runningJobs").innerHTML = runningJobs
             });
             fetchHTML();
         }, 3000)}
