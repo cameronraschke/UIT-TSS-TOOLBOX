@@ -157,17 +157,19 @@ if (arrFilter($db->get()) === 0) {
         echo "<div style='display: none;' id='popup-" . $value["tagnumber"] . "' title='Change Job - " . $value["tagnumber"] . "'>" . PHP_EOL;
         echo "<table class='styled-table'>";
         echo "<tr>";
-        echo "<th>OS Installed</th>";
         echo "<th>Last Job Time</th>";
         echo "<th>Current Task</th>";
+        echo "<th>Current Status</th>";
+        echo "<th>OS Installed</th>";
         echo "<th>Bios Updated</th>";
         echo "<th>Kernel Updated</th>";
         echo "<th>Uptime</th>";
         echo "</tr>";
         echo "<tr>";
-        echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "<td>" . htmlspecialchars($value["last_job_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "<td>" . htmlspecialchars($value["task_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
+        echo "<td>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
+        echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         echo "<td>" . htmlspecialchars($value["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
         if ($value["kernel_updated"] === 1) {
             echo "<td>Yes</td>";
