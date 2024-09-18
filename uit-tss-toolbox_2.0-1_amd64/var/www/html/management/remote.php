@@ -211,9 +211,6 @@ if (arrFilter($db->get()) === 0) {
         <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
     </form>
 </div>
-<div class='styled-form2'>
-    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">
-</div>
         <div class='styled-table' style="width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;">
             <table id="myTable" width="100%">
             <thead>
@@ -455,26 +452,6 @@ echo "</div>";
             fetchHTML();
         }, 3000)}
 
-
-        function myFunction() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("myInput");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[0];
-            if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-            }
-        }
-        }
 
         function myFunction1() {
         var input, filter, table, tr, td, i, txtValue;
