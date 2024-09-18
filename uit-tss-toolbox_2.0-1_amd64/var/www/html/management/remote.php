@@ -305,7 +305,7 @@ if (arrFilter($db->get()) === 0) {
         if (strFilter($value["task"]) === 1) {
                 echo "<button onclick='popup(" . $value["tagnumber"] . ")'>Change Job</button>";
             } else {
-                echo "<a style='cursor: pointer' onclick='popup(" . $value["tagnumber"] . ")'>" . $value["task_formatted"] . "</a>";
+                echo "<a style='cursor: pointer' onclick='popup(" . $value["tagnumber"] . ")'><b>" . $value["task_formatted"] . "</b></a>";
             }
             echo "</select></td>";
         } elseif ($value["bios_updated"] !== "Yes" && strFilter($value["kernel_updated"]) === 1) {
