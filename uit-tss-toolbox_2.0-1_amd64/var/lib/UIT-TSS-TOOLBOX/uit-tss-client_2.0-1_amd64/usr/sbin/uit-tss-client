@@ -1862,6 +1862,7 @@ function autodetectClient {
 				echo "0" > /root/uptime
 				echo "0" > /tmp/cpu-usage.txt
 				echo "0" > /tmp/network-usage.txt
+				dpkg --purge uit-toolbox
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "findmy" ]]; then
