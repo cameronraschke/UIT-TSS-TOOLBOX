@@ -42,7 +42,7 @@ foreach ($db->get() as $key => $value) {
     }
 
     # Update client count. A client counts as a distinct tagnumber in jobstats which is in the Tech Commons or SHRL department.
-    $db->Pselect("SELECT tagnumber FROM jobstats WHERE department IN ('techComm', 'shrl') AND date BETWEEN :startdate AND :itdate GROUP BY tagnumber", array(':startdate' => $startDate, ':itdate' => $value["date"]));
+    $db->Pselect("SELECT tagnumber FROM jobstats WHERE department IN ('techComm', 'shrl', 'execSupport') AND date BETWEEN :startdate AND :itdate GROUP BY tagnumber", array(':startdate' => $startDate, ':itdate' => $value["date"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             $db->updateSS("client_count", count($db->get()), $value["date"]);
