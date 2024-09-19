@@ -49,6 +49,7 @@ $db = new db();
             });
         }
 
+        $( function() {
             var availableLocations = [
             <?php
                 $db->select("CALL selectLocationAutocomplete()");
@@ -62,6 +63,7 @@ $db = new db();
             $( "#location" ).autocomplete({
                 source: availableLocations
             });
+        } );
     </script>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
