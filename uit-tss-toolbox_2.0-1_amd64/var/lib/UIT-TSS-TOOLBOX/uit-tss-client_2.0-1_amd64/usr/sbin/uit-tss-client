@@ -878,7 +878,7 @@ function randPattern_Shred {
 
 
 function writeDisk_Shred {
-	echo "remote|${tagNum}|status|erasing disk ($shredMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|Erasing disk ($shredMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
 	if [[ -z $writeSections ]]; then
 		writeSections='1000'
 	fi
