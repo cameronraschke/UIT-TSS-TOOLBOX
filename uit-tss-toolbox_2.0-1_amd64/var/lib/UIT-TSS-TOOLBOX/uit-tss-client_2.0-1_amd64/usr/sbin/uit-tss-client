@@ -1853,13 +1853,13 @@ function autodetectClient {
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				dpkg --purge uit-toolbox
-				rm -r /root/uit-tss-client_2.0-1_amd64/
-				scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
-				chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
-				chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
-				dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
-				dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
+				dpkg --purge uit-tss-client
+				rm -r /root/uit-tss-client_2.0-1_amd64*
+				# scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
+				# chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
+				# chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
+				# dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
+				# dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "0" > /root/uptime
 				echo "0" > /tmp/cpu-usage.txt
