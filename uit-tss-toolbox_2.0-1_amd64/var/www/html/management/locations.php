@@ -31,7 +31,7 @@ $db = new db();
     </head>
     <body>
     <script>
-        function tagnumberAutocomplete() {
+        $( function() {
             var availableTags = [
             <?php
             if (!isset($_POST['serial'])) {
@@ -47,7 +47,7 @@ $db = new db();
             $( "#tagnumber" ).autocomplete({
                 source: availableTags
             });
-        }
+        } );
 
         $( function() {
             var availableLocations = [
@@ -298,7 +298,7 @@ $db = new db();
             echo "<tr>" . PHP_EOL;
             echo "<form method='post'>" . PHP_EOL;
             echo "<label for='tagnumber'>Enter tag number and status: </label>" . PHP_EOL;
-            echo "<input type='text' id='tagnumber' name='tagnumber' onkeyup='tagnumberAutocomplete()' placeholder='Tag Number' autofocus required>" . PHP_EOL;
+            echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>" . PHP_EOL;
             echo "<select name='status' id='status' required>" . PHP_EOL;
             echo "<option value='0'>Working</option>" . PHP_EOL;
             echo "<option value='1'>Broken</option>" . PHP_EOL;
