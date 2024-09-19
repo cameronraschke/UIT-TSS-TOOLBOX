@@ -939,6 +939,7 @@ function writeDisk_Shred {
 		tput cuu1
 		tput el
 		echo "Writing to section ${i}/${writeSections}"
+		echo "remote|${tagNum}|status|Writing to section ${i}/${writeSections} ($shredMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
 		sectorDiff=$((sectorMax - sectorMin))
@@ -996,6 +997,7 @@ function vrfyDisk_Shred {
 		tput cuu1
 		tput el
 		echo "Verifying section ${i}/${vrfySections}"
+		echo "remote|${tagNum}|status|Verifying section ${i}/${vrfySections}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
 		sectorDiff=$((sectorMax - sectorMin))
@@ -1047,7 +1049,7 @@ function vrfyDisk_Shred {
 
 
 function secErase_Shred {
-	echo "remote|${tagNum}|status|secure erase" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|Using secure erase on ${CLIENTDISK}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	footer
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
@@ -1071,7 +1073,7 @@ function secErase_Shred {
 
 
 function secUnlock_Shred {
-	echo "remote|${tagNum}|status|unlock secure erase" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|Unlocking ${CLIENTDISK}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	footer
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
@@ -1511,7 +1513,7 @@ function clientselect_Clone {
 
 
 function execute_Clone {
-	echo "remote|${tagNum}|status|cloning ($cloneMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|Cloning ${cloneImgName} -> ${CLIENTDISK} ($cloneMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "0" > /root/uptime
 	echo "0" > /tmp/cpu-usage.txt
 	echo "0" > /tmp/network-usage.txt
@@ -1594,7 +1596,7 @@ function execute {
 	echo "0" > /tmp/network-usage.txt
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
-		echo "remote|${tagNum}|status|fail - can't erase master" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|fail - Can't erase master image" | /var/lib/UIT-TSS-TOOLBOX/parse
 		read -t 10 -p "${BOLD}Cannot erase device and save its image.${RESET}"
 		pkill --terminal tty1
 	fi
@@ -1831,7 +1833,7 @@ function autodetectClient {
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|starting data collection" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting data collection" | /var/lib/UIT-TSS-TOOLBOX/parse
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1846,7 +1848,7 @@ function autodetectClient {
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|updating" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Updating..." | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1863,20 +1865,20 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "findmy" ]]; then
-				echo "remote|${tagNum}|status|playing sound" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Playing sound" | /var/lib/UIT-TSS-TOOLBOX/parse
 				play /root/findmy1.mp3 &> /dev/null
 			elif [[ $task == "hpEraseAndClone" ]]; then
 				department
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting Erase + Clone job (HP)" | /var/lib/UIT-TSS-TOOLBOX/parse
 				APPSELECT="EC"
 				ACTION="erase and clone"
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
-					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /var/lib/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|status|fail - Disk doesn't exist" | /var/lib/UIT-TSS-TOOLBOX/parse
 					autodetectClient
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1912,7 +1914,7 @@ function autodetectClient {
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting Clone only job (HP)" | /var/lib/UIT-TSS-TOOLBOX/parse
 				APPSELECT="C"
 				ACTION="clone"
 				if [[ /dev/nvme0n1 ]]; then
@@ -1950,7 +1952,7 @@ function autodetectClient {
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting Erase Only job (${CLIENTDISK})" | /var/lib/UIT-TSS-TOOLBOX/parse
 				vrfySections="1000"
 				writeSections="1000"
 				PCNTOFSECTOR='10'
@@ -1990,7 +1992,7 @@ function autodetectClient {
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Starting $task" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting Verify job (${CLIENTDISK})" | /var/lib/UIT-TSS-TOOLBOX/parse
 				vrfySections=""
 				writeSections=""
 				PCNTOFSECTOR='10'
@@ -2026,7 +2028,7 @@ function autodetectClient {
 				sleep 10
 				pkill --terminal tty1
 			elif [[ $task == "shutdown" ]]; then
-				echo "remote|${tagNum}|status|shutting down" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - Shutting down" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				poweroff
 			elif [[ $task == "fail-test" ]]; then
