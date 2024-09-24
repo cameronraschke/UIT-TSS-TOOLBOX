@@ -36,7 +36,7 @@ $db = new db();
             <div style='width: 50%; float: right;'>
                 <div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 5% 1%;'>
                             <?php
-                                $db->select("SELECT COUNT(tagnumber) AS 'count', status FROM remote WHERE (task IS NOT NULL OR NOT status = 'waiting for job') AND present_bool = 1 GROUP BY status");
+                                $db->select("SELECT COUNT(tagnumber) AS 'count', status FROM remote WHERE (task IS NOT NULL OR NOT status = 'Waiting for job') AND present_bool = 1 GROUP BY status");
                                 if (arrFilter($db->get()) === 0) {
                                     foreach ($db->get() as $ley => $value) {
                                         echo "<h3><b>Running Jobs:</b> " . htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")" . "</h3>";
