@@ -1887,7 +1887,7 @@ function autodetectClient {
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				cloneMode="restoredisk"
 				shredMode="autodetect"
-				RMODE="autodetect"
+				RMODE="Autodetect"
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				linuxUser="cameron"
 				linuxPassword="UHouston!"
@@ -1955,13 +1955,6 @@ function autodetectClient {
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Starting Erase Only job (${CLIENTDISK})" | /var/lib/UIT-TSS-TOOLBOX/parse
-				vrfySections="1000"
-				writeSections="1000"
-				PCNTOFSECTOR='10'
-				CHAR='0'
-				APPSELECT="E"
-				ACTION="erase"
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
@@ -1969,8 +1962,15 @@ function autodetectClient {
 					autodetectClient
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				shredMode="autodetect"
-				RMODE="Autodetect Mode"
+				echo "remote|${tagNum}|status|Starting Erase Only job (${CLIENTDISK})" | /var/lib/UIT-TSS-TOOLBOX/parse
+				vrfySections="1000"
+				writeSections="1000"
+				PCNTOFSECTOR='10'
+				CHAR='0'
+				APPSELECT="E"
+				ACTION="erase"
+				shredMode="nist"
+				RMODE="NIST 800-88r1 Mode"
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				footer
 				rtcwake --mode mem --seconds 3
