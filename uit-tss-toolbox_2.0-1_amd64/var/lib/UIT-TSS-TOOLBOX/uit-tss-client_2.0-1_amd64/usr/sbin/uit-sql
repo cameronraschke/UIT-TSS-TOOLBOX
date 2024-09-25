@@ -63,14 +63,20 @@ done
 if [[ $(echo "SELECT task AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
     echo "remote|${tagNum}|task|" | /var/lib/UIT-TSS-TOOLBOX/parse
     echo "remote|${tagNum}|status|fail - Job cancelled :(" | /var/lib/UIT-TSS-TOOLBOX/parse
+    UUID=$(echo "SELECT uuid AS 'result' FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = 1 ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     echo "general|erase_completed||${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
     echo "general|clone_completed||${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
     pkill --terminal tty1
 fi
 
 #Network link speed
-for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do netSpeed=$(cat /sys/class/net/${i}/speed 2>/dev/null); done
-    echo "remote|${tagNum}|network_speed|$netSpeed" | /var/lib/UIT-TSS-TOOLBOX/parse
+for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
+    if [[ $(cat /sys/class/net/${i}/speed 2>/dev/null) != $(cat /tmp/net-link-speed-${i}.uit 2>/dev/null) ]]; then
+        cat /sys/class/net/${i}/speed > /tmp/net-link-speed-${i}.uit
+        $netSpeed=$(cat /tmp/net-link-speed-${i}.uit)
+        echo "remote|${tagNum}|network_speed|$netSpeed" | /var/lib/UIT-TSS-TOOLBOX/parse
+    fi
+done
 
 sleep 10
 
