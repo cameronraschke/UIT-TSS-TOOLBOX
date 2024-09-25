@@ -1866,7 +1866,6 @@ function autodetectClient {
 				# chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
 				# dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
 				# dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
-				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "0" > /root/uptime
 				echo "0" > /tmp/cpu-usage.txt
 				echo "0" > /tmp/network-usage.txt
