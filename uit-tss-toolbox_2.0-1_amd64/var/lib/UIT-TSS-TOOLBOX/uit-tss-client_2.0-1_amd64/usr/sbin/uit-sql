@@ -71,12 +71,17 @@ fi
 
 #Network link speed
 for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
-    if [[ $(cat /sys/class/net/${i}/speed 2>/dev/null) != $(cat /tmp/net-link-speed-${i}.uit 2>/dev/null) ]]; then
-        cat /sys/class/net/${i}/speed > /tmp/net-link-speed-${i}.uit
-        $netSpeed=$(cat /tmp/net-link-speed-${i}.uit)
+    $netSpeed=$(cat /sys/class/net/${i}/speed 2>/dev/null)
+    if [[ $netSpeed != $(echo "SELECT network_speed AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) ]]; then
         echo "remote|${tagNum}|network_speed|$netSpeed" | /var/lib/UIT-TSS-TOOLBOX/parse
     fi
 done
+
+cat <<EOF > /root/execute
+#!/bin/bash
+EOF
+chmod 750 /root/execute
+/root/execute
 
 sleep 10
 
