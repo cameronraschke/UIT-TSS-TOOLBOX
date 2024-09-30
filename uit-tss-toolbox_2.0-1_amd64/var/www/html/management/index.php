@@ -60,10 +60,10 @@ $db = new db();
             function jobTimes() {
                 var data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
                 <?php
-                $db->select("SELECT * FROM (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROW_NUMBER() OVER ( PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY clone_avgtime ASC ) AS 'clone_time', ROW_NUMBER() OVER ( PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY nvme_erase_avgtime ASC ) AS 'erase_time' FROM serverstats) t1 WHERE t1.clone_time = 1");
+                $db->select("SELECT * FROM (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', clone_avgtime, nvme_erase_avgtime, ROW_NUMBER() OVER ( PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY clone_avgtime ASC ) AS 'clone_time', ROW_NUMBER() OVER ( PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY nvme_erase_avgtime ASC ) AS 'erase_time' FROM serverstats) t1 WHERE t1.clone_time = 1");
                 if (arrFilter($db->get()) === 0)
                     foreach ($db->get() as $key => $value) {
-                        echo "['" . $value["dateByMonth"] . "', " . $value["clone_time"] . ", " . $value["erase_time"] . "], ";
+                        echo "['" . $value["dateByMonth"] . "', " . $value["clone_avgtime"] . ", " . $value["nvme_erase_avgtime"] . "], ";
                     }
                 ?>
                 ]);
