@@ -61,6 +61,7 @@ $db = new db();
                 var data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
                 <?php
                 $db->select("SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROUND(AVG(clone_avgtime), 0) AS 'clone_avgtime', ROUND((AVG(nvme_erase_avgtime) + AVG(sata_erase_avgtime)) / 2, 0) AS 'erase_avgtime' FROM serverstats WHERE date > DATE_SUB(CURDATE(), INTERVAL 6 MONTH) GROUP BY dateByMonth ORDER BY dateByMonth ASC");
+                //select * from (select DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', clone_avgtime, nvme_erase_avgtime, row_number() over ( partition by DATE_FORMAT(date, '%Y-%m') order by clone_avgtime asc ) as 'clone_time', row_number() over ( partition by DATE_FORMAT(date, '%Y-%m') order by nvme_erase_avgtime asc ) as 'erase_time' from serverstats) t2 where t2.clone_time = 1;
                 if (arrFilter($db->get()) === 0)
                     foreach ($db->get() as $key => $value) {
                         echo "['" . $value["dateByMonth"] . "', " . $value["clone_avgtime"] . ", " . $value["erase_avgtime"] . "], ";
