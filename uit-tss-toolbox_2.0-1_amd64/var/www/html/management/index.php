@@ -60,7 +60,7 @@ $db = new db();
             function jobTimes() {
                 var data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
                 <?php
-                $db->select("SELECT * FROM (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', clone_avgtime, nvme_erase_avgtime, ROW_NUMBER() OVER ( PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY clone_avgtime ASC ) AS 'clone_time', ROW_NUMBER() OVER ( PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY nvme_erase_avgtime ASC ) AS 'erase_time' FROM serverstats) t1 WHERE t1.clone_time = 1");
+                $db->select("SELECT * FROM (SELECT date, DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', clone_avgtime, ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY clone_avgtime ASC) AS 'clone_time' FROM serverstats) t1 INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonthErase', nvme_erase_avgtime, ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY nvme_erase_avgtime ASC) AS 'erase_time' FROM serverstats) t2 ON t1.dateByMonth = t2.dateByMonthErase WHERE t1.clone_time = 1 AND t2.erase_time = 1 AND t1.date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)");
                 if (arrFilter($db->get()) === 0)
                     foreach ($db->get() as $key => $value) {
                         echo "['" . $value["dateByMonth"] . "', " . $value["clone_avgtime"] . ", " . $value["nvme_erase_avgtime"] . "], ";
