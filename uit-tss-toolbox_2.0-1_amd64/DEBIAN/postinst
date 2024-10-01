@@ -40,11 +40,11 @@ if [[ $(md5sum /home/cameron/bios-update/Latitude_3400_3500_1.32.0.exe | awk '{ 
 fi
 
 # Dell Latitude 7X00
-if [[ ! -f /home/cameron/bios-update/Latitude_7X00_1.31.0.exe ]]; then
-    wget 'https://dl.dell.com/FOLDER11469357M/1/Latitude_7X00_1.31.0.exe' --output-file /home/cameron/bios-update/Latitude_7X00_1.31.0.exe
+if [[ ! -f /home/cameron/bios-update/Latitude_7X00_1.34.0.exe ]]; then
+    wget 'https://dl.dell.com/FOLDER11469357M/1/Latitude_7X00_1.34.0.exe' --output-file /home/cameron/bios-update/Latitude_7X00_1.34.0.exe
 fi
-if [[ $(md5sum /home/cameron/bios-update/Latitude_7X00_1.31.0.exe | awk '{ print $1 }') != 'af5a3c0e14b91af6e6d41e1a19d6379d' ]]; then
-    echo "CHECKSUM FAILED: Latitude_7X00_1.31.0.exe"
+if [[ $(md5sum /home/cameron/bios-update/Latitude_7X00_1.34.0.exe | awk '{ print $1 }') != 'af5a3c0e14b91af6e6d41e1a19d6379d' ]]; then
+    echo "CHECKSUM FAILED: Latitude_7X00_1.34.0.exe"
 fi
 
 # ln --force --symbolic /usr/sbin/uit-sql-refresh-server /var/www/html/management/uit-sql-refresh-server
