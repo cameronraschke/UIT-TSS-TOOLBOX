@@ -351,9 +351,6 @@ echo "</div>";
 <div class='pagetitle' style="margin: 5% 0% 0% 0%;">
     <h3>Laptops <u>NOT</u> Currently Present</h3>
 </div>
-<div class='styled-form2'>
-    <input type="text" id="myInput1" onkeyup="myFunction1()" placeholder="Search tag number...">
-</div>
         <div class='styled-table' style="width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;">
             <table id="myTable1" width="100%">
             <thead>
@@ -410,7 +407,7 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
-        echo "<td id='absentStatus'>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         if (strFilter($value["battery_charge"]) === 0) {
             echo "<td>" . htmlspecialchars($value["battery_charge"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
             if (strFilter($value["battery_status"]) === 0) {
@@ -458,9 +455,6 @@ echo "</div>";
                 //Update client table
                 const myTable = doc.getElementById('myTable').innerHTML
                 document.getElementById("myTable").innerHTML = myTable
-                //absentStatus
-                const absentStatus = doc.getElementById('absentStatus').innerHTML
-                document.getElementById("absentStatus").innerHTML = absentStatus
                 //absentLocation (WIP)
                 //Update DIVs
                 const updatediv = doc.getElementById('updatediv').innerHTML
@@ -468,6 +462,9 @@ echo "</div>";
                 //Runing jobs overview
                 const runningJobs = doc.getElementById('runningJobs').innerHTML
                 document.getElementById("runningJobs").innerHTML = runningJobs
+                //myTable1
+                const myTable1 = doc.getElementById('myTable1').innerHTML
+                document.getElementById("myTable1").innerHTML = myTable1
             });
             fetchHTML();
         }, 3000)}
