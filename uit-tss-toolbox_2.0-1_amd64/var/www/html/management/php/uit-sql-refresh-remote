@@ -1,6 +1,6 @@
 <?php
 # Connect to database and include custom functions
-include('/var/lib/UIT-TSS-TOOLBOX/include.php');
+//include('/var/www/html/management/php/include.php');
 
 $db = new db();
 
