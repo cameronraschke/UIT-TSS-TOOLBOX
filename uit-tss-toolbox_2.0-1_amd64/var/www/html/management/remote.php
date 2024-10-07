@@ -203,7 +203,7 @@ if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
         echo "<td>";
-        if ($value["status"] !== "Waiting for job" && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1 && strFilter($value["task"]) === 1) {
+        if (($value["status"] !== "Waiting for job" || strFilter($value["task"]) === 1) && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
             echo "<b>In Progress: </b>";
         }
 
