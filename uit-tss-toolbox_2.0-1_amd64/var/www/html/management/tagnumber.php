@@ -20,7 +20,7 @@ if (isset($_POST["task"])) {
         <title>UIT Client Mgmt - <?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
-    <body>
+    <body onload="fetchHTML()">
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
@@ -107,7 +107,7 @@ if (isset($_POST["task"])) {
                         $db->select("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task = 'cancel' THEN 'Cancel Running Jobs' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task, status FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
                         if (arrFilter($db->get()) === 0) {
                             foreach ($db->get() as $key => $value) {
-                                echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|" . htmlspecialchars($value["task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["formatted_task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>";
+                                echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|" . htmlspecialchars($value["task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["formatted_task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>";
                                 echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
                                 echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
                                 echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
@@ -128,7 +128,7 @@ if (isset($_POST["task"])) {
                         </form>
                         </td>
 
-                        <td>
+                        <td name='curStatus' id='curStatus'>
                 <?php
                 $db->Pselect("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool, kernel_updated, SEC_TO_TIME(uptime) AS 'uptime_formatted' FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
                 if (arrFilter($db->get()) === 0) {
@@ -158,7 +158,7 @@ if (isset($_POST["task"])) {
 
         
         <div class='pagetitle'><h3>General Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></u></h3></div>
-        <div class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div name='updateDiv1' id='updateDiv1' class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
                 <tr>
@@ -227,7 +227,7 @@ if (isset($_POST["task"])) {
 
         <div class='pagetitle'><h3>Location Info</h3></div>
 
-        <div class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div name='updateDiv2' id='updateDiv2' class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
                 <tr>
@@ -266,7 +266,7 @@ if (isset($_POST["task"])) {
         </div>
 
         <div class='pagetitle'><h3>Client Health</h3></div>
-        <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div name='updateDiv3' id='updateDiv3' class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
                 <tr>
@@ -295,7 +295,7 @@ if (isset($_POST["task"])) {
         </div>
 
         <div class='pagetitle'><h3>Job Log</h3></div>
-        <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div name='updateDiv4' id='updateDiv4' class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
                 <tr>
@@ -339,6 +339,36 @@ if (isset($_POST["task"])) {
             if ( window.history.replaceState ) {
                 window.history.replaceState( null, null, window.location.href );
             }
+
+            var i = 0;
+        function fetchHTML() {
+            const var1 = setTimeout(function() {
+            fetch('/remote.php')
+            .then((response) => {
+                    return response.text();
+            })
+            .then((html) => {
+                //document.body.innerHTML = html
+                const parser = new DOMParser()
+                const doc = parser.parseFromString(html, "text/html")
+                //Update curJob at the top
+                const curJob = doc.getElementById('curJob').innerHTML
+                document.getElementById("curJob").innerHTML = curJob
+                //Update current status
+                const curStatus = doc.getElementById('curStatus').innerHTML
+                document.getElementById("curStatus").innerHTML = curStatus
+                //Update tables
+                const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
+                document.getElementById("updateDiv1").innerHTML = updateDiv1
+                const updateDiv2 = doc.getElementById('updateDiv2').innerHTML
+                document.getElementById("updateDiv2").innerHTML = updateDiv2
+                const updateDiv3 = doc.getElementById('updateDiv3').innerHTML
+                document.getElementById("updateDiv3").innerHTML = updateDiv3
+                const updateDiv4 = doc.getElementById('updateDiv4').innerHTML
+                document.getElementById("updateDiv4").innerHTML = updateDiv4
+            });
+            fetchHTML();
+        }, 3000)}
         </script>
 
     <div class="uit-footer">
