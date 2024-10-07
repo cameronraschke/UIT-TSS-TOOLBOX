@@ -186,7 +186,6 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <th>Uptime</th>
                 <th>CPU Temp</th>
                 <th>Disk Temp</th>
-                <th>Actual Power Draw</th>
                 </tr>
             </thead>
             <tbody>
@@ -265,7 +264,6 @@ if (arrFilter($db->get()) === 0) {
         echo "<td id='uptime'>" . htmlspecialchars($value["uptime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "<td id='presentCPUTemp'>" . htmlspecialchars($value["cpu_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "<td id='presentDiskTemp'>" . htmlspecialchars($value["disk_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td id='presentPowerDraw'> " . htmlspecialchars($value["watts_now"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "</tr>";
     }
 }
