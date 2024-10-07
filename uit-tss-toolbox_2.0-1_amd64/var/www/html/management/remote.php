@@ -180,7 +180,6 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
                 <th>Tag Number</th>
                 <th>Last Job Time</th>
                 <th>Location</th>
-                <th>Pending Job</th>
                 <th>Current Status</th>
                 <th>OS Installed</th>
                 <th>Battery Charge</th>
