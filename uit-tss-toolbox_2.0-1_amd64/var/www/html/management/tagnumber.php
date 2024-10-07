@@ -341,34 +341,34 @@ if (isset($_POST["task"])) {
             }
 
             var i = 0;
-        function fetchHTML() {
-            const var1 = setTimeout(function() {
-            fetch('/remote.php')
-            .then((response) => {
-                    return response.text();
-            })
-            .then((html) => {
-                //document.body.innerHTML = html
-                const parser = new DOMParser()
-                const doc = parser.parseFromString(html, "text/html")
-                //Update curJob at the top
-                const curJob = doc.getElementById('curJob').innerHTML
-                document.getElementById("curJob").innerHTML = curJob
-                //Update current status
-                const curStatus = doc.getElementById('curStatus').innerHTML
-                document.getElementById("curStatus").innerHTML = curStatus
-                //Update tables
-                const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
-                document.getElementById("updateDiv1").innerHTML = updateDiv1
-                const updateDiv2 = doc.getElementById('updateDiv2').innerHTML
-                document.getElementById("updateDiv2").innerHTML = updateDiv2
-                const updateDiv3 = doc.getElementById('updateDiv3').innerHTML
-                document.getElementById("updateDiv3").innerHTML = updateDiv3
-                const updateDiv4 = doc.getElementById('updateDiv4').innerHTML
-                document.getElementById("updateDiv4").innerHTML = updateDiv4
-            });
-            fetchHTML();
-        }, 3000)}
+            function fetchHTML() {
+                const var1 = setTimeout(function() {
+                fetch('/tagnumber.php')
+                .then((response) => {
+                        return response.text();
+                })
+                .then((html) => {
+                    //document.body.innerHTML = html
+                    const parser = new DOMParser()
+                    const doc = parser.parseFromString(html, "text/html")
+                    //Update time at the top
+                    const time = doc.getElementById('time').innerHTML
+                    document.getElementById("time").innerHTML = time
+                    //Update remote stats 
+                    const remoteStats = doc.getElementById('remoteStats').innerHTML
+                    document.getElementById("remoteStats").innerHTML = remoteStats
+                    //Update client table
+                    const myTable = doc.getElementById('myTable').innerHTML
+                    document.getElementById("myTable").innerHTML = myTable
+                    //Runing jobs overview
+                    const runningJobs = doc.getElementById('runningJobs').innerHTML
+                    document.getElementById("runningJobs").innerHTML = runningJobs
+                    //myTable1
+                    const myTable1 = doc.getElementById('myTable1').innerHTML
+                    document.getElementById("myTable1").innerHTML = myTable1
+                });
+                fetchHTML();
+            }, 3000)}
         </script>
 
     <div class="uit-footer">
