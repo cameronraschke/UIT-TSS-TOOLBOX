@@ -14,14 +14,14 @@ $db = new db();
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
+        <!-- <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
         <script src="/jquery/jquery-3.7.1.min.js"></script>
-        <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
+        <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script> -->
         <title>UIT Client Mgmt - Remote Jobs</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body onload="fetchHTML()">
-        <script>
+        <!-- <script>
             function popup(tag) {
                     $( "#popup-" + tag ).dialog({
                         modal: true,
@@ -31,7 +31,7 @@ $db = new db();
                     });
                 document.getElementById('popup-' + tag).style.display = {style: "block"};
             }
-        </script>
+        </script> -->
 
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
@@ -148,7 +148,6 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
 </div>
 
 
-
 <div id="runningJobs" style='max-height: 20%; width: auto; margin: 1% 1% 1% 1%;'>
     <?php
         $db->select("SELECT COUNT(tagnumber) AS 'count', status FROM remote WHERE (task IS NOT NULL OR NOT status = 'Waiting for job') AND present_bool = 1 GROUP BY status");
@@ -161,60 +160,6 @@ if (isset($_POST['location']) && isset($_POST['location-action'])) {
         }
     ?>
 </div>
-
-
-
-<div id='updatediv'>
-<?php
-$db->select("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', DATE_FORMAT(last_job_time, '%b %D %Y, %r') AS 'last_job_time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task = 'cancel' THEN 'Cancel Running Jobs' WHEN task IS NULL THEN 'No Job' END) AS 'task_formatted', task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', kernel_updated, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY bios_updated DESC, kernel_updated DESC, FIELD(task, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, last_job_time DESC");
-if (arrFilter($db->get()) === 0) {
-    foreach ($db->get() as $key => $value) {
-        echo "<div style='display: none;' id='popup-" . $value["tagnumber"] . "' title='Change Job - " . $value["tagnumber"] . "'>" . PHP_EOL;
-        echo "<table class='styled-table'>";
-        echo "<tr>";
-        echo "<th>Last Job Time</th>";
-        echo "<th>Pending Job</th>";
-        echo "<th>Current Status</th>";
-        echo "<th>OS Installed</th>";
-        echo "<th>Bios Updated</th>";
-        echo "<th>Kernel Updated</th>";
-        echo "<th>Uptime</th>";
-        echo "</tr>";
-        echo "<tr>";
-        echo "<td>" . htmlspecialchars($value["last_job_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
-        echo "<td>" . htmlspecialchars($value["task_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
-        echo "<td>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
-        echo "<td>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
-        echo "<td>" . htmlspecialchars($value["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
-        if ($value["kernel_updated"] === 1) {
-            echo "<td>Yes</td>";
-        } else {
-            echo "<td>No</td>";
-        }
-        echo "<td>" . htmlspecialchars($value["uptime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>";
-        echo "</tr>";
-        echo "</table>";
-        echo "<form name='task' method='post'>" . PHP_EOL;
-        echo "<select name='task'>" . PHP_EOL;
-        if (strFilter($value["task"]) === 1) {
-            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job Queued</option>" . PHP_EOL;
-        } else {
-            echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'><b>In progress: </b>" . $value["task_formatted"] . "</option>" . PHP_EOL;
-        }
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-        echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
-        echo "</select>" . PHP_EOL;
-        echo "<input type='submit' value='Submit'></form>";
-        echo "</div>";
-    }
-}
-?>
-</div>
-
 
 
 <div class='pagetitle'>
@@ -303,26 +248,9 @@ if (arrFilter($db->get()) === 0) {
         unset($value1);
 
         if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
-            // echo "<td><form name='task' method='post'><select name='task' onchange='this.form.submit()'>";
-            // if (strFilter($value["task"]) === 1) {
-            //     echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|NULL'>No Job</option>";
-            // } else {
-            //     echo "<option id='pendingJob' value='" . $value["tagnumber"] . "|" . $value["task"] . "'>" . $value["task_formatted"] . "</option>";
-            // }
-            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
-            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
-            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
-            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
-            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-            // echo "<option value='" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
-            // echo "</select></form></td>" . PHP_EOL;
-            echo "<td>";
-        if (strFilter($value["task"]) === 1) {
-                echo "<button onclick='popup(" . $value["tagnumber"] . ")'>Change Job</button>";
-            } else {
-                echo "<a style='cursor: pointer' onclick='popup(" . $value["tagnumber"] . ")'><b><u>" . $value["task_formatted"] . "</u></b></a>";
+            if (strFilter($value["task_formatted"]) === 1) {
+                    echo "<td>" . $value["task_formatted"] . "</td>" . PHP_EOL;
             }
-            echo "</select></td>";
         } elseif ($value["bios_updated"] !== "Yes" && strFilter($value["kernel_updated"]) === 1) {
             echo "<td><i>BIOS and Kernel Out of Date</i></td>" . PHP_EOL;
         } elseif ($value["bios_updated"] !== "Yes") {
@@ -330,7 +258,6 @@ if (arrFilter($db->get()) === 0) {
         } elseif (strFilter($value["kernel_updated"]) === 1) {
             echo "<td><i><a style='color: gray;' href='/documentation/kernel-update.php' target='_blank'>Kernel Out of Date</a></i></td>" . PHP_EOL;
         } else {
-            echo "<td><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
             echo "<td style='color: gray;'><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
         }
         echo "<td id='presentStatus'>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
@@ -455,10 +382,6 @@ echo "</div>";
                 //Update client table
                 const myTable = doc.getElementById('myTable').innerHTML
                 document.getElementById("myTable").innerHTML = myTable
-                //absentLocation (WIP)
-                //Update DIVs
-                const updatediv = doc.getElementById('updatediv').innerHTML
-                document.getElementById("updatediv").innerHTML = updatediv
                 //Runing jobs overview
                 const runningJobs = doc.getElementById('runningJobs').innerHTML
                 document.getElementById("runningJobs").innerHTML = runningJobs
@@ -470,25 +393,25 @@ echo "</div>";
         }, 3000)}
 
 
-        function myFunction1() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("myInput1");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable1");
-        tr = table.getElementsByTagName("tr");
+        // function myFunction1() {
+        // var input, filter, table, tr, td, i, txtValue;
+        // input = document.getElementById("myInput1");
+        // filter = input.value.toUpperCase();
+        // table = document.getElementById("myTable1");
+        // tr = table.getElementsByTagName("tr");
 
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[0];
-            if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-            }
-        }
-        }
+        // for (i = 0; i < tr.length; i++) {
+        //     td = tr[i].getElementsByTagName("td")[0];
+        //     if (td) {
+        //     txtValue = td.textContent || td.innerText;
+        //     if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        //         tr[i].style.display = "";
+        //     } else {
+        //         tr[i].style.display = "none";
+        //     }
+        //     }
+        // }
+        // }
 
     </script>
     <div class="uit-footer">
