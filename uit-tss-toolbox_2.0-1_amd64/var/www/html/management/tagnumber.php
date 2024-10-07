@@ -343,7 +343,7 @@ if (isset($_POST["task"])) {
             var i = 0;
             function fetchHTML() {
                 const var1 = setTimeout(function() {
-                fetch('/tagnumber.php')
+                fetch('/tagnumber.php?<?php echo $_GET['tagnumber']; ?>')
                 .then((response) => {
                         return response.text();
                 })
