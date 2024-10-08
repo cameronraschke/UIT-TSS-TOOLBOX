@@ -1131,6 +1131,7 @@ function zeroMode_Shred {
 	WMODE='zero'
 	CHAR='0'
 	if [[ $diskType == "hdd" ]]; then
+		PCNTOFSECTOR="5"
 		echo "Step [1/1]: "
 		writeDisk_Shred
 		echo ""
