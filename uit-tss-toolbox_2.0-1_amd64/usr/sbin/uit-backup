@@ -4,4 +4,4 @@ DTIME=$(date '+%F-%H%M%S')
 mysqldump --user="root" --password="UHouston!" --host="localhost" laptopDB > /home/images/sql-backups/laptopDB-${DTIME}.sql
 mysqldump --user="root" --password="UHouston!" --host="localhost" shrl > /home/images/sql-backups/shrlDB-${DTIME}.sql
 
-rsync -a --delete /home/images/ /mnt/images
+#rsync -a --delete /home/images/ /mnt/images
