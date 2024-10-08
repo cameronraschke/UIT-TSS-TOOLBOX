@@ -30,7 +30,7 @@ if (isset($_POST["task"])) {
 
         <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
         <div class='pagetitle'><h2>Lookup data for a specific client.</h2></div>
-        <div class='pagetitle'><h3>Data on this page was last updated at: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
+        <div name='curTime' id='curTime' class='pagetitle'><h3>Data on this page was last updated at: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
         <div class='laptop-images'>
         <?php
@@ -351,13 +351,16 @@ if (isset($_POST["task"])) {
                     //document.body.innerHTML = html
                     const parser = new DOMParser()
                     const doc = parser.parseFromString(html, "text/html")
-                    //
+                    // update current time
+                    const curTime = doc.getElementById('curTime').innerHTML
+                    document.getElementById("curTime").innerHTML = curTime
+                    // update current job in dropdown menu
                     const curJob = doc.getElementById('curJob').innerHTML
                     document.getElementById("curJob").innerHTML = curJob
-                    //
+                    // update current status
                     const curStatus = doc.getElementById('curStatus').innerHTML
                     document.getElementById("curStatus").innerHTML = curStatus
-                    //
+                    // update all other tables
                     const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
                     document.getElementById("updateDiv1").innerHTML = updateDiv1
                     const updateDiv2 = doc.getElementById('updateDiv2').innerHTML
