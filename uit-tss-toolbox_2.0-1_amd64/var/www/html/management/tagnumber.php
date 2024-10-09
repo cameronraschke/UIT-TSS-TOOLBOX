@@ -383,7 +383,7 @@ if (isset($_POST["task"])) {
             </thead>
             <tbody>
                 <?php
-                $db->Pselect("SELECT t1.system_serial, t1.disk_type, t1.etheraddress, t2.chassis_type, t2.wifi_mac, (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department', t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = :tagnumber1 AND t2.tagnumber = :tagnumber2 AND t1.uuid NOT LIKE 'location-%' AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1", array(':tagnumber1' => htmlspecialchars_decode($_GET['tagnumber']), ':tagnumber2' => htmlspecialchars_decode($_GET['tagnumber'])));
+                $db->Pselect("SELECT t1.system_serial, t1.disk_type, t1.etheraddress, t2.chassis_type, t2.wifi_mac, t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = :tagnumber1 AND t2.tagnumber = :tagnumber2 AND t1.uuid NOT LIKE 'location-%' AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1", array(':tagnumber1' => htmlspecialchars_decode($_GET['tagnumber']), ':tagnumber2' => htmlspecialchars_decode($_GET['tagnumber'])));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
                     echo "<tr>" . PHP_EOL;
@@ -406,7 +406,15 @@ if (isset($_POST["task"])) {
                         }
                     }
                     echo "</td>" . PHP_EOL;
-                    echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
+                    $db->Pselect("SELECT (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department' FROM jobstats WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+                    if (arrFilter($db->get()) === 0) {
+                        foreach ($db->get() as $key => $value1) {
+                            echo "<td>" . $value1['department'] . "</td>" . PHP_EOL;
+                        }
+                    } else {
+                        echo "<td>NULL</td>" . PHP_EOL;
+                    }
+                    unset($value1);
                     echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
                     $db->select("SELECT bios_version FROM jobstats WHERE bios_version IS NOT NULL AND tagnumber = '" . htmlspecialchars_decode($_GET["tagnumber"]) . "' ORDER BY time DESC LIMIT 1");
