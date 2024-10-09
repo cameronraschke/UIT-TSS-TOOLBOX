@@ -406,7 +406,7 @@ if (isset($_POST["task"])) {
                         }
                     }
                     echo "</td>" . PHP_EOL;
-                    $db->Pselect("SELECT (CASE WHEN t1.department='techComm' THEN 'Tech Commons (TSS)' WHEN t1.department='property' THEN 'Property' WHEN t1.department='shrl' THEN 'SHRL' ELSE '' END) AS 'department' FROM jobstats WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+                    $db->Pselect("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department' FROM jobstats WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
                             echo "<td>" . $value1['department'] . "</td>" . PHP_EOL;
