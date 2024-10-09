@@ -373,6 +373,7 @@ unset($_POST);
                         echo "<div>" . PHP_EOL;
                         echo "<div style='float: left;'>" . PHP_EOL;
                         echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
+                        echo "<br>" . PHP_EOL;
                         echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
                         if (arrFilter($db->get()) === 0) {
                             $db->Pselect("SELECT disk_removed FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
@@ -394,8 +395,9 @@ unset($_POST);
                         }
                         echo "</select>" . PHP_EOL;
                         echo "</div>" . PHP_EOL;
-                        echo "<div style='float: right;>" . PHP_EOL;
+                        echo "<div style='float: right;'>" . PHP_EOL;
                         echo "<label for='status'>Working or Broken?</label>" . PHP_EOL;
+                        echo "<br>" . PHP_EOL;
                         echo "<select name='status' id='status'>" . PHP_EOL;
                         if (arrFilter($db->get()) === 0) {
                             $db->Pselect("SELECT status FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
