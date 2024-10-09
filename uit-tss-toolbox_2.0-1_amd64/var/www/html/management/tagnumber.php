@@ -279,7 +279,7 @@ if (isset($_POST["task"])) {
                         } else {
                             echo "<input class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
                         }
-                        echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
+                        echo "<div class='page-content'><a href='locations.php' target='_blank'>Update a different laptop.</a></div>" . PHP_EOL;
                     }
                 }
                 unset($arr);
