@@ -336,10 +336,10 @@ unset($_POST);
                         echo "</select></div>" . PHP_EOL;
                         if (arrFilter($db->get()) === 0) {
                             echo "<div><label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
-                            echo "<div><input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' required style='width: 20%; height: 4%;'></div>" . PHP_EOL;
+                            echo "<div><input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' required style='width: 50%; height: 4%;'></div>" . PHP_EOL;
                         } else {
                             echo "<div><label for='location'>Location</label></div>" . PHP_EOL;
-                            echo "<div><input type='text' id='location' name='location' required style='width: 20%; height: 4%;'></div>" . PHP_EOL;
+                            echo "<div><input type='text' id='location' name='location' required style='width: 50%; height: 4%;'></div>" . PHP_EOL;
                         }
 
 
@@ -365,7 +365,7 @@ unset($_POST);
                         }
                         echo "</div>" . PHP_EOL;
 
-                        echo "<div>" . PHP_EOL;
+                        echo "<div style='float: 60%;'>" . PHP_EOL;
                         echo "<div style='float: left;'>" . PHP_EOL;
                         echo "<div><label for='disk_removed'>Disk removed?</label></div>" . PHP_EOL;
                         echo "<div><select name='disk_removed' id='disk_removed'>" . PHP_EOL;
@@ -414,9 +414,9 @@ unset($_POST);
                         echo "</div>" . PHP_EOL;
                         echo "</div>" . PHP_EOL;
 
-                        echo "<div class='page-content'><input type='submit' value='Update Location Data'></div>" . PHP_EOL;
+                        echo "<div style='margin: 3% 0% 0% 0%;' class='page-content'><input type='submit' value='Update Location Data'></div>" . PHP_EOL;
 
-                        echo "<div class='page-content'><a href='locations.php' target='_blank'>Update a different client's location.</a></div>" . PHP_EOL;
+                        echo "<div style='margin: 1% 0% 0% 0%;' class='page-content'><a href='locations.php' target='_blank'>Update a different client's location.</a></div>" . PHP_EOL;
                     }
                 }
                 unset($arr);
