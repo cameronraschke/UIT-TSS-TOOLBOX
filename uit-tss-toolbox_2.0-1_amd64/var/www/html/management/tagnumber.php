@@ -313,9 +313,8 @@ unset($_POST);
                             $departmentHTML = "";
                             $departmentFormatted = "NULL";
                         }
-                        echo "<label for='department'>Department</label>" . PHP_EOL;
-                        echo "<br>" . PHP_EOL;
-                        echo "<select name='department' id='department'>" . PHP_EOL;
+                        echo "<div><label for='department'>Department</label></div>" . PHP_EOL;
+                        echo "<div><select name='department' id='department'>" . PHP_EOL;
                         if ($department === "techComm") {
                             echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                             echo "<option value='property'>Property Management</option>" . PHP_EOL;
@@ -334,24 +333,20 @@ unset($_POST);
                             echo "<option value='property'>Property Management</option>" . PHP_EOL;
                             echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
                         }
-                        echo "</select>" . PHP_EOL;
-                        echo "<br>" . PHP_EOL;
+                        echo "</select></div>" . PHP_EOL;
                         if (arrFilter($db->get()) === 0) {
-                            echo "<label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label>" . PHP_EOL;
-                            echo "<br>" . PHP_EOL;
-                            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' required style='width: 20%; height: 4%;'>" . PHP_EOL;
+                            echo "<div><label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
+                            echo "<div><input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' required style='width: 20%; height: 4%;'></div>" . PHP_EOL;
                         } else {
-                            echo "<label for='location'>Location</label>" . PHP_EOL;
-                            echo "<br>" . PHP_EOL;
-                            echo "<input type='text' id='location' name='location' required style='width: 20%; height: 4%;'>" . PHP_EOL;
+                            echo "<div><label for='location'>Location</label></div>" . PHP_EOL;
+                            echo "<div><input type='text' id='location' name='location' required style='width: 20%; height: 4%;'></div>" . PHP_EOL;
                         }
-                        echo "<br>" . PHP_EOL;
-                        echo "<label for='note'>Note</label>" . PHP_EOL;
-                        echo "<br>" . PHP_EOL;
 
+
+                        echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
                         if (arrFilter($db->get()) === 0) {
                             // Get the most recent note that's not null
-                            
+                            echo "<div>" . PHP_EOL;
                             $db->Pselect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', note, status FROM locations WHERE tagnumber = :tagnumber AND note IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
                             if (arrFilter($db->get()) === 0) {
                                 foreach ($db->get() as $key => $value1) {
@@ -368,13 +363,12 @@ unset($_POST);
                         } else {
                             echo "<textarea name='note' id='note' style='width: 70%;'></textarea>" . PHP_EOL;
                         }
+                        echo "</div>" . PHP_EOL;
 
-                        echo "<br>" . PHP_EOL;
                         echo "<div>" . PHP_EOL;
                         echo "<div style='float: left;'>" . PHP_EOL;
-                        echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
-                        echo "<br>" . PHP_EOL;
-                        echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
+                        echo "<div><label for='disk_removed'>Disk removed?</label></div>" . PHP_EOL;
+                        echo "<div><select name='disk_removed' id='disk_removed'>" . PHP_EOL;
                         if (arrFilter($db->get()) === 0) {
                             $db->Pselect("SELECT disk_removed FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
                             if (arrFilter($db->get()) === 0) {
@@ -393,12 +387,11 @@ unset($_POST);
                             echo "<option value='0'>No</option>" . PHP_EOL;
                             echo "<option value='1'>Yes</option>" . PHP_EOL;
                         }
-                        echo "</select>" . PHP_EOL;
+                        echo "</select></div>" . PHP_EOL;
                         echo "</div>" . PHP_EOL;
                         echo "<div style='float: right;'>" . PHP_EOL;
-                        echo "<label for='status'>Working or Broken?</label>" . PHP_EOL;
-                        echo "<br>" . PHP_EOL;
-                        echo "<select name='status' id='status'>" . PHP_EOL;
+                        echo "<div><label for='status'>Working or Broken?</label></div>" . PHP_EOL;
+                        echo "<div><select name='status' id='status'>" . PHP_EOL;
                         if (arrFilter($db->get()) === 0) {
                             $db->Pselect("SELECT status FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
                             if (arrFilter($db->get()) === 0) {
@@ -417,14 +410,11 @@ unset($_POST);
                             echo "<option value='1'>Yes</option>" . PHP_EOL;
                             echo "<option value='0'>No</option>" . PHP_EOL;
                         }
-                        echo "</select>" . PHP_EOL;
+                        echo "</select></div>" . PHP_EOL;
                         echo "</div>" . PHP_EOL;
                         echo "</div>" . PHP_EOL;
-                        echo "<br>" . PHP_EOL;
 
-                        echo "<br>" . PHP_EOL;
-
-                        echo "<input class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
+                        echo "<div class='page-content'><input type='submit' value='Update Location Data'></div>" . PHP_EOL;
 
                         echo "<div class='page-content'><a href='locations.php' target='_blank'>Update a different client's location.</a></div>" . PHP_EOL;
                     }
