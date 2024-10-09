@@ -407,8 +407,8 @@ unset($_POST);
                             }
                             unset($value1);
                         } else {
-                            echo "<option value='1'>Yes</option>" . PHP_EOL;
-                            echo "<option value='0'>No</option>" . PHP_EOL;
+                            echo "<option value='0'>Working</option>" . PHP_EOL;
+                            echo "<option value='1'>Broken</option>" . PHP_EOL;
                         }
                         echo "</select></div>" . PHP_EOL;
                         echo "</div>" . PHP_EOL;
