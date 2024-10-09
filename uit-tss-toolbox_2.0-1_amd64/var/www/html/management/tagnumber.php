@@ -17,10 +17,57 @@ if (isset($_POST["task"])) {
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
+        <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
+        <script src="/jquery/jquery-3.7.1.min.js"></script>
+        <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
+        <link rel='stylesheet' type='text/css' href='/css/main.css' />
         <title>UIT Client Mgmt - <?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <style>
+        .ui-autocomplete {
+            max-height: 100px;
+            overflow-y: auto;
+            /* prevent horizontal scrollbar */
+            overflow-x: hidden;
+        }
+        </style>
     </head>
     <body onload="fetchHTML()">
+    <script>
+        $( function() {
+            var availableTags = [
+            <?php
+            if (!isset($_POST['serial'])) {
+                $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
+                if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value) {
+                        echo "'" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "',";
+                    }
+                }
+            }
+            ?>
+            ];
+            $( "#tagnumber" ).autocomplete({
+                source: availableTags
+            });
+        } );
+
+        $( function() {
+            var availableLocations = [
+            <?php
+                $db->select("CALL selectLocationAutocomplete()");
+                if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value) {
+                        echo "'" . $value["location"] . "',";
+                    }
+                }
+            ?>
+            ];
+            $( "#location" ).autocomplete({
+                source: availableLocations
+            });
+        } );
+    </script>
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
@@ -193,19 +240,19 @@ if (isset($_POST["task"])) {
                         echo "<br>" . PHP_EOL;
                         echo "<select name='department' id='department'>" . PHP_EOL;
                         if ($department === "techComm") {
-                            echo "<option name='deptUpdate' id='deptUpdate' value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
+                            echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                             echo "<option value='property'>Property Management</option>" . PHP_EOL;
                             echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
                         } elseif ($department === "property") {
-                            echo "<option name='deptUpdate' id='deptUpdate' value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
+                            echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                             echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                             echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
                         } elseif ($department === "shrl") {
-                            echo "<option name='deptUpdate' id='deptUpdate' value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
+                            echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                             echo "<option value='property'>Property Management</option>" . PHP_EOL;
                             echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                         } else {
-                            echo "<option name='deptUpdate' id='deptUpdate'>NULL (new entry)</option>" . PHP_EOL;
+                            echo "<option>NULL (new entry)</option>" . PHP_EOL;
                             echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                             echo "<option value='property'>Property Management</option>" . PHP_EOL;
                             echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
@@ -585,14 +632,10 @@ if (isset($_POST["task"])) {
                     document.getElementById("updateDiv3").innerHTML = updateDiv3
                     const updateDiv4 = doc.getElementById('updateDiv4').innerHTML
                     document.getElementById("updateDiv4").innerHTML = updateDiv4
-                    const deptUpdate = doc.getElementById('deptUpdate').innerHTML
-                    document.getElementById("deptUpdate").innerHTML = deptUpdate
                     const location = doc.getElementById('location').innerHTML
                     document.getElementById("location").innerHTML = location
                     const note = doc.getElementById('note').innerHTML
                     document.getElementById("note").innerHTML = note
-                    const disk_removed = doc.getElementById('disk_removed').innerHTML
-                    document.getElementById("disk_removed").innerHTML = disk_removed
                 });
                 fetchHTML();
             }, 3000)}
