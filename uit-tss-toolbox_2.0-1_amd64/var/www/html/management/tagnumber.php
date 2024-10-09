@@ -193,19 +193,19 @@ if (isset($_POST["task"])) {
                         echo "<br>" . PHP_EOL;
                         echo "<select name='department' id='department'>" . PHP_EOL;
                         if ($department === "techComm") {
-                            echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
+                            echo "<option name='deptUpdate' id='deptUpdate' value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                             echo "<option value='property'>Property Management</option>" . PHP_EOL;
                             echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
                         } elseif ($department === "property") {
-                            echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
+                            echo "<option name='deptUpdate' id='deptUpdate' value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                             echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                             echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
                         } elseif ($department === "shrl") {
-                            echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
+                            echo "<option name='deptUpdate' id='deptUpdate' value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
                             echo "<option value='property'>Property Management</option>" . PHP_EOL;
                             echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                         } else {
-                            echo "<option>NULL (new entry)</option>" . PHP_EOL;
+                            echo "<option name='deptUpdate' id='deptUpdate'>NULL (new entry)</option>" . PHP_EOL;
                             echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
                             echo "<option value='property'>Property Management</option>" . PHP_EOL;
                             echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
@@ -585,6 +585,14 @@ if (isset($_POST["task"])) {
                     document.getElementById("updateDiv3").innerHTML = updateDiv3
                     const updateDiv4 = doc.getElementById('updateDiv4').innerHTML
                     document.getElementById("updateDiv4").innerHTML = updateDiv4
+                    const deptUpdate = doc.getElementById('deptUpdate').innerHTML
+                    document.getElementById("deptUpdate").innerHTML = deptUpdate
+                    const location = doc.getElementById('location').innerHTML
+                    document.getElementById("location").innerHTML = location
+                    const note = doc.getElementById('note').innerHTML
+                    document.getElementById("note").innerHTML = note
+                    const disk_removed = doc.getElementById('disk_removed').innerHTML
+                    document.getElementById("disk_removed").innerHTML = disk_removed
                 });
                 fetchHTML();
             }, 3000)}
