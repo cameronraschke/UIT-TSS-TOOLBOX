@@ -281,18 +281,18 @@ if (isset($_POST["task"])) {
                                     $locationStatus = $value1["status"];
                                     if ($locationStatus === 1) {
                                         $locationStatus = 1;
-                                        echo "<textarea name='note' id='note'>" . htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
+                                        echo "<textarea name='note' id='note' style='width: 70%;'>" . htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
                                     } else {
                                         $locationStatus = 0;
-                                        echo "<textarea name='note' id='note' placeholder='(" . htmlspecialchars($value1["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "): ". htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "'></textarea>" . PHP_EOL;
+                                        echo "<textarea name='note' id='note' style='width: 70%;' placeholder='(" . htmlspecialchars($value1["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "): ". htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "'></textarea>" . PHP_EOL;
                                     }
                                 }
                             } else {
-                                echo "<textarea name='note' id='note'></textarea>" . PHP_EOL;
+                                echo "<textarea name='note' id='note' style='width: 70%;'></textarea>" . PHP_EOL;
                             }
                             unset($value1);
                         } else {
-                            echo "<textarea name='note' id='note'></textarea>" . PHP_EOL;
+                            echo "<textarea name='note' id='note' style='width: 70%;'></textarea>" . PHP_EOL;
                         }
 
                         echo "<br>" . PHP_EOL;
