@@ -11,6 +11,82 @@ if (isset($_POST["task"])) {
     }
     unset($_POST["task"]);
 }
+
+if (isset($_POST['department'])) {
+    $uuid = uniqid("location-", true);
+    $tagNum = $_GET["tagnumber"];
+    $serial = $_POST["serial"];
+    $department = $_POST['department'];
+    $location = $_POST['location'];
+    $status = $_POST["status"];
+    $note = $_POST['note'];
+    $diskRemoved = $_POST['disk_removed'];
+
+    #Not the same insert statment as client parse code, ether address is DEFAULT here.
+    $db->insertJob($uuid);
+    $db->updateJob("tagnumber", $tagNum, $uuid);
+    $db->updateJob("system_serial", $serial, $uuid);
+    $db->updateJob ("date", $date, $uuid);
+    $db->updateJob ("time", $time, $uuid);
+    $db->updateJob ("department", $department, $uuid);
+
+
+    $db->Pselect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1", array(':tagnumber' => $tagNum));
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value2) {
+            if ($value2["erase_completed"] === 1 && $value2["clone_completed"] === 1) {
+                $osInstalled = 1;
+            } elseif ($value2["erase_completed"] === 1 && $value2["clone_completed"] !== 1) {
+                $osInstalled = 0;
+            } elseif ($value2["erase_completed"] !== 1 && $value2["clone_completed"] === 1) {
+                $osInstalled = 1;
+            } else {
+                $osInstalled = 0;
+            }
+    
+            $db->updateLocation("os_installed", $osInstalled, $value1["max_time"]);
+        }
+    }
+    unset($value2);
+
+    $db->Pselect("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL AND t1.tagnumber = :tagnumber ORDER BY t1.time DESC LIMIT 1", array(':tagnumber' => $tagNum));
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value2) {
+            $db->select("SELECT bios_version FROM static_bios_stats WHERE system_model = '" . $value2["system_model"] . "'");
+            if (arrFilter($db->get()) == 0) {
+                foreach ($db->get() as $key => $value3) {
+                    if ($value2["bios_version"] === $value3["bios_version"]) {
+                        $biosBool = 1;
+                    } else {
+                        $biosBool = 0;
+                    }
+                }
+            } else { $biosBool = 0; }
+        }
+    } else { $biosBool = 0; }
+    unset($value2);
+    unset($value3);
+
+    $db->insertLocation($time);
+    $db->updateLocation("tagnumber", $tagNum, $time);
+    $db->updateLocation("system_serial", $serial, $time);
+    $db->updateLocation("location", $location, $time);
+    $db->updateLocation("status", $status, $time);
+    $db->updateLocation("disk_removed", $diskRemoved, $time);
+    $db->updateLocation("note", $note, $time);
+    if (isset($osInstalled)) {
+        $db->updateLocation("os_installed", $osInstalled, $time);
+    }
+    if (isset($biosBool)) {
+        $db->updateLocation("bios_updated", $biosBool, $time);
+    }
+    unset($biosBool);
+    unset($osInstalled);
+
+    unset($_POST);
+    header("Location: " . $_SERVER['REQUEST_URI']);
+}
+unset($_POST);
 ?>
 
 <html>
@@ -219,6 +295,7 @@ if (isset($_POST["task"])) {
 
                     foreach ($arr as $key => $value) {
                         $serial = $value["system_serial"];
+                        echo "<input type='hidden' name='serial' id='serial' value='" . htmlspecialchars($serial, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>";
                         // Get the department
                         if (arrFilter($db->get()) === 0) {
                             // Get a human readable department
@@ -279,6 +356,7 @@ if (isset($_POST["task"])) {
                             if (arrFilter($db->get()) === 0) {
                                 foreach ($db->get() as $key => $value1) {
                                     $locationStatus = $value1["status"];
+                                    echo "<input type='hidden' name='status' id='status' value='" . htmlspecialchars($locationStatus, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>";
                                     if ($locationStatus === 1) {
                                         $locationStatus = 1;
                                         echo "<textarea name='note' id='note' style='width: 70%;'>" . htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
@@ -330,82 +408,6 @@ if (isset($_POST["task"])) {
                     }
                 }
                 unset($arr);
-
-                if (isset($_POST['department'])) {
-                    $uuid = uniqid("location-", true);
-                    $tagNum = $_GET["tagnumber"];
-                    $serial = $serial;
-                    $department = $_POST['department'];
-                    $location = $_POST['location'];
-                    $status = $locationStatus;
-                    $note = $_POST['note'];
-                    $diskRemoved = $_POST['disk_removed'];
-    
-                    #Not the same insert statment as client parse code, ether address is DEFAULT here.
-                    $db->insertJob($uuid);
-                    $db->updateJob("tagnumber", $tagNum, $uuid);
-                    $db->updateJob("system_serial", $serial, $uuid);
-                    $db->updateJob ("date", $date, $uuid);
-                    $db->updateJob ("time", $time, $uuid);
-                    $db->updateJob ("department", $department, $uuid);
-    
-    
-                    $db->Pselect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1", array(':tagnumber' => $tagNum));
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value2) {
-                            if ($value2["erase_completed"] === 1 && $value2["clone_completed"] === 1) {
-                                $osInstalled = 1;
-                            } elseif ($value2["erase_completed"] === 1 && $value2["clone_completed"] !== 1) {
-                                $osInstalled = 0;
-                            } elseif ($value2["erase_completed"] !== 1 && $value2["clone_completed"] === 1) {
-                                $osInstalled = 1;
-                            } else {
-                                $osInstalled = 0;
-                            }
-                    
-                            $db->updateLocation("os_installed", $osInstalled, $value1["max_time"]);
-                        }
-                    }
-                    unset($value2);
-        
-                    $db->Pselect("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL AND t1.tagnumber = :tagnumber ORDER BY t1.time DESC LIMIT 1", array(':tagnumber' => $tagNum));
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value2) {
-                            $db->select("SELECT bios_version FROM static_bios_stats WHERE system_model = '" . $value2["system_model"] . "'");
-                            if (arrFilter($db->get()) == 0) {
-                                foreach ($db->get() as $key => $value3) {
-                                    if ($value2["bios_version"] === $value3["bios_version"]) {
-                                        $biosBool = 1;
-                                    } else {
-                                        $biosBool = 0;
-                                    }
-                                }
-                            } else { $biosBool = 0; }
-                        }
-                    } else { $biosBool = 0; }
-                    unset($value2);
-                    unset($value3);
-    
-                    $db->insertLocation($time);
-                    $db->updateLocation("tagnumber", $tagNum, $time);
-                    $db->updateLocation("system_serial", $serial, $time);
-                    $db->updateLocation("location", $location, $time);
-                    $db->updateLocation("status", $status, $time);
-                    $db->updateLocation("disk_removed", $diskRemoved, $time);
-                    $db->updateLocation("note", $note, $time);
-                    if (isset($osInstalled)) {
-                        $db->updateLocation("os_installed", $osInstalled, $time);
-                    }
-                    if (isset($biosBool)) {
-                        $db->updateLocation("bios_updated", $biosBool, $time);
-                    }
-                    unset($biosBool);
-                    unset($osInstalled);
-    
-                    unset($_POST);
-                    header("Location: " . $_SERVER['REQUEST_URI']);
-                }
-                unset($_POST);
                 ?>
             </form>
         </div>
