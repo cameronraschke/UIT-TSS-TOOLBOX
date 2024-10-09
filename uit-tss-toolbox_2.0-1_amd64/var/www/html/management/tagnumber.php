@@ -365,7 +365,7 @@ unset($_POST);
                         }
                         echo "</div>" . PHP_EOL;
 
-                        echo "<div style='float: 60%;'>" . PHP_EOL;
+                        echo "<div style='width: 60%;'>" . PHP_EOL;
                         echo "<div style='float: left;'>" . PHP_EOL;
                         echo "<div><label for='disk_removed'>Disk removed?</label></div>" . PHP_EOL;
                         echo "<div><select name='disk_removed' id='disk_removed'>" . PHP_EOL;
