@@ -175,7 +175,7 @@ if (isset($_POST["task"])) {
                         // Get the department
                         if (arrFilter($db->get()) === 0) {
                             // Get a human readable department
-                            $db->Pselect("SELECT department, (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' WHEN department = 'execSupport' THEN 'Exec Support' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = :tagnumber AND department IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
+                            $db->Pselect("SELECT department, (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' WHEN department = 'execSupport' THEN 'Exec Support' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = :tagnumber AND department IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
                             if (arrFilter($db->get()) === 0) {
                                 foreach ($db->get() as $key =>$value1) {
                                     $department = $value1["department"];
@@ -228,7 +228,7 @@ if (isset($_POST["task"])) {
                         if (arrFilter($db->get()) === 0) {
                             // Get the most recent note that's not null
                             
-                            $db->Pselect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', note, status FROM locations WHERE tagnumber = :tagnumber AND note IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
+                            $db->Pselect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', note, status FROM locations WHERE tagnumber = :tagnumber AND note IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
                             if (arrFilter($db->get()) === 0) {
                                 foreach ($db->get() as $key => $value1) {
                                     $locationStatus = $value1["status"];
@@ -254,7 +254,7 @@ if (isset($_POST["task"])) {
                         echo "<br>" . PHP_EOL;
                         echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
                         if (arrFilter($db->get()) === 0) {
-                            $db->Pselect("SELECT disk_removed FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
+                            $db->Pselect("SELECT disk_removed FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
                             if (arrFilter($db->get()) === 0) {
                                 foreach ($db->get() as $key => $value1) {
                                     if ($value1["disk_removed"] === 1) {
