@@ -215,7 +215,7 @@ if (isset($_POST["task"])) {
                         if (arrFilter($db->get()) === 0) {
                             echo "<label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label>" . PHP_EOL;
                             echo "<br>" . PHP_EOL;
-                            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' autofocus required style='width: 20%; height: 4%;'>" . PHP_EOL;
+                            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' required style='width: 20%; height: 4%;'>" . PHP_EOL;
                         } else {
                             echo "<label for='location'>Location</label>" . PHP_EOL;
                             echo "<br>" . PHP_EOL;
