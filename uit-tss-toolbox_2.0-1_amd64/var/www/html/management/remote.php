@@ -3,6 +3,7 @@ require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
 
 if (isset($_POST["refresh-stats"])) {
+    echo "<p>Updating Table...</p>";
     include('/var/www/html/management/php/uit-sql-refresh-remote');
     unset($_POST["refresh-stats"]);
 }
