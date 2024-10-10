@@ -207,16 +207,20 @@ if (arrFilter($db->get()) === 0) {
             echo "<b>In Progress: </b>";
         }
 
-        $db->Pselect("SELECT present_bool, kernel_updated FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
+        $db->Pselect("SELECT present_bool, kernel_updated, bios_updated FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
-                if ($value1["present_bool"] === 1 && $value1["kernel_updated"] === 1) {
+                // kernel and bios up to date (check mark)
+                if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] !== 1)) {
                     echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span style='color: #00B388'>&#10004;&#65039;</span>" . PHP_EOL;
-                } elseif ($value1["present_bool"] !== 1 && $value1["kernel_updated"] !== 1) {
+                // BIOS out of date, kernel not updated (x)
+                } elseif ($value1["present_bool"] !== 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] === 1)) {
                     echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span style='color: #C8102E'>&#10060;</span>" . PHP_EOL;
-                } elseif ($value1["present_bool"] === 1 && $value1["kernel_updated"] !== 1) {
+                //BIOS out of date, kernel updated (warning sign)
+                } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
                     echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span style='color: #F6BE00'>&#9888;&#65039;</span>" . PHP_EOL;
-                } elseif ($value1["present_bool"] !== 1 && $value1["kernel_updated"] === 1) {
+                //BIOS updated, kernel out of date (x)
+                } elseif ($value1["present_bool"] !== 1 && ($value1["kernel_updated"] 1== 1 && $value1["bios_updated"] === 1)) {
                     echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span style='color: #C8102E'>&#10060;</span>" . PHP_EOL;
                 } else {
                     echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
@@ -245,19 +249,19 @@ if (arrFilter($db->get()) === 0) {
         }
         unset($value1);
 
-        if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
-            if (strFilter($value["task_formatted"]) === 1) {
-                    echo "<td>" . $value["task_formatted"] . "</td>" . PHP_EOL;
-            }
-        } elseif ($value["bios_updated"] !== "Yes" && strFilter($value["kernel_updated"]) === 1) {
-            echo "<td><i>BIOS and Kernel Out of Date</i></td>" . PHP_EOL;
-        } elseif ($value["bios_updated"] !== "Yes") {
-            echo "<td><i><a style='color: gray;' href='/documentation/bios-update.php' target='_blank'>BIOS Out of Date</a></i></td>" . PHP_EOL;
-        } elseif (strFilter($value["kernel_updated"]) === 1) {
-            echo "<td><i><a style='color: gray;' href='/documentation/kernel-update.php' target='_blank'>Kernel Out of Date</a></i></td>" . PHP_EOL;
-        } else {
-            echo "<td style='color: gray;'><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
-        }
+        // if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
+        //     if (strFilter($value["task_formatted"]) === 1) {
+        //             echo "<td>" . $value["task_formatted"] . "</td>" . PHP_EOL;
+        //     }
+        // } elseif ($value["bios_updated"] !== "Yes" && strFilter($value["kernel_updated"]) === 1) {
+        //     echo "<td><i>BIOS and Kernel Out of Date</i></td>" . PHP_EOL;
+        // } elseif ($value["bios_updated"] !== "Yes") {
+        //     echo "<td><i><a style='color: gray;' href='/documentation/bios-update.php' target='_blank'>BIOS Out of Date</a></i></td>" . PHP_EOL;
+        // } elseif (strFilter($value["kernel_updated"]) === 1) {
+        //     echo "<td><i><a style='color: gray;' href='/documentation/kernel-update.php' target='_blank'>Kernel Out of Date</a></i></td>" . PHP_EOL;
+        // } else {
+        //     echo "<td style='color: gray;'><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
+        // }
         echo "<td id='presentStatus'>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "<td id='osInstalled'>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "<td>" . htmlspecialchars($value["battery_charge"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
