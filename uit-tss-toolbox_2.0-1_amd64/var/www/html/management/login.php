@@ -33,10 +33,10 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
-        <div class="login-title" style="text-align:center;">
+        <div class="login-title" style="text-align:center; top: 10%;">
             <h1 style="margin:auto;">TechComm Laptop Management Login</h1>
         </div>
-        <div style="top: 30%;" class="login-form">
+        <div style="top: 10%;" class="login-form">
             <div>
                 <form method="post" class="styled-form">
                     <label for="username">Username</label>
@@ -53,7 +53,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
                 window.history.replaceState( null, null, window.location.href );
             }
         </script>
-        <div style="top: 20%;" class="uit-footer">
+        <div style="top: 10%;" class="uit-footer">
             <img src="/images/uh-footer.svg">
         </div>
     </body>
