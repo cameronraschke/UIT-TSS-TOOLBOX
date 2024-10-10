@@ -249,10 +249,16 @@ $db = new db();
                             $osInstalled = 0;
                         }
                 
-                        $db->updateLocation("os_installed", $osInstalled, $value1["max_time"]);
+                        $db->Pselect("SELECT MAX(time) FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+                        if (arrFilter($db->get()) === 0) {
+                            foreach ($db->get() as $key => $value5) {
+                                $db->updateLocation("os_installed", $osInstalled, $value5["max_time"]);
+                            }
+                        }
                     }
                 }
                 unset($value2);
+                unset($value5);
     
                 $db->Pselect("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL AND t1.tagnumber = :tagnumber ORDER BY t1.time DESC LIMIT 1", array(':tagnumber' => $tagNum));
                 if (arrFilter($db->get()) === 0) {

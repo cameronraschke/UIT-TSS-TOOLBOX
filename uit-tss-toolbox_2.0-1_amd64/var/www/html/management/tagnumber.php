@@ -31,7 +31,7 @@ if (isset($_POST['department'])) {
     $db->updateJob ("department", $department, $uuid);
 
 
-    $db->Pselect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1", array(':tagnumber' => $tagNum));
+    $db->Pselect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value2) {
             if ($value2["erase_completed"] === 1 && $value2["clone_completed"] === 1) {
@@ -44,7 +44,12 @@ if (isset($_POST['department'])) {
                 $osInstalled = 0;
             }
     
-            $db->updateLocation("os_installed", $osInstalled, $value1["max_time"]);
+            $db->Pselect("SELECT MAX(time) FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+            if (arrFilter($db->get()) === 0) {
+                foreach ($db->get() as $key => $value5) {
+                    $db->updateLocation("os_installed", $osInstalled, $value5["max_time"]);
+                }
+            }
         }
     }
     unset($value2);
