@@ -267,13 +267,16 @@ unset($_POST);
                         if ($value["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
                             echo "Online <span style='color: #00B388'>&#10004;&#65039;</span> (" . $value["uptime_formatted"] . ")";
                         // BIOS and kernel out of date (x)
-                        } elseif ($value["present_bool"] !== 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] !== 1)) {
-                            echo "Offline <span style='color: #C8102E'>&#10060;</span>";
+                        } elseif ($value["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] !== 1)) {
+                            echo "Online <span style='color: #C8102E'>&#10060;</span>";
                         // BIOS out of date, kernel updated (warning sign)
                         } elseif ($value["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] !== 1)) {
-                            echo "Warning <span style='color: #F6BE00'>&#9888;&#65039;</span> (" . $value["uptime_formatted"] . ")";
+                            echo "Online Warning <span style='color: #F6BE00'>&#9888;&#65039;</span> (" . $value["uptime_formatted"] . ")";
                         // BIOS updated, kernel out of date (x)
-                        } elseif ($value["present_bool"] !== 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] === 1)) {
+                        } elseif ($value["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] === 1)) {
+                            echo "Online <span style='color: #C8102E'>&#10060;</span>)";
+                        // Offline (x)
+                        } elseif ($value["present_bool"] !== 1) {
                             echo "Offline <span style='color: #C8102E'>&#10060;</span>)";
                         } else {
                             echo "Unknown <span style='color: #C8102E'>&#8265;&#65039;</span>";
