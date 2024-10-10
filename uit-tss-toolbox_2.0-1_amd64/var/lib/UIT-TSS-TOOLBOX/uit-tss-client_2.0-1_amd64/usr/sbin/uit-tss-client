@@ -506,15 +506,16 @@ function info {
 
 
 function footer {
-	biosUpdatedSQL=$(echo 'SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '"'${tOneProductName}'"'' | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
+	biosUpdatedSQL=$(echo "SELECT bios_version AS 'result' FROM static_bios_stats WHERE system_model = '${tOneProductName}'" | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
 	if [[ $biosUpdatedSQL == "NULL" ]]; then
 		biosUpdated="$(dmidecode --string bios-version)"
+		echo "remote|${tagNum}|bios_updated|" |  /var/lib/UIT-TSS-TOOLBOX/parse
 	elif [[ $biosUpdatedSQL == $(dmidecode --string bios-version) ]]; then
 		biosUpdated="${GREEN}Updated${RESET}"
-		echo "remote|${tagNum}|bios_updated|" |  /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|bios_updated|1" |  /var/lib/UIT-TSS-TOOLBOX/parse
 	elif [[ $biosUpdatedSQL != $(dmidecode --string bios-version) ]]; then
 		biosUpdated="${RED}Needs Update${RESET}"
-		echo "remote|${tagNum}|bios_updated|1" |  /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|bios_updated|" |  /var/lib/UIT-TSS-TOOLBOX/parse
 	fi
 	sqlLocation=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
 
