@@ -265,21 +265,21 @@ unset($_POST);
                     foreach ($db->get() as $key => $value) {
                         // BIOS and kernel updated (check mark)
                         if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
-                            echo "Online, ready to go! <span style='color: #00B388'>&#10004;&#65039;</span> (" . $value["uptime_formatted"] . ")";
+                            echo "Online, ready to go! <span>&#10004;&#65039;</span> (" . $value["uptime_formatted"] . ")";
                         // BIOS and kernel out of date (x)
                         } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== 1)) {
-                            echo "Online, kernel and BIOS out of date <span style='color: #C8102E'>&#10060;</span>";
+                            echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
                         // BIOS out of date, kernel updated (warning sign)
                         } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== 1)) {
-                            echo "Online, please update BIOS <span style='color: #F6BE00'>&#9888;&#65039;</span> (" . $value["uptime_formatted"] . ")";
+                            echo "Online, please update BIOS <span>&#9888;&#65039;</span> (" . $value["uptime_formatted"] . ")";
                         // BIOS updated, kernel out of date (x)
                         } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === 1)) {
-                            echo "Online, kernel out of date <span style='color: #C8102E'>&#10060;</span>)";
+                            echo "Online, kernel out of date <span>&#10060;</span>)";
                         // Offline (x)
                         } elseif ($value["present_bool"] !== 1) {
-                            echo "Offline <span style='color: #888B8D'>&#9940;</span>)";
+                            echo "Offline <span>&#9940;</span>)";
                         } else {
-                            echo "Unknown <span style='color: #C8102E'>&#9940;&#65039;</span>";
+                            echo "Unknown <span>&#9940;&#65039;</span>";
                         }
 
                         if (strFilter($value["status"]) === 0) {
