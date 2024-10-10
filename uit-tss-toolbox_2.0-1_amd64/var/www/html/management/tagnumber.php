@@ -53,6 +53,7 @@ if (isset($_POST['department'])) {
         }
     }
     unset($value2);
+    unset($value5);
 
     $db->Pselect("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL AND t1.tagnumber = :tagnumber ORDER BY t1.time DESC LIMIT 1", array(':tagnumber' => $tagNum));
     if (arrFilter($db->get()) === 0) {
