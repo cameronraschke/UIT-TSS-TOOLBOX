@@ -60,7 +60,7 @@ foreach ($db->get() as $key => $value) {
         }
     } else { $biosBool = 0; }
     if (isset($biosBool)) {
-        $db->updateRemote("bios_updated", $biosBool, $value["tagnumber"]);
+        $db->updateRemote($value["tagnumber"], "bios_updated", $value["tagnumber"]);
     }
     unset($value1);
     unset($value2);
