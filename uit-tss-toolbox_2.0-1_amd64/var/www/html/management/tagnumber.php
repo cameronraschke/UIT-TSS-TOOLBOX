@@ -260,16 +260,20 @@ unset($_POST);
 
                         <td name='curStatus' id='curStatus'>
                 <?php
-                $db->Pselect("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool, kernel_updated, SEC_TO_TIME(uptime) AS 'uptime_formatted' FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+                $db->Pselect("SELECT DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, present_bool, kernel_updated, bios_updated, SEC_TO_TIME(uptime) AS 'uptime_formatted' FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
-                        if ($value["present_bool"] === 1 && $value["kernel_updated"] === 1) {
+                        // BIOS and kernel updated (check mark)
+                        if ($value["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
                             echo "Online <span style='color: #00B388'>&#10004;&#65039;</span> (" . $value["uptime_formatted"] . ")";
-                        } elseif ($value["present_bool"] !== 1 && $value["kernel_updated"] !== 1) {
+                        // BIOS and kernel out of date (x)
+                        } elseif ($value["present_bool"] !== 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] !== 1)) {
                             echo "Offline <span style='color: #C8102E'>&#10060;</span>";
-                        } elseif ($value["present_bool"] === 1 && $value["kernel_updated"] !== 1) {
+                        // BIOS out of date, kernel updated (warning sign)
+                        } elseif ($value["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] !== 1)) {
                             echo "Warning <span style='color: #F6BE00'>&#9888;&#65039;</span> (" . $value["uptime_formatted"] . ")";
-                        } elseif ($value["present_bool"] !== 1 && $value["kernel_updated"] === 1) {
+                        // BIOS updated, kernel out of date (x)
+                        } elseif ($value["present_bool"] !== 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] === 1)) {
                             echo "Offline <span style='color: #C8102E'>&#10060;</span>)";
                         } else {
                             echo "Unknown <span style='color: #C8102E'>&#8265;&#65039;</span>";
