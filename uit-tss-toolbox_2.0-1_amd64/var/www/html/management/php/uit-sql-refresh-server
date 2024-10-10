@@ -6,9 +6,8 @@ This script iterates through every date starting at 2023-01-09 (our first databa
 current date and updates all of the entries accordingly. */
 
 # Connect to database and include custom functions
-//include('/var/www/html/management/php/include.php');
+//include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
-$timer = new scriptTimer();
 
 # Set $startDate to the oldest date entry in the DB.
 $startDate = '2023-01-09';
@@ -27,14 +26,9 @@ $arrBatteryCycles = array();
 $db->Pselect("CALL iterateDate(:startdate, :enddate)", array(':startdate' => $startDate, ':enddate' => $date));
 foreach ($db->get() as $key => $value) {
 
-    # Start the timer that counts how much time each date takes to process.
-    echo PHP_EOL;
-    $timer->startMarker();
-
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
     $db->Pselect("SELECT date FROM serverstats WHERE date = :date", array(':date' => $value["date"]));
     if (arrFilter($db->get()) === 1) {
-        echo "Inserting new serverstats entry for " . $value["date"] . PHP_EOL;
         $db->insertSS($value["date"]);
     }
 
@@ -48,7 +42,7 @@ foreach ($db->get() as $key => $value) {
     unset($value1);
 
     # Update the average time taken to clone a computer.
-    $db->Pselect("SELECT ROUND(AVG(clone_time_minutes), 0) AS 'clone_time_formatted' FROM (SELECT clone_time / 60 AS 'clone_time_minutes', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY clone_time ASC) AS 'n' FROM jobstats WHERE clone_completed = 1 AND clone_time IS NOT NULL AND date <= :itdate) t2 WHERE t2.n <= 3", array(':itdate' => $value["date"]));
+    $db->Pselect("SELECT ROUND(AVG(clone_time_minutes), 0) AS 'clone_time_formatted' FROM (SELECT clone_time / 60 AS 'clone_time_minutes', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'n' FROM jobstats WHERE clone_completed = 1 AND clone_time IS NOT NULL AND date <= :itdate) t2 WHERE t2.n <= 3", array(':itdate' => $value["date"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             $db->updateSS("clone_avgtime", $value1["clone_time_formatted"], $value["date"]);
@@ -58,7 +52,7 @@ foreach ($db->get() as $key => $value) {
 
 
     # Update the average erase time of NVMe and SSD drives based on the previous three jobs per client.
-    $db->Pselect("SELECT ROUND(AVG(erase_time_minutes), 0) AS 'erase_time_formatted' FROM (SELECT erase_time / 60 AS 'erase_time_minutes', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY erase_time ASC) AS 'n' FROM jobstats WHERE erase_completed = 1 AND erase_time IS NOT NULL AND date <= :itdate AND (disk_type = 'nvme' OR disk like 'nvme%')) t2 WHERE t2.n <= 3", array(':itdate' => $value["date"]));
+    $db->Pselect("SELECT ROUND(AVG(erase_time_minutes), 0) AS 'erase_time_formatted' FROM (SELECT erase_time / 60 AS 'erase_time_minutes', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'n' FROM jobstats WHERE erase_completed = 1 AND erase_time IS NOT NULL AND date <= :itdate AND (disk_type = 'nvme' OR disk like 'nvme%')) t2 WHERE t2.n <= 3", array(':itdate' => $value["date"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             $db->updateSS("nvme_erase_avgtime", $value1["erase_time_formatted"], $value["date"]);
@@ -68,7 +62,7 @@ foreach ($db->get() as $key => $value) {
 
 
     # Update the average erase time of hard drives based on the previous three jobs per client.
-    $db->Pselect("SELECT ROUND(AVG(erase_time_minutes), 0) AS 'erase_time_formatted' FROM (SELECT erase_time / 60 AS 'erase_time_minutes', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY erase_time ASC) AS 'n' FROM jobstats WHERE erase_completed = 1 AND erase_time IS NOT NULL AND date <= :itdate AND (disk_type = 'hdd' OR disk_type = 'ssd' OR disk like 'sd%')) t2 WHERE t2.n <= 3", array(':itdate' => $value["date"]));
+    $db->Pselect("SELECT ROUND(AVG(erase_time_minutes), 0) AS 'erase_time_formatted' FROM (SELECT erase_time / 60 AS 'erase_time_minutes', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'n' FROM jobstats WHERE erase_completed = 1 AND erase_time IS NOT NULL AND date <= :itdate AND (disk_type = 'hdd' OR disk_type = 'ssd' OR disk like 'sd%')) t2 WHERE t2.n <= 3", array(':itdate' => $value["date"]));
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
             $db->updateSS("sata_erase_avgtime", $value1["erase_time_formatted"], $value["date"]);
