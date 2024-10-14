@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 /* "uit-sql-refresh-server" uses PHP to refresh the serverstats table in the mysql database. The
 serverstats table is a table that contains the highest level of statistics in our database. 

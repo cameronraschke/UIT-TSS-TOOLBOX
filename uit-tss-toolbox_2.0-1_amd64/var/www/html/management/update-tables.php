@@ -20,18 +20,20 @@
 </head>
 <body>
 <h3>Updating tables</h3>
-    <p>Updating Client Statistics...</p>
-    <?php include('/var/www/html/management/php/uit-sql-refresh-client'); ?>
-    <p><i>Done!</i></p>
-    <p>Updating Location Data... </p>
-    <?php include('/var/www/html/management/php/uit-sql-refresh-location'); ?>
-    <p><i>Done!</i></p>
-    <p>Updating Remote Job Data... </p>
-    <?php include('/var/www/html/management/php/uit-sql-refresh-remote'); ?>
-    <p><i>Done!</i></p>
-    <p>Updating Daily Reports Data... </p>
-    <?php include('/var/www/html/management/php/uit-sql-refresh-server'); ?>
-    <p><i>Done!</i></p>
+<?php
+    echo "<p>Updating Client Statistics...</p>" . PHP_EOL;
+    include('/var/www/html/management/php/uit-sql-refresh-client');
+    echo "<p><i>Done!</i></p>" . PHP_EOL;
+    echo "<p>Updating Location Data... </p>" . PHP_EOL;
+    include('/var/www/html/management/php/uit-sql-refresh-location');
+    echo "<p><i>Done!</i></p>" . PHP_EOL;
+    echo "<p>Updating Remote Job Data... </p>" . PHP_EOL;
+    include('/var/www/html/management/php/uit-sql-refresh-remote');
+    echo "<p><i>Done!</i></p>" . PHP_EOL;
+    echo "<p>Updating Daily Reports Data... </p>" . PHP_EOL;
+    include('/var/www/html/management/php/uit-sql-refresh-server');
+    echo "<p><i>Done!</i></p>" . PHP_EOL;
+?>
 </body>
 
 </html>
