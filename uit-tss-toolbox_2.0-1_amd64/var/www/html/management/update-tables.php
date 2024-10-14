@@ -19,7 +19,7 @@
         </style>
 </head>
 <body>
-<h3>Updating tables<h3>
+<h3>Updating tables</h3>
     <p>Updating Client Statistics...</p>
     <?php include('/var/www/html/management/php/uit-sql-refresh-client'); ?>
     <p><i>Done!</i></p>
