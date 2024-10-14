@@ -9,7 +9,7 @@ $db = new db();
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Client Mgmt - Date Reports</title>
+        <title>Daily Reports - UIT Client Mgmt</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>

@@ -103,7 +103,7 @@ unset($_POST);
         <script src="/jquery/jquery-3.7.1.min.js"></script>
         <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>UIT Client Mgmt - <?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></title>
+        <title><?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " - UIT Client Mgmt"; ?></title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <style>
         .ui-autocomplete {
