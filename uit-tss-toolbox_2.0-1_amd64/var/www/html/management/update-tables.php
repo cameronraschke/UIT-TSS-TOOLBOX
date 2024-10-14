@@ -19,20 +19,29 @@
         </style>
 </head>
 <body>
-<h3>Updating tables</h3>
+<h3>Update tables</h3>
+<form id="refresh-form" name="refresh-form" method="post">
+    <select id="refresh-value" name="refresh-value">
+        <option value="0">--Please Select an Option--</option>
+        <option value="1">Refresh Database Data</option>
+    </select>
+    <input type="submit" value="Submit">
+</form>
 <?php
-    echo "<p>Updating Client Statistics...</p>" . PHP_EOL;
-    include('/var/www/html/management/php/uit-sql-refresh-client');
-    echo "<p><i>Done!</i></p>" . PHP_EOL;
-    echo "<p>Updating Location Data... </p>" . PHP_EOL;
-    include('/var/www/html/management/php/uit-sql-refresh-location');
-    echo "<p><i>Done!</i></p>" . PHP_EOL;
-    echo "<p>Updating Remote Job Data... </p>" . PHP_EOL;
-    include('/var/www/html/management/php/uit-sql-refresh-remote');
-    echo "<p><i>Done!</i></p>" . PHP_EOL;
-    echo "<p>Updating Daily Reports Data... </p>" . PHP_EOL;
-    include('/var/www/html/management/php/uit-sql-refresh-server');
-    echo "<p><i>Done!</i></p>" . PHP_EOL;
+    if ($_POST["refresh-value"] == "1") {
+        echo "<p>Updating Client Statistics...</p>" . PHP_EOL;
+        include('/var/www/html/management/php/uit-sql-refresh-client');
+        echo "<p><i>Done!</i></p>" . PHP_EOL;
+        echo "<p>Updating Location Data... </p>" . PHP_EOL;
+        include('/var/www/html/management/php/uit-sql-refresh-location');
+        echo "<p><i>Done!</i></p>" . PHP_EOL;
+        echo "<p>Updating Remote Job Data... </p>" . PHP_EOL;
+        include('/var/www/html/management/php/uit-sql-refresh-remote');
+        echo "<p><i>Done!</i></p>" . PHP_EOL;
+        echo "<p>Updating Daily Reports Data... </p>" . PHP_EOL;
+        include('/var/www/html/management/php/uit-sql-refresh-server');
+        echo "<p><i>Done!</i></p>" . PHP_EOL;
+    }
 ?>
 </body>
 
