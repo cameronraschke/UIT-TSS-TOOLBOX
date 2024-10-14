@@ -1,5 +1,5 @@
 <?php
-    require('/var/www/html/management/php/header.php');
+    require('/var/www/html/management/header.php');
     include('/var/www/html/management/php/include.php');
     include('/var/www/html/management/php/uit-sql-refresh-client');
     include('/var/www/html/management/php/uit-sql-refresh-location');

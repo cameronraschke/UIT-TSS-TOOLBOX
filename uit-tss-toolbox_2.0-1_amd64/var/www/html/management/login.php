@@ -29,7 +29,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="/css/main.css" />
-        <title>UIT Client Mgmt - Login</title>
+        <title>Login - UIT Client Mgmt</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>

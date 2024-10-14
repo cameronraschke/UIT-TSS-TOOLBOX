@@ -11,7 +11,7 @@ $db = new db();
         <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
         <script src="/jquery/jquery-3.7.1.min.js"></script>
         <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
-        <title>UIT Client Managment</title>
+        <title>Home - UIT Client Management</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body onload="fetchHTML()">
