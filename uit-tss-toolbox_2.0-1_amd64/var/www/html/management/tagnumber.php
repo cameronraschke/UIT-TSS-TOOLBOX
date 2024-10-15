@@ -277,7 +277,7 @@ unset($_POST);
                             echo "Online, kernel out of date <span>&#10060;</span>)";
                         // Offline (x)
                         } elseif ($value["present_bool"] !== 1) {
-                            echo "Offline <span>&#9940;</span>)";
+                            echo "Offline <span>&#9940;</span>";
                         } else {
                             echo "Unknown <span>&#9940;&#65039;</span>";
                         }
