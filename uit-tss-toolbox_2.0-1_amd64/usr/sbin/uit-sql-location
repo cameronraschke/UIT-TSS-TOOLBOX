@@ -20,13 +20,6 @@ while true; do
         serial="${sql}"
     fi
     sql=$(echo "SELECT department AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND system_serial = '${serial}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-    # if [[ $sql == "shrl" ]]; then
-    #     echo "Department: ${BOLD}${sql}${RESET}"
-    #     department="shrl"
-    # elif [[ $sql == "techComm" ]]; then
-    #     echo "Department: ${BOLD}${sql}${RESET}"
-    #     department="techComm"
-    # else
         echo 'Department: '"${BOLD}"''"${sql}"''"${RESET}"''
         echo "Please select the ${BOLD}${GREEN}department${RESET}:"
         echo "   ${BOLD}${GREEN}[1]${RESET} TechCommons"

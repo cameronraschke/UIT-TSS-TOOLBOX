@@ -1,16 +1,12 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/mysql-functions');
+include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
-$dt = new DateTimeImmutable();
-$date = $dt->format('Y-m-d');
-$time = $dt->format('Y-m-d-His');
-
-
+$db = new db();
 
 #Job Table
 $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'w');
-dbSelect("CALL iterateJobCSV()");
+$db->select("CALL iterateJobCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
@@ -19,7 +15,7 @@ $file = null;
 
 #Client Table
 $file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'w');
-dbSelect("CALL iterateClientCSV()");
+$db->select("CALL iterateClientCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
@@ -28,7 +24,7 @@ $file = null;
 
 #Server Table
 $file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'w');
-dbSelect("CALL iterateServerCSV()");
+$db->select("CALL iterateServerCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
@@ -37,14 +33,15 @@ $file = null;
 
 #Locations Table
 $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'w');
-dbSelect("CALL iterateLocationsCSV()");
+$db->select("CALL iterateLocationsCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
 $file = null;
 
+
 $file = new SplFileObject("/tmp/laptop-report-property-".$time.".csv", 'w');
-dbSelect("CALL iterateLocationsPropertyCSV()");
+$db->select("CALL iterateLocationsPropertyCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
