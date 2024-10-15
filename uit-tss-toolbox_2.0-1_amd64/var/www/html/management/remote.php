@@ -9,6 +9,22 @@ if (isset($_POST["refresh-stats"])) {
 }
 
 $db = new db();
+
+// Job by location form
+if (isset($_POST['location']) && isset($_POST['location-action'])) {
+    $db->Pselect("SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND bios_updated = 1 AND kernel_updated = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber", array(':location' => htmlspecialchars_decode($_POST['location'])));
+
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value) {
+            $db->updateRemote($value["tagnumber"], "task", $_POST['location-action']);
+        }
+    }
+    unset($sql);
+    unset($stmt);
+    unset($sqlLocation);
+    unset($_POST['location']);
+    unset($_POST['location-action']);
+}
 ?>
 
 <html>
@@ -129,23 +145,6 @@ if (arrFilter($db->get()) === 0) {
         </tr>
     </tbody>
 </table>
-
-<?php
-if (isset($_POST['location']) && isset($_POST['location-action'])) {
-    $db->Pselect("SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND bios_updated IS NULL AND kernel_updated = '1' AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber", array(':location' => htmlspecialchars_decode($_POST['location'])));
-
-    if (arrFilter($db->get()) === 0) {
-        foreach ($db->get() as $key => $value) {
-            $db->updateRemote($value["tagnumber"], "task", $_POST['location-action']);
-        }
-    }
-    unset($sql);
-    unset($stmt);
-    unset($sqlLocation);
-    unset($_POST['location']);
-    unset($_POST['location-action']);
-}
-?>
 </div>
 
 
