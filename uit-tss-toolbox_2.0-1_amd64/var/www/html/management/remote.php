@@ -191,13 +191,6 @@ if (arrFilter($db->get()) === 0) {
             <tbody>
 
 <?php
-if (isset($_POST['task'])) {
-    $arrTask = explode('|', $_POST['task']);
-    if (strFilter($arrTask[0]) === 0) {
-        $db->updateRemote(htmlspecialchars_decode($arrTask[0]), "task", htmlspecialchars_decode($arrTask[1]));
-    }
-    unset($_POST['task']);
-}
 $db->select("SELECT tagnumber, IF (status LIKE 'fail%', 1, 0) AS 'failstatus', DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', DATE_FORMAT(last_job_time, '%b %D %Y, %r') AS 'last_job_time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task = 'cancel' THEN 'Cancel Running Jobs' WHEN task IS NULL THEN 'No Job' END) AS 'task_formatted', task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', kernel_updated, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY failstatus DESC, FIELD(task, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, kernel_updated DESC, bios_updated DESC, last_job_time DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
@@ -248,20 +241,6 @@ if (arrFilter($db->get()) === 0) {
             echo "<td><b>" . "<i>No Location</i>" . "</b></td>" . PHP_EOL;
         }
         unset($value1);
-
-        // if ($value["bios_updated"] === "Yes" && strFilter($value["kernel_updated"]) === 0) {
-        //     if (strFilter($value["task_formatted"]) === 1) {
-        //             echo "<td>" . $value["task_formatted"] . "</td>" . PHP_EOL;
-        //     }
-        // } elseif ($value["bios_updated"] !== "Yes" && strFilter($value["kernel_updated"]) === 1) {
-        //     echo "<td><i>BIOS and Kernel Out of Date</i></td>" . PHP_EOL;
-        // } elseif ($value["bios_updated"] !== "Yes") {
-        //     echo "<td><i><a style='color: gray;' href='/documentation/bios-update.php' target='_blank'>BIOS Out of Date</a></i></td>" . PHP_EOL;
-        // } elseif (strFilter($value["kernel_updated"]) === 1) {
-        //     echo "<td><i><a style='color: gray;' href='/documentation/kernel-update.php' target='_blank'>Kernel Out of Date</a></i></td>" . PHP_EOL;
-        // } else {
-        //     echo "<td style='color: gray;'><i>Cannot Start Job - Unknown Error</i></td>" . PHP_EOL;
-        // }
         echo "<td id='presentStatus'>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "<td id='osInstalled'>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "<td>" . htmlspecialchars($value["battery_charge"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
