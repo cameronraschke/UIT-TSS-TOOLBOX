@@ -38,9 +38,10 @@
         echo "<p>Updating Remote Job Data... </p>" . PHP_EOL;
         include('/var/www/html/management/php/uit-sql-refresh-remote');
         echo "<p><i>Done!</i></p>" . PHP_EOL;
-        echo "<p>Updating Daily Reports Data... </p>" . PHP_EOL;
-        include('/var/www/html/management/php/uit-sql-refresh-server');
-        echo "<p><i>Done!</i></p>" . PHP_EOL;
+        echo "<p>Daily Reports Not Updating. </p>" . PHP_EOL;
+        //echo "<p>Updating Daily Reports Data... </p>" . PHP_EOL;
+        //include('/var/www/html/management/php/uit-sql-refresh-server');
+        //echo "<p><i>Done!</i></p>" . PHP_EOL;
     }
 ?>
 </body>
