@@ -234,7 +234,7 @@ INSERT INTO static_bios_stats
     ('OptiPlex 7460 AIO', '1.35.0'),
     ('Latitude 5590', '1.35.0'),
     ('XPS 15 9560', '1.24.0'),
-    ('Latitude 5480', '1.36.0'),
+    ('Latitude 5480', '1.37.0'),
     ('Latitude 5289', '1.35.0'),
     ('Surface Book', '92.3748.768'),
     ('Aspire T3-710', 'R01-B1'),
