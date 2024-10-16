@@ -360,22 +360,26 @@ unset($_POST);
                         if (arrFilter($db->get()) === 0) {
                             // Get the most recent note that's not null
                             echo "<div>" . PHP_EOL;
-                            $db->Pselect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', note, status FROM locations WHERE tagnumber = :tagnumber AND note IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
+                            $db->Pselect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', note FROM locations WHERE tagnumber = :tagnumber AND note IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
                             if (arrFilter($db->get()) === 0) {
                                 foreach ($db->get() as $key => $value1) {
-                                    if ($value1["status"] === 1) {
-                                        echo "<textarea name='note' id='note' style='width: 70%;'>" . htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
-                                    } else {
-                                        echo "<textarea name='note' id='note' style='width: 70%;' placeholder='(" . htmlspecialchars($value1["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "): ". htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "'></textarea>" . PHP_EOL;
+                                    $db->Pselect("SELECT status FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
+                                    foreach ($db->get() as $key => $value2) {
+                                        if ($value2["status"] === 1) {
+                                            echo "<textarea name='note' id='note' style='width: 70%;'>" . htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
+                                        } else {
+                                            echo "<textarea name='note' id='note' style='width: 70%;' placeholder='(" . htmlspecialchars($value1["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "): ". htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "'></textarea>" . PHP_EOL;
+                                        }
                                     }
                                 }
                             } else {
                                 echo "<textarea name='note' id='note' style='width: 70%;'></textarea>" . PHP_EOL;
                             }
-                            unset($value1);
                         } else {
                             echo "<textarea name='note' id='note' style='width: 70%;'></textarea>" . PHP_EOL;
                         }
+                        unset($value1);
+                        unset($value2);
                         echo "</div>" . PHP_EOL;
 
                         echo "<div style='width: 60%;'>" . PHP_EOL;
