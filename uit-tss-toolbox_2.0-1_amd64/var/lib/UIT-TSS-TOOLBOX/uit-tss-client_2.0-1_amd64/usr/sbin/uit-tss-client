@@ -1136,11 +1136,11 @@ function zeroMode_Shred {
 		echo "Step [1/1]: "
 		writeDisk_Shred
 	else
-		echo "Step [1/2]: "
+		echo "Step [1/1]: "
 		writeDisk_Shred
-		echo ""
-		echo "Step [2/2]: "
-		vrfyDisk_Shred
+		# echo ""
+		# echo "Step [2/2]: "
+		# vrfyDisk_Shred
 	fi
 }
 
