@@ -47,8 +47,9 @@ iptables --table filter --append OUTPUT --out-interface "${lanif}" --jump ACCEPT
 # Default Policy
 iptables --table filter --new-chain inputdrop
 iptables --table filter --append INPUT --jump inputdrop
-iptables --table filter --append inputdrop --in-interface "${wanif}" --protocol udp --match multiport --destination-ports 137:138,161,51220 --jump DROP
-iptables --table filter --append inputdrop --in-interface "${wanif}" --destination '172.27.53.255/32' --protocol udp --match multiport --destination-ports 21027 --jump DROP
+iptables --table filter --append inputdrop --in-interface "${wanif}" --protocol udp --match multiport --destination-ports 137:138,161 --jump DROP
+iptables --table filter --append inputdrop --in-interface "${wanif}" --source "${wan}" --protocol udp --match multiport --destination-ports 51220,57621 --jump DROP
+iptables --table filter --append inputdrop --in-interface "${wanif}" --destination "172.27.53.255/32" --protocol udp --match multiport --destination-ports 21027 --jump DROP
 iptables --table filter --append inputdrop --jump LOG --log-prefix "Input Drop: "
 iptables --table filter --append inputdrop --jump DROP
 
