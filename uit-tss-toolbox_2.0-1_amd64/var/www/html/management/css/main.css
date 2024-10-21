@@ -2,7 +2,7 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-	font-size: 100%;
+	font-size: 95%;
     font-family: sans-serif;
 }
 
@@ -13,7 +13,7 @@ table {
 
 .styled-form {
 	position: relative;
-	width: 100%;
+	width: 95%;
 	margin: 5px 5px 5px 5px;
 	padding: 20px 20px;
 }
@@ -112,13 +112,13 @@ table {
 .styled-table input[type=submit] {
 	text-align: center;
 	padding: 5px 8px;
-	width: 100%;
+	width: 95%;
 	margin: 1% 1% 1% 1%;
 }
 .styled-table select {
 	text-align: center;
 	padding: 1px 2px;
-	width: 100%;
+	width: 95%;
 	margin: 1% 1% 1% 1%;
 }
 .styled-table input[type=text] {
@@ -140,7 +140,7 @@ table {
 
 .menubar {
 	position: relative;
-	width: 100%;
+	width: 95%;
 	top: 0%;
 	background-color: #FFF9D9;
 	padding: 2% 2% 2% 2%;
@@ -158,7 +158,7 @@ table {
 	display: flex;
 	margin: auto auto;
 	padding: 1% 1% 1% 1%;
-	width: 100%;
+	width: 95%;
 	text-align: center;
 }
 .pagetitle h1 {
@@ -183,7 +183,7 @@ table {
 	display: flex;
 	margin: auto auto;
 	padding: 1% 1% 1% 1%;
-	width: 100%;
+	width: 95%;
 	text-align: center;
 }
 .page-content h3 {
@@ -225,7 +225,7 @@ table {
 
 .location-form {
 	position: relative;
-	width: 100%;
+	width: 95%;
 	margin: 1% 1% 5% 1%;
 	font-size: 18px;
 }
