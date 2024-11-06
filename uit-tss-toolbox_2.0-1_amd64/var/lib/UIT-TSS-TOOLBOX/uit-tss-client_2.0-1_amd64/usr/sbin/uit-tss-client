@@ -1488,7 +1488,7 @@ function clientselect_Clone {
 	echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}Tech Commons HP laptops${RESET}"
 	echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}Tech Commons Dell laptops${RESET}"
 	echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}Tech Commons Dell desktops${RESET}"
-	echo "   ${BOLD}${GREEN}[4]${RESET} ${BOLD}Tech Commons Dell helpdesk laptops${RESET}"
+	echo "   ${BOLD}${GREEN}[4]${RESET} ${BOLD}Tech Commons Dell print kiosk laptops${RESET}"
 	echo "   ${BOLD}${GREEN}[5]${RESET} ${BOLD}SHRL Dell desktops${RESET}"
 	echo "   ${BOLD}${GREEN}[6]${RESET} ${BOLD}Ubuntu Desktop${RESET}"
 	read -n1 -p "${BOLD}Enter [1-6]:${RESET} " CLIENTTYPE
