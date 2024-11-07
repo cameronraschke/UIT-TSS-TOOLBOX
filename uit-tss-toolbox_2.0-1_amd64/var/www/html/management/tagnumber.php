@@ -595,7 +595,7 @@ unset($_POST);
                 foreach ($db->get() as $key => $value) {
                     echo "<div class='pagetitle'><h3>Bitlocker Info</h3></div>" . PHP_EOL;
                     echo "<div class='styled-table' style='width: auto; overflow:auto; margin: 1% 1% 5% 1%;'>" . PHP_EOL;
-                    echo "<table>" . PHP_EOL:
+                    echo "<table>" . PHP_EOL;
                     echo "<thead><tr><th>Identifier</th><th>Recovery Key</th></tr></thead>" . PHP_EOL;
                     echo "<tbody><tr><td>" . htmlspecialchars($value['identifier'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td><td>" . htmlspecialchars($value['recovery_key'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td></tr></tbody>" . PHP_EOL;
                     echo "</table>" . PHP_EOL;
