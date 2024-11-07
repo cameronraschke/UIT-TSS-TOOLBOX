@@ -324,3 +324,19 @@ CREATE TABLE IF NOT EXISTS system_data (
     motherboard_serial VARCHAR(24) DEFAULT NULL,
     time DATETIME(3) DEFAULT NULL
 );
+
+DROP TABLE IF EXISTS bitlocker;
+CREATE TABLE IF NOT EXISTS bitlocker (
+    tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
+    identifier VARCHAR(128) NOT NULL,
+    recovery_key VARCHAR(128) NOT NULL
+);
+
+INSERT INTO bitlocker
+(
+    tagnumber,
+    identifier,
+    recovery_key
+) VALUES
+('727006', '5FEB2D5C-5A3C-43D5-ABDD-2FF2D7F000E9', '209869-405218-331342-499939-399025-101068-711370-621940')
+;

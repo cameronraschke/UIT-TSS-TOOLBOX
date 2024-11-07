@@ -588,6 +588,22 @@ unset($_POST);
         </table>
         </div>
 
+
+        <?php
+            $db->Pselect("SELECT identifier, recovery_key FROM bitlocker WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+            if (arrFilter($db->get) === 0) {
+                foreach ($db->get() as $key => $value) {
+                    echo "<div class='pagetitle'><h3>Bitlocker Info</h3></div>" . PHP_EOL;
+                    echo "<div class='styled-table' style='width: auto; overflow:auto; margin: 1% 1% 5% 1%;'>" . PHP_EOL;
+                    echo "<table>"
+                    echo "<thead><tr><th>Identifier</th><th>Recovery Key</th></tr></thead>" . PHP_EOL;
+                    echo "<tbody><tr><td>" . htmlspecialchars($value['identifier'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td><td>" . htmlspecialchars($value['recovery_key'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td></tr></tbody>"
+                    echo "</table>"
+                    echo "</div>" . PHP_EOL;
+                }
+            }
+        ?>
+
         <div class='pagetitle'><h3>Job Log</h3></div>
         <div name='updateDiv4' id='updateDiv4' class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
