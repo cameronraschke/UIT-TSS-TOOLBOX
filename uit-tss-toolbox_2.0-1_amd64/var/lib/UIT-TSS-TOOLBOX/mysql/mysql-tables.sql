@@ -219,7 +219,7 @@ INSERT INTO static_bios_stats
         bios_version
     )
     VALUES
-    ('HP ProBook 450 G6', 'R71 Ver. 01.28.00'),
+    ('HP ProBook 450 G6', 'R71 Ver. 01.29.00'),
     ('Latitude 7400', '1.34.0'),
     ('Latitude 3500', '1.32.0'),
     ('Latitude 3560', 'A19'),
