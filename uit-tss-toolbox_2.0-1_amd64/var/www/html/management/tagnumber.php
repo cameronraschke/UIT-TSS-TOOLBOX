@@ -265,7 +265,7 @@ unset($_POST);
                     foreach ($db->get() as $key => $value) {
                         // BIOS and kernel updated (check mark)
                         if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
-                            echo "Online, ready to go! <span>&#10004;&#65039;</span> (" . $value["uptime_formatted"] . ")";
+                            echo "Online, no errors <span>&#10004;&#65039;</span> (" . $value["uptime_formatted"] . ")";
                         // BIOS and kernel out of date (x)
                         } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== 1)) {
                             echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
