@@ -32,6 +32,7 @@ $db = new db();
                 <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
                 <div><h3 class='page-content'><a href="/clientstats.php">Client Report</a></h3></div>
                 <div><h3 class='page-content'><a href="/update-tables.php" target="_blank">Update Tables (will take around 2-3 mins)</a></h3></div>
+                <div id="jobTimes" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
             </div>
             <div style='width: 50%; float: right;'>
                 <div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 5% 1%;'>
@@ -46,8 +47,8 @@ $db = new db();
                                 }
                             ?>
                 </div>
-                <div id="jobTimes" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
                 <div id="numberImaged" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
+                <div id="biosUpdated" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
             </div>
         </div>
 
@@ -94,6 +95,29 @@ $db = new db();
 
                 var options = {title: 'Number of OS\'s Installed' };
                 var chart = new google.visualization.PieChart(document.getElementById('numberImaged'));
+                chart.draw(data, options);
+            }
+        </script>
+        
+        <script>
+            google.charts.load('current',{packages:['corechart']});
+            google.charts.setOnLoadCallback(biosUpdated);
+
+            function biosUpdated() {
+                var data = google.visualization.arrayToDataTable([ ['OS Status', 'Client Count'],
+                <?php
+                $db->select("SELECT (SELECT COUNT(bios_updated) FROM clientstats WHERE bios_updated = 1) AS 'bios_updated', (SELECT COUNT(bios_updated) FROM clientstats WHERE bios_updated IS NULL) AS 'bios_not_updated'");
+                if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value) {
+                        echo "['BIOS Updated'," . $value["bios_updated"] . "], ";
+                        echo "['BIOS NOT Updated'," . $value["bios_not_updated"] . "], ";
+                    }
+                }
+                ?>
+                ]);
+
+                var options = {title: 'BIOS Status' };
+                var chart = new google.visualization.PieChart(document.getElementById('biosUpdated'));
                 chart.draw(data, options);
             }
         </script>
