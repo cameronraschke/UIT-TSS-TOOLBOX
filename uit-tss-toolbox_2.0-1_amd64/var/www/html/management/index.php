@@ -106,11 +106,11 @@ $db = new db();
             function biosUpdated() {
                 var data = google.visualization.arrayToDataTable([ ['OS Status', 'Client Count'],
                 <?php
-                $db->select("SELECT (SELECT COUNT(bios_updated) FROM clientstats WHERE bios_updated = 1) AS 'bios_updated', (SELECT COUNT(bios_updated) FROM clientstats WHERE bios_updated IS NULL) AS 'bios_not_updated'");
+                $db->select("SELECT (SELECT COUNT(bios_updated) FROM clientstats WHERE bios_updated = 1) AS 'bios_updated', (SELECT SUM(IF(bios_updated IS NULL, 1, 0)) FROM clientstats WHERE bios_updated IS NULL) AS 'bios_not_updated'");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
                         echo "['BIOS Updated'," . $value["bios_updated"] . "], ";
-                        echo "['BIOS NOT Updated'," . $value["bios_not_updated"] . "], ";
+                        echo "['BIOS out of Date'," . $value["bios_not_updated"] . "], ";
                     }
                 }
                 ?>
