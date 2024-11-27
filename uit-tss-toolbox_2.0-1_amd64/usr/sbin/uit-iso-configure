@@ -43,10 +43,8 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 			--architecture amd64 \
 			--archive-areas 'main contrib non-free non-free-firmware' \
 			--binary-filesystem fat32 \
-			--binary-images iso-hybrid \
-			--bootappend-live "boot=live toram username=root hostname=UIT-TSS-CLIENT \
-				timezone=America/Chicago locales=en_US.UTF-8" \
-			--bootloaders "netboot" \
+			--binary-images netboot \
+			--bootappend-live "boot=live toram username=root hostname=UIT-TSS-CLIENTtimezone=America/Chicago locales=en_US.UTF-8" \
 			--net-root-path "/srv/tftp/debian-live" \
 			--net-root-server "10.0.0.1" \
 			--chroot-filesystem squashfs \
