@@ -362,7 +362,7 @@ unset($value1);
             </form>
             <div style='margin: 1% 0% 0% 0%'><a href='/locations.php'><button>Reset Filters</button></a></div>
             <?php
-                echo "<div><a href='/locations.php?location=" . htmlspecialchars($_GET["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "&lost=" . htmlspecialchars($_GET["lost"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "&ob=" . htmlspecialchars("tagnumber DESC", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'><button>Filter By Tagnumber</button></div>";
+                echo "<div><a href='/locations.php?&ob=" . htmlspecialchars("tagnumber DESC", ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'><button>Filter By Tagnumber</button></div>";
             ?>
         </div>
         <div class='styled-form2'>
