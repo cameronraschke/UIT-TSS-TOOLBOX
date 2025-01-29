@@ -662,7 +662,7 @@ unset($_POST);
             </thead>
             <tbody>
                 <?php
-                $db->Pselect("SELECT * FROM (SELECT time, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'location_num', IF (status = 1, 'Broken', 'Working') AS 'status', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = 1, 'Yes', 'No') AS 'bios_updated', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC) t2 WHERE t2.location IS NOT NULL and t2.location_num <= 3 ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+                $db->Pselect("SELECT * FROM (SELECT time, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'location_num', IF (status = 1, 'Broken', 'Working') AS 'status', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = 1, 'Yes', 'No') AS 'bios_updated', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations WHERE tagnumber = :tagnumber AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' ORDER BY time DESC) t2 WHERE t2.location IS NOT NULL and t2.location_num <= 3 ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
                         echo "<tr>" . PHP_EOL;
