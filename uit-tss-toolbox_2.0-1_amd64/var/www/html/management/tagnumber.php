@@ -605,7 +605,7 @@ unset($_POST);
         ?>
 
         <div class='pagetitle'><h3>Job Log</h3></div>
-        <div name='updateDiv4' id='updateDiv4' class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div name='updateDiv4' id='updateDiv4' class='styled-table' style="width: auto; height: 50%; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
                 <tr>
