@@ -499,7 +499,7 @@ unset($_POST);
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
                             if ($value1['current_bios'] === $value1['updated_bios']) {
-                                echo "<td>" . $value1["current_bios"] . " (Updated)</td>" . PHP_EOL;
+                                echo "<td>" . $value1["current_bios"] . " (Up to Date)</td>" . PHP_EOL;
                             } else {
                                 echo "<td>" . $value1["current_bios"] . " (Out of Date)</td>" . PHP_EOL;
                             }
