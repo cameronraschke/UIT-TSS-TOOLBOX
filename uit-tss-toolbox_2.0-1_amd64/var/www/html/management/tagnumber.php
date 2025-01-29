@@ -662,7 +662,7 @@ unset($_POST);
             </thead>
             <tbody>
                 <?php
-                $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status = 1, 'Broken', 'Working') AS 'status', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = 1, 'Yes', 'No') AS 'bios_updated', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations WHERE (time <= NOW() - INTERVAL 3 MONTH) AND ORDER BY time DESC");
+                $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status = 1, 'Broken', 'Working') AS 'status', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = 1, 'Yes', 'No') AS 'bios_updated', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations WHERE (time <= NOW() - INTERVAL 3 MONTH) ORDER BY time DESC");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key=>$value) {
                         echo "<tr>" . PHP_EOL;
