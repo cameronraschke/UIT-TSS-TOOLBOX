@@ -495,10 +495,14 @@ unset($_POST);
                     unset($value1);
                     echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
                     echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
-                    $db->select("SELECT bios_version FROM jobstats WHERE bios_version IS NOT NULL AND tagnumber = '" . htmlspecialchars_decode($_GET["tagnumber"]) . "' ORDER BY time DESC LIMIT 1");
+                    $db->Pselect("SELECT t1.bios_version AS 'current_bios', t2.bios_version AS 'updated_bios' FROM (SELECT bios_version FROM jobstats WHERE tagnumber = :tagnumber AND bios_version IS NOT NULL ORDER BY time DESC LIMIT 1) t1, (SELECT bios_version FROM static_bios_stats WHERE system_model = :systemmodel) t2", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"]), ':systemmodel' => $value['system_model']));
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value1) {
-                            echo "<td>" . $value1["bios_version"] . "</td>" . PHP_EOL;
+                            if ($value1['current_bios'] === $value1['updated_bios']) {
+                                echo "<td>" . $value1["current_bios"] . " (Updated)</td>" . PHP_EOL;
+                            } else {
+                                echo "<td>" . $value1["current_bios"] . " (Out of Date)</td>" . PHP_EOL;
+                            }
                         }
                     }
                     unset($value1);
