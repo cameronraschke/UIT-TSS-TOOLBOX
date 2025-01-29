@@ -17,7 +17,6 @@ $assignedAccessConfiguration = @"
           <App AppUserModelId="Microsoft.WindowsNotepad_8wekyb3d8bbwe!App" />
           <App AppUserModelId="Microsoft.Windows.Photos_8wekyb3d8bbwe!App" />
           <App AppUserModelId="Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic" />
-          <App AppUserModelId="windows.immersivecontrolpanel_cw5n1h2txyewy!microsoft.windows.immersivecontrolpanel" />
           <App AppUserModelId="Microsoft.WindowsCalculator_8wekyb3d8bbwe!App" />
           <App AppUserModelId="Microsoft.Windows.Explorer" />
           <App AppUserModelId="Microsoft.Office.EXCEL.EXE.15" />
