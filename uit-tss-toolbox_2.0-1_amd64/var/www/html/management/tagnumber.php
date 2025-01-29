@@ -526,7 +526,7 @@ unset($_POST);
             <thead>
                 <tr>
                 <th>Time</th>
-                <th>Location</th>
+                <th>Current Location</th>
                 <th>Status</th>
                 <th>OS Installed</th>
                 <th>Disk Removed</th>
@@ -605,7 +605,7 @@ unset($_POST);
         ?>
 
         <div class='pagetitle'><h3>Job Log</h3></div>
-        <div name='updateDiv4' id='updateDiv4' class='styled-table' style="width: auto; max-height: 50%; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div name='updateDiv4' id='updateDiv4' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
                 <tr>
@@ -637,6 +637,50 @@ unset($_POST);
                         echo "<td>" . htmlspecialchars($value['clone_master'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "<td>" . htmlspecialchars($value['clone_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "<td>" . htmlspecialchars($value['bios_version'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "</tr>" . PHP_EOL;
+                    }
+                }
+                ?>
+            </tbody>
+        </table>
+        </div>
+
+        <div class='pagetitle'><h3>Location Log</h3></div>
+        <div name='updateDiv5' id='updateDiv5' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
+        <table width="100%">
+            <thead>
+                <tr>
+                <th>Timestamp</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>OS Installed</th>
+                <th>BIOS Updated</th>
+                <th>Disk Removed</th>
+                <th>Note</th>
+                <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = 1, 'Yes', 'No') AS 'bios_updated', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations ORDER BY time DESC");
+                if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key=>$value) {
+                        echo "<tr>" . PHP_EOL;
+                        //Time formatted
+                        echo "<td>" . htmlspecialchars($value['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        //Location formatted. Single letters to uppercase, checkout regex matching to just "Checkout"
+                        if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
+                            echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+                        } elseif (preg_match("/^checkout$/i", $value["location"])) {
+                            echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
+                        } else {
+                            echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+                        }
+                        echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['bios_updated'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "</tr>" . PHP_EOL;
                     }
                 }
@@ -679,6 +723,8 @@ unset($_POST);
                     document.getElementById("updateDiv3").innerHTML = updateDiv3
                     const updateDiv4 = doc.getElementById('updateDiv4').innerHTML
                     document.getElementById("updateDiv4").innerHTML = updateDiv4
+                    const updateDiv5 = doc.getElementById('updateDiv5').innerHTML
+                    document.getElementById("updateDiv5").innerHTML = updateDiv5
                     const location = doc.getElementById('location').innerHTML
                     document.getElementById("location").innerHTML = location
                     const note = doc.getElementById('note').innerHTML
