@@ -337,14 +337,33 @@ INNER JOIN remote ON remote.tagnumber = locations.tagnumber
 LEFT JOIN system_data ON system_data.tagnumber = locations.tagnumber
 WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
     AND locations.time in (select max(time) from locations group by tagnumber)
-    AND jobstats.time in (select max(time) from jobstats group by tagnumber)
-    AND jobstats.department IN ('techComm', 'property', 'shrl', 'execSupport') ";
-    if (strFilter($_GET["location"]) === 0) { $sql .= "AND locations.location = :location "; $sqlArr[":location"] .= $_GET["location"]; }
-    if ($_GET["lost"] == "1") { $sql .= "AND (locations.time <= NOW() - INTERVAL 3 MONTH OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) "; }
-    if (strFilter($_GET["system_model"]) === 0) { $sql .= "AND system_data.system_model = :systemmodel "; $sqlArr[":systemmodel"] .= $_GET["system_model"]; }
-    if (strFilter($_GET["department"]) === 0) { $sql .= "AND jobstats.department = :department "; $sqlArr[":department"] .= $_GET["department"]; }
-    if (strFilter($_GET["broken"]) === 0) { $sql .= "AND locations.status = :status "; $sqlArr[":status"] .= $_GET["broken"]; }
-    if (strFilter($_GET["disk_removed"]) === 0) {$sql .= "AND locations.disk_removed = 1 "; }
+    AND jobstats.time in (select max(time) from jobstats group by tagnumber)";
+    if (strFilter($_GET["location"]) === 0) { $sql .= "AND locations.location = :location "; $sqlArr[":location"] = $_GET["location"]; }
+
+    if ($_GET["lost"] == "0") {
+        $sql .= "AND NOT (locations.time <= NOW() - INTERVAL 3 MONTH OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) ";
+    } elseif ($_GET["lost"] == "1") {
+        $sql .= "AND (locations.time <= NOW() - INTERVAL 3 MONTH OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) ";
+    }
+    
+    if (strFilter($_GET["system_model"]) === 0) { $sql .= "AND system_data.system_model = :systemmodel "; $sqlArr[":systemmodel"] = $_GET["system_model"]; }
+    if (strFilter($_GET["department"]) === 0) { $sql .= "AND jobstats.department = :department "; $sqlArr[":department"] = $_GET["department"]; }
+
+    if (strFilter($_GET["broken"]) === 0) {
+        if ($_GET["broken"] == "0") {
+            $sql .= "AND (locations.status IS NULL OR locations.status = 0) ";
+        } elseif ($_GET["broken"] == "1") {
+            $sql .= "AND (locations.status = 1 OR locations.status IS NOT NULL) ";
+        }
+    }
+
+    if (strFilter($_GET["disk_removed"]) === 0) {
+        if ($_GET["disk_removed"] == "0") {
+            $sql .= "AND (locations.disk_removed IS NULL OR locations.disk_removed = 0) ";
+        } elseif ($_GET["disk_removed"] == "1") {
+            $sql .= "AND (locations.disk_removed = 1 OR locations.disk_removed IS NOT NULL) ";
+        }
+    }
 
     if (isset($_GET["order_by"])) {
         $sql .= "ORDER BY ";
@@ -447,21 +466,30 @@ if (isset($_GET["location"])) {
 
         <div class='styled-form'>
             <div>
-            <input type="checkbox" id="lost" name="lost" value="1">
-            <label for="lost">Device Lost?</label><br>
+                <div><p>Device Lost?</p></div>
+                <label for="lost_no">No</label>
+                <input type="radio" id="lost_no" name="lost" value="0">
+                <label for="lost_yes">Yes</label>
+                <input type="radio" id="lost_yes" name="lost" value="1">
             </div>
-            <div>
-            <input type="checkbox" id="broken" name="broken" value="1">
-            <label for="broken">Device Broken?</label><br>
-            </div>
-            <div>
-            <input type="checkbox" id="disk_removed" name="disk_removed" value="1">
-            <label for="disk_removed">Disk Removed?</label><br>
-            </div>
-        </div>
 
-        <div class='styled-form'>
-            <button type="submit">Filter</button>
+            <div>
+                <div><p>Device Broken?</p></div>
+                <label for="broken_no">No</label>
+                <input type="radio" id="broken_no" name="broken" value="0">
+                <label for="broken_yes">Yes</label>
+                <input type="radio" id="broken_yes" name="broken" value="1">
+            </div>
+
+            <div>
+                <div><p>Disk Removed?</p></div>
+                <label for="disk_removed_no">No</label>
+                <input type="radio" id="disk_removed_no" name="disk_removed" value="0">
+                <label for="disk_removed_yes">Yes</label>
+                <input type="radio" id="disk_removed_yes" name="disk_removed" value="1">
+            </div>
+
+            <div class='styled-form'><button type="submit">Filter</button></div>
             <div style='margin: 1% 0% 0% 0%'><a href='/locations.php'><button>Reset Filters</button></a></div>
         </div>
         </form>
