@@ -316,53 +316,44 @@ $db = new db();
         ?>
 
 <?php
-$db->select("SELECT locations.tagnumber, remote.present_bool, locations.system_serial, locations.location,
-    (CASE 
-        WHEN jobstats.department='techComm' THEN 'Tech Commons (TSS)'
-        WHEN jobstats.department='property' THEN 'Property'
-        WHEN jobstats.department='shrl' THEN 'SHRL'
-        WHEN jobstats.department = 'execSupport' THEN 'Exec Support'
-        ELSE '' 
-    END) AS 'department_formatted', jobstats.department,
-    IF ((locations.status = 0 OR locations.status IS NULL), 'Working', 'Broken') AS 'status',
-    IF (locations.os_installed = 1, 'Yes', 'No') AS 'os_installed',
-    IF (locations.bios_updated = 1, 'Yes', 'No') AS 'bios_updated',
-    locations.note AS 'note', DATE_FORMAT(locations.time, '%b %D %Y, %r') AS 'time_formatted'
-FROM locations
-INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
-INNER JOIN remote ON remote.tagnumber = locations.tagnumber
-LEFT JOIN system_data ON system_data.tagnumber = locations.tagnumber
-WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
-    AND locations.time in (select max(time) from locations group by tagnumber)
-    AND jobstats.time in (select max(time) from jobstats group by tagnumber)
-    AND jobstats.department IN ('techComm', 'property', 'shrl', 'execSupport')"
-    . if (isset($_GET["location"])) { echo "AND location = '" . htmlspecialchars_decode($_GET["location"]) . "'"} .
-    "ORDER BY locations.time DESC");
-
-if (arrFilter($db->get()) === 0) {
-    $arr = $db->get();
-    foreach ($db->get() as $key => $value) {
-        $rowCount = count($db->get());
-        $onlineRowCount = sum($db->get());
-    }
-} else {
-    $rowCount = 0;
-    $onlineRowCount = 0;
-}
-?>
-
-<div class='page-content'><h2>View and Search Current Locations</h2></div>
-<div class='page-content'><h3>A checkmark (<span style='color: #00B388'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
-
-<?php
 if (isset($_GET["location"])) {
-    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
+    $db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl', 'execSupport'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC", array(':location' => htmlspecialchars_decode($_GET['location'])));
+    $rowCount = count($db->get());
+    $onlineRowCount = 0;
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            $db->Pselect("SELECT tagnumber FROM remote WHERE present_bool = '1' AND tagnumber = :tagnumber", array(':tagnumber' => $value1["tagnumber"]));
+            if (arrFilter($db->get()) === 0) {
+                $onlineRowCount = $onlineRowCount + 1;
+            }
+        }
+    } else { $onlineRowCount = 0; }
 } else {
-    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online.</h3></div>";
+    $onlineRowCount = 0;
+    $db->select("SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl', 'execSupport'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
+    $rowCount = count($db->get());
+    $onlineRowCount = 0;
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+            $db->Pselect("SELECT tagnumber FROM remote WHERE present_bool = '1' AND tagnumber = :tagnumber", array(':tagnumber' => $value1["tagnumber"]));
+            if (arrFilter($db->get()) === 0) {
+                $onlineRowCount = $onlineRowCount + 1;
+            }
+        }
+    } else { $onlineRowCount = 0; }
 }
+unset($value1);
 ?>
-
-        <div class='styled-form'>
+        <div class='page-content'><h2>View and Search Current Locations</h2></div>
+        <div class='page-content'><h3>A checkmark (<span style='color: #00B388'>&#10004;</span>) means a client is currently on and attached to the server.</h3></div>
+        <?php
+        if (isset($_GET["location"])) {
+            echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
+        } else {
+            echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online.</h3></div>";
+        }
+        ?>
+        <div>
         <form method="GET" action="">
         <select id="system_model" name="system_model">
             <label for="system_model">System Model:</label>
@@ -386,8 +377,6 @@ if (isset($_GET["location"])) {
             <button type="submit">Filter</button>
         </form>
         </div>
-
-
         <div class='styled-form'>
             <form method='post'>
                 <div>
@@ -397,8 +386,6 @@ if (isset($_GET["location"])) {
             </form>
             <div style='margin: 1% 0% 0% 0%'><a href='/locations.php'><button>Reset Filters</button></a></div>
         </div>
-
-        
         <div class='styled-form2'>
             <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">
             <input type="text" id="myInputSerial" onkeyup="myFunctionSerial()" placeholder="Search serial number...">
