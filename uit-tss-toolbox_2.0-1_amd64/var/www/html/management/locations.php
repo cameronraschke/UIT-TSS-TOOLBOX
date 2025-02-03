@@ -316,7 +316,7 @@ $db = new db();
         ?>
 
 <?php
-$db->select("SELECT locations.tagnumber, remote.present_bool, locations.system_serial, locations.location,
+$sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, locations.location,
     (CASE 
         WHEN jobstats.department='techComm' THEN 'Tech Commons (TSS)'
         WHEN jobstats.department='property' THEN 'Property'
@@ -326,7 +326,8 @@ $db->select("SELECT locations.tagnumber, remote.present_bool, locations.system_s
     END) AS 'department_formatted', jobstats.department,
     IF ((locations.status = 0 OR locations.status IS NULL), 'Working', 'Broken') AS 'status',
     IF (locations.os_installed = 1, 'Yes', 'No') AS 'os_installed',
-    IF (locations.bios_updated = 1, 'Yes', 'No') AS 'bios_updated',
+    IF (remote.bios_updated = 1, 'Yes', 'No') AS 'bios_updated',
+    IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated',
     locations.note AS 'note', DATE_FORMAT(locations.time, '%b %D %Y, %r') AS 'time_formatted'
 FROM locations
 INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
@@ -335,15 +336,24 @@ LEFT JOIN system_data ON system_data.tagnumber = locations.tagnumber
 WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
     AND locations.time in (select max(time) from locations group by tagnumber)
     AND jobstats.time in (select max(time) from jobstats group by tagnumber)
-    AND jobstats.department IN ('techComm', 'property', 'shrl', 'execSupport')"
-    . if (isset($_GET["location"])) { echo "AND location = '" . htmlspecialchars_decode($_GET["location"]) . "'"} .
-    "ORDER BY locations.time DESC");
+    AND jobstats.department IN ('techComm', 'property', 'shrl', 'execSupport')";
+    if (isset($_GET["location"])) { $sql .= "AND location = :location"; }
+    if ($_GET["lost"] == "1") {$sql .= "AND (time <= NOW() - INTERVAL 3 MONTH OR (location = 'Stolen' OR location = 'Lost' OR location = 'Missing' OR location = 'Unknown'))"; }
+$sql .= "ORDER BY locations.time DESC";
 
+if (isset($_GET["location"])) {
+    $db->Pselect($sql, array(':location' => htmlspecialchars_decode($_GET['location'])));
+} else {
+    $db->select($sql);
+}
+
+    $rowCount = 0;
+    $onlineRowCount = 0;
 if (arrFilter($db->get()) === 0) {
     $arr = $db->get();
     foreach ($db->get() as $key => $value) {
         $rowCount = count($db->get());
-        $onlineRowCount = sum($db->get());
+        $onlineRowCount = $value["present_bool"] + $onlineRowCount;
     }
 } else {
     $rowCount = 0;
@@ -366,6 +376,7 @@ if (isset($_GET["location"])) {
         <form method="GET" action="">
         <select id="system_model" name="system_model">
             <label for="system_model">System Model:</label>
+            <option>--Filter By Model--</option>
             <?php
                 $db->select("SELECT system_model, COUNT(system_model) AS 'system_model_rows' FROM system_data WHERE system_model IS NOT NULL GROUP BY system_model ORDER BY system_model_rows DESC");
                 if (arrFilter($db->get()) === 0) {
@@ -398,7 +409,7 @@ if (isset($_GET["location"])) {
             <div style='margin: 1% 0% 0% 0%'><a href='/locations.php'><button>Reset Filters</button></a></div>
         </div>
 
-        
+
         <div class='styled-form2'>
             <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">
             <input type="text" id="myInputSerial" onkeyup="myFunctionSerial()" placeholder="Search serial number...">
@@ -422,44 +433,22 @@ if (isset($_GET["location"])) {
                 </thead>
                 <tbody>
 <?php
-if (isset($_GET["location"])) {
-    if ($_GET["lost"] == "1") {
-        $db->Pselect("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'shrl', 'execSupport'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location AND (time <= NOW() - INTERVAL 3 MONTH OR (location = 'Stolen' OR location = 'Lost' OR location = 'Missing' OR location = 'Unknown')) ORDER BY time DESC", array(':location' => htmlspecialchars_decode($_GET['location'])));
+foreach ($arr as $key => $value1) {
+    // kernel and bios up to date (check mark)
+    if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10004;&#65039;</span>" . PHP_EOL;
+    // BIOS out of date, kernel not updated (x)
+    } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] !== 1)) {
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10060;</span>" . PHP_EOL;
+    //BIOS out of date, kernel updated (warning sign)
+    } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] !== 1)) {
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9888;&#65039;</span>" . PHP_EOL;
+    //BIOS updated, kernel out of date (x)
+    } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] === 1)) {
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10060;</span>" . PHP_EOL;
     } else {
-        $db->Pselect("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl', 'execSupport'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND location = :location ORDER BY time DESC", array(':location' => htmlspecialchars_decode($_GET['location'])));
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9940;</span>" . PHP_EOL;
     }
-} else {
-    if ($_GET["lost"] == "1") {
-        $db->select("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'shrl', 'execSupport'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) AND (time <= NOW() - INTERVAL 3 MONTH OR (location = 'Stolen' OR location = 'Lost' OR location = 'Missing' OR location = 'Unknown')) ORDER BY time DESC");
-    } else {
-        $db->select("SELECT tagnumber, system_serial, location, IF ((status='0' OR status IS NULL), 'Working', 'Broken') AS 'status', IF (os_installed='1', 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', note, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted' FROM locations WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'property', 'shrl', 'execSupport'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) ORDER BY time DESC");
-    }
-}
-if (arrFilter($db->get()) === 0) {
-    $arr = $db->get();
-}
-foreach ($arr as $key => $value) {
-    echo "<tr>" . PHP_EOL;
-    echo "<td>" . PHP_EOL;
-    $db->Pselect("SELECT present_bool, kernel_updated, bios_updated FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
-    if (arrFilter($db->get()) === 0) {
-        foreach ($db->get() as $key => $value1) {
-            // kernel and bios up to date (check mark)
-            if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
-                echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10004;&#65039;</span>" . PHP_EOL;
-            // BIOS out of date, kernel not updated (x)
-            } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] !== 1)) {
-                echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10060;</span>" . PHP_EOL;
-            //BIOS out of date, kernel updated (warning sign)
-            } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] !== 1)) {
-                echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9888;&#65039;</span>" . PHP_EOL;
-            //BIOS updated, kernel out of date (x)
-            } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] === 1)) {
-                echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10060;</span>" . PHP_EOL;
-            } else {
-                echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9940;</span>" . PHP_EOL;
-            }
-        }
     } else {
         echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9940;</span>" . PHP_EOL;
     }
