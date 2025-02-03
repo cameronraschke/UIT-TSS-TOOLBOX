@@ -316,11 +316,13 @@ $db = new db();
         ?>
 
 <?php
+unset($sql);
+$sqlArr = array();
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, locations.location,
     (CASE 
-        WHEN jobstats.department='techComm' THEN 'Tech Commons (TSS)'
-        WHEN jobstats.department='property' THEN 'Property'
-        WHEN jobstats.department='shrl' THEN 'SHRL'
+        WHEN jobstats.department = 'techComm' THEN 'Tech Commons (TSS)'
+        WHEN jobstats.department = 'property' THEN 'Property'
+        WHEN jobstats.department = 'shrl' THEN 'SHRL'
         WHEN jobstats.department = 'execSupport' THEN 'Exec Support'
         ELSE '' 
     END) AS 'department_formatted', jobstats.department,
@@ -336,13 +338,35 @@ LEFT JOIN system_data ON system_data.tagnumber = locations.tagnumber
 WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
     AND locations.time in (select max(time) from locations group by tagnumber)
     AND jobstats.time in (select max(time) from jobstats group by tagnumber)
-    AND jobstats.department IN ('techComm', 'property', 'shrl', 'execSupport')";
-    if (isset($_GET["location"])) { $sql .= "AND location = :location"; }
-    if ($_GET["lost"] == "1") {$sql .= "AND (time <= NOW() - INTERVAL 3 MONTH OR (location = 'Stolen' OR location = 'Lost' OR location = 'Missing' OR location = 'Unknown'))"; }
-$sql .= "ORDER BY locations.time DESC";
+    AND jobstats.department IN ('techComm', 'property', 'shrl', 'execSupport') ";
+    if (strFilter($_GET["location"]) === 0) { $sql .= "AND locations.location = :location "; $sqlArr[":location"] .= $_GET["location"]; }
+    if ($_GET["lost"] == "1") { $sql .= "AND (locations.time <= NOW() - INTERVAL 3 MONTH OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) "; }
+    if (strFilter($_GET["system_model"]) === 0) { $sql .= "AND system_data.system_model = :systemmodel "; $sqlArr[":systemmodel"] .= $_GET["system_model"]; }
+    if (strFilter($_GET["department"]) === 0) { $sql .= "AND jobstats.department = :department "; $sqlArr[":department"] .= $_GET["department"]; }
 
-if (isset($_GET["location"])) {
-    $db->Pselect($sql, array(':location' => htmlspecialchars_decode($_GET['location'])));
+    if (isset($_GET["order_by"])) {
+        $sql .= "ORDER BY ";
+        if ($_GET["order_by"] == "tag_desc") {
+            $sql .= "locations.tagnumber DESC, ";
+        }
+        if ($_GET["order_by"] == "tag_asc") {
+            $sql .= "locations.tagnumber ASC, ";
+        }
+        if($_GET["order_by"] == "time_desc") {
+            $sql .= "locations.time DESC, ";
+        }
+        if($_GET["order_by"] == "time_asc") {
+            $sql .= "locations.time ASC, ";
+        }
+        $sql .= "locations.time DESC";
+    } else {
+        $sql .= "ORDER BY locations.time DESC";
+    }
+
+    array(':location' => htmlspecialchars_decode($_GET['location'])
+
+if (isset($_GET["location"]) || isset($_GET["system_model"]) || isset($_GET["department"])) {
+    $db->Pselect($sql, $sqlArr);
 } else {
     $db->select($sql);
 }
@@ -350,7 +374,7 @@ if (isset($_GET["location"])) {
     $rowCount = 0;
     $onlineRowCount = 0;
 if (arrFilter($db->get()) === 0) {
-    $arr = $db->get();
+    $tableArr = $db->get();
     foreach ($db->get() as $key => $value) {
         $rowCount = count($db->get());
         $onlineRowCount = $value["present_bool"] + $onlineRowCount;
@@ -372,11 +396,11 @@ if (isset($_GET["location"])) {
 }
 ?>
 
-        <div class='styled-form'>
+        <div style='background-color:rgb(233, 233, 233); width: auto;' class='styled-form'>
         <form method="GET" action="">
+        <div class='styled-form'>
         <select id="system_model" name="system_model">
-            <label for="system_model">System Model:</label>
-            <option>--Filter By Model--</option>
+            <option value=''>--Filter By Model--</option>
             <?php
                 $db->select("SELECT system_model, COUNT(system_model) AS 'system_model_rows' FROM system_data WHERE system_model IS NOT NULL GROUP BY system_model ORDER BY system_model_rows DESC");
                 if (arrFilter($db->get()) === 0) {
@@ -387,14 +411,33 @@ if (isset($_GET["location"])) {
                 unset($value1);
             ?>
         </select>
-            
-            <label for="ob_tagnumber">Order By Tagnumber</label>
-            <input type="checkbox" id="ob_tagnumber" name="ob_tagnumber" value="1">
 
-            <label for="ob_time">Order By Tagnumber</label>
-            <input type="checkbox" id="ob_time" name="ob_time" value="1">
+        <select id="department" name="department">
+            <option value=''>--Filter By Department--</option>
+            <option value="techComm">Tech Commons (TSS)</option>
+            <option value="property">Property</option>
+            <option value="shrl">SHRL (Kirven)</option>
+            <option value="execSupport">Exec Support</option>
+        </select>
 
+        <select id="order_by" name="order_by">
+            <option value=''>--Order By--</option>
+            <option value="time_desc">Time &#8595;</option>
+            <option value="time_asc">Time &#8593;</option>
+            <option value="tag_desc">Tagnumber &#8595;</option>
+            <option value="tag_asc">Tagnumber &#8593;</option>
+        </select>
+        </div>
+
+        <div class='styled-form'>
+            <input type="checkbox" id="lost" name="lost" value="1">
+            <label for="lost">Device Lost?</label><br>
+        </div>
+
+        <div class='styled-form'>
             <button type="submit">Filter</button>
+            <div style='margin: 1% 0% 0% 0%'><a href='/locations.php'><button>Reset Filters</button></a></div>
+        </div>
         </form>
         </div>
 
@@ -406,7 +449,7 @@ if (isset($_GET["location"])) {
                 </div>
                 <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
             </form>
-            <div style='margin: 1% 0% 0% 0%'><a href='/locations.php'><button>Reset Filters</button></a></div>
+            
         </div>
 
 
@@ -433,60 +476,53 @@ if (isset($_GET["location"])) {
                 </thead>
                 <tbody>
 <?php
-foreach ($arr as $key => $value1) {
+foreach ($tableArr as $key => $value1) {
+    //var_dump($tableArr);
+    echo "<tr>" . PHP_EOL;
+    echo "<td>" . PHP_EOL;
     // kernel and bios up to date (check mark)
     if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
-        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10004;&#65039;</span>" . PHP_EOL;
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10004;&#65039;</span>" . PHP_EOL;
     // BIOS out of date, kernel not updated (x)
     } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] !== 1)) {
-        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10060;</span>" . PHP_EOL;
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10060;</span>" . PHP_EOL;
     //BIOS out of date, kernel updated (warning sign)
     } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] !== 1)) {
-        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9888;&#65039;</span>" . PHP_EOL;
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9888;&#65039;</span>" . PHP_EOL;
     //BIOS updated, kernel out of date (x)
     } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] === 1)) {
-        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10060;</span>" . PHP_EOL;
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#10060;</span>" . PHP_EOL;
     } else {
-        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9940;</span>" . PHP_EOL;
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9940;</span>" . PHP_EOL;
     }
-    } else {
-        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b> <span>&#9940;</span>" . PHP_EOL;
-    }
-    unset($value1);
+    echo "</td>" . PHP_EOL;
 
-    echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
-    if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
-    } elseif (preg_match("/^checkout$/i", $value["location"])) {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
+    echo "<td>" . $value1['system_serial'] . "</td>" . PHP_EOL;
+    if (preg_match("/^[a-zA-Z]$/", $value1["location"])) { 
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value1["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+    } elseif (preg_match("/^checkout$/i", $value1["location"])) {
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
     } else {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
     }
 
-    $db->Pselect("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' WHEN department = 'execSupport' THEN 'Exec Support' ELSE '' END) AS 'department_formatted' FROM jobstats WHERE tagnumber = :tagnumber AND department IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value['tagnumber']));
-    if (arrFilter($db->get()) === 0) {
-        foreach ($db->get() as $key => $value1) {
-            echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        }
-    } else {
-        echo "<td>NULL</td>" . PHP_EOL;
-    }
-    unset($value1);
 
-    echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-    echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+    echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 
-    if (strFilter($value["bios_updated"]) === 0) {
-        echo "<td>" . htmlspecialchars($value["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+    echo "<td>" . htmlspecialchars($value1['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+    echo "<td>" . htmlspecialchars($value1['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+
+    if (strFilter($value1["bios_updated"]) === 0) {
+        echo "<td>" . htmlspecialchars($value1["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
     } else {
         echo "<td>NULL</td>" . PHP_EOL;
     }
 
-    echo "<td>" . htmlspecialchars($value['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-    echo "<td>" . htmlspecialchars($value['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " </td>" . PHP_EOL;
+    echo "<td>" . htmlspecialchars($value1['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+    echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " </td>" . PHP_EOL;
 
 }
-unset($arr);
+unset($tableArr);
 unset($value1);
 ?>
 </tr>
