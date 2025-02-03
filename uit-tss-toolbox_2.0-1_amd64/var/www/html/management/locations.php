@@ -343,6 +343,8 @@ WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
     if ($_GET["lost"] == "1") { $sql .= "AND (locations.time <= NOW() - INTERVAL 3 MONTH OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) "; }
     if (strFilter($_GET["system_model"]) === 0) { $sql .= "AND system_data.system_model = :systemmodel "; $sqlArr[":systemmodel"] .= $_GET["system_model"]; }
     if (strFilter($_GET["department"]) === 0) { $sql .= "AND jobstats.department = :department "; $sqlArr[":department"] .= $_GET["department"]; }
+    if (strFilter($_GET["broken"]) === 0) { $sql .= "AND locations.status = :status "; $sqlArr[":status"] .= $_GET["broken"]; }
+    if (strFilter($_GET["disk_removed"]) === 0) {$sql .= "AND locations.disk_removed = 1 "; }
 
     if (isset($_GET["order_by"])) {
         $sql .= "ORDER BY ";
@@ -358,12 +360,22 @@ WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
         if($_GET["order_by"] == "time_asc") {
             $sql .= "locations.time ASC, ";
         }
+        if($_GET["order_by"] == "os_desc") {
+            $sql .= "locations.os_installed DESC, ";
+        }
+        if($_GET["order_by"] == "os_asc") {
+            $sql .= "locations.os_installed ASC, ";
+        }
+        if($_GET["order_by"] == "bios_desc") {
+            $sql .= "locations.bios_updated DESC, ";
+        }
+        if($_GET["order_by"] == "bios_asc") {
+            $sql .= "locations.bios_updated ASC, ";
+        }
         $sql .= "locations.time DESC";
     } else {
         $sql .= "ORDER BY locations.time DESC";
     }
-
-    array(':location' => htmlspecialchars_decode($_GET['location'])
 
 if (isset($_GET["location"]) || isset($_GET["system_model"]) || isset($_GET["department"])) {
     $db->Pselect($sql, $sqlArr);
@@ -426,12 +438,26 @@ if (isset($_GET["location"])) {
             <option value="time_asc">Time &#8593;</option>
             <option value="tag_desc">Tagnumber &#8595;</option>
             <option value="tag_asc">Tagnumber &#8593;</option>
+            <option value="os_desc">OS Installed &#8595;</option>
+            <option value="os_asc">OS Installed &#8593;</option>
+            <option value="bios_desc">BIOS Updated &#8595;</option>
+            <option value="bios_desc">BIOS Updated &#8593;</option>
         </select>
         </div>
 
         <div class='styled-form'>
+            <div>
             <input type="checkbox" id="lost" name="lost" value="1">
             <label for="lost">Device Lost?</label><br>
+            </div>
+            <div>
+            <input type="checkbox" id="broken" name="broken" value="1">
+            <label for="broken">Device Broken?</label><br>
+            </div>
+            <div>
+            <input type="checkbox" id="disk_removed" name="disk_removed" value="1">
+            <label for="disk_removed">Disk Removed?</label><br>
+            </div>
         </div>
 
         <div class='styled-form'>
