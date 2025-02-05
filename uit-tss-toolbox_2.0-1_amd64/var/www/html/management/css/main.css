@@ -269,15 +269,8 @@ table {
 .filtering-form {
 	background-color:rgb(233, 233, 233);
 	width: 40%;
-	margin: 2% 2% 2% 2%;
-	padding: 1% 1% 2% 1%;
-}
-
-.filtering-form {
-	background-color:rgb(233, 233, 233);
-	width: 40%;
-	margin: 2% 2% 2% 2%;
-	padding: 1% 1% 2% 1%;
+	margin: 10px 10px 10px 10px;
+	padding: 10px 10px 10px 10px;
 }
 
 .filtering-form div {
