@@ -272,3 +272,15 @@ table {
 	margin: 2% 2% 2% 2%;
 	padding: 1% 1% 2% 1%;
 }
+
+.filtering-form {
+	background-color:rgb(233, 233, 233);
+	width: 40%;
+	margin: 2% 2% 2% 2%;
+	padding: 1% 1% 2% 1%;
+}
+
+.filtering-form select {
+	margin: 2% 2% 2% 2%;
+	padding: 1% 1% 2% 1%;
+}
