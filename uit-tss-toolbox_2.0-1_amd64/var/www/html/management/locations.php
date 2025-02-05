@@ -472,9 +472,37 @@ if (arrFilter($db->get()) === 0) {
 
     <div class='page-content'><h2>View and Search Current Locations</h2></div>
 
+
+
     <div class='filtering-form'>
       <form method="GET" action="">
         <div class='filtering-form'>
+
+          <label for="location-filter">
+          <input type="checkbox" id="not-location" name="not-location" value="1">
+          NOT
+          </label>
+          <select name="location" id="location-filter">
+            <option value="">--Filter By Location--</option>
+            <?php
+            $db->select("SELECT COUNT(location) AS location_rows, location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY COUNT(location) DESC");
+            if (arrFilter($db->get()) === 0) {
+              foreach ($db->get() as $key => $value1) {
+                echo "<option value='" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . htmlspecialchars($value1["location_rows"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")" . "</option>" . PHP_EOL;
+              }
+            }
+            unset($value1);
+            ?>
+          </select>          
+
+          <select id="department" name="department">
+            <option value=''>--Filter By Department--</option>
+            <option value="techComm">Tech Commons (TSS)</option>
+            <option value="property">Property</option>
+            <option value="shrl">SHRL (Kirven)</option>
+            <option value="execSupport">Exec Support</option>
+          </select>
+
           <select id="system_model" name="system_model">
             <option value=''>--Filter By Model--</option>
             <?php
@@ -491,14 +519,6 @@ if (arrFilter($db->get()) === 0) {
             }
             unset($value1);
             ?>
-          </select>
-
-          <select id="department" name="department">
-            <option value=''>--Filter By Department--</option>
-            <option value="techComm">Tech Commons (TSS)</option>
-            <option value="property">Property</option>
-            <option value="shrl">SHRL (Kirven)</option>
-            <option value="execSupport">Exec Support</option>
           </select>
 
           <select id="order_by" name="order_by">
