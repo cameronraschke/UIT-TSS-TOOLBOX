@@ -364,8 +364,8 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   INNER JOIN remote ON remote.tagnumber = locations.tagnumber
   LEFT JOIN system_data ON system_data.tagnumber = locations.tagnumber
   WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
-  AND locations.time in (select max(time) from locations group by tagnumber)
-  AND jobstats.time in (select max(time) from jobstats group by tagnumber)";
+  AND locations.time in (select MAX(time) from locations group by tagnumber)
+  AND jobstats.time in (select MAX(time) from jobstats group by tagnumber)";
 
 // Location filter
 if (strFilter($_GET["location"]) === 0) {
@@ -395,21 +395,24 @@ if (strFilter($_GET["department"]) === 0) {
 }
 
 // Broken filter
-if (strFilter($_GET["broken"]) === 0) {
-  if ($_GET["broken"] == "0") {
-    $sql .= "AND (locations.status IS NULL OR locations.status = 0) ";
-  } elseif ($_GET["broken"] == "1") {
-    $sql .= "AND (locations.status = 1 OR locations.status IS NOT NULL) ";
-  }
+if ($_GET["broken"] == "0") {
+  $sql .= "AND (locations.status IS NULL OR locations.status = 0) ";
+} elseif ($_GET["broken"] == "1") {
+  $sql .= "AND (locations.status = 1 OR locations.status IS NOT NULL) ";
 }
 
 // Disk removed filter
-if (strFilter($_GET["disk_removed"]) === 0) {
-  if ($_GET["disk_removed"] == "0") {
-    $sql .= "AND (locations.disk_removed IS NULL OR locations.disk_removed = 0) ";
-  } elseif ($_GET["disk_removed"] == "1") {
-    $sql .= "AND (locations.disk_removed = 1 OR locations.disk_removed IS NOT NULL) ";
-  }
+if ($_GET["disk_removed"] == "0") {
+  $sql .= "AND (locations.disk_removed IS NULL OR locations.disk_removed = 0) ";
+} elseif ($_GET["disk_removed"] == "1") {
+  $sql .= "AND (locations.disk_removed = 1 OR locations.disk_removed IS NOT NULL) ";
+}
+
+// Disk removed filter
+if ($_GET["os_installed"] == "0") {
+  $sql .= "AND (locations.os_installed IS NULL OR locations.os_installed = 0) ";
+} elseif ($_GET["os_installed"] == "1") {
+  $sql .= "AND (locations.os_installed = 1 OR locations.os_installed IS NOT NULL) ";
 }
 
 // Order by modifiers
@@ -445,7 +448,7 @@ if (isset($_GET["order_by"])) {
   if($_GET["order_by"] == "location_asc") {
     $sql .= "locations.location ASC, ";
   }
-  $sql .= "locations.time DESC";
+  $sql .= "locations.time DESC ";
 } else {
   $sql .= "ORDER BY locations.time DESC";
 }
@@ -536,6 +539,14 @@ if (arrFilter($db->get()) === 0) {
             <input type="radio" id="disk_removed_no" name="disk_removed" value="0">
             <label for="disk_removed_yes">Yes</label>
             <input type="radio" id="disk_removed_yes" name="disk_removed" value="1">
+          </div>
+
+          <div class='filtering-form-radio'>
+            <div><p>OS Installed?</p></div>
+            <label for="os_installed_no">No</label>
+            <input type="radio" id="os_installed_no" name="os_installed" value="0">
+            <label for="os_installed_yes">Yes</label>
+            <input type="radio" id="os_installed_yes" name="os_installed" value="1">
           </div>
         </div>
 
