@@ -290,7 +290,7 @@ table {
 	padding: 1% 1% 2% 1%;
 }
 
-.filtering-form input[type=text] {
-	margin: 1% 1% 1% 1%;
+.filtering-form label {
+	margin: 2% 1% 1% 1%;
 	padding: 1% 1% 2% 1%;
 }
