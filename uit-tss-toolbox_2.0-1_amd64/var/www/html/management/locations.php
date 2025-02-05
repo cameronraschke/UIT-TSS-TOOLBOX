@@ -493,6 +493,7 @@ if (isset($_GET["location"])) {
                 <a href='/locations.php'><button>Reset Filters</button></a>
                 <button type="submit">Filter</button>
             </div>
+            <div><?php echo "Results: " . $rowCount . PHP_EOL; ?></div>
         </div>
         </form>
         </div>
