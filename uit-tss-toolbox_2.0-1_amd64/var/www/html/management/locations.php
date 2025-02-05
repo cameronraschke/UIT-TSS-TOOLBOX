@@ -427,76 +427,84 @@ if (isset($_GET["location"])) {
 }
 ?>
 
-        <div style='' class='filtering-form'>
-        <form method="GET" action="">
-        <div class='filtering-form'>
-        <select id="system_model" name="system_model">
-            <option value=''>--Filter By Model--</option>
-            <?php
-                $db->select("SELECT system_model, COUNT(system_model) AS 'system_model_rows' FROM system_data WHERE system_model IS NOT NULL GROUP BY system_model ORDER BY system_model_rows DESC");
-                if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key => $value1) {
-                        echo "<option value='" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
-                    }
-                }
-                unset($value1);
-            ?>
-        </select>
+<div class='filtering-form'>
+  <form method="GET" action="">
+    <div class='filtering-form'>
+      <select id="system_model" name="system_model">
+        <option value=''>--Filter By Model--</option>
+        <?php
+        $db->select("SELECT system_model,
+          COUNT(system_model) AS 'system_model_rows'
+          FROM system_data
+          WHERE system_model IS NOT NULL
+          GROUP BY system_model
+          ORDER BY system_model_rows DESC");
+        if (arrFilter($db->get()) === 0) {
+          foreach ($db->get() as $key => $value1) {
+            echo "<option value='" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
+          }
+        }
+        unset($value1);
+        ?>
+      </select>
 
-        <select id="department" name="department">
-            <option value=''>--Filter By Department--</option>
-            <option value="techComm">Tech Commons (TSS)</option>
-            <option value="property">Property</option>
-            <option value="shrl">SHRL (Kirven)</option>
-            <option value="execSupport">Exec Support</option>
-        </select>
+      <select id="department" name="department">
+        <option value=''>--Filter By Department--</option>
+        <option value="techComm">Tech Commons (TSS)</option>
+        <option value="property">Property</option>
+        <option value="shrl">SHRL (Kirven)</option>
+        <option value="execSupport">Exec Support</option>
+      </select>
 
-        <select id="order_by" name="order_by">
-            <option value=''>--Order By--</option>
-            <option value="time_desc">Time &#8595;</option>
-            <option value="time_asc">Time &#8593;</option>
-            <option value="tag_desc">Tagnumber &#8595;</option>
-            <option value="tag_asc">Tagnumber &#8593;</option>
-            <option value="os_desc">OS Installed &#8595;</option>
-            <option value="os_asc">OS Installed &#8593;</option>
-            <option value="bios_desc">BIOS Updated &#8595;</option>
-            <option value="bios_desc">BIOS Updated &#8593;</option>
-        </select>
-        </div>
+      <select id="order_by" name="order_by">
+        <option value=''>--Order By--</option>
+        <option value="time_desc">Time &#8595;</option>
+        <option value="time_asc">Time &#8593;</option>
+        <option value="tag_desc">Tagnumber &#8595;</option>
+        <option value="tag_asc">Tagnumber &#8593;</option>
+        <option value="os_desc">OS Installed &#8595;</option>
+        <option value="os_asc">OS Installed &#8593;</option>
+        <option value="bios_desc">BIOS Updated &#8595;</option>
+        <option value="bios_desc">BIOS Updated &#8593;</option>
+      </select>
+    </div>
 
-        <div class='filtering-form'>
-            <div>
-                <div><p>Device Lost?</p></div>
-                <label for="lost_no">No</label>
-                <input type="radio" id="lost_no" name="lost" value="0">
-                <label for="lost_yes">Yes</label>
-                <input type="radio" id="lost_yes" name="lost" value="1">
-            </div>
+    <div class='filtering-form'>
+      <div>
+        <div><p>Device Lost?</p></div>
+        <label for="lost_no">No</label>
+        <input type="radio" id="lost_no" name="lost" value="0">
+        <label for="lost_yes">Yes</label>
+        <input type="radio" id="lost_yes" name="lost" value="1">
+      </div>
 
-            <div>
-                <div><p>Device Broken?</p></div>
-                <label for="broken_no">No</label>
-                <input type="radio" id="broken_no" name="broken" value="0">
-                <label for="broken_yes">Yes</label>
-                <input type="radio" id="broken_yes" name="broken" value="1">
-            </div>
+      <div>
+        <div><p>Device Broken?</p></div>
+        <label for="broken_no">No</label>
+        <input type="radio" id="broken_no" name="broken" value="0">
+        <label for="broken_yes">Yes</label>
+        <input type="radio" id="broken_yes" name="broken" value="1">
+      </div>
 
-            <div>
-                <div><p>Disk Removed?</p></div>
-                <label for="disk_removed_no">No</label>
-                <input type="radio" id="disk_removed_no" name="disk_removed" value="0">
-                <label for="disk_removed_yes">Yes</label>
-                <input type="radio" id="disk_removed_yes" name="disk_removed" value="1">
-            </div>
+      <div>
+        <div><p>Disk Removed?</p></div>
+        <label for="disk_removed_no">No</label>
+        <input type="radio" id="disk_removed_no" name="disk_removed" value="0">
+        <label for="disk_removed_yes">Yes</label>
+        <input type="radio" id="disk_removed_yes" name="disk_removed" value="1">
+      </div>
+    </div>
 
-            <div>
-                <a href='/locations.php'><button>Reset Filters</button></a>
-                <button type="submit">Filter</button>
-            </div>
-            <div><?php echo "Results: " . $rowCount . PHP_EOL; ?></div>
-        </div>
-        </form>
-        </div>
+    <div class='filtering-form'>
+      <a href='/locations.php'><button>Reset Filters</button></a>
+      <button type="submit">Filter</button>
+    </div>
+    <div class='filtering-form'>
+      <?php echo "Results: " . $rowCount . PHP_EOL; ?>
+    </div>
+    </div>
+  </form>
+</div>
 
 
         <div class='styled-form'>
