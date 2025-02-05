@@ -282,14 +282,14 @@ table {
 
 .filtering-form div {
 	width: 100%;
-	margin: 1% 1% 1% 1%;
-	padding: 1% 1% 1% 1%;
+	margin: 10px 10px 10px 10px;
+	padding: 10px 10px 10px 10px;
 }
 
-.filtering-form select {
+/*.filtering-form select {
 	margin: 1% 1% 1% 1%;
 	padding: 1% 1% 1% 1%;
-}
+}*/
 
 .filtering-form-radio {
 	margin: 1% 1% 1% 1%;
