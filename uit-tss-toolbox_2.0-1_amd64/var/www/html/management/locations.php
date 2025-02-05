@@ -365,7 +365,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   LEFT JOIN system_data ON system_data.tagnumber = locations.tagnumber
   WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
   AND locations.time in (select MAX(time) from locations group by tagnumber)
-  AND jobstats.time in (select MAX(time) from jobstats group by tagnumber)";
+  AND jobstats.time in (select MAX(time) from jobstats group by tagnumber) ";
 
 // Location filter
 if (strFilter($_GET["location"]) === 0) {
@@ -378,6 +378,28 @@ if (strFilter($_GET["location"]) === 0) {
   }
 }
 
+// department filter
+if (strFilter($_GET["department"]) === 0) {
+  if ($_GET["not-department"] == "1") {
+    $sql .= "AND NOT jobstats.department = :department ";
+    $sqlArr[":department"] = $_GET["department"];
+  } else {
+    $sql .= "AND jobstats.department = :department ";
+    $sqlArr[":department"] = $_GET["department"];
+  }
+}
+
+// System model filter
+if (strFilter($_GET["system_model"]) === 0) {
+  if ($_GET["not-system_model"] == "1") {
+    $sql .= "AND NOT system_data.system_model = :systemmodel ";
+    $sqlArr[":systemmodel"] = $_GET["system_model"];
+  } else {
+    $sql .= "AND system_data.system_model = :systemmodel ";
+    $sqlArr[":systemmodel"] = $_GET["system_model"];
+  }
+}
+
 // Lost filter
 if ($_GET["lost"] == "0") {
   $sql .= "AND NOT (locations.time <= NOW() - INTERVAL 3 MONTH
@@ -385,18 +407,6 @@ if ($_GET["lost"] == "0") {
 } elseif ($_GET["lost"] == "1") {
   $sql .= "AND (locations.time <= NOW() - INTERVAL 3 MONTH
     OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) ";
-}
-
-// System model filter
-if (strFilter($_GET["system_model"]) === 0) {
-  $sql .= "AND system_data.system_model = :systemmodel ";
-  $sqlArr[":systemmodel"] = $_GET["system_model"];
-}
-
-// department filter
-if (strFilter($_GET["department"]) === 0) {
-  $sql .= "AND jobstats.department = :department ";
-  $sqlArr[":department"] = $_GET["department"];
 }
 
 // Broken filter
@@ -413,7 +423,7 @@ if ($_GET["disk_removed"] == "0") {
   $sql .= "AND (locations.disk_removed = 1 OR locations.disk_removed IS NOT NULL) ";
 }
 
-// Disk removed filter
+// OS Installed filter
 if ($_GET["os_installed"] == "0") {
   $sql .= "AND (locations.os_installed IS NULL OR locations.os_installed = 0) ";
 } elseif ($_GET["os_installed"] == "1") {
@@ -506,15 +516,94 @@ if (arrFilter($db->get()) === 0) {
               <input type="checkbox" id="not-department" name="not-department" value="1"> NOT
             </label>
             <select id="department" name="department">
-              <option value=''>--Filter By Department--</option>
-              <option value="techComm">Tech Commons (TSS)</option>
-              <option value="property">Property</option>
-              <option value="shrl">SHRL (Kirven)</option>
-              <option value="execSupport">Exec Support</option>
+            <option value=''>--Filter By Department--</option>
+              <?php  
+              // Get number of clients for techComm
+              $db->select("SELECT COUNT(department) AS 'department_rows'
+                FROM jobstats 
+                WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
+                AND department = 'techComm'
+                GROUP BY department");
+
+                if (arrFilter($db->get()) === 0) {
+                  foreach ($db->get() as $key => $value1) {
+                    $deptRowCount = $value1["department_rows"];
+                  }
+                } else {
+                  $deptRowCount = 0;
+                }
+                unset($value1);
+              ?>
+              <option value="techComm">Tech Commons (TSS) <?php echo " (" . $deptRowCount . ")" . PHP_EOL; ?></option>
+              <?php unset($deptRowCount); ?>
+
+              <?php  
+              // Get number of clients for property
+              $db->select("SELECT COUNT(department) AS 'department_rows'
+                FROM jobstats 
+                WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
+                AND department = 'property'
+                GROUP BY department");
+
+                if (arrFilter($db->get()) === 0) {
+                  foreach ($db->get() as $key => $value1) {
+                    $deptRowCount = $value1["department_rows"];
+                  }
+                } else {
+                  $deptRowCount = 0;
+                }
+                unset($value1);
+              ?>
+              <option value="property">Property<?php echo " (" . $deptRowCount . ")" . PHP_EOL; ?></option>
+              <?php unset($deptRowCount); ?>
+
+              <?php  
+              // Get number of clients for SHRL
+              $db->select("SELECT COUNT(department) AS 'department_rows'
+                FROM jobstats 
+                WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
+                AND department = 'shrl'
+                GROUP BY department");
+
+                if (arrFilter($db->get()) === 0) {
+                  foreach ($db->get() as $key => $value1) {
+                    $deptRowCount = $value1["department_rows"];
+                  }
+                } else {
+                  $deptRowCount = 0;
+                }
+                unset($value1);
+              ?>
+              <option value="shrl">SHRL (Kirven/Alex)<?php echo " (" . $deptRowCount . ")" . PHP_EOL; ?></option>
+              <?php unset($deptRowCount); ?>
+
+
+              <?php  
+              // Get number of clients for SHRL
+              $db->select("SELECT COUNT(department) AS 'department_rows'
+                FROM jobstats 
+                WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
+                AND department = 'execSupport'
+                GROUP BY department");
+
+                if (arrFilter($db->get()) === 0) {
+                  foreach ($db->get() as $key => $value1) {
+                    $deptRowCount = $value1["department_rows"];
+                  }
+                } else {
+                  $deptRowCount = 0;
+                }
+                unset($value1);
+              ?>
+              <option value="execSupport">Exec Support<?php echo " (" . $deptRowCount . ")" . PHP_EOL; ?></option>
+              <?php unset($deptRowCount); ?>
             </select>
           </div>
 
           <div>
+            <label for="system_model">
+              <input type="checkbox" id="not-system_model" name="not-system_model" value="1"> NOT
+            </label>
             <select id="system_model" name="system_model">
               <option value=''>--Filter By Model--</option>
               <?php
@@ -526,7 +615,7 @@ if (arrFilter($db->get()) === 0) {
                 ORDER BY system_model_rows DESC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
-                  echo "<option value='" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
+                  echo "<option value='" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value1["system_model_rows"] . ")" . "</option>" . PHP_EOL;
                 }
               }
               unset($value1);
@@ -591,7 +680,7 @@ if (arrFilter($db->get()) === 0) {
         </div>
 
         <div class='filtering-form'>
-            <?php echo "Results: " . $rowCount . PHP_EOL; ?>
+            <?php echo "Results: <b>" . $rowCount . "</b>" . PHP_EOL; ?>
         </div>
       </form>
     </div>
@@ -599,10 +688,10 @@ if (arrFilter($db->get()) === 0) {
     <div class='page-content'><h3>A checkmark (<span style='color: #00B388'>&#10004;</span>) means a client is currently online and ready for a job.</h3></div>
 
 <?php
-if (isset($_GET["location"])) {
+if (strFilter($_GET["location"]) === 0) {
     echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
 } else {
-    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online.</h3></div>";
+    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> queried clients are online.</h3></div>";
 }
 ?>
 
