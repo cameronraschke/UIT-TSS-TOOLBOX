@@ -182,7 +182,7 @@ table {
 	position: relative;
 	display: flex;
 	margin: 1% 1% 1% 1%;
-	padding: 1% 1% 1% 1%;
+	padding: 0% 0% 0% 0%;
 	width: 95%;
 	text-align: center;
 }
@@ -472,18 +472,6 @@ table {
 
 .pagetitle a {
 	color: #C8102E;
-}
-
-.page-content {
-	position: relative;
-	display: flex;
-	margin: 1% 1% 1% 1%;
-	padding: 1% 1% 1% 1%;
-	width: 95%;
-	text-align: center;
-}
-.page-content h3 {
-	font-size: 1.0em;
 }
 
 .documentation {

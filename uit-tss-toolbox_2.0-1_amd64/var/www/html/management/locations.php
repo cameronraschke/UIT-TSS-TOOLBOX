@@ -317,12 +317,12 @@ if (isset($_POST['serial'])) {
           echo "<input class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
         }
         echo "</form>" . PHP_EOL;
-        echo "<div class='page-content'><a href='locations.php'>Update a different laptop.</a></div>" . PHP_EOL;
+        echo "<div><a href='locations.php'>Update a different client.</a></div>" . PHP_EOL;
         echo "</div>";
         }
         unset($formArr);
     } else {
-      echo "<div class='page-content' style='margin: 5% 0% 0% 0%;'><h2>Update Laptop Locations</h2></div>" . PHP_EOL;
+      echo "<div class='page-content'><h2>Update Client Locations</h2></div>" . PHP_EOL;
       echo "<div class='location-form'>";
       echo "<tr>" . PHP_EOL;
       echo "<form method='post'>" . PHP_EOL;
