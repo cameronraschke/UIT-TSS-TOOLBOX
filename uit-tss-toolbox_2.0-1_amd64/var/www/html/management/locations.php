@@ -676,7 +676,7 @@ if (arrFilter($db->get()) === 0) {
 
         <div class='filtering-form'>
             <a href='/locations.php'><button>Reset Filters</button></a>
-            <button type="submit">Filter</button>
+            <button style='background-color:rgba(200, 16, 47, 0.30);' type="submit">Filter</button>
         </div>
 
         <div class='filtering-form'>
