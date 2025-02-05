@@ -514,7 +514,7 @@ if (arrFilter($db->get()) === 0) {
         </div>
 
         <div class='filtering-form'>
-          <div>
+          <div class='filtering-form-radio'>
             <div><p>Device Lost?</p></div>
             <label for="lost_no">No</label>
             <input type="radio" id="lost_no" name="lost" value="0">
@@ -522,7 +522,7 @@ if (arrFilter($db->get()) === 0) {
             <input type="radio" id="lost_yes" name="lost" value="1">
           </div>
 
-          <div>
+          <div class='filtering-form-radio'>
             <div><p>Device Broken?</p></div>
             <label for="broken_no">No</label>
             <input type="radio" id="broken_no" name="broken" value="0">
@@ -530,7 +530,7 @@ if (arrFilter($db->get()) === 0) {
             <input type="radio" id="broken_yes" name="broken" value="1">
           </div>
 
-          <div>
+          <div class='filtering-form-radio'>
             <div><p>Disk Removed?</p></div>
             <label for="disk_removed_no">No</label>
             <input type="radio" id="disk_removed_no" name="disk_removed" value="0">
@@ -727,6 +727,6 @@ unset($value1);
     <div class="uit-footer">
         <img src="/images/uh-footer.svg">
     </div>
-    
+
   </body>
 </html>
