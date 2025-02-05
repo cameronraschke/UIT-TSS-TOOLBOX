@@ -327,9 +327,9 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
         ELSE '' 
     END) AS 'department_formatted', jobstats.department,
     IF ((locations.status = 0 OR locations.status IS NULL), 'Working', 'Broken') AS 'status',
-    IF (locations.os_installed = 1, 'Yes', 'No') AS 'os_installed',
-    IF (remote.bios_updated = 1, 'Yes', 'No') AS 'bios_updated',
-    IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated',
+    IF (locations.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', locations.os_installed,
+    IF (remote.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', remote.bios_updated,
+    IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
     locations.note AS 'note', DATE_FORMAT(locations.time, '%b %D %Y, %r') AS 'time_formatted'
 FROM locations
 INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
@@ -427,9 +427,9 @@ if (isset($_GET["location"])) {
 }
 ?>
 
-        <div style='background-color:rgb(233, 233, 233); width: auto;' class='styled-form'>
+        <div style='' class='filtering-form'>
         <form method="GET" action="">
-        <div class='styled-form'>
+        <div class='filtering-form'>
         <select id="system_model" name="system_model">
             <option value=''>--Filter By Model--</option>
             <?php
@@ -464,7 +464,7 @@ if (isset($_GET["location"])) {
         </select>
         </div>
 
-        <div class='styled-form'>
+        <div class='filtering-form'>
             <div>
                 <div><p>Device Lost?</p></div>
                 <label for="lost_no">No</label>
@@ -489,8 +489,10 @@ if (isset($_GET["location"])) {
                 <input type="radio" id="disk_removed_yes" name="disk_removed" value="1">
             </div>
 
-            <div class='styled-form'><button type="submit">Filter</button></div>
-            <div style='margin: 1% 0% 0% 0%'><a href='/locations.php'><button>Reset Filters</button></a></div>
+            <div>
+                <a href='/locations.php'><button>Reset Filters</button></a>
+                <button type="submit">Filter</button>
+            </div>
         </div>
         </form>
         </div>
@@ -564,10 +566,10 @@ foreach ($tableArr as $key => $value1) {
     echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 
     echo "<td>" . htmlspecialchars($value1['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-    echo "<td>" . htmlspecialchars($value1['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+    echo "<td>" . htmlspecialchars($value1['os_installed_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 
     if (strFilter($value1["bios_updated"]) === 0) {
-        echo "<td>" . htmlspecialchars($value1["bios_updated"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value1["bios_updated_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
     } else {
         echo "<td>NULL</td>" . PHP_EOL;
     }
