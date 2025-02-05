@@ -97,6 +97,7 @@ $db = new db();
         WHERE jobstats.tagnumber = :tagnumberloc AND locations.tagnumber = :tagnumberjob
         ORDER BY locations.time DESC, jobstats.time DESC LIMIT 1";
       
+      unset($formArr);
       $db->Pselect($formSql, array(':tagnumberjob' => htmlspecialchars_decode($_POST["tagnumber"]), ':tagnumberloc' => htmlspecialchars_decode($_POST["tagnumber"])));
       if ($db->get() === "NULL") {
         $formArr = array( array( "system_serial" => "NULL", "location" => "NULL", "time_formatted" => "NULL") );
@@ -425,6 +426,7 @@ if (isset($_GET["location"]) || isset($_GET["system_model"]) || isset($_GET["dep
 
     $rowCount = 0;
     $onlineRowCount = 0;
+    unset($tableArr);
 if (arrFilter($db->get()) === 0) {
     $tableArr = $db->get();
     foreach ($db->get() as $key => $value) {
