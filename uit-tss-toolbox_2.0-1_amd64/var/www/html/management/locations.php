@@ -369,8 +369,13 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
 
 // Location filter
 if (strFilter($_GET["location"]) === 0) {
-  $sql .= "AND locations.location = :location ";
-  $sqlArr[":location"] = $_GET["location"];
+  if ($_GET["not-location"] == "1") {
+    $sql .= "AND NOT locations.location = :location ";
+    $sqlArr[":location"] = $_GET["location"];
+  } else {
+    $sql .= "AND locations.location = :location ";
+    $sqlArr[":location"] = $_GET["location"];
+  }
 }
 
 // Lost filter
@@ -479,8 +484,7 @@ if (arrFilter($db->get()) === 0) {
         <div class='filtering-form'>
 
           <label for="location-filter">
-          <input type="checkbox" id="not-location" name="not-location" value="1">
-          NOT
+            <input type="checkbox" id="not-location" name="not-location" value="1"> NOT
           </label>
           <select name="location" id="location-filter">
             <option value="">--Filter By Location--</option>
@@ -495,6 +499,9 @@ if (arrFilter($db->get()) === 0) {
             ?>
           </select>          
 
+          <label for="department">
+            <input type="checkbox" id="not-department" name="not-department" value="1"> NOT
+          </label>
           <select id="department" name="department">
             <option value=''>--Filter By Department--</option>
             <option value="techComm">Tech Commons (TSS)</option>
