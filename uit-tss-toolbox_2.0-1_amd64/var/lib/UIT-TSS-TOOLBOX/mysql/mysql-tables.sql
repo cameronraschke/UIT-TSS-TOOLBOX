@@ -185,7 +185,7 @@ VALUES
     ('TOSHIBA KSG60ZMV256G M.2 2280 256GB','340','550','1500000',NULL,NULL,'0','80','m.2','ssd','0',NULL,NULL),
     ('TOSHIBA THNSNK256GVN8 M.2 2280 256GB','388','545','1500000',NULL,NULL,NULL,NULL,'m.2','ssd','0',NULL,NULL),
     ('PC SN740 NVMe WD 512GB','4000','5000','1750000','300',NULL,'0','85','m.2','nvme','0',NULL,'3000'),
-    ('SK hynix SC308 SATA 256GB',130,540,1500000,75,NULL,0,70,'m.2','sata',NULL,NULL,NULL)
+    ('SK hynix SC308 SATA 256GB',130,540,1500000,75,NULL,0,70,'m.2','ssd','0',NULL,NULL)
     ;
 
 
@@ -351,4 +351,24 @@ INSERT INTO bitlocker
 ('727012', 'C3373E7C-F19A-4AFA-BDE9-320431B1DD80', '655930-154462-345026-620345-020020-002761-693352-541145'),
 ('727013', '7C23FCCC-8430-405F-BDDE-23B149E1B926', '153736-395956-001419-128854-250800-440308-637593-212146'),
 ('727014', '0761161E-23A5-461B-822D-6D795B7253DB', '100870-342463-572495-557854-219527-118217-661925-117348')
+;
+
+DROP TABLE IF EXISTS departments;
+CREATE TABLE IF NOT EXISTS departments (
+  department VARCHAR(128) NOT NULL PRIMARY KEY,
+  deparment_readable VARCHAR(128) NOT NULL,
+  owner VARCHAR(128) NOT NULL,
+  department_bool BOOLEAN NOT NULL DEFAULT 0
+);
+
+INSERT INTO departments (
+  department,
+  deparment_readable,
+  owner,
+  department_bool
+) VALUES
+  ('techComm', 'Tech Commons (TSS)', 'Matthew', 1),
+  ('execSupport', 'Exec. Support', 'Kevin Vu', 1),
+  ('shrl', 'SHRL', 'Alex', 1),
+  ('property', 'Property', 'Unknown', 0)
 ;
