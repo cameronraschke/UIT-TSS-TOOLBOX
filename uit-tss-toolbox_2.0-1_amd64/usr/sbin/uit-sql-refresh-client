@@ -84,7 +84,7 @@ foreach ($db->get() as $key => $value) {
   $db->updateCS("system_serial", $value["system_serial"], $value["tagnumber"]);
 
   # Update the most recent average erase times for each client
-  $db->select("SELECT ROUND(AVG(t1.erase_time) / 60, 0) FROM (SELECT erase_time FROM jobstats WHERE clone_completed = 1 AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY time DESC LIMIT 3) t1;");
+  $db->select("SELECT ROUND(AVG(t1.erase_time) / 60, 0) AS 'result' FROM (SELECT erase_time FROM jobstats WHERE clone_completed = 1 AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY time DESC LIMIT 3) t1;");
   if (arrFilter($db->get()) == 0) {
     foreach ($db->get() as $value1) {
       $db->updateCS("erase_avgtime", $value1["result"], $value["tagnumber"]);
@@ -93,7 +93,7 @@ foreach ($db->get() as $key => $value) {
   unset($value1);
 
   # Update the most recent average clone time for each client
-  $db->select("SELECT ROUND(AVG(t1.clone_time) / 60, 0) FROM (SELECT clone_time FROM jobstats WHERE clone_completed = 1 AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY time DESC LIMIT 3) t1;");
+  $db->select("SELECT ROUND(AVG(t1.clone_time) / 60, 0) AS 'result' FROM (SELECT clone_time FROM jobstats WHERE clone_completed = 1 AND tagnumber = '" . $value["tagnumber"] . "' ORDER BY time DESC LIMIT 3) t1;");
   if (arrFilter($db->get()) == 0) {
     foreach ($db->get() as $key => $value1) {
       $db->updateCS("clone_avgtime", $value1["result"], $value["tagnumber"]);
