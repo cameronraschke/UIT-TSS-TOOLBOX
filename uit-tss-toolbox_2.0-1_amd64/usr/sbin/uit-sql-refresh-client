@@ -57,8 +57,7 @@ $db->select("SELECT
   INNER JOIN static_battery_stats ON static_battery_stats.battery_model = jobstats.battery_model
   WHERE 
     jobstats.tagnumber IS NOT NULL
-    AND (host_connected = 1)
-  GROUP BY jobstats.tagnumber 
+    AND jobstats.time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 GROUP BY tagnumber)
   ORDER BY jobstats.time DESC");
 
 foreach ($db->get() as $key => $value) {
