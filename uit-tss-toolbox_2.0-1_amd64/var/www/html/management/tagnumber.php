@@ -523,6 +523,54 @@ unset($_POST);
         </table>
         </div>
 
+
+        <div class='pagetitle'><h3>Other Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></u></h3></div>
+        <div class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
+        <table width="100%">
+            <thead>
+                <tr>
+                <th>Disk Model</th>
+                <th>Disk Size</th>
+                <th>RAM Capacity</th>
+                <th>RAM Speed</th>
+                <th>CPU Max Speed</th>
+                <th>CPU Cores</th>
+                <th>CPU Threads</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $db->Pselect("SELECT
+                  jobstats.disk_model, jobstats.disk_size,
+                  CONCAT(jobstats.ram_capacity, 'GB') AS 'ram_capactiy', jobstats.ram_speed,
+                  CONCAT(ROUND(system_data.cpu_maxspeed / 1000, 2), 'Mhz') AS 'cpu_maxspeed',
+                  system_data.cpu_cores, system_data.cpu_threads
+                  FROM jobstats 
+                  INNER JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
+                  WHERE jobstats.tagnumber = :tagnumber
+                    AND jobstats.time 
+                      IN (SELECT MAX(time) FROM jobstats WHERE uuid LIKE 'techComm-%' AND department IN (SELECT department FROM departments WHERE department_bool = 1) GROUP BY tagnumber)
+                  ORDER BY jobstats.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
+                if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value1) {
+                      echo "<tr>" . PHP_EOL;
+                      echo "<td>" . htmlspecialchars($value1["disk_model"]) . "</td>" . PHP_EOL;
+                      echo "<td>" . htmlspecialchars($value1["disk_size"]) . "</td>" . PHP_EOL;
+                      echo "<td>" . htmlspecialchars($value1["ram_capacity"]) . "</td>" . PHP_EOL;
+                      echo "<td>" . htmlspecialchars($value1["ram_speed"]) . "</td>" . PHP_EOL;
+                      echo "<td>" . htmlspecialchars($value1["cpu_maxspeed"]) . "</td>" . PHP_EOL;
+                      echo "<td>" . htmlspecialchars($value1["cpu_cores"]) . "</td>" . PHP_EOL;
+                      echo "<td>" . htmlspecialchars($value1["cpu_threads"]) . "</td>" . PHP_EOL;
+                      echo "</tr>" . PHP_EOL;
+                    }
+                }
+                unset($value1);
+                ?>
+            </tbody>
+        </table>
+        </div>
+
+
         <div class='pagetitle'><h3>Location Info</h3></div>
 
         <div name='updateDiv2' id='updateDiv2' class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
