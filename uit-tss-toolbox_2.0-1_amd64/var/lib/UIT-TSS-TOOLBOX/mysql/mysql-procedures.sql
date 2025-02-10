@@ -61,24 +61,29 @@ DELIMITER //
 CREATE PROCEDURE iterateJobCSV()
 DETERMINISTIC
 BEGIN
-(SELECT 'UUID','Tag','System Serial','Date','Datetime','Department','Ethernet MAC','Wi-Fi MAC','System Manufacturer','Model','System UUID',
-'System SKU', 'Chassis Type', 'Disk','Disk Model','Disk Type','Disk Size','Disk Serial','Disk Writes','Disk Reads',
-'Disk Power on Hours','Disk Temp','Disk Firmware','Battery Model','Battery Serial','Battery Health','Battery Charge Cycles',
-'Battery Capacity','Battery Manufacture Date','CPU Manufacturer','CPU Model','CPU Max Speed','CPU Cores','CPU Threads','CPU Temp',
-'Motherboard Manufacturer','Motherboard Serial','BIOS Version','BIOS Date','BIOS Firmware','RAM Serial','RAM Capacity','RAM Speed','CPU Usage',
-'Network Usage','Boot Time','Erase Completed','Erase Mode','Erase Disk Percent','Erase Time',
-'Clone Completed','Clone Master','Clone Time', 'Connected to Host')
+(SELECT 
+  'UUID', 'Tag', 'System Serial', 'Datetime', 'Department', 'Ethernet MAC', 'Wi-Fi MAC', 'System Manufacturer', 'Model', 'System UUID',
+  'System SKU', 'Chassis Type', 'Disk', 'Disk Model', 'Disk Type', 'Disk Size', 'Disk Serial', 'Disk Writes', 'Disk Reads',
+  'Disk Power on Hours', 'Disk Temp', 'Disk Firmware', 'Battery Model', 'Battery Serial', 'Battery Health', 'Battery Charge Cycles',
+  'Battery Capacity', 'Battery Manufacture Date', 'CPU Manufacturer', 'CPU Model', 'CPU Max Speed', 'CPU Cores', 'CPU Threads', 'CPU Temp',
+  'Motherboard Manufacturer', 'Motherboard Serial', 'BIOS Version', 'BIOS Date', 'BIOS Firmware', 'RAM Serial', 'RAM Capacity', 'RAM Speed', 'CPU Usage',
+  'Network Usage', 'Boot Time', 'Erase Completed', 'Erase Mode', 'Erase Disk Percent', 'Erase Time',
+  'Clone Completed', 'Clone Master', 'Clone Time', 'Connected to Host'
+)
 UNION
-(SELECT t1.uuid, t1.tagnumber, t1.system_serial, t1.date, CONVERT(t1.time, DATETIME), t1.department, t1.etheraddress, t2.wifi_mac, t2.system_manufacturer, t2.system_model, t2.system_uuid, 
-t2.system_sku, t2.chassis_type, t1.disk, t1.disk_model, t1.disk_type, CONCAT(t1.disk_size, ' GB'), t1.disk_serial, CONCAT(t1.disk_writes, ' TB'), CONCAT(t1.disk_reads, ' TB'), 
-CONCAT(t1.disk_power_on_hours, 'hrs'), CONCAT(t1.disk_temp, ' C'), t1.disk_firmware, t1.battery_model, t1.battery_serial, CONCAT(t1.battery_health, '%'), t1.battery_charge_cycles, 
-CONCAT(t1.battery_capacity, ' Wh'), t1.battery_manufacturedate, t2.cpu_manufacturer, t2.cpu_model, CONCAT(round(t2.cpu_maxspeed / 1000, 2), ' Ghz'), t2.cpu_cores, t2.cpu_threads, CONCAT(t1.cpu_temp, ' C'), 
-t2.motherboard_manufacturer, t2.motherboard_serial, t1.bios_version, t1.bios_date, t1.bios_firmware, t1.ram_serial, CONCAT(t1.ram_capacity, ' GB') ,CONCAT(t1.ram_speed, 'Mhz'), CONCAT(t1.cpu_usage, '%'), 
-CONCAT(t1.network_usage, 'mbps'), CONCAT(t1.boot_time, 's'), REPLACE(t1.erase_completed, '1', 'Yes'), t1.erase_mode, CONCAT(t1.erase_diskpercent, '%'), CONCAT(t1.erase_time, 's'), 
-REPLACE(t1.clone_completed, '1', 'Yes'), REPLACE(t1.clone_master, '1', 'Yes'), CONCAT(t1.clone_time, 's'), IF (t1.host_connected='1', 'Yes', '')
-FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber ORDER BY t1.time DESC);
+(SELECT
+  jobstats.uuid, jobstats.tagnumber, jobstats.system_serial, CONVERT(jobstats.time, DATETIME), jobstats.department, jobstats.etheraddress, system_data.wifi_mac, system_data.system_manufacturer, system_data.system_model, system_data.system_uuid, 
+  system_data.system_sku, system_data.chassis_type, jobstats.disk, jobstats.disk_model, jobstats.disk_type, CONCAT(jobstats.disk_size, ' GB'), jobstats.disk_serial, CONCAT(jobstats.disk_writes, ' TB'), CONCAT(jobstats.disk_reads, ' TB'), 
+  CONCAT(jobstats.disk_power_on_hours, 'hrs'), CONCAT(jobstats.disk_temp, ' C'), jobstats.disk_firmware, jobstats.battery_model, jobstats.battery_serial, CONCAT(jobstats.battery_health, '%'), jobstats.battery_charge_cycles, 
+  CONCAT(jobstats.battery_capacity, ' Wh'), jobstats.battery_manufacturedate, system_data.cpu_manufacturer, system_data.cpu_model, CONCAT(round(system_data.cpu_maxspeed / 1000, 2), ' Ghz'), system_data.cpu_cores, system_data.cpu_threads, CONCAT(jobstats.cpu_temp, ' C'), 
+  system_data.motherboard_manufacturer, system_data.motherboard_serial, jobstats.bios_version, jobstats.bios_date, jobstats.bios_firmware, jobstats.ram_serial, CONCAT(jobstats.ram_capacity, ' GB') ,CONCAT(jobstats.ram_speed, 'Mhz'), CONCAT(jobstats.cpu_usage, '%'), 
+  CONCAT(jobstats.network_usage, 'mbps'), CONCAT(jobstats.boot_time, 's'), REPLACE(jobstats.erase_completed, '1', 'Yes'), jobstats.erase_mode, CONCAT(jobstats.erase_diskpercent, '%'), CONCAT(jobstats.erase_time, 's'), 
+  REPLACE(jobstats.clone_completed, '1', 'Yes'), REPLACE(jobstats.clone_master, '1', 'Yes'), CONCAT(jobstats.clone_time, 's'), IF (jobstats.host_connected='1', 'Yes', '')
+FROM jobstats jobstats
+INNER JOIN system_data
+ON jobstats.tagnumber = system_data.tagnumber
+ORDER BY jobstats.time DESC);       
 END; //
-
 DELIMITER ;
 
 
@@ -88,32 +93,36 @@ DELIMITER //
 CREATE PROCEDURE iterateClientCSV()
 DETERMINISTIC
 BEGIN
-(SELECT 'Tag',
-    'Serial Number',
-    'System Model',
-    'Last Job Time',
-    'Battery Health',
-    'Disk Health',
-    'Disk Type',
-    'BIOS Updated',
-    'Erase Time',
-    'Clone Time',
-    'Total Jobs')
+(SELECT 
+  'Tag',
+  'Serial Number',
+  'System Model',
+  'Last Job Time',
+  'Battery Health',
+  'Disk Health',
+  'Disk Type',
+  'BIOS Updated',
+  'Erase Time',
+  'Clone Time',
+  'Total Jobs'
+)
 UNION
-(SELECT tagnumber,
-    system_serial,
-    system_model,
-    last_job_time,
-    CONCAT(battery_health, '%'),
-    CONCAT(disk_health, '%'),
-    disk_type,
-    IF (bios_updated='1', "Yes", "No"),
-    CONCAT(erase_avgtime, ' minutes'),
-    CONCAT(clone_avgtime, ' minutes'),
-    all_jobs
-    FROM clientstats WHERE tagnumber IS NOT NULL ORDER BY last_job_time DESC);
+(SELECT 
+  tagnumber,
+  system_serial,
+  system_model,
+  last_job_time,
+  CONCAT(battery_health, '%'),
+  CONCAT(disk_health, '%'),
+  disk_type,
+  IF (bios_updated='1', "Yes", "No"),
+  CONCAT(erase_avgtime, ' minutes'),
+  CONCAT(clone_avgtime, ' minutes'),
+  all_jobs
+FROM clientstats 
+WHERE tagnumber IS NOT NULL 
+ORDER BY last_job_time DESC);
 END; //
-
 DELIMITER ;
 
 
@@ -124,34 +133,36 @@ CREATE PROCEDURE iterateServerCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Date',
-    'Computer Count',
-    'Battery Health',
-    'Disk Health',
-    'Total Jobs',
-    'Clone Jobs',
-    'Erase Jobs',
-    'Clone Time',
-    'NVME Erase Time',
-    'HDD Erase Time',
-    'Last Image Update')
+(SELECT 
+  'Date',
+  'Client Count',
+  'Battery Health',
+  'Disk Health',
+  'Total Jobs',
+  'Clone Jobs',
+  'Erase Jobs',
+  'Clone Time',
+  'NVME Erase Time',
+  'HDD Erase Time',
+  'Last Image Update'
+)
 UNION
-(SELECT date,
-    client_count,
-    CONCAT(battery_health, '%'),
-    CONCAT(disk_health, '%'),
-    all_jobs,
-    clone_jobs,
-    erase_jobs,
-    CONCAT(clone_avgtime, ' mins'),
-    CONCAT(nvme_erase_avgtime, ' mins'),
-    CONCAT(sata_erase_avgtime, ' mins'),
-    last_image_update
-    FROM serverstats
-    ORDER BY date DESC);
+(SELECT
+  date,
+  client_count,
+  CONCAT(battery_health, '%'),
+  CONCAT(disk_health, '%'),
+  all_jobs,
+  clone_jobs,
+  erase_jobs,
+  CONCAT(clone_avgtime, ' mins'),
+  CONCAT(nvme_erase_avgtime, ' mins'),
+  CONCAT(sata_erase_avgtime, ' mins'),
+  last_image_update
+FROM serverstats
+ORDER BY date DESC);
 
 END; //
-
 DELIMITER ;
 
 
@@ -162,52 +173,62 @@ CREATE PROCEDURE iterateLocationsCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Tag',
-    'Serial Number',
-    'Location',
-    'Status',
-    'OS Insalled',
-    'Notes',
-    'Most Recent Entry')
+(SELECT 
+  'Tag',
+  'Serial Number',
+  'Location',
+  'Status',
+  'OS Insalled',
+  'Notes',
+  'Most Recent Entry')
 UNION
-(SELECT tagnumber,
-    system_serial,
-    location,
-    IF (status='0' OR status IS NULL, "Working", "Broken"),
-    IF (os_installed='1', "Yes", "No"),
-    note,
-    CONVERT(time, DATETIME) 
-    FROM locations 
-    WHERE tagnumber IN (SELECT tagnumber FROM locations WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL AND department IS NOT NULL GROUP BY tagnumber) AND department IN ('techComm', 'execSupport'))) AND time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber)
+(SELECT
+  tagnumber,
+  system_serial,
+  location,
+  IF (status='0' OR status IS NULL, "Working", "Broken"),
+  IF (os_installed='1', "Yes", "No"),
+  note,
+  CONVERT(time, DATETIME) 
+FROM locations 
+WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE department IN (SELECT department FROM departments WHERE department_bool = 1) AND time IN (SELECT MAX(time) FROM jobstats GROUP BY tagnumber) GROUP BY tagnumber)
+AND time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)
+GROUP BY tagnumber
+ORDER BY time DESC
 );
 END; //
-
 DELIMITER ;
 
+
+-- Location table for clients sent to property
 DROP PROCEDURE IF EXISTS iterateLocationsPropertyCSV;
 DELIMITER //
 CREATE PROCEDURE iterateLocationsPropertyCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Tag',
-    'Serial Number',
-    'Location',
-    'Disk Removed',
-    'Notes',
-    'Most Recent Entry')
+(SELECT
+  'Tag',
+  'Serial Number',
+  'Location',
+  'Disk Removed',
+  'Notes',
+  'Most Recent Entry')
 UNION
-(SELECT tagnumber,
-    system_serial,
-    location,
-    IF (disk_removed='1', "Yes", "No"),
-    note,
-    CONVERT(time, DATETIME) 
-    FROM locations 
-    WHERE time IN (SELECT time FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber) AND department = 'property')
+(SELECT
+  tagnumber,
+  system_serial,
+  location,
+  IF (disk_removed='1', "Yes", "No"),
+  note,
+  CONVERT(time, DATETIME) 
+FROM locations 
+WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE department IN (SELECT department FROM departments WHERE department_bool = 0) AND time IN (SELECT MAX(time) FROM jobstats GROUP BY tagnumber) GROUP BY tagnumber)
+AND time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)
+GROUP BY tagnumber
+ORDER BY time DESC
 );
 END; //
-
 DELIMITER ;
 
 
