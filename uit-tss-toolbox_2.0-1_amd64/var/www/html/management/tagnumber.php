@@ -542,7 +542,7 @@ unset($_POST);
                 <?php
                 $db->Pselect("SELECT
                   jobstats.disk_model, jobstats.disk_size,
-                  CONCAT(jobstats.ram_capacity, 'GB') AS 'ram_capactiy', jobstats.ram_speed,
+                  CONCAT(jobstats.ram_capacity, 'GB') AS 'ram_capacity', jobstats.ram_speed,
                   CONCAT(ROUND(system_data.cpu_maxspeed / 1000, 2), 'Mhz') AS 'cpu_maxspeed',
                   system_data.cpu_cores, system_data.cpu_threads
                   FROM jobstats 
