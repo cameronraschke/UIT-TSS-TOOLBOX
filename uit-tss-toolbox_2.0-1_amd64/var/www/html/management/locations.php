@@ -622,7 +622,7 @@ if (arrFilter($db->get()) === 0) {
                 FROM system_data
                 WHERE system_model IS NOT NULL
                 GROUP BY system_model
-                ORDER BY system_model_rows DESC");
+                ORDER BY system_model ASC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
                   echo "<option value='" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value1["system_model_rows"] . ")" . "</option>" . PHP_EOL;
@@ -766,10 +766,10 @@ foreach ($tableArr as $key => $value1) {
   echo "</td>" . PHP_EOL;
 
   // Serial Number
-  echo "<td>" . $value1['system_serial'] . "</td>" . PHP_EOL;
+  echo "<td>" . htmlspecialchars($value1['system_serial'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 
   // System Model
-  echo "<td>" . $value1['system_model'] . "</td>" . PHP_EOL;
+  echo "<td><b><a href='locations.php?system_model=" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
 
   // Location
   if (preg_match("/^[a-zA-Z]$/", $value1["location"])) {
