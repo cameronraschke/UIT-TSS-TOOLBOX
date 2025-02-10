@@ -523,6 +523,7 @@ if (arrFilter($db->get()) === 0) {
                 FROM jobstats 
                 WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
                 AND department = 'techComm'
+                AND tagnumber IS NOT NULL
                 GROUP BY department");
 
                 if (arrFilter($db->get()) === 0) {
@@ -543,6 +544,7 @@ if (arrFilter($db->get()) === 0) {
                 FROM jobstats 
                 WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
                 AND department = 'property'
+                AND tagnumber IS NOT NULL
                 GROUP BY department");
 
                 if (arrFilter($db->get()) === 0) {
@@ -563,6 +565,7 @@ if (arrFilter($db->get()) === 0) {
                 FROM jobstats 
                 WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
                 AND department = 'shrl'
+                AND tagnumber IS NOT NULL
                 GROUP BY department");
 
                 if (arrFilter($db->get()) === 0) {
@@ -584,6 +587,7 @@ if (arrFilter($db->get()) === 0) {
                 FROM jobstats 
                 WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
                 AND department = 'execSupport'
+                AND tagnumber IS NOT NULL
                 GROUP BY department");
 
                 if (arrFilter($db->get()) === 0) {
