@@ -346,7 +346,7 @@ $tableArr = array();
 $sqlArr = array();
 $rowCount = 0;
 $onlineRowCount = 0;
-$sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, locations.location,
+$sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, locations.location,
   (CASE 
     WHEN jobstats.department = 'techComm' THEN 'Tech Commons (TSS)'
     WHEN jobstats.department = 'property' THEN 'Property'
@@ -365,7 +365,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   LEFT JOIN system_data ON system_data.tagnumber = locations.tagnumber
   WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
   AND locations.time in (select MAX(time) from locations group by tagnumber)
-  AND jobstats.time in (select MAX(time) from jobstats group by tagnumber) ";
+  AND jobstats.time in (select MAX(time) from jobstats group by tagnumber)";
 
 // Location filter
 if (strFilter($_GET["location"]) === 0) {
@@ -462,6 +462,12 @@ if (isset($_GET["order_by"])) {
   }
   if($_GET["order_by"] == "location_asc") {
     $sql .= "locations.location ASC, ";
+  }
+  if($_GET["order_by"] == "model_desc") {
+    $sql .= "system_data.system_model DESC, ";
+  }
+  if($_GET["order_by"] == "model_asc") {
+    $sql .= "system_data.system_model ASC, ";
   }
   $sql .= "locations.time DESC ";
 } else {
@@ -636,10 +642,12 @@ if (arrFilter($db->get()) === 0) {
               <option value="tag_asc">Tagnumber &#8593;</option>
               <option value="location_desc">Location &#8595;</option>
               <option value="location_asc">Location &#8593;</option>
+              <option value="model_desc">Model &#8595;</option>
+              <option value="model_asc">Model &#8593;</option>
               <option value="os_desc">OS Installed &#8595;</option>
               <option value="os_asc">OS Installed &#8593;</option>
               <option value="bios_desc">BIOS Updated &#8595;</option>
-              <option value="bios_desc">BIOS Updated &#8593;</option>
+              <option value="bios_asc">BIOS Updated &#8593;</option>
             </select>
           </div>
         </div>
@@ -721,6 +729,7 @@ if (strFilter($_GET["location"]) === 0) {
           <tr>
             <th>Tag Number</th>
             <th>System Serial</th>
+            <th>System Model</th>
             <th>Location</th>
             <th>Department</th>
             <th>Status</th>
@@ -758,6 +767,9 @@ foreach ($tableArr as $key => $value1) {
 
   // Serial Number
   echo "<td>" . $value1['system_serial'] . "</td>" . PHP_EOL;
+
+  // System Model
+  echo "<td>" . $value1['system_model'] . "</td>" . PHP_EOL;
 
   // Location
   if (preg_match("/^[a-zA-Z]$/", $value1["location"])) {
