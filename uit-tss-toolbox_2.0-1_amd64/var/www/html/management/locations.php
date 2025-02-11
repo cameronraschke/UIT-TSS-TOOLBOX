@@ -164,66 +164,15 @@ if (isset($_POST['serial'])) {
 
     <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
 
-    <?php
-    //If tagnumber is POSTed, show data in the location form.
-    if (isset($_POST["tagnumber"])) {
-      echo "<div class='location-form'>" . PHP_EOL;
-      unset($formSql);
-      $formSql = "SELECT locations.system_serial, locations.location, DATE_FORMAT(locations.time, '%b %D %Y, %r') AS 'time_formatted',
-        jobstats.department,
-          (CASE
-            WHEN jobstats.department='techComm' THEN 'Tech Commons (TSS)'
-            WHEN jobstats.department='property' THEN 'Property'
-            WHEN jobstats.department='shrl' THEN 'SHRL'
-            WHEN jobstats.department = 'execSupport' THEN 'Exec Support'
-            ELSE ''
-          END) AS 'department_formatted'
-        FROM locations
-        INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
-        WHERE jobstats.tagnumber = :tagnumberloc AND locations.tagnumber = :tagnumberjob
-        ORDER BY locations.time DESC, jobstats.time DESC LIMIT 1";
-      
-      unset($formArr);
-      $db->Pselect($formSql, array(':tagnumberjob' => htmlspecialchars_decode($_POST["tagnumber"]), ':tagnumberloc' => htmlspecialchars_decode($_POST["tagnumber"])));
-      if ($db->get() === "NULL") {
-        $formArr = array( array( "system_serial" => "NULL", "location" => "NULL", "time_formatted" => "NULL") );
-        $tagDataExists = 0;
-      } else {
-        $formArr = $db->get();
-        $tagDataExists = 1;
-      }
-
-      foreach ($formArr as $key => $value) {
-        echo "<form method='post'>" . PHP_EOL;
-        echo "<div><label for='tagnumber'>Tag Number</label><br>" . PHP_EOL;
-        echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . htmlspecialchars($_POST["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' readonly required></div>" . PHP_EOL;
-        echo "<div><label for='serial'>Serial Number</label><br>";
-
-        // Change appearance of serial number field based on sql data
-        if ($tagDataExists === 1) {
-          echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial' value='" . htmlspecialchars($value["system_serial"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' readonly required></div>" . PHP_EOL;
-        } else {
-          echo "<input type='text' id='serial' name='serial' autocomplete='off' autofocus required></div>" . PHP_EOL;
-        }
-
-        // Get department data
-        if ($tagDataExists === 1) {
-          // Get a human readable department
-          $department = $value["department"];
-          $departmentHTML = htmlspecialchars($value["department"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
-          $departmentFormatted = htmlspecialchars($value["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
-        } else {
-          $department = "";
-          $departmentHTML = "";
-          $departmentFormatted = "NULL";
-        }
-
-        // Department data in the form
-        echo "<label for='department'>Department</label>" . PHP_EOL;
-        echo "<br>" . PHP_EOL;
-        echo "<select name='department' id='department'>" . PHP_EOL;
-        if (strFilter($department) === 0) {
-          $db->Pselect("SELECT department, 
+    <div class="row">
+      <div class="column">
+      <?php
+      //If tagnumber is POSTed, show data in the location form.
+      if (isset($_POST["tagnumber"])) {
+        echo "<div class='location-form'>" . PHP_EOL;
+        unset($formSql);
+        $formSql = "SELECT locations.system_serial, locations.location, DATE_FORMAT(locations.time, '%b %D %Y, %r') AS 'time_formatted',
+          jobstats.department,
             (CASE
               WHEN jobstats.department='techComm' THEN 'Tech Commons (TSS)'
               WHEN jobstats.department='property' THEN 'Property'
@@ -231,113 +180,166 @@ if (isset($_POST['serial'])) {
               WHEN jobstats.department = 'execSupport' THEN 'Exec Support'
               ELSE ''
             END) AS 'department_formatted'
-            FROM jobstats WHERE NOT department = :department GROUP BY department", array(':department' => $department));
-          foreach ($db->get() as $key => $value1) {
-            echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
-            echo "<option value='" . $value1["department"] . "'>" . $value1["department_formatted"] . "</option>";
+          FROM locations
+          INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
+          WHERE jobstats.tagnumber = :tagnumberloc AND locations.tagnumber = :tagnumberjob
+          ORDER BY locations.time DESC, jobstats.time DESC LIMIT 1";
+        
+        unset($formArr);
+        $db->Pselect($formSql, array(':tagnumberjob' => htmlspecialchars_decode($_POST["tagnumber"]), ':tagnumberloc' => htmlspecialchars_decode($_POST["tagnumber"])));
+        if ($db->get() === "NULL") {
+          $formArr = array( array( "system_serial" => "NULL", "location" => "NULL", "time_formatted" => "NULL") );
+          $tagDataExists = 0;
+        } else {
+          $formArr = $db->get();
+          $tagDataExists = 1;
+        }
+
+        foreach ($formArr as $key => $value) {
+          echo "<form method='post'>" . PHP_EOL;
+          echo "<div><label for='tagnumber'>Tag Number</label><br>" . PHP_EOL;
+          echo "<input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . htmlspecialchars($_POST["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' readonly required></div>" . PHP_EOL;
+          echo "<div><label for='serial'>Serial Number</label><br>";
+
+          // Change appearance of serial number field based on sql data
+          if ($tagDataExists === 1) {
+            echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial' value='" . htmlspecialchars($value["system_serial"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' readonly required></div>" . PHP_EOL;
+          } else {
+            echo "<input type='text' id='serial' name='serial' autocomplete='off' autofocus required></div>" . PHP_EOL;
           }
-          unset($value1);
-        } else {
-          echo "<option>NULL (new entry)</option>" . PHP_EOL;
-          echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
-          echo "<option value='property'>Property Management</option>" . PHP_EOL;
-          echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
-        }
-        echo "</select>" . PHP_EOL;
-        echo "<br>" . PHP_EOL;
 
-        // Location data
-        if ($tagDataExists === 1) {
-            echo "<label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label>" . PHP_EOL;
-            echo "<br>" . PHP_EOL;
-            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' autofocus required style='width: 20%; height: 4%;'>" . PHP_EOL;
-        } else {
-          echo "<label for='location'>Location</label>" . PHP_EOL;
+          // Get department data
+          if ($tagDataExists === 1) {
+            // Get a human readable department
+            $department = $value["department"];
+            $departmentHTML = htmlspecialchars($value["department"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+            $departmentFormatted = htmlspecialchars($value["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+          } else {
+            $department = "";
+            $departmentHTML = "";
+            $departmentFormatted = "NULL";
+          }
+
+          // Department data in the form
+          echo "<label for='department'>Department</label>" . PHP_EOL;
           echo "<br>" . PHP_EOL;
-          echo "<input type='text' id='location' name='location' required style='width: 20%; height: 4%;'>" . PHP_EOL;
-        }
-
-
-        // Most recent note
-        echo "<br>" . PHP_EOL;
-        echo "<label for='note'>Note</label>" . PHP_EOL;
-        echo "<br>" . PHP_EOL;
-
-        // Get most recent note that's not NULL
-        if ($tagDataExists === 1) {
-          $db->Pselect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', note FROM locations WHERE tagnumber = :tagnumber AND note IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
-          if (arrFilter($db->get()) === 0) {
+          echo "<select name='department' id='department'>" . PHP_EOL;
+          if (strFilter($department) === 0) {
+            $db->Pselect("SELECT department, 
+              (CASE
+                WHEN jobstats.department='techComm' THEN 'Tech Commons (TSS)'
+                WHEN jobstats.department='property' THEN 'Property'
+                WHEN jobstats.department='shrl' THEN 'SHRL'
+                WHEN jobstats.department = 'execSupport' THEN 'Exec Support'
+                ELSE ''
+              END) AS 'department_formatted'
+              FROM jobstats WHERE NOT department = :department GROUP BY department", array(':department' => $department));
             foreach ($db->get() as $key => $value1) {
-              if ($_POST["status"] === "1") {
-                echo "<textarea id='note' name='note'>" . htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
-              } else {
-                echo "<textarea id='note' name='note' placeholder='(" . htmlspecialchars($value1["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "): ". htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "'></textarea>" . PHP_EOL;
-              }
+              echo "<option value='$departmentHTML'>$departmentFormatted</option>" . PHP_EOL;
+              echo "<option value='" . $value1["department"] . "'>" . $value1["department_formatted"] . "</option>";
             }
+            unset($value1);
+          } else {
+            echo "<option>NULL (new entry)</option>" . PHP_EOL;
+            echo "<option value='techComm'>Tech Commons (TSS)</option>" . PHP_EOL;
+            echo "<option value='property'>Property Management</option>" . PHP_EOL;
+            echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
+          }
+          echo "</select>" . PHP_EOL;
+          echo "<br>" . PHP_EOL;
+
+          // Location data
+          if ($tagDataExists === 1) {
+              echo "<label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label>" . PHP_EOL;
+              echo "<br>" . PHP_EOL;
+              echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' autofocus required style='width: 20%; height: 4%;'>" . PHP_EOL;
+          } else {
+            echo "<label for='location'>Location</label>" . PHP_EOL;
+            echo "<br>" . PHP_EOL;
+            echo "<input type='text' id='location' name='location' required style='width: 20%; height: 4%;'>" . PHP_EOL;
+          }
+
+
+          // Most recent note
+          echo "<br>" . PHP_EOL;
+          echo "<label for='note'>Note</label>" . PHP_EOL;
+          echo "<br>" . PHP_EOL;
+
+          // Get most recent note that's not NULL
+          if ($tagDataExists === 1) {
+            $db->Pselect("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', note FROM locations WHERE tagnumber = :tagnumber AND note IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
+            if (arrFilter($db->get()) === 0) {
+              foreach ($db->get() as $key => $value1) {
+                if ($_POST["status"] === "1") {
+                  echo "<textarea id='note' name='note'>" . htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
+                } else {
+                  echo "<textarea id='note' name='note' placeholder='(" . htmlspecialchars($value1["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "): ". htmlspecialchars($value1["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "'></textarea>" . PHP_EOL;
+                }
+              }
+            } else {
+              echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
+            }
+            unset($value1);
           } else {
             echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
           }
-          unset($value1);
-        } else {
-          echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
-        }
 
-        // POST status (working or broken) of the client
-        echo "<br>" . PHP_EOL;
-        echo "<input type='hidden' name='status' value='" . htmlspecialchars($_POST["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>";
+          // POST status (working or broken) of the client
+          echo "<br>" . PHP_EOL;
+          echo "<input type='hidden' name='status' value='" . htmlspecialchars($_POST["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>";
 
-        // POST if the disk is removed
-        echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
-        echo "<br>" . PHP_EOL;
-        echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
-        if (arrFilter($db->get()) === 0) {
-          $db->Pselect("SELECT disk_removed FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
+          // POST if the disk is removed
+          echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
+          echo "<br>" . PHP_EOL;
+          echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
           if (arrFilter($db->get()) === 0) {
-            foreach ($db->get() as $key => $value1) {
-              if ($value1["disk_removed"] === 1) {
-                echo "<option value='1'>Yes</option>" . PHP_EOL;
-                echo "<option value='0'>No</option>" . PHP_EOL;
-              } else {
-                echo "<option value='0'>No</option>" . PHP_EOL;
-                echo "<option value='1'>Yes</option>" . PHP_EOL;
+            $db->Pselect("SELECT disk_removed FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_POST["tagnumber"]));
+            if (arrFilter($db->get()) === 0) {
+              foreach ($db->get() as $key => $value1) {
+                if ($value1["disk_removed"] === 1) {
+                  echo "<option value='1'>Yes</option>" . PHP_EOL;
+                  echo "<option value='0'>No</option>" . PHP_EOL;
+                } else {
+                  echo "<option value='0'>No</option>" . PHP_EOL;
+                  echo "<option value='1'>Yes</option>" . PHP_EOL;
+                }
               }
             }
+            unset($value1);
+          } else {
+            echo "<option value='0'>No</option>" . PHP_EOL;
+            echo "<option value='1'>Yes</option>" . PHP_EOL;
           }
-          unset($value1);
-        } else {
-          echo "<option value='0'>No</option>" . PHP_EOL;
-          echo "<option value='1'>Yes</option>" . PHP_EOL;
-        }
+          echo "</select>" . PHP_EOL;
+          echo "<br>" . PHP_EOL;
+
+          if ($_POST["status"] === "1") {
+            echo "<input class='page-content' type='submit' value='Update Location Data (Broken)'>" . PHP_EOL;
+          } else {
+            echo "<input class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
+          }
+          echo "</form>" . PHP_EOL;
+          echo "<div><a href='locations.php'>Update a different client.</a></div>" . PHP_EOL;
+          echo "</div>";
+          }
+          unset($formArr);
+      } else {
+        echo "<div class='page-content'><h2>Update Client Locations</h2></div>" . PHP_EOL;
+        echo "<div class='location-form'>";
+        echo "<tr>" . PHP_EOL;
+        echo "<form method='post'>" . PHP_EOL;
+        echo "<label for='tagnumber'>Enter tag number and status: </label>" . PHP_EOL;
+        echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>" . PHP_EOL;
+        echo "<select name='status' id='status' required>" . PHP_EOL;
+        echo "<option value='0'>Working</option>" . PHP_EOL;
+        echo "<option value='1'>Broken</option>" . PHP_EOL;
         echo "</select>" . PHP_EOL;
-        echo "<br>" . PHP_EOL;
-
-        if ($_POST["status"] === "1") {
-          echo "<input class='page-content' type='submit' value='Update Location Data (Broken)'>" . PHP_EOL;
-        } else {
-          echo "<input class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
-        }
+        echo "<input type='submit' value='Submit'>" . PHP_EOL;
         echo "</form>" . PHP_EOL;
-        echo "<div><a href='locations.php'>Update a different client.</a></div>" . PHP_EOL;
         echo "</div>";
-        }
-        unset($formArr);
-    } else {
-      echo "<div class='page-content'><h2>Update Client Locations</h2></div>" . PHP_EOL;
-      echo "<div class='location-form'>";
-      echo "<tr>" . PHP_EOL;
-      echo "<form method='post'>" . PHP_EOL;
-      echo "<label for='tagnumber'>Enter tag number and status: </label>" . PHP_EOL;
-      echo "<input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>" . PHP_EOL;
-      echo "<select name='status' id='status' required>" . PHP_EOL;
-      echo "<option value='0'>Working</option>" . PHP_EOL;
-      echo "<option value='1'>Broken</option>" . PHP_EOL;
-      echo "</select>" . PHP_EOL;
-      echo "<input type='submit' value='Submit'>" . PHP_EOL;
-      echo "</form>" . PHP_EOL;
-      echo "</div>";
-    }
-?>
-
+      }
+      ?>
+      </div>
 
 <?php
 // Dynamic SQL query for the main table.
@@ -491,10 +493,9 @@ if (arrFilter($db->get()) === 0) {
 }
 ?>
 
+
+    <div class="column">
     <div class='page-content'><h2>View and Search Current Locations</h2></div>
-
-
-
     <div class='filtering-form'>
       <form method="GET" action="">
         <div class='filtering-form'>
@@ -652,37 +653,51 @@ if (arrFilter($db->get()) === 0) {
           </div>
         </div>
 
-        <div>
-          <div>
-            <div><p>Device Lost?</p></div>
-            <label for="lost_no">No</label>
-            <input type="radio" id="lost_no" name="lost" value="0">
+        <div class="row">
+          <div class="dense-column">
+            <p>Device Lost?</p>
             <label for="lost_yes">Yes</label>
             <input type="radio" id="lost_yes" name="lost" value="1">
+            <label for="lost_no">No</label>
+            <input type="radio" id="lost_no" name="lost" value="0">
           </div>
 
-          <div>
-            <div><p>Device Broken?</p></div>
-            <label for="broken_no">No</label>
-            <input type="radio" id="broken_no" name="broken" value="0">
-            <label for="broken_yes">Yes</label>
-            <input type="radio" id="broken_yes" name="broken" value="1">
+          <div class="dense-column">
+            <p>Device Broken?</p>
+            <div class="column">
+              <label for="broken_yes">Yes</label>
+              <input type="radio" id="broken_yes" name="broken" value="1">
+            </div>
+            <div class="column">
+              <label for="broken_no">No</label>
+              <input type="radio" id="broken_no" name="broken" value="0">
+            </div>
           </div>
+        </div>
 
-          <div>
-            <div><p>Disk Removed?</p></div>
-            <label for="disk_removed_no">No</label>
-            <input type="radio" id="disk_removed_no" name="disk_removed" value="0">
-            <label for="disk_removed_yes">Yes</label>
-            <input type="radio" id="disk_removed_yes" name="disk_removed" value="1">
+        <div class="row">
+          <div class="dense-column">
+            <p>Disk Removed?</p>
+            <div class="column">
+              <label for="disk_removed_yes">Yes</label>
+              <input type="radio" id="disk_removed_yes" name="disk_removed" value="1">
+            </div>
+            <div class="column">
+              <label for="disk_removed_no">No</label>
+              <input type="radio" id="disk_removed_no" name="disk_removed" value="0">
+            </div>
           </div>
-
-          <div>
-            <div><p>OS Installed?</p></div>
-            <label for="os_installed_no">No</label>
-            <input type="radio" id="os_installed_no" name="os_installed" value="0">
-            <label for="os_installed_yes">Yes</label>
-            <input type="radio" id="os_installed_yes" name="os_installed" value="1">
+          
+          <div class="dense-column">
+              <p>OS Installed?</p>
+            <div class="column">
+              <label for="os_installed_yes">Yes</label>
+              <input type="radio" id="os_installed_yes" name="os_installed" value="1">
+            </div>
+            <div class="column">
+              <label for="os_installed_no">No</label>
+              <input type="radio" id="os_installed_no" name="os_installed" value="0">
+            </div>
           </div>
         </div>
 
@@ -696,6 +711,8 @@ if (arrFilter($db->get()) === 0) {
         </div>
       </form>
     </div>
+            </div>
+            </div>
 
     <div class='page-content'><h3>A checkmark (<span style='color: #00B388'>&#10004;</span>) means a client is currently online and ready for a job.</h3></div>
 
