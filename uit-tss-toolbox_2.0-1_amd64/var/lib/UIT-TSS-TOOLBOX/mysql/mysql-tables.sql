@@ -363,7 +363,7 @@ CREATE TABLE IF NOT EXISTS departments (
 
 INSERT INTO departments (
   department,
-  deparment_readable,
+  department_readable,
   owner,
   department_bool
 ) VALUES
