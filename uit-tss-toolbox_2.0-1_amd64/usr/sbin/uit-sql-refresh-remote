@@ -11,7 +11,7 @@ $timer->start();
 $db = new db();
 
 $db->select("SELECT remote.tagnumber,
-    IF(TIMEDIFF(NOW(), remote.present) < '00:00:45', 1, 0) AS 'present',
+    IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 45, 1, 0) AS 'present',
     (CASE
       WHEN static_bios_stats.bios_version = jobstats.bios_version THEN 1
       ELSE '0'
