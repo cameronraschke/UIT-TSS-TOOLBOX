@@ -509,7 +509,7 @@ if (arrFilter($db->get()) === 0) {
             <select name="location" id="location-filter">
               <option value="">--Filter By Location--</option>
               <?php
-              $db->select("SELECT COUNT(location) AS location_rows, location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY COUNT(location) DESC");
+              $db->select("SELECT COUNT(location) AS location_rows, location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY location DESC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
                   echo "<option value='" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . htmlspecialchars($value1["location_rows"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")" . "</option>" . PHP_EOL;
@@ -526,90 +526,21 @@ if (arrFilter($db->get()) === 0) {
             </label>
             <select id="department" name="department">
             <option value=''>--Filter By Department--</option>
-              <?php  
-              // Get number of clients for techComm
-              $db->select("SELECT COUNT(department) AS 'department_rows'
-                FROM jobstats 
-                WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
-                AND department = 'techComm'
-                AND tagnumber IS NOT NULL
-                GROUP BY department");
-
-                if (arrFilter($db->get()) === 0) {
-                  foreach ($db->get() as $key => $value1) {
-                    $deptRowCount = $value1["department_rows"];
+              <?php
+              $db->select("SELECT department, department_readable, owner, department_bool FROM departments ORDER BY department ASC");
+              if (arrFilter($db->get()) === 0) {
+                foreach ($db->get() as $key => $value1) {
+                  $db->Pselect("SELECT COUNT(tagnumber) AS 'department_rows' FROM jobstats WHERE department = :department AND time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)", array(':department' => $value1["department"]));
+                  if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value2) {
+                      echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . " (" . $value2["department_rows"] . ")</option>" . PHP_EOL;
+                    }
                   }
-                } else {
-                  $deptRowCount = 0;
                 }
-                unset($value1);
+              }
+              unset($value1);
+              unset($value2);
               ?>
-              <option value="techComm">Tech Commons (TSS) <?php echo " (" . $deptRowCount . ")" . PHP_EOL; ?></option>
-              <?php unset($deptRowCount); ?>
-
-              <?php  
-              // Get number of clients for property
-              $db->select("SELECT COUNT(department) AS 'department_rows'
-                FROM jobstats 
-                WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
-                AND department = 'property'
-                AND tagnumber IS NOT NULL
-                GROUP BY department");
-
-                if (arrFilter($db->get()) === 0) {
-                  foreach ($db->get() as $key => $value1) {
-                    $deptRowCount = $value1["department_rows"];
-                  }
-                } else {
-                  $deptRowCount = 0;
-                }
-                unset($value1);
-              ?>
-              <option value="property">Property<?php echo " (" . $deptRowCount . ")" . PHP_EOL; ?></option>
-              <?php unset($deptRowCount); ?>
-
-              <?php  
-              // Get number of clients for SHRL
-              $db->select("SELECT COUNT(department) AS 'department_rows'
-                FROM jobstats 
-                WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
-                AND department = 'shrl'
-                AND tagnumber IS NOT NULL
-                GROUP BY department");
-
-                if (arrFilter($db->get()) === 0) {
-                  foreach ($db->get() as $key => $value1) {
-                    $deptRowCount = $value1["department_rows"];
-                  }
-                } else {
-                  $deptRowCount = 0;
-                }
-                unset($value1);
-              ?>
-              <option value="shrl">SHRL (Kirven/Alex)<?php echo " (" . $deptRowCount . ")" . PHP_EOL; ?></option>
-              <?php unset($deptRowCount); ?>
-
-
-              <?php  
-              // Get number of clients for SHRL
-              $db->select("SELECT COUNT(department) AS 'department_rows'
-                FROM jobstats 
-                WHERE time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)
-                AND department = 'execSupport'
-                AND tagnumber IS NOT NULL
-                GROUP BY department");
-
-                if (arrFilter($db->get()) === 0) {
-                  foreach ($db->get() as $key => $value1) {
-                    $deptRowCount = $value1["department_rows"];
-                  }
-                } else {
-                  $deptRowCount = 0;
-                }
-                unset($value1);
-              ?>
-              <option value="execSupport">Exec Support<?php echo " (" . $deptRowCount . ")" . PHP_EOL; ?></option>
-              <?php unset($deptRowCount); ?>
             </select>
           </div>
 
