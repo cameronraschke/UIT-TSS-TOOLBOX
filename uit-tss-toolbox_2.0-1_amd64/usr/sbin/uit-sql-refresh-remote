@@ -11,23 +11,25 @@ $timer->start();
 $db = new db();
 
 $db->select("SELECT remote.tagnumber,
-    IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 45, 1, 0) AS 'present',
-    (CASE
-      WHEN static_bios_stats.bios_version = jobstats.bios_version THEN 1
-      ELSE '0'
-    END
-    ) AS 'bios_updated',
-    jobstats.time,
-    remote.disk_temp
-  FROM remote
-  LEFT JOIN jobstats ON jobstats.tagnumber = remote.tagnumber
-  INNER JOIN system_data ON system_data.tagnumber = remote.tagnumber
-  INNER JOIN static_bios_stats ON static_bios_stats.system_model = system_data.system_model
-  WHERE jobstats.tagnumber IS NOT NULL 
-    AND jobstats.uuid LIKE 'techComm-%'
-    AND jobstats.department IS NOT NULL
-    AND jobstats.time IN (SELECT MAX(time) FROM jobstats WHERE tagnumber IS NOT NULL GROUP BY tagnumber)
-  ORDER BY jobstats.time DESC");
+IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 45, '1', '0') AS 'present_bool',
+(CASE
+  WHEN static_bios_stats.bios_version = jobstats.bios_version THEN '1'
+  ELSE '0'
+END
+) AS 'bios_updated',
+t1.max_time,
+remote.disk_temp
+FROM remote
+LEFT JOIN jobstats ON jobstats.tagnumber = remote.tagnumber
+INNER JOIN system_data ON system_data.tagnumber = remote.tagnumber
+INNER JOIN static_bios_stats ON static_bios_stats.system_model = system_data.system_model
+LEFT JOIN (SELECT tagnumber, MAX(time) AS 'max_time' FROM jobstats WHERE tagnumber IS NOT NULL AND (erase_completed = 1 OR clone_completed = 1) GROUP BY tagnumber) t1 ON t1.tagnumber = remote.tagnumber
+WHERE jobstats.tagnumber IS NOT NULL 
+AND jobstats.department IS NOT NULL
+AND jobstats.time IN (SELECT MAX(time) FROM jobstats WHERE bios_version IS NOT NULL GROUP BY tagnumber)
+ORDER BY jobstats.time DESC");
+
+
 foreach ($db->get() as $key => $value) {
 
   echo PHP_EOL;
@@ -40,7 +42,7 @@ foreach ($db->get() as $key => $value) {
     }
 
   // Update presence
-  $db->updateRemote($value["tagnumber"], "present_bool", $value["present"]);
+  $db->updateRemote($value["tagnumber"], "present_bool", $value["present_bool"]);
 
   // Update BIOS updated status
   $db->updateRemote($value["tagnumber"], "bios_updated", $value["bios_updated"]);
