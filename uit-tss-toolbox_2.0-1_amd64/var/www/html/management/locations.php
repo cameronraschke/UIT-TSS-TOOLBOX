@@ -169,6 +169,7 @@ if (isset($_POST['serial'])) {
       <?php
       //If tagnumber is POSTed, show data in the location form.
       if (isset($_POST["tagnumber"])) {
+        echo "<div class='page-content'><h2>Update Client Locations</h2></div>" . PHP_EOL;
         echo "<div class='location-form'>" . PHP_EOL;
         unset($formSql);
         $formSql = "SELECT locations.system_serial, locations.location, DATE_FORMAT(locations.time, '%b %D %Y, %r') AS 'time_formatted',
@@ -221,7 +222,7 @@ if (isset($_POST['serial'])) {
           }
 
           // Department data in the form
-          echo "<label for='department'>Department</label>" . PHP_EOL;
+          echo "<div><label for='department'>Department</label>" . PHP_EOL;
           echo "<br>" . PHP_EOL;
           echo "<select name='department' id='department'>" . PHP_EOL;
           if (strFilter($department) === 0) {
@@ -245,24 +246,24 @@ if (isset($_POST['serial'])) {
             echo "<option value='property'>Property Management</option>" . PHP_EOL;
             echo "<option value='shrl'>SHRL (Kirven)</option>" . PHP_EOL;
           }
-          echo "</select>" . PHP_EOL;
+          echo "</select></div>" . PHP_EOL;
           echo "<br>" . PHP_EOL;
 
           // Location data
           if ($tagDataExists === 1) {
-              echo "<label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label>" . PHP_EOL;
+              echo "<div><label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label>" . PHP_EOL;
               echo "<br>" . PHP_EOL;
-              echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' autofocus required style='width: 20%; height: 4%;'>" . PHP_EOL;
+              echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' autofocus required style='width: 20%; height: 4%;'></div>" . PHP_EOL;
           } else {
-            echo "<label for='location'>Location</label>" . PHP_EOL;
+            echo "<div><label for='location'>Location</label>" . PHP_EOL;
             echo "<br>" . PHP_EOL;
-            echo "<input type='text' id='location' name='location' required style='width: 20%; height: 4%;'>" . PHP_EOL;
+            echo "<input type='text' id='location' name='location' required style='width: 20%; height: 4%;'></div>" . PHP_EOL;
           }
 
 
           // Most recent note
           echo "<br>" . PHP_EOL;
-          echo "<label for='note'>Note</label>" . PHP_EOL;
+          echo "<div><label for='note'>Note</label>" . PHP_EOL;
           echo "<br>" . PHP_EOL;
 
           // Get most recent note that's not NULL
@@ -283,13 +284,14 @@ if (isset($_POST['serial'])) {
           } else {
             echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
           }
+          echo "</div>" . PHP_EOL;
 
           // POST status (working or broken) of the client
           echo "<br>" . PHP_EOL;
           echo "<input type='hidden' name='status' value='" . htmlspecialchars($_POST["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>";
 
           // POST if the disk is removed
-          echo "<label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
+          echo "<div><label for='disk_removed'>Disk removed?</label>" . PHP_EOL;
           echo "<br>" . PHP_EOL;
           echo "<select name='disk_removed' id='disk_removed'>" . PHP_EOL;
           if (arrFilter($db->get()) === 0) {
@@ -310,7 +312,7 @@ if (isset($_POST['serial'])) {
             echo "<option value='0'>No</option>" . PHP_EOL;
             echo "<option value='1'>Yes</option>" . PHP_EOL;
           }
-          echo "</select>" . PHP_EOL;
+          echo "</select></div>" . PHP_EOL;
           echo "<br>" . PHP_EOL;
 
           if ($_POST["status"] === "1") {
@@ -656,10 +658,14 @@ if (arrFilter($db->get()) === 0) {
         <div class="row">
           <div class="dense-column">
             <p>Device Lost?</p>
-            <label for="lost_yes">Yes</label>
-            <input type="radio" id="lost_yes" name="lost" value="1">
-            <label for="lost_no">No</label>
-            <input type="radio" id="lost_no" name="lost" value="0">
+            <div class="column">
+              <label for="lost_yes">Yes</label>
+              <input type="radio" id="lost_yes" name="lost" value="1">
+            </div>
+            <div class="column">
+              <label for="lost_no">No</label>
+              <input type="radio" id="lost_no" name="lost" value="0">
+            </div>
           </div>
 
           <div class="dense-column">
