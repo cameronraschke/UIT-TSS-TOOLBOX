@@ -89,6 +89,8 @@ table {
 
 }
 .styled-table thead {
+	position: sticky;
+	top: 0;
     text-align: left;
 }
 .styled-table th {
