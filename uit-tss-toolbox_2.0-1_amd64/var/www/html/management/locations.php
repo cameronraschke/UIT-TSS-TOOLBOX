@@ -316,9 +316,9 @@ if (isset($_POST['serial'])) {
           echo "<br>" . PHP_EOL;
 
           if ($_POST["status"] === "1") {
-            echo "<input class='page-content' type='submit' value='Update Location Data (Broken)'>" . PHP_EOL;
+            echo "<input style='background-color:rgba(200, 16, 47, 0.30);' class='page-content' type='submit' value='Update Location Data (Broken)'>" . PHP_EOL;
           } else {
-            echo "<input class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
+            echo "<input style='background-color:rgba(0, 179, 136, 0.30);' class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
           }
           echo "</form>" . PHP_EOL;
           echo "<div><a href='locations.php'>Update a different client.</a></div>" . PHP_EOL;
@@ -709,7 +709,7 @@ if (arrFilter($db->get()) === 0) {
 
         <div class='filtering-form'>
             <a href='/locations.php'><button>Reset Filters</button></a>
-            <button style='background-color:rgba(200, 16, 47, 0.30);' type="submit">Filter</button>
+            <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Filter</button>
         </div>
 
         <div class='filtering-form'>
