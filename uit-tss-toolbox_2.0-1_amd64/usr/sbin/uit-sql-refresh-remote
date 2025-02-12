@@ -11,31 +11,40 @@ $timer->start();
 $db = new db();
 
 $db->select("SELECT remote.tagnumber,
-jobstats.time,
-IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 45, '1', '0') AS 'present_bool',
-(CASE
-  WHEN static_bios_stats.bios_version = jobstats.bios_version THEN '1'
-  ELSE '0'
-END
-) AS 'bios_updated',
-t1.last_job_time,
-(CASE
-  -- WHEN t1.erase_completed = 1 AND t1.clone_completed = 1 THEN '1'
-  WHEN t1.erase_completed = 1 AND t1.clone_completed IS NULL THEN '0'
-  -- WHEN t1.erase_completed IS NULL AND t1.clone_completed = 1 THEN '1'
-  ELSE '1'
-END) AS 'os_installed',
-remote.disk_temp
-FROM remote
-LEFT JOIN jobstats ON jobstats.tagnumber = remote.tagnumber
-INNER JOIN system_data ON system_data.tagnumber = remote.tagnumber
-INNER JOIN static_bios_stats ON static_bios_stats.system_model = system_data.system_model
-LEFT JOIN (SELECT tagnumber, MAX(time) AS 'last_job_time', erase_completed, clone_completed FROM jobstats WHERE tagnumber IS NOT NULL AND (erase_completed = 1 OR clone_completed = 1) GROUP BY tagnumber) t1 ON t1.tagnumber = remote.tagnumber
-WHERE jobstats.tagnumber IS NOT NULL 
-AND jobstats.department IS NOT NULL
-AND jobstats.time IN (SELECT MAX(time) FROM jobstats WHERE bios_version IS NOT NULL GROUP BY tagnumber)
-GROUP BY tagnumber
-ORDER BY jobstats.time DESC");
+  jobstats.time,
+  IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 45, '1', '0') AS 'present_bool',
+  (CASE
+    WHEN static_bios_stats.bios_version = jobstats.bios_version THEN '1'
+    ELSE '0'
+    END
+  ) AS 'bios_updated',
+  t1.last_job_time,
+  (CASE
+    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed = 1 THEN '1'
+    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN '0'
+    WHEN jobstats.erase_completed IS NULL AND jobstats.clone_completed = 1 THEN '1'
+    ELSE '1'
+  END) AS 'os_installed',
+  remote.disk_temp
+  FROM remote
+  INNER JOIN jobstats ON jobstats.tagnumber = remote.tagnumber
+  INNER JOIN system_data ON system_data.tagnumber = remote.tagnumber
+  INNER JOIN static_bios_stats ON static_bios_stats.system_model = system_data.system_model
+  LEFT JOIN
+    (SELECT
+        IF(SUBSTRING(MAX(time), 12, 24) = '00:00:00.000', NULL, MAX(time)) AS 'last_job_time'
+      FROM jobstats
+      WHERE (erase_completed = 1 OR clone_completed = 1)
+      GROUP BY tagnumber) t1
+    ON t1.last_job_time = jobstats.time
+  LEFT JOIN
+    (SELECT time,
+        ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count'
+      FROM jobstats WHERE bios_version IS NOT NULL) t2
+    ON t2.time = jobstats.time
+  WHERE jobstats.tagnumber IS NOT NULL 
+  AND t2.row_count = 1
+  ORDER BY jobstats.time DESC");
 
 
 foreach ($db->get() as $key => $value) {
