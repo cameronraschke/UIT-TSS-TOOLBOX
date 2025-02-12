@@ -13,20 +13,29 @@ $timer->start();
 $db = new db();
 # Iterate through distinct tagnumbers from jobstats with techComm UUIDs
 $db->select("SELECT
-  jobstats.tagnumber, 
-  (CASE
-    WHEN locations.disk_removed = 1 THEN '0'
+jobstats.tagnumber,
+t2.time AS 'max_time',
+(CASE
     WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed = 1 THEN '1'
     WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN '0'
     WHEN jobstats.erase_completed IS NULL AND jobstats.clone_completed = 1 THEN '1'
     ELSE '1'
-  END) AS 'os_installed',
-  MAX(locations.time) AS 'max_time'
-  FROM jobstats
-  INNER JOIN locations ON jobstats.tagnumber = locations.tagnumber
-  WHERE (jobstats.clone_completed = 1 OR jobstats.erase_completed = 1)
-  GROUP BY jobstats.tagnumber
-  ORDER BY jobstats.time, locations.time DESC");
+  END) AS 'os_installed'
+FROM jobstats
+INNER JOIN locations ON locations.tagnumber = jobstats.tagnumber
+INNER JOIN
+  (SELECT
+    IF(SUBSTRING(MAX(time), 12, 24) = '00:00:00.000', NULL, MAX(time)) AS 'max_time'
+    FROM jobstats
+    WHERE (erase_completed = 1 OR clone_completed = 1)
+    GROUP BY tagnumber) t1
+  ON t1.max_time = jobstats.time
+INNER JOIN
+  (SELECT time,
+    ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count'
+    FROM locations) t2
+  ON t2.time = locations.time
+WHERE t2.row_count = 1");
   
 foreach ($db->get() as $key => $value) {
 
