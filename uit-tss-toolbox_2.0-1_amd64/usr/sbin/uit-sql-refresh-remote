@@ -32,12 +32,12 @@ $db->select("SELECT remote.tagnumber,
   INNER JOIN static_bios_stats ON static_bios_stats.system_model = system_data.system_model
   LEFT JOIN
     (SELECT
-        IF(SUBSTRING(MAX(time), 12, 24) = '00:00:00.000', NULL, MAX(time)) AS 'last_job_time'
+        tagnumber, IF(SUBSTRING(MAX(time), 12, 24) = '00:00:00.000', NULL, MAX(time)) AS 'last_job_time'
       FROM jobstats
       WHERE (erase_completed = 1 OR clone_completed = 1)
       GROUP BY tagnumber) t1
-    ON t1.last_job_time = jobstats.time
-  LEFT JOIN
+    ON t1.tagnumber = jobstats.tagnumber
+  INNER JOIN
     (SELECT time,
         ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count'
       FROM jobstats WHERE bios_version IS NOT NULL) t2
