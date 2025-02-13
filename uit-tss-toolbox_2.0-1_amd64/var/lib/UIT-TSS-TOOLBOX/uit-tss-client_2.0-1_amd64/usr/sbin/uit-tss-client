@@ -2050,7 +2050,7 @@ function autodetectClient {
 			tput cuu1
 			tput el
 			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) has no scheduled tasks right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"
-			read -t 10 -N 1 input
+			read -t 5 -N 1 input
 			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 				break
 			fi

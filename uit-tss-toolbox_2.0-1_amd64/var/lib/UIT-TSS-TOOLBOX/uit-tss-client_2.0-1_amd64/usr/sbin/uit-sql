@@ -83,7 +83,7 @@ EOF
 chmod 750 /root/execute
 /root/execute
 
-sleep 10
+sleep 5
 
 elapsed=0
 elapsed=$(cat /root/uptime)
@@ -91,7 +91,7 @@ if [[ -z $elapsed ]]; then
     elapsed=0
 fi
 
-elapsed=$(( elapsed + 10 ))
+elapsed=$(( elapsed + 5 ))
 echo "$elapsed" > /root/uptime
 echo "remote|${tagNum}|uptime|$elapsed" | /var/lib/UIT-TSS-TOOLBOX/parse
 
