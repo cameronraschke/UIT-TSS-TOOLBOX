@@ -3,6 +3,7 @@ wanif='enx00e04c6805bb'
 wan='172.16.0.0/12,129.7.0.0/16,10.6.0.0/16'
 lanif='enp0s31f6'
 lan='10.0.0.0/16'
+printer='172.27.53.19'
 
 # Disable IP forwarding and IPv6
 sysctl -w net.ipv4.ip_forward=0
@@ -28,7 +29,8 @@ iptables --table filter --append OUTPUT --out-interface lo --jump ACCEPT
 
 # INPUT Traffic WAN
 iptables --table filter --append INPUT --in-interface "${wanif}" --source "${wan}" --match conntrack --ctstate NEW,RELATED,ESTABLISHED --protocol tcp --match multiport --destination-ports 22,1411 --jump ACCEPT
-iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate NEW,RELATED,ESTABLISHED --protocol udp --match multiport --destination-ports 68 --jump ACCEPT
+iptables --table filter --append INPUT --in-interface "${wanif}" --source "${printer}" --match conntrack --ctstate NEW,RELATED,ESTABLISHED --jump ACCEPT
+iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate NEW,RELATED,ESTABLISHED --protocol udp --match multiport --destination-ports 68,5353 --jump ACCEPT
 iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate RELATED,ESTABLISHED --protocol udp --match multiport --source-ports 53,123 --jump ACCEPT
 iptables --table filter --append INPUT --in-interface "${wanif}" --match conntrack --ctstate RELATED,ESTABLISHED --protocol tcp --match multiport --source-ports 80,443 --jump ACCEPT
 iptables --table filter --append INPUT --in-interface "${wanif}" --protocol icmp --jump ACCEPT
