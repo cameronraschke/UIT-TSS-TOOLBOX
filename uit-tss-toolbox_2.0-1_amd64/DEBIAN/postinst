@@ -60,6 +60,10 @@ if [[ ! -f /var/www/html/management/favicon.ico ]]; then
     wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico
 fi
 
+if [[ ! -f  /var/www/html/management/images/uh-logo.png ]]; then
+    wget 'http://www.sa.uh.edu/brand/_img/uh-wide-full-color-rgb.png' --output-document=/var/www/html/management/images/uh-logo.png
+fi
+
 rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/management/images/
 
 rsync -Pav --delete /home/cameron/jquery /var/www/html/management/
