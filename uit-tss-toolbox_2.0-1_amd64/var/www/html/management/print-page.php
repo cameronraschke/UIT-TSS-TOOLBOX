@@ -123,7 +123,7 @@
             Please reach out to our office with any concerns:
             <br><b>Phone</b>: (713) 743-1411
             <br><b>Email</b>: uitsupport@uh.edu
-            <br><b>Live Chat</b>: https://gethelp.uh.edu/#/live_chat (Select UIT Support Center)
+            <br><b>Live Chat</b>: https://gethelp.uh.edu/live_chat (Select UIT Support Center)
         </p>
         </div>
         <div class="footer">
