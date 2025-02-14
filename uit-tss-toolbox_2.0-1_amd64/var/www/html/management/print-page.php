@@ -64,16 +64,15 @@
         <div class="page-content">
             <p>
                 We hope that you enjoy your new laptop. We have preinstalled a few apps for you, 
-                including the Microsoft Office Suite, Microsoft Teams, Microsoft Outlook, 
-                the most popular web browsers (Chrome, Edge, and Firefox), LockDown Browser, 
-                and Cisco Secure Client (VPN).
+                including Microsoft Office, Microsoft Teams, Microsoft Outlook, Chrome, Edge, Firefox, 
+                LockDown Browser, and Cisco Secure Client (VPN).
             </p>
         </div>
         <div class="page-content"> 
             <p>
-                Please treat the laptop with respect, as many others in the UH community 
-                will use these laptops after you. For the time being, you are free to customize 
-                the software on the laptop as long as it will not impact the functionality of the laptop.
+                Please treat our laptops with respect. Many others in the UH community 
+                will use these laptops after you. You are free to customize 
+                the software on this laptop as long as it will not impact the functionality of the laptop.
             </p>
         </div>
         <div class="page-content">
@@ -97,11 +96,16 @@
                 <i>
                     By receiving this laptop as part of UIT's laptop checkout program, I
                     agree to the following: 
-                    I acknowledge that this computer is the property of the State of Texas. 
-                    I agree to treat this computer with respect, to not modify the hardware 
-                    of the laptop, to return the laptop by the return date written below, and to 
-                    reach out to UIT Support in case I have any questions or concerns 
-                    (contact information below).
+                    <ul>
+                        <li>I acknowledge that this computer is the property of the State of Texas.
+                        <li>I agree to follow all federal, state, and local laws as well as UH 
+                            policies regarding proper usage of this laptop. 
+                        <li>I agree to return this laptop, charger, and all other checked out accessories 
+                            by the return date written below.
+                        <li>I agree to treat this computer with respect, to not modify the hardware 
+                            of the laptop, and to reach out to UIT Support in case I have any questions or concerns 
+                            (contact information below).
+                    </ul>
                 </i>
             </p>
         </div>
@@ -135,7 +139,7 @@
         </div>
         <div class="contact-info">
             <p>
-            Please reach out to our office with any concerns:
+            Please reach out to our office with any questions or concerns:
             <br><b>Phone</b>: (713) 743-1411
             <br><b>Email</b>: uitsupport@uh.edu
             <br><b>Live Chat</b>: https://gethelp.uh.edu/live_chat (Select UIT Support Center)
