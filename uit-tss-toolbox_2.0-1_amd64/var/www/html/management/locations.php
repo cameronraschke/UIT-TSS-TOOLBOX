@@ -91,7 +91,25 @@ if (isset($_POST['serial'])) {
 
   //Printing
   if ($_POST["print"] == "1") {
-    System("bash /var/www/html/management/bash/uit-print-pdf '" . $tagNum . "' '' '" . $date . "' '' ''");
+    $tagNum = escapeshellcmd($_POST["tagnumber"]);
+    $customerName = escapeshellcmd($_POST["customer_name"]);
+    $checkoutDate = escapeshellcmd($_POST["checkout_date"]);
+    $customerPSID = escapeshellcmd($_POST["customer_psid"]);
+    $returnDate = escapeshellcmd($_POST["return_date"]);
+
+    $db->Pselect("SELECT DATE_FORMAT(:checkoutDate, '%b %D, %Y') AS 'checkout_date'", array(':checkoutDate' => $checkoutDate));
+    foreach ($db->get() as $key => $value1) {
+      $checkoutDate = $value1["checkout_date"];
+    }
+    unset($value1);
+
+    $db->Pselect("SELECT DATE_FORMAT(:returnDate, '%b %D, %Y') AS 'return_date'", array(':returnDate' => $returnDate));
+    foreach ($db->get() as $key => $value1) {
+      $returnDate = $value1["return_date"];
+    }
+    unset($value1);
+
+    System("bash /var/www/html/management/bash/uit-print-pdf" . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
   }
   
   unset($_POST);
@@ -322,6 +340,20 @@ if (isset($_POST['serial'])) {
           echo "<div>";
           echo "<label for='print'>Print Customer Form</label>";
           echo "<input type='checkbox' id='print' name='print' value='1'>";
+          echo "<div style='margin-left: 1%;'>";
+          echo "<div><label for='checkout_date'>Checkout date: </label>";
+          $db->select("SELECT DATE_FORMAT(NOW(), '%Y-%m-%d') AS 'cur_date', DATE_FORMAT(NOW() + INTERVAL 1 WEEK, '%Y-%m-%d') AS 'next_date'");
+          foreach ($db->get() as $key => $value1) {
+            echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value1["cur_date"]) . "' min='2023-01-09' /></div>";
+            echo "<div><label for='return_date'>Return date: </label>";
+            echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value1["next_date"]) . "' min='2023-01-09' /></div>";
+            echo "<div><label for='customer_name'>Customer name: </label>";
+          }
+          unset($value1);      
+          echo "<input type='text' name='customer_name' id='customer_name' placeholder='Customer Name'></div>";
+          echo "<div><label for='customer_psid'>Customer PSID: </label>";
+          echo "<input type='text' name='customer_psid' id='customer_psid' placeholder='Customer PSID'></div>";
+          echo "</div>";
           echo "</div>";
 
           echo "<div>";
