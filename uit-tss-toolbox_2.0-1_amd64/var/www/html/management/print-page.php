@@ -8,10 +8,14 @@
                 margin: 7% 7% 7% 7%;
             }
             .uh-logo {
-                margin: 0% 0% 5% 0%;
-                top: 10%;
+                margin: 10% 0% 5% 0%;
                 max-width: 100%;
-                max-height: 10%;
+                max-height: 20%;
+            }
+            .uh-logo img {
+                margin: 0% 0% 3% 0%;
+                max-width: 100%;
+                height: auto;
             }
             .page-content {
                 margin: 1% 1% 1% 1%;
@@ -24,43 +28,109 @@
                 text-align: center;
                 font-size: 18px;
             }
+            .tagnumber {
+                margin: 3% 0% 3% 0%;
+                font-size: 24px;
+                text-align: center;
+            }
             .signature {
-                margin: 10% 1% 1% 1%;
+                margin: 1% 0% 1% 0%;
                 text-align: left;
                 font-size: 18px;
                 width: auto;
             }
+            .signature div {
+                display: inline-block;
+            }
+            .contact-info {
+                text-align: left;
+            }
+            .footer {
+                text-align: left;
+                bottom: 5%;
+            }
         </style>
     </head>
     <body>
-        <div>
-            <img class="uh-logo" src="/images/uh-logo.png">
+        <div class="uh-logo">
+            <img src="/images/uh-logo.png">
         </div>
         <div class="page-content">
             <h1><b>Technology Services and Support - Laptop Checkout Program</b></h1>
         </div>
         <div class="page-content">
-            <p>We hope that you enjoy your new laptop. We have preinstalled a few apps for you, including the Microsoft Office Suite, Microsoft Teams, Microsoft Outlook, the most popular web browsers (Chrome, Edge, and Firefox), LockDown Browser, and Cisco Secure Client (VPN).</p>
+            <p>
+                We hope that you enjoy your new laptop. We have preinstalled a few apps for you, 
+                including the Microsoft Office Suite, Microsoft Teams, Microsoft Outlook, 
+                the most popular web browsers (Chrome, Edge, and Firefox), LockDown Browser, 
+                and Cisco Secure Client (VPN).
+            </p>
+        </div>
+        <div class="page-content"> 
+            <p>
+                Please treat the laptop with respect, as many others in the UH community 
+                will use these laptops after you. For the time being, you are free to customize 
+                the software on the laptop as long as it will not impact the functionality of the laptop.
+            </p>
         </div>
         <div class="page-content">
-            <p>Please treat the laptop with respect, as many others in the UH community will use these laptops after you. For the time being, you are free to customize the software on the laptop as long as it will not impact the functionality of the laptop.</p>
+            <p>
+                To login to the laptop, please make sure that the "Student" account 
+                is selected and enter the password "UHouston!" (without the quotes).
+            </p>
+        </div>
+        <div class="page-content" style="border-bottom: 1px solid black;">
+            <p>
+                When you return this laptop to our office, 
+                we make sure your data is safely and securely erased.
+            </p>
+        </div>
+        <div class="tagnumber">
+            <h2>The number associated with your laptop is <b><?php echo $_GET["tagnumber"]; ?></b></h2>
         </div>
         <div class="page-content">
-            <p>To login to the laptop, please make sure that the "Student" account is selected and enter the password "UHouston!" (without the quotes).</p>
+            <p>
+                <i>
+                    By receiving this laptop as part of UIT's laptop checkout program, I
+                    agree to the following: 
+                    I acknowledge that this computer is the property of the State of Texas. 
+                    I agree to treat this computer with respect, to not modify the hardware 
+                    of the laptop, to return the laptop by the return date written below, and to 
+                    reach out to UIT Support in case I have any questions or concerns 
+                    (contact information below).
+                </i>
+            </p>
         </div>
-        <div class="page-content">
-            <p>When you return this laptop to our office, we make sure your data is securely erased.</p>
-        </div>
-        <div style="margin: 10% 1% 1% 1%; text-justify: left;">
-            <p><i>I agree to treat this computer with respect, to not modify the hardware of the laptop, to return the laptop by the date written below, and to reach out to UIT Support in case I run into any issues (contact information below).</i></p>
-        </div>
-        <div>
-            <div class="signature" style="float: left;">
-                <p>Customer Name: ____________________________</p>
+        <div class="signature">
+            <div>
+                <p>Customer Name: _________________________________________</p>
             </div>
-            <div class="signature" style="float: right;">
-                <p>Date: _____________</p>
+            <div style="margin-left: 7%;">
+                <p>Date: ___________________</p>
             </div>
+        </div>
+        <div class="signature">
+            <div>
+                <p>Representative Name: ____________________________________</p>
+            </div>
+            <div style="margin-left: 7%;"> 
+                <p>Return Date: ________________</p>
+            </div>
+        </div>
+        <div class="contact-info">
+            <p>
+            Please reach out to our office with any concerns:
+            <br><b>Phone</b>: (713) 743-1411
+            <br><b>Email</b>: uitsupport@uh.edu
+            <br><b>Live Chat</b>: https://gethelp.uh.edu/#/live_chat (Select UIT Support Center)
+        </p>
+        </div>
+        <div class="footer">
+            <p>
+                <br>Laptop Model: <?php echo htmlspecialchars($_GET["system_model"]); ?>
+                <br>Laptop Serial Number: <?php echo htmlspecialchars($_GET["system_serial"]); ?>
+                <br>Laptop Imaged on <?php echo htmlspecialchars($_GET["date_formatted"]); ?> at <?php echo htmlspecialchars($_GET["time_formatted"]); ?>
+            </p>
         </div>
 
     </body>
