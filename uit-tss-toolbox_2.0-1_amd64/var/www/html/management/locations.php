@@ -91,7 +91,7 @@ if (isset($_POST['serial'])) {
 
   //Printing
   if ($_POST["print"] == "1") {
-    System("/var/www/html/management/bash/uit-print-pdf '" . $tagNum . "' '' '" . $date . "' '' ''");
+    System("bash /var/www/html/management/bash/uit-print-pdf '" . $tagNum . "' '' '" . $date . "' '' ''");
   }
   
   unset($_POST);
