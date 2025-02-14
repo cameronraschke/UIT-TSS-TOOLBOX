@@ -89,7 +89,7 @@
             </p>
         </div>
         <div class="tagnumber">
-            <h2>The number associated with your laptop is <b><?php echo $_GET["tagnumber"]; ?></b></h2>
+            <h2>The number associated with this laptop is <b><?php echo $_GET["tagnumber"]; ?></b></h2>
         </div>
         <div class="page-content">
             <p>
