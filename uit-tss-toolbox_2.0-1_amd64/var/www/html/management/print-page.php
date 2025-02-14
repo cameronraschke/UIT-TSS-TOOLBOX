@@ -42,6 +42,10 @@
             .signature div {
                 display: inline-block;
             }
+            .customer-info {
+                font-size: 22px;
+                border-bottom: 1px solid black;
+            }
             .contact-info {
                 text-align: left;
             }
@@ -104,10 +108,22 @@
         </div>
         <div class="signature">
             <div>
-                <p>Customer Name: _________________________________________</p>
+                <?php
+                if ($_GET["customer_name"]) {
+                    echo "<p>Customer Name: <span class='customer-info' style='width: 10%'>" . htmlspecialchars($_GET["customer_name"]) . "</span></p>" . PHP_EOL;
+                } else {
+                    echo "<p>Customer Name: _________________________________________</p>" . PHP_EOL;
+                }
+                ?>
             </div>
             <div style="margin-left: 3%;">
-                <p>Checkout Date: ___________________</p>
+                <?php
+                if ($_GET["checkout_date"] !== "") {
+                    echo "<p>Checkout Date: <span class='customer-info'>" . htmlspecialchars($_GET["checkout_date"]) . "</span></p>" . PHP_EOL;
+                } else {
+                    echo "<p>Checkout Date: ___________________</p>" . PHP_EOL;
+                }
+                ?>
             </div>
         </div>
         <div class="signature">
