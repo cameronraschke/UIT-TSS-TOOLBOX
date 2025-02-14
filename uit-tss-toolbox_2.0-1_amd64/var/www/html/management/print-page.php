@@ -26,6 +26,11 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
       $serial = $value["system_serial"];
     }
   }
+
+  $customerName = htmlspecialchars_decode($_GET["customer_name"]);
+  $checkoutDate = htmlspecialchars_decode($_GET["checkout_date"]);
+  $customerPSID = htmlspecialchars_decode($_GET["customer_psid"]);
+  $returnDate = htmlspecialchars_decode($_GET["return_date"]);
 ?>
 
 <html>
@@ -38,7 +43,7 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
         margin: 0% 7% 7% 7%;
       }
       .uh-logo {
-        margin: 10% 0% 5% 0%;
+        margin: 5% 0% 5% 0%;
         max-width: 100%;
         max-height: 20%;
       }
@@ -70,6 +75,15 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
       }
       .signature div {
         display: inline-block;
+      }
+      .signature p {
+        display: table;
+      }
+      .signature span {
+        display: table-cell;
+        width: 100%;
+        border-bottom: 2px solid black;
+        text-align: center;
       }
       .customer-info {
         font-size: 22px;
@@ -140,31 +154,19 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
       </p>
     </div>
     <div class="signature">
-      <div>
-        <?php
-        if (strFilter($_GET["customer_name"]) === 0) {
-            echo "<p>Customer Name: <span class='customer-info' style='width: 10%'>" . htmlspecialchars($_GET["customer_name"]) . "</span></p>" . PHP_EOL;
-        } else {
-            echo "<p>Customer Name: _________________________________________</p>" . PHP_EOL;
-        }
-        ?>
+      <div style="width: 60%">
+        <p>Customer Name: <span><?php echo htmlspecialchars($customerName); ?></span></p>
       </div>
-      <div style="margin-left: 3%;">
-        <?php
-        if (strFilter($_GET["checkout_date"]) === 0) {
-            echo "<p>Checkout Date: <span class='customer-info'>" . htmlspecialchars($_GET["checkout_date"]) . "</span></p>" . PHP_EOL;
-        } else {
-            echo "<p>Checkout Date: ___________________</p>" . PHP_EOL;
-        }
-        ?>
+      <div style="width: 30%; margin-left: 3%;">
+        <p>Checkout Date: <span><?php echo htmlspecialchars($checkoutDate); ?></span></p>
       </div>
     </div>
     <div class="signature">
-      <div>
-        <p>Customer MyUH/Peoplesoft ID: ___________________________</p>
+      <div style="width: 45%">
+        <p>Customer MyUH/PSID: <span><?php echo htmlspecialchars($customerPSID); ?></span></p>
       </div>
-      <div style="margin-left: 3%;"> 
-        <p>Return Date: ______________________</p>
+      <div style="width: 45%; margin-left: 3%;">
+        <p>Return Date: <span><?php echo htmlspecialchars($returnDate); ?></span></p>
       </div>
     </div>
     <div class="contact-info">
