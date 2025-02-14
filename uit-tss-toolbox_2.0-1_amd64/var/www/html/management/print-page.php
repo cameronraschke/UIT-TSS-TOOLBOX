@@ -128,7 +128,7 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
     </div>
     <div class="page-content" style="border-bottom: 1px solid black;">
       <p>
-        When you eventually return this laptop back to our office, 
+        When you return this laptop back to our office, 
         we make sure that all of your data is completely and securely erased.
       </p>
     </div>
@@ -145,7 +145,8 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
             <li>I agree to follow all federal, state, and local laws as well as UH 
                 policies regarding proper usage of this laptop.
             <li>I agree to return this laptop, charger, and all other checked out accessories 
-                by the return date written below.
+                by the return date written below. UIT reserves the right to modify the return
+                date at any time.
             <li>I agree to treat this laptop with respect, to not modify the hardware 
                 of this laptop, and to reach out to UIT Support in case I have any questions or concerns 
                 (contact information below).
