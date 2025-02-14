@@ -72,7 +72,7 @@
             <p>
                 Please treat our laptops with respect. Many other UH community members 
                 will use these laptops after you, so we ask that you return this laptop 
-                in the same condition that you checked it out in.
+                in the same condition in which you received it.
             </p>
         </div>
         <div class="page-content">
