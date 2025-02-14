@@ -72,3 +72,5 @@ rsync -Pav --delete /home/cameron/google-charts /var/www/html/management/
 
 find /var/www/html/management/ -type f -exec chmod 644 {} \;
 find /var/www/html/management/ -type d -exec chmod 755 {} \;
+
+chmod 755 /var/www/html/management/bash/ -R
