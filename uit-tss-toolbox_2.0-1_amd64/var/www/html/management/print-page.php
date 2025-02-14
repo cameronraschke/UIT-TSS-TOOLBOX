@@ -56,7 +56,7 @@
             <img src="/images/uh-logo.png">
         </div>
         <div class="page-content">
-            <h1><b>Technology Services and Support - Laptop Checkout Program</b></h1>
+            <h1><b>University Information Technology (UIT) - Laptop Checkout Program</b></h1>
         </div>
         <div class="page-content">
             <p>
@@ -75,8 +75,9 @@
         </div>
         <div class="page-content">
             <p>
-                To login to the laptop, please make sure that the "Student" account 
-                is selected and enter the password "UHouston!" (without the quotes).
+                To login to the laptop, please use the following credentials:
+                <br>Username: <b><u>Student</u></b>
+                <br>Password: <b><u>UHouston!</u></b>
             </p>
         </div>
         <div class="page-content" style="border-bottom: 1px solid black;">
@@ -105,16 +106,16 @@
             <div>
                 <p>Customer Name: _________________________________________</p>
             </div>
-            <div style="margin-left: 7%;">
-                <p>Date: ___________________</p>
+            <div style="margin-left: 3%;">
+                <p>Checkout Date: ___________________</p>
             </div>
         </div>
         <div class="signature">
             <div>
-                <p>Representative Name: ____________________________________</p>
+                <p>Customer MyUH/Peoplesoft ID: ___________________________</p>
             </div>
-            <div style="margin-left: 7%;"> 
-                <p>Return Date: ________________</p>
+            <div style="margin-left: 3%;"> 
+                <p>Return Date: ______________________</p>
             </div>
         </div>
         <div class="contact-info">
