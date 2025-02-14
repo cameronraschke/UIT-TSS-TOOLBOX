@@ -5,7 +5,7 @@
                 font-family: sans-serif;
             }
             body {
-                margin: 7% 7% 7% 7%;
+                margin: 0% 7% 7% 7%;
             }
             .uh-logo {
                 margin: 10% 0% 5% 0%;
@@ -13,7 +13,6 @@
                 max-height: 20%;
             }
             .uh-logo img {
-                margin: 0% 0% 3% 0%;
                 max-width: 100%;
                 height: auto;
             }
