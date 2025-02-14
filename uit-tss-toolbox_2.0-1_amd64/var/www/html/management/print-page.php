@@ -70,22 +70,22 @@
         </div>
         <div class="page-content"> 
             <p>
-                Please treat our laptops with respect. Many others in the UH community 
-                will use these laptops after you. You are free to customize 
-                the software on this laptop as long as it will not impact the functionality of the laptop.
+                Please treat our laptops with respect. Many other UH community members 
+                will use these laptops after you, so we ask that you return this laptop 
+                in the same condition that you checked it out in.
             </p>
         </div>
         <div class="page-content">
             <p>
-                To login to the laptop, please use the following credentials:
+                To login to this laptop, please use the following credentials:
                 <br>Username: <b><u>Student</u></b>
                 <br>Password: <b><u>UHouston!</u></b>
             </p>
         </div>
         <div class="page-content" style="border-bottom: 1px solid black;">
             <p>
-                When you return this laptop to our office, 
-                we make sure your data is safely and securely erased.
+                When you eventually return this laptop back to our office, 
+                we make sure that all of your data is completely and securely erased.
             </p>
         </div>
         <div class="tagnumber">
@@ -97,13 +97,13 @@
                     By receiving this laptop as part of UIT's laptop checkout program, I
                     agree to the following: 
                     <ul>
-                        <li>I acknowledge that this computer is the property of the State of Texas.
+                        <li>I acknowledge that this laptop is the property of the State of Texas.
                         <li>I agree to follow all federal, state, and local laws as well as UH 
-                            policies regarding proper usage of this laptop. 
+                            policies regarding proper usage of this laptop.
                         <li>I agree to return this laptop, charger, and all other checked out accessories 
                             by the return date written below.
-                        <li>I agree to treat this computer with respect, to not modify the hardware 
-                            of the laptop, and to reach out to UIT Support in case I have any questions or concerns 
+                        <li>I agree to treat this laptop with respect, to not modify the hardware 
+                            of this laptop, and to reach out to UIT Support in case I have any questions or concerns 
                             (contact information below).
                     </ul>
                 </i>
