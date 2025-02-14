@@ -88,6 +88,11 @@ if (isset($_POST['serial'])) {
   }
   unset($biosBool);
   unset($osInstalled);
+
+  //Printing
+  if ($_POST["print"] == "1") {
+    System("/home/cameron/php/uit-create-pdf '" . $tagNum . "' '' '" . $date . "' '' ''");
+  }
   
   unset($_POST);
   header("Location: " . $_SERVER['REQUEST_URI']);
@@ -313,13 +318,20 @@ if (isset($_POST['serial'])) {
             echo "<option value='1'>Yes</option>" . PHP_EOL;
           }
           echo "</select></div>" . PHP_EOL;
-          echo "<br>" . PHP_EOL;
+          echo "<div display: inline-block;>" . PHP_EOL;
 
+          echo "<div>";
           if ($_POST["status"] === "1") {
             echo "<input style='background-color:rgba(200, 16, 47, 0.30);' class='page-content' type='submit' value='Update Location Data (Broken)'>" . PHP_EOL;
           } else {
             echo "<input style='background-color:rgba(0, 179, 136, 0.30);' class='page-content' type='submit' value='Update Location Data'>" . PHP_EOL;
           }
+          echo "</div>";
+          
+          echo "<div>";
+          echo "<label for='print'>Print Customer Form</label>";
+          echo "<input type='checkbox' id='print' name='print' value='1'>";
+          echo "</div>";
           echo "</form>" . PHP_EOL;
           echo "<div><a href='locations.php'>Update a different client.</a></div>" . PHP_EOL;
           echo "</div>";

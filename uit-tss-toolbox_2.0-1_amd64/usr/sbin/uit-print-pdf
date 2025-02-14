@@ -1,0 +1,11 @@
+#!/bin/bash
+
+tagnumber="$1"
+customer_name="$2"
+checkout_date="$3"
+customer_psid="$4"
+return_date="$5"
+
+wkhtmltopdf --quiet \
+    --page-size Letter \
+    "http://10.10.0.2:1411/print-page.php?tagnumber=${tagnumber}&customer_name=${customer_name}&checkout_date=${checkout_date}&customer_psid=${customer_psid}&return_date=${return_date}" - | lp -o page-ranges=1
