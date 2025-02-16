@@ -391,7 +391,7 @@ if (isset($_POST['serial'])) {
           <div class='page-content'><h2>Update Client Locations</h2></div>
           <div class='location-form'>
             <form method='post'>
-              <div><label for='tagnumber'>Enter tag number and status: </label></div>
+              <div><label for='tagnumber'>Enter a Tag Number: </label></div>
                 <input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>
               <button type='submit' value='Continue'>Continue</button>
             </form>
