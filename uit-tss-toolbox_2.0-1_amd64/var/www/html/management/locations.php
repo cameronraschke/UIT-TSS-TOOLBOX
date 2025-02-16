@@ -109,7 +109,7 @@ if (isset($_POST['serial'])) {
     }
     unset($value1);
 
-    System("bash /var/www/html/management/bash/uit-print-pdf" . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
+    System("bash /var/www/html/management/bash/uit-print-pdf" . " " . escapeshellarg("UHouston!") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
   }
   
   unset($_POST);

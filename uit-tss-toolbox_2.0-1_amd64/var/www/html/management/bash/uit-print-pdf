@@ -1,11 +1,16 @@
 #!/bin/bash
 
-tagnumber="$1"
-customer_name="$2"
-checkout_date="$3"
-customer_psid="$4"
-return_date="$5"
+if [[ $1 != "UHouston!" ]]; then
+exit 1;
+fi
+
+password="$1"
+tagnumber="$2"
+customer_name="$3"
+checkout_date="$4"
+customer_psid="$5"
+return_date="$6"
 
 wkhtmltopdf --quiet \
     --page-size Letter \
-    "http://10.10.0.2:1411/print-page.php?tagnumber=${tagnumber}&customer_name=${customer_name}&checkout_date=${checkout_date}&customer_psid=${customer_psid}&return_date=${return_date}" - | lp -o page-ranges=1
+    "http://10.10.0.2:1411/php/print-page.php?password=${password}tagnumber=${tagnumber}&customer_name=${customer_name}&checkout_date=${checkout_date}&customer_psid=${customer_psid}&return_date=${return_date}" - | lp -o page-ranges=1

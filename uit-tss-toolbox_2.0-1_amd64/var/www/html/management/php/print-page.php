@@ -1,6 +1,10 @@
 <?php
 include("/var/www/html/management/php/include.php");
 
+if ($_GET["password"] !== "UHouston!") {
+  exit();
+}
+
 $db = new db();
 
 $db->Pselect("SELECT t1.last_job_time,
