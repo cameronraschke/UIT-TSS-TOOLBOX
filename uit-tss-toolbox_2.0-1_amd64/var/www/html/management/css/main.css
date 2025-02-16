@@ -11,6 +11,10 @@ table {
 	border-width: 0;
 }
 
+button {
+	cursor:pointer;
+}
+
 .styled-form {
 	position: relative;
 	width: 95%;
@@ -227,36 +231,45 @@ table {
 
 .location-form {
 	background-color:rgb(233, 233, 233);
-	margin: 10px 10px 10px 10px;
-	padding: 10px 10px 10px 10px;
+	margin: 0.5em 0.5em 0.5em 0.5em;
+	padding: 0.5em 0.5em 0.5em 0.5em;
 }
 .location-form div {
-	padding: 10px 10px 10px 10px;
+	padding: 0.5em 0.5em 0.5em 0.5em;
 }
 .location-form input[type=text] {
-	padding: 10px 10px 10px 10px;
+	padding: 0.5em 0.5em 0.5em 0.5em;
 	border: 1px solid gray;
 }
 .location-form input[type=text]:focus {
 	border: 1px solid black;
 }
 .location-form input[type=submit] {
-	padding: 10px 10px 10px 10px;
+	padding: 0.5em 0.5em 0.5em 0.5em;
 	width: auto;
 }
 .location-form select {
 	text-align: center;
 	width: auto;
-	padding: 10px 10px 10px 10px;
+	padding: 0.5em 0.5em 0.5em 0.5em;
 }
 .location-form label {
 	width: auto;
-	padding: 10px 10px 10px 10px;
 }
 .location-form textarea {
-	width: 40%;
 	height: 10%;
-	padding: 10px 10px 10px 10px;
+	width: 100%;
+	padding: 0.5em 0.5em 0.5em 0.5em;
+}
+.location-form input[type=checkbox] {
+	padding: 0.5em 0.5em 0.5em 0.5em;
+}
+.location-form input[type=date] {
+	padding: 0.5em 0.5em 0.5em 0.5em;
+}
+.location-form button {
+	width: auto;
+	padding: 0.5em 0.5em 0.5em 0.5em;
 }
 
 .laptop-images img {
@@ -313,7 +326,7 @@ table {
 	clear: both;
 }
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 100em) {
 	.column {
 	  width: 100%;
   }
