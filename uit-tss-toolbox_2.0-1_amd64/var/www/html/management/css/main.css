@@ -326,7 +326,7 @@ button {
 	clear: both;
 }
 
-@media screen and (max-width: 100em) {
+@media screen and (max-width: 60em) {
 	.column {
 	  width: 100%;
   }
