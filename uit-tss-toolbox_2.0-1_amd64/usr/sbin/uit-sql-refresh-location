@@ -20,10 +20,10 @@ FROM jobstats
 LEFT JOIN
   (SELECT tagnumber, time, 
     (CASE
-      WHEN erase_completed = 1 AND clone_completed = 1 THEN '1'
-      WHEN erase_completed = 1 AND clone_completed IS NULL THEN '0'
-      WHEN erase_completed IS NULL AND clone_completed = 1 THEN '1'
-      ELSE '1'
+      WHEN erase_completed = 1 AND clone_completed = 1 THEN 'Yes'
+      WHEN erase_completed = 1 AND clone_completed IS NULL THEN 'No'
+      WHEN erase_completed IS NULL AND clone_completed = 1 THEN 'Yes'
+      ELSE 'Yes'
     END) AS 'os_installed'
     FROM jobstats
     WHERE time IN (SELECT MAX(time) FROM jobstats WHERE (erase_completed = 1 OR clone_completed = 1) AND NOT time LIKE '% 00:00:00.000' GROUP BY tagnumber) AND tagnumber IS NOT NULL) t1
@@ -45,8 +45,10 @@ foreach ($db->get() as $key => $value) {
   echo PHP_EOL;
   $timer->startMarker();
 
-  if (strFilter($value["os_installed"]) === 0) {
-    $db->updateLocation("os_installed", $value["os_installed"], $value["max_time"]);
+  if ($value["os_installed"] === "Yes") {
+    $db->updateLocation("os_installed", 1, $value["max_time"]);
+  } elseif ($value["os_installed"] === "No") {
+    $db->updateLocation("os_installed", 0, $value["max_time"]);
   } else {
     $db->updateLocation("os_installed", 1, $value["max_time"]);
   }
