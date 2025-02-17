@@ -15,7 +15,7 @@ $db = new db();
 $db->select("SELECT
 jobstats.tagnumber,
 t1.time AS 'last_job_time',
-t2.max_time, IF(t2.disk_removed = 1, NULL, t1.os_installed) AS 'os_installed'
+t2.max_time, IF(t2.disk_removed = 1, 'No', t1.os_installed) AS 'os_installed'
 FROM jobstats
 LEFT JOIN
   (SELECT tagnumber, time, 
