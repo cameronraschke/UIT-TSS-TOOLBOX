@@ -2,11 +2,6 @@
 require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
 
-if (isset($_POST['refresh-stats'])) {
-  include('/var/www/html/management/php/uit-sql-refresh-location');
-  unset($_POST["refresh-stats"]);
-}
-
 $db = new db();
 ?>
 
@@ -723,16 +718,6 @@ if (strFilter($_GET["location"]) === 0) {
     echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> queried clients are online.</h3></div>";
 }
 ?>
-
-
-    <div class='styled-form'>
-      <form method='post'>
-        <div>
-          <button type="submit">Refresh OS/BIOS Data</button>
-        </div>
-          <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
-      </form>  
-    </div>
 
     <div class='styled-form2'>
       <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">

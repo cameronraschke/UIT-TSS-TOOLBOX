@@ -2,12 +2,6 @@
 require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
 
-if (isset($_POST["refresh-stats"])) {
-    echo "<p>Updating Table...</p>";
-    include('/var/www/html/management/php/uit-sql-refresh-remote');
-    unset($_POST["refresh-stats"]);
-}
-
 $db = new db();
 
 // Job by location form
@@ -164,14 +158,6 @@ if (arrFilter($db->get()) === 0) {
 
 <div class='pagetitle'>
     <h3>Laptops Currently Present</h3>
-</div>
-<div class='styled-form'>
-    <form method='post'>
-        <div>
-            <button type="submit">Refresh Table</button>
-        </div>
-        <input type="hidden" id="refresh-stats" name="refresh-stats" value="refresh-stats" />
-    </form>
 </div>
         <div class='styled-table' style="width: auto; height:50%; overflow:auto; margin: 1% 1% 0% 1%;">
             <table id="myTable" width="100%">
