@@ -337,8 +337,13 @@ if (isset($_POST['serial'])) {
               echo "<div><label for='note'>Note (" . $value["note_time_formatted"] . ")</label></div>" . PHP_EOL;
               echo "<textarea id='note' name='note'>" . htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
             } else {
-              echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
-              echo "<textarea id='note' name='note' placeholder='(" . htmlspecialchars($value["note_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "): ". htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "'></textarea>" . PHP_EOL;
+              if (strFilter($value["note"]) === 0 && strFilter($value["note_time_formatted"]) === 0) {
+                echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
+                echo "<textarea id='note' name='note' placeholder='(Last note written at " . htmlspecialchars($value["note_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "): ". htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "'></textarea>" . PHP_EOL;
+              } else {
+                echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
+                echo "<textarea id='note' name='note' placeholder='Enter Note...'></textarea>" . PHP_EOL;
+              }
             }
           } else {
               echo "<textarea id='note' name='note'></textarea>" . PHP_EOL;
