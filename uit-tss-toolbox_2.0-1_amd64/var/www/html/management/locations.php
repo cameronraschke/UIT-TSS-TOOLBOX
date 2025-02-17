@@ -267,11 +267,20 @@ if (isset($_POST['serial'])) {
           echo "<div><label for='department'>Department</label></div>" . PHP_EOL;
           echo "<select name='department' id='department'>" . PHP_EOL;
           if ($tagDataExists === 1) {
-            echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>" . PHP_EOL;
-            $db->Pselect("SELECT department, department_readable 
-              FROM departments WHERE NOT department = :department", array(':department' => $value["department"]));
-            foreach ($db->get() as $key => $value1) {
-              echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
+            if (strFilter($value["department"]) === 0) {
+              echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>" . PHP_EOL;
+              $db->Pselect("SELECT department, department_readable 
+                FROM departments WHERE NOT department = :department", array(':department' => $value["department"]));
+              foreach ($db->get() as $key => $value1) {
+                echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
+              }
+            } else {
+              echo "<option value=''>--Please Select--</option>";
+              $db->select("SELECT department, department_readable FROM departments");
+              foreach ($db->get() as $key => $value1) {
+                echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
+              }
+              unset($value1);
             }
             unset($value1);
           } else {
