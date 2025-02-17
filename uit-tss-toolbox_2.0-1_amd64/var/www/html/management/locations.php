@@ -653,11 +653,11 @@ if (arrFilter($db->get()) === 0) {
           <div class="dense-column">
             <p>Device Lost?</p>
             <div class="column">
-              <div><label for="lost_yes">Yes</label></div>
+              <label for="lost_yes">Yes</label>
               <input type="radio" id="lost_yes" name="lost" value="1">
             </div>
             <div class="column">
-              <div><label for="lost_no">No</label></div>
+              <label for="lost_no">No</label>
               <input type="radio" id="lost_no" name="lost" value="0">
             </div>
           </div>
@@ -665,11 +665,11 @@ if (arrFilter($db->get()) === 0) {
           <div class="dense-column">
             <p>Device Broken?</p>
             <div class="column">
-              <div><label for="broken_yes">Yes</label></div>
+              <label for="broken_yes">Yes</label>
               <input type="radio" id="broken_yes" name="broken" value="1">
             </div>
             <div class="column">
-              <div><label for="broken_no">No</label></div>
+              <label for="broken_no">No</label>
               <input type="radio" id="broken_no" name="broken" value="0">
             </div>
           </div>
@@ -679,11 +679,11 @@ if (arrFilter($db->get()) === 0) {
           <div class="dense-column">
             <p>Disk Removed?</p>
             <div class="column">
-              <div><label for="disk_removed_yes">Yes</label></div>
+              <label for="disk_removed_yes">Yes</label>
               <input type="radio" id="disk_removed_yes" name="disk_removed" value="1">
             </div>
             <div class="column">
-              <div><label for="disk_removed_no">No</label></div>
+              <label for="disk_removed_no">No</label>
               <input type="radio" id="disk_removed_no" name="disk_removed" value="0">
             </div>
           </div>
@@ -691,11 +691,11 @@ if (arrFilter($db->get()) === 0) {
           <div class="dense-column">
               <p>OS Installed?</p>
             <div class="column">
-              <div><label for="os_installed_yes">Yes</label></div>
+              <label for="os_installed_yes">Yes</label>
               <input type="radio" id="os_installed_yes" name="os_installed" value="1">
             </div>
             <div class="column">
-              <div><label for="os_installed_no">No</label></div>
+              <label for="os_installed_no">No</label>
               <input type="radio" id="os_installed_no" name="os_installed" value="0">
             </div>
           </div>
