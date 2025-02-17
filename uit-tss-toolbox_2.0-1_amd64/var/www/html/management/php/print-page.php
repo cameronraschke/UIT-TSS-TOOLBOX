@@ -148,7 +148,7 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
             <li>I acknowledge that this laptop is the property of the State of Texas.
             <li>I agree to follow all federal, state, and local laws as well as UH 
                 policies regarding proper usage of this laptop.
-            <li>I agree to return this laptop, charger, and all other checked out accessories 
+            <li>I agree to return this laptop, charger, and any other checked out accessories 
                 by the return date written below. UIT reserves the right to modify the return
                 date at any time.
             <li>I agree to treat this laptop with respect, to not modify the hardware 
