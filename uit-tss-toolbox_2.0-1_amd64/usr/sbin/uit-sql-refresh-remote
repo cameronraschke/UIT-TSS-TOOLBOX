@@ -55,10 +55,13 @@ foreach ($db->get() as $key => $value) {
   $timer->startMarker();
 
   # If tagnumber does not exist in the remote table, insert it.
-  $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
+  $db->select("SELECT tagnumber FROM jobstats GROUP BY tagnumber")
+  foreach ($db->get() as $key => $value1) {
+    $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $value1["tagnumber"]));
     if (is_array($db->get()) === FALSE) {
-      $db->insertRemote($value["tagnumber"]);
+      $db->insertRemote($value1["tagnumber"]);
     }
+  }
 
   // Update presence
   $db->updateRemote($value["tagnumber"], "present_bool", $value["present_bool"]);
