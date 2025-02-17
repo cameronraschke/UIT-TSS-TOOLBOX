@@ -14,28 +14,30 @@ $db = new db();
 # Iterate through distinct tagnumbers from jobstats with techComm UUIDs
 $db->select("SELECT
 jobstats.tagnumber,
-t2.time AS 'max_time',
-(CASE
-    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed = 1 THEN '1'
-    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN '0'
-    WHEN jobstats.erase_completed IS NULL AND jobstats.clone_completed = 1 THEN '1'
-    ELSE '1'
-  END) AS 'os_installed'
+t1.time AS 'last_job_time',
+t2.max_time, t1.os_installed
 FROM jobstats
-INNER JOIN locations ON locations.tagnumber = jobstats.tagnumber
-INNER JOIN
-  (SELECT
-    IF(SUBSTRING(MAX(time), 12, 24) = '00:00:00.000', NULL, MAX(time)) AS 'max_time'
+LEFT JOIN
+  (SELECT tagnumber, time, 
+    (CASE
+      WHEN erase_completed = 1 AND clone_completed = 1 THEN '1'
+      WHEN erase_completed = 1 AND clone_completed IS NULL THEN '0'
+      WHEN erase_completed IS NULL AND clone_completed = 1 THEN '1'
+      ELSE '1'
+    END) AS 'os_installed'
     FROM jobstats
-    WHERE (erase_completed = 1 OR clone_completed = 1)
-    GROUP BY tagnumber) t1
-  ON t1.max_time = jobstats.time
+    WHERE time IN (SELECT MAX(time) FROM jobstats WHERE (erase_completed = 1 OR clone_completed = 1) AND NOT time LIKE '% 00:00:00.000' GROUP BY tagnumber) AND tagnumber IS NOT NULL) t1
+  ON jobstats.tagnumber = t1.tagnumber
+LEFT JOIN
+  (SELECT tagnumber, IF(SUBSTRING(MAX(time), 12, 24) = '00:00:00.000', NULL, MAX(time)) AS 'max_time'
+    FROM locations
+    GROUP BY tagnumber) t2
+  ON jobstats.tagnumber = t2.tagnumber
 INNER JOIN
-  (SELECT time,
-    ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count'
-    FROM locations) t2
-  ON t2.time = locations.time
-WHERE t2.row_count = 1");
+  (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM jobstats) t3
+  ON jobstats.time = t3.time
+  WHERE t3.row_count = 1 
+  AND jobstats.tagnumber IS NOT NULL");
   
 foreach ($db->get() as $key => $value) {
 

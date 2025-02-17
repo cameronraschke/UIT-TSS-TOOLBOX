@@ -40,6 +40,8 @@ if (isset($_POST['serial'])) {
         $osInstalled = 1;
       }
     }
+  } else {
+    $osInstalled = 1;
   }
   unset($value1);
   
