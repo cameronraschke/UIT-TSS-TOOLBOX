@@ -15,7 +15,7 @@ $db = new db();
 $db->select("SELECT
 jobstats.tagnumber,
 t1.time AS 'last_job_time',
-t2.max_time, t1.os_installed
+t2.max_time, IF(t2.disk_removed = 1, NULL, t1.os_installed) AS 'os_installed'
 FROM jobstats
 LEFT JOIN
   (SELECT tagnumber, time, 
@@ -29,9 +29,9 @@ LEFT JOIN
     WHERE time IN (SELECT MAX(time) FROM jobstats WHERE (erase_completed = 1 OR clone_completed = 1) AND NOT time LIKE '% 00:00:00.000' GROUP BY tagnumber) AND tagnumber IS NOT NULL) t1
   ON jobstats.tagnumber = t1.tagnumber
 LEFT JOIN
-  (SELECT tagnumber, IF(SUBSTRING(MAX(time), 12, 24) = '00:00:00.000', NULL, MAX(time)) AS 'max_time'
+  (SELECT disk_removed, tagnumber, time AS 'max_time'
     FROM locations
-    GROUP BY tagnumber) t2
+    WHERE time IN (SELECT MAX(time) FROM locations WHERE NOT time LIKE '% 00:00:00.000' GROUP BY tagnumber) AND tagnumber IS NOT NULL) t2
   ON jobstats.tagnumber = t2.tagnumber
 INNER JOIN
   (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM jobstats) t3
