@@ -120,7 +120,7 @@ function remote {
 }
 
 function department {
-	sqlDepartment=$(echo "SELECT department AS result FROM jobstats WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	sqlDepartment=$(echo "SELECT department AS result FROM departments WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 }
 
 DATE=$(date --iso)
@@ -434,7 +434,7 @@ function enterTag {
 	tput reset
 	echo ""
 
-	tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	tagNum=$(echo "SELECT tagnumber AS result FROM departments WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	if [[ $tagNum != "NULL" ]]; then
 		UUID=""
 		if [[ $sqlDepartment == "shrl" ]]; then
@@ -451,7 +451,7 @@ function enterTag {
 		fi
 
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "general|department|${department}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
 	else
 		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
@@ -475,7 +475,7 @@ function enterTag {
 		UUID=$(echo -n "newEntry-"; cat /proc/sys/kernel/random/uuid)
 
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "general|department|${department}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "location|custom|${tagNum}|${tOneSerialNumber}|new entry|0|" | /var/lib/UIT-TSS-TOOLBOX/parse
 		department
 		enterTag
@@ -1702,7 +1702,7 @@ function terminate {
 	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = '1' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = '1' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 	imgUpdate=${imgUpdate::10}
 
 	cloneNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = '1' AND time > '${DATE} 00:00:00.000'" | /var/lib/UIT-TSS-TOOLBOX/select)

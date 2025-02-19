@@ -199,7 +199,7 @@ if (isset($_POST['serial'])) {
         $formSql = "SELECT 
           jobstats.system_serial, locations.location, 
           DATE_FORMAT(locations.time, '%b %D %Y, %r') AS 'time_formatted', 
-          jobstats.department, locations.disk_removed, locations.status, t3.note, t4.department_readable, 
+          t5.department, locations.disk_removed, locations.status, t3.note, t4.department_readable, 
           DATE_FORMAT(t3.time, '%b %D %Y, %r') AS 'note_time_formatted'
           FROM locations 
           INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber 
@@ -210,7 +210,9 @@ if (isset($_POST['serial'])) {
           LEFT JOIN (SELECT tagnumber, time, note, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations WHERE note IS NOT NULL) t3 
             ON t3.tagnumber = locations.tagnumber
           LEFT JOIN (SELECT department, department_readable FROM static_departments) t4 
-            ON t4.department = jobstats.department
+            ON t4.department = t5.department
+          LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber)) t5
+            ON locations.tagnumber = t5.tagnumber
           WHERE t1.row_count = 1 AND t2.row_count = 1 AND (t3.row_count = 1 OR t3.row_count IS NULL)
             AND jobstats.tagnumber = :tagnumberJob AND locations.tagnumber = :tagnumberLoc";
         
@@ -426,13 +428,7 @@ $sqlArr = array();
 $rowCount = 0;
 $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, locations.location,
-  (CASE 
-    WHEN jobstats.department = 'techComm' THEN 'Tech Commons (TSS)'
-    WHEN jobstats.department = 'property' THEN 'Property'
-    WHEN jobstats.department = 'shrl' THEN 'SHRL'
-    WHEN jobstats.department = 'execSupport' THEN 'Exec Support'
-    ELSE '' 
-  END) AS 'department_formatted', jobstats.department,
+  t2.department_readable AS 'department_formatted', t1.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Working', 'Broken') AS 'status',
   IF (locations.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', locations.os_installed,
   IF (locations.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', locations.bios_updated,
@@ -441,6 +437,10 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   FROM locations
   INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
   INNER JOIN remote ON remote.tagnumber = locations.tagnumber
+  LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber)) t1
+  ON locations.tagnumber = t1.tagnumber
+  INNER JOIN (SELECT department, department_readable FROM static_departments) t2
+  ON t1.department = t2.department
   LEFT JOIN system_data ON system_data.tagnumber = locations.tagnumber
   WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
   AND locations.time in (select MAX(time) from locations group by tagnumber)
@@ -460,10 +460,10 @@ if (strFilter($_GET["location"]) === 0) {
 // department filter
 if (strFilter($_GET["department"]) === 0) {
   if ($_GET["not-department"] == "1") {
-    $sql .= "AND NOT jobstats.department = :department ";
+    $sql .= "AND NOT departments.department = :department ";
     $sqlArr[":department"] = $_GET["department"];
   } else {
-    $sql .= "AND jobstats.department = :department ";
+    $sql .= "AND departments.department = :department ";
     $sqlArr[":department"] = $_GET["department"];
   }
 }
