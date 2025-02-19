@@ -25,6 +25,12 @@ if (isset($_POST['serial'])) {
   $db->updateJob ("date", $date, $uuid);
   $db->updateJob ("time", $time, $uuid);
   $db->updateJob ("department", $department, $uuid);
+
+  // Insert department data
+  $db->insertDepartments($time);
+  $db->updateDepartments("tagnumber", $tagNum, $time);
+  $db->updateDepartments("system_serial", $serial, $time);
+  $db->updateDepartments("department", $department, $time);
   
   // See if OS is installed
   $db->Pselect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1", array(':tagnumber' => $tagNum));
@@ -203,7 +209,7 @@ if (isset($_POST['serial'])) {
             ON t2.time = jobstats.time 
           LEFT JOIN (SELECT tagnumber, time, note, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations WHERE note IS NOT NULL) t3 
             ON t3.tagnumber = locations.tagnumber
-          LEFT JOIN (SELECT department, department_readable FROM departments) t4 
+          LEFT JOIN (SELECT department, department_readable FROM static_departments) t4 
             ON t4.department = jobstats.department
           WHERE t1.row_count = 1 AND t2.row_count = 1 AND (t3.row_count = 1 OR t3.row_count IS NULL)
             AND jobstats.tagnumber = :tagnumberJob AND locations.tagnumber = :tagnumberLoc";
@@ -270,13 +276,13 @@ if (isset($_POST['serial'])) {
             if (strFilter($value["department"]) === 0) {
               echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>" . PHP_EOL;
               $db->Pselect("SELECT department, department_readable 
-                FROM departments WHERE NOT department = :department", array(':department' => $value["department"]));
+                FROM static_departments WHERE NOT department = :department", array(':department' => $value["department"]));
               foreach ($db->get() as $key => $value1) {
                 echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
               }
             } else {
               echo "<option value=''>--Please Select--</option>";
-              $db->select("SELECT department, department_readable FROM departments");
+              $db->select("SELECT department, department_readable FROM static_departments");
               foreach ($db->get() as $key => $value1) {
                 echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
               }
@@ -285,7 +291,7 @@ if (isset($_POST['serial'])) {
             unset($value1);
           } else {
             echo "<option value=''>--Please Select--</option>";
-            $db->select("SELECT department, department_readable FROM departments");
+            $db->select("SELECT department, department_readable FROM static_departments");
             foreach ($db->get() as $key => $value1) {
               echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
             }
@@ -596,7 +602,7 @@ if (arrFilter($db->get()) === 0) {
             <select id="department" name="department">
             <option value=''>--Filter By Department--</option>
               <?php
-              $db->select("SELECT department, department_readable, owner, department_bool FROM departments ORDER BY department ASC");
+              $db->select("SELECT department, department_readable, owner, department_bool FROM static_departments ORDER BY department ASC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
                   $db->Pselect("SELECT COUNT(tagnumber) AS 'department_rows' FROM jobstats WHERE department = :department AND time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)", array(':department' => $value1["department"]));

@@ -124,6 +124,7 @@ CREATE TABLE IF NOT EXISTS locations (
     tagnumber VARCHAR(8) DEFAULT NULL,
     system_serial VARCHAR(24) DEFAULT NULL,
     location VARCHAR(128) DEFAULT NULL,
+    status BOOLEAN DEFAULT NULL,
     disk_removed BOOLEAN DEFAULT NULL,
     os_installed BOOLEAN DEFAULT NULL,
     bios_updated BOOLEAN DEFAULT NULL,
@@ -353,7 +354,7 @@ INSERT INTO bitlocker
 ('727014', '0761161E-23A5-461B-822D-6D795B7253DB', '100870-342463-572495-557854-219527-118217-661925-117348')
 ;
 
-DROP TABLE IF EXISTS departments;
+DROP TABLE IF EXISTS static_departments;
 CREATE TABLE IF NOT EXISTS departments (
   department VARCHAR(128) NOT NULL PRIMARY KEY,
   department_readable VARCHAR(128) NOT NULL,
@@ -361,7 +362,7 @@ CREATE TABLE IF NOT EXISTS departments (
   department_bool BOOLEAN NOT NULL DEFAULT 0
 );
 
-INSERT INTO departments (
+INSERT INTO static_departments (
   department,
   department_readable,
   owner,
@@ -372,3 +373,20 @@ INSERT INTO departments (
   ('shrl', 'SHRL', 'Alex', 1),
   ('property', 'Property', 'Unknown', 0)
 ;
+
+-- Departments table --
+CREATE TABLE IF NOT EXISTS departments (
+    time DATETIME(3) NOT NULL PRIMARY KEY,
+    tagnumber VARCHAR(8) NOT NULL,
+    system_serial VARCHAR(24) DEFAULT NULL,
+    department VARCHAR(32) DEFAULT NULL,
+    subdepartment VARCHAR(64) DEFAULT NULL
+);
+
+ALTER TABLE departments
+    DROP PRIMARY KEY
+    MODIFY COLUMN time DATETIME(3) NOT NULL PRIMARY KEY FIRST,
+    MODIFY COLUMN tagnumber VARCHAR(8) DEFAULT NULL AFTER time,
+    MODIFY COLUMN system_serial VARCHAR(24) DEFAULT NULL AFTER tagnumber,
+    MODIFY COLUMN department VARCHAR(32) DEFAULT NULL AFTER system_serial,
+    MODIFY COLUMN subdepartment VARCHAR(64) DEFAULT NULL AFTER department;

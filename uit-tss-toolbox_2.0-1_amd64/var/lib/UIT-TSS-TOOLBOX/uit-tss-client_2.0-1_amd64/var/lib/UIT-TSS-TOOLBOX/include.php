@@ -432,4 +432,50 @@ class db {
     }
 }
 
+
+    // Location table
+    public function insertDepartments ($time) {
+        if (strFilter($time) == 0) {
+            $db = new MySQLConn();
+            $this->pdo = $db->dbObj();
+            $sql = "INSERT INTO departments (time) VALUES (:time)";
+            $stmt = $this->pdo->prepare($sql);
+    
+            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+    
+            if (strFilter($stmt) == 0) {
+                $stmt->execute();
+            }
+        }
+    }
+    
+    public function updateDepartments ($key, $value, $time) {
+        if (strFilter($key) == 0 && strFilter($time) == 0) {
+            $db = new MySQLConn();
+            $this->pdo = $db->dbObj();
+            $sql = "UPDATE locations SET $key = :value WHERE time = :time";
+            $stmt = $this->pdo->prepare($sql);
+    
+            if (strFilter($value) == 0) {
+                if ($value == "TRUE") {
+                    $value = "0";
+                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+                } elseif ($value == "FALSE") {
+                    $value = "1";
+                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+                }
+                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+            } else {
+                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+            }
+    
+            if (strFilter($stmt) == 0) {
+                $stmt->execute();
+            }
+        }
+    }
 ?>
