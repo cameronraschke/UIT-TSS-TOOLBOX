@@ -451,7 +451,7 @@ class db {
         if (strFilter($key) == 0 && strFilter($time) == 0) {
             $db = new MySQLConn();
             $this->pdo = $db->dbObj();
-            $sql = "UPDATE locations SET $key = :value WHERE time = :time";
+            $sql = "UPDATE departments SET $key = :value WHERE time = :time";
             $stmt = $this->pdo->prepare($sql);
     
             if (strFilter($value) == 0) {
