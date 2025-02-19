@@ -430,10 +430,8 @@ class db {
             }
         }
     }
-}
 
-
-    // Location table
+    // Departments table
     public function insertDepartments ($time) {
         if (strFilter($time) == 0) {
             $db = new MySQLConn();
@@ -478,4 +476,8 @@ class db {
             }
         }
     }
+}
+
+
+
 ?>
