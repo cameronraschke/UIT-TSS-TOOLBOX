@@ -355,7 +355,7 @@ INSERT INTO bitlocker
 ;
 
 DROP TABLE IF EXISTS static_departments;
-CREATE TABLE IF NOT EXISTS departments (
+CREATE TABLE IF NOT EXISTS static_departments (
   department VARCHAR(128) NOT NULL PRIMARY KEY,
   department_readable VARCHAR(128) NOT NULL,
   owner VARCHAR(128) NOT NULL,
