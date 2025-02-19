@@ -28,7 +28,12 @@ if (isset($_POST['department'])) {
     $db->updateJob("system_serial", $serial, $uuid);
     $db->updateJob ("date", $date, $uuid);
     $db->updateJob ("time", $time, $uuid);
-    $db->updateJob ("department", $department, $uuid);
+
+    // Insert department data
+    $db->insertDepartments($time);
+    $db->updateDepartments("tagnumber", $tagNum, $time);
+    $db->updateDepartments("system_serial", $serial, $time);
+    $db->updateDepartments("department", $department, $time);
 
 
     $db->Pselect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
