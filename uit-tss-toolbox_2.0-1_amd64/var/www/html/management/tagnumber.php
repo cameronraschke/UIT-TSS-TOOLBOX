@@ -367,7 +367,7 @@ if (isset($_GET["tagnumber"])) {
   if (strFilter($value["department"]) === 1) {
     echo "<option value=''>--Please Select--</option>";
   } else {
-    $db->Pselect("SELECT department FROM static_deparments WHERE NOT department = :department", array(':department' => $value["department"]));
+    $db->Pselect("SELECT department FROM static_departments WHERE NOT department = :department", array(':department' => $value["department"]));
     if (arrFilter($db->get()) === 0) {
       echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>";
       foreach ($db->get() as $key => $value1) {
