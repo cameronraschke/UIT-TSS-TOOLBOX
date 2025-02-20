@@ -13,11 +13,11 @@ SELECT jobstats.tagnumber, jobstats.system_serial, t1.department,
   clientstats.battery_health, clientstats.disk_health
 FROM jobstats
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
-INNER JOIN locations ON jobstats.tagnumber = locations.tagnumber
+LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
 LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
 LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE tagnumber IS NOT NULL GROUP BY tagnumber)) t1 
   ON jobstats.tagnumber = t1.tagnumber
-INNER JOIN (SELECT department, department_readable FROM static_departments) t2
+LEFT JOIN (SELECT department, department_readable FROM static_departments) t2
   ON t1.department = t2.department
 LEFT JOIN (SELECT tagnumber, time, note FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE note IS NOT NULL GROUP BY tagnumber)) t3
   ON jobstats.tagnumber = t3.tagnumber
@@ -27,9 +27,13 @@ LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5
   ON jobstats.tagnumber = t5.tagnumber
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
   ON jobstats.tagnumber = t8.tagnumber
+INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t9
+  ON jobstats.time = t9.time
+INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
+  ON locations.time = t10.time
 WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
-AND locations.time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber)
-AND jobstats.time IN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber)
+
+
 GROUP BY tagnumber
 
 
