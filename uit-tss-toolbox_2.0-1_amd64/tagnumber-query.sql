@@ -1,4 +1,5 @@
-SELECT jobstats.tagnumber, jobstats.system_serial, t1.department, 
+SELECT DATE_FORMAT(t10.time, '%b %D %Y, %r') AS 'time_formatted', locations.status, 
+  t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
   locations.location, locations.status, t2.department_readable, 
   t3.note, DATE_FORMAT(t3.time, '%b %D %Y, %r') AS 'note_time_formatted', 
   locations.disk_removed, 
@@ -9,9 +10,11 @@ SELECT jobstats.tagnumber, jobstats.system_serial, t1.department,
   jobstats.ram_capacity, jobstats.ram_speed, 
   t4.disk_model, t4.disk_size, t4.disk_type,
   t5.identifier, t5.recovery_key, 
-  
-  clientstats.battery_health, clientstats.disk_health
+  clientstats.battery_health, clientstats.disk_health, 
+  DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'time_formatted', remote.status, remote.present_bool, 
+  remote.kernel_updated, remote.bios_updated, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted'
 FROM jobstats
+LEFT JOIN remote ON jobstats.tagnumber = remote.tagnumber
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
 LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
@@ -34,17 +37,22 @@ INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NUL
 WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
 
 
-GROUP BY tagnumber
+GROUP BY jobstats.tagnumber
 
 
-SELECT AVG(t6.erase_time) AS 'erase_avgtime', AVG(t7.clone_time) AS 'clone_avgtime'
-FROM jobstats
+  t6.erase_time AS 'erase_avgtime', t7.clone_time AS 'clone_avgtime', 
+
+
 LEFT JOIN (SELECT tagnumber, erase_time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM jobstats WHERE erase_time IS NOT NULL) t6
   ON jobstats.tagnumber = t6.tagnumber
 LEFT JOIN (SELECT tagnumber, clone_time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM jobstats WHERE clone_time IS NOT NULL) t7
   ON jobstats.tagnumber = t7.tagnumber
+WHERE t6.row_count <= 1 AND t7.row_count <= 1
+SELECT
+FROM jobstats
 WHERE
-t6.row_count <= 3 AND t7.tagnumber <= 3
+
+GROUP BY jobstats.tagnumber
 
 
 
