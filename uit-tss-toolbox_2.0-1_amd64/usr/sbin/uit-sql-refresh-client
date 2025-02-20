@@ -125,9 +125,7 @@ foreach ($db->get() as $key => $value) {
   # Update the time of the last job (assumed techComm UUIDs because of the iterated values) and the time of the last job.
   $db->select("SELECT time AS 'result'
     FROM jobstats
-    INNER JOIN departments ON jobstats.department = departments.department
     WHERE tagnumber = '" . $value["tagnumber"] . "'
-    AND departments.department_bool = 1
     AND (erase_completed = 1 OR clone_completed = 1)
     AND jobstats.tagnumber IS NOT NULL
     ORDER BY time DESC

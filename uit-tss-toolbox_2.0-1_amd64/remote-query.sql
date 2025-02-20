@@ -13,7 +13,7 @@ SELECT jobstats.tagnumber, jobstats.system_serial, t1.department,
   clientstats.battery_health, clientstats.disk_health
 FROM jobstats
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
-LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
+INNER JOIN locations ON jobstats.tagnumber = locations.tagnumber
 LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
 LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE tagnumber IS NOT NULL GROUP BY tagnumber)) t1 
   ON jobstats.tagnumber = t1.tagnumber
