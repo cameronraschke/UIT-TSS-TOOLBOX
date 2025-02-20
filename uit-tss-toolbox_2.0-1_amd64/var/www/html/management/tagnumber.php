@@ -242,7 +242,7 @@ unset($_POST);
   t4.disk_model, t4.disk_size, t4.disk_type,
   t5.identifier, t5.recovery_key, 
   clientstats.battery_health, clientstats.disk_health, 
-  DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'remote_time_formatted', remote.status AS 'remoteStatus', remote.present_bool, 
+  DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
   remote.kernel_updated, remote.bios_updated, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted'
 FROM jobstats
 LEFT JOIN remote ON jobstats.tagnumber = remote.tagnumber
@@ -301,7 +301,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-        if (($value["remoteStatus"] !== "Waiting for job" || strFilter($value["task"]) === 0) && $value["present_bool"] === 1) {
+        if (($value["remote_status"] !== "Waiting for job" || strFilter($value["task"]) === 0) && $value["present_bool"] === 1) {
           echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|cancel'>Cancel Running Job</option>";
         } else {
           echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
@@ -338,8 +338,8 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
         echo "Unknown <span>&#9940;&#65039;</span>";
       }
 
-      if (strFilter($value["status"]) === 0) {
-          echo "<p><b>'" . htmlspecialchars($value["remoteStatus"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
+      if (strFilter($value["remote_status"]) === 0) {
+          echo "<p><b>'" . htmlspecialchars($value["remote_status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
       }
     }
   }
