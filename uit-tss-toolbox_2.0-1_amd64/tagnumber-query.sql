@@ -45,3 +45,7 @@ LEFT JOIN (SELECT tagnumber, clone_time, ROW_NUMBER() OVER(PARTITION BY tagnumbe
   ON jobstats.tagnumber = t7.tagnumber
 WHERE
 t6.row_count <= 3 AND t7.tagnumber <= 3
+
+
+
+--Issue uuid = 'techComm-73bfd5e4-adf7-46ab-a420-199e99399f16'
