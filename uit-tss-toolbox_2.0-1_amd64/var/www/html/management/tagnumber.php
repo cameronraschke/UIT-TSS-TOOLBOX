@@ -229,7 +229,7 @@ unset($_POST);
   <?php
   // Get most client data - main sql query
   unset($sql);
-  $sql = "SELECT DATE_FORMAT(t10.time, '%b %D %Y, %r') AS 'time_formatted', locations.status, 
+  $sql = "SELECT DATE_FORMAT(t10.time, '%b %D %Y, %r') AS 'location_time_formatted',
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
   locations.location, locations.status, t2.department_readable, 
   t3.note, DATE_FORMAT(t3.time, '%b %D %Y, %r') AS 'note_time_formatted', 
@@ -242,7 +242,7 @@ unset($_POST);
   t4.disk_model, t4.disk_size, t4.disk_type,
   t5.identifier, t5.recovery_key, 
   clientstats.battery_health, clientstats.disk_health, 
-  DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'time_formatted', remote.status, remote.present_bool, 
+  DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'remote_time_formatted', remote.status AS 'remoteStatus', remote.present_bool, 
   remote.kernel_updated, remote.bios_updated, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted'
 FROM jobstats
 LEFT JOIN remote ON jobstats.tagnumber = remote.tagnumber
@@ -301,7 +301,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-        if (($value["status"] !== "Waiting for job" || strFilter($value["task"]) === 0) && $value["present_bool"] === 1) {
+        if (($value["remoteStatus"] !== "Waiting for job" || strFilter($value["task"]) === 0) && $value["present_bool"] === 1) {
           echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|cancel'>Cancel Running Job</option>";
         } else {
           echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
@@ -339,7 +339,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
       }
 
       if (strFilter($value["status"]) === 0) {
-          echo "<p><b>'" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
+          echo "<p><b>'" . htmlspecialchars($value["remoteStatus"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
       }
     }
   }
@@ -367,7 +367,7 @@ if (isset($_GET["tagnumber"])) {
   if (strFilter($value["department"]) === 1) {
     echo "<option value=''>--Please Select--</option>";
   } else {
-    $db->Pselect("SELECT department FROM static_departments WHERE NOT department = :department", array(':department' => $value["department"]));
+    $db->Pselect("SELECT department, department_readable FROM static_departments WHERE NOT department = :department", array(':department' => $value["department"]));
     if (arrFilter($db->get()) === 0) {
       echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>";
       foreach ($db->get() as $key => $value1) {
@@ -378,7 +378,7 @@ if (isset($_GET["tagnumber"])) {
   echo "</select></div>" . PHP_EOL;
   // location
     if (strFilter($value["location"]) === 0) {
-        echo "<div><label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
+        echo "<div><label for='location'>Location (Last Updated: " . htmlspecialchars($value["location_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
         echo "<div><input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' required style='width: 50%; height: 4%;'></div>" . PHP_EOL;
     } else {
         echo "<div><label for='location'>Location</label></div>" . PHP_EOL;
@@ -422,12 +422,12 @@ if (isset($_GET["tagnumber"])) {
       echo "<div style='float: right;'>" . PHP_EOL;
       echo "<div><label for='status'>Working or Broken?</label></div>" . PHP_EOL;
       echo "<div><select name='status' id='status'>" . PHP_EOL;
-      if ($value["status"] !== 1) {
-        echo "<option value='0'>Working</option>" . PHP_EOL;
+      if ($value["status"] === 1) {
         echo "<option value='1'>Broken</option>" . PHP_EOL;
+        echo "<option value='0'>Working</option>" . PHP_EOL;
       } else {
-        echo "<option value='1'>Broken</option>" . PHP_EOL;
         echo "<option value='0'>Working</option>" . PHP_EOL;
+        echo "<option value='1'>Broken</option>" . PHP_EOL;
       }
         echo "</select></div>" . PHP_EOL;
         echo "</div>" . PHP_EOL;

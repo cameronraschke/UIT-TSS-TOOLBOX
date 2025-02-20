@@ -1,4 +1,4 @@
-SELECT DATE_FORMAT(t10.time, '%b %D %Y, %r') AS 'time_formatted', locations.status, 
+SELECT DATE_FORMAT(t10.time, '%b %D %Y, %r') AS 'time_formatted',
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
   locations.location, locations.status, t2.department_readable, 
   t3.note, DATE_FORMAT(t3.time, '%b %D %Y, %r') AS 'note_time_formatted', 
