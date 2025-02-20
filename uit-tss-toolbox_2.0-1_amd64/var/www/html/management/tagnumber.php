@@ -60,7 +60,6 @@ if (isset($_POST['department'])) {
       }
     }
   }
-}
     unset($value2);
     unset($value5);
 
@@ -370,9 +369,9 @@ if (isset($_GET["tagnumber"])) {
   } else {
     $db->Pselect("SELECT department FROM static_deparments WHERE NOT department = :department", array(':department' => $value["department"]));
     if (arrFilter($db->get()) === 0) {
-      echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>"
+      echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>";
       foreach ($db->get() as $key => $value1) {
-        echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>"
+        echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
       }
     }
   }
