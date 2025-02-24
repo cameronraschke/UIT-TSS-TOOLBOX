@@ -434,11 +434,12 @@ CREATE PROCEDURE selectLocationAutocomplete()
 DELIMITER ;
 
 -- Location table for clients sent to property
-DROP PROCEDURE IF EXISTS iterateSHRLCSV()
+DROP PROCEDURE IF EXISTS iterateSHRLCSV();
 DELIMITER //
 CREATE PROCEDURE iterateSHRLCSV()
 DETERMINISTIC
 BEGIN
+
 (SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'RAM Capacity', 'Disk Health', 'Note')
 UNION
 (SELECT 
@@ -462,5 +463,6 @@ INNER JOIN (SELECT MAX(time) AS 'time' FROM departments WHERE tagnumber IS NOT N
   ON departments.time = t4.time
 WHERE departments.department = 'shrl'
 ORDER BY locations.location ASC, jobstats.tagnumber ASC, locations.time ASC);
+
 END; //
 DELIMITER ;
