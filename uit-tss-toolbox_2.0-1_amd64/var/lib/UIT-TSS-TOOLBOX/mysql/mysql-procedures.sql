@@ -432,3 +432,35 @@ CREATE PROCEDURE selectLocationAutocomplete()
                 SELECT REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"') AS 'location' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location;
         END //
 DELIMITER ;
+
+-- Location table for clients sent to property
+DROP PROCEDURE IF EXISTS iterateSHRLCSV()
+DELIMITER //
+CREATE PROCEDURE iterateSHRLCSV()
+DETERMINISTIC
+BEGIN
+(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'RAM Capacity', 'Disk Health', 'Note')
+UNION
+(SELECT 
+  locations.time, jobstats.tagnumber, jobstats.system_serial, 
+  system_data.system_model, static_departments.department_readable, 
+  locations.location, CONCAT(t1.ram_capacity, 'GB'),
+  CONCAT(clientstats.disk_health, '%'), locations.note
+FROM jobstats 
+LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber 
+LEFT JOIN departments ON jobstats.tagnumber = departments.tagnumber
+LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
+LEFT JOIN static_departments ON departments.department = static_departments.department_readable
+LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
+LEFT JOIN (SELECT tagnumber, ram_capacity FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 AND tagnumber IS NOT NULL GROUP BY tagnumber)) t1
+  ON jobstats.tagnumber = t1.tagnumber
+INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t2
+  ON jobstats.time = t2.time
+INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t3
+  ON locations.time = t3.time
+INNER JOIN (SELECT MAX(time) AS 'time' FROM departments WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t4
+  ON departments.time = t4.time
+WHERE departments.department = 'shrl'
+ORDER BY locations.location ASC, jobstats.tagnumber ASC, locations.time ASC);
+END; //
+DELIMITER ;

@@ -58,12 +58,15 @@ GROUP BY jobstats.tagnumber
 
 SELECT 
   locations.time, jobstats.tagnumber, jobstats.system_serial, 
-  departments.department, locations.location, CONCAT(t1.ram_capacity, 'GB'),
-  clientstats.disk_health
+  system_data.system_model, static_departments.department_readable, 
+  locations.location, CONCAT(t1.ram_capacity, 'GB'),
+  clientstats.disk_health, locations.note
 FROM jobstats 
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber 
 LEFT JOIN departments ON jobstats.tagnumber = departments.tagnumber
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
+LEFT JOIN static_departments ON departments.department = static_departments.department_readable
+LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
 LEFT JOIN (SELECT tagnumber, ram_capacity FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 AND tagnumber IS NOT NULL GROUP BY tagnumber)) t1
   ON jobstats.tagnumber = t1.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t2
