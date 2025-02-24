@@ -63,7 +63,7 @@ if (isset($_POST['serial'])) {
   $db->Pselect($sql, array(':tagnumber' => $_POST["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
       foreach ($db->get() as $key => $value1) {
-        if (strFilter($value1["bios_version"])) {
+        if (strFilter($value1["bios_version"]) === 0) {
           if ($value1["bios_version"] == $value1["static_bios_version"]) {
             $biosBool = 1;
           } else {
