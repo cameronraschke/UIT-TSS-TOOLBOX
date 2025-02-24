@@ -53,7 +53,27 @@ FROM jobstats
 WHERE
 
 GROUP BY jobstats.tagnumber
+----------------------------------------
 
+
+SELECT 
+  locations.time, jobstats.tagnumber, jobstats.system_serial, 
+  departments.department, locations.location, CONCAT(t1.ram_capacity, 'GB'),
+  clientstats.disk_health
+FROM jobstats 
+LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber 
+LEFT JOIN departments ON jobstats.tagnumber = departments.tagnumber
+LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
+LEFT JOIN (SELECT tagnumber, ram_capacity FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 AND tagnumber IS NOT NULL GROUP BY tagnumber)) t1
+  ON jobstats.tagnumber = t1.tagnumber
+INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t2
+  ON jobstats.time = t2.time
+INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t3
+  ON locations.time = t3.time
+INNER JOIN (SELECT MAX(time) AS 'time' FROM departments WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t4
+  ON departments.time = t4.time
+WHERE departments.department = 'shrl'
+ORDER BY locations.time ASC;
 
 
 --Issue uuid = 'techComm-73bfd5e4-adf7-46ab-a420-199e99399f16'

@@ -56,9 +56,9 @@ $db->select("SELECT
   INNER JOIN (SELECT department, department_readable FROM static_departments) t2
   ON t1.department = t2.department
   INNER JOIN system_data ON system_data.tagnumber = jobstats.tagnumber
-  INNER JOIN static_bios_stats ON static_bios_stats.system_model = system_data.system_model
-  INNER JOIN static_disk_stats ON static_disk_stats.disk_model = jobstats.disk_model
-  INNER JOIN static_battery_stats ON static_battery_stats.battery_model = jobstats.battery_model
+  LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model
+  LEFT JOIN static_disk_stats ON jobstats.disk_model = static_disk_stats.disk_model
+  LEFT JOIN static_battery_stats ON jobstats.battery_model = static_battery_stats.battery_model
   WHERE 
     jobstats.tagnumber IS NOT NULL
     AND jobstats.time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 GROUP BY tagnumber)
