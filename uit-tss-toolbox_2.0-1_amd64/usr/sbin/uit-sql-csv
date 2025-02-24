@@ -10,6 +10,7 @@ $db->select("CALL iterateJobCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
+unset($value);
 $file = null;
 
 
@@ -19,6 +20,7 @@ $db->select("CALL iterateClientCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
+unset($value);
 $file = null;
 
 
@@ -28,6 +30,7 @@ $db->select("CALL iterateServerCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
+unset($value);
 $file = null;
 
 
@@ -37,14 +40,25 @@ $db->select("CALL iterateLocationsCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
+unset($value);
 $file = null;
 
-
+# Property Table
 $file = new SplFileObject("/tmp/laptop-report-property-".$time.".csv", 'w');
 $db->select("CALL iterateLocationsPropertyCSV()");
 foreach ($arr as $key => $value) {
     $file->fputcsv($value);
 }
+unset($value);
+$file = null;
+
+// SHRL Report
+$file = new SplFileObject("/tmp/laptop-report-shrl-".$time.".csv", 'w');
+$db->select("CALL iterateSHRLcsv()");
+foreach ($arr as $key => $value) {
+    $file->fputcsv($value);
+}
+unset($value);
 $file = null;
 
 ?>

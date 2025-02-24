@@ -2,12 +2,9 @@
 
 DATE=$(date --iso)
 
-uit-sql-refresh
-
 uit-sql-csv
 
-mv /tmp/laptop-report* /home/cameron
-mysqldump laptopDB -pUHouston! > /home/cameron/laptopDB-${DATE}.sql
-mysqldump shrl -pUHouston! > /home/cameron/shrl-${DATE}.sql
+mkdir /home/cameron/laptop-report-${date}/
 
-chown -R cameron:cameron /home/cameron/
+mv /tmp/laptop-report* /home/cameron/laptop-report-${date}/
+mysqldump laptopDB -pUHouston! > /home/cameron/laptop-report-${date}/laptopDB-${DATE}.sql
