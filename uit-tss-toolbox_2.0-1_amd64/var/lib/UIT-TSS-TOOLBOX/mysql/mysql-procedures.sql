@@ -434,7 +434,7 @@ CREATE PROCEDURE selectLocationAutocomplete()
 DELIMITER ;
 
 -- Location table for clients sent to property
-DROP PROCEDURE IF EXISTS iterateSHRLCSV();
+DROP PROCEDURE IF EXISTS iterateSHRLCSV;
 DELIMITER //
 CREATE PROCEDURE iterateSHRLCSV()
 DETERMINISTIC
