@@ -440,7 +440,7 @@ CREATE PROCEDURE iterateSHRLCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'CPU Model', 'CPU Cores' 'RAM Capacity', 'Disk Health', 'Note')
+(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'CPU Model', 'CPU Cores', 'RAM Capacity', 'Disk Health', 'Note')
 UNION
 (SELECT 
   locations.time, jobstats.tagnumber, jobstats.system_serial, 
