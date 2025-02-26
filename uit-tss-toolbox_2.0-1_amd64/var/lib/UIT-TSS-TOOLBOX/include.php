@@ -138,6 +138,17 @@ class db {
         $rowCount = $stmt->rowCount();
     }
 
+    public function AssocSelect($sql) {
+        $db = new MySQLConn();
+        $this->pdo = $db->dbObj();
+        $this->sql = $sql;
+        $this->arr = array();
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        $this->arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rowCount = $stmt->rowCount();
+    }
+    
     public function Pselect($sql, $arr) {
         $db = new MySQLConn();
         $pdo = $db->dbObj();
