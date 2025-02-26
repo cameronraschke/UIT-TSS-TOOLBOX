@@ -445,7 +445,7 @@ UNION
 (SELECT 
   locations.time, jobstats.tagnumber, jobstats.system_serial, 
   system_data.system_model, static_departments.department_readable, 
-  locations.location, system_data.cpu_model, system_date.cpu_cores,
+  locations.location, system_data.cpu_model, system_data.cpu_cores,
   CONCAT(t1.ram_capacity, 'GB'), CONCAT(clientstats.disk_health, '%'), locations.note
 FROM jobstats 
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber 
