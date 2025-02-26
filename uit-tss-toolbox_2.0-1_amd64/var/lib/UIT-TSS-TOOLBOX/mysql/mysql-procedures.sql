@@ -440,12 +440,12 @@ CREATE PROCEDURE iterateSHRLCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'CPU Model', 'CPU Cores/Max Speed' 'RAM Capacity', 'Disk Health', 'Note')
+(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'CPU Model', 'CPU Cores' 'RAM Capacity', 'Disk Health', 'Note')
 UNION
 (SELECT 
   locations.time, jobstats.tagnumber, jobstats.system_serial, 
   system_data.system_model, static_departments.department_readable, 
-  locations.location, system_data.cpu_model, CONCAT(system_data.cpu_cores/system_data.cpu_maxspeed),
+  locations.location, system_data.cpu_model, system_data.cpu_cores,
   CONCAT(t1.ram_capacity, 'GB'), CONCAT(clientstats.disk_health, '%'), locations.note
 FROM jobstats 
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber 
