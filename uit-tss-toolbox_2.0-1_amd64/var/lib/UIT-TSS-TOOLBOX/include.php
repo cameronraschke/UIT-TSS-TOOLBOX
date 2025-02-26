@@ -15,7 +15,7 @@ function strFilter ($string) {
 
 function numFilter ($string) {
     if (strFilter($string) == 0) {
-        if (is_numeric($string) && $string > 0) {
+        if (is_numeric($string)) {
             return 0;
         } else {
             return 1;
