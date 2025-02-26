@@ -440,13 +440,13 @@ CREATE PROCEDURE iterateSHRLCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'CPU Model', 'CPU Cores', 'RAM Capacity', 'Disk Health', 'Note')
+(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'CPU Model', 'CPU Cores', 'RAM Capacity', 'Disk Type', 'Disk Health', 'Note')
 UNION
 (SELECT 
   locations.time, jobstats.tagnumber, jobstats.system_serial, 
   system_data.system_model, static_departments.department_readable, 
   locations.location, system_data.cpu_model, system_data.cpu_cores,
-  CONCAT(t1.ram_capacity, 'GB'), CONCAT(clientstats.disk_health, '%'), locations.note
+  CONCAT(t1.ram_capacity, 'GB'), t5.disk_type, CONCAT(clientstats.disk_health, '%'), locations.note
 FROM jobstats 
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber 
 LEFT JOIN departments ON jobstats.tagnumber = departments.tagnumber
@@ -455,6 +455,8 @@ LEFT JOIN static_departments ON departments.department = static_departments.depa
 LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
 LEFT JOIN (SELECT tagnumber, ram_capacity FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 AND tagnumber IS NOT NULL GROUP BY tagnumber)) t1
   ON jobstats.tagnumber = t1.tagnumber
+LEFT JOIN (SELECT tagnumber, disk_type FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 AND tagnumber IS NOT NULL GROUP BY tagnumber)) t5
+  ON jobstats.tagnumber = t5.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t2
   ON jobstats.time = t2.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t3
