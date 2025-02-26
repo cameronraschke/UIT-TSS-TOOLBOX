@@ -146,6 +146,17 @@ class db {
         $this->arr = $stmt->fetchAll();
     }
 
+    public function AssocSelect($sql) {
+        $db = new MySQLConn();
+        $this->pdo = $db->dbObj();
+        $this->sql = $sql;
+        $this->arr = array();
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        $this->arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rowCount = $stmt->rowCount();
+    }
+
     public function get() {
         if(is_array($this->arr) && arrFilter($this->arr) == 0) {
             return $this->arr;

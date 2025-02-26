@@ -4,6 +4,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
 $db = new db();
 
+/*
 #Job Table
 $file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'w');
 $db->select("CALL iterateJobCSV()");
@@ -51,11 +52,12 @@ foreach ($arr as $key => $value) {
 }
 unset($value);
 $file = null;
+*/
 
 // SHRL Report
-$file = new SplFileObject("/tmp/laptop-report-shrl-".$time.".csv", 'w');
-$db->select("CALL iterateSHRLcsv()");
-foreach ($arr as $key => $value) {
+$file = new SplFileObject("/tmp/laptop-report-shrl-".$date.".csv", 'w');
+$db->AssocSelect("CALL iterateSHRLcsv()");
+foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
 }
 unset($value);
