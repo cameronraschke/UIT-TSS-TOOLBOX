@@ -245,7 +245,7 @@ unset($_POST);
   CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
   DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
   remote.kernel_updated, IF (remote.bios_updated = 1 OR (t11.bios_version = static_bios_stats.bios_version), 'Yes', 'No') AS 'bios_updated', 
-  t11.bios_version, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted', remote.network_speed
+  t11.bios_version, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted', CONCAT(remote.network_speed, ' mbps') AS 'network_speed'
 FROM jobstats
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
