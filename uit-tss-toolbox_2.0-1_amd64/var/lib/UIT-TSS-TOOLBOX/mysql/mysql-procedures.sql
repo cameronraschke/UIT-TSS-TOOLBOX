@@ -433,19 +433,20 @@ CREATE PROCEDURE selectLocationAutocomplete()
         END //
 DELIMITER ;
 
--- Location table for clients sent to property
+-- SHRL Report
 DROP PROCEDURE IF EXISTS iterateSHRLCSV;
 DELIMITER //
 CREATE PROCEDURE iterateSHRLCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'CPU Model', 'CPU Cores', 'RAM Capacity', 'Disk Size', 'Disk Type', 'Disk Health', 'Note')
+(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'BIOS Updated', 'CPU Model', 'CPU Cores', 'RAM Capacity', 'Disk Size', 'Disk Type', 'Disk Health', 'Note')
 UNION
 (SELECT 
   locations.time, jobstats.tagnumber, jobstats.system_serial, 
   system_data.system_model, static_departments.department_readable, 
-  locations.location, system_data.cpu_model, system_data.cpu_cores,
+  locations.location, IF(locations.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
+  system_data.cpu_model, system_data.cpu_cores,
   CONCAT(t1.ram_capacity, 'GB'), CONCAT(t1.disk_size, 'GB'), t1.disk_type,
   CONCAT(clientstats.disk_health, '%'), locations.note
 FROM jobstats 
