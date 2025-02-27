@@ -233,7 +233,7 @@ unset($_POST);
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
   locations.location, IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, 
   t3.note, DATE_FORMAT(t3.time, '%b %D %Y, %r') AS 'note_time_formatted', 
-  IF(locations.disk_removed = 1, 'Yes', 'No'), IF(locations.os_installed = 1, 'Yes', 'No') AS 'os_installed',
+  IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF(locations.os_installed = 1, 'Yes', 'No') AS 'os_installed',
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
   system_data.system_manufacturer, system_data.system_model, 
