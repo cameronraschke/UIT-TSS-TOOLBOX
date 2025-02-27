@@ -237,20 +237,22 @@ unset($_POST);
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
   system_data.system_manufacturer, system_data.system_model, 
-  system_data.cpu_model, system_data.cpu_cores, system_data.cpu_threads, 
-  jobstats.ram_capacity, jobstats.ram_speed, 
+  system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS 'cpu_maxspeed', system_data.cpu_threads, 
+  CONCAT(t8.ram_capacity, ' GB') AS 'ram_capacity', CONCAT(t8.ram_speed, ' MHz') AS 'ram_speed',
   t4.disk_model, t4.disk_size, t4.disk_type,
   t5.identifier, t5.recovery_key, 
-  clientstats.battery_health, clientstats.disk_health, 
+  CONCAT(clientstats.battery_health, '%') AS 'battery_health', CONCAT(clientstats.disk_health, '%') AS 'disk_health', 
+  CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
   DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
-  remote.kernel_updated, remote.bios_updated, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted'
+  remote.kernel_updated, IF (remote.bios_updated = 1 OR (t11.bios_version = static_bios_stats.bios_version), 'Yes', 'No') AS 'bios_updated', 
+  t11.bios_version, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted', remote.network_speed
 FROM jobstats
-LEFT JOIN remote ON jobstats.tagnumber = remote.tagnumber
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
 LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
 LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE tagnumber IS NOT NULL GROUP BY tagnumber)) t1 
   ON jobstats.tagnumber = t1.tagnumber
+LEFT JOIN remote ON jobstats.tagnumber = remote.tagnumber
 LEFT JOIN (SELECT department, department_readable FROM static_departments) t2
   ON t1.department = t2.department
 LEFT JOIN (SELECT tagnumber, time, note FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE note IS NOT NULL GROUP BY tagnumber)) t3
@@ -261,6 +263,9 @@ LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5
   ON jobstats.tagnumber = t5.tagnumber
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
   ON jobstats.tagnumber = t8.tagnumber
+LEFT JOIN (SELECT tagnumber, bios_version FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 GROUP BY tagnumber)) t11
+  ON jobstats.tagnumber = t11.tagnumber
+LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model
 INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t9
   ON jobstats.time = t9.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
@@ -320,16 +325,16 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
   if (arrFilter($sqlArr) === 0) {
     foreach ($sqlArr as $key => $value) {
       // BIOS and kernel updated (check mark)
-      if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
+      if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === "Yes")) {
         echo "Online, no errors <span>&#10004;&#65039;</span> (" . $value["uptime_formatted"] . ")";
       // BIOS and kernel out of date (x)
-      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== 1)) {
+      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== "Yes")) {
         echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
       // BIOS out of date, kernel updated (warning sign)
-      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== 1)) {
+      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== "Yes")) {
         echo "Online, please update BIOS <span>&#9888;&#65039;</span> (" . $value["uptime_formatted"] . ")";
       // BIOS updated, kernel out of date (x)
-      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === 1)) {
+      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === "Yes")) {
         echo "Online, kernel out of date <span>&#10060;</span>)";
       // Offline (x)
       } elseif ($value["present_bool"] !== 1) {
@@ -436,6 +441,7 @@ if (isset($_GET["tagnumber"])) {
         echo "<div style='margin: 3% 0% 0% 0%;' class='page-content'><input type='submit' value='Update Location Data'></div>" . PHP_EOL;
 
         echo "<div style='margin: 1% 0% 0% 0%;' class='page-content'><a href='locations.php' target='_blank'>Update a different client's location.</a></div>" . PHP_EOL;
+        unset($value);
 }
 ?>
             </form>
@@ -460,68 +466,48 @@ if (isset($_GET["tagnumber"])) {
                 </tr>
             </thead>
             <tbody>
-                <?php
-                $db->Pselect("SELECT t1.system_serial, t1.disk_type, t1.etheraddress, t2.chassis_type, t2.wifi_mac, t2.system_manufacturer, t2.system_model, t2.cpu_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = :tagnumber1 AND t2.tagnumber = :tagnumber2 AND t1.uuid NOT LIKE 'location-%' AND t2.system_model IS NOT NULL ORDER BY t1.time DESC LIMIT 1", array(':tagnumber1' => htmlspecialchars_decode($_GET['tagnumber']), ':tagnumber2' => htmlspecialchars_decode($_GET['tagnumber'])));
-                if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key => $value) {
-                    echo "<tr>" . PHP_EOL;
-                    echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
-                    echo "<td>";
-                    // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
-                    if ($value["system_model"] !== "Latitude 7400") {
-                        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-                            echo "<table><tr><td>" . $value["wifi_mac"] . " (Wi-Fi)</td></tr><tr><td>" . $value["etheraddress"] . " (Ethernet)</td></tr></table>" . PHP_EOL;
-                        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
-                            echo $value["wifi_mac"] . " (Wi-Fi)";
-                        } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
-                            echo $value["etheraddress"] . " (Ethernet)";
-                        }
-                    } elseif ($value["system_model"] === "Latitude 7400") {
-                        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-                            echo $value["wifi_mac"] . " (Wi-Fi)";
-                        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
-                            echo $value["wifi_mac"] . " (Wi-Fi)";
-                        }
-                    }
-                    echo "</td>" . PHP_EOL;
-                    $db->Pselect("SELECT (CASE WHEN department='techComm' THEN 'Tech Commons (TSS)' WHEN department='property' THEN 'Property' WHEN department='shrl' THEN 'SHRL' ELSE '' END) AS 'department' FROM jobstats WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value1) {
-                            echo "<td>" . $value1['department'] . "</td>" . PHP_EOL;
-                        }
-                    } else {
-                        echo "<td>NULL</td>" . PHP_EOL;
-                    }
-                    unset($value1);
-                    echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
-                    echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
-                    $db->Pselect("SELECT t1.bios_version AS 'current_bios', t2.bios_version AS 'updated_bios' FROM (SELECT bios_version FROM jobstats WHERE tagnumber = :tagnumber AND bios_version IS NOT NULL ORDER BY time DESC LIMIT 1) t1, (SELECT bios_version FROM static_bios_stats WHERE system_model = :systemmodel) t2", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"]), ':systemmodel' => $value['system_model']));
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value1) {
-                            if ($value1['current_bios'] === $value1['updated_bios']) {
-                                echo "<td>" . $value1["current_bios"] . " (Up to Date)</td>" . PHP_EOL;
-                            } else {
-                                echo "<td>" . $value1["current_bios"] . " (Out of Date)</td>" . PHP_EOL;
-                            }
-                        }
-                    }
-                    unset($value1);
-                    echo "<td>" . $value['cpu_model'] . "</td>" . PHP_EOL;
-                    echo "<td>" . $value['disk_type'] . "</td>" . PHP_EOL;
-                    $db->Pselect("SELECT CONCAT(network_speed, 'mbps') AS 'network_speed' FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value1) {
-                            echo "<td>" . $value1['network_speed'] . "</td>" . PHP_EOL;
-                        }
-                    }
-                    unset($value1);
-                    echo "</tr>" . PHP_EOL;
-                    }
-                }
-                ?>
-            </tbody>
-        </table>
-        </div>
+  <?php
+  if (arrFilter($sqlArr) === 0) {
+    foreach ($sqlArr as $key => $value) {
+      echo "<tr>" . PHP_EOL;
+      echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
+      echo "<td>";
+      // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
+      if ($value["system_model"] !== "Latitude 7400") {
+        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
+          echo "<table><tr><td>" . $value["wifi_mac"] . " (Wi-Fi)</td></tr><tr><td>" . $value["etheraddress"] . " (Ethernet)</td></tr></table>" . PHP_EOL;
+        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
+          echo $value["wifi_mac"] . " (Wi-Fi)";
+        } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
+          echo $value["etheraddress"] . " (Ethernet)";
+        }
+      } elseif ($value["system_model"] === "Latitude 7400") {
+        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
+          echo $value["wifi_mac"] . " (Wi-Fi)";
+        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
+          echo $value["wifi_mac"] . " (Wi-Fi)";
+        }
+      }
+      echo "</td>" . PHP_EOL;
+      echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
+      echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
+      echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
+      if ($value["bios_updated"] === "Yes") {
+      echo "<td>" . $value["bios_version"] . " (Up to date)</td>" . PHP_EOL;
+      } else {
+      echo "<td>" . $value["bios_version"] . " (Out of date)</td>" . PHP_EOL;
+      }
+      echo "<td>" . $value['cpu_model'] . "</td>" . PHP_EOL;
+      echo "<td>" . $value['disk_type'] . "</td>" . PHP_EOL;
+      echo "<td>" . $value['network_speed'] . "</td>" . PHP_EOL;
+      echo "</tr>" . PHP_EOL;
+    }
+  }
+  unset($value);
+  ?>
+</tbody>
+</table>
+</div>
 
 
         <div class='pagetitle'><h3>Other Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></u></h3></div>
@@ -539,33 +525,20 @@ if (isset($_GET["tagnumber"])) {
                 </tr>
             </thead>
             <tbody>
-                <?php
-                $db->Pselect("SELECT
-                  jobstats.disk_model, jobstats.disk_size,
-                  CONCAT(jobstats.ram_capacity, 'GB') AS 'ram_capacity', jobstats.ram_speed,
-                  CONCAT(ROUND(system_data.cpu_maxspeed / 1000, 2), 'Mhz') AS 'cpu_maxspeed',
-                  system_data.cpu_cores, system_data.cpu_threads
-                  FROM jobstats 
-                  INNER JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
-                  WHERE jobstats.tagnumber = :tagnumber
-                    AND jobstats.time 
-                      IN (SELECT MAX(time) FROM jobstats WHERE uuid LIKE 'techComm-%' AND department IN (SELECT department FROM departments WHERE department_bool = 1) GROUP BY tagnumber)
-                  ORDER BY jobstats.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-                if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key => $value1) {
-                      echo "<tr>" . PHP_EOL;
-                      echo "<td>" . htmlspecialchars($value1["disk_model"]) . "</td>" . PHP_EOL;
-                      echo "<td>" . htmlspecialchars($value1["disk_size"]) . "</td>" . PHP_EOL;
-                      echo "<td>" . htmlspecialchars($value1["ram_capacity"]) . "</td>" . PHP_EOL;
-                      echo "<td>" . htmlspecialchars($value1["ram_speed"]) . "</td>" . PHP_EOL;
-                      echo "<td>" . htmlspecialchars($value1["cpu_maxspeed"]) . "</td>" . PHP_EOL;
-                      echo "<td>" . htmlspecialchars($value1["cpu_cores"]) . "</td>" . PHP_EOL;
-                      echo "<td>" . htmlspecialchars($value1["cpu_threads"]) . "</td>" . PHP_EOL;
-                      echo "</tr>" . PHP_EOL;
-                    }
-                }
-                unset($value1);
-                ?>
+            <?php
+            foreach ($sqlArr as $key => $value) {
+              echo "<tr>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value["disk_model"]) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value["disk_size"]) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value["ram_capacity"]) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value["ram_speed"]) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value["cpu_maxspeed"]) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value["cpu_cores"]) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value["cpu_threads"]) . "</td>" . PHP_EOL;
+              echo "</tr>" . PHP_EOL;
+            }
+            unset($value);
+            ?>
             </tbody>
         </table>
         </div>
@@ -586,27 +559,26 @@ if (isset($_GET["tagnumber"])) {
                 </tr>
             </thead>
             <tbody>
-                <?php
-                $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, IF (status='0' OR status IS NULL, 'Working', 'Broken') AS 'status', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', note FROM locations WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' ORDER BY time DESC LIMIT 1");
-                if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key => $value) {
-                    echo "<tr>" . PHP_EOL;
-                    echo "<td>" . htmlspecialchars($value['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                    if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
-                        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
-                    } elseif (preg_match("/^checkout$/", $value["location"])) {
-                        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
-                    } else {
-                        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
-                    }
-                    echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                    echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                    echo "<td>" . htmlspecialchars($value['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                    echo "<td>" . htmlspecialchars($value['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                    echo "</tr>" . PHP_EOL;
-                    }
-                }
-                ?>
+            <?php
+            foreach ($sqlArr as $key => $value) {
+              echo "<tr>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['location_time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
+                echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+              } elseif (preg_match("/^checkout$/", $value["location"])) {
+                echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
+              } else {
+                echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+              }
+              echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['bios_updated'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "</tr>" . PHP_EOL;
+            }
+            unset($value);
+            ?>
             </tbody>
         </table>
         </div>
@@ -623,19 +595,17 @@ if (isset($_GET["tagnumber"])) {
                 </tr>
             </thead>
             <tbody>
-                <?php
-                $db->Pselect("SELECT CONCAT(erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clone_avgtime, ' mins') AS 'clone_avgtime', CONCAT(battery_health, '%') AS 'battery_health', CONCAT(disk_health, '%') AS 'disk_health' FROM clientstats WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
-                if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key=>$value) {
-                        echo "<tr>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['erase_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['clone_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['battery_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['disk_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "</tr>" . PHP_EOL;
-                    }
-                }
-                ?>
+            <?php
+            foreach ($sqlArr as $key => $value) {
+              echo "<tr>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['erase_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['clone_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['battery_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['disk_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "</tr>" . PHP_EOL;
+            }
+            unset($value);
+            ?>
             </tbody>
         </table>
         </div>
@@ -644,16 +614,17 @@ if (isset($_GET["tagnumber"])) {
         <?php
             $db->Pselect("SELECT identifier, recovery_key FROM bitlocker WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
             if (arrFilter($db->get()) === 0) {
-                foreach ($db->get() as $key => $value) {
+                foreach ($db->get() as $key => $value1) {
                     echo "<div class='pagetitle'><h3>Bitlocker Info</h3></div>" . PHP_EOL;
                     echo "<div class='styled-table' style='width: auto; overflow:auto; margin: 1% 1% 5% 1%;'>" . PHP_EOL;
                     echo "<table>" . PHP_EOL;
                     echo "<thead><tr><th>Identifier</th><th>Recovery Key</th></tr></thead>" . PHP_EOL;
-                    echo "<tbody><tr><td>" . htmlspecialchars($value['identifier'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td><td>" . htmlspecialchars($value['recovery_key'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td></tr></tbody>" . PHP_EOL;
+                    echo "<tbody><tr><td>" . htmlspecialchars($value1['identifier'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td><td>" . htmlspecialchars($value1['recovery_key'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td></tr></tbody>" . PHP_EOL;
                     echo "</table>" . PHP_EOL;
                     echo "</div>" . PHP_EOL;
                 }
             }
+            unset($value1);
         ?>
 
         <div class='pagetitle'><h3>Job Log</h3></div>
@@ -677,21 +648,22 @@ if (isset($_GET["tagnumber"])) {
                 <?php
                 $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC");
                 if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key=>$value) {
+                    foreach ($db->get() as $key => $value1) {
                         echo "<tr>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['cpu_usage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['network_usage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['erase_completed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['erase_mode'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['erase_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['clone_completed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['clone_master'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['clone_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['bios_version'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['cpu_usage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['network_usage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['erase_completed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['erase_mode'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['erase_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['clone_completed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['clone_master'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['clone_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['bios_version'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "</tr>" . PHP_EOL;
                     }
                 }
+                unset($value1);
                 ?>
             </tbody>
         </table>
@@ -716,7 +688,7 @@ if (isset($_GET["tagnumber"])) {
                 <?php
                 $db->Pselect("SELECT * FROM (SELECT time, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'location_num', IF (status = 1, 'Broken', 'Working') AS 'status', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = 1, 'Yes', 'No') AS 'bios_updated', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations WHERE tagnumber = :tagnumber AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' ORDER BY time DESC) t2 WHERE t2.location IS NOT NULL and t2.location_num <= 3 ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
                 if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key=>$value) {
+                    foreach ($db->get() as $key => $value1) {
                         echo "<tr>" . PHP_EOL;
                         //Time formatted
                         echo "<td>" . htmlspecialchars($value['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
@@ -728,14 +700,15 @@ if (isset($_GET["tagnumber"])) {
                         } else {
                             echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
                         }
-                        echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['bios_updated'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['bios_updated'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "</tr>" . PHP_EOL;
                     }
                 }
+                unset($value1);
                 ?>
             </tbody>
         </table>
