@@ -245,7 +245,10 @@ INSERT INTO static_bios_stats
     ('Surface Pro', NULL),
     ('Surface Pro 4', '109.3748.768'),
     ('OptiPlex 7000', '1.28.0'),
-    ('Latitude 7420', '1.39.0');
+    ('Latitude 7420', '1.39.0'),
+    ('OptiPlex 5080', '1.6.0'),
+    ('OptiPlex 7040', '1.8.1'),
+    ('OptiPlex 7050', '1.19.0');
 
 
 CREATE TABLE IF NOT EXISTS remote (
