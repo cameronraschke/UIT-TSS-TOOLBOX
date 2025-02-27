@@ -245,7 +245,8 @@ unset($_POST);
   CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
   DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
   remote.kernel_updated, IF (remote.bios_updated = 1 OR (t11.bios_version = static_bios_stats.bios_version), 'Yes', 'No') AS 'bios_updated', 
-  t11.bios_version, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted', CONCAT(remote.network_speed, ' mbps') AS 'network_speed'
+  t11.bios_version, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted', CONCAT(remote.network_speed, ' mbps') AS 'network_speed',
+  CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours'
 FROM jobstats
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
@@ -257,7 +258,7 @@ LEFT JOIN (SELECT department, department_readable FROM static_departments) t2
   ON t1.department = t2.department
 LEFT JOIN (SELECT tagnumber, time, note FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE note IS NOT NULL GROUP BY tagnumber)) t3
   ON jobstats.tagnumber = t3.tagnumber
-LEFT JOIN (SELECT tagnumber, disk_model, disk_size, disk_type FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE disk_type IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t4 
+LEFT JOIN (SELECT tagnumber, disk_model, disk_size, disk_type, disk_writes, disk_reads, disk_power_on_hours FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE disk_type IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t4 
   ON jobstats.tagnumber = t4.tagnumber
 LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5 
   ON jobstats.tagnumber = t5.tagnumber
@@ -592,6 +593,8 @@ if (isset($_GET["tagnumber"])) {
                 <th>Erase Avg. Time</th>
                 <th>Clone Avg. Time</th>
                 <th>Battery Health</th>
+                <th>Disk TBW/TBR</th>
+                <th>Disk Power on Hours</th>
                 <th>Disk Health</th>
                 </tr>
             </thead>
@@ -602,6 +605,8 @@ if (isset($_GET["tagnumber"])) {
               echo "<td>" . htmlspecialchars($value['erase_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
               echo "<td>" . htmlspecialchars($value['clone_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
               echo "<td>" . htmlspecialchars($value['battery_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['disk_writes'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($value['disk_reads'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['disk_power_on_hours'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
               echo "<td>" . htmlspecialchars($value['disk_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
               echo "</tr>" . PHP_EOL;
             }
