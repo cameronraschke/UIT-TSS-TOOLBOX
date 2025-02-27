@@ -231,9 +231,9 @@ unset($_POST);
   unset($sql);
   $sql = "SELECT DATE_FORMAT(t10.time, '%b %D %Y, %r') AS 'location_time_formatted',
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
-  locations.location, locations.status, t2.department_readable, 
+  locations.location, IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, 
   t3.note, DATE_FORMAT(t3.time, '%b %D %Y, %r') AS 'note_time_formatted', 
-  locations.disk_removed, 
+  locations.disk_removed, IF(locations.os_installed = 1, 'Yes', 'No') AS 'os_installed',
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
   system_data.system_manufacturer, system_data.system_model, 
