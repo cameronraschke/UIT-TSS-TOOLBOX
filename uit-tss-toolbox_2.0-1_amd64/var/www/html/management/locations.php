@@ -460,10 +460,10 @@ if (strFilter($_GET["location"]) === 0) {
 // department filter
 if (strFilter($_GET["department"]) === 0) {
   if ($_GET["not-department"] == "1") {
-    $sql .= "AND NOT departments.department = :department ";
+    $sql .= "AND NOT t1.department = :department ";
     $sqlArr[":department"] = $_GET["department"];
   } else {
-    $sql .= "AND departments.department = :department ";
+    $sql .= "AND t1.department = :department ";
     $sqlArr[":department"] = $_GET["department"];
   }
 }
