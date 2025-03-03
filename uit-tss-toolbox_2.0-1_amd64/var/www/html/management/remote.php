@@ -184,7 +184,25 @@ if (arrFilter($db->get()) === 0) {
 
 <?php
 
-$db->select("SELECT tagnumber, IF (status LIKE 'fail%', 1, 0) AS 'failstatus', DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', DATE_FORMAT(last_job_time, '%b %D %Y, %r') AS 'last_job_time_formatted', job_queued, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', kernel_updated, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY failstatus DESC, FIELD(job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, kernel_updated DESC, bios_updated DESC, last_job_time DESC");
+$db->select("SELECT remote.tagnumber, 
+        IF (remote.status LIKE 'fail%', 1, 0) AS 'failstatus', 
+        DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'time_formatted', 
+        DATE_FORMAT(remote.last_job_time, '%b %D %Y, %r') AS 'last_job_time_formatted', 
+        remote.job_queued, remote.status, t2.queue_position,
+        IF (remote.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
+        IF (remote.bios_updated = '1', 'No', 'Yes') AS 'bios_updated', 
+        remote.kernel_updated, CONCAT(remote.battery_charge, '%') AS 'battery_charge', 
+        remote.battery_status, SEC_TO_TIME(remote.uptime) AS 'uptime', 
+        CONCAT(remote.cpu_temp, '°C') AS 'cpu_temp', CONCAT(remote.disk_temp, '°C') AS 'disk_temp', 
+        CONCAT(remote.watts_now, ' Watts') AS 'watts_now' 
+    FROM remote 
+    LEFT JOIN (SELECT * FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) t1) t2
+        ON remote.tagnumber = t2.tagnumber
+    WHERE present_bool = '1' 
+    ORDER BY 
+        failstatus DESC, 
+        FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'queue_position', 'shutdown', 'fail-test') DESC, 
+        FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, kernel_updated DESC, bios_updated DESC, last_job_time DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
       echo "<tr>" . PHP_EOL;
