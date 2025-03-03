@@ -201,7 +201,8 @@ $db->select("SELECT remote.tagnumber,
     WHERE present_bool = '1' 
     ORDER BY 
         failstatus DESC, 
-        FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'queue_position', 'shutdown', 'fail-test') DESC, 
+        queue_position ASC, 
+        FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, 
         FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, kernel_updated DESC, bios_updated DESC, last_job_time DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
