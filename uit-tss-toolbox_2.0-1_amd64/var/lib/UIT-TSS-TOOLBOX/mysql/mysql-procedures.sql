@@ -373,7 +373,7 @@ DETERMINISTIC
 BEGIN
 SELECT tagnumber AS 'Tag',
     present AS 'Last Heard',
-    task AS 'Pending Task',
+    job_queued AS 'Pending Job',
     status AS 'Status',
     CONCAT(battery_charge, '%') AS 'Battery Charge',
     battery_status AS 'Battery Status',
@@ -393,7 +393,7 @@ DETERMINISTIC
 BEGIN
 SELECT tagnumber AS 'Tag',
     present AS 'Last Heard',
-    task AS 'Pending Task',
+    job_queued AS 'Pending Job',
     status AS 'Status',
     CONCAT(battery_charge, '%') AS 'Battery Charge',
     battery_status AS 'Battery Status',
@@ -419,7 +419,7 @@ SELECT
     CONCAT(ROUND(SUM(watts_now), 0), ' Watts') AS 'Actual Power Draw',
     CONCAT(ROUND(SUM(IF (battery_status NOT IN ('Discharging') AND present_bool = 1, 55, 0)), 0), ' Cur. Watts', '/' , ROUND(SUM(IF (present_bool = 1, 55, 0)), 0), ' Watts') AS 'Power Draw from Wall',
     SUM(os_installed) AS 'OS Installed Sum'
-    FROM remote WHERE present_bool = '1';
+    FROM remote WHERE present_bool = 1;
     END; //
 
 DELIMITER ;
