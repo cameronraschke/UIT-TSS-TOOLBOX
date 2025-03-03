@@ -150,7 +150,7 @@ if (arrFilter($db->get()) === 0) {
 
 <div id="runningJobs" style='max-height: 20%; width: auto; margin: 1% 1% 1% 1%;'>
     <?php
-        $db->select("SELECT COUNT(tagnumber) AS 'count', status FROM remote WHERE (job_queued IS NOT NULL OR NOT status = 'Waiting for job') AND present_bool = 1 GROUP BY status");
+        $db->select("SELECT COUNT(tagnumber) AS 'count' FROM remote WHERE (job_queued IS NOT NULL OR NOT status = 'Waiting for job') AND present_bool = 1");
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $ley => $value) {
                 echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</h3>";
