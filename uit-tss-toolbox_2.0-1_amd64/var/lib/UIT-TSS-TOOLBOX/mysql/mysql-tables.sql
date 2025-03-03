@@ -250,7 +250,7 @@ INSERT INTO static_bios_stats
     ('Latitude 7420', '1.39.0'),
     ('OptiPlex 5080', '1.6.0'),
     ('OptiPlex 7040', '1.8.1'),
-    ('OptiPlex 7050', '1.19.0')
+    ('OptiPlex 7050', '1.19.0'),
     ('OptiPlex 5070', '1.5.0');
 
 
