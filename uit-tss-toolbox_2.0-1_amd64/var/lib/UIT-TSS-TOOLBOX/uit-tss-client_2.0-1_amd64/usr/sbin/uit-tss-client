@@ -117,7 +117,7 @@ ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1
 
 function remote {
 	job_queued=$(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
-	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE remote.job_queued_position IS NOT NULL) t1 WHERE t1.tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
+	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE job_queued IS NOT NULL) t1 WHERE t1.tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 	job_active=$(echo "SELECT job_active AS 'result' FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 }
 
