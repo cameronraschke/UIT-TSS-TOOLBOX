@@ -116,7 +116,9 @@ tOneSerialNumber=$(dmidecode --string system-serial-number)
 ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1,3}/16' | sed 's/\/16//g')
 
 function remote {
-	task=$(echo "SELECT task AS result FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
+	job_queued=$(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
+	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE remote.job_queued_position IS NOT NULL) t1 WHERE t1.tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
+	job_active=$(echo "SELECT job_active AS 'result' FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 }
 
 function department {
@@ -1685,7 +1687,8 @@ function location {
 
 
 function terminate {
-	echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "remote|${tagNum}|status|Waiting for job" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "0" > /root/uptime
 	echo "0" > /tmp/cpu-usage.txt
@@ -1824,20 +1827,33 @@ function autodetectClient {
 			echo "remote|${tagNum}|status|Waiting for job" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 
-		if [[ $task != "NULL" ]]; then
+		if [[ $job_queued != "NULL" ]]; then
 			#location=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
 			#status="0"
 			#note="Unattended"
 			#echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /var/lib/UIT-TSS-TOOLBOX/parse
 			tput cuu1
 			tput el
-			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${task} in 5 seconds. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
-			read -t 5 -N 1 input
-			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
-				break
-			fi
+			while true; do
+				echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${job_queued} and is ${job_queued_position} in queue. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
+				echo "remote|${tagNum}|status|Scheduled for ${job_queued}, ${job_queued_position} in queue." | /var/lib/UIT-TSS-TOOLBOX/parse
+				read -t 5 -N 1 input
+				if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
+					echo "0" > /root/uptime
+					echo "0" > /tmp/cpu-usage.txt
+					echo "0" > /tmp/network-usage.txt
+					echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
+					sleep 1
+					pkill --terminal tty1
+				fi
+				remote
+				if [[ $job_queued_position == "1" ]]; then
+					break
+				fi
+			done
 			remote
-			if [[ $task == "data collection" ]]; then
+			if [[ $job_queued == "data collection" ]]; then
 				department
 				enterTag
 				systemData
@@ -1849,16 +1865,18 @@ function autodetectClient {
 				echo "0" > /root/uptime
 				echo "0" > /tmp/cpu-usage.txt
 				echo "0" > /tmp/network-usage.txt
-				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				sleep 10
 				pkill --terminal tty1
-			elif [[ $task == "update" ]]; then
+			elif [[ $job_queued == "update" ]]; then
 				department
 				enterTag
 				systemData
 				hardwareData
 				echo "remote|${tagNum}|status|Updating..." | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1875,10 +1893,10 @@ function autodetectClient {
 				echo "0" > /tmp/network-usage.txt
 				sleep 10
 				pkill --terminal tty1
-			elif [[ $task == "findmy" ]]; then
+			elif [[ $job_queued == "findmy" ]]; then
 				echo "remote|${tagNum}|status|Playing sound" | /var/lib/UIT-TSS-TOOLBOX/parse
 				play /root/findmy1.mp3 &> /dev/null
-			elif [[ $task == "hpEraseAndClone" ]]; then
+			elif [[ $job_queued == "hpEraseAndClone" ]]; then
 				department
 				enterTag
 				systemData
@@ -1914,13 +1932,14 @@ function autodetectClient {
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "0" > /root/uptime
 				echo "0" > /tmp/cpu-usage.txt
 				echo "0" > /tmp/network-usage.txt
 				sleep 10
 				pkill --terminal tty1
-			elif [[ $task == "hpCloneOnly" ]]; then
+			elif [[ $job_queued == "hpCloneOnly" ]]; then
 				department
 				enterTag
 				systemData
@@ -1952,13 +1971,14 @@ function autodetectClient {
 				echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "0" > /root/uptime
 				echo "0" > /tmp/cpu-usage.txt
 				echo "0" > /tmp/network-usage.txt
 				sleep 10
 				pkill --terminal tty1
-			elif [[ $task == "nvmeErase" ]]; then
+			elif [[ $job_queued == "nvmeErase" ]]; then
 				department
 				enterTag
 				systemData
@@ -1992,13 +2012,14 @@ function autodetectClient {
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "0" > /root/uptime
 				echo "0" > /tmp/cpu-usage.txt
 				echo "0" > /tmp/network-usage.txt
 				sleep 10
 				pkill --terminal tty1
-			elif [[ $task == "nvmeVerify" ]]; then
+			elif [[ $job_queued == "nvmeVerify" ]]; then
 				department
 				enterTag
 				systemData
@@ -2032,24 +2053,27 @@ function autodetectClient {
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "0" > /root/uptime
 				echo "0" > /tmp/cpu-usage.txt
 				echo "0" > /tmp/network-usage.txt
 				sleep 10
 				pkill --terminal tty1
-			elif [[ $task == "shutdown" ]]; then
+			elif [[ $job_queued == "shutdown" ]]; then
 				echo "remote|${tagNum}|status|fail - Shutting down" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 				poweroff
-			elif [[ $task == "fail-test" ]]; then
+			elif [[ $job_queued == "fail-test" ]]; then
 				echo "remote|${tagNum}|status|fail - test" | /var/lib/UIT-TSS-TOOLBOX/parse
 			fi
-			echo "remote|${tagNum}|task| " | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
 			tput cuu1
 			tput el
-			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) has no scheduled tasks right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"
+			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) has no scheduled jobs right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"
 			read -t 5 -N 1 input
 			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 				break

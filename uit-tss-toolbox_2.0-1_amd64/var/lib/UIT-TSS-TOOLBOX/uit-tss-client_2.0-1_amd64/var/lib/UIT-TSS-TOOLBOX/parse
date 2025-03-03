@@ -172,7 +172,7 @@ if ($arr[0] == "remote") {
     $key = $arr[2];
     $value = $arr[3];
 
-    if ($key == "task") {
+    if ($key == "job_queued") {
         if ($value == "0") {
             $value = "NULL";
         } elseif ($value == "1") {
@@ -209,4 +209,17 @@ if ($arr[0] == "remote") {
 
     $db->updateRemote($tagNum, $key, $value);
 }
+
+if ($arr[0] = "am_i_next")
+    $tagNum = $arr[1];
+
+    $db->Pselect("SELECT MIN(tagnumber) AS 'result' FROM FROM remote WHERE job_active IS NOT NULL");
+    if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value) {
+            if ($value["result"] == $tagNum) {
+                $db->updateRemote($tagNum, "job_active", "1");
+            }
+        }
+    }
+    unset($value);
 ?>

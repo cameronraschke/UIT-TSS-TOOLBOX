@@ -6,11 +6,11 @@ $db = new db();
 
 // Job by location form
 if (isset($_POST['location']) && isset($_POST['location-action'])) {
-    $db->Pselect("SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND bios_updated = 1 AND kernel_updated = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber", array(':location' => htmlspecialchars_decode($_POST['location'])));
+    $db->Pselect("SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND bios_updated = 1 AND kernel_updated = 1 AND job_queued IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber", array(':location' => htmlspecialchars_decode($_POST['location'])));
 
     if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value) {
-            $db->updateRemote($value["tagnumber"], "task", $_POST['location-action']);
+            $db->updateRemote($value["tagnumber"], "job_queued", $_POST['location-action']);
         }
     }
     unset($sql);
@@ -110,7 +110,7 @@ if (arrFilter($db->get()) === 0) {
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
-                    $db->select("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND task IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
+                    $db->select("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND job_queued IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value) {
                             if (preg_match("/^[a-zA-Z]$/", $value["location"])) {
@@ -149,7 +149,7 @@ if (arrFilter($db->get()) === 0) {
 
 <div id="runningJobs" style='max-height: 20%; width: auto; margin: 1% 1% 1% 1%;'>
     <?php
-        $db->select("SELECT COUNT(tagnumber) AS 'count', status FROM remote WHERE (task IS NOT NULL OR NOT status = 'Waiting for job') AND present_bool = 1 GROUP BY status");
+        $db->select("SELECT COUNT(tagnumber) AS 'count', status FROM remote WHERE (job_queued IS NOT NULL OR NOT status = 'Waiting for job') AND present_bool = 1 GROUP BY status");
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $ley => $value) {
                 echo "<h3><b>Running Jobs:</b> " . htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")" . "</h3>";
@@ -183,12 +183,12 @@ if (arrFilter($db->get()) === 0) {
 
 <?php
 
-$db->select("SELECT tagnumber, IF (status LIKE 'fail%', 1, 0) AS 'failstatus', DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', DATE_FORMAT(last_job_time, '%b %D %Y, %r') AS 'last_job_time_formatted', (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task = 'cancel' THEN 'Cancel Running Jobs' WHEN task IS NULL THEN 'No Job' END) AS 'task_formatted', task, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', kernel_updated, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY failstatus DESC, FIELD(task, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, kernel_updated DESC, bios_updated DESC, last_job_time DESC");
+$db->select("SELECT tagnumber, IF (status LIKE 'fail%', 1, 0) AS 'failstatus', DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', DATE_FORMAT(last_job_time, '%b %D %Y, %r') AS 'last_job_time_formatted', job_queued, status, IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = '1', 'No', 'Yes') AS 'bios_updated', kernel_updated, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, SEC_TO_TIME(uptime) AS 'uptime', CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool = '1' ORDER BY failstatus DESC, FIELD(job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, kernel_updated DESC, bios_updated DESC, last_job_time DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
       echo "<tr>" . PHP_EOL;
       echo "<td>" . PHP_EOL;
-        if (($value["status"] !== "Waiting for job" || strFilter($value["task"]) === 0) && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
+        if (($value["status"] !== "Waiting for job" || strFilter($value["job_queued"]) === 0) && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
           echo "<b>In Progress: </b>";
         }
 

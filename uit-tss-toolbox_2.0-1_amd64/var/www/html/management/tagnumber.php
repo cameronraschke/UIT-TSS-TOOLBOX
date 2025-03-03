@@ -7,12 +7,12 @@ $db = new db();
 
 <?php
 //POST data
-if (isset($_POST["task"])) {
-    $arrTask = explode('|', $_POST["task"]);
-    if (strFilter($arrTask[0]) === 0) {
-        $db->updateRemote($arrTask[0], "task", $arrTask[1]);
+if (isset($_POST["job_queued"])) {
+    $job_queued = explode('|', $_POST["job_queued"]);
+    if (strFilter($job_queued[0]) === 0) {
+        $db->updateRemote($job_queued[0], "job_queued", $job_queued[1]);
     }
-    unset($_POST["task"]);
+    unset($_POST["job_queued"]);
 }
 
 if (isset($_POST['department'])) {
@@ -293,21 +293,21 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
                 <tbody>
                     <tr>
                         <td>
-                        <form name="task" method="post">
-                            <select name="task" onchange='this.form.submit()'>
+                        <form name="job_queued" method="post">
+                            <select name="job_queued" onchange='this.form.submit()'>
   <?php
   // Get/set current jobs.
   if ($_GET['tagnumber']) {
-    $db->select("SELECT (CASE WHEN task = 'update' THEN 'Update' WHEN task = 'nvmeErase' THEN 'Erase Only' WHEN task = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN task = 'findmy' THEN 'Play Sound' WHEN task = 'hpCloneOnly' THEN 'Clone Only' WHEN task = 'cancel' THEN 'Cancel Running Jobs' WHEN task IS NULL THEN 'No Job' END) AS 'formatted_task', task, status, present_bool FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
+    $db->select("SELECT (CASE WHEN job_queued = 'update' THEN 'Update' WHEN job_queued = 'nvmeErase' THEN 'Erase Only' WHEN job_queued = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN job_queued = 'findmy' THEN 'Play Sound' WHEN job_queued = 'hpCloneOnly' THEN 'Clone Only' WHEN job_queued = 'cancel' THEN 'Cancel Running Jobs' WHEN job_queued IS NULL THEN 'No Job' END) AS 'job_queued_formatted', job_queued, status, present_bool FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
     if (arrFilter($db->get()) === 0) {
       foreach ($db->get() as $key => $value) {
-        echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|" . htmlspecialchars($value["task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["formatted_task"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>";
+        echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|" . htmlspecialchars($value["job_queued"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["job_queued_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>";
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
         echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-        if (($value["remote_status"] !== "Waiting for job" || strFilter($value["task"]) === 0) && $value["present_bool"] === 1) {
+        if (($value["remote_status"] !== "Waiting for job" || strFilter($value["job_queued"]) === 0) && $value["present_bool"] === 1) {
           echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|cancel'>Cancel Running Job</option>";
         } else {
           echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
