@@ -188,7 +188,9 @@ VALUES
     ('PC SN740 NVMe WD 512GB','4000','5000','1750000','300',NULL,'0','85','m.2','nvme','0',NULL,'3000'),
     ('SK hynix SC308 SATA 256GB',130,540,1500000,75,NULL,0,70,'m.2','ssd','0',NULL,NULL),
     ('ST500LM000-1EJ162', 100, 100, NULL, 125, 125, 0, 60, 'sata', 'hdd', 1, 5400, 25000),
-    ('ST500DM002-1SB10A', 100, 100, NULL, 125, 125, 0, 60, 'sata', 'hdd', 1, 5400, 25000)
+    ('ST500DM002-1SB10A', 100, 100, NULL, 125, 125, 0, 60, 'sata', 'hdd', 1, 5400, 25000),
+    ('SanDisk SSD PLUS 1000GB', 350, 535, 26280, 100, NULL, NULL, NULL, 'sata', 'ssd', 0, NULL, NULL),
+    ('WDC WD5000LPLX-75ZNTT1', NULL, NULL, 43800, 125, 125, 0, 60, 'sata', 'hdd', 1, 7200, NULL)
     ;
 
 
@@ -248,7 +250,8 @@ INSERT INTO static_bios_stats
     ('Latitude 7420', '1.39.0'),
     ('OptiPlex 5080', '1.6.0'),
     ('OptiPlex 7040', '1.8.1'),
-    ('OptiPlex 7050', '1.19.0');
+    ('OptiPlex 7050', '1.19.0')
+    ('OptiPlex 5070', '1.5.0');
 
 
 CREATE TABLE IF NOT EXISTS remote (
