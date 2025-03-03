@@ -117,6 +117,7 @@ ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1
 
 function remote {
 	job_queued=$(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
+	job_queued_formatted=$(echo "SELECT (CASE WHEN job_queued = 'data collection' THEN 'data collection' WHEN job_queued = 'update' THEN 'update' WHEN job_queued = 'findmy' THEN 'playing a sound' WHEN job_queued = 'hpEraseAndClone' THEN 'disk erase & clone' WHEN job_queued = 'hpCloneOnly' THEN 'disk clone' WHEN job_queued = 'nvmeErase' THEN 'disk erase' WHEN job_queued = 'nvmeVerify' THEN 'disk verify' WHEN job_queued = 'shutdown' THEN 'shutdown' ELSE job_queued END) AS 'result' FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select) 
 	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE job_queued IS NOT NULL) t1 WHERE t1.tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 	job_active=$(echo "SELECT job_active AS 'result' FROM remote WHERE tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 	job_available=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_active IS NOT NULL" | /var/lib/UIT-TSS-TOOLBOX/select)
@@ -1841,8 +1842,8 @@ function autodetectClient {
 				echo ""
 				tput cuu1
 				tput el
-				echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${job_queued} and is ${job_queued_position} in queue. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
-				echo "remote|${tagNum}|status|Scheduled for ${job_queued}, ${job_queued_position} in queue." | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${job_queued_formatted} and is ${job_queued_position} in queue. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
+				echo "remote|${tagNum}|status|Scheduled for ${job_queued_formatted}, ${job_queued_position} in queue." | /var/lib/UIT-TSS-TOOLBOX/parse
 				read -t 5 -N 1 input
 				if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 					echo "0" > /root/uptime
