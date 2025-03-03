@@ -1849,7 +1849,7 @@ function autodetectClient {
 					pkill --terminal tty1
 				fi
 				remote
-				if [[ $job_available == 0 && $job_queued_position == 1 ]]; then
+				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
 					break
 				fi
 			done
