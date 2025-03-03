@@ -1836,6 +1836,11 @@ function autodetectClient {
 			tput cuu1
 			tput el
 			while true; do
+				logo
+				echo ""
+				echo ""
+				tput cuu1
+				tput el
 				echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${job_queued} and is ${job_queued_position} in queue. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
 				echo "remote|${tagNum}|status|Scheduled for ${job_queued}, ${job_queued_position} in queue." | /var/lib/UIT-TSS-TOOLBOX/parse
 				read -t 5 -N 1 input
