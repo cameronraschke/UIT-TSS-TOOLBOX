@@ -147,15 +147,16 @@ if (arrFilter($db->get()) === 0) {
       <div class='page-content'><h3>An X (<span>&#10060;</span>) means a client has an out of date kernel. Do not run jobs on these clients.</h3></div>
 </div>
 
+
 <div id="runningJobs" style='max-height: 20%; width: auto; margin: 1% 1% 1% 1%;'>
     <?php
         $db->select("SELECT COUNT(tagnumber) AS 'count', status FROM remote WHERE (job_queued IS NOT NULL OR NOT status = 'Waiting for job') AND present_bool = 1 GROUP BY status");
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $ley => $value) {
-                echo "<h3><b>Running Jobs:</b> " . htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")" . "</h3>";
+                echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</h3>";
             }
         } else {
-            echo "<h3><b>Running Jobs: </b>None</h3>";
+            echo "<h3><b>Queued Jobs: </b>None</h3>";
         }
     ?>
 </div>
