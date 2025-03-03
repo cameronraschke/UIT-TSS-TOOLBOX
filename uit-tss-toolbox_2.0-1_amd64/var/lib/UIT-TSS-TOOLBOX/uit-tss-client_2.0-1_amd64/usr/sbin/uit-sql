@@ -62,6 +62,7 @@ done
 
 if [[ $(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
     echo "remote|${tagNum}|job_queued|" | /var/lib/UIT-TSS-TOOLBOX/parse
+    echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
     echo "remote|${tagNum}|status|fail - Job cancelled :(" | /var/lib/UIT-TSS-TOOLBOX/parse
     UUID=$(echo "SELECT uuid AS 'result' FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = 1 ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
     echo "general|erase_completed||${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
