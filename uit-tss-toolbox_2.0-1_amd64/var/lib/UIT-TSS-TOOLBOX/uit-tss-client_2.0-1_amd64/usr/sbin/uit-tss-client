@@ -173,8 +173,14 @@ function diskData {
 		diskSize=$(( $(cat /root/smartctl-data | grep '^User Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
 			echo "general|disk_size|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^242.*' | awk '{print $10}')
+		if [[ $diskReadsLBA == "" ]]; then
+			:
+		fi
 			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^241.*' | sed 's/,//g' | awk '{print $10}')
+		if [[ $diskWritesLBA == "" ]]; then
+			:
+		fi
 			echo "general|disk_writes|${diskWritesLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskType=$(lsblk --nodeps --output NAME,ROTA | grep -i "${DISK}"  | awk '{ print $2 }' | tail -n 1)
 			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
