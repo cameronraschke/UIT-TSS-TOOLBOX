@@ -194,13 +194,13 @@ $db->select("SELECT remote.tagnumber,
         remote.kernel_updated, CONCAT(remote.battery_charge, '%') AS 'battery_charge', 
         remote.battery_status, SEC_TO_TIME(remote.uptime) AS 'uptime', 
         CONCAT(remote.cpu_temp, '°C') AS 'cpu_temp', CONCAT(remote.disk_temp, '°C') AS 'disk_temp', 
-        CONCAT(remote.watts_now, ' Watts') AS 'watts_now' 
+        CONCAT(remote.watts_now, ' Watts') AS 'watts_now', remote.job_active
     FROM remote 
     LEFT JOIN (SELECT * FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) t1) t2
         ON remote.tagnumber = t2.tagnumber
     WHERE present_bool = '1' 
     ORDER BY 
-        failstatus DESC, ISNULL(job_queued) ASC, queue_position ASC,
+        failstatus DESC, ISNULL(job_queued) ASC, job_active DESC, queue_position ASC,
         FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, 
         FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, kernel_updated DESC, bios_updated DESC, last_job_time DESC");
 if (arrFilter($db->get()) === 0) {
@@ -366,7 +366,7 @@ echo "</div>";
                 document.getElementById("myTable1").innerHTML = myTable1
             });
             fetchHTML();
-        }, 500)}
+        }, 1000)}
 
 
         // function myFunction1() {
