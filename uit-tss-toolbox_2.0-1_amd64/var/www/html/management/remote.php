@@ -366,7 +366,7 @@ echo "</div>";
                 document.getElementById("myTable1").innerHTML = myTable1
             });
             fetchHTML();
-        }, 1000)}
+        }, 500)}
 
 
         // function myFunction1() {
