@@ -306,7 +306,7 @@ cat <<'EOF'
 EOF
 echo "${RESET}"
 echo "${BOLD}Inputting data into database...${RESET}"
-sleep 0.5
+sleep 0.1
 fi
 	echo "general|host_connected|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	### DMI Data
@@ -1815,7 +1815,7 @@ function autodetectClient {
 				fi
 				echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${job_queued_formatted} and is ${job_queued_position} in queue. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
 				echo "remote|${tagNum}|status|Scheduled for ${job_queued_formatted}, ${job_queued_position} in queue." | /var/lib/UIT-TSS-TOOLBOX/parse
-				read -t 2 -N 1 input
+				read -t 1 -N 1 input
 				if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 					echo "0" > /root/uptime
 					echo "0" > /tmp/cpu-usage.txt
@@ -2046,7 +2046,7 @@ function autodetectClient {
 			tput cuu1
 			tput el
 			echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) has no scheduled jobs right now. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to continue.${RESET}"
-			read -t 2 -N 1 input
+			read -t 0.5 -N 1 input
 			if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 				break
 			fi
