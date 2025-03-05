@@ -157,7 +157,7 @@ function diskData {
 			echo "general|disk_writes|${diskWritesLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '^Power On Hours: ' | awk '{print $4}' | sed 's/,//g')
 			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		diskPowerCycles=$(cat /root/smartctl-data | grep '^Power Cycles: ' | awk '${print $3}' | sed 's/,//g')
+		diskPowerCycles=$(cat /root/smartctl-data | grep '^Power Cycles: ' | awk '{print $3}' | sed 's/,//g')
 			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}"
 		diskType=nvme
 			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
