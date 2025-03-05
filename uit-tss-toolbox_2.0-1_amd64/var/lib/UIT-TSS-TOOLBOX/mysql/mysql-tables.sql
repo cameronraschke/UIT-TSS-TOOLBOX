@@ -207,11 +207,17 @@ INSERT INTO static_battery_stats
     battery_charge_cycles
     )
 VALUES 
-    ('RE03045XL','300'),
-    ('DELL VN3N047','300'),
-    ('DELL N2K6205','300'),
-    ('DELL 1VX1H93','300'),
-    ('DELL W7NKD85','300');
+    ('RE03045XL', 300),
+    ('DELL VN3N047', 300),
+    ('DELL N2K6205', 300),
+    ('DELL 1VX1H93', 300),
+    ('DELL W7NKD85', 300),
+    ('DELL PGFX464', 300),
+    ('DELL PGFX484', 300),
+    ('DELL 4M1JN11', 300),
+    ('X906972', 300),
+    ('M1009169', 300),
+    ('X910528', 300);
 
 
 DROP TABLE IF EXISTS static_bios_stats;
