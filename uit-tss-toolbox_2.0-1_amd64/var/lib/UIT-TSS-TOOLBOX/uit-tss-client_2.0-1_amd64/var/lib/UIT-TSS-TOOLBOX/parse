@@ -101,7 +101,7 @@ if ($arr[0] == "general") {
         $value = bcdiv($value, 1000000000, 2);
     } elseif (!empty($arr[4]) && $arr[4] == "sata") {
         if (!empty($arr[5]) && $arr[5] == "gib") {
-            $value = bcdiv($value, 1024);
+            $value = bcdiv($value, 1024, 2);
         } else {
             $value = bcmul($value, 512, 4);
             $value = bcdiv($value, 1000000000000, 2);
