@@ -234,10 +234,10 @@ INSERT INTO static_bios_stats
     VALUES
     ('HP ProBook 450 G6', 'R71 Ver. 01.31.00'),
     ('Latitude 7400', '1.37.0'),
-    ('Latitude 3500', '1.35.1'),
+    ('Latitude 3500', '1.36.0'),
     ('Latitude 3560', 'A19'),
     ('Latitude 3590', '1.26.0'),
-    ('Latitude 7430', '1.28.0'),
+    ('Latitude 7430', '1.29.0'),
     ('Latitude 7490', '1.41.0'),
     ('Latitude 7480', '1.40.0'),
     ('Latitude E7470', '1.36.3'),
@@ -255,11 +255,13 @@ INSERT INTO static_bios_stats
     ('Surface Pro', NULL),
     ('Surface Pro 4', '109.3748.768'),
     ('OptiPlex 7000', '1.28.0'),
-    ('Latitude 7420', '1.39.0'),
-    ('OptiPlex 5080', '1.6.0'),
-    ('OptiPlex 7040', '1.8.1'),
-    ('OptiPlex 7050', '1.19.0'),
-    ('OptiPlex 5070', '1.5.0');
+    ('Latitude 7420', '1.40.0'),
+    ('OptiPlex 5080', '1.28.1'),
+    ('OptiPlex 7040', '1.24.0'),
+    ('OptiPlex 7050', '1.27.0'),
+    ('OptiPlex 5070', '1.31.1'),
+    ('OptiPlex 7010', 'A29'),
+    ('OptiPlex 7780', '1.36.1');
 
 
 CREATE TABLE IF NOT EXISTS remote (
