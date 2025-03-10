@@ -1810,7 +1810,7 @@ function autodetectClient {
 		fi
 
 		sql=$(echo "SELECT job_active AS 'result' FROM remote WHERE tagnumber = '${tagNum}' AND status NOT like 'fail%'" | /var/lib/UIT-TSS-TOOLBOX/select)
-		if [[ $sql == "1" ]]
+		if [[ $sql == "1" ]]; then
 			echo "remote|${tagNum}|status|Waiting for job" | /var/lib/UIT-TSS-TOOLBOX/parse
 			echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
 			echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
