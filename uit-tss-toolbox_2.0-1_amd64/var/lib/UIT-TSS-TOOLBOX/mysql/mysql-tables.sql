@@ -424,13 +424,13 @@ CREATE TABLE IF NOT EXISTS static_job_names (
 INSERT INTO 
     static_job_names (job, job_readable, job_rank, job_html_bool)
 VALUES 
-    ('update', 'Update', 1, 1),
-    ('findmy', 'Play Sound', 2, 1),
-    ('hpEraseAndClone', 'Erase and Clone', 3, 1),
-    ('hpCloneOnly', 'Clone Only', 4, 1),
-    ('nvmeErase', 'Erase Only', 5, 1),
-    ('nvmeVerify', 'Verify Erase', 6, 0),
-    ('data collection', 'Data Collection', 7, 0),
-    ('shutdown', 'Shutdown', 8, 0),
-    ('cancel', 'Cancel/Clear Job(s)', 9, 1)
+    ('update', 'Update', 2, 1),
+    ('findmy', 'Play Sound', 3, 1),
+    ('hpEraseAndClone', 'Erase and Clone', 4, 1),
+    ('hpCloneOnly', 'Clone Only', 5, 1),
+    ('nvmeErase', 'Erase Only', 6, 1),
+    ('nvmeVerify', 'Verify Erase', 7, 0),
+    ('data collection', 'Data Collection', 8, 0),
+    ('shutdown', 'Shutdown', 9, 0),
+    ('cancel', 'Cancel/Clear Job(s)', 10, 1)
     ;

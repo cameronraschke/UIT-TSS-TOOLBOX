@@ -300,8 +300,8 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
   if ($_GET['tagnumber']) {
     $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
     if (arrFilter($db->get()) === 0 ) {
-      $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted', 
-          remote.job_queued
+      $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
+          IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted'
         FROM remote 
         INNER JOIN static_job_names 
           ON remote.job_queued = static_job_names.job 
