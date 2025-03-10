@@ -5,20 +5,20 @@ require('/var/www/html/management/php/include.php');
 $db = new db();
 
 // Job by location form
-if (isset($_POST['location']) && isset($_POST['location-action'])) {
-    $db->Pselect("SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND bios_updated = 1 AND kernel_updated = 1 AND job_queued IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber", array(':location' => htmlspecialchars_decode($_POST['location'])));
-
-    if (arrFilter($db->get()) === 0) {
-        foreach ($db->get() as $key => $value) {
-            $db->updateRemote($value["tagnumber"], "job_queued", $_POST['location-action']);
+if (isset($_POST['location'])) {
+    //$db->Pselect("SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND bios_updated = 1 AND kernel_updated = 1 AND job_queued IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber", array(':location' => htmlspecialchars_decode($_POST['location'])));
+    if (isset($_POST['location-action'])) {
+        $db->Pselect("SELECT locations.tagnumber FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE location IS NOT NULL GROUP BY tagnumber) t1 ON locations.time = t1.time INNER JOIN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND kernel_updated = 1 AND job_queued IS NULL) t2 ON locations.tagnumber = t2.tagnumber AND location = :location GROUP BY locations.tagnumber", array(':location' => htmlspecialchars_decode($_POST["location"])));
+        if (arrFilter($db->get()) === 0) {
+            foreach ($db->get() as $key => $value) {
+                $db->updateRemote($value["tagnumber"], "job_queued", $_POST['location-action']);
+            }
         }
     }
-    unset($sql);
-    unset($stmt);
-    unset($sqlLocation);
-    unset($_POST['location']);
-    unset($_POST['location-action']);
 }
+unset($value);
+unset($_POST['location']);
+unset($_POST['location-action']);
 ?>
 
 <html>
@@ -98,8 +98,8 @@ if (arrFilter($db->get()) === 0) {
 <table>
     <thead>
         <tr>
-        <th>Location</th>
-        <th>Pending Job</th>
+        <th>Select a Location</th>
+        <th>Select a Job to Queue</th>
         <th>Submit</th>
         </tr>
     </thead>
@@ -110,16 +110,17 @@ if (arrFilter($db->get()) === 0) {
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
-                    $db->select("SELECT location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND job_queued IS NULL GROUP BY tagnumber) GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
+                    $db->select("SELECT locations.location FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE location IS NOT NULL GROUP BY tagnumber) t1 ON locations.time = t1.time INNER JOIN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND kernel_updated = 1 AND job_queued IS NULL) t2 ON locations.tagnumber = t2.tagnumber GROUP BY locations.location ORDER BY location ASC");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value) {
                             if (preg_match("/^[a-zA-Z]$/", $value["location"])) {
-                                echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars(strtoupper($value["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
+                                echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars(strtoupper($value["location"])) . "</option>" . PHP_EOL;
                             } else {
-                                echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>" . PHP_EOL;
+                                echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars($value["location"]) . "</option>" . PHP_EOL;
                             }
                         }
                     }
+                    unset($value);
                 ?>
                 </select>
             </td>

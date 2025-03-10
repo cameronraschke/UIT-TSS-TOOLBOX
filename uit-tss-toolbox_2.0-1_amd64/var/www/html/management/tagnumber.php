@@ -7,8 +7,8 @@ $db = new db();
 
 <?php
 //POST data
-if (isset($_POST["job_queued_form"])) {
-    if (strFilter($_POST["job_queued"]) === 0 && strFilter($_POST["job_queued_tagnumber"]) === 0) {
+if (isset($_POST["job_queued_tagnumber"])) {
+    if (strFilter($_POST["job_queued"]) === 0) {
         $db->updateRemote($_POST["job_queued_tagnumber"], "job_queued", $_POST["job_queued"]);
     }
     unset($_POST["job_queued_form"]);
@@ -285,7 +285,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
             <table>
                 <thead>
                     <tr>
-                        <th>Update Job</th>
+                        <th>Queued Job</th>
                         <th>Current Status</th>
                     </tr>
                 </thead>
