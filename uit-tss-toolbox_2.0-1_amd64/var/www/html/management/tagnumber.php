@@ -332,13 +332,13 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
     foreach ($sqlArr as $key => $value) {
       // BIOS and kernel updated (check mark)
       if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === "Yes")) {
-        echo "Online, no errors <span>&#10004;&#65039;</span> (" . $value["uptime_formatted"] . ")";
+        echo "Online, no errors <span>&#10004;&#65039;</span> (" . htmlspecialchars($value["uptime_formatted"]) . ")";
       // BIOS and kernel out of date (x)
       } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== "Yes")) {
         echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
       // BIOS out of date, kernel updated (warning sign)
       } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== "Yes")) {
-        echo "Online, please update BIOS <span>&#9888;&#65039;</span> (" . $value["uptime_formatted"] . ")";
+        echo "Online, please update BIOS <span>&#9888;&#65039;</span> (" . htmlspecialchars($value["uptime_formatted"]) . ")";
       // BIOS updated, kernel out of date (x)
       } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === "Yes")) {
         echo "Online, kernel out of date <span>&#10060;</span>)";
@@ -350,7 +350,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
       }
 
       if (strFilter($value["remote_status"]) === 0) {
-          echo "<p><b>'" . htmlspecialchars($value["remote_status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</p>" . PHP_EOL;
+          echo "<p><b>'" . htmlspecialchars($value["remote_status"]) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"]) . "</p>" . PHP_EOL;
       }
     }
   }
@@ -400,7 +400,7 @@ if (isset($_GET["tagnumber"])) {
   echo "<div>" . PHP_EOL;
   if (strFilter($value["note"]) === 0) {
     if ($value["status"] === 1) {
-      echo "<div><label for='note'>Note (" . $value["note_time_formatted"] . ")</label></div>" . PHP_EOL;
+      echo "<div><label for='note'>Note (" . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
       echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
     } else {
       if (strFilter($value["note"]) === 0 && strFilter($value["note_time_formatted"]) === 0) {
@@ -455,7 +455,7 @@ if (isset($_GET["tagnumber"])) {
         </div>
 
 
-        <div class='pagetitle'><h3>Location Info</h3></div>
+        <div class='pagetitle'><h3>Location Info - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
 
 <div name='updateDiv2' id='updateDiv2' class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
 <table width="100%">
@@ -517,36 +517,36 @@ if (isset($_GET["tagnumber"])) {
   if (arrFilter($sqlArr) === 0) {
     foreach ($sqlArr as $key => $value) {
       echo "<tr>" . PHP_EOL;
-      echo "<td>" . $value['system_serial'] . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['system_serial']) . "</td>" . PHP_EOL;
       echo "<td>";
       // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
       if ($value["system_model"] !== "Latitude 7400") {
         if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-          echo "<table><tr><td>" . $value["wifi_mac"] . " (Wi-Fi)</td></tr><tr><td>" . $value["etheraddress"] . " (Ethernet)</td></tr></table>" . PHP_EOL;
+          echo "<table><tr><td>" . htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)</td></tr><tr><td>" . htmlspecialchars($value["etheraddress"]) . " (Ethernet)</td></tr></table>" . PHP_EOL;
         } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
-          echo $value["wifi_mac"] . " (Wi-Fi)";
+          echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
         } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
-          echo $value["etheraddress"] . " (Ethernet)";
+          echo htmlspecialchars($value["etheraddress"]) . " (Ethernet)";
         }
       } elseif ($value["system_model"] === "Latitude 7400") {
         if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-          echo $value["wifi_mac"] . " (Wi-Fi)";
+          echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
         } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
-          echo $value["wifi_mac"] . " (Wi-Fi)";
+          echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
         }
       }
       echo "</td>" . PHP_EOL;
-      echo "<td>" . $value['department'] . "</td>" . PHP_EOL;
-      echo "<td>" . $value['system_manufacturer'] . "</td>" . PHP_EOL;
-      echo "<td>" . $value['system_model'] . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['department_readable']) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['system_manufacturer']) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['system_model']) . "</td>" . PHP_EOL;
       if ($value["bios_updated"] === "Yes") {
-      echo "<td>" . $value["bios_version"] . " (Up to date)</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value["bios_version"]) . " (Up to date)</td>" . PHP_EOL;
       } else {
-      echo "<td>" . $value["bios_version"] . " (Out of date)</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value["bios_version"]) . " (Out of date)</td>" . PHP_EOL;
       }
-      echo "<td>" . $value['cpu_model'] . "</td>" . PHP_EOL;
-      echo "<td>" . $value['disk_type'] . "</td>" . PHP_EOL;
-      echo "<td>" . $value['network_speed'] . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['cpu_model']) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['disk_type']) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['network_speed']) . "</td>" . PHP_EOL;
       echo "</tr>" . PHP_EOL;
     }
   }
@@ -557,7 +557,7 @@ if (isset($_GET["tagnumber"])) {
 </div>
 
 
-        <div class='pagetitle'><h3>Other Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></u></h3></div>
+        <div class='pagetitle'><h3>Other Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
         <div class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
@@ -639,7 +639,7 @@ if (isset($_GET["tagnumber"])) {
             unset($value1);
         ?>
 
-        <div class='pagetitle'><h3>Job Log</h3></div>
+        <div class='pagetitle'><h3>Job Log - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
         <div name='updateDiv4' id='updateDiv4' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
@@ -681,7 +681,7 @@ if (isset($_GET["tagnumber"])) {
         </table>
         </div>
 
-        <div class='pagetitle'><h3>Location Log</h3></div>
+        <div class='pagetitle'><h3>Location Log - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
         <div name='updateDiv5' id='updateDiv5' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
