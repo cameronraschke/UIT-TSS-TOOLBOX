@@ -417,12 +417,12 @@ DROP TABLE IF EXISTS static_job_names;
 CREATE TABLE IF NOT EXISTS static_job_names (
   job VARCHAR(24) NOT NULL PRIMARY KEY,
   job_readable VARCHAR(24) DEFAULT NULL,
-  rank TINYINT DEFAULT NULL,
-  html_bool BOOLEAN DEFAULT NULL
+  job_rank TINYINT DEFAULT NULL,
+  job_html_bool BOOLEAN DEFAULT NULL
 );
 
 INSERT INTO 
-    static_job_names (job, job_readable)
+    static_job_names (job, job_readable, rank, html_bool)
 VALUES 
     ('update', 'Update', 1, 1),
     ('findmy', 'Play Sound', 2, 1),

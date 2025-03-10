@@ -307,7 +307,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
     if (arrFilter($db->get()) === 0) {
       foreach ($db->get() as $key => $value) {
         echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($value["job_queued"]) . "'>" . htmlspecialchars($value["job_queued_formatted"]) . "</option>";
-        $db->select("SELECT job, job_readable FROM static_job_names WHERE html_bool = 1 ORDER BY rank ASC");
+        $db->select("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 ORDER BY job_rank ASC");
         foreach ($db->get() as $key => $value1) {
           echo "<option value='" . htmlspecialchars($value1["job"]) . "'>" . htmlspecialchars($value1["job_readable"]) . "</option>";
         }
