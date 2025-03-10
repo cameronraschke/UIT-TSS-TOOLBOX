@@ -1755,6 +1755,18 @@ function terminate {
 	poweroff
 }
 
+function resetForClientRestart {
+	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+	for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+	dpkg --purge uit-tss-client
+	rm -r /root/uit-tss-client*
+	rm -r /root/.ssh/known_hosts*
+	echo "0" > /root/uptime
+	echo "0" > /tmp/cpu-usage.txt
+	echo "0" > /tmp/network-usage.txt
+	pkill --terminal tty1
+}
 
 function autodetectClient {
 	footer
@@ -1790,9 +1802,15 @@ function autodetectClient {
 
 		unattended="true"
 
-		sql=$(echo "SELECT status AS result FROM remote WHERE tagnumber = '${tagNum}' AND status LIKE 'fail%'" | /var/lib/UIT-TSS-TOOLBOX/select)
-		if [[ $sql == "NULL" ]]; then
+
+		sql=$(echo "SELECT status AS 'result' FROM remote WHERE tagnumber = '${tagNum}' AND status LIKE 'fail%'" | /var/lib/UIT-TSS-TOOLBOX/select)
+		if [[ $sql != "NULL" ]]; then
 			echo "remote|${tagNum}|status|Waiting for job" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
+		else
+			echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 
 		remote
@@ -1837,41 +1855,18 @@ function autodetectClient {
 				systemData
 				hardwareData
 				echo "remote|${tagNum}|status|Starting data collection" | /var/lib/UIT-TSS-TOOLBOX/parse
-				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				echo "0" > /root/uptime
-				echo "0" > /tmp/cpu-usage.txt
-				echo "0" > /tmp/network-usage.txt
-				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				pkill --terminal tty1
+				resetForClientRestart
 			elif [[ $job_queued == "update" ]]; then
 				department
 				enterTag
 				systemData
 				hardwareData
 				echo "remote|${tagNum}|status|Updating..." | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				dpkg --purge uit-tss-client
-				rm -r /root/uit-tss-client*
-				rm -r /root/.ssh/known_hosts*
-				# scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
-				# chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
-				# chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
-				# dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
-				# dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
-				echo "0" > /root/uptime
-				echo "0" > /tmp/cpu-usage.txt
-				echo "0" > /tmp/network-usage.txt
-				pkill --terminal tty1
+				resetForClientRestart
 			elif [[ $job_queued == "findmy" ]]; then
 				echo "remote|${tagNum}|status|Playing sound" | /var/lib/UIT-TSS-TOOLBOX/parse
 				play /root/findmy1.mp3 &> /dev/null
+				resetForClientRestart
 			elif [[ $job_queued == "hpEraseAndClone" ]]; then
 				department
 				enterTag
@@ -1901,19 +1896,11 @@ function autodetectClient {
 				footer
 				execute
 				totaltime
-				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "0" > /root/uptime
-				echo "0" > /tmp/cpu-usage.txt
-				echo "0" > /tmp/network-usage.txt
-				pkill --terminal tty1
+				resetForClientRestart
 			elif [[ $job_queued == "hpCloneOnly" ]]; then
 				department
 				enterTag
@@ -1940,18 +1927,10 @@ function autodetectClient {
 				footer
 				execute
 				totaltime
-				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				echo "general|clone_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "0" > /root/uptime
-				echo "0" > /tmp/cpu-usage.txt
-				echo "0" > /tmp/network-usage.txt
-				pkill --terminal tty1
+				resetForClientRestart
 			elif [[ $job_queued == "nvmeErase" ]]; then
 				department
 				enterTag
@@ -1980,18 +1959,10 @@ function autodetectClient {
 				footer
 				execute
 				totaltime
-				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "0" > /root/uptime
-				echo "0" > /tmp/cpu-usage.txt
-				echo "0" > /tmp/network-usage.txt
-				pkill --terminal tty1
+				resetForClientRestart
 			elif [[ $job_queued == "nvmeVerify" ]]; then
 				department
 				enterTag
@@ -2020,18 +1991,10 @@ function autodetectClient {
 				footer
 				execute
 				totaltime
-				for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-				for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 				echo "general|erase_completed|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "0" > /root/uptime
-				echo "0" > /tmp/cpu-usage.txt
-				echo "0" > /tmp/network-usage.txt
-				pkill --terminal tty1
+				resetForClientRestart
 			elif [[ $job_queued == "shutdown" ]]; then
 				echo "remote|${tagNum}|status|fail - Shutting down" | /var/lib/UIT-TSS-TOOLBOX/parse
 				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -2040,8 +2003,7 @@ function autodetectClient {
 			elif [[ $job_queued == "fail-test" ]]; then
 				echo "remote|${tagNum}|status|fail - test" | /var/lib/UIT-TSS-TOOLBOX/parse
 			fi
-			echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-			echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
+			resetForClientRestart
 		else
 			tput cuu1
 			tput el
