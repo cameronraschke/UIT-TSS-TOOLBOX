@@ -298,25 +298,29 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
   <?php
   // Get/set current jobs.
   if ($_GET['tagnumber']) {
-    $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted', 
-        remote.job_queued
-      FROM remote 
-      INNER JOIN static_job_names 
-        ON remote.job_queued = static_job_names.job 
-      WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-    if (arrFilter($db->get()) === 0) {
-      foreach ($db->get() as $key => $value) {
-        echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($value["job_queued"]) . "'>" . htmlspecialchars($value["job_queued_formatted"]) . "</option>";
-        $db->select("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 ORDER BY job_rank ASC");
+    $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+    if (arrFilter($db->get()) === 0 ) {
+      $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted', 
+          remote.job_queued
+        FROM remote 
+        INNER JOIN static_job_names 
+          ON remote.job_queued = static_job_names.job 
+        WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
+      if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-          echo "<option value='" . htmlspecialchars($value1["job"]) . "'>" . htmlspecialchars($value1["job_readable"]) . "</option>";
+          echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
         }
         unset($value1);
       }
+      $db->select("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 ORDER BY job_rank ASC");
+      foreach ($db->get() as $key => $value2) {
+        echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
+      }
+      unset($value2);
       unset($value);
-    } else {
-      echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " is not in the DB :(</option>";
     }
+  } else {
+    echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " is not in the DB :(</option>";
   }
   ?>
     </select>
