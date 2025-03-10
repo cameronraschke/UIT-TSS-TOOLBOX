@@ -271,7 +271,7 @@ INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
   ON locations.time = t10.time
 WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
-  AND jobstats.tagnumber = :tagnumber";
+  AND jobstats.tagnumber = :tagnumber LIMIT 1";
 
   $sqlArr = array();
   $db->Pselect($sql, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
