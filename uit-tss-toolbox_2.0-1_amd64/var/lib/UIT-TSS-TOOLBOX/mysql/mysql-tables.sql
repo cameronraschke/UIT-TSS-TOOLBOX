@@ -422,7 +422,7 @@ CREATE TABLE IF NOT EXISTS static_job_names (
 );
 
 INSERT INTO 
-    static_job_names (job, job_readable, rank, html_bool)
+    static_job_names (job, job_readable, job_rank, job_html_bool)
 VALUES 
     ('update', 'Update', 1, 1),
     ('findmy', 'Play Sound', 2, 1),
