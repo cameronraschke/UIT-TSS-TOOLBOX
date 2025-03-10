@@ -7,12 +7,11 @@ $db = new db();
 
 <?php
 //POST data
-if (isset($_POST["job_queued"])) {
-    $job_queued = explode('|', $_POST["job_queued"]);
-    if (strFilter($job_queued[0]) === 0) {
-        $db->updateRemote($job_queued[0], "job_queued", $job_queued[1]);
+if (isset($_POST["job_queued_form"])) {
+    if (strFilter($_POST["job_queued"]) === 0 && strFilter($_POST["job_queued_tagnumber"]) === 0) {
+        $db->updateRemote($_POST["job_queued_tagnumber"], "job_queued", $_POST["job_queued"]);
     }
-    unset($_POST["job_queued"]);
+    unset($_POST["job_queued_form"]);
 }
 
 if (isset($_POST['department'])) {
@@ -293,26 +292,28 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
                 <tbody>
                     <tr>
                         <td>
-                        <form name="job_queued" method="post">
+                        <form name="job_queued_form" method="post">
+                            <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
                             <select name="job_queued" onchange='this.form.submit()'>
   <?php
   // Get/set current jobs.
   if ($_GET['tagnumber']) {
-    $db->select("SELECT (CASE WHEN job_queued = 'update' THEN 'Update' WHEN job_queued = 'nvmeErase' THEN 'Erase Only' WHEN job_queued = 'hpEraseAndClone' THEN 'Erase + Clone' WHEN job_queued = 'findmy' THEN 'Play Sound' WHEN job_queued = 'hpCloneOnly' THEN 'Clone Only' WHEN job_queued = 'cancel' THEN 'Cancel Running Jobs' WHEN job_queued IS NULL THEN 'No Job' END) AS 'job_queued_formatted', job_queued, status, present_bool FROM remote WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "'");
+    $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted', 
+        remote.job_queued
+      FROM remote 
+      INNER JOIN static_job_names 
+        ON remote.job_queued = static_job_names.job 
+      WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
     if (arrFilter($db->get()) === 0) {
       foreach ($db->get() as $key => $value) {
-        echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|" . htmlspecialchars($value["job_queued"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["job_queued_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</option>";
-        echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|update'>Update</option>";
-        echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|nvmeErase'>Erase Only</option>";
-        echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpCloneOnly'>Clone Only</option>";
-        echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|hpEraseAndClone'>Erase + Clone</option>";
-        echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|findmy'>Play Sound</option>";
-        if (($value["remote_status"] !== "Waiting for job" || strFilter($value["job_queued"]) === 0) && $value["present_bool"] === 1) {
-          echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "|cancel'>Cancel Running Job</option>";
-        } else {
-          echo "<option value='" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "| '>Clear Pending Jobs</option>";
+        echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($value["job_queued"]) . "'>" . htmlspecialchars($value["job_queued_formatted"]) . "</option>";
+        $db->select("SELECT job, job_readable FROM static_job_names WHERE html_bool = 1 ORDER BY rank ASC");
+        foreach ($db->get() as $key => $value1) {
+          echo "<option value='" . htmlspecialchars($value1["job"]) . "'>" . htmlspecialchars($value1["job_readable"]) . "</option>";
         }
+        unset($value1);
       }
+      unset($value);
     } else {
       echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " is not in the DB :(</option>";
     }

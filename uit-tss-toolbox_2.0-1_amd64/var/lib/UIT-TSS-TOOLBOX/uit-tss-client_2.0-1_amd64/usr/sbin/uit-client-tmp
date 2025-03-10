@@ -1845,7 +1845,7 @@ function autodetectClient {
 				insertSystemDataScreen
 				echo "remote|${tagNum}|status|Starting Erase + Clone job (HP)" | /var/lib/UIT-TSS-TOOLBOX/parse
 				jobType="EC"
-				jobReadable="erase and clone"
+				jobReadable=$(echo "SELECT static_job_names.job_readable FROM static_job_names INNER JOIN remote ON remote.job_queued = static_job_names.job WHERE remote.tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
@@ -1887,7 +1887,7 @@ function autodetectClient {
 				insertSystemDataScreen
 				echo "remote|${tagNum}|status|Starting Clone only job (HP)" | /var/lib/UIT-TSS-TOOLBOX/parse
 				jobType="C"
-				jobReadable="clone"
+				jobReadable=$(echo "SELECT static_job_names.job_readable FROM static_job_names INNER JOIN remote ON remote.job_queued = static_job_names.job WHERE remote.tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
@@ -1936,7 +1936,7 @@ function autodetectClient {
 				PCNTOFSECTOR='10'
 				CHAR='0'
 				jobType="E"
-				jobReadable="erase"
+				jobReadable=$(echo "SELECT static_job_names.job_readable FROM static_job_names INNER JOIN remote ON remote.job_queued = static_job_names.job WHERE remote.tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 				shredMode="autodetect"
 				RMODE="Autodetect"
 					echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1969,7 +1969,7 @@ function autodetectClient {
 				PCNTOFSECTOR='10'
 				CHAR='0'
 				jobType="E"
-				jobReadable="erase"
+				jobReadable=$(echo "SELECT static_job_names.job_readable FROM static_job_names INNER JOIN remote ON remote.job_queued = static_job_names.job WHERE remote.tagnumber = ${tagNum}" | /var/lib/UIT-TSS-TOOLBOX/select)
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else

@@ -412,3 +412,25 @@ ALTER TABLE departments
     MODIFY COLUMN system_serial VARCHAR(24) DEFAULT NULL AFTER tagnumber,
     MODIFY COLUMN department VARCHAR(32) DEFAULT NULL AFTER system_serial,
     MODIFY COLUMN subdepartment VARCHAR(64) DEFAULT NULL AFTER department;
+
+DROP TABLE IF EXISTS static_job_names;
+CREATE TABLE IF NOT EXISTS static_job_names (
+  job VARCHAR(24) NOT NULL PRIMARY KEY,
+  job_readable VARCHAR(24) DEFAULT NULL,
+  rank TINYINT DEFAULT NULL,
+  html_bool BOOLEAN DEFAULT NULL
+);
+
+INSERT INTO 
+    static_job_names (job, job_readable)
+VALUES 
+    ('update', 'Update', 1, 1),
+    ('findmy', 'Play Sound', 2, 1),
+    ('hpEraseAndClone', 'Erase and Clone', 3, 1),
+    ('hpCloneOnly', 'Clone Only', 4, 1),
+    ('nvmeErase', 'Erase Only', 5, 1),
+    ('nvmeVerify', 'Verify Erase', 6, 0),
+    ('data collection', 'Data Collection', 7, 0),
+    ('shutdown', 'Shutdown', 8, 0),
+    ('cancel', 'Cancel/Clear Job(s)', 9, 1)
+    ;
