@@ -20,12 +20,6 @@ $endDate = $date;
 // New DB connection
 $db = new db();
 
-$arrEraseJobsLC = array();
-$arrCloneJobsLC = array();
-$tbw = array();
-$mtbf = array();
-$arrBatteryCharge = array();
-$arrBatteryCycles = array();
 
 # Iterate through all the dates between $startDate and $date.
 $db->Pselect("CALL iterateDate(:startDate, :endDate)", array(':startDate' => $startDate, ':endDate' => $endDate));
@@ -97,9 +91,9 @@ foreach ($db->get() as $key => $iteratedDate) {
 
 
     # Update the number of erase jobs, clone jobs, and total jobs
-    $db->updateSS("erase_jobs_count", $value["erase_jobs_count"], $value["date"]);
-    $db->updateSS("clone_jobs_count", $value["erase_jobs_count"], $value["date"]);
-    $db->updateSS("total_jobs_count", $value["total_jobs_count"], $value["date"]);
+    $db->updateSS("erase_job_count", $value["erase_job_count"], $value["date"]);
+    $db->updateSS("clone_job_count", $value["erase_job_count"], $value["date"]);
+    $db->updateSS("total_job_count", $value["total_job_count"], $value["date"]);
 
 
     # Update date of last image update
