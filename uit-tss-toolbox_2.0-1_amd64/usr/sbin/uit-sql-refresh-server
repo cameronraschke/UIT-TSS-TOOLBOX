@@ -80,7 +80,7 @@ foreach ($db->get() as $key => $iteratedDate) {
     }
 
     # Client count
-    $db->updateSS("client_count", count($db->get()), $value["date"]);
+    $db->updateSS("client_count", $value["client_count"], $value["date"]);
 
     # Update the average time taken to clone a computer.
     $db->updateSS("avg_clone_time", $value["avg_clone_time"], $value["date"]);
