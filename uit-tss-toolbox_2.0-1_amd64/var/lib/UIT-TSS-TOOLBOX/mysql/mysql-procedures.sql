@@ -141,9 +141,8 @@ BEGIN
   'Total Jobs',
   'Clone Jobs',
   'Erase Jobs',
-  'Clone Time',
-  'NVME Erase Time',
-  'HDD Erase Time',
+  'Avg. Clone Time',
+  'Avg. Erase Time',
   'Last Image Update'
 )
 UNION
@@ -152,12 +151,11 @@ UNION
   client_count,
   CONCAT(battery_health, '%'),
   CONCAT(disk_health, '%'),
-  all_jobs,
-  clone_jobs,
-  erase_jobs,
-  CONCAT(clone_avgtime, ' mins'),
-  CONCAT(nvme_erase_avgtime, ' mins'),
-  CONCAT(sata_erase_avgtime, ' mins'),
+  total_job_count,
+  clone_job_count,
+  erase_job_count,
+  CONCAT(avg_clone_time, ' mins'),
+  CONCAT(avg_erase_time, ' mins'),
   last_image_update
 FROM serverstats
 ORDER BY date DESC);

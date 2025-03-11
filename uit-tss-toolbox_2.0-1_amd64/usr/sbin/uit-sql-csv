@@ -25,16 +25,6 @@ unset($value);
 $file = null;
 
 
-#Server Table
-$file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'w');
-$db->select("CALL iterateServerCSV()");
-foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-
 #Locations Table
 $file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'w');
 $db->select("CALL iterateLocationsCSV()");
@@ -57,6 +47,15 @@ $file = null;
 // SHRL Report
 $file = new SplFileObject("/tmp/laptop-report-shrl-".$date.".csv", 'w');
 $db->AssocSelect("CALL iterateSHRLcsv()");
+foreach ($db->get() as $key => $value) {
+    $file->fputcsv($value);
+}
+unset($value);
+$file = null;
+
+#Server Table
+$file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'w');
+$db->AssocSelect("CALL iterateServerCSV()");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
 }
