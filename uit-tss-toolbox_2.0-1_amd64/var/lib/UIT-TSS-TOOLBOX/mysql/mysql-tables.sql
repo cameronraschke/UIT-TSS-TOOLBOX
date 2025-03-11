@@ -4,9 +4,9 @@ CREATE TABLE serverstats (
     client_count SMALLINT DEFAULT NULL,
     battery_health DECIMAL(5,2) DEFAULT NULL,
     disk_health DECIMAL(5,2) DEFAULT NULL,
-    total_jobs_count MEDIUMINT DEFAULT NULL,
-    clone_jobs_count MEDIUMINT DEFAULT NULL,
-    erase_jobs_count MEDIUMINT DEFAULT NULL,
+    total_job_count MEDIUMINT DEFAULT NULL,
+    clone_job_count MEDIUMINT DEFAULT NULL,
+    erase_job_count MEDIUMINT DEFAULT NULL,
     avg_clone_time SMALLINT DEFAULT NULL,
     avg_erase_time SMALLINT DEFAULT NULL,
     last_image_update DATE DEFAULT NULL
