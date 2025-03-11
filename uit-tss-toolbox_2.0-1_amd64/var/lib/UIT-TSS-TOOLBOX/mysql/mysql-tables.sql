@@ -4,12 +4,11 @@ CREATE TABLE serverstats (
     client_count SMALLINT DEFAULT NULL,
     battery_health DECIMAL(5,2) DEFAULT NULL,
     disk_health DECIMAL(5,2) DEFAULT NULL,
-    all_jobs MEDIUMINT DEFAULT NULL,
-    clone_jobs MEDIUMINT DEFAULT NULL,
-    erase_jobs MEDIUMINT DEFAULT NULL,
-    clone_avgtime SMALLINT DEFAULT NULL,
-    nvme_erase_avgtime SMALLINT DEFAULT NULL,
-    sata_erase_avgtime SMALLINT DEFAULT NULL,
+    total_jobs_count MEDIUMINT DEFAULT NULL,
+    clone_jobs_count MEDIUMINT DEFAULT NULL,
+    erase_jobs_count MEDIUMINT DEFAULT NULL,
+    avg_clone_time SMALLINT DEFAULT NULL,
+    avg_erase_time SMALLINT DEFAULT NULL,
     last_image_update DATE DEFAULT NULL
 );
 

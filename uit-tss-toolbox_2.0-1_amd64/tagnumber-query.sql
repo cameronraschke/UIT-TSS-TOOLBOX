@@ -86,3 +86,51 @@ ORDER BY locations.time ASC;
 --| techComm-73bfd5e4-adf7-46ab-a420-199e99399f16 | 625885    | 38:22:e2:2e:68:22 | 2024-09-18 | 2024-09-18 18:06:01.662 | techComm   | 5CD014DJGZ    | nvme0n1 | MTFDHBA256TCK-1AS1AABHA | nvme      |       256 | UHPVN0172D49HR |        5.02 |       5.89 |
 --    324 |        38 | HPS0V23       | RE03045XL     | 06BF           |             84 |                   269 |            45040 | 2020-01-21              |       43 | R71 Ver. 01.28.00 | 04/12/2024 | 81.49         | 3626C768   |            8 |      2667 |     13.40 |          0.06 |     23.87 |            NULL | NULL       |              NULL |       NULL |            NULL |         NULL |       NULL |              1 |
 --+-----------------------------------------------+-----------+-------------------+------------+-------------------------+------------+---------------+---------+-------------------------+-----------+-----------+----------------+-------------+------------+---------------------+-----------+---------------+---------------+----------------+----------------+-----------------------+------------------+-------------------------+----------+-------------------+------------+---------------+------------+--------------+-----------+-----------+---------------+-----------+-----------------+------------+-------------------+------------+-----------------+--------------+------------+----------------+
+
+
+SET @startDate = '2023-01-01';
+SET @date = '2025-01-01';
+CALL iterateDate(@startDate, @date);
+SELECT @date AS 'date', t1.client_count, 
+  (t2.erase_job_count + t3.clone_job_count) AS 'total_job_count',
+  t2.erase_job_count, t2.avg_erase_time,
+  t3.clone_job_count, t3.avg_clone_time,
+  t4.last_image_update,
+  t5.disk_health, t6.battery_health
+FROM tbl_results
+INNER JOIN (SELECT @date AS 'date', COUNT(tagnumber) AS 'client_count' FROM (SELECT tagnumber FROM jobstats WHERE department IN (SELECT department FROM static_departments WHERE department_bool = 1) AND tagnumber IS NOT NULL AND DATE(time) <= @date GROUP BY tagnumber) s1) t1 ON tbl_results.date = t1.date
+INNER JOIN (SELECT @date AS 'date', COUNT(erase_rows) AS 'erase_job_count', ROUND(AVG(erase_time / 60), 0) AS 'avg_erase_time' FROM (SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'erase_rows', erase_time FROM jobstats WHERE erase_completed = 1 AND erase_time IS NOT NULL AND date <= @date AND department IN (SELECT department FROM static_departments WHERE department_bool = 1)) s1 WHERE s1.erase_rows < 3) t2 ON tbl_results.date = t2.date
+INNER JOIN (SELECT @date AS 'date', COUNT(clone_rows) AS 'clone_job_count', ROUND(AVG(clone_time / 60), 0) AS 'avg_clone_time' FROM (SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'clone_rows', clone_time FROM jobstats WHERE clone_completed = 1 AND clone_time IS NOT NULL AND date <= @date AND department IN (SELECT department FROM static_departments WHERE department_bool = 1)) s2 WHERE s2.clone_rows < 3) t3 ON tbl_results.date = t3.date
+INNER JOIN (SELECT @date AS 'date', DATE(time) AS 'last_image_update' FROM jobstats WHERE clone_completed = 1 AND department IN (SELECT department FROM static_departments WHERE department_bool = 1) AND DATE(time) <= @date ORDER BY time DESC LIMIT 1) t4 ON tbl_results.date = t4.date
+LEFT JOIN (
+    SELECT
+      @date AS 'date',
+      ROUND(AVG((CASE
+        WHEN static_disk_stats.disk_type = 'hdd' AND static_disk_stats.disk_tbw IS NOT NULL AND static_disk_stats.disk_mtbf IS NOT NULL THEN ROUND(100 - (((((jobstats.disk_reads + jobstats.disk_writes) / static_disk_stats.disk_tbw) + (jobstats.disk_power_on_hours / static_disk_stats.disk_mtbf)) / 2) * 100), 2)
+        WHEN static_disk_stats.disk_type = 'hdd' AND static_disk_stats.disk_tbw IS NOT NULL AND static_disk_stats.disk_mtbf IS NULL THEN ROUND(100 - (((jobstats.disk_reads + jobstats.disk_writes) / static_disk_stats.disk_tbw) * 100), 2)
+        WHEN static_disk_stats.disk_type = 'hdd' AND static_disk_stats.disk_tbw IS NULL AND static_disk_stats.disk_mtbf IS NOT NULL THEN ROUND(100 - ((jobstats.disk_power_on_hours / static_disk_stats.disk_mtbf) * 100), 2)
+        WHEN static_disk_stats.disk_type = 'ssd' OR static_disk_stats.disk_type = 'nvme' THEN ROUND(100 - (((((jobstats.disk_writes / static_disk_stats.disk_tbw) + (jobstats.disk_power_on_hours / static_disk_stats.disk_mtbf)) / 2) * 100)), 2)
+        ELSE NULL
+      END
+      )), 2) AS 'disk_health'
+    FROM jobstats
+  LEFT JOIN static_disk_stats ON jobstats.disk_model = static_disk_stats.disk_model
+  INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE disk_model IS NOT NULL AND DATE(time) <= @date GROUP BY tagnumber) s3 ON jobstats.time = s3.time
+  WHERE DATE(jobstats.time) <= @date
+  ) t5 ON tbl_results.date <= t5.date
+LEFT JOIN (SELECT
+  @date AS 'date',
+    ROUND(AVG((CASE
+      WHEN jobstats.battery_health IS NOT NULL AND jobstats.battery_charge_cycles IS NOT NULL THEN ROUND(((jobstats.battery_health + (100 - ((jobstats.battery_charge_cycles / static_battery_stats.battery_charge_cycles) * 100))) / 2), 0)
+      WHEN jobstats.battery_health IS NOT NULL AND jobstats.battery_charge_cycles IS NULL THEN ROUND((jobstats.battery_health), 0)
+      WHEN jobstats.battery_health IS NULL AND jobstats.battery_charge_cycles IS NOT NULL THEN ROUND((100 - (((jobstats.battery_charge_cycles / static_battery_stats.battery_charge_cycles) * 100))), 0)
+    END
+    )), 2) AS 'battery_health'
+  FROM jobstats
+  LEFT JOIN static_battery_stats ON jobstats.battery_model = static_battery_stats.battery_model
+  INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE battery_model IS NOT NULL AND DATE(time) <= @date GROUP BY tagnumber) s4 ON jobstats.time = s4.time
+  WHERE DATE(jobstats.time) <= @date) t6 ON tbl_results.date = t6.date
+
+
+
+

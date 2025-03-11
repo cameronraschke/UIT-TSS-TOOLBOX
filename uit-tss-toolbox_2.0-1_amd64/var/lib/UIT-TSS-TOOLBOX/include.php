@@ -125,6 +125,7 @@ class db {
     private $sql;
     private $arr;
     private $pdo;
+    private $rowCount;
 
 
     public function select($sql) {
@@ -135,7 +136,7 @@ class db {
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         $this->arr = $stmt->fetchAll();
-        $rowCount = $stmt->rowCount();
+        $this->rowCount = $stmt->rowCount();
     }
 
     public function AssocSelect($sql) {
@@ -146,7 +147,7 @@ class db {
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         $this->arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $rowCount = $stmt->rowCount();
+        $this->rowCount = $stmt->rowCount();
     }
     
     public function Pselect($sql, $arr) {
@@ -160,6 +161,14 @@ class db {
     public function get() {
         if(is_array($this->arr) && arrFilter($this->arr) == 0) {
             return $this->arr;
+        } else {
+            return 0;
+        }
+    }
+
+    public function get_count() {
+        if(is_array($this->arr) && arrFilter($this->arr) == 0) {
+            return $this->rowCount;
         } else {
             return "NULL";
         }
