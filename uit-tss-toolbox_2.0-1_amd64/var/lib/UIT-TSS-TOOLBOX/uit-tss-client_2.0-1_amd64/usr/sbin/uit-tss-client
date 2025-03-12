@@ -1836,7 +1836,7 @@ function autodetectClient {
 					echo "remote|${tagNum}|job_active|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 					break
 				fi
-				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
+				if [[ $job_available == "NULL" && $job_queued_position == "NULL" ]]; then
 					echo "remote|${tagNum}|job_active|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 					break
 				fi
