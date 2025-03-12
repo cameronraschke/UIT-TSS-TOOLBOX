@@ -308,7 +308,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
         WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
       if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-          echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
+          echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($value1["job_queued"]) . "'>Queued: " . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
         }
         unset($value1);
       }
