@@ -62,7 +62,7 @@ CREATE PROCEDURE iterateJobCSV()
 DETERMINISTIC
 BEGIN
 (SELECT 
-  'UUID', 'Tag', 'System Serial', 'Datetime', 'Department', 'Ethernet MAC', 'Wi-Fi MAC', 'System Manufacturer', 'Model', 'System UUID',
+  'UUID', 'Tag', 'System Serial', 'Datetime', 'Ethernet MAC', 'Wi-Fi MAC', 'System Manufacturer', 'Model', 'System UUID',
   'System SKU', 'Chassis Type', 'Disk', 'Disk Model', 'Disk Type', 'Disk Size', 'Disk Serial', 'Disk Writes', 'Disk Reads',
   'Disk Power on Hours', 'Disk Temp', 'Disk Firmware', 'Battery Model', 'Battery Serial', 'Battery Health', 'Battery Charge Cycles',
   'Battery Capacity', 'Battery Manufacture Date', 'CPU Manufacturer', 'CPU Model', 'CPU Max Speed', 'CPU Cores', 'CPU Threads', 'CPU Temp',
@@ -72,7 +72,7 @@ BEGIN
 )
 UNION
 (SELECT
-  jobstats.uuid, jobstats.tagnumber, jobstats.system_serial, CONVERT(jobstats.time, DATETIME), departments.department, jobstats.etheraddress, system_data.wifi_mac, system_data.system_manufacturer, system_data.system_model, system_data.system_uuid, 
+  jobstats.uuid, jobstats.tagnumber, jobstats.system_serial, CONVERT(jobstats.time, DATETIME), jobstats.etheraddress, system_data.wifi_mac, system_data.system_manufacturer, system_data.system_model, system_data.system_uuid, 
   system_data.system_sku, system_data.chassis_type, jobstats.disk, jobstats.disk_model, jobstats.disk_type, CONCAT(jobstats.disk_size, ' GB'), jobstats.disk_serial, CONCAT(jobstats.disk_writes, ' TB'), CONCAT(jobstats.disk_reads, ' TB'), 
   CONCAT(jobstats.disk_power_on_hours, 'hrs'), CONCAT(jobstats.disk_temp, ' C'), jobstats.disk_firmware, jobstats.battery_model, jobstats.battery_serial, CONCAT(jobstats.battery_health, '%'), jobstats.battery_charge_cycles, 
   CONCAT(jobstats.battery_capacity, ' Wh'), jobstats.battery_manufacturedate, system_data.cpu_manufacturer, system_data.cpu_model, CONCAT(round(system_data.cpu_maxspeed / 1000, 2), ' Ghz'), system_data.cpu_cores, system_data.cpu_threads, CONCAT(jobstats.cpu_temp, ' C'), 
@@ -170,29 +170,36 @@ DELIMITER //
 CREATE PROCEDURE iterateLocationsCSV()
 DETERMINISTIC
 BEGIN
-
 (SELECT 
   'Tag',
   'Serial Number',
+  'System Model',
+  'Department',
   'Location',
   'Status',
   'OS Insalled',
+  'BIOS Updated',
   'Notes',
   'Most Recent Entry')
 UNION
 (SELECT
-  tagnumber,
-  system_serial,
-  location,
-  IF (status='0' OR status IS NULL, "Working", "Broken"),
-  IF (os_installed='1', "Yes", "No"),
-  note,
-  CONVERT(time, DATETIME) 
+  locations.tagnumber,
+  locations.system_serial,
+  system_data.system_model,
+  departments.department,
+  locations.location,
+  IF (locations.status = 0 OR status IS NULL, "Working", "Broken"),
+  IF (locations.os_installed = 1 , "Yes", "No"),
+  IF (locations.bios_updated = 1 , "Yes", "No"),
+  locations.note,
+  CONVERT(locations.time, DATETIME) 
 FROM locations 
-WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE department IN (SELECT department FROM departments WHERE department_bool = 1) AND time IN (SELECT MAX(time) FROM jobstats GROUP BY tagnumber) GROUP BY tagnumber)
-AND time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)
-GROUP BY tagnumber
-ORDER BY time DESC
+LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
+LEFT JOIN departments ON locations.tagnumber = departments.tagnumber
+INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t1 ON departments.time = t1.time
+INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
+
+ORDER BY locations.time DESC
 );
 END; //
 DELIMITER ;
