@@ -40,7 +40,7 @@ $db = new db();
                 </thead>
                 <tbody>
 <?php
-$db->select("SELECT date, client_count, battery_health, disk_health, all_jobs, clone_jobs, erase_jobs, clone_avgtime, nvme_erase_avgtime, sata_erase_avgtime, last_image_update FROM serverstats ORDER BY date DESC");
+$db->select("SELECT date, client_count, battery_health, disk_health, total_job_count, clone_job_count, erase_job_count, avg_clone_time, avg_erase_time, last_image_update FROM serverstats ORDER BY date DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
@@ -73,31 +73,24 @@ if (arrFilter($db->get()) === 0) {
         }
         echo "</td>" . PHP_EOL;
 
-        //all_jobs
+        //total_job_count
         echo "<td>";
-        if (strFilter($value["all_jobs"]) === 0) {
-            echo htmlspecialchars($value["all_jobs"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+        if (strFilter($value["total_job_count"]) === 0) {
+            echo htmlspecialchars($value["total_job_count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
         }
         echo "</td>" . PHP_EOL;
 
-        //clone_avgtime
+        //avg_clone_time
         echo "<td>";
-        if (strFilter($value["clone_avgtime"]) === 0) {
-            echo htmlspecialchars($value["clone_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
+        if (strFilter($value["avg_clone_time"]) === 0) {
+            echo htmlspecialchars($value["avg_clone_time"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
         }
         echo "</td>" . PHP_EOL;
 
-        //nvme_erase_avgtime
+        //avg_erase_time
         echo "<td>";
-        if (strFilter($value["nvme_erase_avgtime"]) === 0) {
-            echo htmlspecialchars($value["nvme_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
-        }
-        echo "</td>" . PHP_EOL;
-
-        //sata_erase_avgtime
-        echo "<td>";
-        if (strFilter($value["sata_erase_avgtime"]) === 0) {
-            echo htmlspecialchars($value["sata_erase_avgtime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
+        if (strFilter($value["avg_erase_time"]) === 0) {
+            echo htmlspecialchars($value["avg_erase_time"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " minutes";
         }
         echo "</td>" . PHP_EOL;
 
