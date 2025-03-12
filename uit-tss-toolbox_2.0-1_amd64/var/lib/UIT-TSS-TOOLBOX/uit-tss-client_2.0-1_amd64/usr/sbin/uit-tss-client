@@ -1832,6 +1832,14 @@ function autodetectClient {
 				if [[ $job_queued == "NULL" ]]; then
 					break
 				fi
+				if [[ $job_queued_override == "NULL" ]]; then
+					echo "remote|${tagNum}|job_active|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+					break
+				fi
+				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
+					echo "remote|${tagNum}|job_active|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+					break
+				fi
 				echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${job_queued_formatted} and is ${job_queued_position} in queue. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
 				echo "remote|${tagNum}|status|Scheduled for ${job_queued_formatted}, ${job_queued_position} in queue." | /var/lib/UIT-TSS-TOOLBOX/parse
 				read -t 3 -N 1 input
@@ -1843,17 +1851,7 @@ function autodetectClient {
 					echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
 					pkill --terminal tty1
 				fi
-				remote
-				if [[ $job_queued_override == "NULL" ]]; then
-					echo "remote|${tagNum}|job_active|1" | /var/lib/UIT-TSS-TOOLBOX/parse
-					break
-				fi
-				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
-					echo "remote|${tagNum}|job_active|1" | /var/lib/UIT-TSS-TOOLBOX/parse
-					break
-				fi
 			done
-			remote
 			if [[ $job_queued == "data collection" ]]; then
 				department
 				enterTag
