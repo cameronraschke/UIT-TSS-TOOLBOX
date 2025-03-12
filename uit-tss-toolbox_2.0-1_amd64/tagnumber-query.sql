@@ -134,3 +134,10 @@ LEFT JOIN (SELECT
 
 
 
+SELECT t0.dateByMonth, t1.avg_clone_time, t2.avg_erase_time
+  FROM (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth' FROM serverstats WHERE date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY dateByMonth) t0
+  INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_clone_time DESC) AS 'clone_rows', avg_clone_time FROM serverstats) t1
+    ON t0.dateByMonth = t1.dateByMonth
+  INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_erase_time DESC) AS 'erase_rows', avg_erase_time FROM serverstats) t2
+    ON t0.dateByMonth = t2.dateByMonth
+  WHERE t1.clone_rows = 1 AND t2.erase_rows = 1
