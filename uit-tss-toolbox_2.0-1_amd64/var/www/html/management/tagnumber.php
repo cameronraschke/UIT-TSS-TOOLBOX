@@ -312,6 +312,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
         }
         unset($value1);
       }
+      echo "<option value=''>--Select Job Below--</option>" . PHP_EOL;
       $db->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 AND NOT job IN (SELECT IF(job_queued IS NULL, '', job_queued) FROM remote WHERE tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
       foreach ($db->get() as $key => $value2) {
         echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
