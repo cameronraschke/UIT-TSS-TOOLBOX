@@ -39,7 +39,7 @@ $db = new db();
                             $db->select("SELECT COUNT(tagnumber) AS 'count' FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = 1");
                             if (arrFilter($db->get()) === 0) {
                               foreach ($db->get() as $key => $value) {
-                                echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</h3>";
+                                echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"]) . "</h3>";
                               }
                             } else {
                               echo "<h3><b>Queued Jobs: </b>None</h3>";
@@ -63,7 +63,7 @@ $db = new db();
                 $db->select("SELECT * FROM (SELECT date, DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', avg_clone_time, ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_clone_time ASC) AS 'clone_time' FROM serverstats) t1 INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonthErase', avg_erase_time, ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_erase_time ASC) AS 'erase_time' FROM serverstats) t2 ON t1.dateByMonth = t2.dateByMonthErase WHERE t1.avg_clone_time = 1 AND t2.avg_erase_time = 1 AND t1.date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)");
                 if (arrFilter($db->get()) === 0)
                     foreach ($db->get() as $key => $value) {
-                        echo "['" . $value["dateByMonth"] . "', " . $value["clone_avgtime"] . ", " . $value["nvme_erase_avgtime"] . "], ";
+                        echo "['" . htmlspecialchars($value["dateByMonth"]) . "', " . htmlspecialchars($value["avg_clone_time"]) . ", " . htmlspecialchars($value["avg_erase_time"]) . "], ";
                     }
                 ?>
                 ]);
@@ -83,10 +83,10 @@ $db = new db();
                 $db->select("SELECT (SELECT COUNT(tagnumber) FROM remote WHERE os_installed = 1 AND (NOT present_bool = 1 OR present_bool IS NULL)) AS 'os_installed_not_present', (SELECT COUNT(tagnumber) FROM remote WHERE (NOT os_installed = 1 OR os_installed IS NULL) AND (NOT present_bool = 1 OR present_bool IS NULL)) AS 'os_not_installed_not_present', (SELECT COUNT(tagnumber) FROM remote WHERE os_installed = 1 AND present_bool = 1) AS 'os_installed_present', (SELECT COUNT(tagnumber) FROM remote WHERE (NOT os_installed = 1 OR os_installed IS NULL) AND present_bool = 1) AS 'os_not_installed_present'");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
-                        echo "['OS NOT Installed, NOT online'," . $value["os_not_installed_not_present"] . "], ";
-                        echo "['OS NOT Installed, online'," . $value["os_not_installed_present"] . "], ";
-                        echo "['OS Installed, NOT online'," . $value["os_installed_not_present"] . "], ";
-                        echo "['OS Installed, online'," . $value["os_installed_present"] . "], ";
+                        echo "['OS NOT Installed, NOT online'," . htmlspecialchars($value["os_not_installed_not_present"]) . "], ";
+                        echo "['OS NOT Installed, online'," . htmlspecialchars($value["os_not_installed_present"]) . "], ";
+                        echo "['OS Installed, NOT online'," . htmlspecialchars($value["os_installed_not_present"]) . "], ";
+                        echo "['OS Installed, online'," . htmlspecialchars($value["os_installed_present"]) . "], ";
                     }
                 }
                 ?>
@@ -108,8 +108,8 @@ $db = new db();
                 $db->select("SELECT (SELECT COUNT(bios_updated) FROM clientstats WHERE bios_updated = 1) AS 'bios_updated', (SELECT SUM(IF(bios_updated IS NULL, 1, 0)) FROM clientstats WHERE bios_updated IS NULL) AS 'bios_not_updated'");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
-                        echo "['BIOS Updated'," . $value["bios_updated"] . "], ";
-                        echo "['BIOS out of Date'," . $value["bios_not_updated"] . "], ";
+                        echo "['BIOS Updated'," . htmlspecialchars($value["bios_updated"]) . "], ";
+                        echo "['BIOS out of Date'," . htmlspecialchars($value["bios_not_updated"]) . "], ";
                     }
                 }
                 ?>
