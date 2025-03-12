@@ -24,7 +24,7 @@ $file = null;
 
 // Property Table
 $file = new SplFileObject("/tmp/uit-tmp-reports/property-report-".$date.".csv", 'w');
-$db->select("CALL iterateLocationsPropertyCSV()");
+$db->AssocSelect("CALL iterateLocationsPropertyCSV()");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
 }
@@ -33,7 +33,7 @@ $file = null;
 
 // Client Table
 $file = new SplFileObject("/tmp/uit-tmp-reports/client-report-".$date.".csv", 'w');
-$db->select("CALL iterateClientCSV()");
+$db->AssocSelect("CALL iterateClientCSV()");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
 }
@@ -42,7 +42,7 @@ $file = null;
 
 // Locations Table
 $file = new SplFileObject("/tmp/uit-tmp-reports/location-report-".$date.".csv", 'w');
-$db->select("CALL iterateLocationsCSV()");
+$db->AssocSelect("CALL iterateLocationsCSV()");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
 }
@@ -51,7 +51,7 @@ $file = null;
 
 // Job Table
 $file = new SplFileObject("/tmp/uit-tmp-reports/job-report-".$date.".csv", 'w');
-$db->select("CALL iterateJobCSV()");
+$db->AssocSelect("CALL iterateJobCSV()");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
 }
