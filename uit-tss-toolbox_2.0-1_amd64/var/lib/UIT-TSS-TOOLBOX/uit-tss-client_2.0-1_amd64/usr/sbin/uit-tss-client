@@ -1834,7 +1834,7 @@ function autodetectClient {
 				fi
 				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
 					okay_to_go=$(echo "SELECT COUNT(tagnumber) FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly') AND job_active = 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-					if [[ $okay_to_go != "NULL" ]]; then
+					if [[ $okay_to_go == 0 ]]; then
 						echo "remote|${tagNum}|job_active|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 						break
 					fi
