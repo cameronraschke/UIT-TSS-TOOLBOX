@@ -72,17 +72,17 @@ BEGIN
 )
 UNION
 (SELECT
-  jobstats.uuid, jobstats.tagnumber, jobstats.system_serial, CONVERT(jobstats.time, DATETIME), jobstats.department, jobstats.etheraddress, system_data.wifi_mac, system_data.system_manufacturer, system_data.system_model, system_data.system_uuid, 
+  jobstats.uuid, jobstats.tagnumber, jobstats.system_serial, CONVERT(jobstats.time, DATETIME), departments.department, jobstats.etheraddress, system_data.wifi_mac, system_data.system_manufacturer, system_data.system_model, system_data.system_uuid, 
   system_data.system_sku, system_data.chassis_type, jobstats.disk, jobstats.disk_model, jobstats.disk_type, CONCAT(jobstats.disk_size, ' GB'), jobstats.disk_serial, CONCAT(jobstats.disk_writes, ' TB'), CONCAT(jobstats.disk_reads, ' TB'), 
   CONCAT(jobstats.disk_power_on_hours, 'hrs'), CONCAT(jobstats.disk_temp, ' C'), jobstats.disk_firmware, jobstats.battery_model, jobstats.battery_serial, CONCAT(jobstats.battery_health, '%'), jobstats.battery_charge_cycles, 
   CONCAT(jobstats.battery_capacity, ' Wh'), jobstats.battery_manufacturedate, system_data.cpu_manufacturer, system_data.cpu_model, CONCAT(round(system_data.cpu_maxspeed / 1000, 2), ' Ghz'), system_data.cpu_cores, system_data.cpu_threads, CONCAT(jobstats.cpu_temp, ' C'), 
   system_data.motherboard_manufacturer, system_data.motherboard_serial, jobstats.bios_version, jobstats.bios_date, jobstats.bios_firmware, jobstats.ram_serial, CONCAT(jobstats.ram_capacity, ' GB') ,CONCAT(jobstats.ram_speed, 'Mhz'), CONCAT(jobstats.cpu_usage, '%'), 
   CONCAT(jobstats.network_usage, 'mbps'), CONCAT(jobstats.boot_time, 's'), REPLACE(jobstats.erase_completed, '1', 'Yes'), jobstats.erase_mode, CONCAT(jobstats.erase_diskpercent, '%'), CONCAT(jobstats.erase_time, 's'), 
   REPLACE(jobstats.clone_completed, '1', 'Yes'), REPLACE(jobstats.clone_master, '1', 'Yes'), CONCAT(jobstats.clone_time, 's'), IF (jobstats.host_connected='1', 'Yes', '')
-FROM jobstats jobstats
-INNER JOIN system_data
-ON jobstats.tagnumber = system_data.tagnumber
-ORDER BY jobstats.time DESC);       
+FROM jobstats
+INNER JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
+INNER JOIN departments ON jobstats.time = departments.time
+ORDER BY jobstats.time DESC);
 END; //
 DELIMITER ;
 
@@ -102,8 +102,8 @@ BEGIN
   'Disk Health',
   'Disk Type',
   'BIOS Updated',
-  'Erase Time',
-  'Clone Time',
+  'Avg. Erase Time',
+  'Avg. Clone Time',
   'Total Jobs'
 )
 UNION
@@ -214,17 +214,19 @@ BEGIN
   'Most Recent Entry')
 UNION
 (SELECT
-  tagnumber,
-  system_serial,
-  location,
-  IF (disk_removed='1', "Yes", "No"),
-  note,
-  CONVERT(time, DATETIME) 
+  locations.tagnumber,
+  locations.system_serial,
+  locations.location,
+  IF (locations.disk_removed='1', "Yes", "No"),
+  locations.note,
+  CONVERT(locations.time, DATETIME) 
 FROM locations 
-WHERE tagnumber IN (SELECT tagnumber FROM jobstats WHERE department IN (SELECT department FROM departments WHERE department_bool = 0) AND time IN (SELECT MAX(time) FROM jobstats GROUP BY tagnumber) GROUP BY tagnumber)
-AND time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)
-GROUP BY tagnumber
-ORDER BY time DESC
+INNER JOIN departments ON locations.tagnumber = departments.tagnumber
+INNER JOIN static_departments ON departments.department = static_departments.department
+INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
+WHERE departments.department = 'property'
+AND locations.tagnumber IS NOT NULL
+ORDER BY locations.time DESC
 );
 END; //
 DELIMITER ;

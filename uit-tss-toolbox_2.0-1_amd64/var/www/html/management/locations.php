@@ -24,7 +24,6 @@ if (isset($_POST['serial'])) {
   $db->updateJob("system_serial", $serial, $uuid);
   $db->updateJob ("date", $date, $uuid);
   $db->updateJob ("time", $time, $uuid);
-  $db->updateJob ("department", $department, $uuid);
 
   // Insert department data
   $db->insertDepartments($time);

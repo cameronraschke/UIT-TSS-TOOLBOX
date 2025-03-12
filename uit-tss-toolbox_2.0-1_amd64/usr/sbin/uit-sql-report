@@ -2,9 +2,11 @@
 
 DATE=$(date --iso)
 
+mkdir /tmp/uit-tmp-reports/ 2>/dev/null
+
 uit-sql-csv
 
-mkdir /home/cameron/laptop-report-${DATE}/
+mkdir /home/cameron/reports/${DATE}/
 
-mv /tmp/laptop-report* /home/cameron/laptop-report-${DATE}/
-mysqldump laptopDB -pUHouston! > /home/cameron/laptop-report-${DATE}/laptopDB-${DATE}.sql
+mv /tmp/uit-tmp-reports/* /home/cameron/reports/${DATE}/
+mysqldump laptopDB -pUHouston! > /home/cameron/reports/${DATE}/laptopDB-${DATE}.sql

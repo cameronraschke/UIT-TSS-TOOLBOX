@@ -4,48 +4,8 @@ include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 
 $db = new db();
 
-/*
-#Job Table
-$file = new SplFileObject("/tmp/laptop-report-job-".$time.".csv", 'w');
-$db->select("CALL iterateJobCSV()");
-foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-
-#Client Table
-$file = new SplFileObject("/tmp/laptop-report-client-".$time.".csv", 'w');
-$db->select("CALL iterateClientCSV()");
-foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-
-#Locations Table
-$file = new SplFileObject("/tmp/laptop-report-location-".$time.".csv", 'w');
-$db->select("CALL iterateLocationsCSV()");
-foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-# Property Table
-$file = new SplFileObject("/tmp/laptop-report-property-".$time.".csv", 'w');
-$db->select("CALL iterateLocationsPropertyCSV()");
-foreach ($arr as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-*/
-
 // SHRL Report
-$file = new SplFileObject("/tmp/laptop-report-shrl-".$date.".csv", 'w');
+$file = new SplFileObject("/tmp/uit-tmp-reports/shrl-report-".$date.".csv", 'w');
 $db->AssocSelect("CALL iterateSHRLcsv()");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
@@ -53,9 +13,45 @@ foreach ($db->get() as $key => $value) {
 unset($value);
 $file = null;
 
-#Server Table
-$file = new SplFileObject("/tmp/laptop-report-server-".$time.".csv", 'w');
+// Server Table
+$file = new SplFileObject("/tmp/uit-tmp-reports/server-report-".$date.".csv", 'w');
 $db->AssocSelect("CALL iterateServerCSV()");
+foreach ($db->get() as $key => $value) {
+    $file->fputcsv($value);
+}
+unset($value);
+$file = null;
+
+// Property Table
+$file = new SplFileObject("/tmp/uit-tmp-reports/property-report-".$date.".csv", 'w');
+$db->select("CALL iterateLocationsPropertyCSV()");
+foreach ($db->get() as $key => $value) {
+    $file->fputcsv($value);
+}
+unset($value);
+$file = null;
+
+// Client Table
+$file = new SplFileObject("/tmp/uit-tmp-reports/client-report-".$date.".csv", 'w');
+$db->select("CALL iterateClientCSV()");
+foreach ($db->get() as $key => $value) {
+    $file->fputcsv($value);
+}
+unset($value);
+$file = null;
+
+// Locations Table
+$file = new SplFileObject("/tmp/uit-tmp-reports/location-report-".$date.".csv", 'w');
+$db->select("CALL iterateLocationsCSV()");
+foreach ($db->get() as $key => $value) {
+    $file->fputcsv($value);
+}
+unset($value);
+$file = null;
+
+// Job Table
+$file = new SplFileObject("/tmp/uit-tmp-reports/job-report-".$date.".csv", 'w');
+$db->select("CALL iterateJobCSV()");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
 }
