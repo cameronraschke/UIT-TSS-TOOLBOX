@@ -80,8 +80,8 @@ UNION
   CONCAT(jobstats.network_usage, 'mbps'), CONCAT(jobstats.boot_time, 's'), REPLACE(jobstats.erase_completed, '1', 'Yes'), jobstats.erase_mode, CONCAT(jobstats.erase_diskpercent, '%'), CONCAT(jobstats.erase_time, 's'), 
   REPLACE(jobstats.clone_completed, '1', 'Yes'), REPLACE(jobstats.clone_master, '1', 'Yes'), CONCAT(jobstats.clone_time, 's'), IF (jobstats.host_connected='1', 'Yes', '')
 FROM jobstats
-INNER JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
-INNER JOIN departments ON jobstats.time = departments.time
+LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
+LEFT JOIN departments ON jobstats.time = departments.time
 ORDER BY jobstats.time DESC);
 END; //
 DELIMITER ;
