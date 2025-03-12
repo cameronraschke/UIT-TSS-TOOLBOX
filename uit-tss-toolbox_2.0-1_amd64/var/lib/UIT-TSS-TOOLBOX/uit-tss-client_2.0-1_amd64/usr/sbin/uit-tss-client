@@ -1759,10 +1759,6 @@ function terminate {
 function resetForClientRestart {
 	echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
-	sql=$(echo "SELECT tagnumber AS 'result' FROM remote WHERE tagnumber = '${tagNum}' AND status NOT like 'fail%'" | /var/lib/UIT-TSS-TOOLBOX/select)
-	if [[ $sql == $tagNum ]]; then
-		echo "remote|${tagNum}|status|Waiting for job" | /var/lib/UIT-TSS-TOOLBOX/parse
-	fi
 	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1807,12 +1803,12 @@ function autodetectClient {
 		echo ""
 		echo ""
 
-		unattended="true"
-
 		sql=$(echo "SELECT tagnumber AS 'result' FROM remote WHERE tagnumber = '${tagNum}' AND status NOT like 'fail%'" | /var/lib/UIT-TSS-TOOLBOX/select)
 		if [[ $sql == $tagNum ]]; then
 			echo "remote|${tagNum}|status|Waiting for job" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
+
+		unattended="true"
 
 		remote
 		if [[ $job_queued != "NULL" ]]; then
