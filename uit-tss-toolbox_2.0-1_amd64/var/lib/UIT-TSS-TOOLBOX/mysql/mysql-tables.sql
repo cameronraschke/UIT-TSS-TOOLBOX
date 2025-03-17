@@ -264,7 +264,7 @@ INSERT INTO static_bios_stats
 
 CREATE TABLE IF NOT EXISTS bios_stats (
     tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
-    time DATETIME(3) NOT NULL,
+    time DATETIME(3) DEFAULT NULL,
     system_serial VARCHAR(24) DEFAULT NULL,
     bios_version VARCHAR(24) DEFAULT NULL,
     bios_updated BOOLEAN DEFAULT NULL
@@ -273,7 +273,7 @@ CREATE TABLE IF NOT EXISTS bios_stats (
 
 CREATE TABLE IF NOT EXISTS os_stats (
     tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
-    time DATETIME(3) NOT NULL,
+    time DATETIME(3) DEFAULT NULL,
     system_serial VARCHAR(24) DEFAULT NULL,
     os_name VARCHAR(24) DEFAULT NULL,
     os_installed BOOLEAN DEFAULT NULL

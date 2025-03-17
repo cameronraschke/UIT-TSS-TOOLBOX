@@ -16,7 +16,7 @@ $db->select("SELECT
 jobstats.tagnumber,
 t1.time AS 'last_job_time',
 t2.max_time, IF(t2.disk_removed = 1, 'No', t1.os_installed) AS 'os_installed',
-bios_stats.bios_updated
+bios_stats.bios_updated, bios_stats.bios_version
 FROM jobstats
 LEFT JOIN
   (SELECT tagnumber, time, 
@@ -55,8 +55,6 @@ foreach ($db->get() as $key => $value) {
   } else {
     $db->updateLocation("os_installed", 1, $value["max_time"]);
   }
-
-  $db->updateBIOS($value["tagnumber"], $value["bios_updated"], $time);
 
   # End the timer and print how long it took to update the location table for a specific tagnumber.
   # End the marker timer

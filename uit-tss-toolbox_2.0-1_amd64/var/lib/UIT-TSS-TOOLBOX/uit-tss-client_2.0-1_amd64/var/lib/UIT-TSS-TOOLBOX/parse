@@ -215,4 +215,12 @@ if ($arr[0] == "remote") {
     $db->updateRemote($tagNum, $key, $value);
 }
 
+if ($arr[0] == "bios") {
+    $tagNum = $arr[1];
+    $key = $arr[2];
+    $value = $arr[3];
+
+    $db->updateBIOS($tagNum, $key, $value);
+}
+
 ?>

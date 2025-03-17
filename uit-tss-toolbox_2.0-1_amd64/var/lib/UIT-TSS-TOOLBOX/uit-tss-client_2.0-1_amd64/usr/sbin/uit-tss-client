@@ -481,10 +481,13 @@ function footer {
 	biosUpdatedSQL=$(echo "SELECT bios_version AS 'result' FROM static_bios_stats WHERE system_model = '${tOneProductName}'" | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
 	if [[ $biosUpdatedSQL == "NULL" ]]; then
 		biosUpdated="$(dmidecode --string bios-version)"
+		echo "bios|${tagNum}|bios_version|$(dmidecode --string bios-version)"
 	elif [[ $biosUpdatedSQL == $(dmidecode --string bios-version) ]]; then
 		biosUpdated="${GREEN}Updated${RESET}"
+		echo "bios|${tagNum}|bios_version|$(dmidecode --string bios-version)"
 	elif [[ $biosUpdatedSQL != $(dmidecode --string bios-version) ]]; then
 		biosUpdated="${RED}Needs Update${RESET}"
+		echo "bios|${tagNum}|bios_version|$(dmidecode --string bios-version)"
 	fi
 	sqlLocation=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select 2>/dev/null)
 

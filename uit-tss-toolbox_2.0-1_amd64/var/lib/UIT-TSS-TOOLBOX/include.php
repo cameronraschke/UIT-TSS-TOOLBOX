@@ -496,6 +496,60 @@ class db {
             }
         }
     }    
+
+    public function insertBIOS ($tagNum) {
+        if (strFilter($tagNum) == 0) {
+            $db = new MySQLConn();
+            $this->pdo = $db->dbObj();
+
+            $sql = "INSERT INTO bios_stats (tagnumber) VALUES (:tagNum)";
+            $stmt = $this->pdo->prepare($sql);
+    
+            if (strFilter($biosVersion) === 0) {
+                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+            }
+    
+            if (strFilter($stmt) === 0) {
+                $stmt->execute();
+            }
+
+            $stmt = null;
+            $sql = null;
+        }
+    }
+
+    public function updateBIOS ($tagNum, $key, $value) {
+        if (strFilter($tagNum) === 0) {
+            $db = new MySQLConn();
+            $this->pdo = $db->dbObj();
+
+            $sql = "UPDATE bios_stats SET $key = :value, time = :updateTime WHERE tagnumber = :tagNum";
+            $stmt = $this->pdo->prepare($sql);
+
+            $dt = new DateTimeImmutable();
+            $updateTime = $dt->format('Y-m-d H:i:s.v');
+    
+            if (strFilter($value) === 0) {
+                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+                $stmt->bindParam(':time', $updateTime, PDO::PARAM_STR);
+            } else {
+                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+                $stmt->bindParam(':time', $updateTime, PDO::PARAM_STR);
+            }
+    
+            if (strFilter($stmt) == 0) {
+                $stmt->execute();
+            }
+
+            unset($updateTime);
+            $dt = null;
+            $stmt = null;
+            $sql = null;
+    
+        }
+    }
 }
 
 ?>

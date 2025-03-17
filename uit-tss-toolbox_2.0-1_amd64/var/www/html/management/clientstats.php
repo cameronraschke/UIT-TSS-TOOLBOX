@@ -150,7 +150,6 @@ if (arrFilter($db->get()) === 0) {
         }
         echo "</td>" . PHP_EOL;
 
-
         //erase_avgtime
         echo "<td>";
         if (strFilter($value["erase_avgtime"]) === 0) {

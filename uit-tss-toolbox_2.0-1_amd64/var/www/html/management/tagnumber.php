@@ -62,23 +62,23 @@ if (isset($_POST['department'])) {
     unset($value2);
     unset($value5);
 
-    $db->Pselect("SELECT t1.bios_version, t2.system_model FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.bios_version IS NOT NULL AND t2.system_model IS NOT NULL AND t1.tagnumber = :tagnumber ORDER BY t1.time DESC LIMIT 1", array(':tagnumber' => $tagNum));
-    if (arrFilter($db->get()) === 0) {
-        foreach ($db->get() as $key => $value2) {
-            $db->select("SELECT bios_version FROM static_bios_stats WHERE system_model = '" . $value2["system_model"] . "'");
-            if (arrFilter($db->get()) == 0) {
-                foreach ($db->get() as $key => $value3) {
-                    if ($value2["bios_version"] === $value3["bios_version"]) {
-                        $biosBool = 1;
-                    } else {
-                        $biosBool = 0;
-                    }
-                }
-            } else { $biosBool = 0; }
+    unset($sql);
+    unset($biosVersion);
+    $sql = "SELECT jobstats.bios_version
+      FROM jobstats
+      WHERE jobstats.bios_version IS NOT NULL 
+      AND jobstats.tagnumber = :tagnumber
+      ORDER BY jobstats.time DESC LIMIT 1";
+    
+    $db->Pselect($sql, array(':tagnumber' => $_POST["tagnumber"]));
+      if (arrFilter($db->get()) === 0) {
+        foreach ($db->get() as $key => $value1) {
+          $biosVersion = $value1["bios_version"];
         }
-    } else { $biosBool = 0; }
-    unset($value2);
-    unset($value3);
+      }
+    unset($sql);
+    unset($value1);
+      
 
     $db->insertLocation($time);
     $db->updateLocation("tagnumber", $tagNum, $time);
@@ -90,10 +90,10 @@ if (isset($_POST['department'])) {
     if (isset($osInstalled)) {
         $db->updateLocation("os_installed", $osInstalled, $time);
     }
-    if (isset($biosBool)) {
-        $db->updateBIOS($tagNum, $biosBool, $ime);
+    if (isset($biosVersion)) {
+      $db->updateBIOS($tagNum, "bios_version", $biosVersion);
     }
-    unset($biosBool);
+    unset($biosVersion);
     unset($osInstalled);
 
     unset($_POST);

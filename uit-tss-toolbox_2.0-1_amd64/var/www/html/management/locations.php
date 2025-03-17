@@ -73,27 +73,20 @@ if (isset($_POST['serial'])) {
   
   // BIOS updated
   unset($sql);
-  $sql = "SELECT jobstats.bios_version, static_bios_stats.bios_version AS 'static_bios_version'
+  unset($biosVersion);
+  $sql = "SELECT jobstats.bios_version
     FROM jobstats
-    INNER JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
-    INNER JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model 
-    WHERE jobstats.tagnumber = :tagnumber AND jobstats.bios_version IS NOT NULL 
+    WHERE jobstats.bios_version IS NOT NULL 
+    AND jobstats.tagnumber = :tagnumber
     ORDER BY jobstats.time DESC LIMIT 1";
   
   $db->Pselect($sql, array(':tagnumber' => $_POST["tagnumber"]));
     if (arrFilter($db->get()) === 0) {
       foreach ($db->get() as $key => $value1) {
-        if (strFilter($value1["bios_version"]) === 0) {
-          if ($value1["bios_version"] == $value1["static_bios_version"]) {
-            $biosBool = 1;
-          } else {
-            $biosBool = 0;
-          }
-        }
+        $biosVersion = $value1["bios_version"];
       }
-    } else {
-      $biosBool = 0;
     }
+  unset($sql);
   unset($value1);
   
   $db->insertLocation($time);
@@ -106,10 +99,10 @@ if (isset($_POST['serial'])) {
   if (isset($osInstalled)) {
     $db->updateLocation("os_installed", $osInstalled, $time);
   }
-  if (isset($biosBool)) {
-    $db->updateBIOS($tagNum, $biosBool, $time);
+  if (isset($biosVersion)) {
+    $db->updateBIOS($tagNum, "bios_version", $biosVersion);
   }
-  unset($biosBool);
+  unset($biosVersion);
   unset($osInstalled);
 
   //Printing
