@@ -8,6 +8,27 @@ $db = new db();
 
 <?php
 //POST stuff
+/* if (isset($_POST["csv-sql"])) {
+  $filename = "csv-report-". $time . ".csv";
+  header('Content-Disposition: attachment; filename="filename.csv";'); 
+    $sql = unserialize($_POST["csv-sql"]);
+    $db->AssocSelect($sql);
+    $file = new SplTempFileObject();
+    foreach ($db->get() as $key => $value) {
+        $file->fputcsv($value);
+    }
+    unset($value);
+    $file->rewind();
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+    $file->fpassthru();
+    $file = null;
+    unset($filename);
+    unset($sql);
+    unset($value);
+} */
+
+
 if (isset($_POST['serial'])) {
   $uuid = uniqid("location-", true);
   $tagNum = $_POST["tagnumber"];
