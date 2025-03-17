@@ -12,7 +12,7 @@ SELECT DATE_FORMAT(t10.time, '%b %D %Y, %r') AS 'time_formatted',
   t5.identifier, t5.recovery_key, 
   clientstats.battery_health, clientstats.disk_health, 
   DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'time_formatted', remote.status, remote.present_bool, 
-  remote.kernel_updated, remote.bios_updated, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted'
+  remote.kernel_updated, bios_stats.bios_updated, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted'
 FROM jobstats
 LEFT JOIN remote ON jobstats.tagnumber = remote.tagnumber
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
@@ -30,6 +30,7 @@ LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5
   ON jobstats.tagnumber = t5.tagnumber
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
   ON jobstats.tagnumber = t8.tagnumber
+LEFT JOIN bios_stats ON jobstats.tagnumber = bios_stats.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t9
   ON jobstats.time = t9.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10

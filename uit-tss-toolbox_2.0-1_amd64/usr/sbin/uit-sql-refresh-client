@@ -28,12 +28,7 @@ $db->select("SELECT
     jobstats.tagnumber,
     t1.department, t2.department_readable,
     system_data.system_model,
-    jobstats.bios_version,
-    (CASE
-      WHEN static_bios_stats.bios_version = jobstats.bios_version THEN 1
-      ELSE NULL
-    END
-    ) AS 'bios_updated',
+    jobstats.bios_version, bios_stats.bios_updated,
     jobstats.system_serial, 
     static_disk_stats.disk_type,
     (CASE
@@ -59,6 +54,7 @@ $db->select("SELECT
   LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model
   LEFT JOIN static_disk_stats ON jobstats.disk_model = static_disk_stats.disk_model
   LEFT JOIN static_battery_stats ON jobstats.battery_model = static_battery_stats.battery_model
+  LEFT JOIN bios_stats ON jobstats.tagnumber = bios_stats.tagnumber
   WHERE 
     jobstats.tagnumber IS NOT NULL
     AND jobstats.time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 GROUP BY tagnumber)

@@ -108,20 +108,21 @@ BEGIN
 )
 UNION
 (SELECT 
-  tagnumber,
-  system_serial,
-  system_model,
-  last_job_time,
-  CONCAT(battery_health, '%'),
-  CONCAT(disk_health, '%'),
-  disk_type,
-  IF (bios_updated='1', "Yes", "No"),
-  CONCAT(erase_avgtime, ' minutes'),
-  CONCAT(clone_avgtime, ' minutes'),
+  clientstats.tagnumber,
+  clientstats.system_serial,
+  clientstats.system_model,
+  clientstats.last_job_time,
+  CONCAT(clientstats.battery_health, '%'),
+  CONCAT(clientstats.disk_health, '%'),
+  clientstats.disk_type,
+  IF (bios_stats.bios_updated = 1, "Yes", "No"),
+  CONCAT(clientstats.erase_avgtime, ' minutes'),
+  CONCAT(clientstats.clone_avgtime, ' minutes'),
   all_jobs
 FROM clientstats 
-WHERE tagnumber IS NOT NULL 
-ORDER BY last_job_time DESC);
+LEFT JOIN bios_stats ON clientstats.tagnumber = bios_stats.tagnumber
+WHERE clientstats.tagnumber IS NOT NULL 
+ORDER BY clientstats.last_job_time DESC);
 END; //
 DELIMITER ;
 
@@ -190,17 +191,16 @@ UNION
   locations.location,
   IF (locations.status = 0 OR status IS NULL, "Working", "Broken"),
   IF (locations.os_installed = 1 , "Yes", "No"),
-  IF (locations.bios_updated = 1 , "Yes", "No"),
+  IF (bios_stats.bios_updated = 1 , "Yes", "No"),
   locations.note,
   CONVERT(locations.time, DATETIME) 
 FROM locations 
+LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
 LEFT JOIN departments ON locations.tagnumber = departments.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t1 ON departments.time = t1.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
-
-ORDER BY locations.time DESC
-);
+ORDER BY locations.time DESC);
 END; //
 DELIMITER ;
 
@@ -447,13 +447,12 @@ CREATE PROCEDURE iterateSHRLCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'BIOS Updated', 'CPU Model', 'CPU Cores', 'RAM Capacity', 'Disk Size', 'Disk Type', 'Disk Health', 'Note')
+(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'CPU Model', 'CPU Cores', 'RAM Capacity', 'Disk Size', 'Disk Type', 'Disk Health', 'Note')
 UNION
 (SELECT 
   locations.time, jobstats.tagnumber, jobstats.system_serial, 
   system_data.system_model, static_departments.department_readable, 
-  locations.location, IF(locations.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
-  system_data.cpu_model, system_data.cpu_cores,
+  locations.location, system_data.cpu_model, system_data.cpu_cores,
   CONCAT(t1.ram_capacity, ' GB'), CONCAT(t1.disk_size, ' GB'), t1.disk_type,
   CONCAT(clientstats.disk_health, '%'), locations.note
 FROM jobstats 

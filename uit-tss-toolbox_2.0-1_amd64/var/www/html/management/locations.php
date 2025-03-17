@@ -107,7 +107,7 @@ if (isset($_POST['serial'])) {
     $db->updateLocation("os_installed", $osInstalled, $time);
   }
   if (isset($biosBool)) {
-    $db->updateLocation("bios_updated", $biosBool, $time);
+    $db->updateBIOS("bios_updated", $biosBool, $tagNum);
   }
   unset($biosBool);
   unset($osInstalled);
@@ -451,10 +451,11 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   t2.department_readable AS 'department_formatted', t1.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Working', 'Broken') AS 'status',
   IF (locations.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', locations.os_installed,
-  IF (locations.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', locations.bios_updated,
+  IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
   locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted'
   FROM locations
+  LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
   INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
   INNER JOIN remote ON remote.tagnumber = locations.tagnumber
   LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber)) t1
@@ -551,10 +552,10 @@ if (isset($_GET["order_by"])) {
     $sql .= "locations.os_installed ASC, ";
   }
   if($_GET["order_by"] == "bios_desc") {
-    $sql .= "locations.bios_updated DESC, ";
+    $sql .= "bios_stats.bios_updated DESC, ";
   }
   if($_GET["order_by"] == "bios_asc") {
-    $sql .= "locations.bios_updated ASC, ";
+    $sql .= "bios_stats.bios_updated ASC, ";
   }
   if($_GET["order_by"] == "location_desc") {
     $sql .= "locations.location DESC, ";

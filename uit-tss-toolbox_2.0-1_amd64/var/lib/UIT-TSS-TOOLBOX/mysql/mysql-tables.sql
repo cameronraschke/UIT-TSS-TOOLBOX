@@ -128,7 +128,6 @@ CREATE TABLE IF NOT EXISTS locations (
     status BOOLEAN DEFAULT NULL,
     disk_removed BOOLEAN DEFAULT NULL,
     os_installed BOOLEAN DEFAULT NULL,
-    bios_updated BOOLEAN DEFAULT NULL,
     note VARCHAR(256) DEFAULT NULL
 );
 
@@ -263,6 +262,24 @@ INSERT INTO static_bios_stats
     ('OptiPlex 7780', '1.36.1');
 
 
+CREATE TABLE IF NOT EXISTS bios_stats (
+    tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
+    time DATETIME(3) NOT NULL,
+    system_serial VARCHAR(24) DEFAULT NULL,
+    bios_version VARCHAR(24) DEFAULT NULL,
+    bios_updated BOOLEAN DEFAULT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS os_stats (
+    tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
+    time DATETIME(3) NOT NULL,
+    system_serial VARCHAR(24) DEFAULT NULL,
+    os_name VARCHAR(24) DEFAULT NULL,
+    os_installed BOOLEAN DEFAULT NULL
+);
+
+
 CREATE TABLE IF NOT EXISTS remote (
     tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
     job_queued VARCHAR(24) DEFAULT NULL,
@@ -273,7 +290,6 @@ CREATE TABLE IF NOT EXISTS remote (
     present_bool BOOLEAN DEFAULT NULL,
     status VARCHAR(128) DEFAULT NULL,
     os_installed BOOLEAN DEFAULT NULL,
-    bios_updated BOOLEAN DEFAULT NULL,
     kernel_updated BOOLEAN DEFAULT NULL,
     battery_charge TINYINT DEFAULT NULL,
     battery_status VARCHAR(20) DEFAULT NULL,
@@ -296,9 +312,8 @@ ALTER TABLE remote
     MODIFY COLUMN status VARCHAR(128) DEFAULT NULL AFTER present_bool,
     MODIFY COLUMN os_installed BOOLEAN DEFAULT NULL AFTER status,
     MODIFY COLUMN battery_charge TINYINT DEFAULT NULL AFTER os_installed,
-    MODIFY COLUMN bios_updated BOOLEAN DEFAULT NULL AFTER battery_charge,
-    modify COLUMN kernel_updated BOOLEAN DEFAULT NULL AFTER bios_updated,
-    MODIFY COLUMN battery_status VARCHAR(20) DEFAULT NULL AFTER bios_updated,
+    MODIFY COLUMN kernel_updated BOOLEAN DEFAULT NULL AFTER battery_charge,
+    MODIFY COLUMN battery_status VARCHAR(20) DEFAULT NULL AFTER kernel_updated,
     MODIFY COLUMN uptime INT DEFAULT NULL AFTER battery_status,
     MODIFY COLUMN cpu_temp TINYINT DEFAULT NULL AFTER uptime,
     MODIFY COLUMN disk_temp TINYINT DEFAULT NULL AFTER cpu_temp,

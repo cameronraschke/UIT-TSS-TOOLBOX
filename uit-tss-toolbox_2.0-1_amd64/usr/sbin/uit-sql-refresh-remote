@@ -13,15 +13,12 @@ $db = new db();
 $db->select("SELECT remote.tagnumber,
   jobstats.time,
   IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 45, '1', '0') AS 'present_bool',
-  (CASE
-    WHEN static_bios_stats.bios_version = jobstats.bios_version THEN '1'
-    ELSE '0'
-    END
-  ) AS 'bios_updated',
+  bios_stats.bios_updated,
   t1.last_job_time,
   t1.os_installed,
   remote.disk_temp
   FROM remote
+  LEFT JOIN bios_stats ON remote.tagnumber = bios_stats.tagnumber
   INNER JOIN jobstats ON jobstats.tagnumber = remote.tagnumber
   INNER JOIN system_data ON system_data.tagnumber = remote.tagnumber
   INNER JOIN static_bios_stats ON static_bios_stats.system_model = system_data.system_model
@@ -67,7 +64,7 @@ foreach ($db->get() as $key => $value) {
   $db->updateRemote($value["tagnumber"], "present_bool", $value["present_bool"]);
 
   // Update BIOS updated status
-  $db->updateRemote($value["tagnumber"], "bios_updated", $value["bios_updated"]);
+  $db->updateBIOS($value["tagnumber"], $value["bios_updated"], $time);
 
   // Update Last Job Time
   $db->updateRemote($value["tagnumber"], "last_job_time", $value["last_job_time"]);
