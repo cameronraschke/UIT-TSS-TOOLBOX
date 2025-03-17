@@ -4,11 +4,14 @@ include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 $db = new db();
 
 $sql = "SELECT system_data.tagnumber,
-bios_stats.tagnumber AS 'bios_table_tag', system_data.system_model, 
-IF (bios_stats.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated'
+bios_stats.tagnumber AS 'bios_table_tag', system_data.system_model, jobstats.bios_version,
+IF (jobstats.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated'
 FROM system_data
 LEFT JOIN bios_stats ON system_data.tagnumber = bios_stats.tagnumber
-LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model";
+LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model
+LEFT JOIN jobstats ON system_data.tagnumber = jobstats.tagnumber
+INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND bios_version IS NOT NULL GROUP BY tagnumber) t1 
+    ON jobstats.time = t1.time";
 
 $db->select($sql);
 foreach ($db->get() as $key => $value) {
@@ -16,6 +19,7 @@ foreach ($db->get() as $key => $value) {
         $db->insertBIOS($value["tagnumber"]);
     }
 
+    $db->updateBIOS($value["tagnumber"], "bios_version", $value["bios_version"]);
     $db->updateBIOS($value["tagnumber"], "bios_updated", $value["bios_updated"]);
 }
 
