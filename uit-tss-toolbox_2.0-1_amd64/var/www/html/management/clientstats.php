@@ -54,7 +54,15 @@ if (isset($_GET["system_model"])) {
             AND clientstats.system_model = :systemmodel 
             ORDER BY clientstats.tagnumber ASC", array(':systemmodel' => htmlspecialchars_decode($_GET["system_model"])));
 } else {
-    $db->select("SELECT tagnumber, system_serial, system_model, IF (last_job_time LIKE '%00:00:00', DATE_FORMAT(last_job_time, '%b %D %Y'), DATE_FORMAT(last_job_time, '%m/%d/%y, %r')) AS 'last_job_time', battery_health, disk_health, disk_type, IF (bios_updated = '1', 'Yes', 'No') AS 'bios_updated', erase_avgtime, clone_avgtime, all_jobs FROM clientstats WHERE tagnumber IS NOT NULL ORDER BY tagnumber ASC");
+    $db->select("SELECT clientstats.tagnumber, clientstats.system_serial, clientstats.system_model, 
+            IF (clientstats.last_job_time LIKE '%00:00:00', DATE_FORMAT(clientstats.last_job_time, '%b %D %Y'), 
+            DATE_FORMAT(clientstats.last_job_time, '%m/%d/%y, %r')) AS 'last_job_time', clientstats.battery_health, 
+            clientstats.disk_health, clientstats.disk_type, IF (bios_stats.bios_updated = '1', 'Yes', 'No') AS 'bios_updated', 
+            clientstats.erase_avgtime, clientstats.clone_avgtime, clientstats.all_jobs 
+        FROM clientstats 
+        LEFT JOIN bios_stats ON clientstats.tagnumber = bios_stats.tagnumber
+        WHERE clientstats.tagnumber IS NOT NULL 
+        ORDER BY clientstats.tagnumber ASC");
 }
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
@@ -65,7 +73,7 @@ if (arrFilter($db->get()) === 0) {
         if (strFilter($value["tagnumber"]) === 0) {
             $db->Pselect("SELECT remote.present_bool, remote.kernel_updated, bios_stats.bios_updated 
                 FROM remote 
-                INNER JOIN bios_stats ON remote.tagnumber = bios_stats.tagnumber
+                LEFT JOIN bios_stats ON remote.tagnumber = bios_stats.tagnumber
                 WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
             if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {

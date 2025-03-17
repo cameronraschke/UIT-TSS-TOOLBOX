@@ -91,7 +91,7 @@ if (isset($_POST['department'])) {
         $db->updateLocation("os_installed", $osInstalled, $time);
     }
     if (isset($biosBool)) {
-        $db->updateBIOS("bios_updated", $biosBool, $tagNum);
+        $db->updateBIOS($tagNum, $biosBool, $ime);
     }
     unset($biosBool);
     unset($osInstalled);
@@ -244,7 +244,7 @@ unset($_POST);
   CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
   DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
   remote.kernel_updated, IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
-  t11.bios_version, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted', CONCAT(remote.network_speed, ' mbps') AS 'network_speed',
+  bios_stats.bios_version, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted', CONCAT(remote.network_speed, ' mbps') AS 'network_speed',
   CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
   t4.disk_power_cycles
 FROM jobstats
@@ -264,6 +264,7 @@ LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5
   ON jobstats.tagnumber = t5.tagnumber
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
   ON jobstats.tagnumber = t8.tagnumber
+LEFT JOIN bios_stats ON jobstats.tagnumber = bios_stats.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t9
   ON jobstats.time = t9.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10

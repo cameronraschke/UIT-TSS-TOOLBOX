@@ -6,7 +6,6 @@ $db = new db();
 
 // Job by location form
 if (isset($_POST['location'])) {
-    //$db->Pselect("SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND bios_updated = 1 AND kernel_updated = 1 AND job_queued IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber", array(':location' => htmlspecialchars_decode($_POST['location'])));
     if (isset($_POST['location-action'])) {
         $db->Pselect("SELECT locations.tagnumber 
             FROM locations 
@@ -202,12 +201,13 @@ $db->select("SELECT remote.tagnumber,
         DATE_FORMAT(remote.last_job_time, '%m/%d/%y, %r') AS 'last_job_time_formatted', 
         remote.job_queued, remote.status, t2.queue_position,
         IF (remote.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
-        IF (remote.bios_updated = '1', 'No', 'Yes') AS 'bios_updated', 
+        IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
         remote.kernel_updated, CONCAT(remote.battery_charge, '%') AS 'battery_charge', 
         remote.battery_status, SEC_TO_TIME(remote.uptime) AS 'uptime', 
         CONCAT(remote.cpu_temp, '°C') AS 'cpu_temp', CONCAT(remote.disk_temp, '°C') AS 'disk_temp', 
         CONCAT(remote.watts_now, ' Watts') AS 'watts_now', remote.job_active
     FROM remote 
+    LEFT JOIN bios_stats ON remote.tagnumber = bios_stats.tagnumber
     LEFT JOIN (SELECT * FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) t1) t2
         ON remote.tagnumber = t2.tagnumber
     WHERE present_bool = '1' 
@@ -223,7 +223,10 @@ if (arrFilter($db->get()) === 0) {
           echo "<b>In Progress: </b>";
         }
 
-        $db->Pselect("SELECT present_bool, kernel_updated, bios_updated FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
+        $db->Pselect("SELECT remote.present_bool, remote.kernel_updated, bios_stats.bios_updated 
+            FROM remote 
+            LEFT JOIN bios_stats ON remote.tagnumber = bios_stats.tagnumber
+            WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
               if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {

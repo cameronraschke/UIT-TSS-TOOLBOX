@@ -107,7 +107,7 @@ if (isset($_POST['serial'])) {
     $db->updateLocation("os_installed", $osInstalled, $time);
   }
   if (isset($biosBool)) {
-    $db->updateBIOS("bios_updated", $biosBool, $tagNum);
+    $db->updateBIOS($tagNum, $biosBool, $time);
   }
   unset($biosBool);
   unset($osInstalled);
