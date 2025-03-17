@@ -530,11 +530,11 @@ class db {
             if (strFilter($value) === 0) {
                 $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
                 $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':time', $updateTime, PDO::PARAM_STR);
+                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
             } else {
                 $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
                 $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':time', $updateTime, PDO::PARAM_STR);
+                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
             }
     
             if (strFilter($stmt) == 0) {
