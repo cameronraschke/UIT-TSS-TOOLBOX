@@ -495,6 +495,7 @@ class db {
         }
     }
 
+    
     public function insertBIOS ($tagNum) {
         if (strFilter($tagNum) == 0) {
             $db = new MySQLConn();
@@ -503,9 +504,7 @@ class db {
             $sql = "INSERT INTO bios_stats (tagnumber) VALUES (:tagNum)";
             $stmt = $this->pdo->prepare($sql);
     
-            if (strFilter($biosVersion) === 0) {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-            }
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
     
             if (strFilter($stmt) === 0) {
                 $stmt->execute();
@@ -530,11 +529,11 @@ class db {
             if (strFilter($value) === 0) {
                 $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
                 $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':time', $updateTime, PDO::PARAM_STR);
+                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
             } else {
                 $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
                 $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':time', $updateTime, PDO::PARAM_STR);
+                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
             }
     
             if (strFilter($stmt) == 0) {
