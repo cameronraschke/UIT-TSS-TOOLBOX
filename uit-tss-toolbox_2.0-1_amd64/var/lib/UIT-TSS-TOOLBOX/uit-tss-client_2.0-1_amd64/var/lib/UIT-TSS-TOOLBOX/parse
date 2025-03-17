@@ -197,9 +197,10 @@ if ($arr[0] == "remote") {
     }
 
     if ($key == "disk_temp") {
-        $cur = round(bcdiv($value, 1000, 2), 0);
-        $max = $arr[4];
-        $value = $cur;
+        if ($value > 1000) {
+            $cur = round(bcdiv($value, 1000, 2), 0);
+            $value = $cur;
+        }
     }
 
     if ($key == "watts_now") {
