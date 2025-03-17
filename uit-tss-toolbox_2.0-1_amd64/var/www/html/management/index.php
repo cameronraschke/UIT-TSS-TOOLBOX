@@ -89,18 +89,14 @@ $db = new db();
                 var data = google.visualization.arrayToDataTable([ ['OS Status', 'Client Count'],
                 <?php
                 $db->select("SELECT 
-                    (SELECT COUNT(tagnumber) FROM remote 
-                        WHERE os_installed = 1 
-                            AND (NOT present_bool = 1 OR present_bool IS NULL)) AS 'os_installed_not_present', 
-                    (SELECT COUNT(tagnumber) FROM remote 
-                        WHERE (NOT os_installed = 1 OR os_installed IS NULL) 
-                            AND (NOT present_bool = 1 OR present_bool IS NULL)) AS 'os_not_installed_not_present', 
-                    (SELECT COUNT(tagnumber) FROM remote 
-                        WHERE os_installed = 1 
-                        AND present_bool = 1) AS 'os_installed_present', 
-                    (SELECT COUNT(tagnumber) FROM remote 
-                        WHERE (NOT os_installed = 1 OR os_installed IS NULL) 
-                        AND present_bool = 1) AS 'os_not_installed_present'");
+                    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool IS NULL AND remote.os_installed = 1)
+                        AS 'os_installed_not_present',
+                    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool IS NULL AND remote.os_installed IS NULL)
+                        AS 'os_not_installed_not_present',
+                    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool = 1 AND remote.os_installed = 1)
+                        AS 'os_installed_present',
+                    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool = 1 AND remote.os_installed IS NULL)
+                        AS 'os_not_installed_present'");
                     if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
                         echo "['OS NOT Installed, NOT online'," . htmlspecialchars($value["os_not_installed_not_present"]) . "], ";
