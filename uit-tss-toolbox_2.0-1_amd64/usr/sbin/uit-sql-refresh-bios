@@ -4,7 +4,7 @@ include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 $db = new db();
 
 $sql = "SELECT system_data.tagnumber,
-bios_stats.tagnumber AS 'bios_table_tag', system_data.system_model, jobstats.bios_version,
+bios_stats.tagnumber AS 'bios_table_tag', system_data.system_model,
 IF (jobstats.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated'
 FROM system_data
 LEFT JOIN bios_stats ON system_data.tagnumber = bios_stats.tagnumber
@@ -19,7 +19,6 @@ foreach ($db->get() as $key => $value) {
         $db->insertBIOS($value["tagnumber"]);
     }
 
-    $db->updateBIOS($value["tagnumber"], "bios_version", $value["bios_version"]);
     $db->updateBIOS($value["tagnumber"], "bios_updated", $value["bios_updated"]);
 }
 
