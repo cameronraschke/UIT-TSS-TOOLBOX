@@ -204,7 +204,7 @@ function diskData {
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '9 Power_On_Hours' | awk '{print $10}')
 			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-		diskPowerCycles=$(cat /root/smartctl-data | grep '^12 Power_Cycle_Count' | awk '${print $10}' | sed 's/,//g')
+		diskPowerCycles=$(cat /root/smartctl-data | grep '^12 Power_Cycle_Count' | awk '{print $10}' | sed 's/,//g')
 			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 	done
