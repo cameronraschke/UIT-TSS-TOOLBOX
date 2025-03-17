@@ -166,7 +166,7 @@ unset($_POST);
 
         <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
         <div class='pagetitle'><h2>Lookup data for a specific client.</h2></div>
-        <div name='curTime' id='curTime' class='pagetitle'><h3>Data on this page was last updated at: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
+        <div name='curTime' id='curTime' class='pagetitle'><h3>Data on this page was last updated at: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%m/%d/%y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
         <div class='laptop-images'>
         <?php
@@ -228,10 +228,10 @@ unset($_POST);
   <?php
   // Get most client data - main sql query
   unset($sql);
-  $sql = "SELECT DATE_FORMAT(t10.time, '%b %D %Y, %r') AS 'location_time_formatted',
+  $sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
   locations.location, IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, 
-  t3.note, DATE_FORMAT(t3.time, '%b %D %Y, %r') AS 'note_time_formatted', 
+  t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
   IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF(locations.os_installed = 1, 'Yes', 'No') AS 'os_installed',
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
@@ -242,7 +242,7 @@ unset($_POST);
   t5.identifier, t5.recovery_key, 
   CONCAT(clientstats.battery_health, '%') AS 'battery_health', CONCAT(clientstats.disk_health, '%') AS 'disk_health', 
   CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
-  DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
+  DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
   remote.kernel_updated, IF (remote.bios_updated = 1 OR (t11.bios_version = static_bios_stats.bios_version), 'Yes', 'No') AS 'bios_updated', 
   t11.bios_version, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted', CONCAT(remote.network_speed, ' mbps') AS 'network_speed',
   CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours'
@@ -659,7 +659,7 @@ if (isset($_GET["tagnumber"])) {
             </thead>
             <tbody>
                 <?php
-                $db->select("SELECT DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC");
+                $db->select("SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = '" . htmlspecialchars_decode($_GET['tagnumber']) . "' AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC");
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value1) {
                         echo "<tr>" . PHP_EOL;
@@ -699,7 +699,7 @@ if (isset($_GET["tagnumber"])) {
             </thead>
             <tbody>
                 <?php
-                $db->Pselect("SELECT * FROM (SELECT time, DATE_FORMAT(time, '%b %D %Y, %r') AS 'time_formatted', location, ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'location_num', IF (status = 1, 'Broken', 'Working') AS 'status', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = 1, 'Yes', 'No') AS 'bios_updated', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations WHERE tagnumber = :tagnumber AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' ORDER BY time DESC) t2 WHERE t2.location IS NOT NULL and t2.location_num <= 3 ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+                $db->Pselect("SELECT * FROM (SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', location, ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'location_num', IF (status = 1, 'Broken', 'Working') AS 'status', IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', IF (bios_updated = 1, 'Yes', 'No') AS 'bios_updated', IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note FROM locations WHERE tagnumber = :tagnumber AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' ORDER BY time DESC) t2 WHERE t2.location IS NOT NULL and t2.location_num <= 3 ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value1) {
                         echo "<tr>" . PHP_EOL;

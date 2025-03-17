@@ -197,9 +197,9 @@ if (isset($_POST['serial'])) {
         unset($formSql);
         $formSql = "SELECT 
           jobstats.system_serial, locations.location, 
-          DATE_FORMAT(locations.time, '%b %D %Y, %r') AS 'time_formatted', 
+          DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
           t4.department, locations.disk_removed, locations.status, t3.note, t5.department_readable, 
-          DATE_FORMAT(t3.time, '%b %D %Y, %r') AS 'note_time_formatted'
+          DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted'
           FROM locations 
           INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber 
           INNER JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations) t1 
@@ -432,7 +432,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   IF (locations.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', locations.os_installed,
   IF (locations.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', locations.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
-  locations.note AS 'note', DATE_FORMAT(locations.time, '%b %D %Y, %r') AS 'time_formatted'
+  locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted'
   FROM locations
   INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
   INNER JOIN remote ON remote.tagnumber = locations.tagnumber

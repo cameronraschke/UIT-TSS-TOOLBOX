@@ -60,24 +60,16 @@ $db = new db();
             function jobTimes() {
                 var data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
                 <?php
-                $db->select("SELECT t1.dateByMonth FROM (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth' 
-                FROM serverstats 
-                WHERE date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY dateByMonth) t1
-                INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m'),
-                ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_clone_time ASC) AS 'avg_clone_time'
-                FROM serverstats
-                WHERE date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY) t2
-                    ON t1.dateByMonth = t2.dateByMonth");
-                $db->select("SELECT * FROM 
+                $db->select("SELECT t1.dateByMonth, t1.avg_clone_time, t2.avg_erase_time FROM 
                 (SELECT date, DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', avg_clone_time, 
-                    ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_clone_time ASC) AS 'avg_clone_time' 
-                FROM serverstats) t1 
+                    ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY date DESC) AS 'avg_clone_time_rows'
+                FROM serverstats ORDER BY dateByMonth ASC) t1 
                 INNER JOIN 
-                (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonthErase', avg_erase_time, 
-                    ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_erase_time ASC) AS 'avg_erase_time' 
-                FROM serverstats) t2 
-                ON t1.dateByMonth = t2.dateByMonthErase 
-                WHERE t1.avg_clone_time = 1 AND t2.avg_erase_time = 1 AND t1.date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)");
+                (SELECT date, DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', avg_erase_time, 
+                    ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY date DESC) AS 'avg_erase_time_rows'
+                FROM serverstats ORDER BY dateByMonth ASC) t2 
+                ON t1.dateByMonth = t2.dateByMonth 
+                WHERE t1.avg_clone_time_rows = 1 AND t2.avg_erase_time_rows = 1 AND t1.date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)");
                 if (arrFilter($db->get()) === 0)
                     foreach ($db->get() as $key => $value) {
                         echo "['" . htmlspecialchars($value["dateByMonth"]) . "', " . htmlspecialchars($value["avg_clone_time"]) . ", " . htmlspecialchars($value["avg_erase_time"]) . "], ";                    }

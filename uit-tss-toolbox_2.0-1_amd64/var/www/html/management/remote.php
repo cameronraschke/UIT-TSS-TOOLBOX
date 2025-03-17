@@ -53,7 +53,7 @@ unset($_POST['location-action']);
 
         <div class='pagetitle'><h1>Remote Management</h1></div>
         <div class='pagetitle'><h2>The remote table allows you to remotely control laptops currently plugged into the server.</h2></div>
-        <div class='pagetitle' id='time'><h3>Last updated: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%b %D %Y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
+        <div class='pagetitle' id='time'><h3>Last updated: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%m/%d/%y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
         <div class='styled-table'>
             <table id='remoteStats'>
@@ -187,8 +187,8 @@ if (arrFilter($db->get()) === 0) {
 
 $db->select("SELECT remote.tagnumber, 
         IF (remote.status LIKE 'fail%', 1, 0) AS 'failstatus', 
-        DATE_FORMAT(remote.present, '%b %D %Y, %r') AS 'time_formatted', 
-        DATE_FORMAT(remote.last_job_time, '%b %D %Y, %r') AS 'last_job_time_formatted', 
+        DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'time_formatted', 
+        DATE_FORMAT(remote.last_job_time, '%m/%d/%y, %r') AS 'last_job_time_formatted', 
         remote.job_queued, remote.status, t2.queue_position,
         IF (remote.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
         IF (remote.bios_updated = '1', 'No', 'Yes') AS 'bios_updated', 
@@ -287,7 +287,7 @@ echo "</div>";
 
 <?php
 // laptops not present
-$db->select("SELECT tagnumber, DATE_FORMAT(present, '%b %D %Y, %r') AS 'time_formatted', status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool IS NULL ORDER BY present DESC, tagnumber DESC");
+$db->select("SELECT tagnumber, DATE_FORMAT(present, '%m/%d/%y, %r') AS 'time_formatted', status, CONCAT(battery_charge, '%') AS 'battery_charge', battery_status, CONCAT(cpu_temp, '°C') AS 'cpu_temp',  CONCAT(disk_temp, '°C') AS 'disk_temp', CONCAT(watts_now, ' Watts') AS 'watts_now' FROM remote WHERE present_bool IS NULL ORDER BY present DESC, tagnumber DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>". PHP_EOL;
