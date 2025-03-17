@@ -8,14 +8,14 @@ bios_stats.tagnumber AS 'bios_table_tag', system_data.system_model,
 IF (bios_stats.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated'
 FROM system_data
 LEFT JOIN bios_stats ON system_data.tagnumber = bios_stats.tagnumber
-LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model"
+LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model";
 
 $db->select($sql);
 foreach ($db->get() as $key => $value) {
     if (strFilter($value["bios_table_tag"]) === 1) {
         $db->insertBIOS($value["tagnumber"]);
     }
-    
+
     $db->updateBIOS($value["tagnumber"], "bios_updated", $value["bios_updated"]);
 }
 
