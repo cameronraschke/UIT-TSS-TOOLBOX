@@ -37,7 +37,7 @@ $db->select("SELECT remote.tagnumber,
   INNER JOIN
     (SELECT time,
         ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count'
-      FROM jobstats WHERE bios_version IS NOT NULL) t2
+      FROM jobstats WHERE system_serial IS NOT NULL) t2
     ON t2.time = jobstats.time
   WHERE jobstats.tagnumber IS NOT NULL 
   AND t1.row_count = 1
@@ -63,7 +63,6 @@ foreach ($db->get() as $key => $value) {
   $db->updateRemote($value["tagnumber"], "present_bool", $value["present_bool"]);
 
   // Update BIOS updated status
-  $db->updateBIOS($value["tagnumber"], $value["bios_version"], $time);
 
   // Update Last Job Time
   $db->updateRemote($value["tagnumber"], "last_job_time", $value["last_job_time"]);
