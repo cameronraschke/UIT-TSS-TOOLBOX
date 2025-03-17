@@ -8,7 +8,12 @@ $db = new db();
 if (isset($_POST['location'])) {
     //$db->Pselect("SELECT tagnumber FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL AND location IS NOT NULL AND tagnumber IN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND bios_updated = 1 AND kernel_updated = 1 AND job_queued IS NULL GROUP BY tagnumber) GROUP BY tagnumber) AND location = :location GROUP BY tagnumber", array(':location' => htmlspecialchars_decode($_POST['location'])));
     if (isset($_POST['location-action'])) {
-        $db->Pselect("SELECT locations.tagnumber FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE location IS NOT NULL GROUP BY tagnumber) t1 ON locations.time = t1.time INNER JOIN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND kernel_updated = 1 AND job_queued IS NULL) t2 ON locations.tagnumber = t2.tagnumber AND location = :location GROUP BY locations.tagnumber", array(':location' => htmlspecialchars_decode($_POST["location"])));
+        $db->Pselect("SELECT locations.tagnumber 
+            FROM locations 
+            INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE location IS NOT NULL GROUP BY tagnumber) t1 
+                ON locations.time = t1.time 
+            INNER JOIN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND kernel_updated = 1 AND job_queued IS NULL) t2 
+                ON locations.tagnumber = t2.tagnumber AND location = :location GROUP BY locations.tagnumber", array(':location' => htmlspecialchars_decode($_POST["location"])));
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value) {
                 $db->updateRemote($value["tagnumber"], "job_queued", $_POST['location-action']);
@@ -110,7 +115,13 @@ if (arrFilter($db->get()) === 0) {
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
-                    $db->select("SELECT locations.location FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE location IS NOT NULL GROUP BY tagnumber) t1 ON locations.time = t1.time INNER JOIN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND kernel_updated = 1 AND job_queued IS NULL) t2 ON locations.tagnumber = t2.tagnumber GROUP BY locations.location ORDER BY location ASC");
+                    $db->select("SELECT locations.location 
+                        FROM locations 
+                        INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE location IS NOT NULL GROUP BY tagnumber) t1 
+                            ON locations.time = t1.time 
+                        INNER JOIN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND kernel_updated = 1) t2 
+                            ON locations.tagnumber = t2.tagnumber 
+                        GROUP BY locations.location ORDER BY location ASC");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value) {
                             if (preg_match("/^[a-zA-Z]$/", $value["location"])) {
