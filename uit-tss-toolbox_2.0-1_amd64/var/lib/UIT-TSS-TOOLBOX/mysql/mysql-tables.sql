@@ -277,7 +277,7 @@ ALTER TABLE IF EXISTS bios_stats (
     ALTER COLUMN system_serial VARCHAR(24) DEFAULT NULL AFTER time,
     ALTER COLUMN bios_version VARCHAR(24) DEFAULT NULL AFTER system_serial,
     ALTER COLUMN bios_updated BOOLEAN DEFAULT NULL AFTER bios_version
-)
+);
 
 
 CREATE TABLE IF NOT EXISTS os_stats (
