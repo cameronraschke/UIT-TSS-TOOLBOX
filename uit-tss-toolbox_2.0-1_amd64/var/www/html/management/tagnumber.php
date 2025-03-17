@@ -230,7 +230,7 @@ unset($_POST);
   unset($sql);
   $sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
-  locations.location, IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, 
+  locations.location, IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, locations.note AS 'most_recent_note',
   t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
   IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF(locations.os_installed = 1, 'Yes', 'No') AS 'os_installed',
   jobstats.etheraddress, system_data.wifi_mac, 
@@ -396,7 +396,7 @@ if (isset($_GET["tagnumber"])) {
         echo "<div><input type='text' id='location' name='location' required style='width: 50%; height: 4%;'></div>" . PHP_EOL;
     }
 
-  // Get most recent note
+  // Get most recent non-null note
   echo "<div>" . PHP_EOL;
   if (strFilter($value["note"]) === 0) {
     if ($value["status"] === 1) {
@@ -486,7 +486,7 @@ if (isset($_GET["tagnumber"])) {
       echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['bios_updated'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['most_recent_note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "</tr>" . PHP_EOL;
     }
     unset($value);
@@ -591,7 +591,7 @@ if (isset($_GET["tagnumber"])) {
         </div>
 
 
-        <div class='pagetitle'><h3>Client Health</h3></div>
+        <div class='pagetitle'><h3>Client Health - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
         <div name='updateDiv3' id='updateDiv3' class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
             <thead>
