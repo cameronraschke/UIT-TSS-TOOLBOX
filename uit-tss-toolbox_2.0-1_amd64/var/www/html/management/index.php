@@ -60,38 +60,27 @@ $db = new db();
             function jobTimes() {
                 var data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
                 <?php
-<<<<<<< Updated upstream
-                $db->select("SELECT t0.dateByMonth, t1.avg_clone_time, t2.avg_erase_time
-                    FROM (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth' FROM serverstats WHERE date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY dateByMonth) t0
-                    INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_clone_time DESC) AS 'clone_rows', avg_clone_time FROM serverstats) t1
-                        ON t0.dateByMonth = t1.dateByMonth
-                    INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_erase_time DESC) AS 'erase_rows', avg_erase_time FROM serverstats) t2
-                        ON t0.dateByMonth = t2.dateByMonth
-                    WHERE t1.clone_rows = 1 AND t2.erase_rows = 1");
-=======
                 $db->select("SELECT t1.dateByMonth FROM (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth' 
-                    FROM serverstats 
-                    WHERE date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY dateByMonth) t1
-                    INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m'),
-                    ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_clone_time ASC) AS 'avg_clone_time'
-                    FROM serverstats
-                    WHERE date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY) t2
-                        ON t1.dateByMonth = t2.dateByMonth");
+                FROM serverstats 
+                WHERE date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY dateByMonth) t1
+                INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m'),
+                ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_clone_time ASC) AS 'avg_clone_time'
+                FROM serverstats
+                WHERE date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY) t2
+                    ON t1.dateByMonth = t2.dateByMonth");
                 $db->select("SELECT * FROM 
-                    (SELECT date, DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', avg_clone_time, 
-                        ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_clone_time ASC) AS 'avg_clone_time' 
-                    FROM serverstats) t1 
-                    INNER JOIN 
-                    (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonthErase', avg_erase_time, 
-                        ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_erase_time ASC) AS 'avg_erase_time' 
-                    FROM serverstats) t2 
-                    ON t1.dateByMonth = t2.dateByMonthErase 
-                    WHERE t1.avg_clone_time = 1 AND t2.avg_erase_time = 1 AND t1.date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)");
->>>>>>> Stashed changes
+                (SELECT date, DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', avg_clone_time, 
+                    ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_clone_time ASC) AS 'avg_clone_time' 
+                FROM serverstats) t1 
+                INNER JOIN 
+                (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonthErase', avg_erase_time, 
+                    ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_erase_time ASC) AS 'avg_erase_time' 
+                FROM serverstats) t2 
+                ON t1.dateByMonth = t2.dateByMonthErase 
+                WHERE t1.avg_clone_time = 1 AND t2.avg_erase_time = 1 AND t1.date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)");
                 if (arrFilter($db->get()) === 0)
                     foreach ($db->get() as $key => $value) {
-                        echo "['" . htmlspecialchars($value["dateByMonth"]) . "', " . htmlspecialchars($value["avg_clone_time"]) . ", " . htmlspecialchars($value["avg_erase_time"]) . "], ";
-                    }
+                        echo "['" . htmlspecialchars($value["dateByMonth"]) . "', " . htmlspecialchars($value["avg_clone_time"]) . ", " . htmlspecialchars($value["avg_erase_time"]) . "], ";                    }
                 ?>
                 ]);
 
@@ -120,7 +109,7 @@ $db = new db();
                     (SELECT COUNT(tagnumber) FROM remote 
                         WHERE (NOT os_installed = 1 OR os_installed IS NULL) 
                         AND present_bool = 1) AS 'os_not_installed_present'");
-                if (arrFilter($db->get()) === 0) {
+                    if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
                         echo "['OS NOT Installed, NOT online'," . htmlspecialchars($value["os_not_installed_not_present"]) . "], ";
                         echo "['OS NOT Installed, online'," . htmlspecialchars($value["os_not_installed_present"]) . "], ";
@@ -149,10 +138,10 @@ $db = new db();
                         WHERE bios_updated = 1) AS 'bios_updated', 
                     (SELECT SUM(IF(bios_updated IS NULL, 1, 0)) FROM clientstats 
                         WHERE bios_updated IS NULL) AS 'bios_not_updated'");
-                if (arrFilter($db->get()) === 0) {
+                    if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {
-                        echo "['BIOS Updated'," . htmlspecialchars($value["bios_updated"]) . "], ";
-                        echo "['BIOS out of Date'," . htmlspecialchars($value["bios_not_updated"]) . "], ";
+                        echo "['BIOS Updated'," . $value["bios_updated"] . "], ";
+                        echo "['BIOS out of Date'," . $value["bios_not_updated"] . "], ";
                     }
                 }
                 ?>
