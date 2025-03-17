@@ -171,26 +171,26 @@ function diskData {
 			echo "general|disk_serial|${diskSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
 			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		diskTemp=$(cat /root/smartctl-data | grep '^194 Temperature_Celsius' | awk '{print $10}')
+		diskTemp=$(cat /root/smartctl-data | grep '194 Temperature_Celsius' | awk '{print $10}')
 			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep '^User Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
 			echo "general|disk_size|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 		# Disk reads
-		diskReadsGiB=$(cat /root/smartctl-data | grep '^242 Total_Reads_GiB' | awk '{print $10}')
+		diskReadsGiB=$(cat /root/smartctl-data | grep '242 Total_Reads_GiB' | awk '{print $10}')
 		if [[ -n $diskReadsGiB ]]; then
 			echo "general|disk_reads|${diskReadsGiB}|${UUID}|sata|gib" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
-			diskReadsLBA=$(cat /root/smartctl-data | grep '^242.*' | awk '{print $10}')
+			diskReadsLBA=$(cat /root/smartctl-data | grep '242.*' | awk '{print $10}')
 			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 
 		# Disk writes
-		diskWritesGiB=$(cat /root/smartctl-data | grep '^241 Total_Writes_GiB' | awk '{print $10}')
+		diskWritesGiB=$(cat /root/smartctl-data | grep '241 Total_Writes_GiB' | awk '{print $10}')
 		if [[ -n $diskWritesGiB ]]; then
 			echo "general|disk_writes|${diskWritesGiB}|${UUID}|sata|gib" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
-			diskWritesLBA=$(cat /root/smartctl-data | grep '^241.*' | awk '{print $10}')
+			diskWritesLBA=$(cat /root/smartctl-data | grep '241.*' | awk '{print $10}')
 			echo "general|disk_writes|${diskWritesLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 
@@ -204,7 +204,7 @@ function diskData {
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '9 Power_On_Hours' | awk '{print $10}')
 			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
-		diskPowerCycles=$(cat /root/smartctl-data | grep '^12 Power_Cycle_Count' | awk '{print $10}' | sed 's/,//g')
+		diskPowerCycles=$(cat /root/smartctl-data | grep '12 Power_Cycle_Count' | awk '{print $10}' | sed 's/,//g')
 			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 	done
