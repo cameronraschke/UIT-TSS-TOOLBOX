@@ -505,9 +505,7 @@ class db {
             $sql = "INSERT INTO bios_stats (tagnumber) VALUES (:tagNum)";
             $stmt = $this->pdo->prepare($sql);
     
-            if (strFilter($biosVersion) === 0) {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-            }
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
     
             if (strFilter($stmt) === 0) {
                 $stmt->execute();
