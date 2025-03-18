@@ -300,14 +300,15 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
     $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
     if (arrFilter($db->get()) === 0 ) {
       $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
-          IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted'
+          IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted',
+          IF remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
         FROM remote 
         INNER JOIN static_job_names 
           ON remote.job_queued = static_job_names.job 
         WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
       if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-          echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($value1["job_queued"]) . "'>Queued: " . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
+          echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
         }
         unset($value1);
       }
