@@ -202,8 +202,8 @@ $db->select("SELECT remote.tagnumber,
         remote.job_queued, remote.status, t2.queue_position,
         IF (remote.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
         IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
-        remote.kernel_updated, CONCAT(remote.battery_charge, '%') AS 'battery_charge', 
-        remote.battery_status, SEC_TO_TIME(remote.uptime) AS 'uptime', 
+        remote.kernel_updated, CONCAT(remote.battery_charge, '%') AS 'battery_charge', remote.battery_status, 
+        CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS 'uptime', 
         CONCAT(remote.cpu_temp, '°C') AS 'cpu_temp', CONCAT(remote.disk_temp, '°C') AS 'disk_temp', 
         CONCAT(remote.watts_now, ' Watts') AS 'watts_now', remote.job_active
     FROM remote 
