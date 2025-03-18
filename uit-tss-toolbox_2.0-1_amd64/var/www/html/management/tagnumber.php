@@ -301,7 +301,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
     if (arrFilter($db->get()) === 0 ) {
       $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
           IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted',
-          IF remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
+          IF (remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
         FROM remote 
         INNER JOIN static_job_names 
           ON remote.job_queued = static_job_names.job 
