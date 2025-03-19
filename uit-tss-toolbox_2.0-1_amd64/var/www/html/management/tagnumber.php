@@ -659,7 +659,7 @@ if (isset($_GET["tagnumber"])) {
                     IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note 
                   FROM locations 
                   LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
-                  WHERE tagnumber = :tagnumber 
+                  WHERE locations.tagnumber = :tagnumber 
                     AND NOT locations.location = 'Plugged in and booted on laptop table.' 
                     AND NOT locations.location = 'Finished work on laptop table.' 
                   ORDER BY locations.time DESC) t2 
