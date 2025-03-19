@@ -39,6 +39,6 @@ foreach ($db->get() as $key => $value) {
         $db->insertOS($value["tagnumber"]);
     }
     
-    $db->updateOS($value["tagnumber"], "os_installed", $value["bios_updated"], $value["time"]);
+    $db->updateOS($value["tagnumber"], "os_installed", $value["os_installed"], $value["time"]);
 }
 unset($value);
