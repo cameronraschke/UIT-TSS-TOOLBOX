@@ -187,7 +187,7 @@ function diskData {
 		if [[ -n $diskReadsGiB ]]; then
 			echo "general|disk_reads|${diskReadsGiB}|${UUID}|sata|gib" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
-			diskReadsLBA=$(cat /root/smartctl-data | grep '242.*' | awk '{print $10}')
+			diskReadsLBA=$(cat /root/smartctl-data | grep '^242 Total.*' | awk '{print $10}')
 			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 
@@ -196,7 +196,7 @@ function diskData {
 		if [[ -n $diskWritesGiB ]]; then
 			echo "general|disk_writes|${diskWritesGiB}|${UUID}|sata|gib" | /var/lib/UIT-TSS-TOOLBOX/parse
 		else
-			diskWritesLBA=$(cat /root/smartctl-data | grep '241.*' | awk '{print $10}')
+			diskWritesLBA=$(cat /root/smartctl-data | grep '^241 Total.*' | awk '{print $10}')
 			echo "general|disk_writes|${diskWritesLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 
