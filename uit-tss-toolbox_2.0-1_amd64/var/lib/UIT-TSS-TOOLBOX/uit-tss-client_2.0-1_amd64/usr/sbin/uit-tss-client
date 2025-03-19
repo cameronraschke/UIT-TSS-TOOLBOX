@@ -436,7 +436,7 @@ function enterTag {
 			UUID=$(cat /proc/sys/kernel/random/uuid)
 		fi
 
-		sleep ${RANDOM::1}
+		#sleep ${RANDOM::1}
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /var/lib/UIT-TSS-TOOLBOX/parse
 		return
