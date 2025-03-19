@@ -206,6 +206,10 @@ function diskData {
 
 		diskPowerCycles=$(cat /root/smartctl-data | grep '12 Power_Cycle_Count' | awk '{print $10}' | sed 's/,//g')
 			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+
+		# Disk errors
+		diskErrors=$(cat /root/smartctl-data | grep 'ATA Error Count:' | awk '{print $4}' )
+			echo "general|disk_errors|${diskErrors}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 	done
 }
