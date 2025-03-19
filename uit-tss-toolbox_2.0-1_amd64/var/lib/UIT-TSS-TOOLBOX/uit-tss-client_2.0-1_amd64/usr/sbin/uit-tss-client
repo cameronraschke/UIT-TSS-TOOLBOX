@@ -912,7 +912,9 @@ function writeDisk_Shred {
 		tput cuu1
 		tput el
 		echo "Writing to section ${i}/${writeSections}"
-		echo "remote|${tagNum}|status|Writing to section ${i}/${writeSections} ($shredMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
+		if (( $i % 25 == 0 )); then
+			echo "remote|${tagNum}|status|Writing to section ${i}/${writeSections} ($shredMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
+		fi
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
 		sectorDiff=$((sectorMax - sectorMin))
@@ -972,7 +974,9 @@ function vrfyDisk_Shred {
 		tput cuu1
 		tput el
 		echo "Verifying section ${i}/${vrfySections}"
-		echo "remote|${tagNum}|status|Verifying section ${i}/${vrfySections}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		if (( $i % 25 == 0 )); then
+			echo "remote|${tagNum}|status|Verifying section ${i}/${vrfySections}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		fi
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
 		sectorDiff=$((sectorMax - sectorMin))
@@ -1575,6 +1579,8 @@ function execute {
 	echo "0" > /tmp/cpu-usage.txt
 	echo "0" > /tmp/network-usage.txt
 
+	echo "remote|${tagNum}|job_active|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		echo "remote|${tagNum}|status|fail - Can't erase master image" | /var/lib/UIT-TSS-TOOLBOX/parse
 		read -t 10 -p "${BOLD}Cannot erase device and save its image.${RESET}"
@@ -1585,7 +1591,10 @@ function execute {
 		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
 		fi
+		echo "remote|${tagNum}|job_queued|generic-erase+clone" | /var/lib/UIT-TSS-TOOLBOX/parse
 		basicEraseMode_Shred
+		echo "remote|${tagNum}|clone_mode|$cloneMode" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|shred_mode|$shredMode" | /var/lib/UIT-TSS-TOOLBOX/parse
 		execute_Shred
 		execute_Clone
 	elif [[ $APPSELECT == "E" ]]; then
@@ -1594,13 +1603,19 @@ function execute {
 		else
 			basicEraseMode_Shred
 		fi
+		echo "remote|${tagNum}|job_queued|generic-erase" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|shred_mode|$shredMode" | /var/lib/UIT-TSS-TOOLBOX/parse
 		execute_Shred
 	elif [[ $APPSELECT == "C" ]]; then
 		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
 		fi
+		echo "remote|${tagNum}|job_queued|generic-clone" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|clone_mode|$cloneMode" | /var/lib/UIT-TSS-TOOLBOX/parse
 		execute_Clone
 	else
+		echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|job_queued|" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "remote|${tagNum}|status|fail - Invalid application selected" | /var/lib/UIT-TSS-TOOLBOX/parse
 		read -t 10 -p "${BOLD}${RED}Error - Invalid application selected.${RESET}"
 		pkill --terminal tty1
@@ -1657,8 +1672,8 @@ function location {
 
 
 function terminate {
-	echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-	echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|job_queued|" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "remote|${tagNum}|status|Waiting for job" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "0" > /root/uptime
 	echo "0" > /tmp/cpu-usage.txt
@@ -1757,8 +1772,8 @@ function terminate {
 }
 
 function resetForClientRestart {
-	echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-	echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|job_queued|" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
 	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1846,8 +1861,8 @@ function autodetectClient {
 					echo "0" > /root/uptime
 					echo "0" > /tmp/cpu-usage.txt
 					echo "0" > /tmp/network-usage.txt
-					echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-					echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|job_queued|" | /var/lib/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
 					pkill --terminal tty1
 				fi
 			done
@@ -1945,7 +1960,7 @@ function autodetectClient {
 					autodetectClient
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|status|Starting Erase Only job (${CLIENTDISK})" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting NVME Erase job (${CLIENTDISK})" | /var/lib/UIT-TSS-TOOLBOX/parse
 				vrfySections="1000"
 				writeSections="1000"
 				PCNTOFSECTOR='10'
@@ -1999,8 +2014,8 @@ function autodetectClient {
 				resetForClientRestart
 			elif [[ $job_queued == "shutdown" ]]; then
 				echo "remote|${tagNum}|status|fail - Shutting down" | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_queued| " | /var/lib/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_active| " | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_queued|" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
 				poweroff
 			elif [[ $job_queued == "fail-test" ]]; then
 				echo "remote|${tagNum}|status|fail - test" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -2132,6 +2147,7 @@ function main {
 		pkill --terminal tty1
 	fi
 	if [[ $unattended == "false" ]]; then
+		echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
 		terminate
 	fi
 }

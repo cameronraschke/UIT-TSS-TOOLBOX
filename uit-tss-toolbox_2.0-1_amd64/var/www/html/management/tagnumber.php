@@ -265,7 +265,7 @@ LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
   ON jobstats.tagnumber = t8.tagnumber
 LEFT JOIN bios_stats ON jobstats.tagnumber = bios_stats.tagnumber
-INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t9
+INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND host_connected = 1 GROUP BY tagnumber) t9
   ON jobstats.time = t9.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
   ON locations.time = t10.time
