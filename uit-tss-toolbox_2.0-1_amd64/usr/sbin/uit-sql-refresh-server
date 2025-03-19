@@ -33,10 +33,67 @@ foreach ($db->get() as $key => $iteratedDate) {
     t4.last_image_update,
     t5.disk_health, t6.battery_health
   FROM tbl_results
-  INNER JOIN (SELECT :iteratedDate AS 'date', COUNT(tagnumber) AS 'client_count' FROM (SELECT tagnumber FROM jobstats WHERE department IN (SELECT department FROM static_departments WHERE department_bool = 1) AND tagnumber IS NOT NULL AND DATE(time) <= :iteratedDate GROUP BY tagnumber) s1) t1 ON tbl_results.date = t1.date
-  INNER JOIN (SELECT :iteratedDate AS 'date', COUNT(erase_rows) AS 'erase_job_count', ROUND(AVG(erase_time / 60), 0) AS 'avg_erase_time' FROM (SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'erase_rows', erase_time FROM jobstats WHERE erase_completed = 1 AND erase_time IS NOT NULL AND date <= :iteratedDate AND department IN (SELECT department FROM static_departments WHERE department_bool = 1)) s1 WHERE s1.erase_rows < 3) t2 ON tbl_results.date = t2.date
-  INNER JOIN (SELECT :iteratedDate AS 'date', COUNT(clone_rows) AS 'clone_job_count', ROUND(AVG(clone_time / 60), 0) AS 'avg_clone_time' FROM (SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'clone_rows', clone_time FROM jobstats WHERE clone_completed = 1 AND clone_time IS NOT NULL AND date <= :iteratedDate AND department IN (SELECT department FROM static_departments WHERE department_bool = 1)) s2 WHERE s2.clone_rows < 3) t3 ON tbl_results.date = t3.date
-  INNER JOIN (SELECT :iteratedDate AS 'date', DATE(time) AS 'last_image_update' FROM jobstats WHERE clone_completed = 1 AND department IN (SELECT department FROM static_departments WHERE department_bool = 1) AND DATE(time) <= :iteratedDate ORDER BY time DESC LIMIT 1) t4 ON tbl_results.date = t4.date
+  INNER JOIN 
+    (SELECT :iteratedDate AS 'date', 
+      COUNT(tagnumber) AS 'client_count' 
+    FROM 
+      (SELECT tagnumber 
+      FROM departments 
+      WHERE department IN 
+        (SELECT department FROM static_departments 
+        WHERE department_bool = 1) 
+          AND tagnumber IS NOT NULL 
+          AND DATE(time) <= :iteratedDate 
+        GROUP BY tagnumber
+        ) s1
+      ) t1 ON tbl_results.date = t1.date
+  INNER JOIN 
+    (SELECT :iteratedDate AS 'date', 
+      COUNT(erase_rows) AS 'erase_job_count', 
+      ROUND(AVG(erase_time / 60), 0) AS 'avg_erase_time' 
+    FROM 
+      (SELECT ROW_NUMBER() OVER (PARTITION BY jobstats.tagnumber ORDER BY jobstats.time DESC) AS 'erase_rows', 
+        jobstats.erase_time 
+      FROM jobstats 
+      LEFT JOIN departments ON jobstats.tagnumber = departments.tagnumber
+      INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) ss1 ON departments.time = ss1.time
+      WHERE jobstats.erase_completed = 1 
+        AND jobstats.erase_time IS NOT NULL 
+        AND jobstats.date <= :iteratedDate 
+        AND departments.department IN (SELECT department FROM static_departments WHERE department_bool = 1)
+      ) s1 
+    WHERE s1.erase_rows < 3) t2 
+    ON tbl_results.date = t2.date
+  INNER JOIN 
+    (SELECT :iteratedDate AS 'date', 
+      COUNT(clone_rows) AS 'clone_job_count', 
+      ROUND(AVG(clone_time / 60), 0) AS 'avg_clone_time' 
+    FROM 
+      (SELECT ROW_NUMBER() OVER (PARTITION BY jobstats.tagnumber ORDER BY jobstats.time DESC) AS 'clone_rows', 
+        jobstats.clone_time 
+      FROM jobstats 
+      LEFT JOIN departments ON jobstats.tagnumber = departments.tagnumber
+      INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) ss2 ON departments.time = ss2.time
+      WHERE jobstats.clone_completed = 1 
+        AND jobstats.clone_time IS NOT NULL 
+        AND jobstats.date <= :iteratedDate 
+        AND departments.department IN 
+          (SELECT department FROM static_departments WHERE department_bool = 1)
+      ) s2 
+    WHERE s2.clone_rows < 3
+  ) t3 ON tbl_results.date = t3.date
+  INNER JOIN 
+    (SELECT :iteratedDate AS 'date', 
+      DATE(jobstats.time) AS 'last_image_update' 
+    FROM jobstats 
+    LEFT JOIN departments ON jobstats.tagnumber = departments.tagnumber
+    INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) s4 ON departments.time = s4.time
+    WHERE jobstats.clone_completed = 1 
+      AND departments.department IN 
+        (SELECT department FROM static_departments WHERE department_bool = 1) 
+      AND DATE(jobstats.time) <= :iteratedDate 
+    ORDER BY jobstats.time DESC 
+    LIMIT 1) t4 ON tbl_results.date = t4.date
   LEFT JOIN (
       SELECT
         :iteratedDate AS 'date',
