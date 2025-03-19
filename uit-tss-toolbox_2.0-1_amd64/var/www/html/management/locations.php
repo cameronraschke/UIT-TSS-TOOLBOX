@@ -575,7 +575,7 @@ if (arrFilter($db->get()) === 0) {
               $db->select("SELECT department, department_readable, owner, department_bool FROM static_departments ORDER BY department ASC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
-                  $db->Pselect("SELECT COUNT(tagnumber) AS 'department_rows' FROM jobstats WHERE department = :department AND time IN (SELECT MAX(time) FROM jobstats WHERE department IS NOT NULL GROUP BY tagnumber)", array(':department' => $value1["department"]));
+                  $db->Pselect("SELECT COUNT(tagnumber) AS 'department_rows' FROM departments WHERE department = :department AND time IN (SELECT MAX(time) FROM departments WHERE department IS NOT NULL GROUP BY tagnumber)", array(':department' => $value1["department"]));
                   if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value2) {
                       echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . " (" . $value2["department_rows"] . ")</option>" . PHP_EOL;
