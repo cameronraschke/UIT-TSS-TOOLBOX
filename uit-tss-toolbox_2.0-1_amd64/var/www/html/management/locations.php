@@ -96,14 +96,6 @@ if (isset($_POST['serial'])) {
   $db->updateLocation("status", $status, $time);
   $db->updateLocation("disk_removed", $diskRemoved, $time);
   $db->updateLocation("note", $note, $time);
-  if (isset($osInstalled)) {
-    $db->updateLocation("os_installed", $osInstalled, $time);
-  }
-  if (isset($biosVersion)) {
-    $db->updateBIOS($tagNum, "bios_version", $biosVersion);
-  }
-  unset($biosVersion);
-  unset($osInstalled);
 
   //Printing
   if ($_POST["print"] == "1") {
@@ -443,12 +435,13 @@ $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, locations.location,
   t2.department_readable AS 'department_formatted', t1.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Working', 'Broken') AS 'status',
-  IF (locations.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', locations.os_installed,
+  IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', os_stats.os_installed,
   IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
   locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted'
   FROM locations
   LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
+  LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
   INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
   INNER JOIN remote ON remote.tagnumber = locations.tagnumber
   LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber)) t1

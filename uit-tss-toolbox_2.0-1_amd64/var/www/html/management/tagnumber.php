@@ -37,67 +37,24 @@ if (isset($_POST['department'])) {
   $db->updateDepartments("system_serial", $serial, $time);
   $db->updateDepartments("department", $department, $time);
 
-
-  $db->Pselect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
-  if (arrFilter($db->get()) === 0) {
-    foreach ($db->get() as $key => $value2) {
-      if ($value2["erase_completed"] === 1 && $value2["clone_completed"] === 1) {
-        $osInstalled = 1;
-      } elseif ($value2["erase_completed"] === 1 && $value2["clone_completed"] !== 1) {
-        $osInstalled = 0;
-      } elseif ($value2["erase_completed"] !== 1 && $value2["clone_completed"] === 1) {
-        $osInstalled = 1;
-      } else {
-        $osInstalled = 0;
-      }
-
-      $db->Pselect("SELECT MAX(time) FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-      if (arrFilter($db->get()) === 0) {
-        foreach ($db->get() as $key => $value5) {
-          $db->updateLocation("os_installed", $osInstalled, $value5["max_time"]);
-        }
-      }
-    }
+  $db->insertLocation($time);
+  $db->updateLocation("tagnumber", $tagNum, $time);
+  $db->updateLocation("system_serial", $serial, $time);
+  $db->updateLocation("location", $location, $time);
+  $db->updateLocation("status", $status, $time);
+  $db->updateLocation("disk_removed", $diskRemoved, $time);
+  $db->updateLocation("note", $note, $time);
+  if (isset($osInstalled)) {
+      $db->updateLocation("os_installed", $osInstalled, $time);
   }
-    unset($value2);
-    unset($value5);
+  if (isset($biosVersion)) {
+    $db->updateBIOS($tagNum, "bios_version", $biosVersion);
+  }
+  unset($biosVersion);
+  unset($osInstalled);
 
-    unset($sql);
-    unset($biosVersion);
-    $sql = "SELECT jobstats.bios_version
-      FROM jobstats
-      WHERE jobstats.bios_version IS NOT NULL 
-      AND jobstats.tagnumber = :tagnumber
-      ORDER BY jobstats.time DESC LIMIT 1";
-    
-    $db->Pselect($sql, array(':tagnumber' => $_POST["tagnumber"]));
-      if (arrFilter($db->get()) === 0) {
-        foreach ($db->get() as $key => $value1) {
-          $biosVersion = $value1["bios_version"];
-        }
-      }
-    unset($sql);
-    unset($value1);
-      
-
-    $db->insertLocation($time);
-    $db->updateLocation("tagnumber", $tagNum, $time);
-    $db->updateLocation("system_serial", $serial, $time);
-    $db->updateLocation("location", $location, $time);
-    $db->updateLocation("status", $status, $time);
-    $db->updateLocation("disk_removed", $diskRemoved, $time);
-    $db->updateLocation("note", $note, $time);
-    if (isset($osInstalled)) {
-        $db->updateLocation("os_installed", $osInstalled, $time);
-    }
-    if (isset($biosVersion)) {
-      $db->updateBIOS($tagNum, "bios_version", $biosVersion);
-    }
-    unset($biosVersion);
-    unset($osInstalled);
-
-    unset($_POST);
-    header("Location: " . $_SERVER['REQUEST_URI']);
+  unset($_POST);
+  header("Location: " . $_SERVER['REQUEST_URI']);
 }
 unset($_POST);
 ?>
@@ -232,7 +189,7 @@ unset($_POST);
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
   locations.location, IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, locations.note AS 'most_recent_note',
   t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
-  IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF(locations.os_installed = 1, 'Yes', 'No') AS 'os_installed',
+  IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF(os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed',
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
   system_data.system_manufacturer, system_data.system_model, 
@@ -249,6 +206,7 @@ unset($_POST);
   t4.disk_power_cycles
 FROM jobstats
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
+LEFT JOIN os_stats ON jobstats.tagnumber = os_stats.tagnumber
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
 LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
 LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE tagnumber IS NOT NULL GROUP BY tagnumber)) t1 
@@ -702,16 +660,17 @@ if (isset($_GET["tagnumber"])) {
             <tbody>
                 <?php
                 $db->Pselect("SELECT * FROM 
-                  (SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', location, 
-                    ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'location_num', 
-                    IF (status = 1, 'Broken', 'Working') AS 'status', 
-                    IF (os_installed = 1, 'Yes', 'No') AS 'os_installed', 
-                    IF (disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note 
+                  (SELECT locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.location, 
+                    ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
+                    IF (locations.status = 1, 'Broken', 'Working') AS 'status', 
+                    IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
+                    IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note 
                   FROM locations 
+                  LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
                   WHERE tagnumber = :tagnumber 
-                    AND NOT location = 'Plugged in and booted on laptop table.' 
-                    AND NOT location = 'Finished work on laptop table.' 
-                  ORDER BY time DESC) t2 
+                    AND NOT locations.location = 'Plugged in and booted on laptop table.' 
+                    AND NOT locations.location = 'Finished work on laptop table.' 
+                  ORDER BY locations.time DESC) t2 
                   WHERE t2.location IS NOT NULL 
                   AND t2.location_num <= 3 ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
                 if (arrFilter($db->get()) === 0) {

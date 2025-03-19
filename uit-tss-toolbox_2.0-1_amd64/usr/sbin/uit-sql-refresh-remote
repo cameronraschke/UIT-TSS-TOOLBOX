@@ -14,22 +14,13 @@ $db->select("SELECT remote.tagnumber,
   jobstats.time,
   IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 45, '1', '0') AS 'present_bool',
   t1.last_job_time,
-  t1.os_installed,
   remote.disk_temp
   FROM remote
-  LEFT JOIN bios_stats ON remote.tagnumber = bios_stats.tagnumber
   INNER JOIN jobstats ON jobstats.tagnumber = remote.tagnumber
   INNER JOIN system_data ON system_data.tagnumber = remote.tagnumber
-  INNER JOIN static_bios_stats ON static_bios_stats.system_model = system_data.system_model
   LEFT JOIN
     (SELECT
         tagnumber, 
-        (CASE
-          WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed = 1 THEN '1'
-          WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN '0'
-          WHEN jobstats.erase_completed IS NULL AND jobstats.clone_completed = 1 THEN '1'
-          ELSE '1'
-        END) AS 'os_installed',
         ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count', IF(SUBSTRING(time, 12, 24) = '00:00:00.000', NULL, time) AS 'last_job_time'
       FROM jobstats
       WHERE (erase_completed = 1 OR clone_completed = 1)) t1
@@ -62,8 +53,6 @@ foreach ($db->get() as $key => $value) {
   // Update presence
   $db->updateRemote($value["tagnumber"], "present_bool", $value["present_bool"]);
 
-  // Update BIOS updated status
-
   // Update Last Job Time
   $db->updateRemote($value["tagnumber"], "last_job_time", $value["last_job_time"]);
 
@@ -72,9 +61,6 @@ foreach ($db->get() as $key => $value) {
     $db->updateRemote($value["tagnumber"], "status", "fail - high disk temp");
     $db->updateRemote($value["tagnumber"], "job_queued", "shutdown");
   }
-
-  // OS Installed?
-  $db->updateRemote($value["tagnumber"], "os_installed", $value["os_installed"]);
 
   echo "Time taken to update " . $value["tagnumber"] . ": " . $timer->endMarker() . "s" . PHP_EOL;
 }

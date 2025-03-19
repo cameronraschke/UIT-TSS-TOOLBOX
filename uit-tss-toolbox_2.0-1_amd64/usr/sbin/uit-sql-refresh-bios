@@ -3,6 +3,7 @@
 include('/var/lib/UIT-TSS-TOOLBOX/include.php');
 $db = new db();
 
+unset($sql);
 $sql = "SELECT system_data.tagnumber,
 bios_stats.tagnumber AS 'bios_table_tag', system_data.system_model,
 IF (jobstats.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated'
@@ -21,4 +22,23 @@ foreach ($db->get() as $key => $value) {
 
     $db->updateBIOS($value["tagnumber"], "bios_updated", $value["bios_updated"]);
 }
+unset($value);
 
+unset($sql);
+$sql = "SELECT jobstats.tagnumber, jobstats.time, os_stats.tagnumber AS 'os_table_tag',
+    (CASE WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN 0
+    WHEN jobstats.erase_completed IS NULL AND jobstats.clone_completed = 1 THEN 1
+    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed = 1 THEN 1 END) AS 'os_installed'
+    FROM jobstats 
+    INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE (erase_completed IS NOT NULL OR clone_completed IS NOT NULL) AND tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t1
+        ON jobstats.time = t1.time
+    LEFT JOIN os_stats ON jobstats.tagnumber = os_stats.tagnumber"
+$db->select($sql);
+foreach ($db->get() as $key => $value) {
+    if (strFilter($value["os_table_tag"]) === 1) {
+        $db->insertOS($value["tagnumber"])
+    }
+    
+    $db->updateOS($value["tagnumber"], "os_installed", $value["bios_updated"], $value["time"]);
+}
+unset($value;)

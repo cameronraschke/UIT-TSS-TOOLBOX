@@ -529,6 +529,56 @@ class db {
     
         }
     }
+
+    
+    public function insertOS ($tagNum) {
+        if (strFilter($tagNum) == 0) {
+            $db = new MySQLConn();
+            $this->pdo = $db->dbObj();
+
+            $sql = "INSERT INTO os_stats (tagnumber) VALUES (:tagNum)";
+            $stmt = $this->pdo->prepare($sql);
+    
+            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+    
+            if (strFilter($stmt) === 0) {
+                $stmt->execute();
+            }
+
+            $stmt = null;
+            $sql = null;
+        }
+    }
+
+    public function updateOS ($tagNum, $key, $value, $updateTime) {
+        if (strFilter($tagNum) === 0) {
+            $db = new MySQLConn();
+            $this->pdo = $db->dbObj();
+
+            $sql = "UPDATE os_stats SET $key = :value, time = :updateTime WHERE tagnumber = :tagNum";
+            $stmt = $this->pdo->prepare($sql);
+    
+            if (strFilter($value) === 0) {
+                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
+            } else {
+                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
+            }
+    
+            if (strFilter($stmt) == 0) {
+                $stmt->execute();
+            }
+
+            unset($updateTime);
+            $dt = null;
+            $stmt = null;
+            $sql = null;
+    
+        }
+    }
 }
 
 

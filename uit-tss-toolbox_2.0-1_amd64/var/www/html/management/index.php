@@ -89,13 +89,13 @@ $db = new db();
                 var data = google.visualization.arrayToDataTable([ ['OS Status', 'Client Count'],
                 <?php
                 $db->select("SELECT 
-                    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool IS NULL AND remote.os_installed = 1)
+                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats WHERE os_stats.present_bool IS NULL AND os_stats.os_installed = 1)
                         AS 'os_installed_not_present',
-                    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool IS NULL AND remote.os_installed IS NULL)
+                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats WHERE os_stats.present_bool IS NULL AND os_stats.os_installed IS NULL)
                         AS 'os_not_installed_not_present',
-                    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool = 1 AND remote.os_installed = 1)
+                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats WHERE os_stats.present_bool = 1 AND os_stats.os_installed = 1)
                         AS 'os_installed_present',
-                    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool = 1 AND remote.os_installed IS NULL)
+                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats WHERE os_stats.present_bool = 1 AND os_stats.os_installed IS NULL)
                         AS 'os_not_installed_present'");
                     if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {

@@ -190,7 +190,7 @@ UNION
   departments.department,
   locations.location,
   IF (locations.status = 0 OR status IS NULL, "Working", "Broken"),
-  IF (locations.os_installed = 1 , "Yes", "No"),
+  IF (os_stats.os_installed = 1 , "Yes", "No"),
   IF (bios_stats.bios_updated = 1 , "Yes", "No"),
   locations.note,
   CONVERT(locations.time, DATETIME) 
@@ -198,6 +198,7 @@ FROM locations
 LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
 LEFT JOIN departments ON locations.tagnumber = departments.tagnumber
+LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t1 ON departments.time = t1.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
 ORDER BY locations.time DESC);
@@ -418,15 +419,17 @@ CREATE PROCEDURE selectRemoteStats()
 DETERMINISTIC
 BEGIN
 SELECT 
-    (SELECT COUNT(tagnumber) FROM remote WHERE present_bool = '1') AS 'Present Laptops',
-    CONCAT(ROUND(AVG(battery_charge), 0), '%') AS 'Avg. Battery Charge',
-    CONCAT(ROUND(AVG(cpu_temp), 1), '°C') AS 'Avg. CPU Temp',
-    CONCAT(ROUND(AVG(disk_temp), 1), '°C') AS 'Avg. Disk Temp',
-    CONCAT(ROUND(AVG(watts_now), 1), ' Watts') AS 'Avg. Actual Power Draw',
-    CONCAT(ROUND(SUM(watts_now), 0), ' Watts') AS 'Actual Power Draw',
-    CONCAT(ROUND(SUM(IF (battery_status NOT IN ('Discharging') AND present_bool = 1, 55, 0)), 0), ' Cur. Watts', '/' , ROUND(SUM(IF (present_bool = 1, 55, 0)), 0), ' Watts') AS 'Power Draw from Wall',
-    SUM(os_installed) AS 'OS Installed Sum'
-    FROM remote WHERE present_bool = 1;
+    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool = '1') AS 'Present Laptops',
+    CONCAT(ROUND(AVG(remote.battery_charge), 0), '%') AS 'Avg. Battery Charge',
+    CONCAT(ROUND(AVG(remote.cpu_temp), 1), '°C') AS 'Avg. CPU Temp',
+    CONCAT(ROUND(AVG(remote.disk_temp), 1), '°C') AS 'Avg. Disk Temp',
+    CONCAT(ROUND(AVG(remote.watts_now), 1), ' Watts') AS 'Avg. Actual Power Draw',
+    CONCAT(ROUND(SUM(remote.watts_now), 0), ' Watts') AS 'Actual Power Draw',
+    CONCAT(ROUND(SUM(IF (remote.battery_status NOT IN ('Discharging') AND remote.present_bool = 1, 55, 0)), 0), ' Cur. Watts', '/' , ROUND(SUM(IF (remote.present_bool = 1, 55, 0)), 0), ' Watts') AS 'Power Draw from Wall',
+    SUM(os_stats.os_installed) AS 'OS Installed Sum'
+    FROM remote 
+    LEFT JOIN os_stats ON remote.tagnumber = os_stats.tagnumber 
+    WHERE remote.present_bool = 1;
     END; //
 
 DELIMITER ;

@@ -200,7 +200,7 @@ $db->select("SELECT remote.tagnumber,
         DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'time_formatted', 
         DATE_FORMAT(remote.last_job_time, '%m/%d/%y, %r') AS 'last_job_time_formatted', 
         remote.job_queued, remote.status, t2.queue_position,
-        IF (remote.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
+        IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
         IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
         remote.kernel_updated, CONCAT(remote.battery_charge, '%') AS 'battery_charge', remote.battery_status, 
         CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS 'uptime', 
@@ -208,6 +208,7 @@ $db->select("SELECT remote.tagnumber,
         CONCAT(remote.watts_now, ' Watts') AS 'watts_now', remote.job_active
     FROM remote 
     LEFT JOIN bios_stats ON remote.tagnumber = bios_stats.tagnumber
+    LEFT JOIN os_stats ON remote.tagnumber = os_stats.tagnumber
     LEFT JOIN (SELECT * FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) t1) t2
         ON remote.tagnumber = t2.tagnumber
     WHERE present_bool = '1' 
