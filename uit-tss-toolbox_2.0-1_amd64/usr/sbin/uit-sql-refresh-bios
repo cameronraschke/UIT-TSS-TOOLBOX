@@ -32,11 +32,11 @@ $sql = "SELECT jobstats.tagnumber, jobstats.time, os_stats.tagnumber AS 'os_tabl
     FROM jobstats 
     INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE (erase_completed IS NOT NULL OR clone_completed IS NOT NULL) AND tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t1
         ON jobstats.time = t1.time
-    LEFT JOIN os_stats ON jobstats.tagnumber = os_stats.tagnumber"
+    LEFT JOIN os_stats ON jobstats.tagnumber = os_stats.tagnumber";
 $db->select($sql);
 foreach ($db->get() as $key => $value) {
     if (strFilter($value["os_table_tag"]) === 1) {
-        $db->insertOS($value["tagnumber"])
+        $db->insertOS($value["tagnumber"]);
     }
     
     $db->updateOS($value["tagnumber"], "os_installed", $value["bios_updated"], $value["time"]);
