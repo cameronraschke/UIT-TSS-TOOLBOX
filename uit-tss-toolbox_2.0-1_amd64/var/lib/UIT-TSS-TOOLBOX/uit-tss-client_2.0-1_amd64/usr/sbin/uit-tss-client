@@ -1594,7 +1594,7 @@ function execute {
 		echo "remote|${tagNum}|job_queued|generic-erase+clone" | /var/lib/UIT-TSS-TOOLBOX/parse
 		basicEraseMode_Shred
 		echo "remote|${tagNum}|clone_mode|$cloneMode" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "remote|${tagNum}|shred_mode|$shredMode" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|erase_mode|$shredMode" | /var/lib/UIT-TSS-TOOLBOX/parse
 		execute_Shred
 		execute_Clone
 	elif [[ $APPSELECT == "E" ]]; then
@@ -1604,7 +1604,7 @@ function execute {
 			basicEraseMode_Shred
 		fi
 		echo "remote|${tagNum}|job_queued|generic-erase" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "remote|${tagNum}|shred_mode|$shredMode" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|erase_mode|$shredMode" | /var/lib/UIT-TSS-TOOLBOX/parse
 		execute_Shred
 	elif [[ $APPSELECT == "C" ]]; then
 		if [[ -z $cloneMode ]]; then
