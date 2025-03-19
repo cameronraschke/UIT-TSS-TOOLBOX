@@ -16,7 +16,6 @@ if (isset($_POST['location'])) {
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value) {
                 $db->updateRemote($value["tagnumber"], "job_queued", $_POST['location-action']);
-                sleep(rand(1,2));
             }
         }
     }
