@@ -41,4 +41,4 @@ foreach ($db->get() as $key => $value) {
     
     $db->updateOS($value["tagnumber"], "os_installed", $value["bios_updated"], $value["time"]);
 }
-unset($value;)
+unset($value);
