@@ -39,7 +39,7 @@ if (isset($_POST['serial'])) {
   $department = $_POST['department'];
   $note = $_POST['note'];
   
-  //Not the same insert statment as client parse code, ether address is DEFAULT here.
+  //Insert jobstats data
   $db->insertJob($uuid);
   $db->updateJob("tagnumber", $tagNum, $uuid);
   $db->updateJob("system_serial", $serial, $uuid);
@@ -51,43 +51,6 @@ if (isset($_POST['serial'])) {
   $db->updateDepartments("tagnumber", $tagNum, $time);
   $db->updateDepartments("system_serial", $serial, $time);
   $db->updateDepartments("department", $department, $time);
-  
-  // See if OS is installed
-  $db->Pselect("SELECT erase_completed, clone_completed FROM jobstats WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC LIMIT 1", array(':tagnumber' => $tagNum));
-  if (arrFilter($db->get()) === 0) {
-    foreach ($db->get() as $key => $value1) {
-      if ($value1["erase_completed"] === 1 && $value1["clone_completed"] === 1) {
-        $osInstalled = 1;
-      } elseif ($value1["erase_completed"] === 1 && $value1["clone_completed"] !== 1) {
-        $osInstalled = 0;
-      } elseif ($value1["erase_completed"] !== 1 && $value1["clone_completed"] === 1) {
-        $osInstalled = 1;
-      } else {
-        $osInstalled = 1;
-      }
-    }
-  } else {
-    $osInstalled = 1;
-  }
-  unset($value1);
-  
-  // BIOS updated
-  unset($sql);
-  unset($biosVersion);
-  $sql = "SELECT jobstats.bios_version
-    FROM jobstats
-    WHERE jobstats.bios_version IS NOT NULL 
-    AND jobstats.tagnumber = :tagnumber
-    ORDER BY jobstats.time DESC LIMIT 1";
-  
-  $db->Pselect($sql, array(':tagnumber' => $_POST["tagnumber"]));
-    if (arrFilter($db->get()) === 0) {
-      foreach ($db->get() as $key => $value1) {
-        $biosVersion = $value1["bios_version"];
-      }
-    }
-  unset($sql);
-  unset($value1);
   
   $db->insertLocation($time);
   $db->updateLocation("tagnumber", $tagNum, $time);
@@ -511,9 +474,9 @@ if ($_GET["disk_removed"] == "0") {
 
 // OS Installed filter
 if ($_GET["os_installed"] == "0") {
-  $sql .= "AND (locations.os_installed IS NULL OR locations.os_installed = 0) ";
+  $sql .= "AND (os_stats.os_installed IS NULL OR os_stats.os_installed = 0) ";
 } elseif ($_GET["os_installed"] == "1") {
-  $sql .= "AND (locations.os_installed = 1 OR locations.os_installed IS NOT NULL) ";
+  $sql .= "AND (os_stats.os_installed = 1 OR os_stats.os_installed IS NOT NULL) ";
 }
 
 // Order by modifiers
@@ -532,10 +495,10 @@ if (isset($_GET["order_by"])) {
     $sql .= "locations.time ASC, ";
   }
   if($_GET["order_by"] == "os_desc") {
-    $sql .= "locations.os_installed DESC, ";
+    $sql .= "os_stats.os_installed DESC, ";
   }
   if($_GET["order_by"] == "os_asc") {
-    $sql .= "locations.os_installed ASC, ";
+    $sql .= "os_stats.os_installed ASC, ";
   }
   if($_GET["order_by"] == "bios_desc") {
     $sql .= "bios_stats.bios_updated DESC, ";

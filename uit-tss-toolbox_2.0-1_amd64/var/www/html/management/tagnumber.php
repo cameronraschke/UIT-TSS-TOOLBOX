@@ -24,7 +24,7 @@ if (isset($_POST['department'])) {
   $note = $_POST['note'];
   $diskRemoved = $_POST['disk_removed'];
 
-  #Not the same insert statment as client parse code, ether address is DEFAULT here.
+  //Insert jobstats data
   $db->insertJob($uuid);
   $db->updateJob("tagnumber", $tagNum, $uuid);
   $db->updateJob("system_serial", $serial, $uuid);
@@ -36,7 +36,7 @@ if (isset($_POST['department'])) {
   $db->updateDepartments("tagnumber", $tagNum, $time);
   $db->updateDepartments("system_serial", $serial, $time);
   $db->updateDepartments("department", $department, $time);
-
+  
   $db->insertLocation($time);
   $db->updateLocation("tagnumber", $tagNum, $time);
   $db->updateLocation("system_serial", $serial, $time);
@@ -44,14 +44,6 @@ if (isset($_POST['department'])) {
   $db->updateLocation("status", $status, $time);
   $db->updateLocation("disk_removed", $diskRemoved, $time);
   $db->updateLocation("note", $note, $time);
-  if (isset($osInstalled)) {
-      $db->updateLocation("os_installed", $osInstalled, $time);
-  }
-  if (isset($biosVersion)) {
-    $db->updateBIOS($tagNum, "bios_version", $biosVersion);
-  }
-  unset($biosVersion);
-  unset($osInstalled);
 
   unset($_POST);
   header("Location: " . $_SERVER['REQUEST_URI']);
