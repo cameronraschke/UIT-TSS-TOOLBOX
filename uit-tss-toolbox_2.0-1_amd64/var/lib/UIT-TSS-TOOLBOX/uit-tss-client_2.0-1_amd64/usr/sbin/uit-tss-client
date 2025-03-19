@@ -117,11 +117,11 @@ ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1
 
 function remote {
 	job_queued=$(echo "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-	job_queued_override=$(echo "SELECT job_queued AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly') AND tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-	job_queued_formatted=$(echo "SELECT (CASE WHEN job_queued = 'data collection' THEN 'data collection' WHEN job_queued = 'update' THEN 'update' WHEN job_queued = 'findmy' THEN 'playing a sound' WHEN job_queued = 'hpEraseAndClone' THEN 'disk erase & clone' WHEN job_queued = 'hpCloneOnly' THEN 'disk clone' WHEN job_queued = 'nvmeErase' THEN 'disk erase' WHEN job_queued = 'nvmeVerify' THEN 'disk verify' WHEN job_queued = 'shutdown' THEN 'shutdown' ELSE job_queued END) AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) 
-	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, job_active, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly') AND job_queued IS NOT NULL AND job_active IS NULL) t1 WHERE t1.tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
+	job_queued_override=$(echo "SELECT job_queued AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
+	job_queued_formatted=$(echo "SELECT (CASE WHEN job_queued = 'data collection' THEN 'data collection' WHEN job_queued = 'update' THEN 'update' WHEN job_queued = 'findmy' THEN 'playing a sound' WHEN (job_queued = 'hpEraseAndClone' OR job_queued = 'generic-erase+clone) THEN 'disk erase & clone' WHEN (job_queued = 'hpCloneOnly' OR job_queued = 'generic-clone') THEN 'disk clone' WHEN job_queued = 'nvmeErase' THEN 'disk erase' WHEN job_queued = 'nvmeVerify' THEN 'disk verify' WHEN job_queued = 'shutdown' THEN 'shutdown' ELSE job_queued END) AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) 
+	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, job_active, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_queued IS NOT NULL AND job_active IS NULL) t1 WHERE t1.tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
 	job_active=$(echo "SELECT job_active AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-	job_available=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly') AND job_active IS NOT NULL" | /var/lib/UIT-TSS-TOOLBOX/select)
+	job_available=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active IS NOT NULL" | /var/lib/UIT-TSS-TOOLBOX/select)
 }
 
 function department {
@@ -1605,7 +1605,9 @@ function execute {
 		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
 		fi
-		echo "remote|${tagNum}|job_queued|generic-erase+clone" | /var/lib/UIT-TSS-TOOLBOX/parse
+		if [[ $job_queued != "hpEraseAndClone" ]]; then
+			echo "remote|${tagNum}|job_queued|generic-erase+clone" | /var/lib/UIT-TSS-TOOLBOX/parse
+		fi
 		basicEraseMode_Shred
 		echo "remote|${tagNum}|clone_mode|$cloneMode" | /var/lib/UIT-TSS-TOOLBOX/parse
 		echo "remote|${tagNum}|erase_mode|$shredMode" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -1617,14 +1619,18 @@ function execute {
 		else
 			basicEraseMode_Shred
 		fi
-		echo "remote|${tagNum}|job_queued|generic-erase" | /var/lib/UIT-TSS-TOOLBOX/parse
+		if [[ $job_queued != "nvmeErase" ]]; then
+			echo "remote|${tagNum}|job_queued|generic-erase" | /var/lib/UIT-TSS-TOOLBOX/parse
+		fi
 		echo "remote|${tagNum}|erase_mode|$shredMode" | /var/lib/UIT-TSS-TOOLBOX/parse
 		execute_Shred
 	elif [[ $APPSELECT == "C" ]]; then
 		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
 		fi
-		echo "remote|${tagNum}|job_queued|generic-clone" | /var/lib/UIT-TSS-TOOLBOX/parse
+		if [[ $job_queued != "hpCloneOnly" ]]; then
+			echo "remote|${tagNum}|job_queued|generic-clone" | /var/lib/UIT-TSS-TOOLBOX/parse
+		fi
 		echo "remote|${tagNum}|clone_mode|$cloneMode" | /var/lib/UIT-TSS-TOOLBOX/parse
 		execute_Clone
 	else
@@ -1862,7 +1868,7 @@ function autodetectClient {
 					break
 				fi
 				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
-					okay_to_go=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly') AND job_active = 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+					okay_to_go=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active = 1" | /var/lib/UIT-TSS-TOOLBOX/select)
 					if [[ $okay_to_go == "NULL" ]]; then
 						echo "remote|${tagNum}|job_active|1" | /var/lib/UIT-TSS-TOOLBOX/parse
 						break
