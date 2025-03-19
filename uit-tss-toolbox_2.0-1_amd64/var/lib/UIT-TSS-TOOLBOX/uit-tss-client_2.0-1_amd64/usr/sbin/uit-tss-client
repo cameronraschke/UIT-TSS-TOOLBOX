@@ -186,8 +186,10 @@ function diskData {
 		diskReadsGiB=$(cat /root/smartctl-data | grep '242 Total_Reads_GiB' | awk '{print $10}')
 		if [[ -n $diskReadsGiB ]]; then
 			echo "general|disk_reads|${diskReadsGiB}|${UUID}|sata|gib" | /var/lib/UIT-TSS-TOOLBOX/parse
-		else
-			diskReadsLBA=$(cat /root/smartctl-data | grep '^242 Total.*' | awk '{print $10}')
+		fi
+
+		diskReadsLBA=$(cat /root/smartctl-data | grep '242 Total_LBAs_Read' | awk '{print $10}')
+		if [[ -n $diskReadsLBA ]]; then
 			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 
@@ -195,8 +197,10 @@ function diskData {
 		diskWritesGiB=$(cat /root/smartctl-data | grep '241 Total_Writes_GiB' | awk '{print $10}')
 		if [[ -n $diskWritesGiB ]]; then
 			echo "general|disk_writes|${diskWritesGiB}|${UUID}|sata|gib" | /var/lib/UIT-TSS-TOOLBOX/parse
-		else
-			diskWritesLBA=$(cat /root/smartctl-data | grep '^241 Total.*' | awk '{print $10}')
+		fi
+		
+		diskWritesLBA=$(cat /root/smartctl-data | grep '241 Total_LBAs_Written' | awk '{print $10}')
+		if [[ -n $diskWritesLBA ]]; then
 			echo "general|disk_writes|${diskWritesLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 
