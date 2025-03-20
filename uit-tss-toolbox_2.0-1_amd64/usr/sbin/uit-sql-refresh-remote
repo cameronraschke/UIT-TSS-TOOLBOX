@@ -31,7 +31,7 @@ $db->select("SELECT remote.tagnumber,
       FROM jobstats WHERE system_serial IS NOT NULL) t2
     ON t2.time = jobstats.time
   WHERE jobstats.tagnumber IS NOT NULL 
-  AND t1.row_count = 1
+  AND (t1.row_count = 1 OR t1.row_count IS NULL)
   AND t2.row_count = 1
   ORDER BY jobstats.time DESC");
 
