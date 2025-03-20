@@ -179,7 +179,8 @@ unset($_POST);
   unset($sql);
   $sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
-  locations.location, IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, locations.note AS 'most_recent_note',
+  IF ((locations.location REGEXP '^.${1}'), UPPER(locations.location), locations.location) AS 'location', 
+  IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, locations.note AS 'most_recent_note',
   t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
   IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF(os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed',
   jobstats.etheraddress, system_data.wifi_mac, 
@@ -643,7 +644,8 @@ if (isset($_GET["tagnumber"])) {
             <tbody>
                 <?php
                 $db->Pselect("SELECT * FROM 
-                  (SELECT locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.location, 
+                  (SELECT locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
+                    IF ((locations.location REGEXP '^.${1}'), UPPER(locations.location), locations.location) AS 'location', 
                     ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
                     IF (locations.status = 1, 'Broken', 'Working') AS 'status', 
                     IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 

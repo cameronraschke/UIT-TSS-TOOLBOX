@@ -76,9 +76,6 @@ foreach ($db->get() as $key => $value) {
   # Update the system model
   $db->updateCS("system_model", $value["system_model"], $value["tagnumber"]);
 
-  # Update the BIOS version
-  $db->updateCS("bios_updated", $value["bios_updated"], $value["tagnumber"]);
-
   # Update the system serial number
   $db->updateCS("system_serial", $value["system_serial"], $value["tagnumber"]);
 

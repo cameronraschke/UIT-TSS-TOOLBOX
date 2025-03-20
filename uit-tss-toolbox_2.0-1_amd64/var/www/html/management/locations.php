@@ -165,7 +165,7 @@ if (isset($_POST['serial'])) {
       if (isset($_POST["tagnumber"])) {
         unset($formSql);
         $formSql = "SELECT 
-          jobstats.system_serial, locations.location, 
+          jobstats.system_serial, IF ((locations.location REGEXP '^.${1}'), UPPER(locations.location), locations.location) AS 'location', 
           DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
           t4.department, locations.disk_removed, locations.status, t3.note, t5.department_readable, 
           DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted'
@@ -396,7 +396,8 @@ $tableArr = array();
 $sqlArr = array();
 $rowCount = 0;
 $onlineRowCount = 0;
-$sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, locations.location,
+$sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, 
+  IF ((locations.location REGEXP '^.${1}'), UPPER(locations.location), locations.location) AS 'location',
   t2.department_readable AS 'department_formatted', t1.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Working', 'Broken') AS 'status',
   IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', os_stats.os_installed,
