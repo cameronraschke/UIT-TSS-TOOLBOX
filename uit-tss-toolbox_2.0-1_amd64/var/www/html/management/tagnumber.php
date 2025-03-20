@@ -357,9 +357,6 @@ if (isset($_GET["tagnumber"])) {
     echo "<textarea id='note' name='note' style='width: 70%;' placeholder='Enter Note...'></textarea>" . PHP_EOL;
   }
 
-  echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
-  echo "<textarea id='note' name='note' style='width: 70%;' placeholder='Enter Note...'></textarea>" . PHP_EOL;
-
   echo "</div>" . PHP_EOL;
 
     echo "<div style='width: 60%;'>" . PHP_EOL;
