@@ -364,7 +364,8 @@ if (isset($_POST['serial'])) {
           echo "<div class='row'>";
           echo "<a href='/locations.php'>Cancel</a>";
           if ($value["status"] === 1) {
-            echo "<button style='background-color:rgba(200, 16, 47, 0.30); margin-left: 1em;' type='submit' value='Update Location Data (Broken)'>Update Location Data (Broken)</button>" . PHP_EOL;
+            //echo "<button style='background-color:rgba(200, 16, 47, 0.30); margin-left: 1em;' type='submit' value='Update Location Data (Broken)'>Update Location Data (Broken)</button>" . PHP_EOL;
+            echo "<button style='background-color:rgba(0, 179, 136, 0.30); margin-left: 1em;' type='submit' value='Update Location Data'>Update Location Data</button>" . PHP_EOL;
           } else {
             echo "<button style='background-color:rgba(0, 179, 136, 0.30); margin-left: 1em;' type='submit' value='Update Location Data'>Update Location Data</button>" . PHP_EOL;
           }
