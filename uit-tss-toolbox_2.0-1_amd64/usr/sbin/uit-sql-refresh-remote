@@ -23,7 +23,7 @@ $db->select("SELECT remote.tagnumber,
         tagnumber, 
         ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count', IF(SUBSTRING(time, 12, 24) = '00:00:00.000', NULL, time) AS 'last_job_time'
       FROM jobstats
-      WHERE (erase_completed = 1 OR clone_completed = 1)) t1
+      WHERE (erase_completed IS NOT NULL OR clone_completed IS NOT NULL)) t1
     ON jobstats.tagnumber = t1.tagnumber
   INNER JOIN
     (SELECT time,
