@@ -165,7 +165,7 @@ if (isset($_POST['serial'])) {
       if (isset($_POST["tagnumber"])) {
         unset($formSql);
         $formSql = "SELECT 
-          jobstats.system_serial, IF ((locations.location REGEXP '^.${1}'), UPPER(locations.location), locations.location) AS 'location', 
+          jobstats.system_serial, locationFormatting(locations.location) AS 'location', 
           DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
           t4.department, locations.disk_removed, locations.status, t3.note, t5.department_readable, 
           DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted'
@@ -397,7 +397,7 @@ $sqlArr = array();
 $rowCount = 0;
 $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, 
-  IF ((locations.location REGEXP '^.${1}'), UPPER(locations.location), locations.location) AS 'location',
+  locationFormatting(locations.location) AS 'location',
   t2.department_readable AS 'department_formatted', t1.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Working', 'Broken') AS 'status',
   IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', os_stats.os_installed,
@@ -762,13 +762,7 @@ foreach ($tableArr as $key => $value1) {
   echo "<td><b><a href='locations.php?system_model=" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
 
   // Location
-  if (preg_match("/^[a-zA-Z]$/", $value1["location"])) {
-    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars(strtoupper($value1["location"]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
-  } elseif (preg_match("/^checkout$/i", $value1["location"])) {
-    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
-  } else {
-    echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
-  }
+  echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
 
   // Department
   echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;

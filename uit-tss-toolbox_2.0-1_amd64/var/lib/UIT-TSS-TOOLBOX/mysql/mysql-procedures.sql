@@ -477,3 +477,22 @@ ORDER BY locations.location ASC, jobstats.tagnumber ASC, locations.time ASC);
 
 END; //
 DELIMITER ;
+
+
+
+DROP FUNCTION IF EXISTS locationFormatting;
+DELIMITER //
+CREATE FUNCTION locationFormatting(location VARCHAR(64))
+RETURNS VARCHAR(64)
+DETERMINISTIC
+BEGIN
+  DECLARE ret VARCHAR(64);
+  SET ret = (SELECT 
+    (CASE 
+      WHEN location REGEXP '^.{1}$' THEN UPPER(location) 
+      WHEN location REGEXP 'checkout|check-out|check out' THEN 'Checkout' 
+      ELSE location END)
+  );
+  RETURN ret;
+END //
+DELIMITER ;

@@ -142,3 +142,12 @@ SELECT t0.dateByMonth, t1.avg_clone_time, t2.avg_erase_time
   INNER JOIN (SELECT DATE_FORMAT(date, '%Y-%m') AS 'dateByMonth', ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY avg_erase_time DESC) AS 'erase_rows', avg_erase_time FROM serverstats) t2
     ON t0.dateByMonth = t2.dateByMonth
   WHERE t1.clone_rows = 1 AND t2.erase_rows = 1
+
+
+
+
+(CASE 
+  WHEN locations.location REGEXP '^.{1}$' THEN UPPER(locations.location)
+  WHEN locations.location REGEXP 'checkout|check-out|check out' THEN 'Checkout'
+  ELSE locations.location
+END) AS 'location' 
