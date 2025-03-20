@@ -248,10 +248,10 @@ if (arrFilter($db->get()) === 0) {
         echo "</td>" . PHP_EOL;
         echo "<td id='lastJobTime'>" . $value["last_job_time_formatted"] . "</td>" . PHP_EOL;
         echo "<td id='presentLocation'>";
-        $db->Pselect("SELECT location FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
+        $db->Pselect("SELECT locationFormatting(location) AS 'location' FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
-                    echo "<b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location"]) . "</a></b>" . PHP_EOL;
+                echo "<b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location"]) . "</a></b>" . PHP_EOL;
             }
         } else {
             echo "<b>" . "<i>No Location</i>" . "</b>" . PHP_EOL;
@@ -300,7 +300,7 @@ if (arrFilter($db->get()) === 0) {
         echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
         echo "</td>";
         echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
-        $db->Pselect("SELECT location FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
+        $db->Pselect("SELECT locationFormatting(location) AS 'location' FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
         if (arrFilter($db->get()) === 0) {
             foreach ($db->get() as $key => $value1) {
                 echo "<td id='absentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
