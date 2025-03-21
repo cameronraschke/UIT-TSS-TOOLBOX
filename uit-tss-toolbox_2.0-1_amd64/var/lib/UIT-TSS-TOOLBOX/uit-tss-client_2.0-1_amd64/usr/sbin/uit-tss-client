@@ -2040,8 +2040,8 @@ function autodetectClient {
 				poweroff
 			elif [[ $job_queued == "fail-test" ]]; then
 				echo "remote|${tagNum}|status|fail - test" | /var/lib/UIT-TSS-TOOLBOX/parse
+				resetForClientRestart
 			fi
-			resetForClientRestart
 		else
 			tput cuu1
 			tput el
