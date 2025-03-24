@@ -182,7 +182,7 @@ unset($_POST);
   locationFormatting(locations.location) AS 'location', 
   IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, locations.note AS 'most_recent_note',
   t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
-  IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF(os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed',
+  IF(locations.disk_removed = 1 OR locations.disk_removed IS NOT NULL, 'Yes', 'No') AS 'disk_removed', IF(os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed',
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
   system_data.system_manufacturer, system_data.system_model, 
@@ -648,8 +648,9 @@ if (isset($_GET["tagnumber"])) {
                     locationFormatting(locations.location) AS 'location', 
                     ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
                     IF (locations.status = 1, 'Broken', 'Working') AS 'status', 
-                    IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
-                    IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', note 
+                    IF (os_stats.os_installed = 1 OR locations.os_installed IS NOT NULL, 'Yes', 'No') AS 'os_installed', 
+                    IF (locations.disk_removed = 1 OR locations.disk_removed IS NOT NULL, 'Yes', 'No') AS 'disk_removed', 
+                    note 
                   FROM locations 
                   LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
                   WHERE locations.tagnumber = :tagnumber 
