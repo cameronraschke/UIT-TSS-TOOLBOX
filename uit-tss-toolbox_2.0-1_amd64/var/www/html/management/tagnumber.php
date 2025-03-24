@@ -182,13 +182,13 @@ unset($_POST);
   locationFormatting(locations.location) AS 'location', 
   IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, locations.note AS 'most_recent_note',
   t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
-  IF(locations.disk_removed = 1 OR locations.disk_removed IS NOT NULL, 'Yes', 'No') AS 'disk_removed', IF(os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed',
+  IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed, IF(os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed',
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
   system_data.system_manufacturer, system_data.system_model, 
   system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS 'cpu_maxspeed', system_data.cpu_threads, 
   CONCAT(t8.ram_capacity, ' GB') AS 'ram_capacity', CONCAT(t8.ram_speed, ' MHz') AS 'ram_speed',
-  t4.disk_model, t4.disk_size, t4.disk_type,
+  t4.disk_model, CONCAT(t4.disk_size, 'GB') AS 'disk_size', t4.disk_type,
   t5.identifier, t5.recovery_key, 
   CONCAT(clientstats.battery_health, '%') AS 'battery_health', CONCAT(clientstats.disk_health, '%') AS 'disk_health', 
   CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
@@ -428,7 +428,7 @@ if (isset($_GET["tagnumber"])) {
       echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['bios_updated'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['disk_removed_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['most_recent_note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "</tr>" . PHP_EOL;
     }
@@ -648,8 +648,8 @@ if (isset($_GET["tagnumber"])) {
                     locationFormatting(locations.location) AS 'location', 
                     ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
                     IF (locations.status = 1, 'Broken', 'Working') AS 'status', 
-                    IF (os_stats.os_installed = 1 OR locations.os_installed IS NOT NULL, 'Yes', 'No') AS 'os_installed', 
-                    IF (locations.disk_removed = 1 OR locations.disk_removed IS NOT NULL, 'Yes', 'No') AS 'disk_removed', 
+                    IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
+                    IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', 
                     note 
                   FROM locations 
                   LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
