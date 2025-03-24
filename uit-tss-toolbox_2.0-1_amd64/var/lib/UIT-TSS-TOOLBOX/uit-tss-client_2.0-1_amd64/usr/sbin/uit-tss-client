@@ -163,8 +163,8 @@ function diskData {
 		diskType=nvme
 			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		# Disk errors
-		diskGenericErr=$(cat /root/smartctl-data | grep 'Error Information Log Entries:' | awk '{print $5}')
-		diskDataErr=$(cat /root/smartctl-data | grep 'Media and Data Integrity Errors:' | awk '{print $6}')
+		diskGenericErr=$(cat /root/smartctl-data | grep 'Error Information Log Entries:' | awk '{print $5}' | sed 's/,//g')
+		diskDataErr=$(cat /root/smartctl-data | grep 'Media and Data Integrity Errors:' | awk '{print $6}' | sed 's/,//g')
 
 		diskErrors=$(( diskGenericErr + diskDataErr ))
 			echo "general|disk_errors|${diskErrors}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
@@ -218,7 +218,7 @@ function diskData {
 			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 
 		# Disk errors
-		diskErrors=$(cat /root/smartctl-data | grep 'ATA Error Count:' | awk '{print $4}' )
+		diskErrors=$(cat /root/smartctl-data | grep 'ATA Error Count:' | awk '{print $4}' | sed 's/,//g')
 			echo "general|disk_errors|${diskErrors}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 		fi
 	done
