@@ -114,7 +114,7 @@ if (arrFilter($db->get()) === 0) {
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
-                    $db->select("SELECT MAX(remote.present) AS 'present', locationFormatting(locations.location)
+                    $db->select("SELECT MAX(remote.present) AS 'present', locationFormatting(locations.location) AS 'location'
                         FROM remote 
                         INNER JOIN locations ON remote.tagnumber = locations.tagnumber 
                         INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 
