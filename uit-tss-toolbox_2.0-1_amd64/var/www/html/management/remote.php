@@ -114,13 +114,14 @@ if (arrFilter($db->get()) === 0) {
                 <select name="location" id="location">
                 <option>--Please Select--</option>
                 <?php
-                    $db->select("SELECT locationFormatting(locations.location) AS 'location' 
-                        FROM locations 
-                        INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE location IS NOT NULL GROUP BY tagnumber) t1 
+                    $db->select("SELECT MAX(remote.present) AS 'present', locationFormatting(locations.location)
+                        FROM remote 
+                        INNER JOIN locations ON remote.tagnumber = locations.tagnumber 
+                        INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 
                             ON locations.time = t1.time 
-                        INNER JOIN (SELECT tagnumber FROM remote WHERE present_bool = 1 AND kernel_updated = 1) t2 
-                            ON locations.tagnumber = t2.tagnumber 
-                        GROUP BY locations.location ORDER BY location ASC");
+                        WHERE remote.present IS NOT NULL
+                        GROUP BY location 
+                        ORDER BY present DESC");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value) {
                             echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars($value["location"]) . "</option>" . PHP_EOL;
