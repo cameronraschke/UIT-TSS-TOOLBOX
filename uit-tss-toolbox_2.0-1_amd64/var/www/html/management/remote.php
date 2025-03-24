@@ -120,6 +120,7 @@ if (arrFilter($db->get()) === 0) {
                         INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 
                             ON locations.time = t1.time 
                         WHERE remote.present IS NOT NULL
+                            AND TIMESTAMPDIFF(DAY, present, NOW()) < 1
                         GROUP BY location 
                         ORDER BY present DESC");
                     if (arrFilter($db->get()) === 0) {
