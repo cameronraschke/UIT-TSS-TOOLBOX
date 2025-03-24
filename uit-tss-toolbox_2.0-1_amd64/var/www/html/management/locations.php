@@ -556,7 +556,7 @@ if (arrFilter($db->get()) === 0) {
             <select name="location" id="location-filter">
               <option value="">--Filter By Location--</option>
               <?php
-              $db->select("SELECT COUNT(location) AS location_rows, location FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
+              $db->select("SELECT COUNT(location) AS location_rows, locationFormatting(location) AS 'location' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
                   echo "<option value='" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . htmlspecialchars($value1["location_rows"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")" . "</option>" . PHP_EOL;

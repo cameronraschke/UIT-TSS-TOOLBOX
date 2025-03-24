@@ -439,7 +439,7 @@ DELIMITER //
 CREATE PROCEDURE selectLocationAutocomplete()
         DETERMINISTIC
         BEGIN
-                SELECT REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"') AS 'location' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location;
+          SELECT locationFormatting(REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"')) AS 'location' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location;
         END //
 DELIMITER ;
 
