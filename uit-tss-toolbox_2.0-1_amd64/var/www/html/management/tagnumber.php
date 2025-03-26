@@ -348,15 +348,18 @@ if (isset($_GET["tagnumber"])) {
         echo "<div><input type='text' id='location' name='location' required style='width: 50%; height: 4%;'></div>" . PHP_EOL;
     }
 
-  // Get most recent non-null note
-  echo "<div>" . PHP_EOL;
-  if (strFilter($value["note"]) === 0 && $value["status"] === 1) {
-      echo "<div><label for='note'>Note (" . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
-      echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
-  } else {
-    echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
-    echo "<textarea id='note' name='note' style='width: 70%;' placeholder='Enter Note...'></textarea>" . PHP_EOL;
-  }
+	// Get most recent non-null note
+	echo "<div>" . PHP_EOL;
+	if (strFilter($value["note"]) === 0 && $value["status"] === 1) {
+		echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
+		echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
+	} elseif (strFilter($value["note"]) === 0 && strFilter($value["status"]) === 0) {
+		echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
+		echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
+	} else {
+		echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
+		echo "<textarea id='note' name='note' style='width: 70%;' placeholder='Enter Note...'></textarea>" . PHP_EOL;
+	}
 
   echo "</div>" . PHP_EOL;
 
