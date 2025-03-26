@@ -26,12 +26,16 @@ unset($value);
 
 unset($sql);
 $sql = "SELECT jobstats.tagnumber, jobstats.time, os_stats.tagnumber AS 'os_table_tag',
-    (CASE WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN 0
+    (CASE WHEN locations.disk_removed = 1 THEN 0
+    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN 0
     WHEN jobstats.erase_completed IS NULL AND jobstats.clone_completed = 1 THEN 1
-    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed = 1 THEN 1 END) AS 'os_installed'
+    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed = 1 THEN 1 
+    ELSE 1 END) AS 'os_installed'
     FROM jobstats 
     INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE (erase_completed IS NOT NULL OR clone_completed IS NOT NULL) AND tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t1
         ON jobstats.time = t1.time
+    LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
+    INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON t2.time = locations.time
     LEFT JOIN os_stats ON jobstats.tagnumber = os_stats.tagnumber";
 $db->select($sql);
 foreach ($db->get() as $key => $value) {
