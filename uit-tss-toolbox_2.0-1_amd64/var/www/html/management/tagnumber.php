@@ -355,7 +355,7 @@ if (isset($_GET["tagnumber"])) {
 		echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
 	} elseif (strFilter($value["note"]) === 0 && strFilter($value["status"]) === 0) {
 		echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
-		echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
+		echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
 	} else {
 		echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
 		echo "<textarea id='note' name='note' style='width: 70%;' placeholder='Enter Note...'></textarea>" . PHP_EOL;
