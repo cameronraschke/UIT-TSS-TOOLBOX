@@ -508,7 +508,7 @@ FROM locations
 LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber 
 INNER JOIN (SELECT MAX(time) as 'time' FROM locations GROUP BY tagnumber) t1 
   on locations.time = t1.time 
-WHERE location IN ('c', 'a', 'b', 'q' 'f') 
+WHERE location IN ('c', 'a', 'b', 'q', 'f') 
   AND clientstats.clone_avgtime IS NOT NULL ORDER BY location, clone_avgtime;
 
 END; //
@@ -526,7 +526,7 @@ FROM locations
 LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber 
 INNER JOIN (SELECT MAX(time) as 'time' FROM locations GROUP BY tagnumber) t1 
   on locations.time = t1.time 
-WHERE location IN ('c', 'a', 'b', 'q' 'f') 
+WHERE location IN ('c', 'a', 'b', 'q', 'f') 
   AND clientstats.erase_avgtime IS NOT NULL ORDER BY location, erase_avgtime;
 
 END; //
