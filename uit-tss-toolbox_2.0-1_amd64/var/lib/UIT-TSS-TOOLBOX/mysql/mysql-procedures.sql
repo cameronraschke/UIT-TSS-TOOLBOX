@@ -496,3 +496,26 @@ BEGIN
   RETURN ret;
 END //
 DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS iterateTempProperty;
+DELIMITER //
+CREATE PROCEDURE iterateTempProperty()
+DETERMINISTIC
+BEGIN
+
+(SELECT 'Tag Number', 'Serial Number', 'System Model', 'Disk Removed', 'Location', 'Last Update')
+UNION ALL
+(SELECT locations.tagnumber, locations.system_serial, system_data.system_model, 
+	IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', locationFormatting(locations.location) AS 'location', locations.time
+FROM locations
+LEFT JOIN departments ON locations.tagnumber = departments.tagnumber
+INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t2 ON departments.time = t2.time
+LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
+INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
+WHERE locations.location IN ('p', 'd', 'm', 'j', 'z', 'Junk Pile Near Ivey', 'Junk Pile Near Maricela')
+AND departments.department IN ('techComm')
+ORDER BY location, tagnumber);
+
+END; //
+DELIMITER ;
