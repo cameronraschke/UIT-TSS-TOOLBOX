@@ -497,6 +497,41 @@ BEGIN
 END //
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS longestCloneTimes;
+DELIMITER //
+CREATE PROCEDURE longestCloneTimes()
+DETERMINISTIC
+BEGIN
+
+SELECT clientstats.tagnumber, clientstats.clone_avgtime, locationFormatting(locations.location) AS 'location' 
+FROM locations 
+LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber 
+INNER JOIN (SELECT MAX(time) as 'time' FROM locations GROUP BY tagnumber) t1 
+  on locations.time = t1.time 
+WHERE location IN ('c', 'a', 'b', 'q' 'f') 
+  AND clientstats.clone_avgtime IS NOT NULL ORDER BY location, clone_avgtime;
+
+END; //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS longestEraseTimes;
+DELIMITER //
+CREATE PROCEDURE longestEraseTimes()
+DETERMINISTIC
+BEGIN
+
+SELECT clientstats.tagnumber, clientstats.erase_avgtime, locationFormatting(locations.location) AS 'location' 
+FROM locations 
+LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber 
+INNER JOIN (SELECT MAX(time) as 'time' FROM locations GROUP BY tagnumber) t1 
+  on locations.time = t1.time 
+WHERE location IN ('c', 'a', 'b', 'q' 'f') 
+  AND clientstats.erase_avgtime IS NOT NULL ORDER BY location, erase_avgtime;
+
+END; //
+DELIMITER ;
+
 
 DROP PROCEDURE IF EXISTS iterateTempProperty;
 DELIMITER //
