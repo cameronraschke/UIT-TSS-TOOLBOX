@@ -1,6 +1,6 @@
 <?php
 #login.php
-session_start();
+require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
 
 
@@ -9,14 +9,16 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
 	$db->Pselect("SELECT name FROM logins WHERE username = BINARY :username AND password = BINARY :password", array(':username' => $_POST["username"], ':password' => $_POST["password"]));
     if (arrFilter($db->get()) === 0 && count($db->get()) === 1) {
         foreach ($db->get() as $key => $value) {
-            setcookie ('authorized', 'yes', time() + (10800), "/");
+            //setcookie ('authorized', 'yes', time() + (10800), "/");
+            my_session_regenerate_id();
             $_SESSION['login_user'] = $value["name"];
+            $_SESSION['authorized'] = "yes";
             unset($_POST["username"]);
             unset($_POST["password"]);
             header("Location: /index.php");
         }
     } else {
-        setcookie ('authorized', 'no', time() - (3600), "/");
+        //setcookie ('authorized', 'no', time() - (3600), "/");
         unset($_SESSION['login_user']);
         unset($_POST["username"]);
         unset($_POST["password"]);
