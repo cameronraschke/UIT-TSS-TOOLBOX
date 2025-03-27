@@ -650,7 +650,7 @@ if (isset($_GET["tagnumber"])) {
                   (SELECT locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
                     locationFormatting(locations.location) AS 'location', 
                     ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
-                    IF (locations.status = 1, 'Broken', 'Working') AS 'status_formatted', locations.status
+                    IF (locations.status = 1, 'Broken', 'Working') AS 'status_formatted', locations.status, 
                     IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
                     IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', 
                     note 
