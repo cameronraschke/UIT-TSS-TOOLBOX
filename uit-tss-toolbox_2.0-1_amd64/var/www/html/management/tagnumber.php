@@ -180,7 +180,7 @@ unset($_POST);
   $sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
   locationFormatting(locations.location) AS 'location', 
-  IF(locations.status = 1, 'Broken', 'Working') AS 'status', t2.department_readable, locations.note AS 'most_recent_note',
+  IF(locations.status = 1, 'Broken', 'Working') AS 'status_formatted', locations.status, t2.department_readable, locations.note AS 'most_recent_note',
   t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
   IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed, IF(os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed',
   jobstats.etheraddress, system_data.wifi_mac, 
@@ -428,7 +428,7 @@ if (isset($_GET["tagnumber"])) {
       } else {
         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
       }
-      echo "<td>" . htmlspecialchars($value['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['status_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['bios_updated'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['disk_removed_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
@@ -650,7 +650,7 @@ if (isset($_GET["tagnumber"])) {
                   (SELECT locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
                     locationFormatting(locations.location) AS 'location', 
                     ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
-                    IF (locations.status = 1, 'Broken', 'Working') AS 'status', 
+                    IF (locations.status = 1, 'Broken', 'Working') AS 'status_formatted', locations.status
                     IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
                     IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', 
                     note 
@@ -668,7 +668,7 @@ if (isset($_GET["tagnumber"])) {
                         //Time formatted
                         echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
-                        echo "<td>" . htmlspecialchars($value1['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['status_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "<td>" . htmlspecialchars($value1['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "<td>" . htmlspecialchars($value1['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "</tr>" . PHP_EOL;
