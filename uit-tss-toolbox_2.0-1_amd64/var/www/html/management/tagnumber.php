@@ -194,7 +194,7 @@ unset($_POST);
   CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
   DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
   remote.kernel_updated, IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
-  bios_stats.bios_version, SEC_TO_TIME(remote.uptime) AS 'uptime_formatted', CONCAT(remote.network_speed, ' mbps') AS 'network_speed',
+  bios_stats.bios_version, CONCAT(remote.network_speed, ' mbps') AS 'network_speed',
   CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
   t4.disk_power_cycles, t4.disk_errors
 FROM jobstats
@@ -284,13 +284,13 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
     foreach ($sqlArr as $key => $value) {
       // BIOS and kernel updated (check mark)
       if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === "Yes")) {
-        echo "Online, no errors <span>&#10004;&#65039;</span> (" . htmlspecialchars($value["uptime_formatted"]) . ")";
+        echo "Online, no errors <span>&#10004;&#65039;</span>";
       // BIOS and kernel out of date (x)
       } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== "Yes")) {
         echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
       // BIOS out of date, kernel updated (warning sign)
       } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== "Yes")) {
-        echo "Online, please update BIOS <span>&#9888;&#65039;</span> (" . htmlspecialchars($value["uptime_formatted"]) . ")";
+        echo "Online, please update BIOS <span>&#9888;&#65039;</span>";
       // BIOS updated, kernel out of date (x)
       } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === "Yes")) {
         echo "Online, kernel out of date <span>&#10060;</span>)";
