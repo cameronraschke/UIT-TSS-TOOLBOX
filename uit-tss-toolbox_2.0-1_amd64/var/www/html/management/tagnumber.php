@@ -421,7 +421,7 @@ if (isset($_GET["tagnumber"])) {
       echo "<td>" . htmlspecialchars($value['system_serial']) . "</td>" . PHP_EOL;
       echo "<td>";
       // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
-      if ($value["system_model"] !== "Latitude 7400") {
+      if ($value["system_model"] !== "Latitude 7400" && $value["system_model"] !== "Latitude 5289") {
         if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
           echo "<table><tr><td>" . htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)</td></tr><tr><td>" . htmlspecialchars($value["etheraddress"]) . " (Ethernet)</td></tr></table>" . PHP_EOL;
         } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
@@ -429,7 +429,7 @@ if (isset($_GET["tagnumber"])) {
         } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
           echo htmlspecialchars($value["etheraddress"]) . " (Ethernet)";
         }
-      } elseif ($value["system_model"] === "Latitude 7400") {
+      } elseif ($value["system_model"] === "Latitude 7400" || $value["system_model"] === "Latitude 5289") {
         if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
           echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
         } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
