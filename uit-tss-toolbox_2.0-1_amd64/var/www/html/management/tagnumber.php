@@ -390,7 +390,7 @@ if (isset($_GET["tagnumber"])) {
         echo "</div>" . PHP_EOL;
         echo "</div>" . PHP_EOL;
 
-        echo "<div style='margin: 3% 0% 0% 0%; background-color:rgba(0, 179, 136, 0.30);' class='page-content'><input type='submit' value='Update Location Data'></div>" . PHP_EOL;
+        echo "<div style='margin: 3% 0% 0% 0%;' class='page-content'><input type='submit' style='background-color:rgba(0, 179, 136, 0.30);' value='Update Location Data'></div>" . PHP_EOL;
 
         echo "<div style='margin: 1% 0% 0% 0%;' class='page-content'><a href='locations.php' target='_blank'>Update a different client's location.</a></div>" . PHP_EOL;
         unset($value);
