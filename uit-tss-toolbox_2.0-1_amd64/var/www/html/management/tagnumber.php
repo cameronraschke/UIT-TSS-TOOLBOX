@@ -186,9 +186,9 @@ unset($_POST);
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
   system_data.system_manufacturer, system_data.system_model, 
-  system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS 'cpu_maxspeed', system_data.cpu_threads, 
+  system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS 'cpu_maxspeed', IF(system_data.cpu_threads > system_data.cpu_cores, CONCAT(system_data.cpu_cores, '/', system_data.cpu_threads, ' (Multithreaded)'), system_data.cpu_cores) AS 'multithreaded', 
   CONCAT(t8.ram_capacity, ' GB') AS 'ram_capacity', CONCAT(t8.ram_speed, ' MHz') AS 'ram_speed',
-  t4.disk_model, CONCAT(t4.disk_size, 'GB') AS 'disk_size', t4.disk_type,
+  t4.disk_model, CONCAT(t4.disk_size, 'GB') AS 'disk_size', t4.disk_type, t4.disk_serial, 
   t5.identifier, t5.recovery_key, 
   CONCAT(clientstats.battery_health, '%') AS 'battery_health', CONCAT(clientstats.disk_health, '%') AS 'disk_health', 
   CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
@@ -209,7 +209,7 @@ LEFT JOIN (SELECT department, department_readable FROM static_departments) t2
   ON t1.department = t2.department
 LEFT JOIN (SELECT tagnumber, time, note FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE note IS NOT NULL GROUP BY tagnumber)) t3
   ON jobstats.tagnumber = t3.tagnumber
-LEFT JOIN (SELECT tagnumber, disk_model, disk_size, disk_type, disk_writes, disk_reads, disk_power_on_hours, disk_power_cycles, IF(disk_errors IS NOT NULL, disk_errors, 0) AS 'disk_errors' FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE disk_type IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t4 
+LEFT JOIN (SELECT tagnumber, disk_model, disk_serial, disk_size, disk_type, disk_writes, disk_reads, disk_power_on_hours, disk_power_cycles, IF(disk_errors IS NOT NULL, disk_errors, 0) AS 'disk_errors' FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE disk_type IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t4 
   ON jobstats.tagnumber = t4.tagnumber
 LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5 
   ON jobstats.tagnumber = t5.tagnumber
@@ -400,62 +400,17 @@ if (isset($_GET["tagnumber"])) {
         </div>
         </div>
 
-
-        <div class='pagetitle'><h3>Location Info - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-
-<div name='updateDiv2' id='updateDiv2' class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
-<table width="100%">
-    <thead>
-        <tr>
-        <th>Time</th>
-        <th>Current Location</th>
-        <th>Status</th>
-        <th>OS Installed</th>
-        <th>BIOS Updated</th>
-        <th>Disk Removed</th>
-        <th>Note</th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php
-    foreach ($sqlArr as $key => $value) {
-      echo "<tr>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['location_time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-      if (preg_match("/^[a-zA-Z]$/", $value["location"])) { 
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"]) . "</a></b></td>" . PHP_EOL;
-      } elseif (preg_match("/^checkout$/", $value["location"])) {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . "Checkout" . "</a></b></td>" . PHP_EOL;
-      } else {
-        echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
-      }
-      echo "<td>" . htmlspecialchars($value['status_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['os_installed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['bios_updated'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['disk_removed_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['most_recent_note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-      echo "</tr>" . PHP_EOL;
-    }
-    unset($value);
-    ?>
-    </tbody>
-</table>
-</div>
-
         
         <div class='pagetitle'><h3>General Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></u></h3></div>
-        <div name='updateDiv1' id='updateDiv1' class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div name='updateDiv1' id='updateDiv1' class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 0% 2%;">
         <table width="100%">
             <thead>
                 <tr>
                 <th>System Serial</th>
                 <th>MAC Address</th>
-                <th>Department</th>
-                <th>System Manufacturer</th>
-                <th>System Model</th>
+                <th>System Manufacturer/Model</th>
                 <th>BIOS Version</th>
-                <th>CPU Model</th>
-                <th>Disk Type</th>
-                <th>Link Speed</th>
+                <th>Network Speed</th>
                 </tr>
             </thead>
             <tbody>
@@ -482,16 +437,12 @@ if (isset($_GET["tagnumber"])) {
         }
       }
       echo "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['department_readable']) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['system_manufacturer']) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['system_model']) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['system_manufacturer']) . "/" . htmlspecialchars($value['system_model']) . "</td>" . PHP_EOL;
       if ($value["bios_updated"] === "Yes") {
       echo "<td>" . htmlspecialchars($value["bios_version"]) . " (Up to date)</td>" . PHP_EOL;
       } else {
       echo "<td>" . htmlspecialchars($value["bios_version"]) . " (Out of date)</td>" . PHP_EOL;
       }
-      echo "<td>" . htmlspecialchars($value['cpu_model']) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['disk_type']) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['network_speed']) . "</td>" . PHP_EOL;
       echo "</tr>" . PHP_EOL;
     }
@@ -501,44 +452,66 @@ if (isset($_GET["tagnumber"])) {
 </tbody>
 </table>
 </div>
+	
+	<div class='row' style='margin: 1% 0% 0% 1%;'>
+		<div class='column'>
+			<div class='pagetitle'><h3>Disk Info - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
+			<div class='styled-table' style="height: auto; overflow:auto;">
+				<table width="100%">
+					<thead>
+						<tr>
+							<th>Disk Model</th>
+							<th>Disk Serial</th>
+							<th>Disk Type</th>
+							<th>Disk Size</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<?php
+							foreach ($sqlArr as $key => $value) {
+								echo "<td>" . htmlspecialchars($value["disk_model"]) . "</td>" . PHP_EOL;
+								echo "<td>" . htmlspecialchars($value["disk_serial"]) . "</td>" . PHP_EOL;
+								echo "<td>" . htmlspecialchars($value["disk_type"]) . "</td>" . PHP_EOL;
+								echo "<td>" . htmlspecialchars($value["disk_size"]) . "</td>" . PHP_EOL;
+							}
+							?>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class='column'>
+			<div class='pagetitle'><h3>CPU/RAM - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
+			<div class='styled-table' style="height: auto; overflow:auto;">
+				<table width="100%">
+					<thead>
+						<tr>
+							<th>CPU Model</th>
+							<th>CPU Cores/CPU Threads</th>
+							<th>RAM Capacity</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<?php
+							foreach ($sqlArr as $key => $value) {
+								echo "<td>" . htmlspecialchars($value["cpu_model"]) . "</td>" . PHP_EOL;
+								echo "<td>" . htmlspecialchars($value["multithreaded"]) . "</td>" . PHP_EOL;
+								echo "<td>" . htmlspecialchars($value["ram_capacity"]) . " (" . htmlspecialchars($value["ram_speed"]) . ")" . "</td>" . PHP_EOL;
+							}
+							?>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 
-
-        <div class='pagetitle'><h3>Other Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-        <div class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 5% 1%;">
-        <table width="100%">
-            <thead>
-                <tr>
-                <th>Disk Model</th>
-                <th>Disk Size</th>
-                <th>RAM Capacity</th>
-                <th>RAM Speed</th>
-                <th>CPU Max Speed</th>
-                <th>CPU Cores</th>
-                <th>CPU Threads</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php
-            foreach ($sqlArr as $key => $value) {
-              echo "<tr>" . PHP_EOL;
-              echo "<td>" . htmlspecialchars($value["disk_model"]) . "</td>" . PHP_EOL;
-              echo "<td>" . htmlspecialchars($value["disk_size"]) . "</td>" . PHP_EOL;
-              echo "<td>" . htmlspecialchars($value["ram_capacity"]) . "</td>" . PHP_EOL;
-              echo "<td>" . htmlspecialchars($value["ram_speed"]) . "</td>" . PHP_EOL;
-              echo "<td>" . htmlspecialchars($value["cpu_maxspeed"]) . "</td>" . PHP_EOL;
-              echo "<td>" . htmlspecialchars($value["cpu_cores"]) . "</td>" . PHP_EOL;
-              echo "<td>" . htmlspecialchars($value["cpu_threads"]) . "</td>" . PHP_EOL;
-              echo "</tr>" . PHP_EOL;
-            }
-            unset($value);
-            ?>
-            </tbody>
-        </table>
-        </div>
 
 
         <div class='pagetitle'><h3>Client Health - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-        <div name='updateDiv3' id='updateDiv3' class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 1%;">
+        <div name='updateDiv3' id='updateDiv3' class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 2%;">
         <table width="100%">
             <thead>
                 <tr>
@@ -708,8 +681,6 @@ if (isset($_GET["tagnumber"])) {
                     // update all other tables
                     const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
                     document.getElementById("updateDiv1").innerHTML = updateDiv1
-                    const updateDiv2 = doc.getElementById('updateDiv2').innerHTML
-                    document.getElementById("updateDiv2").innerHTML = updateDiv2
                     const updateDiv3 = doc.getElementById('updateDiv3').innerHTML
                     document.getElementById("updateDiv3").innerHTML = updateDiv3
                     const updateDiv4 = doc.getElementById('updateDiv4').innerHTML
