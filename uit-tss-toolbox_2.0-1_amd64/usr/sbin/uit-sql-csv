@@ -59,7 +59,7 @@ unset($value);
 $file = null;
 
 $file = new SplFileObject("/tmp/uit-tmp-reports/custom-report-" . $date . ".csv", "w");
-$db->AssocSelect("CALL iterateTempProperty()");
+$db->AssocSelect("CALL iterateCustomReport()");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
 }
