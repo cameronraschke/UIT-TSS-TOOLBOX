@@ -282,14 +282,18 @@ if (isset($_POST['serial'])) {
 							foreach ($db->get() as $key => $value1) {	
 								echo "<option value='" . htmlspecialchars($value1["domain"]) . "'>" . htmlspecialchars($value1["domain_readable"]) . "</option>";
 							}
+							$db->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains WHERE NOT domain = :domain ORDER BY domain ASC", array(':domain' => $value["domain"]));
+							foreach ($db->get() as $key => $value2) {
+								echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
+							}	
 						} else {
 							echo "<option value=''>--Select Domain--</option>";
+							$db->select("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains ORDER BY domain ASC");
+							foreach ($db->get() as $key => $value2) {
+								echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
+							}
 						}
 						unset($value1);
-						$db->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains WHERE NOT domain = :domain ORDER BY domain ASC", array(':domain' => $value["domain"]));
-						foreach ($db->get() as $key => $value2) {
-							echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
-						}
 						unset($value2);
 						echo "<option value=''>No domain</option>";
 					} else {
