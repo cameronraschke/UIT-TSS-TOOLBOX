@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS locations (
     location VARCHAR(128) DEFAULT NULL,
     status BOOLEAN DEFAULT NULL,
     disk_removed BOOLEAN DEFAULT NULL,
+    domain VARCHAR(24) DEFAULT NULL,
     note VARCHAR(256) DEFAULT NULL
 );
 
@@ -138,7 +139,8 @@ ALTER TABLE locations
     MODIFY COLUMN location VARCHAR(128) DEFAULT NULL AFTER system_serial,
     MODIFY COLUMN status BOOLEAN DEFAULT NULL AFTER location,
     MODIFY COLUMN disk_removed BOOLEAN DEFAULT NULL AFTER status,
-    MODIFY COLUMN note VARCHAR(256) DEFAULT NULL AFTER disk_removed;
+    MODIFY COLUMN domain VARCHAR(24) DEFAULT NULL AFTER disk_removed,
+    MODIFY COLUMN note VARCHAR(256) DEFAULT NULL AFTER domain;
 
 
 DROP TABLE IF EXISTS static_disk_stats;
@@ -464,4 +466,17 @@ VALUES
     ('data collection', 'Data Collection', 80, 0),
     ('shutdown', 'Shutdown', 90, 0),
     ('cancel', 'Cancel/Clear Job(s)', 95, 1),
+    ;
+
+
+DROP TABLE IF EXISTS static_domains;
+CREATE TABLE IF NOT EXISTS static_domains (
+  domain VARCHAR(24) NOT NULL PRIMARY KEY,
+  domain_readable VARCHAR(24) DEFAULT NULL
+);
+
+INSERT INTO 
+    static_domains (domain, domain_readable)
+VALUES
+    ('UIT-CheckOut', 'TSS Laptop Checkout')
     ;

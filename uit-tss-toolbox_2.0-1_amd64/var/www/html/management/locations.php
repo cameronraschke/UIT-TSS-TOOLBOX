@@ -38,6 +38,7 @@ if (isset($_POST['serial'])) {
   $diskRemoved = $_POST['disk_removed'];
   $department = $_POST['department'];
   $note = $_POST['note'];
+  $domain = $_POST["domain"];
   
   //Insert jobstats data
   $db->insertJob($uuid);
@@ -59,6 +60,7 @@ if (isset($_POST['serial'])) {
   $db->updateLocation("status", $status, $time);
   $db->updateLocation("disk_removed", $diskRemoved, $time);
   $db->updateLocation("note", $note, $time);
+  $db->updateLocation("domain", $domain, $time);
 
   //Printing
   if ($_POST["print"] == "1") {
@@ -164,11 +166,11 @@ if (isset($_POST['serial'])) {
       //If tagnumber is POSTed, show data in the location form.
       if (isset($_POST["tagnumber"])) {
         unset($formSql);
-        $formSql = "SELECT 
+        $formSql = "SELECT locations.tagnumber, 
           jobstats.system_serial, locationFormatting(locations.location) AS 'location', 
           DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
           t4.department, locations.disk_removed, locations.status, t3.note, t5.department_readable, 
-          DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted'
+          DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', locations.domain
           FROM locations 
           INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber 
           INNER JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations) t1 
@@ -268,11 +270,47 @@ if (isset($_POST['serial'])) {
             unset($value1);
           }
           echo "</select>" . PHP_EOL;
-          echo "</div></div>";
+          echo "</div>";
 
-          // POST if the disk is removed
-          echo "
-          <div class='row'>";
+					// Joined to domain
+					echo "<div>";
+					echo "<div><label for='domain'>Joined to domain?</label></div>" . PHP_EOL;
+					echo "<select name='domain' id='domain'>" . PHP_EOL;
+					if ($tagDataExists === 1) {
+						if (strFilter($value["domain"]) === 0) {
+							$db->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains INNER JOIN (SELECT domain FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1) t1 ON static_domains.domain = t1.domain ORDER BY domain ASC", array(':tagnumber' => $value["tagnumber"]));
+							foreach ($db->get() as $key => $value1) {	
+								echo "<option value='" . htmlspecialchars($value1["domain"]) . "'>" . htmlspecialchars($value1["domain_readable"]) . "</option>";
+							}
+						} else {
+							echo "<option value=''>--Select Domain--</option>";
+						}
+						unset($value1);
+						$db->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains WHERE NOT domain = :domain ORDER BY domain ASC", array(':domain' => $value["domain"]));
+						foreach ($db->get() as $key => $value2) {
+							echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
+						}
+						unset($value2);
+						echo "<option value=''>No domain</option>";
+					} else {
+						echo "<option value=''>--Select Domain--</option>";
+						$db->select("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains ORDER BY domain ASC");
+						foreach ($db->get() as $key => $value1) {
+							echo "<option value='" . htmlspecialchars($value1["domain"]) . "'>" . htmlspecialchars($value1["domain_readable"]) . "</option>";
+						}
+						unset($value1);
+						echo "<option value=''>No domain</option>";
+					}
+					echo "</select>";
+					echo "</div>";
+					
+					// close row div
+					echo "</div>";
+
+
+
+					// New row
+          echo "<div class='row'>";
 
           // POST status (working or broken) of the client
           echo "<div class='column'>
@@ -304,10 +342,8 @@ if (isset($_POST['serial'])) {
 
 
 
-          //Close row div
-          echo "</div>";
-
-
+					//Close row div
+					echo "</div>";
 
 
           // Most recent note

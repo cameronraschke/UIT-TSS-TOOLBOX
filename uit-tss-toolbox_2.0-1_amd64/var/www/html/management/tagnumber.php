@@ -23,6 +23,7 @@ if (isset($_POST['department'])) {
   $status = $_POST["status"];
   $note = $_POST['note'];
   $diskRemoved = $_POST['disk_removed'];
+  $domain = $_POST["domain"];
 
   //Insert jobstats data
   $db->insertJob($uuid);
@@ -44,6 +45,8 @@ if (isset($_POST['department'])) {
   $db->updateLocation("status", $status, $time);
   $db->updateLocation("disk_removed", $diskRemoved, $time);
   $db->updateLocation("note", $note, $time);
+  $db->updateLocation("domain", $domain, $time);
+
 
   unset($_POST);
   header("Location: " . $_SERVER['REQUEST_URI']);
@@ -196,7 +199,7 @@ unset($_POST);
   remote.kernel_updated, IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
   bios_stats.bios_version, CONCAT(remote.network_speed, ' mbps') AS 'network_speed',
   CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
-  t4.disk_power_cycles, t4.disk_errors
+  t4.disk_power_cycles, t4.disk_errors, locations.domain, static_domains.domain_readable
 FROM jobstats
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
 LEFT JOIN os_stats ON jobstats.tagnumber = os_stats.tagnumber
@@ -220,6 +223,7 @@ INNER JOIN (SELECT tagnumber, MAX(time) AS 'time' FROM jobstats WHERE tagnumber 
   ON jobstats.time = t9.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
   ON locations.time = t10.time
+LEFT JOIN static_domains ON locations.domain = static_domains.domain
 WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
   AND jobstats.tagnumber = :tagnumber";
 
@@ -338,7 +342,29 @@ if (isset($_GET["tagnumber"])) {
       }
     }
   }
+  unset($value1);
   echo "</select></div>" . PHP_EOL;
+    // Domain
+    echo "<div><label for='domain'>Domain</label></div>" . PHP_EOL;
+    echo "<div><select name='domain' id='domain'>" . PHP_EOL;
+    if (strFilter($value["domain"]) === 0) {
+      echo "<option value='" . htmlspecialchars($value["domain"]) . "'>" . htmlspecialchars($value["domain_readable"]) . "</option>";
+      $db->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains WHERE NOT domain = :domain ORDER BY domain ASC", array(':domain' => $value["domain"]));
+      foreach ($db->get() as $key => $value2) {
+        echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
+      }
+      echo "<option value=''>No domain</option>";
+    } else {
+      echo "<option value=''>--Select Domain--</option>";
+      $db->select("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains ORDER BY domain ASC");
+      foreach ($db->get() as $key => $value2) {
+        echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
+      }
+      echo "<option value=''>No domain</option>";
+    }
+    unset($value1);
+    unset($value2);
+    echo "</select></div>" . PHP_EOL;
   // location
     if (strFilter($value["location"]) === 0) {
         echo "<div><label for='location'>Location (Last Updated: " . htmlspecialchars($value["location_time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
