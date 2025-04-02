@@ -47,6 +47,7 @@ $db = new db();
                             ?>
                 </div>
                 <div id="numberImaged" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
+                <div id="numberJoinedDomain" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
                 <div id="biosUpdated" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
             </div>
         </div>
@@ -115,6 +116,40 @@ $db = new db();
             }
         </script>
         
+        <script>
+            google.charts.load('current',{packages:['corechart']});
+            google.charts.setOnLoadCallback(numberJoinedDomain);
+
+            function numberJoinedDomain() {
+                var data = google.visualization.arrayToDataTable([ ['Joined to AD', 'Not Joined to AD'],
+                <?php
+                $db->select("SELECT 
+                    (SELECT COUNT(locations.tagnumber) FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
+                        INNER JOIN departments ON locations.tagnumber = departments.tagnumber 
+                        INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t2 ON departments.time = t2.time
+                        WHERE departments.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NOT NULL)
+                        AS 'domain_joined',
+                    (SELECT COUNT(locations.tagnumber) FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
+                        INNER JOIN departments ON locations.tagnumber = departments.tagnumber 
+                        INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t2 ON departments.time = t2.time
+                        WHERE departments.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NULL)
+                        AS 'domain_not_joined'");
+                    if (arrFilter($db->get()) === 0) {
+                        foreach ($db->get() as $key => $value) {
+                            echo "['Joined to AD Domain'," . htmlspecialchars($value["domain_joined"]) . "], ";
+                            echo "['Not Joined to AD Domain'," . htmlspecialchars($value["domain_not_joined"]) . "], ";
+                        }
+                    }
+                ?>
+                ]);
+
+                var options = {title: 'Computers Joined to AD Domain' };
+                var chart = new google.visualization.PieChart(document.getElementById('numberJoinedDomain'));
+                chart.draw(data, options);
+            }
+        </script>
+        
+
         <script>
             google.charts.load('current',{packages:['corechart']});
             google.charts.setOnLoadCallback(biosUpdated);
