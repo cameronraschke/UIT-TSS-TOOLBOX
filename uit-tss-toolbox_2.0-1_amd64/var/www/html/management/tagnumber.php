@@ -345,7 +345,7 @@ if (isset($_GET["tagnumber"])) {
   unset($value1);
   echo "</select></div>" . PHP_EOL;
     // Domain
-    echo "<div><label for='domain'>Domain</label></div>" . PHP_EOL;
+    echo "<div><label for='domain'>AD Domain</label></div>" . PHP_EOL;
     echo "<div><select name='domain' id='domain'>" . PHP_EOL;
     if (strFilter($value["domain"]) === 0) {
       echo "<option value='" . htmlspecialchars($value["domain"]) . "'>" . htmlspecialchars($value["domain_readable"]) . "</option>";

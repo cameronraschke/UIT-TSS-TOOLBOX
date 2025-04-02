@@ -274,7 +274,7 @@ if (isset($_POST['serial'])) {
 
 					// Joined to domain
 					echo "<div>";
-					echo "<div><label for='domain'>Joined to domain?</label></div>" . PHP_EOL;
+					echo "<div><label for='domain'>AD Domain</label></div>" . PHP_EOL;
 					echo "<select name='domain' id='domain'>" . PHP_EOL;
 					if ($tagDataExists === 1) {
 						if (strFilter($value["domain"]) === 0) {
@@ -476,6 +476,17 @@ if (strFilter($_GET["department"]) === 0) {
   }
 }
 
+// domain filter
+if (strFilter($_GET["domain"]) === 0) {
+  if ($_GET["not-domain"] == "1") {
+    $sql .= "AND NOT locations.domain = :domain ";
+    $sqlArr[":domain"] = $_GET["domain"];
+  } else {
+    $sql .= "AND locations.domain = :domain ";
+    $sqlArr[":domain"] = $_GET["domain"];
+  }
+}
+
 // System model filter
 if (strFilter($_GET["system_model"]) === 0) {
   if ($_GET["not-system_model"] == "1") {
@@ -617,6 +628,31 @@ if (arrFilter($db->get()) === 0) {
                   if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value2) {
                       echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . " (" . $value2["department_rows"] . ")</option>" . PHP_EOL;
+                    }
+                  }
+                }
+              }
+              unset($value1);
+              unset($value2);
+              ?>
+            </select>
+          </div>
+
+
+					<div>
+            <label for="domain">
+              <input type="checkbox" id="not-domain" name="not-domain" value="1"> NOT
+            </label>
+            <select id="domain" name="domain">
+            <option value=''>--Filter By AD Domain--</option>
+              <?php
+              $db->select("SELECT domain, domain_readable FROM static_domains ORDER BY domain ASC");
+              if (arrFilter($db->get()) === 0) {
+                foreach ($db->get() as $key => $value1) {
+                  $db->Pselect("SELECT COUNT(tagnumber) AS 'domain_rows' FROM locations WHERE domain = :domain AND time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)", array(':domain' => $value1["domain"]));
+                  if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value2) {
+                      echo "<option value='" . htmlspecialchars($value1["domain"]) . "'>" . htmlspecialchars($value1["domain_readable"]) . " (" . $value2["domain_rows"] . ")</option>" . PHP_EOL;
                     }
                   }
                 }
