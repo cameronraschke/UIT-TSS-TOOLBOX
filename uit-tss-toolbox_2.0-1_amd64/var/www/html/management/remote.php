@@ -198,7 +198,7 @@ $db->select("SELECT remote.tagnumber,
         DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'time_formatted', 
         DATE_FORMAT(remote.last_job_time, '%m/%d/%y, %r') AS 'last_job_time_formatted', 
         remote.job_queued, remote.status, t2.queue_position,
-        IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
+        IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', os_stats.os_installed , 
         IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
         remote.kernel_updated, CONCAT(remote.battery_charge, '%') AS 'battery_charge', remote.battery_status, 
         CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS 'uptime', 
@@ -261,7 +261,11 @@ if (arrFilter($db->get()) === 0) {
         echo "</td>";
         unset($value1);
         echo "<td id='presentStatus'>" . htmlspecialchars($value["status"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td id='osInstalled'>" . htmlspecialchars($value["os_installed"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+        if ($value1["os_installed"] === 1 && strFilter($value1["domain"]) === 0) {
+            echo "<td id='osInstalled'>" . htmlspecialchars($value["os_installed_formatted"]) . "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>" . "</td>" . PHP_EOL;
+        } else {
+            echo "<td id='osInstalled'>" . htmlspecialchars($value["os_installed_formatted"]) . "</td>" . PHP_EOL;
+        }
         echo "<td>" . htmlspecialchars($value["battery_charge"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value["battery_status"] . ")" . "</td>" . PHP_EOL;
         echo "<td id='uptime'>" . htmlspecialchars($value["uptime"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
         echo "<td id='presentCPUTemp'>" . htmlspecialchars($value["cpu_temp"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
