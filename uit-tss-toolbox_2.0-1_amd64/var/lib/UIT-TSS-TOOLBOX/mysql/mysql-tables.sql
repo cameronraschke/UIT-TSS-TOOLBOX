@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
     tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
     system_serial VARCHAR(24) DEFAULT NULL,
-    system_model VARCHAR(20) DEFAULT NULL,
+    system_model VARCHAR(64) DEFAULT NULL,
     last_job_time DATETIME DEFAULT NULL,
     battery_health SMALLINT DEFAULT NULL,
     disk_health DECIMAL(5,2) DEFAULT NULL,
@@ -220,7 +220,7 @@ VALUES
 
 DROP TABLE IF EXISTS static_bios_stats;
 CREATE TABLE IF NOT EXISTS static_bios_stats (
-    system_model VARCHAR(20) NOT NULL PRIMARY KEY,
+    system_model VARCHAR(64) NOT NULL PRIMARY KEY,
     bios_version VARCHAR(24) DEFAULT NULL
 );
 
@@ -364,7 +364,7 @@ CREATE TABLE IF NOT EXISTS system_data (
     tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
     wifi_mac VARCHAR(17) DEFAULT NULL,
     system_manufacturer VARCHAR(24) DEFAULT NULL,
-    system_model VARCHAR(20) DEFAULT NULL,
+    system_model VARCHAR(64) DEFAULT NULL,
     system_uuid VARCHAR(36) DEFAULT NULL,
     system_sku VARCHAR(20) DEFAULT NULL,
     chassis_type VARCHAR(16) DEFAULT NULL,
@@ -377,6 +377,25 @@ CREATE TABLE IF NOT EXISTS system_data (
     motherboard_serial VARCHAR(24) DEFAULT NULL,
     time DATETIME(3) DEFAULT NULL
 );
+
+ALTER TABLE system_data
+    DROP PRIMARY KEY,
+    MODIFY COLUMN tagnumber VARCHAR(8) NOT NULL PRIMARY KEY FIRST,
+    MODIFY COLUMN wifi_mac VARCHAR(17) DEFAULT NULL AFTER tagnumber,
+    MODIFY COLUMN system_manufacturer VARCHAR(24) DEFAULT NULL AFTER wifi_mac,
+    MODIFY COLUMN system_model VARCHAR(64) DEFAULT NULL AFTER system_manufacturer,
+    MODIFY COLUMN system_uuid VARCHAR(36) DEFAULT NULL AFTER system_model,
+    MODIFY COLUMN system_sku VARCHAR(20) DEFAULT NULL AFTER system_uuid,
+    MODIFY COLUMN chassis_type VARCHAR(16) DEFAULT NULL AFTER system_sku,
+    MODIFY COLUMN cpu_manufacturer VARCHAR(20) DEFAULT NULL AFTER chassis_type,
+    MODIFY COLUMN cpu_model VARCHAR(46) DEFAULT NULL AFTER cpu_manufacturer,
+    MODIFY COLUMN cpu_maxspeed SMALLINT DEFAULT NULL AFTER cpu_model,
+    MODIFY COLUMN cpu_cores TINYINT DEFAULT NULL AFTER cpu_maxspeed,
+    MODIFY COLUMN cpu_threads TINYINT DEFAULT NULL AFTER cpu_cores,
+    MODIFY COLUMN motherboard_manufacturer VARCHAR(24) DEFAULT NULL AFTER cpu_threads,
+    MODIFY COLUMN motherboard_serial VARCHAR(24) DEFAULT NULL AFTER motherboard_manufacturer,
+    MODIFY COLUMN time DATETIME(3) DEFAULT NULL AFTER motherboard_serial
+    ;
 
 DROP TABLE IF EXISTS bitlocker;
 CREATE TABLE IF NOT EXISTS bitlocker (

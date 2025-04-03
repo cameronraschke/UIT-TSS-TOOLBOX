@@ -541,7 +541,7 @@ BEGIN
 
 (SELECT 'Tag Number', 'Serial Number', 'System Model', 'Disk Removed', 'Location', 'Note', 'Last Update')
 UNION ALL
-(SELECT locations.tagnumber, locations.system_serial, system_data.system_model, 
+(SELECT IF (locations.tagnumber LIKE '77204%' OR locations.tagnumber LIKE '999%', 'NO TAG', locations.tagnumber) AS 'tagnumber', locations.system_serial, system_data.system_model, 
 	IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (locationFormatting(locations.location) = 'On top of Z', 'Z', locationFormatting(locations.location)) AS 'location', locations.note, locations.time
 FROM locations
 LEFT JOIN departments ON locations.tagnumber = departments.tagnumber
