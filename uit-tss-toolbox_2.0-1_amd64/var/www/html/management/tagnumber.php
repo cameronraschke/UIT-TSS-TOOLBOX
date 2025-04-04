@@ -185,7 +185,7 @@ unset($_POST);
   locationFormatting(locations.location) AS 'location', 
   IF(locations.status = 1, 'Broken', 'Working') AS 'status_formatted', locations.status, t2.department_readable, locations.note AS 'most_recent_note',
   t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
-  IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed, IF(os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed',
+  IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed, IF (os_stats.os_installed = 1, 'Windows 11', 'No OS') AS 'os_installed_formatted',
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
   system_data.system_manufacturer, system_data.system_model, 
@@ -435,6 +435,7 @@ if (isset($_GET["tagnumber"])) {
                 <th>System Serial</th>
                 <th>MAC Address</th>
                 <th>System Manufacturer/Model</th>
+                <th>OS Installed</th>
                 <th>BIOS Version</th>
                 <th>Network Speed</th>
                 </tr>
@@ -464,6 +465,7 @@ if (isset($_GET["tagnumber"])) {
       }
       echo "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['system_manufacturer']) . "/" . htmlspecialchars($value['system_model']) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value["os_installed_formatted"]) . "</td>" . PHP_EOL;
       if ($value["bios_updated"] === "Yes") {
       echo "<td>" . htmlspecialchars($value["bios_version"]) . " (Up to date)</td>" . PHP_EOL;
       } else {
