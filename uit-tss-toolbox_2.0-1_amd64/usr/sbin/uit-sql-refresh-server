@@ -88,7 +88,7 @@ foreach ($db->get() as $key => $iteratedDate) {
     FROM jobstats 
     LEFT JOIN departments ON jobstats.tagnumber = departments.tagnumber
     INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) s4 ON departments.time = s4.time
-    WHERE jobstats.clone_completed = 1 
+    WHERE jobstats.clone_completed = 1 AND jobstats.clone_master = 1 
       AND departments.department IN 
         (SELECT department FROM static_departments WHERE department_bool = 1) 
       AND DATE(jobstats.time) <= :iteratedDate 
