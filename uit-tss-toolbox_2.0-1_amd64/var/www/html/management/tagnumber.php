@@ -183,8 +183,8 @@ unset($_POST);
   $sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
   locationFormatting(locations.location) AS 'location', 
-  IF(locations.status = 1, 'Broken', 'Yes') AS 'status_formatted', locations.status, t2.department_readable, locations.note AS 'most_recent_note',
-  t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
+  IF(locations.status = 1, 'Broken', 'Yes') AS 'status_formatted', locations.status AS 'locations_status', t2.department_readable, t3.note AS 'most_recent_note',
+  locations.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
   IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed, IF (os_stats.os_installed = 1, 'Windows 11', 'No OS') AS 'os_installed_formatted',
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
@@ -376,12 +376,12 @@ if (isset($_GET["tagnumber"])) {
 
 	// Get most recent non-null note
 	echo "<div>" . PHP_EOL;
-	if (strFilter($value["note"]) === 0 && $value["status"] === 1) {
+	if (strFilter($value["most_recent_note"]) === 0 && $value["locations_status"] === 1) {
 		echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
-		echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
-	} elseif (strFilter($value["note"]) === 0 && strFilter($value["status"]) === 0) {
+		echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
+	} elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1) {
 		echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
-		echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
+		echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
 	} else {
 		echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
 		echo "<textarea id='note' name='note' style='width: 70%;' placeholder='Enter Note...'></textarea>" . PHP_EOL;
@@ -405,7 +405,7 @@ if (isset($_GET["tagnumber"])) {
       echo "<div style='float: right;'>" . PHP_EOL;
       echo "<div><label for='status'>Functional</label></div>" . PHP_EOL;
       echo "<div><select name='status' id='status'>" . PHP_EOL;
-      if ($value["status"] === 1) {
+      if ($value["locations_status"] === 1) {
         echo "<option value='1'>No, Broken</option>" . PHP_EOL;
         echo "<option value='0'>Yes</option>" . PHP_EOL;
       } else {
