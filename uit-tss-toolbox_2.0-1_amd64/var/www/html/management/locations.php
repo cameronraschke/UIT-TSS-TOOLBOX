@@ -318,15 +318,15 @@ if (isset($_POST['serial'])) {
 
           // POST status (working or broken) of the client
           echo "<div class='column'>
-          <div><label for='status'>Ready for Checkout?</label></div>
+          <div><label for='status'>Functional</label></div>
           <select name='status' id='status'>";
           if ($value["status"] === 1) {
             echo "
             <option value='1'>No, Broken</option>
-            <option value='0'>Yes, Functional</option>";
+            <option value='0'>Yes</option>";
           } else {
             echo "
-            <option value='0'>Yes, Functional</option>
+            <option value='0'>Yes</option>
             <option value='1'>No, Broken</option>";
           }
           echo "</select></div>";
@@ -439,7 +439,7 @@ $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, 
   locationFormatting(locations.location) AS 'location',
   t2.department_readable AS 'department_formatted', t1.department,
-  IF ((locations.status = 0 OR locations.status IS NULL), 'Ready for Checkout', 'Broken') AS 'status',
+  IF ((locations.status = 0 OR locations.status IS NULL), 'Yes', 'Broken') AS 'status_formatted', locations.status, 
   IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', os_stats.os_installed,
   IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
@@ -798,7 +798,7 @@ if (strFilter($_GET["location"]) === 0) {
             <th>System Model</th>
             <th>Location</th>
             <th>Department</th>
-            <th>Status</th>
+            <th>Functional</th>
             <th>OS Installed</th>
             <th>BIOS Updated</th>
             <th>Note</th>
@@ -844,7 +844,7 @@ foreach ($tableArr as $key => $value1) {
   echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 
   // Status (working/broken)
-  echo "<td>" . htmlspecialchars($value1['status'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+  echo "<td>" . htmlspecialchars($value1['status_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 
   // Os installed
 	if ($value1["os_installed"] === 1 && strFilter($value1["domain"]) === 0) {
