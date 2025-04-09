@@ -26,12 +26,16 @@ $db->Pselect("CALL iterateDate(:startDate, :endDate)", array(':startDate' => $st
 
 foreach ($db->get() as $key => $iteratedDate) {
 
+  # Start the timer that counts how much time each date takes to process.
+  echo PHP_EOL;
+  $timer->startMarker();
+
   $db->Pselect("SELECT :iteratedDate AS 'date', t1.client_count, 
     (t2.erase_job_count + t3.clone_job_count) AS 'total_job_count',
     t2.erase_job_count, t2.avg_erase_time,
     t3.clone_job_count, t3.avg_clone_time,
     t4.last_image_update,
-    t5.disk_health, t6.battery_health
+    t5.disk_health, t6.battery_health, s7.total_os_installed
   FROM tbl_results
   INNER JOIN 
     (SELECT :iteratedDate AS 'date', 
@@ -82,6 +86,19 @@ foreach ($db->get() as $key => $iteratedDate) {
       ) s2 
     WHERE s2.clone_rows < 3
   ) t3 ON tbl_results.date = t3.date
+  INNER JOIN (
+    SELECT COUNT(s7.tagnumber) AS 'total_os_installed' FROM 
+    (
+      SELECT tagnumber, clone_completed, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' 
+        FROM jobstats 
+        WHERE DATE(jobstats.time) <= :iteratedDate 
+          AND (erase_completed = 1 OR clone_completed = 1) 
+          AND tagnumber IS NOT NULL 
+          AND system_serial IS NOT NULL
+    ) s7
+    INNER JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE DATE(time) <= :iteratedDate GROUP BY tagnumber)) ss7 ON s7.tagnumber = ss7.tagnumber
+    WHERE s7.row_count = 1 AND s7.clone_completed = 1 AND NOT ss7.department = 'property'
+  ) t7
   INNER JOIN 
     (SELECT :iteratedDate AS 'date', 
       DATE(jobstats.time) AS 'last_image_update' 
@@ -125,10 +142,6 @@ foreach ($db->get() as $key => $iteratedDate) {
 
     foreach ($db->get() as $key => $value) {
 
-    # Start the timer that counts how much time each date takes to process.
-    echo PHP_EOL;
-    $timer->startMarker();
-
     # If the current date does not exist in the serverstats table, then create an entry for the current date.
     $db->Pselect("SELECT date FROM serverstats WHERE date = :date", array(':date' => $value["date"]));
     if (arrFilter($db->get()) === 1) {
@@ -161,6 +174,9 @@ foreach ($db->get() as $key => $iteratedDate) {
 
     # Update overall battery health
     $db->updateSS("battery_health", $value["battery_health"], $value["date"]);
+
+    // Update how many OS's are installed at a given time period
+    $db->updateSS("total_os_installed" $value["total_os_installed"], $value["date"]);
 
     # End the marker timer
     echo "Time taken to update " . $value["date"] . ": " . $timer->endMarker() . "s" . PHP_EOL;

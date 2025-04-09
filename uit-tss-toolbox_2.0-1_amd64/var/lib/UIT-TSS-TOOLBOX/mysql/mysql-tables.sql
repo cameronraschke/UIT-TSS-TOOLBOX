@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
     date DATE NOT NULL PRIMARY KEY,
     client_count SMALLINT DEFAULT NULL,
+    total_os_installed SMALLINT DEFAUL NULL,
     battery_health DECIMAL(5,2) DEFAULT NULL,
     disk_health DECIMAL(5,2) DEFAULT NULL,
     total_job_count MEDIUMINT DEFAULT NULL,

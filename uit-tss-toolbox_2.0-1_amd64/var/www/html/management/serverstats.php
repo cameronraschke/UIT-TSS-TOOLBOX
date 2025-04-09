@@ -29,6 +29,7 @@ $db = new db();
                 <tr>
                     <th>Date</th>
                     <th>Computer Count</th>
+                    <th>Total Clients w/ OS Installed</th>
                     <th>Battery Health</th>
                     <th>Disk Health</th>
                     <th>Total Jobs</th>
@@ -39,7 +40,7 @@ $db = new db();
                 </thead>
                 <tbody>
 <?php
-$db->select("SELECT date, client_count, battery_health, disk_health, total_job_count, clone_job_count, erase_job_count, avg_clone_time, avg_erase_time, last_image_update FROM serverstats ORDER BY date DESC");
+$db->select("SELECT date, client_count, total_os_installed, battery_health, disk_health, total_job_count, clone_job_count, erase_job_count, avg_clone_time, avg_erase_time, last_image_update FROM serverstats ORDER BY date DESC");
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
@@ -57,6 +58,8 @@ if (arrFilter($db->get()) === 0) {
             echo htmlspecialchars($value["client_count"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
         }
         echo "</td>" . PHP_EOL;
+
+        echo "<td>" . htmlspecialchars($value["total_os_installed"] ) . "</td>" . PHP_EOL;
 
         //battery_health
         echo "<td>";
