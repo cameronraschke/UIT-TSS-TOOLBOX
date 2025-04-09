@@ -318,16 +318,16 @@ if (isset($_POST['serial'])) {
 
           // POST status (working or broken) of the client
           echo "<div class='column'>
-          <div><label for='status'>Working or Broken?</label></div>
+          <div><label for='status'>Ready for Checkout?</label></div>
           <select name='status' id='status'>";
           if ($value["status"] === 1) {
             echo "
-            <option value='1'>Broken</option>
-            <option value='0'>Working</option>";
+            <option value='1'>No, Broken</option>
+            <option value='0'>Yes, Functional</option>";
           } else {
             echo "
-            <option value='0'>Working</option>
-            <option value='1'>Broken</option>";
+            <option value='0'>Yes, Functional</option>
+            <option value='1'>No, Broken</option>";
           }
           echo "</select></div>";
 
@@ -439,7 +439,7 @@ $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, 
   locationFormatting(locations.location) AS 'location',
   t2.department_readable AS 'department_formatted', t1.department,
-  IF ((locations.status = 0 OR locations.status IS NULL), 'Working', 'Broken') AS 'status',
+  IF ((locations.status = 0 OR locations.status IS NULL), 'Ready for Checkout', 'Broken') AS 'status',
   IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', os_stats.os_installed,
   IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,

@@ -189,7 +189,7 @@ UNION
   system_data.system_model,
   departments.department,
   locations.location,
-  IF (locations.status = 0 OR status IS NULL, "Working", "Broken"),
+  IF (locations.status = 0 OR status IS NULL, "Ready for Checkout", "Broken"),
   IF (os_stats.os_installed = 1 , "Yes", "No"),
   IF (bios_stats.bios_updated = 1 , "Yes", "No"),
   locations.note,

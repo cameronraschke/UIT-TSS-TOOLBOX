@@ -183,7 +183,7 @@ unset($_POST);
   $sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
   t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
   locationFormatting(locations.location) AS 'location', 
-  IF(locations.status = 1, 'Broken', 'Working') AS 'status_formatted', locations.status, t2.department_readable, locations.note AS 'most_recent_note',
+  IF(locations.status = 1, 'Broken', 'Ready for Checkout') AS 'status_formatted', locations.status, t2.department_readable, locations.note AS 'most_recent_note',
   t3.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
   IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed, IF (os_stats.os_installed = 1, 'Windows 11', 'No OS') AS 'os_installed_formatted',
   jobstats.etheraddress, system_data.wifi_mac, 
@@ -403,14 +403,14 @@ if (isset($_GET["tagnumber"])) {
       echo "</select></div>" . PHP_EOL;
       echo "</div>" . PHP_EOL;
       echo "<div style='float: right;'>" . PHP_EOL;
-      echo "<div><label for='status'>Working or Broken?</label></div>" . PHP_EOL;
+      echo "<div><label for='status'>Ready for Checkout?</label></div>" . PHP_EOL;
       echo "<div><select name='status' id='status'>" . PHP_EOL;
       if ($value["status"] === 1) {
-        echo "<option value='1'>Broken</option>" . PHP_EOL;
-        echo "<option value='0'>Working</option>" . PHP_EOL;
+        echo "<option value='1'>No, Broken</option>" . PHP_EOL;
+        echo "<option value='0'>Yes, Functional</option>" . PHP_EOL;
       } else {
-        echo "<option value='0'>Working</option>" . PHP_EOL;
-        echo "<option value='1'>Broken</option>" . PHP_EOL;
+        echo "<option value='0'>Yes, Functional</option>" . PHP_EOL;
+        echo "<option value='1'>No, Broken</option>" . PHP_EOL;
       }
         echo "</select></div>" . PHP_EOL;
         echo "</div>" . PHP_EOL;
@@ -651,7 +651,7 @@ if (isset($_GET["tagnumber"])) {
                   (SELECT locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
                     locationFormatting(locations.location) AS 'location', 
                     ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
-                    IF (locations.status = 1, 'Broken', 'Working') AS 'status_formatted', locations.status, 
+                    IF (locations.status = 1, 'Broken', 'Ready for Checkout') AS 'status_formatted', locations.status, 
                     IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
                     IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', 
                     note 
