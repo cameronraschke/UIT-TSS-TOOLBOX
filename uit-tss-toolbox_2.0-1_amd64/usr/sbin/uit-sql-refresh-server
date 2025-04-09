@@ -176,7 +176,7 @@ foreach ($db->get() as $key => $iteratedDate) {
     $db->updateSS("battery_health", $value["battery_health"], $value["date"]);
 
     // Update how many OS's are installed at a given time period
-    $db->updateSS("total_os_installed" $value["total_os_installed"], $value["date"]);
+    $db->updateSS("total_os_installed", $value["total_os_installed"], $value["date"]);
 
     # End the marker timer
     echo "Time taken to update " . $value["date"] . ": " . $timer->endMarker() . "s" . PHP_EOL;

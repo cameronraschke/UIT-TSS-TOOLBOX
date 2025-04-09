@@ -59,7 +59,7 @@ if (arrFilter($db->get()) === 0) {
         }
         echo "</td>" . PHP_EOL;
 
-        echo "<td>" . htmlspecialchars($value["total_os_installed"] ) . "</td>" . PHP_EOL;
+        echo "<td>" . htmlspecialchars($value["total_os_installed"]) . "</td>" . PHP_EOL;
 
         //battery_health
         echo "<td>";
