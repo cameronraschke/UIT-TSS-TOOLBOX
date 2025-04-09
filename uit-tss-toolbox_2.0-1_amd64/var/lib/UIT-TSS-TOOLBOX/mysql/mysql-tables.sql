@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
     date DATE NOT NULL PRIMARY KEY,
     client_count SMALLINT DEFAULT NULL,
-    total_os_installed SMALLINT DEFAUL NULL,
+    total_os_installed SMALLINT DEFAULT NULL,
     battery_health DECIMAL(5,2) DEFAULT NULL,
     disk_health DECIMAL(5,2) DEFAULT NULL,
     total_job_count MEDIUMINT DEFAULT NULL,
@@ -82,7 +82,7 @@ ALTER TABLE jobstats
     MODIFY COLUMN etheraddress VARCHAR(17) DEFAULT NULL AFTER tagnumber,
     MODIFY COLUMN date DATE DEFAULT NULL AFTER etheraddress,
     MODIFY COLUMN time DATETIME(3) DEFAULT NULL AFTER date,
-    MODIFY COLUMN system_serial VARCHAR(24) DEFAULT NULL AFTER department,
+    MODIFY COLUMN system_serial VARCHAR(24) DEFAULT NULL AFTER time,
     MODIFY COLUMN disk VARCHAR(8) DEFAULT NULL AFTER system_serial,
     MODIFY COLUMN disk_model VARCHAR(36) DEFAULT NULL AFTER disk,
     MODIFY COLUMN disk_type VARCHAR(4) DEFAULT NULL AFTER disk_model,
@@ -274,7 +274,7 @@ ALTER TABLE bios_stats
     DROP PRIMARY KEY,
     MODIFY COLUMN tagnumber VARCHAR(8) NOT NULL PRIMARY KEY FIRST,
     MODIFY COLUMN time DATETIME(3) DEFAULT NULL AFTER tagnumber,
-    MODIFY COLUMN bios_version VARCHAR(24) DEFAULT NULL AFTER system_serial,
+    MODIFY COLUMN bios_version VARCHAR(24) DEFAULT NULL AFTER time,
     MODIFY COLUMN bios_updated BOOLEAN DEFAULT NULL AFTER bios_version
     ;
 
