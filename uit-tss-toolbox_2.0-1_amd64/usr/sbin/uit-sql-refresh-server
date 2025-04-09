@@ -35,7 +35,7 @@ foreach ($db->get() as $key => $iteratedDate) {
     t2.erase_job_count, t2.avg_erase_time,
     t3.clone_job_count, t3.avg_clone_time,
     t4.last_image_update,
-    t5.disk_health, t6.battery_health, s7.total_os_installed
+    t5.disk_health, t6.battery_health, t7.total_os_installed
   FROM tbl_results
   INNER JOIN 
     (SELECT :iteratedDate AS 'date', 
@@ -98,7 +98,7 @@ foreach ($db->get() as $key => $iteratedDate) {
     ) s7
     INNER JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE DATE(time) <= :iteratedDate GROUP BY tagnumber)) ss7 ON s7.tagnumber = ss7.tagnumber
     WHERE s7.row_count = 1 AND s7.clone_completed = 1 AND NOT ss7.department = 'property'
-  ) t7 ON tbl_results.date = s7.date
+  ) t7 ON tbl_results.date = t7.date
   INNER JOIN 
     (SELECT :iteratedDate AS 'date', 
       DATE(jobstats.time) AS 'last_image_update' 
