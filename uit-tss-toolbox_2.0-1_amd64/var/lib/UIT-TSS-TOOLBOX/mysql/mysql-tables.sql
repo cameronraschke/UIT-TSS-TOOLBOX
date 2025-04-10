@@ -477,14 +477,14 @@ VALUES
     ('update', 'Update', 20, 1),
     ('findmy', 'Play Sound', 30, 1),
     ('hpEraseAndClone', 'Erase and Clone', 40, 1),
-    ('generic-erase+clone', 'Erase and Clone (manual)', 41, 1),
+    ('generic-erase+clone', 'Erase and Clone (manual)', 41, 0),
     ('hpCloneOnly', 'Clone Only', 50, 1),
-    ('generic-clone', 'Clone Only (manual)', 51, 1),
+    ('generic-clone', 'Clone Only (manual)', 51, 0),
     ('nvmeErase', 'Erase Only', 60, 1),
-    ('generic-erase', 'Erase Only (manual)', 61, 1),
+    ('generic-erase', 'Erase Only (manual)', 61, 0),
     ('nvmeVerify', 'Verify Erase', 70, 0),
     ('data collection', 'Data Collection', 80, 0),
-    ('shutdown', 'Shutdown', 90, 0),
+    ('shutdown', 'Shutdown', 90, 1),
     ('cancel', 'Cancel/Clear Job(s)', 95, 1)
     ;
 
