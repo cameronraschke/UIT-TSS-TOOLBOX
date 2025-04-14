@@ -442,9 +442,10 @@ INSERT INTO static_departments (
   owner,
   department_bool
 ) VALUES
-  ('techComm', 'Tech Commons (TSS)', 'Matthew', 1),
+  ('techComm', 'Tech Commons (TSS)', 'Matthew Harvey', 1),
   ('execSupport', 'Exec. Support', 'Kevin Vu', 1),
-  ('shrl', 'SHRL', 'Alex', 1),
+  ('shrl', 'SHRL', 'Alex Tran', 1),
+  ('pre-property', 'Pre-Property', 'Matthew Harvey', 0),
   ('property', 'Property', 'Unknown', 0)
 ;
 
