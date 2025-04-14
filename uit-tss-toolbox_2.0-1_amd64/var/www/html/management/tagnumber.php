@@ -224,7 +224,7 @@ INNER JOIN (SELECT tagnumber, MAX(time) AS 'time' FROM jobstats WHERE tagnumber 
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
   ON locations.time = t10.time
 LEFT JOIN static_domains ON locations.domain = static_domains.domain
-WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
+WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL AND static_image_names.image_platform_model IS NOT NULL
   AND jobstats.tagnumber = :tagnumber";
 
   $sqlArr = array();
