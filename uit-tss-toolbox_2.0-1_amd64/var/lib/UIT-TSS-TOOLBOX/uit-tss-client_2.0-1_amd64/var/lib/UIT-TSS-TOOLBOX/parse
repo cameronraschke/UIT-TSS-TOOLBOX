@@ -36,12 +36,10 @@ if ($arr[0] == "init") {
     }
 
     do {
-        sleep(0.5);
+        sleep(1);
         $time = updateTimeValue();
+        $db->updateJob("time", $time, $uuid);
     } while (queryTime($time) > 0);
-
-    $db->updateJob("time", $time, $uuid);
-
 }
 
 if ($arr[0] == "location") {
