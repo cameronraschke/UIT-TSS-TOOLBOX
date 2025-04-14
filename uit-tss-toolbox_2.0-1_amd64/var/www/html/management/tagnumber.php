@@ -117,8 +117,6 @@ unset($_POST);
         </div>
 
         <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
-        <div class='pagetitle'><h2>Lookup data for a specific client.</h2></div>
-        <div name='curTime' id='curTime' class='pagetitle'><h3>Data on this page was last updated at: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%m/%d/%y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
         <div class='laptop-images'>
         <?php
@@ -253,7 +251,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
                             <select name="job_queued" onchange='this.form.submit()'>
   <?php
   // Get/set current jobs.
-  if ($_GET['tagnumber']) {
+  if ($_GET['tagnumber'] && arrFilter($sqlArr) === 0) {
     $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
     if (arrFilter($db->get()) === 0 ) {
       $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
@@ -278,7 +276,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
       unset($value);
     }
   } else {
-    echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " is not in the DB :(</option>";
+    echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " missing info :((</option>";
   }
   ?>
     </select>
@@ -311,6 +309,9 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
           echo "<p><b>'" . htmlspecialchars($value["remote_status"]) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"]) . "</p>" . PHP_EOL;
       }
     }
+  } else {
+    echo "Missing required info. Please plug into laptop server to gather information.<br>
+      To update the location, please update it from the <a href='/locations.php'>locations page</a>";
   }
   ?>
   </td>
@@ -322,7 +323,7 @@ WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
 <div style="width: 40%; float: right;">
 <form name="location-form" id="location-form" method="POST">
 <?php
-if (isset($_GET["tagnumber"])) {
+if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
   echo "<div class='location-form'>" . PHP_EOL;
   if (arrFilter($sqlArr) === 0) {
     foreach ($sqlArr as $key => $value) {
@@ -428,23 +429,23 @@ if (isset($_GET["tagnumber"])) {
         </div>
         </div>
 
-        
-        <div class='pagetitle'><h3>General Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></u></h3></div>
-        <div name='updateDiv1' id='updateDiv1' class='styled-table' style="width: auto; height: auto; overflow:auto; margin: 1% 1% 0% 2%;">
-        <table width="100%">
-            <thead>
-                <tr>
-                <th>System Serial</th>
-                <th>MAC Address</th>
-                <th>System Manufacturer/Model</th>
-                <th>OS Installed</th>
-                <th>BIOS Version</th>
-                <th>Network Speed</th>
-                </tr>
-            </thead>
-            <tbody>
+
   <?php
   if (arrFilter($sqlArr) === 0) {
+    echo "<div class='pagetitle'><h3>General Client Info - <u>" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u></h3></div>
+    <div name='updateDiv1' id='updateDiv1' class='styled-table' style='width: auto; height: auto; overflow:auto; margin: 1% 1% 0% 2%;'>
+    <table width='100%''>
+        <thead>
+            <tr>
+            <th>System Serial</th>
+            <th>MAC Address</th>
+            <th>System Manufacturer/Model</th>
+            <th>OS Installed</th>
+            <th>BIOS Version</th>
+            <th>Network Speed</th>
+            </tr>
+        </thead>
+        <tbody>" . PHP_EOL;
     foreach ($sqlArr as $key => $value) {
       echo "<tr>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['system_serial']) . "</td>" . PHP_EOL;
@@ -483,11 +484,13 @@ if (isset($_GET["tagnumber"])) {
 </table>
 </div>
 	
-	<div class='row' style='margin: 1% 0% 0% 1%;'>
+<?php
+if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
+	echo "<div class='row' style='margin: 1% 0% 0% 1%;'>
 		<div class='column'>
-			<div class='pagetitle'><h3>Disk Info - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-			<div class='styled-table' style="height: auto; overflow:auto;">
-				<table width="100%">
+			<div class='pagetitle'><h3>Disk Info - <u>" . htmlspecialchars($_GET["tagnumber"]) . "</u></h3></div>
+			<div class='styled-table' style='height: auto; overflow:auto;'>
+				<table width='100%'>
 					<thead>
 						<tr>
 							<th>Disk Model</th>
@@ -497,24 +500,22 @@ if (isset($_GET["tagnumber"])) {
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<?php
+						<tr>";
 							foreach ($sqlArr as $key => $value) {
 								echo "<td>" . htmlspecialchars($value["disk_model"]) . "</td>" . PHP_EOL;
 								echo "<td>" . htmlspecialchars($value["disk_serial"]) . "</td>" . PHP_EOL;
 								echo "<td>" . htmlspecialchars($value["disk_type"]) . "</td>" . PHP_EOL;
 								echo "<td>" . htmlspecialchars($value["disk_size"]) . "</td>" . PHP_EOL;
 							}
-							?>
-						</tr>
+	echo "					</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
 		<div class='column'>
-			<div class='pagetitle'><h3>CPU/RAM - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-			<div class='styled-table' style="height: auto; overflow:auto;">
-				<table width="100%">
+			<div class='pagetitle'><h3>CPU/RAM - <u>" . htmlspecialchars($_GET["tagnumber"]) . "</u></h3></div>
+			<div class='styled-table' style='height: auto; overflow:auto;'>
+				<table width='100%'>
 					<thead>
 						<tr>
 							<th>CPU Model</th>
@@ -523,26 +524,28 @@ if (isset($_GET["tagnumber"])) {
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<?php
+						<tr>";
 							foreach ($sqlArr as $key => $value) {
 								echo "<td>" . htmlspecialchars($value["cpu_model"]) . "</td>" . PHP_EOL;
 								echo "<td>" . htmlspecialchars($value["multithreaded"]) . "</td>" . PHP_EOL;
 								echo "<td>" . htmlspecialchars($value["ram_capacity"]) . " (" . htmlspecialchars($value["ram_speed"]) . ")" . "</td>" . PHP_EOL;
 							}
-							?>
-						</tr>
+	echo "					</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
-	</div>
+	</div>";
+  }
+  ?>
 
 
 
-        <div class='pagetitle'><h3>Client Health - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-        <div name='updateDiv3' id='updateDiv3' class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 5% 2%;">
-        <table width="100%">
+<?php
+if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
+        echo "<div class='pagetitle'><h3>Client Health - <u>" . htmlspecialchars($_GET["tagnumber"]) . "</u></h3></div>
+        <div name='updateDiv3' id='updateDiv3' class='styled-table' style='width: auto; overflow:auto; margin: 1% 1% 5% 2%;'>
+        <table width='100%''>
             <thead>
                 <tr>
                 <th>Erase Avg. Time</th>
@@ -555,8 +558,7 @@ if (isset($_GET["tagnumber"])) {
                 <th>Disk Health</th>
                 </tr>
             </thead>
-            <tbody>
-            <?php
+            <tbody>";
             foreach ($sqlArr as $key => $value) {
               echo "<tr>" . PHP_EOL;
               echo "<td>" . htmlspecialchars($value['erase_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
@@ -570,11 +572,12 @@ if (isset($_GET["tagnumber"])) {
               echo "</tr>" . PHP_EOL;
             }
             unset($value);
-            ?>
+            echo "
             </tbody>
         </table>
-        </div>
-
+        </div>";
+  }
+?>
 
         <?php
             $db->Pselect("SELECT identifier, recovery_key FROM bitlocker WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
