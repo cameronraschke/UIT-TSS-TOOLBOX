@@ -1,9 +1,22 @@
 <?php
 date_default_timezone_set('America/Chicago');
-$dt = new DateTimeImmutable();
+$timeZone = new \DateTimeZone('America/Chicago');
+$dt = new \DateTimeImmutable();
+$dt = $dt->setTimezone($timeZone);
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
+function updateTimeValue () {
+    $dt = null;
+    $date = null;
+    $time = null;
+    $timeZone = new \DateTimeZone('America/Chicago');
+    $dt = new \DateTimeImmutable();
+    $dt = $dt->setTimezone($timeZone);
+    $date = $dt->format('Y-m-d');
+    $time = $dt->format('Y-m-d H:i:s.v');
+    return $time;
+}
 
 function strFilter ($string) {
     if ($string === "" || $string === " " || $string === "NULL" || empty($string) || is_null($string)) {
