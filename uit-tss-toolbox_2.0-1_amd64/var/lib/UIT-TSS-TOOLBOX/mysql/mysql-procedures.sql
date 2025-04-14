@@ -554,3 +554,25 @@ ORDER BY location, tagnumber);
 
 END; //
 DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS iteratePreProperty;
+DELIMITER //
+CREATE PROCEDURE iteratePreProperty()
+DETERMINISTIC
+BEGIN
+
+(SELECT 'Tag Number', 'Serial Number', 'System Model', 'Disk Removed', 'Location', 'Note', 'Last Update')
+UNION ALL
+(SELECT IF (locations.tagnumber LIKE '77204%' OR locations.tagnumber LIKE '999%', 'NO TAG', locations.tagnumber) AS 'tagnumber', locations.system_serial, system_data.system_model, 
+	IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (locationFormatting(locations.location) = 'On top of Z', 'Z', locationFormatting(locations.location)) AS 'location', locations.note, locations.time
+FROM locations
+LEFT JOIN departments ON locations.tagnumber = departments.tagnumber
+INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t2 ON departments.time = t2.time
+LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
+INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
+WHERE departments.department IN ('pre-property')
+ORDER BY location, tagnumber);
+
+END; //
+DELIMITER ;

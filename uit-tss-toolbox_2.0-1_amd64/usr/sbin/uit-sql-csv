@@ -66,4 +66,12 @@ foreach ($db->get() as $key => $value) {
 unset($value);
 $file = null;
 
+$file = new SplFileObject("/tmp/uit-tmp-reports/pre-property-report-" . $date . ".csv", "w");
+$db->AssocSelect("CALL iteratePreProperty()");
+foreach ($db->get() as $key => $value) {
+    $file->fputcsv($value);
+}
+unset($value);
+$file = null;
+
 ?>
