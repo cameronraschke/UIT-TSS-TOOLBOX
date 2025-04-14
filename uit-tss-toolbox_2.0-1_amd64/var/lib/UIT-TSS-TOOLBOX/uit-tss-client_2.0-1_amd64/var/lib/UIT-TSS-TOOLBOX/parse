@@ -40,6 +40,8 @@ if ($arr[0] == "init") {
         $time = updateTimeValue();
     } while (queryTime($time) > 0);
 
+    $db->updateJob("time", $time, $uuid);
+
 }
 
 if ($arr[0] == "location") {
