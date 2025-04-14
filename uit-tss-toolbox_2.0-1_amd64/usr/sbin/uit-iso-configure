@@ -273,7 +273,10 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Installing the client package${RESET}"
-scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
+while [[ ! -d /root/uit-tss-client_2.0-1_amd64/ ]]; do
+	scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
+	sleep 1
+done
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
 dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
