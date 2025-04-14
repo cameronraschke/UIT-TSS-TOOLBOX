@@ -185,7 +185,7 @@ unset($_POST);
   locationFormatting(locations.location) AS 'location', 
   IF(locations.status = 1, 'Broken', 'Yes') AS 'status_formatted', locations.status AS 'locations_status', t2.department_readable, t3.note AS 'most_recent_note',
   locations.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
-  IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed, IF (os_stats.os_installed = 1, 'Windows 11', 'No OS') AS 'os_installed_formatted',
+  IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed,
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
   system_data.system_manufacturer, system_data.system_model, 
@@ -199,12 +199,14 @@ unset($_POST);
   remote.kernel_updated, IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
   bios_stats.bios_version, CONCAT(remote.network_speed, ' mbps') AS 'network_speed',
   CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
-  t4.disk_power_cycles, t4.disk_errors, locations.domain, static_domains.domain_readable
+  t4.disk_power_cycles, t4.disk_errors, locations.domain, static_domains.domain_readable,
+  IF (os_stats.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'os_installed_formatted'
 FROM jobstats
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
 LEFT JOIN os_stats ON jobstats.tagnumber = os_stats.tagnumber
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
 LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
+INNER JOIN static_image_names ON system_data.system_model = static_image_names.image_platform_model
 LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE tagnumber IS NOT NULL GROUP BY tagnumber)) t1 
   ON jobstats.tagnumber = t1.tagnumber
 LEFT JOIN remote ON jobstats.tagnumber = remote.tagnumber

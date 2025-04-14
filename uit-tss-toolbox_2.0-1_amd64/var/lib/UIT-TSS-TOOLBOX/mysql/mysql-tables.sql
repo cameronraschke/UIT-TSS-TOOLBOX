@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
     erase_diskpercent TINYINT DEFAULT NULL,
     erase_time SMALLINT DEFAULT NULL,
     clone_completed BOOLEAN DEFAULT NULL,
+    clone_image VARCHAR(36) DEFAULT NULL,
     clone_master BOOLEAN DEFAULT NULL,
     clone_time SMALLINT DEFAULT NULL,
     host_connected BOOLEAN DEFAULT NULL
@@ -116,7 +117,8 @@ ALTER TABLE jobstats
     MODIFY COLUMN erase_diskpercent TINYINT DEFAULT NULL AFTER erase_mode,
     MODIFY COLUMN erase_time SMALLINT DEFAULT NULL AFTER erase_diskpercent,
     MODIFY COLUMN clone_completed BOOLEAN DEFAULT NULL AFTER erase_time,
-    MODIFY COLUMN clone_master BOOLEAN DEFAULT NULL AFTER clone_completed,
+    MODIFY COLUMN clone_image VARCHAR(36) DEFAULT NULL AFTER clone_completed,
+    MODIFY COLUMN clone_master BOOLEAN DEFAULT NULL AFTER clone_image,
     MODIFY COLUMN clone_time SMALLINT DEFAULT NULL AFTER clone_master,
     MODIFY COLUMN host_connected BOOLEAN DEFAULT NULL AFTER clone_time;
 
@@ -499,4 +501,26 @@ INSERT INTO
     static_domains (domain, domain_readable)
 VALUES
     ('UIT-CheckOut', 'TSS Laptop Checkout')
+    ;
+
+
+DROP TABLE IF EXISTS static_image_names;
+CREATE TABLE IF NOT EXISTS static_image_names (
+    image_name VARCHAR(36) NOT NULL PRIMARY KEY,
+    image_os_author VARCHAR(24) DEFAULT NULL,
+    image_version VARCHAR(24) DEFAULT NULL,
+    image_platform_vendor VARCHAR(24) DEFAULT NULL,
+    image_platform_model VARCHAR(24) DEFAULT NULL,
+    image_name_readable VARCHAR(36) DEFAULT NULL
+);
+
+INSERT INTO
+    static_image_names (image_name, image_os_author, image_version, image_platform_vendor, image_platform_model, image_name_readable)
+VALUES
+    ('TechCommons-HP-LaptopsLZ4', 'Microsoft', 'Windows 11', 'HP', 'HP ProBook 450 G6', 'Windows 11'),
+    ('TechCommons-Dell-Laptops', 'Microsoft', 'Windows 11', 'Dell', 'Latitude 7400', 'Windows 11'),
+    ('TechCommons-Dell-Desktops', 'Microsoft', 'Windows 11', 'Dell', 'OptiPlex 7000', 'Windows 11'),
+    ('TechCommons-Dell-HelpDesk', 'Microsoft', 'Windows 11', 'Dell', 'Latitude 7420', 'Windows 11'),
+    ('SHRL-Dell-Desktops', 'Microsoft', 'Windows 11', 'Dell', NULL, 'Windows 11'),
+    ('Ubuntu-Desktop', 'Canonical', '24.04.2 LTS', 'Dell', 'Latitude 7400', 'Ubuntu Desktop')
     ;

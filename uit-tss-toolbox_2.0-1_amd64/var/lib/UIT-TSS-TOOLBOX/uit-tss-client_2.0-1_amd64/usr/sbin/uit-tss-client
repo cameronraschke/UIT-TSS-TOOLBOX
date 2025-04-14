@@ -1512,6 +1512,7 @@ function clientselect_Clone {
 
 
 function execute_Clone {
+	echo "general|clone_image|${cloneImgName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "remote|${tagNum}|status|Cloning ${cloneImgName} -> ${CLIENTDISK} ($cloneMode)" | /var/lib/UIT-TSS-TOOLBOX/parse
 	echo "0" > /root/uptime
 	echo "0" > /tmp/cpu-usage.txt
