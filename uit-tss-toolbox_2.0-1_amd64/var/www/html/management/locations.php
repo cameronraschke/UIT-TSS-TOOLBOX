@@ -438,25 +438,21 @@ $rowCount = 0;
 $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, 
   locationFormatting(locations.location) AS 'location',
-  t2.department_readable AS 'department_formatted', t1.department,
+  static_departments.department_readable AS 'department_formatted', departments.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Yes', 'Broken') AS 'status_formatted', locations.status, 
-  IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed_formatted', os_stats.os_installed,
+  IF (os_stats.os_installed = 1 AND os_stats.os_name IS NOT NULL, os_stats.os_name, 'No OS') AS 'os_installed_formatted', os_stats.os_installed,
   IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
   locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain
   FROM locations
-  LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
-  LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
-  INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber
-  INNER JOIN remote ON remote.tagnumber = locations.tagnumber
-  LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber)) t1
-  ON locations.tagnumber = t1.tagnumber
-  INNER JOIN (SELECT department, department_readable FROM static_departments) t2
-  ON t1.department = t2.department
-  LEFT JOIN system_data ON system_data.tagnumber = locations.tagnumber
-  WHERE locations.tagnumber IS NOT NULL AND jobstats.tagnumber IS NOT NULL
-  AND locations.time in (select MAX(time) from locations group by tagnumber)
-  AND jobstats.time in (select MAX(time) from jobstats group by tagnumber)";
+    LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
+    LEFT JOIN departments ON (locations.tagnumber = departments.tagnumber AND departments.time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber))
+    LEFT JOIN static_departments ON static_departments.department = departments.department
+    LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
+    LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
+    LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
+  WHERE locations.tagnumber IS NOT NULL
+  AND locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)";
 
 // Location filter
 if (strFilter($_GET["location"]) === 0) {

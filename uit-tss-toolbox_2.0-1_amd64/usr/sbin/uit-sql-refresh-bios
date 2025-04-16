@@ -26,13 +26,16 @@ unset($value);
 
 
 unset($sql);
-$sql = "SELECT locations.tagnumber, jobstats.time, os_stats.tagnumber AS 'os_table_tag', 
+$sql = "SELECT jobstats.uuid, locations.tagnumber, jobstats.time, os_stats.tagnumber AS 'os_table_tag', 
+    system_data.system_model, static_image_names.image_name, static_image_names.image_name_readable, 
     (CASE WHEN locations.disk_removed = 1 THEN 0
     WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN 0
     WHEN jobstats.erase_completed IS NULL AND jobstats.clone_completed = 1 THEN 1
     WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed = 1 THEN 1 
     ELSE 1 END) AS 'os_installed'
     FROM locations
+    LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
+    LEFT JOIN static_image_names ON system_data.system_model = static_image_names.image_platform_model
     LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS 'time' FROM jobstats WHERE (erase_completed IS NOT NULL OR clone_completed IS NOT NULL) AND tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber))
     LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
     INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON t2.time = locations.time";
@@ -43,5 +46,8 @@ foreach ($db->get() as $key => $value) {
     }
     
     $db->updateOS($value["tagnumber"], "os_installed", $value["os_installed"], $value["time"]);
+
+    $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"], $value["time"]);
+
 }
 unset($value);
