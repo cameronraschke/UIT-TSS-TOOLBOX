@@ -186,7 +186,11 @@ unset($_POST);
   IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed,
   jobstats.etheraddress, system_data.wifi_mac, 
   system_data.chassis_type, 
-  system_data.system_manufacturer, system_data.system_model, 
+  (CASE
+    WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NOT NULL THEN CONCAT(system_data.system_manufacturer, ' - ', system_data.system_model)
+    WHEN system_data.system_manufacturer IS NULL AND system_data.system_model IS NOT NULL THEN system_data.system_model
+    WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NULL THEN system_data.system_manufacturer
+  END) AS 'system_model_formatted',
   system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS 'cpu_maxspeed', IF(system_data.cpu_threads > system_data.cpu_cores, CONCAT(system_data.cpu_cores, '/', system_data.cpu_threads, ' (Multithreaded)'), system_data.cpu_cores) AS 'multithreaded', 
   CONCAT(t8.ram_capacity, ' GB') AS 'ram_capacity', CONCAT(t8.ram_speed, ' MHz') AS 'ram_speed',
   t4.disk_model, CONCAT(t4.disk_size, 'GB') AS 'disk_size', t4.disk_type, t4.disk_serial, 
@@ -194,8 +198,11 @@ unset($_POST);
   CONCAT(clientstats.battery_health, '%') AS 'battery_health', CONCAT(clientstats.disk_health, '%') AS 'disk_health', 
   CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
   DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
-  remote.kernel_updated, IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated', 
-  bios_stats.bios_version, CONCAT(remote.network_speed, ' mbps') AS 'network_speed',
+  remote.kernel_updated, CONCAT(remote.network_speed, ' mbps') AS 'network_speed', bios_stats.bios_updated, 
+  IF (bios_stats.bios_updated = 1, CONCAT('Yes, ', '(', bios_stats.bios_version, ')'), CONCAT('No, ', '(', bios_stats.bios_version, ')')) AS 'bios_updated_formatted', 
+  (CASE
+    WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_writes, ' TBW/', t4.disk_reads)
+  END) AS 'disk_tbw_formatted',
   CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
   t4.disk_power_cycles, t4.disk_errors, locations.domain, static_domains.domain_readable,
   IF (os_stats.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'os_installed_formatted'
@@ -285,16 +292,16 @@ WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
   if (arrFilter($sqlArr) === 0) {
     foreach ($sqlArr as $key => $value) {
       // BIOS and kernel updated (check mark)
-      if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === "Yes")) {
+      if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
         echo "Online, no errors <span>&#10004;&#65039;</span>";
       // BIOS and kernel out of date (x)
-      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== "Yes")) {
+      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== 1)) {
         echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
       // BIOS out of date, kernel updated (warning sign)
-      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== "Yes")) {
+      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== 1)) {
         echo "Online, please update BIOS <span>&#9888;&#65039;</span>";
       // BIOS updated, kernel out of date (x)
-      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === "Yes")) {
+      } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === 1)) {
         echo "Online, kernel out of date <span>&#10060;</span>)";
       // Offline (x)
       } elseif ($value["present_bool"] !== 1) {
@@ -465,13 +472,9 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
         }
       }
       echo "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['system_manufacturer']) . "/" . htmlspecialchars($value['system_model']) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value["system_model_formatted"]) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value["os_installed_formatted"]) . "</td>" . PHP_EOL;
-      if ($value["bios_updated"] === "Yes") {
-      echo "<td>" . htmlspecialchars($value["bios_version"]) . " (Up to date)</td>" . PHP_EOL;
-      } else {
-      echo "<td>" . htmlspecialchars($value["bios_version"]) . " (Out of date)</td>" . PHP_EOL;
-      }
+      echo "<td>" . htmlspecialchars($value["bios_updated_formatted"]) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value['network_speed']) . "</td>" . PHP_EOL;
       echo "</tr>" . PHP_EOL;
     }
