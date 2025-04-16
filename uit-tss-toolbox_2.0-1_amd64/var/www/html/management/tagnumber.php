@@ -179,7 +179,7 @@ unset($_POST);
   // Get most client data - main sql query
   unset($sql);
   $sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
-  t9.time AS 'jobstatsTime', jobstats.tagnumber, jobstats.system_serial, t1.department, 
+  jobstats.time AS 'jobstatsTime', locations.tagnumber, locations.system_serial, t1.department, 
   locationFormatting(locations.location) AS 'location', 
   IF(locations.status = 1, 'Broken', 'Yes') AS 'status_formatted', locations.status AS 'locations_status', t2.department_readable, t3.note AS 'most_recent_note',
   locations.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
@@ -199,33 +199,31 @@ unset($_POST);
   CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
   t4.disk_power_cycles, t4.disk_errors, locations.domain, static_domains.domain_readable,
   IF (os_stats.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'os_installed_formatted'
-FROM jobstats
-LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
-LEFT JOIN os_stats ON jobstats.tagnumber = os_stats.tagnumber
-LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber
-LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
+FROM locations
+LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
+LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
+LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND (host_connected = 1 or (uuid LIKE 'techComm-%' AND etheraddress IS NOT NULL)) GROUP BY tagnumber))
+LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
 LEFT JOIN static_image_names ON system_data.system_model = static_image_names.image_platform_model
 LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE tagnumber IS NOT NULL GROUP BY tagnumber)) t1 
-  ON jobstats.tagnumber = t1.tagnumber
-LEFT JOIN remote ON jobstats.tagnumber = remote.tagnumber
+  ON locations.tagnumber = t1.tagnumber
+LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
 LEFT JOIN (SELECT department, department_readable FROM static_departments) t2
   ON t1.department = t2.department
 LEFT JOIN (SELECT tagnumber, time, note FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE note IS NOT NULL GROUP BY tagnumber)) t3
-  ON jobstats.tagnumber = t3.tagnumber
+  ON locations.tagnumber = t3.tagnumber
 LEFT JOIN (SELECT tagnumber, disk_model, disk_serial, disk_size, disk_type, disk_writes, disk_reads, disk_power_on_hours, disk_power_cycles, IF(disk_errors IS NOT NULL, disk_errors, 0) AS 'disk_errors' FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE disk_type IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t4 
-  ON jobstats.tagnumber = t4.tagnumber
+  ON locations.tagnumber = t4.tagnumber
 LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5 
-  ON jobstats.tagnumber = t5.tagnumber
+  ON locations.tagnumber = t5.tagnumber
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
-  ON jobstats.tagnumber = t8.tagnumber
-LEFT JOIN bios_stats ON jobstats.tagnumber = bios_stats.tagnumber
-INNER JOIN (SELECT tagnumber, MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND (host_connected = 1 or (uuid LIKE 'techComm-%' AND etheraddress IS NOT NULL)) GROUP BY tagnumber) t9
-  ON jobstats.time = t9.time
+  ON locations.tagnumber = t8.tagnumber
+LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
   ON locations.time = t10.time
 LEFT JOIN static_domains ON locations.domain = static_domains.domain
-WHERE jobstats.tagnumber IS NOT NULL and jobstats.system_serial IS NOT NULL
-  AND jobstats.tagnumber = :tagnumber";
+WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
+  AND locations.tagnumber = :tagnumber";
 
   $sqlArr = array();
   $db->Pselect($sql, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
