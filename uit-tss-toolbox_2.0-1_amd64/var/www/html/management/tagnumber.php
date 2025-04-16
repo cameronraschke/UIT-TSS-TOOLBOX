@@ -644,6 +644,7 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
                 <tr>
                 <th>Timestamp</th>
                 <th>Location</th>
+                <th>Department</th>
                 <th>Functional</th>
                 <th>Disk Removed</th>
                 <th>Note</th>
@@ -652,8 +653,9 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
             </thead>
             <tbody>
                 <?php
-                $db->Pselect("SELECT * FROM 
-                  (SELECT locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
+                //Use this if you want range of department data instead of equal times: --INNER JOIN departments ON (locations.tagnumber = :tagnumber AND departments.tagnumber = :tagnumber AND departments.time IN (SELECT MAX(time) FROM departments WHERE time <= locations.time))
+                $db->Pselect("SELECT t2.* FROM 
+                  (SELECT static_departments.department_readable, departments.time AS 'deptTime', locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
                     locationFormatting(locations.location) AS 'location', 
                     ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
                     IF (locations.status = 1, 'No, Broken', 'Yes') AS 'status_formatted', locations.status, 
@@ -661,19 +663,24 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
                     IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', 
                     note 
                   FROM locations 
-                  LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
-                  WHERE locations.tagnumber = :tagnumber 
-                    AND NOT locations.location = 'Plugged in and booted on laptop table.' 
+                  LEFT JOIN os_stats ON (locations.tagnumber = :tagnumber AND os_stats.tagnumber = :tagnumber)
+                  INNER JOIN departments ON (locations.tagnumber = :tagnumber AND departments.tagnumber = :tagnumber AND departments.time = locations.time)
+                  INNER JOIN static_departments ON departments.department = static_departments.department
+                  WHERE 
+                    NOT locations.location = 'Plugged in and booted on laptop table.' 
                     AND NOT locations.location = 'Finished work on laptop table.' 
-                  ORDER BY locations.time DESC) t2 
-                  WHERE t2.location IS NOT NULL 
-                  AND t2.location_num <= 3 ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+                    AND locations.tagnumber = :tagnumber
+                    AND departments.tagnumber = :tagnumber
+                    AND locations.location IS NOT NULL) t2
+                  WHERE t2.location_num <= 3
+                ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
                 if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value1) {
                         echo "<tr>" . PHP_EOL;
                         //Time formatted
                         echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['department_readable'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "<td>" . htmlspecialchars($value1['status_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "<td>" . htmlspecialchars($value1['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
                         echo "<td>" . htmlspecialchars($value1['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
