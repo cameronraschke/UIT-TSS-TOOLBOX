@@ -428,11 +428,45 @@ INSERT INTO bitlocker
 ('727014', '0761161E-23A5-461B-822D-6D795B7253DB', '100870-342463-572495-557854-219527-118217-661925-117348')
 ;
 
+
+DROP TABLE IF EXISTS static_tags;
+CREATE TABLE IF NOT EXISTS static_tags (
+    tag VARCHAR(128) NOT NULL,
+    tag_readable VARCHAR(128) NOT NULL,
+    owner VARCHAR(64) NOT NULL,
+    department VARCHAR(128) NOT NULL
+);
+
+INSERT INTO static_tags (
+    tag,
+    tag_readable,
+    owner,
+    department
+) VALUES 
+    ('laptop-program', 'Laptop Program', 'Matthew Harvey', 'techComm')
+    ('checked-in', 'Checked In', 'Matthew Harvey', 'techComm'),
+    ('checked-out', 'Checked Out', 'Matthew Harvey', 'techComm'),
+    ('stolen', 'Stolen/Missing', 'Matthew Harvey', 'techComm'),
+    ('ITSC-Computers', 'ITSC Team Leads', 'Kevin Vu', 'techComm'),
+    ('tv', 'Televisions', 'Kevin Vu', 'techComm'),
+    ('security-cameras', 'Security Cameras', 'Kevin Vu', 'techComm'),
+    ('student-workstations', 'Student Workstations', 'Kevin Vu', 'techComm'),
+    ('printers', 'Printers', 'Tom Carroll', 'o365'),
+    ('uniprint-clients', 'Uniprint Release Stations', 'Tom Carroll', 'o365')
+    ;
+
+
+CREATE TABLE IF NOT EXISTS tags (
+    tagnumber VARCHAR(128) NOT NULL,
+    tag VARCHAR(128) NOT NULL,
+);
+
+
 DROP TABLE IF EXISTS static_departments;
 CREATE TABLE IF NOT EXISTS static_departments (
   department VARCHAR(128) NOT NULL PRIMARY KEY,
   department_readable VARCHAR(128) NOT NULL,
-  owner VARCHAR(128) NOT NULL,
+  owner VARCHAR(64) NOT NULL,
   department_bool BOOLEAN NOT NULL DEFAULT 0
 );
 
@@ -442,10 +476,11 @@ INSERT INTO static_departments (
   owner,
   department_bool
 ) VALUES
-  ('techComm', 'Tech Commons (TSS)', 'Matthew Harvey', 1),
+  ('techComm', 'Tech Commons', 'Matthew Harvey', 1),
   ('execSupport', 'Exec. Support', 'Kevin Vu', 1),
   ('shrl', 'SHRL', 'Alex Tran', 1),
   ('pre-property', 'Pre-Property', 'Matthew Harvey', 0),
+  ('o365', 'Office 365', 'Andy Moon', 0)
   ('property', 'Property', 'Unknown', 0)
 ;
 

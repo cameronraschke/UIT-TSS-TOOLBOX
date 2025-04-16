@@ -330,7 +330,7 @@ WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
 </div>
 
 
-<div style="width: 40%; float: right;">
+<div style="width: 40%; float: left;">
 <form name="location-form" id="location-form" method="POST">
 <?php
 if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
