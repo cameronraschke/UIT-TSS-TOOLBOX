@@ -452,7 +452,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
     LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
     LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
   WHERE locations.tagnumber IS NOT NULL
-  AND locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)";
+  AND locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) ";
 
 // Location filter
 if (strFilter($_GET["location"]) === 0) {
