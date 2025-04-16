@@ -244,8 +244,63 @@ WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
   }
 ?>
 
-        <div>
-        <div class="styled-table" style="width: 40%; height: auto; overflow:auto; margin: 1% 1% 5% 1%; float: left;">
+
+  <?php
+  if (arrFilter($sqlArr) === 0) {
+    echo "<div class='pagetitle'><h3>General Client Info - <u>" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u></h3></div>
+    <div name='updateDiv1' id='updateDiv1' class='styled-table' style='width: auto; height: auto; overflow:auto; margin: 1% 1% 3% 2%;'>
+    <table width='100%''>
+        <thead>
+            <tr>
+            <th>System Serial</th>
+            <th>MAC Address</th>
+            <th>System Manufacturer & Model</th>
+            <th>OS Installed</th>
+            <th>BIOS Version</th>
+            <th>Network Speed</th>
+            </tr>
+        </thead>
+        <tbody>" . PHP_EOL;
+    foreach ($sqlArr as $key => $value) {
+      echo "<tr>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['system_serial']) . "</td>" . PHP_EOL;
+      echo "<td>";
+      // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
+      if ($value["system_model"] !== "Latitude 7400" && $value["system_model"] !== "Latitude 5289") {
+        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
+          echo "<table><tr><td>" . htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)</td></tr><tr><td>" . htmlspecialchars($value["etheraddress"]) . " (Ethernet)</td></tr></table>" . PHP_EOL;
+        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
+          echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
+        } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
+          echo htmlspecialchars($value["etheraddress"]) . " (Ethernet)";
+        }
+      } elseif ($value["system_model"] === "Latitude 7400" || $value["system_model"] === "Latitude 5289") {
+        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
+          echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
+        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
+          echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
+        }
+      }
+      echo "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value["system_model_formatted"]) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value["os_installed_formatted"]) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value["bios_updated_formatted"]) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value['network_speed']) . "</td>" . PHP_EOL;
+      echo "</tr>" . PHP_EOL;
+    }
+  }
+  unset($value);
+  ?>
+</tbody>
+</table>
+</div>
+
+<?php echo "<div class='pagetitle'><h3>Update Queued Job and Location Data - <u>" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u></h3></div>"; ?>
+
+<div class='row'>
+
+        <div class='column'>
+        <div class="styled-table" style="width: 100%; height: auto; overflow:auto; margin: 1% 1% 5% 4%; float: left;">
             <table>
                 <thead>
                     <tr>
@@ -273,7 +328,7 @@ WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
         WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
       if (arrFilter($db->get()) === 0) {
         foreach ($db->get() as $key => $value1) {
-          echo "<option name='curJob' id='curJob' value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
+          echo "<option value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
         }
         unset($value1);
       }
@@ -292,7 +347,8 @@ WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
     </select>
   </form>
   </td>
-  <td name='curStatus' id='curStatus'>
+  <td>
+    <div name='curJob' id='curJob'>
   <?php
   if (arrFilter($sqlArr) === 0) {
     foreach ($sqlArr as $key => $value) {
@@ -324,13 +380,15 @@ WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
       To update the location, please update it from the <a href='/locations.php'>locations page</a>";
   }
   ?>
+  </div>
   </td>
   </tr>
   </table>
 </div>
+</div>
 
 
-<div style="width: 40%; float: left;">
+<div class='column'>
 <form name="location-form" id="location-form" method="POST">
 <?php
 if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
@@ -438,56 +496,8 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
             </form>
         </div>
         </div>
+        </div>
 
-
-  <?php
-  if (arrFilter($sqlArr) === 0) {
-    echo "<div class='pagetitle'><h3>General Client Info - <u>" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u></h3></div>
-    <div name='updateDiv1' id='updateDiv1' class='styled-table' style='width: auto; height: auto; overflow:auto; margin: 1% 1% 0% 2%;'>
-    <table width='100%''>
-        <thead>
-            <tr>
-            <th>System Serial</th>
-            <th>MAC Address</th>
-            <th>System Manufacturer & Model</th>
-            <th>OS Installed</th>
-            <th>BIOS Version</th>
-            <th>Network Speed</th>
-            </tr>
-        </thead>
-        <tbody>" . PHP_EOL;
-    foreach ($sqlArr as $key => $value) {
-      echo "<tr>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['system_serial']) . "</td>" . PHP_EOL;
-      echo "<td>";
-      // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
-      if ($value["system_model"] !== "Latitude 7400" && $value["system_model"] !== "Latitude 5289") {
-        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-          echo "<table><tr><td>" . htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)</td></tr><tr><td>" . htmlspecialchars($value["etheraddress"]) . " (Ethernet)</td></tr></table>" . PHP_EOL;
-        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
-          echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
-        } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
-          echo htmlspecialchars($value["etheraddress"]) . " (Ethernet)";
-        }
-      } elseif ($value["system_model"] === "Latitude 7400" || $value["system_model"] === "Latitude 5289") {
-        if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-          echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
-        } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
-          echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
-        }
-      }
-      echo "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value["system_model_formatted"]) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value["os_installed_formatted"]) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value["bios_updated_formatted"]) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value['network_speed']) . "</td>" . PHP_EOL;
-      echo "</tr>" . PHP_EOL;
-    }
-  }
-  unset($value);
-  ?>
-</tbody>
-</table>
 </div>
 	
 <?php
@@ -715,18 +725,14 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
                     //document.body.innerHTML = html
                     const parser = new DOMParser()
                     const doc = parser.parseFromString(html, "text/html")
-                    // update current time
-                    const curTime = doc.getElementById('curTime').innerHTML
-                    document.getElementById("curTime").innerHTML = curTime
-                    // update current job in dropdown menu
+                    // update current job and status
                     const curJob = doc.getElementById('curJob').innerHTML
                     document.getElementById("curJob").innerHTML = curJob
-                    // update current status
-                    const curStatus = doc.getElementById('curStatus').innerHTML
-                    document.getElementById("curStatus").innerHTML = curStatus
                     // update all other tables
                     const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
                     document.getElementById("updateDiv1").innerHTML = updateDiv1
+                    const updateDiv2 = doc.getElementById('updateDiv2').innerHTML
+                    document.getElementById("updateDiv2").innerHTML = updateDiv2
                     const updateDiv3 = doc.getElementById('updateDiv3').innerHTML
                     document.getElementById("updateDiv3").innerHTML = updateDiv3
                     const updateDiv4 = doc.getElementById('updateDiv4').innerHTML
