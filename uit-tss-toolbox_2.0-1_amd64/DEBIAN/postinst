@@ -8,9 +8,10 @@ find /etc/opt/UIT-TSS-TOOLBOX -type d -exec chmod 750 {} \;
 find /etc/opt/UIT-TSS-TOOLBOX -type f -exec chmod 660 {} \;
 
 /usr/bin/chown root:uit /var/www/html/management -R
-find /var/www/html/management -type d -exec chmod 750 {} \;
-find /var/www/html/management -type f -exec chmod 660 {} \;
-chmod 755 /var/www/html/management/bash/ -R
+find /var/www/html/management -type d -exec chmod 755 {} \;
+find /var/www/html/management -type f -exec chmod 664 {} \;
+chown www-data:uit /var/www/html/management/bash/uit-print-pdf
+chmod 750 /var/www/html/management/bash/uit-print-pdf
 
 echo -e "\n" >> /etc/cron.d/uit-cron
 
