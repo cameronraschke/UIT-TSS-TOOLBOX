@@ -19,15 +19,15 @@ if ($arr[0] == "location") {
     $diskRemoved = $arr[6];
     $note = $arr[7];
 
-    $uuid = uniqid("location-", true);
+    //$uuid = uniqid("location-", true);
 
-    #Not the same insert statment as client parse code, ether address is DEFAULT here.
-    $db->insertJob($uuid);
-    $db->updateJob("tagnumber", $tagNum, $uuid);
-    $db->updateJob("system_serial", $serial, $uuid);
-    $db->updateJob ("date", $date, $uuid);
-    $db->updateJob ("time", $time, $uuid);
-    $db->updateJob ("department", $department, $uuid);
+    //#Not the same insert statment as client parse code, ether address is DEFAULT here.
+    //$db->insertJob($uuid);
+    //$db->updateJob("tagnumber", $tagNum, $uuid);
+    //$db->updateJob("system_serial", $serial, $uuid);
+    //$db->updateJob ("date", $date, $uuid);
+    //$db->updateJob ("time", $time, $uuid);
+    //$db->updateJob ("department", $department, $uuid);
 
     # INSERT statement
     $db->insertLocation($time);

@@ -41,11 +41,11 @@ if (isset($_POST['serial'])) {
   $domain = $_POST["domain"];
   
   //Insert jobstats data
-  $db->insertJob($uuid);
-  $db->updateJob("tagnumber", $tagNum, $uuid);
-  $db->updateJob("system_serial", $serial, $uuid);
-  $db->updateJob ("date", $date, $uuid);
-  $db->updateJob ("time", $time, $uuid);
+  //$db->insertJob($uuid);
+  //$db->updateJob("tagnumber", $tagNum, $uuid);
+  //$db->updateJob("system_serial", $serial, $uuid);
+  //$db->updateJob ("date", $date, $uuid);
+  //$db->updateJob ("time", $time, $uuid);
 
   // Insert department data
   $db->insertDepartments($time);
@@ -53,6 +53,7 @@ if (isset($_POST['serial'])) {
   $db->updateDepartments("system_serial", $serial, $time);
   $db->updateDepartments("department", $department, $time);
   
+  //Insert location data
   $db->insertLocation($time);
   $db->updateLocation("tagnumber", $tagNum, $time);
   $db->updateLocation("system_serial", $serial, $time);
