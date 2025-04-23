@@ -80,7 +80,7 @@ systemctl daemon-reload &>/dev/null
 /usr/bin/chronyc add server 10.0.0.1 iburst
 /usr/bin/chronyc makestep
 
-while [[ $(echo "SELECT CONCAT(CURDATE(), ' ', CURTIME()) AS 'result'" | /var/lib/UIT-TSS-TOOLBOX/select) != $(date '+%Y-%m-%d %H:%M:%S') ]]; do
+while [[ $(echo "SELECT CONCAT(CURDATE(), ' ', CURTIME()) AS 'result'" | /opt/UIT-TSS-TOOLBOX/select) != $(date '+%Y-%m-%d %H:%M:%S') ]]; do
 	sleep 0.01
 done
 echo "${GREEN}Done.${RESET}"
@@ -116,16 +116,16 @@ tOneSerialNumber=$(dmidecode --string system-serial-number)
 ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1,3}/16' | sed 's/\/16//g')
 
 function remote {
-	job_queued=$(echo "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-	job_queued_override=$(echo "SELECT job_queued AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-	job_queued_formatted=$(echo "SELECT (CASE WHEN job_queued = 'data collection' THEN 'data collection' WHEN job_queued = 'update' THEN 'update' WHEN job_queued = 'findmy' THEN 'playing a sound' WHEN (job_queued = 'hpEraseAndClone' OR job_queued = 'generic-erase+clone') THEN 'disk erase & clone' WHEN (job_queued = 'hpCloneOnly' OR job_queued = 'generic-clone') THEN 'disk clone' WHEN job_queued = 'nvmeErase' THEN 'disk erase' WHEN job_queued = 'nvmeVerify' THEN 'disk verify' WHEN job_queued = 'shutdown' THEN 'shutdown' ELSE job_queued END) AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) 
-	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, job_active, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_queued IS NOT NULL AND job_active IS NULL) t1 WHERE t1.tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-	job_active=$(echo "SELECT job_active AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select)
-	job_available=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active IS NOT NULL" | /var/lib/UIT-TSS-TOOLBOX/select)
+	job_queued=$(echo "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select)
+	job_queued_override=$(echo "SELECT job_queued AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select)
+	job_queued_formatted=$(echo "SELECT (CASE WHEN job_queued = 'data collection' THEN 'data collection' WHEN job_queued = 'update' THEN 'update' WHEN job_queued = 'findmy' THEN 'playing a sound' WHEN (job_queued = 'hpEraseAndClone' OR job_queued = 'generic-erase+clone') THEN 'disk erase & clone' WHEN (job_queued = 'hpCloneOnly' OR job_queued = 'generic-clone') THEN 'disk clone' WHEN job_queued = 'nvmeErase' THEN 'disk erase' WHEN job_queued = 'nvmeVerify' THEN 'disk verify' WHEN job_queued = 'shutdown' THEN 'shutdown' ELSE job_queued END) AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select) 
+	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, job_active, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_queued IS NOT NULL AND job_active IS NULL) t1 WHERE t1.tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select)
+	job_active=$(echo "SELECT job_active AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select)
+	job_available=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active IS NOT NULL" | /opt/UIT-TSS-TOOLBOX/select)
 }
 
 function department {
-	sqlDepartment=$(echo "SELECT department AS result FROM departments WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	sqlDepartment=$(echo "SELECT department AS result FROM departments WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
 }
 
 DATE=$(date --iso)
@@ -138,88 +138,88 @@ function diskData {
 	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
 		if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
 			DISK="$i"
-			echo "general|disk|${DISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk|${DISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		fi
 
 		if [[ $DISK =~ $NVME_REGEX ]]; then
 		diskModel=$(cat /root/smartctl-data | grep '^Model Number: ' | sed 's/Model Number: *//g')
-			echo "general|disk_model|${diskModel}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_model|${diskModel}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskSerial=$(cat /root/smartctl-data | grep '^Serial Number: ' | sed 's/Serial Number: *//g')
-			echo "general|disk_serial|${diskSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_serial|${diskSerial}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
-			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/[^0-9]//g')
-			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_temp|${diskTemp}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $4}') / 1000000000 ))
-			echo "general|disk_size|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_size|${diskSize}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/,//g' | awk '{print $4}')
-			echo "general|disk_reads|${diskReadsLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_reads|${diskReadsLBA}|${UUID}|nvme" | /opt/UIT-TSS-TOOLBOX/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
-			echo "general|disk_writes|${diskWritesLBA}|${UUID}|nvme" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_writes|${diskWritesLBA}|${UUID}|nvme" | /opt/UIT-TSS-TOOLBOX/parse
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '^Power On Hours: ' | awk '{print $4}' | sed 's/,//g')
-			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskPowerCycles=$(cat /root/smartctl-data | grep '^Power Cycles: ' | awk '{print $3}' | sed 's/,//g')
-			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskType=nvme
-			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_type|${diskType}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		# Disk errors
 		diskGenericErr=$(cat /root/smartctl-data | grep 'Error Information Log Entries:' | awk '{print $5}' | sed 's/,//g')
 		diskDataErr=$(cat /root/smartctl-data | grep 'Media and Data Integrity Errors:' | awk '{print $6}' | sed 's/,//g')
 
 		diskErrors=$(( diskGenericErr + diskDataErr ))
-			echo "general|disk_errors|${diskErrors}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_errors|${diskErrors}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		fi
 
 		if [[ $DISK =~ $SSD_REGEX ]]; then
 		diskModel=$(cat /root/smartctl-data | grep '^Device Model: ' | sed 's/Device Model: *//g')
-			echo "general|disk_model|${diskModel}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_model|${diskModel}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskSerial=$(cat /root/smartctl-data | grep '^Serial Number: ' | sed 's/Serial Number: *//g')
-			echo "general|disk_serial|${diskSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_serial|${diskSerial}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
-			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskTemp=$(cat /root/smartctl-data | grep '194 Temperature_Celsius' | awk '{print $10}')
-			echo "general|disk_temp|${diskTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_temp|${diskTemp}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep '^User Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
-			echo "general|disk_size|${diskSize}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_size|${diskSize}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 		# Disk reads
 		diskReadsGiB=$(cat /root/smartctl-data | grep '242 Total_Reads_GiB' | awk '{print $10}')
 		if [[ -n $diskReadsGiB ]]; then
-			echo "general|disk_reads|${diskReadsGiB}|${UUID}|sata|gib" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_reads|${diskReadsGiB}|${UUID}|sata|gib" | /opt/UIT-TSS-TOOLBOX/parse
 		fi
 
 		diskReadsLBA=$(cat /root/smartctl-data | grep '242 Total_LBAs_Read' | awk '{print $10}')
 		if [[ -n $diskReadsLBA ]]; then
-			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /opt/UIT-TSS-TOOLBOX/parse
 		fi
 
 		# Disk writes
 		diskWritesGiB=$(cat /root/smartctl-data | grep '241 Total_Writes_GiB' | awk '{print $10}')
 		if [[ -n $diskWritesGiB ]]; then
-			echo "general|disk_writes|${diskWritesGiB}|${UUID}|sata|gib" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_writes|${diskWritesGiB}|${UUID}|sata|gib" | /opt/UIT-TSS-TOOLBOX/parse
 		fi
 		
 		diskWritesLBA=$(cat /root/smartctl-data | grep '241 Total_LBAs_Written' | awk '{print $10}')
 		if [[ -n $diskWritesLBA ]]; then
-			echo "general|disk_writes|${diskWritesLBA}|${UUID}|sata" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_writes|${diskWritesLBA}|${UUID}|sata" | /opt/UIT-TSS-TOOLBOX/parse
 		fi
 
 		diskType=$(lsblk --nodeps --output NAME,ROTA | grep -i "${DISK}"  | awk '{ print $2 }' | tail -n 1)
-			echo "general|disk_type|${diskType}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_type|${diskType}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 			if [[ $diskType == "1" ]]; then
 				diskType="hdd"
 				else
 				diskType="ssd"
 			fi
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '9 Power_On_Hours' | awk '{print $10}')
-			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 		diskPowerCycles=$(cat /root/smartctl-data | grep '12 Power_Cycle_Count' | awk '{print $10}' | sed 's/,//g')
-			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 		# Disk errors
 		diskErrors=$(cat /root/smartctl-data | grep 'ATA Error Count:' | awk '{print $4}' | sed 's/,//g')
-			echo "general|disk_errors|${diskErrors}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_errors|${diskErrors}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		fi
 	done
 }
@@ -228,55 +228,55 @@ function diskData {
 function systemData {
 	# WiFi MAC Address
 	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
-	echo "system_data|${tagNum}|wifi_mac|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|wifi_mac|${wifiMac}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# System Model Name
 	tOneProductName=$(dmidecode --string system-product-name)
-	echo "system_data|${tagNum}|system_model|${tOneProductName}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|system_model|${tOneProductName}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# System UUID
 	tOneUUID=$(dmidecode --string system-uuid)
-	echo "system_data|${tagNum}|system_uuid|${tOneUUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|system_uuid|${tOneUUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# System SKU
 	tOneSKU=$(dmidecode --string system-sku-number)
-	echo "system_data|${tagNum}|system_sku|${tOneSKU}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|system_sku|${tOneSKU}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# Chassis Type
 	tThreeType=$(dmidecode --string chassis-type | head -n1)
-	echo "system_data|${tagNum}|chassis_type|${tThreeType}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|chassis_type|${tThreeType}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# CPU Manufacturer
 	tFourManufacturer=$(dmidecode --string processor-manufacturer)
-	echo "system_data|${tagNum}|cpu_manufacturer|${tFourManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_manufacturer|${tFourManufacturer}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# CPU Model
 	tFourVersion=$(dmidecode --string processor-version)
-	echo "system_data|${tagNum}|cpu_model|${tFourVersion}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_model|${tFourVersion}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# CPU Max Speed
 	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/[^0-9]//g')
-	echo "system_data|${tagNum}|cpu_maxspeed|${tFourMaxSpeed}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_maxspeed|${tFourMaxSpeed}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# CPU Core Count
 	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //g' | sed 's/^[[:space:]]*//g')
-	echo "system_data|${tagNum}|cpu_cores|${tFourCoreCount}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_cores|${tFourCoreCount}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# CPU Thread Count
 	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
-	echo "system_data|${tagNum}|cpu_threads|${tFourThreadCount}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_threads|${tFourThreadCount}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# Motherboard Manufacturer
 	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
-	echo "system_data|${tagNum}|motherboard_manufacturer|${tTwoManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|motherboard_manufacturer|${tTwoManufacturer}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# Motherboard Serial
 	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
-	echo "system_data|${tagNum}|motherboard_serial|${tTwoSerialNumber}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|motherboard_serial|${tTwoSerialNumber}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	# System Manufacturer
 	tOneManufacturer=$(dmidecode --string system-manufacturer)
-	echo "system_data|${tagNum}|system_manufacturer|${tOneManufacturer}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|system_manufacturer|${tOneManufacturer}" | /opt/UIT-TSS-TOOLBOX/parse
 }
 
 function hardwareData {
@@ -322,7 +322,7 @@ EOF
 echo "${RESET}"
 echo "${BOLD}Inputting data into database...${RESET}"
 fi
-	echo "general|host_connected|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "general|host_connected|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	### DMI Data
 	#t0 = BIOS
 	#t1 = system
@@ -332,13 +332,13 @@ fi
 	#t22 = Battery
 	#t32 = Boot Status
 	tZeroBiosVersion=$(dmidecode --string bios-version)
-		echo "general|bios_version|${tZeroBiosVersion}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|bios_version|${tZeroBiosVersion}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	tZeroBiosReleaseDate=$(dmidecode --string bios-release-date)
-		echo "general|bios_date|${tZeroBiosReleaseDate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|bios_date|${tZeroBiosReleaseDate}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	tZeroFirmwareRevision=$(dmidecode --string firmware-revision)
-		echo "general|bios_firmware|${tZeroFirmwareRevision}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|bios_firmware|${tZeroFirmwareRevision}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	tOneSerialNumber=$(dmidecode --string system-serial-number)
-		echo "general|system_serial|${tOneSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|system_serial|${tOneSerialNumber}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	###Disk Data
 	diskData
@@ -348,16 +348,16 @@ fi
 		batChargeNow=$(cat /sys/class/power_supply/BAT0/charge_full)
 		batChargeFactory=$(cat /sys/class/power_supply/BAT0/charge_full_design)
 		batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
-			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		batChargeCycles=$(cat /sys/class/power_supply/BAT0/cycle_count)
-			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	elif [[ -f /sys/class/power_supply/BAT1/energy_full_design ]]; then
 		batChargeNow=$(cat /sys/class/power_supply/BAT1/energy_full)
 		batChargeFactory=$(cat /sys/class/power_supply/BAT1/energy_full_design)
 		batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
-			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		batChargeCycles=$(cat /sys/class/power_supply/BAT1/cycle_count)
-			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	fi
 	
 	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
@@ -368,10 +368,10 @@ fi
 			tTwentyTwoName=$(cat /sys/class/power_supply/BAT1/model_name)
 		fi
 	fi
-		echo "general|battery_model|${tTwentyTwoName}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_model|${tTwentyTwoName}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	
 	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/[^0-9]//g')
-		echo "general|battery_capacity|${tTwentyTwoCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_capacity|${tTwentyTwoCapacity}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
 	if [[ -z $tTwentyTwoSerialNumber ]]; then
@@ -381,29 +381,29 @@ fi
 			tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
 		fi
 	fi
-		echo "general|battery_serial|${tTwentyTwoSerialNumber}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_serial|${tTwentyTwoSerialNumber}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|battery_manufacturedate|${tTwentyTwoManufactureDate}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_manufacturedate|${tTwentyTwoManufactureDate}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	###Memory Data
 	memSerial=$(dmidecode --type memory | grep -P '\tSerial Number' | sed 's/Serial Number: //g' | tr '\n' ' ' | tr '\t' ' ' | sed 's/ Not Specified //g' | sed 's/^ //g' | tr ' ' '-' | sed 's/-$//g')
-		echo "general|ram_serial|${memSerial}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|ram_serial|${memSerial}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	memCapacity=$(grep MemTotal /proc/meminfo | awk '{ print $2 }')
-		echo "general|ram_capacity|${memCapacity}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|ram_capacity|${memCapacity}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	memSpeed=$(dmidecode --type 17 | grep '^[[:space:]]*Speed\:' | head -n1 | sed 's/[^0-9]'//g)
-		echo "general|ram_speed|${memSpeed}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|ram_speed|${memSpeed}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	###Boot Times
 	bootTime=$(systemd-analyze | grep -oP '[0-9]+[0-9.]*' | head -n 1)
-		echo "general|boot_time|${bootTime}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|boot_time|${bootTime}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
 	###CPU Info
 	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
-		echo "general|cpu_temp|${cpuTemp}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "general|cpu_temp|${cpuTemp}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 
-	echo "system-stats|cpu|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-	echo "system-stats|network|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+	echo "system-stats|cpu|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system-stats|network|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 }
 
 function checkNetwork {
@@ -419,7 +419,7 @@ function enterTag {
 	tput reset
 	echo ""
 
-	tagNum=$(echo "SELECT tagnumber AS result FROM departments WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
+	tagNum=$(echo "SELECT tagnumber AS result FROM departments WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
 	if [[ $tagNum != "NULL" ]]; then
 		UUID=""
 		if [[ $sqlDepartment == "shrl" ]]; then
@@ -436,8 +436,8 @@ function enterTag {
 		fi
 
 		#sleep ${RANDOM::1}
-		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /var/lib/UIT-TSS-TOOLBOX/parse
-		echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /opt/UIT-TSS-TOOLBOX/parse
 		return
 	else
 		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
@@ -2039,7 +2039,7 @@ function autodetectClient {
 				echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
 				poweroff
 			elif [[ $job_queued == "fail-test" ]]; then
-				echo "remote|${tagNum}|status|fail - test" | /var/lib/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - test" | /opt/UIT-TSS-TOOLBOX/parse
 				resetForClientRestart
 			fi
 		else
@@ -2112,12 +2112,12 @@ function main {
 		else
 			diskSelect
 		fi
-			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
 		cloneImgName="TechCommons-HP-LaptopsLZ4"
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		linuxUser="cameron"
 		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
@@ -2132,12 +2132,12 @@ function main {
 		else
 			diskSelect
 		fi
-			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		cloneMode="restoredisk"
 		cloneImgName="TechCommons-Dell-Laptops"
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		linuxUser="cameron"
 		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
@@ -2148,10 +2148,10 @@ function main {
 		APPSELECT="E"
 		ACTION="erase"
 		diskSelect
-			echo "general|disk|${CLIENTDISK}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "general|erase_mode|${RMODE}|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "9" ]]; then
@@ -2168,7 +2168,7 @@ function main {
 		pkill --terminal tty1
 	fi
 	if [[ $unattended == "false" ]]; then
-		echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
 		terminate
 	fi
 }

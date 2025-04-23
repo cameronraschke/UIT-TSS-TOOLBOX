@@ -1,8 +1,8 @@
 #!/bin/bash
 while true; do
 serial=$(dmidecode --string system-serial-number)
-tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$serial' ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /var/lib/UIT-TSS-TOOLBOX/parse
+tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$serial' ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /opt/UIT-TSS-TOOLBOX/parse
 
 if [[ -d /sys/class/power_supply/BAT0 ]]; then
     batCharge=0
@@ -15,11 +15,11 @@ elif [[ -d /sys/class/power_supply/BAT1 ]]; then
 else
     batCharge="0"
 fi
-echo "remote|${tagNum}|battery_charge|${batCharge}" | /var/lib/UIT-TSS-TOOLBOX/parse
-echo "remote|${tagNum}|battery_status|${batStatus}" | /var/lib/UIT-TSS-TOOLBOX/parse
+echo "remote|${tagNum}|battery_charge|${batCharge}" | /opt/UIT-TSS-TOOLBOX/parse
+echo "remote|${tagNum}|battery_status|${batStatus}" | /opt/UIT-TSS-TOOLBOX/parse
 
 cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
-echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /var/lib/UIT-TSS-TOOLBOX/parse
+echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /opt/UIT-TSS-TOOLBOX/parse
 
 if [[ -d /sys/class/nvme/nvme0/hwmon2 ]]; then
     diskTemp=0
@@ -30,7 +30,7 @@ if [[ -d /sys/class/nvme/nvme0/hwmon2 ]]; then
     if [[ -f /sys/class/nvme/nvme0/hwmon2/temp1_max ]]; then
         diskMax=$(cat /sys/class/nvme/nvme0/hwmon2/temp1_max)
     fi
-    echo "remote|${tagNum}|disk_temp|${diskTemp}|${diskMax}" | /var/lib/UIT-TSS-TOOLBOX/parse
+    echo "remote|${tagNum}|disk_temp|${diskTemp}|${diskMax}" | /opt/UIT-TSS-TOOLBOX/parse
 fi
 
 if [[ -d /sys/class/powercap ]]; then
@@ -47,34 +47,34 @@ if [[ -d /sys/class/powercap ]]; then
         second=$(( n + i ))
     done
 
-    echo "remote|${tagNum}|watts_now|${first}|${second}" | /var/lib/UIT-TSS-TOOLBOX/parse
+    echo "remote|${tagNum}|watts_now|${first}|${second}" | /opt/UIT-TSS-TOOLBOX/parse
 fi
 
 for i in $(ls /lib/modules); do
     echo "${i}" | grep -i --quiet "$(uname -r)"
     if [[ ${PIPESTATUS[1]} == "0" ]]; then
-        echo "remote|${tagNum}|kernel_updated|1" | /var/lib/UIT-TSS-TOOLBOX/parse
+        echo "remote|${tagNum}|kernel_updated|1" | /opt/UIT-TSS-TOOLBOX/parse
         break
     else
-        echo "remote|${tagNum}|kernel_updated|" | /var/lib/UIT-TSS-TOOLBOX/parse
+        echo "remote|${tagNum}|kernel_updated|" | /opt/UIT-TSS-TOOLBOX/parse
     fi
 done
 
-if [[ $(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
-    echo "remote|${tagNum}|job_queued|" | /var/lib/UIT-TSS-TOOLBOX/parse
-    echo "remote|${tagNum}|job_active|" | /var/lib/UIT-TSS-TOOLBOX/parse
-    echo "remote|${tagNum}|status|fail - Job cancelled :(" | /var/lib/UIT-TSS-TOOLBOX/parse
-    UUID=$(echo "SELECT uuid AS 'result' FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = 1 ORDER BY time DESC LIMIT 1" | /var/lib/UIT-TSS-TOOLBOX/select)
-    echo "general|erase_completed||${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
-    echo "general|clone_completed||${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
+if [[ $(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
+    echo "remote|${tagNum}|job_queued|" | /opt/UIT-TSS-TOOLBOX/parse
+    echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
+    echo "remote|${tagNum}|status|fail - Job cancelled :(" | /opt/UIT-TSS-TOOLBOX/parse
+    UUID=$(echo "SELECT uuid AS 'result' FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = 1 ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+    echo "general|erase_completed||${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+    echo "general|clone_completed||${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
     pkill --terminal tty1
 fi
 
 #Network link speed
 for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
     netSpeed=$(cat /sys/class/net/${i}/speed 2>/dev/null)
-    if [[ $netSpeed != $(echo "SELECT network_speed AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /var/lib/UIT-TSS-TOOLBOX/select) ]]; then
-        echo "remote|${tagNum}|network_speed|$netSpeed" | /var/lib/UIT-TSS-TOOLBOX/parse
+    if [[ $netSpeed != $(echo "SELECT network_speed AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select) ]]; then
+        echo "remote|${tagNum}|network_speed|$netSpeed" | /opt/UIT-TSS-TOOLBOX/parse
     fi
 done
 
@@ -94,6 +94,6 @@ fi
 
 elapsed=$(( elapsed + 5 ))
 echo "$elapsed" > /root/uptime
-echo "remote|${tagNum}|uptime|$elapsed" | /var/lib/UIT-TSS-TOOLBOX/parse
+echo "remote|${tagNum}|uptime|$elapsed" | /opt/UIT-TSS-TOOLBOX/parse
 
 done
