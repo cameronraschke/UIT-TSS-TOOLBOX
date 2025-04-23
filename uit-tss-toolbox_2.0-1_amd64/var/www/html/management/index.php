@@ -91,20 +91,14 @@ $db = new db();
                 var data = google.visualization.arrayToDataTable([ ['OS Status', 'Client Count'],
                 <?php
                 $db->select("SELECT 
-                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats LEFT JOIN remote ON os_stats.tagnumber = remote.tagnumber INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON os_stats.tagnumber = t1.tagnumber WHERE remote.present_bool IS NULL AND os_stats.os_installed = 1)
-                        AS 'os_installed_not_present',
-                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats LEFT JOIN remote ON os_stats.tagnumber = remote.tagnumber INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON os_stats.tagnumber = t1.tagnumber WHERE remote.present_bool IS NULL AND os_stats.os_installed IS NULL)
-                        AS 'os_not_installed_not_present',
-                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats LEFT JOIN remote ON os_stats.tagnumber = remote.tagnumber INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON os_stats.tagnumber = t1.tagnumber WHERE remote.present_bool = 1 AND os_stats.os_installed = 1)
-                        AS 'os_installed_present',
-                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats LEFT JOIN remote ON os_stats.tagnumber = remote.tagnumber INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON os_stats.tagnumber = t1.tagnumber WHERE remote.present_bool = 1 AND os_stats.os_installed IS NULL)
-                        AS 'os_not_installed_present'");
+                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON os_stats.tagnumber = t1.tagnumber WHERE os_stats.os_installed = 1)
+                        AS 'os_installed',
+                    (SELECT COUNT(os_stats.tagnumber) FROM os_stats INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON os_stats.tagnumber = t1.tagnumber WHERE os_stats.os_installed IS NULL)
+                        AS 'os_not_installed'");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value) {
-                            echo "['OS NOT Installed, NOT online'," . htmlspecialchars($value["os_not_installed_not_present"]) . "], ";
-                            echo "['OS NOT Installed, online'," . htmlspecialchars($value["os_not_installed_present"]) . "], ";
-                            echo "['OS Installed, NOT online'," . htmlspecialchars($value["os_installed_not_present"]) . "], ";
-                            echo "['OS Installed, online'," . htmlspecialchars($value["os_installed_present"]) . "], ";
+                            echo "['OS Installed'," . htmlspecialchars($value["os_installed"]) . "], ";
+                            echo "['OS NOT Installed'," . htmlspecialchars($value["os_not_installed"]) . "], ";
                         }
                     }
                 ?>
