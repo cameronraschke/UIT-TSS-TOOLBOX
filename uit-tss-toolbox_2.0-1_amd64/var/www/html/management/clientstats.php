@@ -30,6 +30,7 @@ $db = new db();
                     <th>Tag Number</th>
                     <th>System Serial</th>
                     <th>System Model</th>
+                    <th>Location</th>
                     <th>Last Job</th>
                     <th>Battery Health</th>
                     <th>Disk Health</th>
@@ -42,28 +43,37 @@ $db = new db();
                 </thead>
                 <tbody>
 <?php
-if (isset($_GET["system_model"])) {
-    $db->Pselect("SELECT clientstats.tagnumber, clientstats.system_serial, clientstats.system_model, 
-            IF (clientstats.last_job_time LIKE '%00:00:00', DATE_FORMAT(clientstats.last_job_time, '%b %D %Y'), 
-            DATE_FORMAT(clientstats.last_job_time, '%m/%d/%y, %r')) AS 'last_job_time', 
-            clientstats.battery_health, clientstats.disk_health, clientstats.disk_type, IF (bios_stats.bios_updated = '1', 'Yes', 'No') AS 'bios_updated', 
-            clientstats.erase_avgtime, clientstats.clone_avgtime, clientstats.all_jobs 
-        FROM clientstats 
-        LEFT JOIN bios_stats ON clientstats.tagnumber = bios_stats.tagnumber
-        WHERE clientstats.tagnumber IS NOT NULL 
-            AND clientstats.system_model = :systemmodel 
-            ORDER BY clientstats.tagnumber ASC", array(':systemmodel' => htmlspecialchars_decode($_GET["system_model"])));
-} else {
-    $db->select("SELECT clientstats.tagnumber, clientstats.system_serial, clientstats.system_model, 
+unset($sqlArr);
+unset($sql);
+$sql = "SELECT clientstats.tagnumber, clientstats.system_serial, clientstats.system_model, 
             IF (clientstats.last_job_time LIKE '%00:00:00', DATE_FORMAT(clientstats.last_job_time, '%b %D %Y'), 
             DATE_FORMAT(clientstats.last_job_time, '%m/%d/%y, %r')) AS 'last_job_time', clientstats.battery_health, 
             clientstats.disk_health, clientstats.disk_type, IF (bios_stats.bios_updated = '1', 'Yes', 'No') AS 'bios_updated', 
-            clientstats.erase_avgtime, clientstats.clone_avgtime, clientstats.all_jobs 
+            clientstats.erase_avgtime, clientstats.clone_avgtime, clientstats.all_jobs, locationFormatting(locations.location) AS 'location_formatted' 
         FROM clientstats 
         LEFT JOIN bios_stats ON clientstats.tagnumber = bios_stats.tagnumber
-        WHERE clientstats.tagnumber IS NOT NULL 
-        ORDER BY clientstats.tagnumber ASC");
+        LEFT JOIN locations ON (locations.tagnumber = clientstats.tagnumber AND locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber))
+        WHERE clientstats.tagnumber IS NOT NULL ";
+
+
+if (isset($_GET["system_model"])) {
+    $sql .= "AND clientstats.system_model = :systemmodel ";
+    $sqlArr[":systemmodel"] = $_GET["system_model"];
 }
+
+if (isset($_GET["location"])) {
+    $sql .= "AND locations.location = :location ";
+    $sqlArr[":location"] = $_GET["location"];
+}
+
+$sql .= "ORDER BY clientstats.tagnumber ASC";
+
+if (isset($sqlArr)) {
+    $db->Pselect($sql, $sqlArr);
+} else {
+    $db->select($sql);
+}
+
 if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
         echo "<tr>" . PHP_EOL;
@@ -114,6 +124,9 @@ if (arrFilter($db->get()) === 0) {
             echo "<b><a href='/clientstats.php?system_model=" . htmlspecialchars($value["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
         }
         echo "</td>" . PHP_EOL;
+
+        // location
+        echo "<td><b><a href='/clientstats.php?location=" . htmlspecialchars($value["location_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["location_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
 
         //last_job_time
         echo "<td>";

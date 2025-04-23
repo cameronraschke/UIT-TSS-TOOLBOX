@@ -201,6 +201,7 @@ unset($_POST);
   t5.identifier, t5.recovery_key, 
   CONCAT(clientstats.battery_health, '%') AS 'battery_health', CONCAT(clientstats.disk_health, '%') AS 'disk_health', 
   CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
+  clientstats.all_jobs, 
   DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
   remote.kernel_updated, CONCAT(remote.network_speed, ' mbps') AS 'network_speed', bios_stats.bios_updated, 
   IF (bios_stats.bios_updated = 1, CONCAT('Updated ', '(', bios_stats.bios_version, ')'), CONCAT('Out of date ', '(', bios_stats.bios_version, ')')) AS 'bios_updated_formatted', 
@@ -568,6 +569,7 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
         <table width='100%''>
             <thead>
                 <tr>
+                <th>Total Jobs</th>
                 <th>Erase Avg. Time</th>
                 <th>Clone Avg. Time</th>
                 <th>Battery Health</th>
@@ -581,6 +583,7 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
             <tbody>";
             foreach ($sqlArr as $key => $value) {
               echo "<tr>" . PHP_EOL;
+              echo "<td>" . htmlspecialchars($value['all_jobs'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
               echo "<td>" . htmlspecialchars($value['erase_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
               echo "<td>" . htmlspecialchars($value['clone_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
               echo "<td>" . htmlspecialchars($value['battery_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;

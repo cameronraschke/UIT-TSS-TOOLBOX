@@ -573,7 +573,7 @@ if (isset($_GET["order_by"])) {
 }
 
 // Do the query
-if (isset($_GET["location"]) || isset($_GET["system_model"]) || isset($_GET["department"])) {
+if (isset($sqlArr)) {
   $db->Pselect($sql, $sqlArr);
 } else {
   $db->select($sql);
