@@ -480,7 +480,7 @@ INSERT INTO static_departments (
   ('execSupport', 'Exec. Support', 'Kevin Vu', 1),
   ('shrl', 'SHRL', 'Alex Tran', 1),
   ('pre-property', 'Pre-Property', 'Matthew Harvey', 0),
-  ('o365', 'Office 365', 'Andy Moon', 0)
+  ('o365', 'Office 365', 'Andy Moon', 0),
   ('property', 'Property', 'Unknown', 0)
 ;
 
