@@ -78,7 +78,7 @@ $db = new db();
                 ?>
                 ]);
 
-                var options = {title: 'Avg. Clone and Erase Time', hAxis: {title: 'Date'}, vAxis: {title: 'Time (minutes)'}, legend: 'none'  };
+                var options = {title: 'Avg. Clone and Erase Time', hAxis: {title: 'Date'}, vAxis: {title: 'Time (minutes)'}, legend: 'none', colors: ['#f1ca3a', '#6f9654']  };
                 var chart = new google.visualization.LineChart(document.getElementById('jobTimes'));
                 chart.draw(data, options);
             }
@@ -104,7 +104,7 @@ $db = new db();
                 ?>
                 ]);
 
-                var options = {title: 'Number of OS\'s Installed' };
+                var options = {title: 'Number of OS\'s Installed', colors: ['#e7711b', '#6f9654'] };
                 var chart = new google.visualization.PieChart(document.getElementById('numberImaged'));
                 chart.draw(data, options);
             }
@@ -137,7 +137,7 @@ $db = new db();
                 ?>
                 ]);
 
-                var options = {title: 'Computers Joined to AD Domain' };
+                var options = {title: 'Computers Joined to AD Domain', colors: ['#1c91c0', '#43459d'] };
                 var chart = new google.visualization.PieChart(document.getElementById('numberJoinedDomain'));
                 chart.draw(data, options);
             }
@@ -169,7 +169,7 @@ $db = new db();
                 ?>
                 ]);
 
-                var options = {title: 'BIOS Status' };
+                var options = {title: 'BIOS Status', colors: ['#6f9654', '#1c91c0'] };
                 var chart = new google.visualization.PieChart(document.getElementById('biosUpdated'));
                 chart.draw(data, options);
             }

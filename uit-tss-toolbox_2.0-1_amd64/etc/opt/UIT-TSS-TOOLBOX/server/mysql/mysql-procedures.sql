@@ -576,3 +576,16 @@ ORDER BY location, tagnumber);
 
 END; //
 DELIMITER ;
+
+
+
+DROP PROCEDURE IF EXISTS selectNullTagnumbers;
+DELIMITER //
+CREATE PROCEDURE selectNullTagnumbers()
+DETERMINISTIC
+BEGIN
+
+select etheraddress, count(etheraddress) AS 'count' from jobstats where tagnumber is null group by etheraddress order by count asc;
+
+END; //
+DELIMITER ;
