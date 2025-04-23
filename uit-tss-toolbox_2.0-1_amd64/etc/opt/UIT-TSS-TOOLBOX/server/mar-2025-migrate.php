@@ -1,7 +1,7 @@
 #!/bin/php
 <?php
 // update image name on most recent entries
-include('/var/lib/UIT-TSS-TOOLBOX/include.php')
+include('/etc/opt/UIT-TSS-TOOLBOX/server/include.php')
 
 $db = new db();
 
@@ -19,7 +19,7 @@ $sql = "SELECT
 
 $db->select($sql);
 foreach ($db->get() as $key => $value) {
-    $db->updateJob->("clone_image", $value["image_name"], $value["uuid"]);
+    $db->updateJob("clone_image", $value["image_name"], $value["uuid"]);
 }
 
 

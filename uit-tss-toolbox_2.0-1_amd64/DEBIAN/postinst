@@ -2,60 +2,33 @@
 
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
-/usr/bin/chmod 750 /usr/sbin/shrl-*
-/usr/bin/chown root:uit /usr/sbin/shrl-*
-/usr/bin/chmod 750 /var/lib/UIT-TSS-TOOLBOX/ -R
-/usr/bin/chown root:uit /var/lib/UIT-TSS-TOOLBOX/ -R
+
+/usr/bin/chown root:uit /etc/opt/UIT-TSS-TOOLBOX -R
+find /etc/opt/UIT-TSS-TOOLBOX -type d -exec chmod 750 {} \;
+find /etc/opt/UIT-TSS-TOOLBOX -type f -exec chmod 660 {} \;
+
+/usr/bin/chown root:uit /var/www/html/management -R
+find /var/www/html/management -type d -exec chmod 750 {} \;
+find /var/www/html/management -type f -exec chmod 660 {} \;
+chmod 755 /var/www/html/management/bash/ -R
 
 echo -e "\n" >> /etc/cron.d/uit-cron
 
-cp -r /var/lib/UIT-TSS-TOOLBOX/uit-tss-client_2.0-1_amd64/ /home/cameron
+cp -r /etc/opt/UIT-TSS-TOOLBOX/client/uit-tss-client_2.0-1_amd64/ /home/cameron
 
 chown cameron:cameron /home/cameron/uit-tss-client_2.0-1_amd64/ -R
 chmod 755 /home/cameron/uit-tss-client_2.0-1_amd64/DEBIAN/ -R
 
-/usr/bin/chmod 750 /root/firewall
-/usr/bin/chown root:root /root/firewall
-/usr/bin/chmod 750 /root/startup-script
-/usr/bin/chown root:root /root/startup-script
+/usr/bin/chmod 750 /home/cameron/firewall
+/usr/bin/chown root:root /home/cameron/firewall
+/usr/bin/chmod 750 /home/cameron/startup-script
+/usr/bin/chown root:root /home/cameron/startup-script
 
 /usr/bin/chown nobody:nogroup /home/images -R
 
-mysql laptopDB < /var/lib/UIT-TSS-TOOLBOX/mysql/mysql-procedures.sql
-mysql laptopDB < /var/lib/UIT-TSS-TOOLBOX/mysql/mysql-tables.sql
+mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-procedures.sql
+mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
 
-# Dell Latitude 3460-3560
-if [[ ! -f /home/cameron/bios-update/Latitude_3460_3560_A19.exe ]]; then
-    wget 'https://dl.dell.com/FOLDER06742651M/1/Latitude_3460_3560_A19.exe' --output-file /home/cameron/bios-update/Latitude_3460_3560_A19.exe
-fi
-if [[ $(md5sum /home/cameron/bios-update/Latitude_3460_3560_A19.exe | awk '{ print $1 }') != '25baa799bb9216da1ab3ee598d77f0f8' ]]; then
-    echo "CHECKSUM FAILED: Latitude_3460_3560_A19.exe"
-fi
-
-# Dell Latitude 3400-3500
-if [[ ! -f /home/cameron/bios-update/Latitude_3400_3500_1.32.0.exe ]]; then
-    wget 'https://dl.dell.com/FOLDER11354435M/1/Latitude_3400_3500_1.32.0.exe' --output-file /home/cameron/bios-update/Latitude_3400_3500_1.32.0.exe
-fi
-if [[ $(md5sum /home/cameron/bios-update/Latitude_3400_3500_1.32.0.exe | awk '{ print $1 }') != '7de02a186e9167159064f27f07cd92a4' ]]; then
-    echo "CHECKSUM FAILED: Latitude_3400_3500_1.32.0.exe"
-fi
-
-# Dell Latitude 7X00
-if [[ ! -f /home/cameron/bios-update/Latitude_7X00_1.34.0.exe ]]; then
-    wget 'https://dl.dell.com/FOLDER11469357M/1/Latitude_7X00_1.34.0.exe' --output-file /home/cameron/bios-update/Latitude_7X00_1.34.0.exe
-fi
-if [[ $(md5sum /home/cameron/bios-update/Latitude_7X00_1.34.0.exe | awk '{ print $1 }') != 'af5a3c0e14b91af6e6d41e1a19d6379d' ]]; then
-    echo "CHECKSUM FAILED: Latitude_7X00_1.34.0.exe"
-fi
-
-# ln --force --symbolic /usr/sbin/uit-sql-refresh-server /var/www/html/management/uit-sql-refresh-server
-# ln --force --symbolic /usr/sbin/uit-sql-refresh-client /var/www/html/management/uit-sql-refresh-client
-# ln --force --symbolic /usr/sbin/uit-sql-refresh-location /var/www/html/management/uit-sql-refresh-location
-# ln --force --symbolic /usr/sbin/uit-sql-refresh-remote /var/www/html/management/uit-sql-refresh-remote
-
-# ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/mysql-functions /var/www/html/management/mysql-functions
-# ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/parse /var/www/html/management/parse
-# ln --force --symbolic /var/lib/UIT-TSS-TOOLBOX/select /var/www/html/management/select
 
 if [[ ! -f /var/www/html/management/favicon.ico ]]; then
     wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico
@@ -70,8 +43,3 @@ rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/management/imag
 rsync -Pav --delete /home/cameron/jquery /var/www/html/management/
 
 rsync -Pav --delete /home/cameron/google-charts /var/www/html/management/
-
-find /var/www/html/management/ -type f -exec chmod 644 {} \;
-find /var/www/html/management/ -type d -exec chmod 755 {} \;
-
-chmod 755 /var/www/html/management/bash/ -R

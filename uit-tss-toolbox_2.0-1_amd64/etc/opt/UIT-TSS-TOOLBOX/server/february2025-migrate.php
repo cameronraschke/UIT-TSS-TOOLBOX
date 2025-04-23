@@ -2,7 +2,7 @@
 <?php
 // Migrate department date to a new table called "departments" and rename the current departments table to static_departments
 
-include("/var/lib/UIT-TSS-TOOLBOX/include.php");
+include("/etc/opt/UIT-TSS-TOOLBOX/server/include.php");
 
 $db = new db();
 

@@ -443,7 +443,7 @@ INSERT INTO static_tags (
     owner,
     department
 ) VALUES 
-    ('laptop-program', 'Laptop Program', 'Matthew Harvey', 'techComm')
+    ('laptop-program', 'Laptop Program', 'Matthew Harvey', 'techComm'),
     ('checked-in', 'Checked In', 'Matthew Harvey', 'techComm'),
     ('checked-out', 'Checked Out', 'Matthew Harvey', 'techComm'),
     ('stolen', 'Stolen/Missing', 'Matthew Harvey', 'techComm'),

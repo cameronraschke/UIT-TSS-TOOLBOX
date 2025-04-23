@@ -26,7 +26,7 @@ coproc uit_sql { uit-sql 2>/dev/null; }
 
 umount /home/partimag 2>/dev/null
 
-scp -r cameron@mickey.uit:/home/cameron/sounds/findmy1.mp3 /root &>/dev/null
+#scp -r cameron@mickey.uit:/home/cameron/sounds/findmy1.mp3 /root &>/dev/null
 
 echo ""
 echo "${BOLD}Changing font...${RESET}"
@@ -43,8 +43,8 @@ maxBrightness=$(cat /sys/class/backlight/*/max_brightness)
 echo "${maxBrightness}" > /sys/class/backlight/*/brightness 2>/dev/null
 echo "${GREEN}Done.${RESET}"
 
-# echo ""
-# echo "${BOLD}Configuring networking....${RESET}"
+echo ""
+echo "${BOLD}Configuring networking....${RESET}"
 # sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
 # sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
 # sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
@@ -321,7 +321,6 @@ cat <<'EOF'
 EOF
 echo "${RESET}"
 echo "${BOLD}Inputting data into database...${RESET}"
-sleep 0.1
 fi
 	echo "general|host_connected|1|${UUID}" | /var/lib/UIT-TSS-TOOLBOX/parse
 	### DMI Data

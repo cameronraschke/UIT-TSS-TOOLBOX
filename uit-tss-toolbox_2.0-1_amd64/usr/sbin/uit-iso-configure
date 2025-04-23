@@ -19,7 +19,7 @@ function confirmDelete {
 confirmDelete
 
 apt purge live-build -y
-wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20240810_all.deb \
+wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20250225_all.deb \
 	--output-document=/tmp/debian-live.deb
 apt install /tmp/debian-live.deb -y
 
@@ -230,9 +230,6 @@ mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
 --output-document=/opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/oven.mp3
 
-#mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.binary/
-#cp -rv /home/cameron/bios-update/* /opt/UIT-TSS-TOOLBOX/config/includes.binary/
-
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root
 touch /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
 cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
@@ -274,7 +271,7 @@ echo "${GREEN}Done.${RESET}"
 echo ""
 echo "${BOLD}Installing the client package${RESET}"
 while [[ ! -d /root/uit-tss-client_2.0-1_amd64/ ]]; do
-	scp -r cameron@mickey.uit:/home/cameron/uit-tss-client_2.0-1_amd64 /root &>/dev/null
+	scp -r cameron@mickey.uit:/etc/opt/UIT-TSS-TOOLBOX/client/uit-tss-client_2.0-1_amd64 /root &>/dev/null
 	sleep 1
 done
 chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control

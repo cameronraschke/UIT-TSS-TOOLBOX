@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
-include('/var/lib/UIT-TSS-TOOLBOX/include.php');
+include('/etc/opt/UIT-TSS-TOOLBOX/server/include.php');
 
 $stdin = fopen('php://stdin', 'r');
 $input = trim(fgets(STDIN));
