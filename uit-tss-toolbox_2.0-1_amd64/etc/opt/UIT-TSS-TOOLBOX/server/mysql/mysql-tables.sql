@@ -458,7 +458,7 @@ INSERT INTO static_tags (
 
 CREATE TABLE IF NOT EXISTS tags (
     tagnumber VARCHAR(128) NOT NULL,
-    tag VARCHAR(128) NOT NULL,
+    tag VARCHAR(128) NOT NULL
 );
 
 
