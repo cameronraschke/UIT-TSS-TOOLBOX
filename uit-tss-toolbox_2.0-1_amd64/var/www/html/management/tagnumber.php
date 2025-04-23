@@ -179,6 +179,7 @@ unset($_POST);
   // Get most client data - main sql query
   unset($sql);
   $sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
+  IF (t3.time = t10.time, 1, 0) AS 'placeholder_bool',
   jobstats.time AS 'jobstatsTime', locations.tagnumber, locations.system_serial, t1.department, 
   locationFormatting(locations.location) AS 'location', 
   IF(locations.status = 1, 'Broken', 'Yes') AS 'status_formatted', locations.status AS 'locations_status', t2.department_readable, t3.note AS 'most_recent_note',
@@ -450,7 +451,10 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
 	if (strFilter($value["most_recent_note"]) === 0 && $value["locations_status"] === 1) {
 		echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
 		echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
-	} elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1) {
+  } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] === 1)  {
+		echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
+		echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
+	} elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] !== 1) {
 		echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
 		echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
 	} else {
