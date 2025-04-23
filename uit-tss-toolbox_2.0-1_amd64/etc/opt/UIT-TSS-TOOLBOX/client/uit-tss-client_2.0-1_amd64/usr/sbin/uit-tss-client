@@ -20,8 +20,8 @@ echo "0" > /root/uptime
 echo "0" > /tmp/cpu-usage.txt
 echo "0" > /tmp/network-usage.txt
 
-coproc uit_cpu { uit-cpu-stats 2>/dev/null; }
-coproc uit_network { uit-network-stats 2>/dev/null; }
+coproc uit_cpu { uit-cpu 2>/dev/null; }
+coproc uit_network { uit-network 2>/dev/null; }
 coproc uit_sql { uit-sql 2>/dev/null; }
 
 umount /home/partimag 2>/dev/null
@@ -87,6 +87,9 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Running disk checks....${RESET}"
+if [[ -f /root/smartctl-data ]]; then
+	rm /root/smartctl-data
+fi
 for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
 	if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
 		smartctl -t short -a /dev/${i} > /root/smartctl-data
