@@ -11,8 +11,6 @@ if [[ -d /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64 ]]; then
   dpkg --purge uit-toolbox
 fi
 
-rm -r /tmp/UIT-TSS-TOOLBOX/
-
 chmod 755 /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64/DEBIAN/postinst
 dpkg-deb --build /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64/ /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64.deb
 dpkg --install /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64.deb
