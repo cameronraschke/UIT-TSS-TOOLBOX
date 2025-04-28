@@ -6,9 +6,9 @@ if [[ "$EUID" > 0 ]]
 fi
 
 function confirmDelete {
-    read -p "Are you sure you want to delete the old directory and unmount /var/www/html/live? [y/n]: " CONFIRM
+    read -p "Are you sure you want to delete the old directory and unmount /srv/UIT-TSS-TOOLBOX/client/iso? [y/n]: " CONFIRM
     if [[ $CONFIRM == "y" ]]; then
-		umount /var/www/html/live
+		umount /srv/UIT-TSS-TOOLBOX/client/iso
         return
     elif [[ $CONFIRM == "n" ]]; then
         exit 1
@@ -44,7 +44,7 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 			--archive-areas 'main contrib non-free non-free-firmware' \
 			--binary-filesystem fat32 \
 			--binary-images iso-hybrid \
-			--bootappend-live "fetch=10.0.0.1/live/live/filesystem.squashfs \
+			--bootappend-live "fetch=10.0.0.1/iso/filesystem.squashfs \
  				boot=live toram username=root hostname=UIT-TSS-CLIENT \
 				timezone=America/Chicago locales=en_US.UTF-8" \
 			--bootloaders "grub-efi syslinux" \
@@ -270,14 +270,10 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Installing the client package${RESET}"
-while [[ ! -d /root/uit-tss-client_2.0-1_amd64/ ]]; do
-	scp -r cameron@mickey.uit:/etc/opt/UIT-TSS-TOOLBOX/client/uit-tss-client_2.0-1_amd64 /root &>/dev/null
+while [[ ! -f /root/uit-tss-client_2.0-1_amd64.deb ]]; do
+	curl http://mickey.uit/client/pkg/uit-tss-client_2.0-1_amd64.deb --output /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 	sleep 1
 done
-chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/control
-chmod 755 /root/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
-dpkg-deb --build --root-owner-group /root/uit-tss-client_2.0-1_amd64 &>/dev/null
-dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 echo "${GREEN}Done.${RESET}"
 
 /usr/sbin/uit-tss-client
@@ -288,5 +284,5 @@ lb build)
 
 rm /tmp/debian-live.deb
 
-umount /var/www/html/live
-mount /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso /var/www/html/live
+umount /srv/UIT-TSS-TOOLBOX/client/iso
+mount /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso /srv/UIT-TSS-TOOLBOX/client/iso
