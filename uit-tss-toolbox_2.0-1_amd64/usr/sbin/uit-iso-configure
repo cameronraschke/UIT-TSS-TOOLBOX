@@ -6,7 +6,7 @@ if [[ "$EUID" > 0 ]]
 fi
 
 function confirmDelete {
-    read -p "Are you sure you want to delete the old directory and unmount /srv/UIT-TSS-TOOLBOX/client/iso? [y/n]: " CONFIRM
+    read -p "Are you sure you want to unmount /srv/UIT-TSS-TOOLBOX/client/iso? [y/n]: " CONFIRM
     if [[ $CONFIRM == "y" ]]; then
 		umount /srv/UIT-TSS-TOOLBOX/client/iso
         return
@@ -27,8 +27,10 @@ apt install dosfstools -y
 
 apt install debian-archive-keyring -y
 
-rm -r /opt/UIT-TSS-TOOLBOX/
-mkdir /opt/UIT-TSS-TOOLBOX/
+#rm -r /opt/UIT-TSS-TOOLBOX/
+if [[ ! -d /opt/UIT-TSS-TOOLBOX ]]; then
+	mkdir /opt/UIT-TSS-TOOLBOX/
+fi
 
 ( cd /opt/UIT-TSS-TOOLBOX/ && \
 
