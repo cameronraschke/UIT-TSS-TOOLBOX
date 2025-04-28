@@ -97,7 +97,7 @@ function execute {
 				mkdir -p /mnt/usb/
 				echo "Writing files to ${BOLD}${CLIENTDISK}${RESET}, this may take a while..."
 				mount /dev/${CLIENTDISK} /mnt/usb/
-				rsync -a --exclude="filesystem.squashfs" /srv/UIT-TSS-TOOLBOX/client/iso /mnt/usb/ 2>/dev/null
+				rsync -a --exclude="filesystem.squashfs" /srv/UIT-TSS-TOOLBOX/client/iso/ /mnt/usb/ 2>/dev/null
 				rsync -a /home/cameron/bios-update/ /mnt/usb/ 2>/dev/null
 				umount /dev/${CLIENTDISK}
                 echo "Creating new label on disk ${CLIENTDISK}: UITTOOLBX"
