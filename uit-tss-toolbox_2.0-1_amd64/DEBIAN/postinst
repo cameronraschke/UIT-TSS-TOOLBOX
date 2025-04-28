@@ -13,11 +13,20 @@ find /var/www/html/management -type f -exec chmod 664 {} \;
 chown www-data:uit /var/www/html/management/bash/uit-print-pdf
 chmod 750 /var/www/html/management/bash/uit-print-pdf
 
-mkdir /srv/UIT-TSS-TOOLBOX/client/pkg/
-mkdir /srv/UIT-TSS-TOOLBOX/client/iso/
-/usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/ -R
-find /srv/UIT-TSS-TOOLBOX/ -type d -exec chmod 750 {} \;
-find /srv/UIT-TSS-TOOLBOX/ -type f -exec chmod 660 {} \;
+if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/src/ ]]; then
+    mkdir /srv/UIT-TSS-TOOLBOX/client/src/
+fi
+if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/pkg/ ]]; then
+    mkdir /srv/UIT-TSS-TOOLBOX/client/pkg/
+fi
+if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/iso/ ]]; then
+    mkdir /srv/UIT-TSS-TOOLBOX/client/iso/
+fi
+/usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/src -R
+/usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/pkg -R
+# Find command w/ directory is different regex
+find /srv/UIT-TSS-TOOLBOX/ -type d -not -path "*/iso*" -exec chmod 750 {} \;
+find /srv/UIT-TSS-TOOLBOX/ -type f -not -path "*/iso/*" -exec chmod 660 {} \;
 echo -e "\n" >> /etc/cron.d/uit-cron
 
 
