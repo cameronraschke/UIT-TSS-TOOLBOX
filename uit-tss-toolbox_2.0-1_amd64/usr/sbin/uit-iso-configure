@@ -44,7 +44,7 @@ mkdir /opt/UIT-TSS-TOOLBOX/
 			--archive-areas 'main contrib non-free non-free-firmware' \
 			--binary-filesystem fat32 \
 			--binary-images iso-hybrid \
-			--bootappend-live "fetch=10.0.0.1/iso/filesystem.squashfs \
+			--bootappend-live "fetch=10.0.0.1/client/iso/live/filesystem.squashfs \
  				boot=live toram username=root hostname=UIT-TSS-CLIENT \
 				timezone=America/Chicago locales=en_US.UTF-8" \
 			--bootloaders "grub-efi syslinux" \
