@@ -176,13 +176,13 @@ if (isset($_POST['serial'])) {
           INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber 
           INNER JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations) t1 
             ON t1.time = locations.time 
-          INNER JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations) t2 
+          INNER JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM jobstats) t2 
             ON t2.time = jobstats.time 
           LEFT JOIN (SELECT tagnumber, time, note, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations WHERE note IS NOT NULL) t3 
             ON t3.tagnumber = locations.tagnumber
           LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber)) t4
             ON locations.tagnumber = t4.tagnumber
-          INNER JOIN (SELECT department, department_readable FROM static_departments) t5
+          LEFT JOIN (SELECT department, department_readable FROM static_departments) t5
             ON t4.department = t5.department
           WHERE t1.row_count = 1 AND t2.row_count = 1 AND (t3.row_count = 1 OR t3.row_count IS NULL)
             AND jobstats.tagnumber = :tagnumberJob AND locations.tagnumber = :tagnumberLoc";
