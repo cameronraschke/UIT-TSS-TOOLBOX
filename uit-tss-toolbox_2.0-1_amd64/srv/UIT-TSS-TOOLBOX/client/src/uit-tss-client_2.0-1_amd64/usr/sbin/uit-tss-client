@@ -1528,14 +1528,14 @@ function execute_Clone {
 	umount /home/partimag 2>/dev/null
 	mkdir -p /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
-		mount -t nfs -o ro ${linuxServer}:/home/${linuxPath} /home/partimag
+		mount -t nfs -o ro ${linuxServer}:/srv/nfs/UIT-TSS-TOOLBOX/${linuxPath} /home/partimag
 		footer
 		sleep 1
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $cloneMode == "savedisk" ]]; then
-		mount -t nfs ${linuxServer}:/home/${linuxPath} /home/partimag
+		mount -t nfs ${linuxServer}:/srv/nfs/UIT-TSS-TOOLBOX/${linuxPath} /home/partimag
 		footer
 		sleep 1
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \

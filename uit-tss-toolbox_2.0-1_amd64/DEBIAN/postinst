@@ -3,6 +3,14 @@
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
 
+if [[ ! -d /srv/nfs/UIT-TSS-TOOLBOX/images ]]; then
+    mkdir -p /srv/nfs/UIT-TSS-TOOLBOX/images
+fi
+find /srv/nfs/ -type d -exec chmod 755 {} \;
+#find /srv/nfs/UIT-TSS-TOOLBOX/images -type d -exec chmod 755 {} \;
+#find /srv/nfs/UIT-TSS-TOOLBOX/images -type f -exec chmod 664 {} \;
+/usr/bin/chown nobody:nogroup /srv/nfs/UIT-TSS-TOOLBOX/images -R
+
 /usr/bin/chown root:uit /etc/opt/UIT-TSS-TOOLBOX -R
 find /etc/opt/UIT-TSS-TOOLBOX -type d -exec chmod 750 {} \;
 find /etc/opt/UIT-TSS-TOOLBOX -type f -exec chmod 660 {} \;
@@ -44,7 +52,7 @@ mv -v /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64.deb /srv/UIT-TS
 /usr/bin/chmod 750 /home/cameron/startup-script
 /usr/bin/chown root:root /home/cameron/startup-script
 
-/usr/bin/chown nobody:nogroup /home/images -R
+
 
 mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-procedures.sql
 mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
