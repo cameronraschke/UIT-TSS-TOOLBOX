@@ -303,7 +303,7 @@ WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
 <div class='row'>
 
         <div class='column'>
-        <div class="styled-table" style="width: 100%; height: auto; overflow:auto; margin: 1% 1% 5% 4%; float: left;">
+        <div class="styled-table" style="width: 90%; height: auto; overflow:auto; margin: 1% 1% 5% 4%; float: left;">
             <table>
                 <thead>
                     <tr>
