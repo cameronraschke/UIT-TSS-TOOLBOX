@@ -10,3 +10,5 @@ mkdir /home/cameron/reports/${DATE}/
 
 mv /tmp/uit-tmp-reports/* /home/cameron/reports/${DATE}/
 mysqldump laptopDB -pUHouston! > /home/cameron/reports/${DATE}/laptopDB-${DATE}.sql
+
+rm -r /tmp/uit-tmp-reports
