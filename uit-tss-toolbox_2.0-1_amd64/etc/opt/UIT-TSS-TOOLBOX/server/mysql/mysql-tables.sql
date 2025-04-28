@@ -234,7 +234,9 @@ INSERT INTO static_bios_stats
     )
     VALUES
     ('HP ProBook 450 G6', 'R71 Ver. 01.31.00'),
-    ('Latitude 7400', '1.38.0'),
+    ('Latitude 7400', '1.39.0'),
+    ('OptiPlex 7000', '1.30.0'),
+    ('Latitude 7420', '1.42.0'),
     ('Latitude 3500', '1.36.0'),
     ('Latitude 3560', 'A19'),
     ('Latitude 3590', '1.26.0'),
@@ -255,8 +257,6 @@ INSERT INTO static_bios_stats
     ('Aspire T3-710', 'R01-B1'),
     ('Surface Pro', NULL),
     ('Surface Pro 4', '109.3748.768'),
-    ('OptiPlex 7000', '1.28.0'),
-    ('Latitude 7420', '1.40.0'),
     ('OptiPlex 5080', '1.28.1'),
     ('OptiPlex 7040', '1.24.0'),
     ('OptiPlex 7050', '1.27.0'),
