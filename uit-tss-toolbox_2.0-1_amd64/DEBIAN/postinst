@@ -13,6 +13,8 @@ find /var/www/html/management -type f -exec chmod 664 {} \;
 chown www-data:uit /var/www/html/management/bash/uit-print-pdf
 chmod 750 /var/www/html/management/bash/uit-print-pdf
 
+mkdir /srv/UIT-TSS-TOOLBOX/client/pkg/
+mkdir /srv/UIT-TSS-TOOLBOX/client/iso/
 /usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/ -R
 find /srv/UIT-TSS-TOOLBOX/ -type d -exec chmod 750 {} \;
 find /srv/UIT-TSS-TOOLBOX/ -type f -exec chmod 660 {} \;
