@@ -304,5 +304,10 @@ lb build)
 
 rm /tmp/debian-live.deb
 
+rm -r /srv/UIT-TSS-TOOLBOX/client/netboot/nfs/*
+rm -r /srv/UIT-TSS-TOOLBOX/client/netboot/tftp/*
+
+tar -xaf /srv/UIT-TSS-TOOLBOX/client/netboot/iso/UIT-TSS-TOOLBOX-amd64.netboot.tar.gz --directory /srv/UIT-TSS-TOOLBOX/client/netboot/nfs
+cp -r /srv/UIT-TSS-TOOLBOX/client/netboot/iso/tftpboot/* /srv/UIT-TSS-TOOLBOX/client/netboot/tftp/
 #umount /srv/UIT-TSS-TOOLBOX/client/iso
 #mount /srv/UIT-TSS-TOOLBOX/client/netboot/iso/UIT-TSS-TOOLBOX-amd64.hybrid.iso /srv/UIT-TSS-TOOLBOX/client/iso
