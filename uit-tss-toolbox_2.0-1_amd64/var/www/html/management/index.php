@@ -4,7 +4,7 @@ include('/var/www/html/management/php/include.php');
 
 $db = new db();
 
-if (isset($_POST["note"])) {
+if (isset($_POST["todo"])) {
     $db->insertToDo($time);
     $db->updateToDo("note", $_POST["todo"], $time);
     unset($_POST);
@@ -32,12 +32,12 @@ if (isset($_POST["note"])) {
         <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
 
         <div>
-            <div style='width: 50%; float: left;'>
+            <div style='width: 50%; height: 50%; float: left;'>
                 <div><h3 class='page-content'><a href="/remote.php">Remote Management and Live Overview</a></h3></div>
                 <div><h3 class='page-content'><a href="/locations.php">Update and View Client Locations</a></h3></div>
                 <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
                 <!--<div><h3 class='page-content'><a href="/clientstats.php">Client Report</a></h3></div> -->
-                <div class='location-form'>
+                <div class='location-form' style='height: 100%;'>
                     <form method="post">
                         <?php
                             //$db->select("SELECT IF (time IS NOT NULL, DATE_FORMAT(time, '%m/%d/%y, %r'), 'N/A') AS 'time', IF (note IS NOT NULL, REGEXP_REPLACE(note, '^[*]', '&#9679;'), 'Enter List...') AS 'note' FROM todo");
@@ -49,8 +49,7 @@ if (isset($_POST["note"])) {
                             unset($value1);
                         ?>
                         <div><label for='todo'>To-Do List (Last Updated: <?php echo htmlspecialchars($todoTime); ?>)</label></div>
-                        <!--<div><textarea id='todo' name='todo' onkeyup='$(this).val($(this).val().replaceAll(/[*]/g, "&#9679;"));' style='width: 100%;'><?php //echo htmlspecialchars($todo); ?>  </textarea></div>-->
-                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk()' style='width: 100%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
+                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk()' style='width: 100%; height: 70%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
                         <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
                     </form>
                 </div>
@@ -79,11 +78,16 @@ if (isset($_POST["note"])) {
         function replaceAsterisk() {
             let str = document.getElementById('todo').value;
             console.log("Old string: " + str);
+            // Replace smiley face with emoji
             let newStr = Array.from(str).map(char => char === ':)' ? '😀' : char).join('');
-            newStr = newStr.replaceAll(/^\* /gm, "● ");
-            newStr = newStr.replaceAll(/\n\* /g, "\n\● ");
-            newStr = newStr.replaceAll(/\n\*\n/g, "\n\● ");
+            // Replace first bullet point
+            newStr = newStr.replaceAll(/^\* /g, "● ");
+            // Replace subsequent bullet points on enter or space
+            newStr = newStr.replaceAll(/\n\* /g, "\n\n● ");
+            newStr = newStr.replaceAll(/\n\*\n/g, "\n\n● ");
+            // Replace indents on either enter or space
             newStr = newStr.replaceAll(/\n\> /g, "\n\t> ");
+            newStr = newStr.replaceAll(/\n\>\n/g, "\n\t> ");
 
             console.log("New string: " + newStr);
             document.getElementById('todo').value = newStr;
