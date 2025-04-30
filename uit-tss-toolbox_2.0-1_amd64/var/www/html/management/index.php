@@ -40,7 +40,8 @@ if (isset($_POST["note"])) {
                 <div class='location-form'>
                     <form method="post">
                         <?php
-                            $db->select("SELECT IF (time IS NOT NULL, time, 'N/A') AS 'time', IF (note IS NOT NULL, note, 'Enter List...') AS 'note' FROM todo");
+                            //$db->select("SELECT IF (time IS NOT NULL, DATE_FORMAT(time, '%m/%d/%y, %r'), 'N/A') AS 'time', IF (note IS NOT NULL, REGEXP_REPLACE(note, '^[*]', '&#9679;'), 'Enter List...') AS 'note' FROM todo");
+                            $db->select("SELECT IF (time IS NOT NULL, DATE_FORMAT(time, '%m/%d/%y, %r'), 'N/A') AS 'time', IF (note IS NOT NULL, note, 'Enter List...') AS 'note' FROM todo");
                             foreach ($db->get() as $key => $value1) {
                                 $todo = $value1["note"];
                                 $todoTime = $value1["time"];
@@ -48,7 +49,8 @@ if (isset($_POST["note"])) {
                             unset($value1);
                         ?>
                         <div><label for='todo'>To-Do List (Last Updated: <?php echo htmlspecialchars($todoTime); ?>)</label></div>
-                        <div><textarea id='todo' name='todo' style='width: 100%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
+                        <!--<div><textarea id='todo' name='todo' onkeyup='$(this).val($(this).val().replaceAll(/[*]/g, "&#9679;"));' style='width: 100%;'><?php //echo htmlspecialchars($todo); ?>  </textarea></div>-->
+                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk()' style='width: 100%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
                         <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
                     </form>
                 </div>
@@ -73,6 +75,21 @@ if (isset($_POST["note"])) {
             </div>
         </div>
 
+        <script>
+        function replaceAsterisk() {
+            let str = document.getElementById('todo').value;
+            console.log("Old string: " + str);
+            let newStr = Array.from(str).map(char => char === ':)' ? '😀' : char).join('');
+            newStr = newStr.replaceAll(/^\* /gm, "● ");
+            newStr = newStr.replaceAll(/\n\* /g, "\n\● ");
+            newStr = newStr.replaceAll(/\n\*\n/g, "\n\● ");
+            newStr = newStr.replaceAll(/\n\> /g, "\n\t> ");
+
+            console.log("New string: " + newStr);
+            document.getElementById('todo').value = newStr;
+        }
+
+        </script>
         <script src="/google-charts/loader.js"></script>
 
         <script>
@@ -213,5 +230,10 @@ if (isset($_POST["note"])) {
                 fetchHTML();
             }, 3000)}
         </script>
+        <script>
+            if ( window.history.replaceState ) {
+                window.history.replaceState( null, null, window.location.href );
+            }
+    </script>
     </body>
 </html>
