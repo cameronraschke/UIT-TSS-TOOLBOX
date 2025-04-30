@@ -30,8 +30,12 @@ fi
 if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/iso/ ]]; then
     mkdir /srv/UIT-TSS-TOOLBOX/client/iso/
 fi
+if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/netboot/ ]]; then
+    mkdir /srv/UIT-TSS-TOOLBOX/client/netboot/
+fi
 /usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/src -R
 /usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/pkg -R
+/usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/netboot/ -R
 # Find command w/ directory is different regex
 find /srv/UIT-TSS-TOOLBOX/ -type d -not -path "*/iso*" -exec chmod 755 {} \;
 find /srv/UIT-TSS-TOOLBOX/ -type f -not -path "*/iso/*" -exec chmod 664 {} \;
