@@ -452,11 +452,14 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
     LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
     LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
     LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
-    LEFT JOIN (SELECT tagnumber, clone_image FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE clone_completed = 1 GROUP BY tagnumber)) t6
-      ON locations.tagnumber = t6.tagnumber
-    LEFT JOIN static_image_names ON t6.clone_image = static_image_names.image_name
+    LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
+      ON locations.tagnumber = t1.tagnumber
+    LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
   WHERE locations.tagnumber IS NOT NULL
   AND locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) ";
+
+
+
 
 // Location filter
 if (strFilter($_GET["location"]) === 0) {

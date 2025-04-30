@@ -27,7 +27,7 @@ unset($value);
 
 unset($sql);
 $sql = "SELECT jobstats.uuid, locations.tagnumber, jobstats.time, os_stats.tagnumber AS 'os_table_tag', 
-    system_data.system_model, static_image_names.image_name, static_image_names.image_name_readable, 
+    system_data.system_model, static_image_names.image_name_readable, 
     (CASE WHEN locations.disk_removed = 1 THEN 0
     WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN 0
     WHEN jobstats.erase_completed IS NULL AND jobstats.clone_completed = 1 THEN 1

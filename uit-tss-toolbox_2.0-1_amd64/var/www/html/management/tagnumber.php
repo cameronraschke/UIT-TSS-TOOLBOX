@@ -230,9 +230,9 @@ LEFT JOIN (SELECT tagnumber, disk_model, disk_serial, disk_size, disk_type, disk
   ON locations.tagnumber = t4.tagnumber
 LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5 
   ON locations.tagnumber = t5.tagnumber
-LEFT JOIN (SELECT tagnumber, clone_image FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE clone_completed = 1)) t6
-  ON locations.tagnumber = t6.tagnumber
-LEFT JOIN static_image_names ON t6.clone_image = static_image_names.image_name
+    LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s6 WHERE s6.row_nums = 1) t6
+      ON locations.tagnumber = t6.tagnumber
+    LEFT JOIN static_image_names ON t6.clone_image = static_image_names.image_name
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
   ON locations.tagnumber = t8.tagnumber
 LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
