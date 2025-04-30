@@ -3,6 +3,12 @@ require('/var/www/html/management/header.php');
 include('/var/www/html/management/php/include.php');
 
 $db = new db();
+
+if (isset($_POST["note"])) {
+    $db->insertToDo($time);
+    $db->updateToDo("note", $_POST["todo"], $time);
+    unset($_POST);
+}
 ?>
 <html>
     <head>
@@ -31,6 +37,21 @@ $db = new db();
                 <div><h3 class='page-content'><a href="/locations.php">Update and View Client Locations</a></h3></div>
                 <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
                 <!--<div><h3 class='page-content'><a href="/clientstats.php">Client Report</a></h3></div> -->
+                <div class='location-form'>
+                    <form method="post">
+                        <?php
+                            $db->select("SELECT IF (time IS NOT NULL, time, 'N/A') AS 'time', IF (note IS NOT NULL, note, 'Enter List...') AS 'note' FROM todo");
+                            foreach ($db->get() as $key => $value1) {
+                                $todo = $value1["note"];
+                                $todoTime = $value1["time"];
+                            }
+                            unset($value1);
+                        ?>
+                        <div><label for='todo'>To-Do List (Last Updated: <?php echo htmlspecialchars($todoTime); ?>)</label></div>
+                        <div><textarea id='todo' name='todo' style='width: 100%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
+                        <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
+                    </form>
+                </div>
                 <div id="jobTimes" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
             </div>
             <div style='width: 50%; float: right;'>

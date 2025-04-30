@@ -561,3 +561,9 @@ VALUES
     ('SHRL-Dell-Desktops', 'Microsoft', 'Windows 11', 'Dell', NULL, 'Windows 11'),
     ('Ubuntu-Desktop', 'Canonical', '24.04.2 LTS', 'Dell', NULL, 'Ubuntu Desktop')
     ;
+
+
+CREATE TABLE IF NOT EXISTS todo (
+    time DATETIME(3) NOT NULL PRIMARY KEY ,
+    note VARCHAR(1024) DEFAULT NULL
+);
