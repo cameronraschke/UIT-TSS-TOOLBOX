@@ -219,7 +219,6 @@ LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
 LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
 LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND (host_connected = 1 or (uuid LIKE 'techComm-%' AND etheraddress IS NOT NULL)) GROUP BY tagnumber))
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
-LEFT JOIN static_image_names ON system_data.system_model = static_image_names.image_platform_model
 LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE tagnumber IS NOT NULL GROUP BY tagnumber)) t1 
   ON locations.tagnumber = t1.tagnumber
 LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
@@ -231,6 +230,9 @@ LEFT JOIN (SELECT tagnumber, disk_model, disk_serial, disk_size, disk_type, disk
   ON locations.tagnumber = t4.tagnumber
 LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5 
   ON locations.tagnumber = t5.tagnumber
+LEFT JOIN (SELECT tagnumber, clone_image FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE clone_completed = 1)) t6
+  ON locations.tagnumber = t6.tagnumber
+LEFT JOIN static_image_names ON t6.clone_image = static_image_names.image_name
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
   ON locations.tagnumber = t8.tagnumber
 LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber

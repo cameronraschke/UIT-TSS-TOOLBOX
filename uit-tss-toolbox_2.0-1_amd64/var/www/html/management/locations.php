@@ -441,7 +441,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   locationFormatting(locations.location) AS 'location',
   static_departments.department_readable AS 'department_formatted', departments.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Yes', 'Broken') AS 'status_formatted', locations.status AS 'locations_status', 
-  IF (os_stats.os_installed = 1 AND os_stats.os_name IS NOT NULL, os_stats.os_name, 'No OS') AS 'os_installed_formatted', os_stats.os_installed,
+  IF (os_stats.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'os_installed_formatted', os_stats.os_installed,
   IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
   locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain
@@ -452,6 +452,9 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
     LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
     LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
     LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
+    LEFT JOIN (SELECT tagnumber, clone_image FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE clone_completed = 1 GROUP BY tagnumber)) t6
+      ON locations.tagnumber = t6.tagnumber
+    LEFT JOIN static_image_names ON t6.clone_image = static_image_names.image_name
   WHERE locations.tagnumber IS NOT NULL
   AND locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) ";
 

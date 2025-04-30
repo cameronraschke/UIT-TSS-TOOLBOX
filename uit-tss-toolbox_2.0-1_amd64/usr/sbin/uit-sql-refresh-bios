@@ -35,7 +35,9 @@ $sql = "SELECT jobstats.uuid, locations.tagnumber, jobstats.time, os_stats.tagnu
     ELSE 1 END) AS 'os_installed'
     FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
-    LEFT JOIN static_image_names ON system_data.system_model = static_image_names.image_platform_model
+    LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
+      ON locations.tagnumber = t1.tagnumber
+    LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
     LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS 'time' FROM jobstats WHERE (erase_completed IS NOT NULL OR clone_completed IS NOT NULL) AND tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber))
     LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
     INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON t2.time = locations.time";
