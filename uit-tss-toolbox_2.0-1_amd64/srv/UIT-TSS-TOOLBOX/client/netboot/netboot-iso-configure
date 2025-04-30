@@ -1,0 +1,292 @@
+#!/bin/bash
+
+if [[ "$EUID" > 0 ]]
+  then echo "Please run as root"
+  exit 1
+fi
+
+function confirmDelete {
+    read -p "Are you sure you want to unmount /srv/UIT-TSS-TOOLBOX/client/iso? [y/n]: " CONFIRM
+    if [[ $CONFIRM == "y" ]]; then
+		umount /srv/UIT-TSS-TOOLBOX/client/iso
+        return
+    elif [[ $CONFIRM == "n" ]]; then
+        exit 1
+    else
+        confirmDelete
+    fi
+}
+confirmDelete
+
+apt purge live-build -y
+wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20250225_all.deb \
+	--output-document=/tmp/debian-live.deb
+apt install /tmp/debian-live.deb -y
+
+apt install dosfstools -y
+
+apt install debian-archive-keyring -y
+
+#rm -r /opt/UIT-TSS-TOOLBOX/
+if [[ ! -d /opt/UIT-TSS-TOOLBOX ]]; then
+	mkdir /opt/UIT-TSS-TOOLBOX/
+fi
+
+( cd /opt/UIT-TSS-TOOLBOX/ && \
+
+		lb clean && \
+
+		lb config \
+			--apt apt \
+			--apt-options "--yes"\
+			--apt-recommends true \
+			--apt-secure true \
+			--apt-source-archives true \
+			--architecture amd64 \
+			--archive-areas 'main contrib non-free non-free-firmware' \
+			--binary-filesystem fat32 \
+			--binary-images netboot \
+			--net-root-path "/srv/UIT-TSS-TOOLBOX/client/netboot/nfs" \
+			--net-root-server "10.0.0.1" \
+			--bootappend-live "boot=live toram username=root hostname=UIT-TSS-CLIENT \
+				timezone=America/Chicago locales=en_US.UTF-8" \
+			--bootloaders "grub-efi syslinux" \
+			--chroot-filesystem squashfs \
+			--color \
+			--compression gzip \
+			--clean \
+			--debian-installer live \
+			--debian-installer-distribution bookworm \
+			--distribution bookworm \
+			--debootstrap-options "--arch=amd64 --variant=minbase" \
+			--hdd-label UIT-TSS-TOOLBOX \
+			--hdd-size auto \
+			--image-name UIT-TSS-TOOLBOX \
+			--initramfs live-boot \
+			--initsystem systemd \
+			--iso-application UIT-TSS-TOOLBOX \
+			--iso-preparer "Cameron Raschke caraschke@uh.edu" \
+			--iso-publisher "Cameron Raschke caraschke@uh.edu" \
+			--iso-volume UIT-TSS-TOOLBOX \
+			--memtest none \
+			--mode debian \
+			--system live \
+			--uefi-secure-boot enable \
+			--updates true \
+			--zsync true)
+
+mkdir -p /opt/UIT-TSS-TOOLBOX/config/bootloaders
+cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-TOOLBOX/config/bootloaders
+cp -r /usr/share/live/build/bootloaders/grub-pc /opt/UIT-TSS-TOOLBOX/config/bootloaders
+
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/bootloaders/isolinux/isolinux.cfg
+UI vesamenu.c32
+MENU TITLE Boot Menu
+DEFAULT linux
+        TIMEOUT 10
+        MENU RESOLUTION 640 480
+        SAY Now booting into UIT-TSS-TOOLBOX by Cameron Raschke
+label linux
+        menu label UIT-TSS-TOOLBOX by Cameron Raschke
+        menu default
+        linux /live/vmlinuz
+        initrd /live/initrd.img
+        append @APPEND_LIVE@
+EOF
+
+rm -r /opt/UIT-TSS-TOOLBOX/config/bootloaders/grub-pc/*
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/bootloaders/grub-pc/grub.cfg
+insmod part_gpt
+insmod part_msdos
+insmod fat
+insmod iso9660
+insmod gfxterm
+
+set gfxmode=800x600
+terminal_output gfxterm
+
+set default="0"
+set timeout=0
+set timeout_style=hidden
+
+menuentry "UIT-TSS-TOOLBOX by Cameron Raschke" {
+    	linux @KERNEL_LIVE@ @APPEND_LIVE@
+    	initrd @INITRD_LIVE@
+}
+EOF
+
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/package-lists/live.list.chroot
+live-boot
+live-config
+live-config-systemd
+systemd-sysv
+openssl
+less
+iproute2
+curl
+wget
+openssh-client
+nano
+vim
+clonezilla
+cifs-utils
+passwd
+locales
+firmware-linux-free
+firmware-linux
+firmware-linux-nonfree
+apt-utils
+parted
+partclone
+partimage
+gparted
+ethtool
+isc-dhcp-client
+net-tools
+gzip
+lzip
+zstd
+lzop
+lzma
+bzip2
+xz-utils
+lz4
+sudo
+chntpw
+libasound2
+libasound2-plugins
+alsa-utils
+sox
+libsox-fmt-all
+ca-certificates
+sshpass
+kbd
+procps
+dosfstools
+efibootmgr
+efivar
+ntfs-3g
+libfsntfs-dev
+libfsntfs-utils
+iptables
+hdparm
+util-linux
+nvme-cli
+coreutils
+pv
+postfix
+default-mysql-client
+dmidecode
+sshfs
+php
+php-cli
+php-mysql
+httpfs2
+nfs-common
+smartmontools
+upower
+iputils-ping
+iputils-arping
+iputils-tracepath
+gpg
+php-bcmath
+usbutils
+bc
+chrony
+netcat-traditional
+iperf3
+EOF
+
+mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+
+touch /root/.ssh_passwd
+echo "UHouston!" > /root/.ssh_passwd
+chown root:root /root/.ssh_passwd
+chmod 600 /root/.ssh_passwd
+
+sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
+sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
+sysctl --quiet --write "net.ipv4.conf.default.rp_filter=2"
+sysctl --quiet --write "net.ipv4.conf.all.rp_filter=2"
+sysctl --quiet --write "net.ipv4.ip_forward=0"
+sysctl --quiet --write "net.ipv6.conf.all.forwarding=1"
+sysctl --quiet --write "net.ipv6.conf.default.forwarding=1"
+sysctl --quiet --load
+
+sysctl --quiet --write "kernel.printk=2 4 1 2"
+sysctl --quiet --write "kernel.kptr_restrict=1"
+sysctl --quiet --write "vm.mmap_min_addr=65536"
+sysctl --quiet --load
+
+echo "uit-toolbox-client" > /etc/hostname
+echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/motd
+echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/issue.net
+echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
+
+update-smart-drivedb
+EOF
+
+chmod 777 /opt/UIT-TSS-TOOLBOX/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+
+mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
+wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
+--output-document=/opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/oven.mp3
+
+mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root
+touch /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
+cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/.bash_profile
+#!/bin/bash
+
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BLUE=$(tput setaf 4)
+BOLD=$(tput bold)
+DIM=$(tput dim)
+RESET=$(tput sgr0)
+
+tput reset
+echo ""
+echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
+echo "${BOLD}${RED}Go coogs!!${RESET}"
+echo ""
+
+echo ""
+echo "${BOLD}Configuring Kernel....${RESET}"
+sysctl --quiet --write "kernel.printk=2 4 1 2"
+sysctl --quiet --write "kernel.kptr_restrict=1"
+sysctl --quiet --write "vm.mmap_min_addr=65536"
+sysctl --quiet --load
+echo "${GREEN}Done.${RESET}"
+
+echo ""
+echo "${BOLD}Configuring SSH...${RESET}"
+if [ ! -f /root/.ssh/id_rsa ]; then
+ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
+fi
+sshpass -f /root/.ssh_passwd ssh-copy-id \
+	-o "StrictHostKeyChecking=no" cameron@mickey.uit &>/dev/null
+
+echo "Host *
+	StrictHostKeyChecking=no" > /root/.ssh/config
+echo "${GREEN}Done.${RESET}"
+
+echo ""
+echo "${BOLD}Installing the client package${RESET}"
+while [[ ! -f /root/uit-tss-client_2.0-1_amd64.deb ]]; do
+	curl http://mickey.uit/client/pkg/uit-tss-client_2.0-1_amd64.deb --output /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
+	sleep 1
+done
+dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
+echo "${GREEN}Done.${RESET}"
+
+/usr/sbin/uit-tss-client
+EOF
+
+(cd /opt/UIT-TSS-TOOLBOX
+lb build)
+
+rm /tmp/debian-live.deb
+
+umount /srv/UIT-TSS-TOOLBOX/client/iso
+mount /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso /srv/UIT-TSS-TOOLBOX/client/iso
