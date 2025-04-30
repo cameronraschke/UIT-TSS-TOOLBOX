@@ -6,9 +6,9 @@ if [[ "$EUID" > 0 ]]
 fi
 
 function confirmDelete {
-    read -p "Are you sure you want to unmount /srv/UIT-TSS-TOOLBOX/client/iso? [y/n]: " CONFIRM
+    read -p "Are you sure you want to delete /srv/UIT-TSS-TOOLBOX/client/iso? [y/n]: " CONFIRM
     if [[ $CONFIRM == "y" ]]; then
-		umount /srv/UIT-TSS-TOOLBOX/client/iso
+		#umount /srv/UIT-TSS-TOOLBOX/client/iso
         return
     elif [[ $CONFIRM == "n" ]]; then
         exit 1
@@ -50,7 +50,7 @@ fi
 			--net-root-server "10.0.0.1" \
 			--bootappend-live "boot=live toram username=root hostname=UIT-TSS-CLIENT \
 				timezone=America/Chicago locales=en_US.UTF-8" \
-			--bootloaders "grub-efi syslinux" \
+			--bootloaders "syslinux" \
 			--chroot-filesystem squashfs \
 			--color \
 			--compression gzip \
@@ -75,9 +75,25 @@ fi
 			--updates true \
 			--zsync true)
 
+
 mkdir -p /srv/UIT-TSS-TOOLBOX/client/netboot/iso/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/isolinux /srv/UIT-TSS-TOOLBOX/client/netboot/iso/config/bootloaders
 cp -r /usr/share/live/build/bootloaders/grub-pc /srv/UIT-TSS-TOOLBOX/client/netboot/iso/config/bootloaders
+
+cat <<'EOF' > /srv/UIT-TSS-TOOLBOX/client/netboot/iso/config/bootloaders/syslinux/syslinux.cfg
+UI vesamenu.c32
+MENU TITLE Boot Menu
+DEFAULT linux
+        TIMEOUT 10
+        MENU RESOLUTION 640 480
+        SAY Now booting into UIT-TSS-TOOLBOX by Cameron Raschke
+label linux
+        menu label UIT-TSS-TOOLBOX by Cameron Raschke
+        menu default
+        linux /live/vmlinuz
+        initrd /live/initrd.img
+        append @APPEND_LIVE@
+EOF
 
 cat <<'EOF' > /srv/UIT-TSS-TOOLBOX/client/netboot/iso/config/bootloaders/isolinux/isolinux.cfg
 UI vesamenu.c32
@@ -283,10 +299,10 @@ echo "${GREEN}Done.${RESET}"
 /usr/sbin/uit-tss-client
 EOF
 
-(cd /opt/UIT-TSS-TOOLBOX
+(cd /srv/UIT-TSS-TOOLBOX/client/netboot/iso/
 lb build)
 
 rm /tmp/debian-live.deb
 
-umount /srv/UIT-TSS-TOOLBOX/client/iso
-mount /srv/UIT-TSS-TOOLBOX/client/netboot/iso/UIT-TSS-TOOLBOX-amd64.hybrid.iso /srv/UIT-TSS-TOOLBOX/client/iso
+#umount /srv/UIT-TSS-TOOLBOX/client/iso
+#mount /srv/UIT-TSS-TOOLBOX/client/netboot/iso/UIT-TSS-TOOLBOX-amd64.hybrid.iso /srv/UIT-TSS-TOOLBOX/client/iso

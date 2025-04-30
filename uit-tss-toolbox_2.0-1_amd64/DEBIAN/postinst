@@ -33,6 +33,10 @@ fi
 if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/netboot/ ]]; then
     mkdir /srv/UIT-TSS-TOOLBOX/client/netboot/
 fi
+if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/netboot/tftp ]]; then
+    mkdir /srv/UIT-TSS-TOOLBOX/client/netboot/tftp
+fi
+
 /usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/src -R
 /usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/pkg -R
 /usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/netboot/ -R
@@ -50,6 +54,8 @@ dpkg-deb --build --root-owner-group /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-clie
 mv -v /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64.deb /srv/UIT-TSS-TOOLBOX/client/pkg/uit-tss-client_2.0-1_amd64.deb 
 )
 
+chown dnsmasq:root /srv/UIT-TSS-TOOLBOX/client/netboot/tftp -R
+find /srv/UIT-TSS-TOOLBOX/client/netboot/tftp -type f -exec chmod 644 {} \;
 
 mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-procedures.sql
 mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
