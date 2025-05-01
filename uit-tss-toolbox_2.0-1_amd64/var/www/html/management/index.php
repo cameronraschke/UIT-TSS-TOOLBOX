@@ -52,7 +52,7 @@ if (isset($_POST["todo"])) {
                             <label for='todo'>To-Do List (Last Updated: <?php echo htmlspecialchars($todoTime); ?>)</label>
                             <p id='charLen' name='charLen'>Charater count: 0</p>
                         </div>
-                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();charCount();' style='width: 100%; height: 70%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
+                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();charCount();' onfocus='getCursorPos();' style='width: 100%; height: 70%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
                         <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
                     </form>
                 </div>
@@ -82,6 +82,21 @@ if (isset($_POST["todo"])) {
             let string = document.getElementById('todo').value;
             let len = string.length;
             document.getElementById('charLen').innerHTML = "Character count: " + len;
+        }
+        function getCursorPos() {
+            document.getElementById("todo").addEventListener("click", function(){
+                var myElement = document.getElementById('todo');
+                var startPosition = myElement.selectionStart;
+                var endPosition = myElement.selectionEnd;
+
+                // Check if you've selected text
+                if(startPosition == endPosition){
+                    console.log("The position of the cursor is (" + startPosition + "/" + myElement.value.length + ")");
+                }else{
+                    console.log("Selected text from ("+ startPosition +" to "+ endPosition + " of " + myElement.value.length + ")");
+                }
+                return(startPosition);
+            },false);
         }
         function replaceAsterisk() {
             let str = document.getElementById('todo').value;
