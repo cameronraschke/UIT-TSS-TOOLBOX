@@ -20,7 +20,7 @@ if (isset($_POST["todo"])) {
         <title>Home - UIT Client Management</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
-    <body onload="fetchHTML()">
+    <body onload="fetchHTML();charCount();">
         <div class='menubar'>
             <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
             <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
@@ -48,8 +48,11 @@ if (isset($_POST["todo"])) {
                             }
                             unset($value1);
                         ?>
-                        <div><label for='todo'>To-Do List (Last Updated: <?php echo htmlspecialchars($todoTime); ?>)</label></div>
-                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk()' style='width: 100%; height: 70%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
+                        <div>
+                            <label for='todo'>To-Do List (Last Updated: <?php echo htmlspecialchars($todoTime); ?>)</label>
+                            <p id='charLen' name='charLen'>Charater count: 0</p>
+                        </div>
+                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();charCount();' style='width: 100%; height: 70%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
                         <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
                     </form>
                 </div>
@@ -75,9 +78,14 @@ if (isset($_POST["todo"])) {
         </div>
 
         <script>
+        function charCount() {
+            let string = document.getElementById('todo').value;
+            let len = string.length;
+            document.getElementById('charLen').innerHTML = "Character count: " + len;
+        }
         function replaceAsterisk() {
             let str = document.getElementById('todo').value;
-            console.log("Old string: " + str);
+            //console.log("Old string: " + str);
             // Replace smiley face with emoji
             let newStr = Array.from(str).map(char => char === ':)' ? '😀' : char).join('');
             // Replace first bullet point
@@ -87,9 +95,13 @@ if (isset($_POST["todo"])) {
             newStr = newStr.replaceAll(/\n\*\n/g, "\n\n● ");
             // Replace indents on either enter or space
             newStr = newStr.replaceAll(/\n\> /g, "\n\t> ");
+            newStr = newStr.replaceAll(/\n\>\>/g, "\n\t> ");
             newStr = newStr.replaceAll(/\n\>\n/g, "\n\t> ");
+            // Double indent
+            newStr = newStr.replaceAll(/\n\t\> \>/g, "\n\t\t> ");
+            newStr = newStr.replaceAll(/\n\t\>\>/g, "\n\t\t> ");
 
-            console.log("New string: " + newStr);
+            //console.log("New string: " + newStr);
             document.getElementById('todo').value = newStr;
         }
 
