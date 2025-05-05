@@ -10,7 +10,9 @@ if (isset($_POST["todo"])) {
     unset($_POST);
 }
 ?>
+<!DOCTYPE html>
 <html>
+<meta charset="UTF-8">
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
@@ -51,8 +53,16 @@ if (isset($_POST["todo"])) {
                         <div>
                             <label for='todo'>To-Do List (Last Updated: <?php echo htmlspecialchars($todoTime); ?>)</label>
                             <p id='charLen' name='charLen'>Charater count: 0</p>
+                            <div class="tooltip">?
+                                <span class="tooltiptext">
+                                <?php echo htmlspecialchars("Press * to create a menu item."); ?> <br><br>
+                                <?php echo htmlspecialchars("Press '>' or '>>' to indent once or twice."); ?> <br><br>
+                                <?php echo htmlspecialchars("Enter emoticons to get emojis - :), :P, :(, :|, etc."); ?> <br><br>
+                                <?php echo htmlspecialchars("Lastly, enter statuses of to-do list items preceeded by a colon to get an emoji - :check, :x, :cancel, :inprogress, :working, :waiting, :done "); ?>
+                            </span>
+                            </div>
                         </div>
-                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();getCursorPos();' style='width: 100%; height: 70%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
+                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();replaceEmoji();' style='width: 100%; height: 30em;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
                         <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
                     </form>
                 </div>
@@ -118,12 +128,63 @@ if (isset($_POST["todo"])) {
                 //}
                 return(startPosition);
         }
+
+        function replaceEmoji() {
+            let str = document.getElementById('todo').value;
+            let origPos = getCursorPos();
+            let newStr = str;
+            let pos = 0;
+            let offset = 0;
+            // Replace smiley face with emoji
+            newStr = newStr.replaceAll(/\:\) /g, "😀 ");
+            newStr = newStr.replaceAll(/\:D /g, "😁 ");
+            newStr = newStr.replaceAll(/\;\) /g, "😉 ");
+            newStr = newStr.replaceAll(/\:P /g, "😋 ");
+            newStr = newStr.replaceAll(/\:p /g, "😋 ");
+            newStr = newStr.replaceAll(/\:\| /g, "😑 ");
+            newStr = newStr.replaceAll(/\:0 /g, "😲 ");
+            newStr = newStr.replaceAll(/\:O /g, "😲 ");
+            newStr = newStr.replaceAll(/\:o /g, "😲 ");
+            newStr = newStr.replaceAll(/\:\( /g, "😞 ");
+            newStr = newStr.replaceAll(/\:\< /g, "😡 ");
+            newStr = newStr.replaceAll(/\:\\ /g, "😕 ");
+            newStr = newStr.replaceAll(/\;\( /g, "😢 ");
+            newStr = newStr.replaceAll(/\:check /g, "✅ ");
+            newStr = newStr.replaceAll(/\:done /g, "✅ ");
+            newStr = newStr.replaceAll(/\:x /g, "❌ ");
+            newStr = newStr.replaceAll(/\:cancel /g, "🚫 ");
+            newStr = newStr.replaceAll(/\:working /g, "⏳ ");
+            newStr = newStr.replaceAll(/\:waiting /g, "⏳ ");
+            newStr = newStr.replaceAll(/\:inprogress /g, "⏳ ");
+            
+
+
+            if (str != newStr) {
+                let newPos = getCursorPos();
+                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)/;
+                const match = str.match(regex);
+
+                offset = origPos;
+
+                if (match) {
+                    const substring = match[0];
+                    const substringLength = substring.length;
+                    console.log("SUBSTRING Len: " + substring.length)
+                    offset = origPos - substringLength + 1;
+                }
+
+                console.log("Offset: " + offset);
+                document.getElementById('todo').value = newStr;
+                setCursorPos(offset);
+            }
+            return(offset);
+        }
+
         function replaceAsterisk() {
             let str = document.getElementById('todo').value;
             let newStr = str;
-            let offset = 0;
-            // Replace smiley face with emoji
-            //let newStr = Array.from(str).map(char => char === ':)' ? '😀' : char).join('');
+            let pos = 0;
+            
             // Replace first bullet point
             newStr = newStr.replaceAll(/^\* /g, "● ");
             // Replace subsequent bullet points on enter or space
