@@ -56,9 +56,9 @@ if (isset($_POST["todo"])) {
                             <div class="tooltip">?
                                 <span class="tooltiptext">
                                 <?php echo htmlspecialchars("Press * to create a menu item."); ?> <br><br>
-                                <?php echo htmlspecialchars("Press '>' or '>>' to indent once or twice."); ?> <br><br>
-                                <?php echo htmlspecialchars("Enter emoticons to get emojis - :), :P, :(, :|, etc."); ?> <br><br>
-                                <?php echo htmlspecialchars("Lastly, enter statuses of to-do list items preceeded by a colon to get an emoji - :check, :x, :cancel, :inprogress, :working, :waiting, :done "); ?>
+                                <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
+                                <?php echo htmlspecialchars("Enter emoticons to get emojis - :) :P :( :| etc."); ?> <br><br>
+                                <?php echo htmlspecialchars("Lastly, enter statuses of to-do list items preceeded by a colon to get an emoji - :check, :x, :cancel, :inprogress, :working, :waiting, :shrug, :clock, :warning, :done "); ?>
                             </span>
                             </div>
                         </div>
@@ -156,12 +156,15 @@ if (isset($_POST["todo"])) {
             newStr = newStr.replaceAll(/\:working /g, "⏳ ");
             newStr = newStr.replaceAll(/\:waiting /g, "⏳ ");
             newStr = newStr.replaceAll(/\:inprogress /g, "⏳ ");
+            newStr = newStr.replaceAll(/\:shrug /g, "🤷 ");
+            newStr = newStr.replaceAll(/\:clock /g, "🕓 ");
+            newStr = newStr.replaceAll(/\:warning /g, "⚠️ ");
             
 
 
             if (str != newStr) {
                 let newPos = getCursorPos();
-                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)/;
+                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)|(\:shrug)|(\:clock)|(\:warning)/;
                 const match = str.match(regex);
 
                 offset = origPos;
@@ -193,10 +196,13 @@ if (isset($_POST["todo"])) {
             // Replace indents on either enter or space
             newStr = newStr.replaceAll(/\n\> /g, "\n\t> ");
             newStr = newStr.replaceAll(/\n\>\>/g, "\n\t> ");
-            //newStr = newStr.replaceAll(/\n\>\n/g, "\n\t> ");
             // Double indent
             newStr = newStr.replaceAll(/\n\t\> \>/g, "\n\t\t> ");
             newStr = newStr.replaceAll(/\n\t\>\>/g, "\n\t\t> ");
+            // Triple indent
+            newStr = newStr.replaceAll(/\n\t\t\> \>/g, "\n\t\t\t> ");
+            // Quadruple indent
+            newStr = newStr.replaceAll(/\n\t\t\t\> \>/g, "\n\t\t\t\t> ");
 
 
             if (str != newStr) {
