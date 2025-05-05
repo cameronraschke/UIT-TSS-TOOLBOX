@@ -52,7 +52,7 @@ if (isset($_POST["todo"])) {
                             <label for='todo'>To-Do List (Last Updated: <?php echo htmlspecialchars($todoTime); ?>)</label>
                             <p id='charLen' name='charLen'>Charater count: 0</p>
                         </div>
-                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();charCount();' onfocus='getCursorPos();' style='width: 100%; height: 70%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
+                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();getCursorPos();' style='width: 100%; height: 70%;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
                         <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
                     </form>
                 </div>
@@ -79,45 +79,77 @@ if (isset($_POST["todo"])) {
 
         <script>
         function charCount() {
-            let string = document.getElementById('todo').value;
-            let len = string.length;
+            var myElement = document.getElementById('todo');
+            myElement.focus();
+            var len = document.getElementById('todo').value.length;
+
+            document.getElementById("todo").addEventListener("keydown", function(){
+                var myElement = document.getElementById('todo').value;
+                var len = myElement.length;
+                document.getElementById('charLen').innerHTML = "Character count: " + len;
+            },false);
+
+            //console.log(len + " characters");
             document.getElementById('charLen').innerHTML = "Character count: " + len;
+
+            return(len);
+        }
+        function setCursorPos(pos) {
+            var myElement = document.getElementById('todo');
+
+            myElement.focus();
+            myElement.setSelectionRange(pos, pos);
+            
+            //console.log("Changing position of the cursor to (" + pos + "/" + myElement.value.length + ")");
+            return(pos);
         }
         function getCursorPos() {
-            document.getElementById("todo").addEventListener("click", function(){
-                var myElement = document.getElementById('todo');
-                var startPosition = myElement.selectionStart;
-                var endPosition = myElement.selectionEnd;
+                let myElement = document.getElementById('todo');
+                let startPosition = myElement.selectionStart;
+                let endPosition = myElement.selectionEnd;
+
+                myElement.focus();
 
                 // Check if you've selected text
-                if(startPosition == endPosition){
-                    console.log("The position of the cursor is (" + startPosition + "/" + myElement.value.length + ")");
-                }else{
-                    console.log("Selected text from ("+ startPosition +" to "+ endPosition + " of " + myElement.value.length + ")");
-                }
+                //if(startPosition == endPosition){
+                    //console.log("The position of the cursor is (" + startPosition + "/" + myElement.value.length + ")");
+                //}else{
+                    //console.log("Selected text from ("+ startPosition +" to "+ endPosition + " of " + myElement.value.length + ")");
+                //}
                 return(startPosition);
-            },false);
         }
         function replaceAsterisk() {
             let str = document.getElementById('todo').value;
-            //console.log("Old string: " + str);
+            let newStr = str;
+            let offset = 0;
             // Replace smiley face with emoji
-            let newStr = Array.from(str).map(char => char === ':)' ? '😀' : char).join('');
+            //let newStr = Array.from(str).map(char => char === ':)' ? '😀' : char).join('');
             // Replace first bullet point
             newStr = newStr.replaceAll(/^\* /g, "● ");
             // Replace subsequent bullet points on enter or space
             newStr = newStr.replaceAll(/\n\* /g, "\n\n● ");
-            newStr = newStr.replaceAll(/\n\*\n/g, "\n\n● ");
+            //newStr = newStr.replaceAll(/\n\*\n/g, "\n\n● ");
             // Replace indents on either enter or space
             newStr = newStr.replaceAll(/\n\> /g, "\n\t> ");
             newStr = newStr.replaceAll(/\n\>\>/g, "\n\t> ");
-            newStr = newStr.replaceAll(/\n\>\n/g, "\n\t> ");
+            //newStr = newStr.replaceAll(/\n\>\n/g, "\n\t> ");
             // Double indent
             newStr = newStr.replaceAll(/\n\t\> \>/g, "\n\t\t> ");
             newStr = newStr.replaceAll(/\n\t\>\>/g, "\n\t\t> ");
 
-            //console.log("New string: " + newStr);
-            document.getElementById('todo').value = newStr;
+
+            if (str != newStr) {
+                let pos = getCursorPos();
+                //console.log("New string: " + newStr);
+                document.getElementById('todo').value = newStr;
+                //console.log("Position + Offset: " + pos + offset)
+                setCursorPos(pos);
+                let endOfLine = newStr.indexOf('\n', pos);
+                if (endOfLine === -1) {
+                    endOfLine = newStr.length;
+                }
+                setCursorPos(endOfLine);
+            }
         }
 
         </script>
