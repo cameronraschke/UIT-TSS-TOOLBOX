@@ -63,7 +63,7 @@ if (isset($_POST["todo"])) {
                             </div>
                         </div>
                         <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
-                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();replaceEmoji();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
+                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();replaceEmoji();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable><?php echo htmlspecialchars($todo); ?> </textarea></div>
                         <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
                     </form>
                 </div>
