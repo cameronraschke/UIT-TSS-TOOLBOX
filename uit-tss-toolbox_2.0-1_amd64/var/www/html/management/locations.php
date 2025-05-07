@@ -77,6 +77,7 @@ if (isset($_POST['serial'])) {
     $db->updateCheckout("customer_psid", $customerPSID, $time);
     $db->updateCheckout("checkout_date", $checkoutDate, $time);
     $db->updateCheckout("return_date", $returnDate, $time);
+    $db->updateCheckout("note", $note, $time);
   }
 
   //Printing
