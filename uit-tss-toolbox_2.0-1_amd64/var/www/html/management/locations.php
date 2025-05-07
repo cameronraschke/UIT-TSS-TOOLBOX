@@ -413,9 +413,9 @@ if (isset($_POST['serial'])) {
                       echo "</div>";
                       echo "<div class='column'>";
                       echo "<div><div><label for='customer_name'>Customer name: </label></div>";
-                      echo "<input type='text' name='customer_name' id='customer_name'>" . htmlspecialchars($value1["customer_name"]) . "</div>";
+                      echo "<input type='text' name='customer_name' id='customer_name' value='" . htmlspecialchars($value1["customer_name"]) . "'></div>";
                       echo "<div><div><label for='customer_psid'>Customer PSID: </label></div>";
-                      echo "<input type='text' name='customer_psid' id='customer_psid'>" . htmlspecialchars($value1["customer_psid"]) . "</div>";
+                      echo "<input type='text' name='customer_psid' id='customer_psid' value='" . htmlspecialchars($value1["customer_psid"]) . "'></div>";
                       echo "</div>";
                     }
                   } else {
