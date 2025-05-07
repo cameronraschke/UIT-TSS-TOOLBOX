@@ -60,7 +60,7 @@ if (isset($_POST["todo"])) {
                                 <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
                                 <?php echo htmlspecialchars("Enter emoticons OR key words preceeded by a colon to get an emoji:  "); ?> <br><br>
                                 <?php echo htmlspecialchars(":check :x :cancel :waiting :warning :done"); ?> <br>
-                                <?php echo htmlspecialchars(":like :dislike :star :pin :info :heart :fire :shrug"); ?> <br>
+                                <?php echo htmlspecialchars(":like :dislike :star :pin :info :heart :fire :shrug :clap :celebrate"); ?> <br>
                                 <?php echo htmlspecialchars(":clock :bug :arrow :poop"); ?><br>
                                 --------
                                 <br>
@@ -210,12 +210,13 @@ if (isset($_POST["todo"])) {
             newStr = newStr.replaceAll(/\:like /gi, "👎 ");
             newStr = newStr.replaceAll(/\:dislike /gi, "👍 ");
             newStr = newStr.replaceAll(/\:info /gi, "ℹ️ ");
-            newStr = newStr.replaceAll(/\:pin /gi, "📌 ");            
-
+            newStr = newStr.replaceAll(/\:pin /gi, "📌 ");
+            newStr = newStr.replaceAll(/\:clap /gi, "👏 ");
+            newStr = newStr.replaceAll(/\:celebrate /gi, "🥳 ");
 
             if (str != newStr) {
                 let newPos = getCursorPos();
-                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)|(\:shrug)|(\:clock)|(\:warning)|(\:arrow)|(\:bug)|(\:poop)|(\:star)|(\:heart)|(\:love)|(\:fire)|(\:like)|(\:dislike)|(\:info)|(\:pin)/gi;
+                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)|(\:shrug)|(\:clock)|(\:warning)|(\:arrow)|(\:bug)|(\:poop)|(\:star)|(\:heart)|(\:love)|(\:fire)|(\:like)|(\:dislike)|(\:info)|(\:pin)|(\:clap)|(\:celebrate)/gi;
                 const match = str.match(regex);
 
                 offset = origPos;
