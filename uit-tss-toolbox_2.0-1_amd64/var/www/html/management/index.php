@@ -61,8 +61,9 @@ if (isset($_POST["todo"])) {
                                 <?php echo htmlspecialchars("Lastly, enter statuses of to-do list items preceeded by a colon to get an emoji - :check, :x, :cancel, :inprogress, :working, :waiting, :shrug, :clock, :warning, :done "); ?>
                             </span>
                             </div>
+                            <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
                         </div>
-                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();replaceEmoji();' style='width: 100%; height: 30em;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
+                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();replaceEmoji();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" style='width: 100%; height: 30em;'><?php echo htmlspecialchars($todo); ?>  </textarea></div>
                         <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
                     </form>
                 </div>
@@ -88,6 +89,10 @@ if (isset($_POST["todo"])) {
         </div>
 
         <script>
+        function input_changed() {
+            document.getElementById("todo").style.border = "thick dashed #C8102E";
+            document.getElementById('unsaved-changes').innerHTML = "Unsaved Changes... ";
+        }
         function charCount() {
             var myElement = document.getElementById('todo');
             myElement.focus();
