@@ -70,7 +70,7 @@ if (isset($_POST['serial'])) {
 
   //Insert checkout data
   $locationRegex = '/(checkout)|(check out)/i';
-  if (preg_match($location, $locationRegex)) {
+  if (preg_match($locationRegex, $location)) {
     $db->insertCheckout($time);
     $db->updateCheckout("tagnumber", $tagNum, $time);
     $db->updateCheckout("customer_name", $customerName, $time);
