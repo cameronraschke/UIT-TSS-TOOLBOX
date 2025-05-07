@@ -186,7 +186,7 @@ if (isset($_POST['serial'])) {
       if (isset($_POST["tagnumber"])) {
         unset($formSql);
         $formSql = "SELECT locations.tagnumber, 
-          jobstats.system_serial, locations.location, locationFormatting(locations.location) AS 'location_formatted', 
+          jobstats.system_serial, IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted', 
           DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
           t4.department, locations.disk_removed, locations.status, t3.note AS 'most_recent_note', t5.department_readable, 
           DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', locations.domain, locations.status, IF (t3.time = locations.time, 1, 0) AS 'placeholder_bool'
@@ -473,7 +473,7 @@ $sqlArr = array();
 $rowCount = 0;
 $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, 
-  locations.location, locationFormatting(locations.location) AS 'location_formatted',
+  IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted',
   static_departments.department_readable AS 'department_formatted', departments.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Yes', 'Broken') AS 'status_formatted', locations.status AS 'locations_status', 
   IF (os_stats.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'os_installed_formatted', os_stats.os_installed,
@@ -645,7 +645,7 @@ if (arrFilter($db->get()) === 0) {
             <select name="location" id="location-filter">
               <option value="">--Filter By Location--</option>
               <?php
-              $db->select("SELECT COUNT(location) AS location_rows, location, locationFormatting(location) AS 'location_formatted' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
+              $db->select("SELECT COUNT(location) AS location_rows, IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(location) AS 'location_formatted' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY locations.location ORDER BY locations.location ASC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
                   echo "<option value='" . htmlspecialchars($value1["location"]) . "'>" . htmlspecialchars($value1["location_formatted"]) . " (" . htmlspecialchars($value1["location_rows"]) . ")" . "</option>" . PHP_EOL;
