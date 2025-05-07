@@ -411,7 +411,7 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
     echo "<option value=''>--Please Select--</option>";
     $db->select("SELECT department, department_readable FROM static_departments ORDER BY department_readable ASC");
     foreach ($db->get() as $key => $value1) {
-      echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>";
+      echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
     }
   } else {
     $db->Pselect("SELECT department, department_readable FROM static_departments WHERE NOT department = :department", array(':department' => $value["department"]));
@@ -745,8 +745,8 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
                     // update all other tables
                     const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
                     document.getElementById("updateDiv1").innerHTML = updateDiv1
-                    const updateDiv2 = doc.getElementById('updateDiv2').innerHTML
-                    document.getElementById("updateDiv2").innerHTML = updateDiv2
+                    //const updateDiv2 = doc.getElementById('updateDiv2').innerHTML
+                    //document.getElementById("updateDiv2").innerHTML = updateDiv2
                     const updateDiv3 = doc.getElementById('updateDiv3').innerHTML
                     document.getElementById("updateDiv3").innerHTML = updateDiv3
                     const updateDiv4 = doc.getElementById('updateDiv4').innerHTML

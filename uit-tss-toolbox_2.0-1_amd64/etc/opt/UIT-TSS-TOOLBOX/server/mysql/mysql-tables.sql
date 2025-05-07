@@ -31,7 +31,7 @@ CREATE TABLE clientstats (
 
 
 CREATE TABLE IF NOT EXISTS jobstats (
-    uuid VARCHAR(45) NOT NULL,
+    uuid VARCHAR(64) NOT NULL,
     tagnumber VARCHAR(8) DEFAULT NULL,
     etheraddress VARCHAR(17) DEFAULT NULL,
     date DATE DEFAULT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
 
 ALTER TABLE jobstats
     DROP PRIMARY KEY,
-    MODIFY COLUMN uuid VARCHAR(45) NOT NULL PRIMARY KEY FIRST,
+    MODIFY COLUMN uuid VARCHAR(64) NOT NULL PRIMARY KEY FIRST,
     MODIFY COLUMN tagnumber VARCHAR(8) DEFAULT NULL AFTER uuid,
     MODIFY COLUMN etheraddress VARCHAR(17) DEFAULT NULL AFTER tagnumber,
     MODIFY COLUMN date DATE DEFAULT NULL AFTER etheraddress,
@@ -368,7 +368,7 @@ CREATE TABLE IF NOT EXISTS system_data (
     wifi_mac VARCHAR(17) DEFAULT NULL,
     system_manufacturer VARCHAR(24) DEFAULT NULL,
     system_model VARCHAR(64) DEFAULT NULL,
-    system_uuid VARCHAR(36) DEFAULT NULL,
+    system_uuid VARCHAR(64) DEFAULT NULL,
     system_sku VARCHAR(20) DEFAULT NULL,
     chassis_type VARCHAR(16) DEFAULT NULL,
     cpu_manufacturer VARCHAR(20) DEFAULT NULL,
@@ -387,7 +387,7 @@ ALTER TABLE system_data
     MODIFY COLUMN wifi_mac VARCHAR(17) DEFAULT NULL AFTER tagnumber,
     MODIFY COLUMN system_manufacturer VARCHAR(24) DEFAULT NULL AFTER wifi_mac,
     MODIFY COLUMN system_model VARCHAR(64) DEFAULT NULL AFTER system_manufacturer,
-    MODIFY COLUMN system_uuid VARCHAR(36) DEFAULT NULL AFTER system_model,
+    MODIFY COLUMN system_uuid VARCHAR(64) DEFAULT NULL AFTER system_model,
     MODIFY COLUMN system_sku VARCHAR(20) DEFAULT NULL AFTER system_uuid,
     MODIFY COLUMN chassis_type VARCHAR(16) DEFAULT NULL AFTER system_sku,
     MODIFY COLUMN cpu_manufacturer VARCHAR(20) DEFAULT NULL AFTER chassis_type,

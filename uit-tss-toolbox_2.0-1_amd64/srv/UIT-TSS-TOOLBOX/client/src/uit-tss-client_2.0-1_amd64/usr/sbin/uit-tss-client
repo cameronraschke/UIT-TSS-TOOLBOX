@@ -128,7 +128,7 @@ function remote {
 }
 
 function department {
-	sqlDepartment=$(echo "SELECT department AS result FROM departments WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+	sqlDepartment=$(echo "SELECT department AS 'result' FROM departments WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
 }
 
 DATE=$(date --iso)
@@ -422,49 +422,40 @@ function enterTag {
 	tput reset
 	echo ""
 
-	tagNum=$(echo "SELECT tagnumber AS result FROM departments WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+	tagNum=$(echo "SELECT tagnumber AS result FROM locations WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+	department
 	if [[ $tagNum != "NULL" ]]; then
 		UUID=""
-		if [[ $sqlDepartment == "shrl" ]]; then
-			UUID=$(echo -n "shrl-"; cat /proc/sys/kernel/random/uuid)
-			department="shrl"
-		elif [[ $sqlDepartment == "techComm" ]]; then
-			UUID=$(echo -n "techComm-"; cat /proc/sys/kernel/random/uuid)
-			department="techComm"
-		elif [[ $sqlDepartment == "property" ]]; then
-			UUID=$(echo -n "property-"; cat /proc/sys/kernel/random/uuid)
-			department="property"
-		else
-			UUID=$(cat /proc/sys/kernel/random/uuid)
-		fi
+		UUID=$(echo -n $sqlDepartment; cat /proc/sys/kernel/random/uuid)
+		department=$sqlDepartment
 
 		#sleep ${RANDOM::1}
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /opt/UIT-TSS-TOOLBOX/parse
-		echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /opt/UIT-TSS-TOOLBOX/parse
+		#echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /opt/UIT-TSS-TOOLBOX/parse
 		return
 	else
 		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
 		echo ""
-		echo "${BOLD}Please select the ${BLUE}department${RESET}${BOLD}:${RESET} "
-		echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}TechCommons${RESET}"
-		echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}SHRL${RESET}"
-		echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}Property Management${RESET}"
-		echo ""
-		read -n 1 -p "${BOLD}Please enter [1-3]:${RESET} " input
-		if [[ $input == "1" ]]; then
-			department="techComm"
-		elif [[ $input == "2" ]]; then
-			department="shrl"
-		elif [[ $input == "3" ]]; then
-			department="property"
-		else
-			enterTag
-		fi
+		#echo "${BOLD}Please select the ${BLUE}department${RESET}${BOLD}:${RESET} "
+		#echo "   ${BOLD}${GREEN}[1]${RESET} ${BOLD}TechCommons${RESET}"
+		#echo "   ${BOLD}${GREEN}[2]${RESET} ${BOLD}SHRL${RESET}"
+		#echo "   ${BOLD}${GREEN}[3]${RESET} ${BOLD}Property Management${RESET}"
+		#echo ""
+		#read -n 1 -p "${BOLD}Please enter [1-3]:${RESET} " input
+		#if [[ $input == "1" ]]; then
+		#	department="techComm"
+		#elif [[ $input == "2" ]]; then
+		#	department="shrl"
+		#elif [[ $input == "3" ]]; then
+		#	department="property"
+		#else
+		#	enterTag
+		#fi
 
 		UUID=$(echo -n "newEntry-"; cat /proc/sys/kernel/random/uuid)
 
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /opt/UIT-TSS-TOOLBOX/parse
-		echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /opt/UIT-TSS-TOOLBOX/parse
+		#echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /opt/UIT-TSS-TOOLBOX/parse
 		echo "location|custom|${tagNum}|${tOneSerialNumber}|new entry|0|" | /opt/UIT-TSS-TOOLBOX/parse
 		department
 		enterTag
