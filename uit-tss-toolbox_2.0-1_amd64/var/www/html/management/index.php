@@ -182,7 +182,6 @@ if (isset($_POST["todo"])) {
             newStr = newStr.replaceAll(/\:D /g, "😁 ");
             newStr = newStr.replaceAll(/\;\) /g, "😉 ");
             newStr = newStr.replaceAll(/\:P /g, "😋 ");
-            newStr = newStr.replaceAll(/\:p /g, "😋 ");
             newStr = newStr.replaceAll(/\:\| /g, "😑 ");
             newStr = newStr.replaceAll(/\:0 /g, "😲 ");
             newStr = newStr.replaceAll(/\:O /g, "😲 ");
