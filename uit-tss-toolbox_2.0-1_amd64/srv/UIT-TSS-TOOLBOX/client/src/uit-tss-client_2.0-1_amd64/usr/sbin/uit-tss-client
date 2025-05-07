@@ -426,7 +426,7 @@ function enterTag {
 	department
 	if [[ $tagNum != "NULL" ]]; then
 		UUID=""
-		UUID=$(echo -n "$sqlDepartment-"; cat /proc/sys/kernel/random/uuid)
+		UUID=$(echo -n "${sqlDepartment}-"; cat /proc/sys/kernel/random/uuid)
 		department=$sqlDepartment
 
 		#sleep ${RANDOM::1}
