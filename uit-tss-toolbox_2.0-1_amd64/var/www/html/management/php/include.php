@@ -657,6 +657,52 @@ class db {
         }
     }
 
+    // Checkout table
+    public function insertCheckout ($time) {
+        if (strFilter($time) == 0) {
+            $db = new MySQLConn();
+            $this->pdo = $db->dbObj();
+            $sql = "INSERT INTO checkout (time) VALUES (:time)";
+            $stmt = $this->pdo->prepare($sql);
+    
+            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+    
+            if (strFilter($stmt) == 0) {
+                $stmt->execute();
+            }
+        }
+    }
+    
+    public function updateCheckout ($key, $value, $time) {
+        if (strFilter($key) == 0 && strFilter($time) == 0) {
+            $db = new MySQLConn();
+            $this->pdo = $db->dbObj();
+            $sql = "UPDATE checkout SET $key = :value WHERE time = :time";
+            $stmt = $this->pdo->prepare($sql);
+    
+            if (strFilter($value) == 0) {
+                if ($value == "TRUE") {
+                    $value = "0";
+                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+                } elseif ($value == "FALSE") {
+                    $value = "1";
+                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+                }
+                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+            } else {
+                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+            }
+    
+            if (strFilter($stmt) == 0) {
+                $stmt->execute();
+            }
+        }
+    }
+
 }
 
 ?>

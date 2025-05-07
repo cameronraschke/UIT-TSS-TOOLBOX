@@ -567,3 +567,16 @@ CREATE TABLE IF NOT EXISTS todo (
     time DATETIME(3) NOT NULL PRIMARY KEY,
     note VARCHAR(8192) DEFAULT NULL
 );
+
+
+CREATE TABLE IF NOT EXISTS checkout (
+    time DATETIME(3) NOT NULL PRIMARY KEY,
+    tagnumber VARCHAR(6) NOT NULL,
+    customer_name VARCHAR(48) DEFAULT NULL,
+    customer_psid VARCHAR(24) DEFAULT NULL,
+    checkout_date DATETIME(3) DEFAULT NULL,
+    return_date DATETIME(3) DEFAULT NULL,
+    checkout_group VARCHAR(48) DEFAULT NULL,
+    note VARCHAR(128) DEFAULT NULL
+);
+

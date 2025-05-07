@@ -39,7 +39,12 @@ if (isset($_POST['serial'])) {
   $department = $_POST['department'];
   $note = $_POST['note'];
   $domain = $_POST["domain"];
-  
+  $checkoutDate = $_POST["checkout_date"];
+  $returnDate = $_POST["return_date"];
+  $customerName = $_POST["customer_name"];
+  $customerPSID = $_POST["customer_psid"];
+
+
   //Insert jobstats data
   //$db->insertJob($uuid);
   //$db->updateJob("tagnumber", $tagNum, $uuid);
@@ -62,6 +67,17 @@ if (isset($_POST['serial'])) {
   $db->updateLocation("disk_removed", $diskRemoved, $time);
   $db->updateLocation("note", $note, $time);
   $db->updateLocation("domain", $domain, $time);
+
+  //Insert checkout data
+  $locationRegex = '/(checkout)|(check out)/i';
+  if (preg_match($location, $locationRegex)) {
+    $db->insertCheckout($time);
+    $db->updateCheckout("tagnumber", $tagNum, $time);
+    $db->updateCheckout("customer_name", $customerName, $time);
+    $db->updateCheckout("customer_psid", $customerPSID, $time);
+    $db->updateCheckout("checkout_date", $checkoutDate, $time);
+    $db->updateCheckout("return_date", $returnDate, $time);
+  }
 
   //Printing
   if ($_POST["print"] == "1") {
@@ -392,7 +408,7 @@ if (isset($_POST['serial'])) {
                     echo "<div><div><label for='return_date'>Return date: </label></div>";
                     echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value1["next_date"]) . "' min='2020-01-01' /></div>";
                   }
-                  unset($value1);      
+                  unset($value1);
               echo "</div>";
               echo "<div class='column'>";
               echo "<div><div><label for='customer_name'>Customer name: </label></div>";
