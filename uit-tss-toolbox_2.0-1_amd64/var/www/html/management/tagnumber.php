@@ -409,6 +409,10 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
   echo "<div><select name='department' id='department'>" . PHP_EOL;
   if (strFilter($value["department"]) === 1) {
     echo "<option value=''>--Please Select--</option>";
+    $db->select("SELECT department, department_readable FROM static_departments ORDER BY department_readable ASC");
+    foreach ($db->get() as $key => $value1) {
+      echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>";
+    }
   } else {
     $db->Pselect("SELECT department, department_readable FROM static_departments WHERE NOT department = :department", array(':department' => $value["department"]));
     if (arrFilter($db->get()) === 0) {
