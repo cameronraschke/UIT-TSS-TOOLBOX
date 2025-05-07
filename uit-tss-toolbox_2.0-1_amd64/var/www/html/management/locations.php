@@ -158,6 +158,7 @@ if (isset($_POST['serial'])) {
               echo "'" . $value["location"] . "',";
             }
           }
+          unset($value);
           ?>
         ];
 
@@ -185,7 +186,7 @@ if (isset($_POST['serial'])) {
       if (isset($_POST["tagnumber"])) {
         unset($formSql);
         $formSql = "SELECT locations.tagnumber, 
-          jobstats.system_serial, locationFormatting(locations.location) AS 'location', 
+          jobstats.system_serial, locations.location, locationFormatting(locations.location) AS 'location_formatted', 
           DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
           t4.department, locations.disk_removed, locations.status, t3.note AS 'most_recent_note', t5.department_readable, 
           DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', locations.domain, locations.status, IF (t3.time = locations.time, 1, 0) AS 'placeholder_bool'
@@ -251,7 +252,7 @@ if (isset($_POST['serial'])) {
           // Location data
           if ($tagDataExists === 1) {
             echo "<div><label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
-            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' autofocus required>" . PHP_EOL;
+            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location_formatted"]) . "' autofocus required>" . PHP_EOL;
           } else {
             echo "<div><label for='location'>Location</label></div>" . PHP_EOL;
             echo "<input type='text' id='location' name='location' required>" . PHP_EOL;
@@ -402,21 +403,38 @@ if (isset($_POST['serial'])) {
             </div>
             <div class='row'>
               <div class='column'>";
-                  $db->select("SELECT DATE_FORMAT(NOW(), '%Y-%m-%d') AS 'cur_date', DATE_FORMAT(NOW() + INTERVAL 1 WEEK, '%Y-%m-%d') AS 'next_date'");
-                  foreach ($db->get() as $key => $value1) {
-                    echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
-                    echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value1["cur_date"]) . "' min='2020-01-01' /></div>";
-                    echo "<div><div><label for='return_date'>Return date: </label></div>";
-                    echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value1["next_date"]) . "' min='2020-01-01' /></div>";
+                  $db->Pselect("SELECT * FROM (SELECT customer_name, customer_psid, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkout WHERE tagnumber = :tagnumber) t1 WHERE NOT t1.customer_name = 'returned' AND t1.row_count = 1", array(':tagnumber' => $_POST["tagnumber"]));
+                  if (strFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value1) {
+                      echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
+                      echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value1["checkout_date"]) . "' min='2020-01-01' /></div>";
+                      echo "<div><div><label for='return_date'>Return date: </label></div>";
+                      echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value1["return_date"]) . "' min='2020-01-01' /></div>";
+                      echo "</div>";
+                      echo "<div class='column'>";
+                      echo "<div><div><label for='customer_name'>Customer name: </label></div>";
+                      echo "<input type='text' name='customer_name' id='customer_name'>" . htmlspecialchars($value1["customer_name"]) . "</div>";
+                      echo "<div><div><label for='customer_psid'>Customer PSID: </label></div>";
+                      echo "<input type='text' name='customer_psid' id='customer_psid'>" . htmlspecialchars($value1["customer_psid"]) . "</div>";
+                      echo "</div>";
+                    }
+                  } else {
+                    $db->select("SELECT DATE_FORMAT(NOW(), '%Y-%m-%d') AS 'cur_date', DATE_FORMAT(NOW() + INTERVAL 1 WEEK, '%Y-%m-%d') AS 'next_date'");
+                    foreach ($db->get() as $key => $value2) {
+                      echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
+                      echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value2["cur_date"]) . "' min='2020-01-01' /></div>";
+                      echo "<div><div><label for='return_date'>Return date: </label></div>";
+                      echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value2["next_date"]) . "' min='2020-01-01' /></div>";
+                      echo "</div>";
+                      echo "<div class='column'>";
+                      echo "<div><div><label for='customer_name'>Customer name: </label></div>";
+                      echo "<input type='text' name='customer_name' id='customer_name' placeholder='Customer Name'></div>";
+                      echo "<div><div><label for='customer_psid'>Customer PSID: </label></div>";
+                      echo "<input type='text' name='customer_psid' id='customer_psid' placeholder='Customer PSID'></div>";
+                      echo "</div>";        
+                    }
+                    unset($value1);
                   }
-                  unset($value1);
-              echo "</div>";
-              echo "<div class='column'>";
-              echo "<div><div><label for='customer_name'>Customer name: </label></div>";
-              echo "<input type='text' name='customer_name' id='customer_name' placeholder='Customer Name'></div>";
-              echo "<div><div><label for='customer_psid'>Customer PSID: </label></div>";
-              echo "<input type='text' name='customer_psid' id='customer_psid' placeholder='Customer PSID'></div>";
-              echo "</div>";
         echo "</div>";
 
           echo "<div class='row'>";
@@ -455,7 +473,7 @@ $sqlArr = array();
 $rowCount = 0;
 $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, 
-  locationFormatting(locations.location) AS 'location',
+  locations.location, locationFormatting(locations.location) AS 'location_formatted',
   static_departments.department_readable AS 'department_formatted', departments.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Yes', 'Broken') AS 'status_formatted', locations.status AS 'locations_status', 
   IF (os_stats.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'os_installed_formatted', os_stats.os_installed,
@@ -627,10 +645,10 @@ if (arrFilter($db->get()) === 0) {
             <select name="location" id="location-filter">
               <option value="">--Filter By Location--</option>
               <?php
-              $db->select("SELECT COUNT(location) AS location_rows, locationFormatting(location) AS 'location' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
+              $db->select("SELECT COUNT(location) AS location_rows, location, locationFormatting(location) AS 'location_formatted' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY location ORDER BY location ASC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
-                  echo "<option value='" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . htmlspecialchars($value1["location_rows"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")" . "</option>" . PHP_EOL;
+                  echo "<option value='" . htmlspecialchars($value1["location"]) . "'>" . htmlspecialchars($value1["location_formatted"]) . " (" . htmlspecialchars($value1["location_rows"]) . ")" . "</option>" . PHP_EOL;
                 }
               }
               unset($value1);
@@ -797,7 +815,7 @@ if (arrFilter($db->get()) === 0) {
 
 <?php
 if (strFilter($_GET["location"]) === 0) {
-    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
+    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online from location '" . htmlspecialchars($_GET["location_formatted"]) . "'.</h3></div>";
 } else {
     echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> queried clients are online.</h3></div>";
 }
@@ -858,7 +876,7 @@ foreach ($tableArr as $key => $value1) {
   echo "<td><b><a href='locations.php?system_model=" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
 
   // Location
-  echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
+  echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location_formatted"]) . "</a></b></td>" . PHP_EOL;
 
   // Department
   echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;

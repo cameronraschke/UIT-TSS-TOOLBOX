@@ -490,7 +490,7 @@ BEGIN
   SET ret = (SELECT 
     (CASE 
       WHEN location REGEXP '^.{1}$' THEN UPPER(location) 
-      WHEN location REGEXP 'checkout|check-out|check out' THEN 'Checkout' 
+      WHEN location REGEXP 'checkout|check-out|check out' THEN 'Check Out'
       ELSE location END)
   );
   RETURN ret;
