@@ -58,7 +58,7 @@ if (isset($_POST["todo"])) {
                                 <?php echo htmlspecialchars("Press * to create a menu item."); ?> <br><br>
                                 <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
                                 <?php echo htmlspecialchars("Enter emoticons to get emojis - :) :P :( :| etc."); ?> <br><br>
-                                <?php echo htmlspecialchars("Lastly, enter statuses of to-do list items preceeded by a colon to get an emoji - :check, :x, :cancel, :inprogress, :working, :waiting, :shrug, :clock, :warning, :done "); ?>
+                                <?php echo htmlspecialchars("Lastly, enter statuses of to-do list items preceeded by a colon to get an emoji - :check, :x, :cancel, :inprogress, :working, :waiting, :shrug, :clock, :arrow, :warning, :done "); ?>
                             </span>
                             </div>
                         </div>
@@ -154,22 +154,24 @@ if (isset($_POST["todo"])) {
             newStr = newStr.replaceAll(/\:\< /g, "😡 ");
             newStr = newStr.replaceAll(/\:\\ /g, "😕 ");
             newStr = newStr.replaceAll(/\;\( /g, "😢 ");
-            newStr = newStr.replaceAll(/\:check /g, "✅ ");
-            newStr = newStr.replaceAll(/\:done /g, "✅ ");
-            newStr = newStr.replaceAll(/\:x /g, "❌ ");
-            newStr = newStr.replaceAll(/\:cancel /g, "🚫 ");
-            newStr = newStr.replaceAll(/\:working /g, "⏳ ");
-            newStr = newStr.replaceAll(/\:waiting /g, "⏳ ");
-            newStr = newStr.replaceAll(/\:inprogress /g, "⏳ ");
-            newStr = newStr.replaceAll(/\:shrug /g, "🤷 ");
-            newStr = newStr.replaceAll(/\:clock /g, "🕓 ");
-            newStr = newStr.replaceAll(/\:warning /g, "⚠️ ");
+            newStr = newStr.replaceAll(/\:check /gi, "✅ ");
+            newStr = newStr.replaceAll(/\:done /gi, "✅ ");
+            newStr = newStr.replaceAll(/\:x /gi, "❌ ");
+            newStr = newStr.replaceAll(/\:cancel /gi, "🚫 ");
+            newStr = newStr.replaceAll(/\:working /gi, "⏳ ");
+            newStr = newStr.replaceAll(/\:waiting /gi, "⏳ ");
+            newStr = newStr.replaceAll(/\:inprogress /gi, "⏳ ");
+            newStr = newStr.replaceAll(/\:shrug /gi, "🤷 ");
+            newStr = newStr.replaceAll(/\:clock /gi, "🕓 ");
+            newStr = newStr.replaceAll(/\:warning /gi, "⚠️ ");
+            newStr = newStr.replaceAll(/\:arrow /gi, "⏩ ");
+            
             
 
 
             if (str != newStr) {
                 let newPos = getCursorPos();
-                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)|(\:shrug)|(\:clock)|(\:warning)/;
+                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)|(\:shrug)|(\:clock)|(\:warning)|(\:arrow)/;
                 const match = str.match(regex);
 
                 offset = origPos;
