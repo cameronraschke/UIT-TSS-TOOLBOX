@@ -53,10 +53,10 @@ iptables --table filter --append inputdrop --in-interface "${wanif}" --protocol 
 iptables --table filter --append inputdrop --in-interface "${wanif}" --source "${wan}" --protocol udp --match multiport --destination-ports 51220,57621 --jump DROP
 iptables --table filter --append inputdrop --in-interface "${wanif}" --destination "172.27.53.255/32" --protocol udp --match multiport --destination-ports 21027 --jump DROP
 iptables --table filter --append inputdrop --in-interface "${wanif}" --destination "255.255.255.255" --jump DROP
-iptables --table filter --append inputdrop --jump LOG --log-prefix "Input Drop: "
+#iptables --table filter --append inputdrop --jump LOG --log-prefix "Input Drop: "
 iptables --table filter --append inputdrop --jump DROP
 
-iptables --table filter --append INPUT --jump LOG --log-prefix "INPUT Drop: "
+#iptables --table filter --append INPUT --jump LOG --log-prefix "INPUT Drop: "
 iptables --table filter --policy INPUT DROP
 iptables --table filter --append FORWARD --jump LOG --log-prefix "FORWARD Drop: "
 iptables --table filter --policy FORWARD DROP
