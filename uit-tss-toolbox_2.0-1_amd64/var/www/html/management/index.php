@@ -55,15 +55,21 @@ if (isset($_POST["todo"])) {
                             <p id='charLen' name='charLen'>Charater count: 0</p>
                             <div class="tooltip">?
                                 <span class="tooltiptext">
-                                <?php echo htmlspecialchars("Press * to create a menu item."); ?> <br><br>
+                                <?php echo htmlspecialchars("Press ** before and after a word to create a heading. Ex) **Bugs** "); ?> <br><br>
+                                <?php echo htmlspecialchars("Press * to create a bulleted item."); ?> <br><br>
                                 <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
-                                <?php echo htmlspecialchars("Enter emoticons to get emojis - :) :P :( :| etc."); ?> <br><br>
-                                <?php echo htmlspecialchars("Lastly, enter statuses of to-do list items preceeded by a colon to get an emoji - :check, :x, :cancel, :inprogress, :working, :waiting, :shrug, :clock, :arrow, :warning, :done "); ?>
+                                <?php echo htmlspecialchars("Enter emoticons OR key words preceeded by a colon to get an emoji:  "); ?> <br><br>
+                                <?php echo htmlspecialchars(":check :x :cancel :waiting :warning :done"); ?> <br>
+                                <?php echo htmlspecialchars(":like :dislike :star :pin :info :heart :fire :shrug"); ?> <br>
+                                <?php echo htmlspecialchars(":clock :bug :arrow :poop"); ?><br>
+                                --------
+                                <br>
+                                <?php echo htmlspecialchars(" :) :P :( :| ;( "); ?>
                             </span>
                             </div>
                         </div>
                         <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
-                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();replaceEmoji();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable><?php echo htmlspecialchars($todo); ?> </textarea></div>
+                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($todo); ?> </textarea></div>
                         <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
                     </form>
                 </div>
@@ -134,6 +140,37 @@ if (isset($_POST["todo"])) {
                 return(startPosition);
         }
 
+        function replaceHeaders() {
+            let str = document.getElementById('todo').value;
+            let origPos = getCursorPos();
+            let newStr = str;
+            let pos = 0;
+            let offset = 0;
+            // Replace
+            newStr = newStr.replaceAll(/^\*\*(.+)\*\* /gi, "$1\n---------- \n");
+            newStr = newStr.replaceAll(/\n\*\*(.+)\*\* /gi, "\n\n$1\n---------- \n");
+
+            if (str != newStr) {
+                let newPos = getCursorPos();
+                const regex = /\n\-\-.*\-\-/;
+                const match = str.match(regex);
+
+                offset = origPos;
+
+                if (match) {
+                    const substring = match[0];
+                    const substringLength = substring.length;
+                    console.log("SUBSTRING Len: " + substring.length + 10)
+                    offset = origPos - substringLength + substring.length + 10;
+                }
+
+                console.log("Offset: " + offset);
+                document.getElementById('todo').value = newStr;
+                setCursorPos(offset);
+            }
+            return(offset);
+        }
+
         function replaceEmoji() {
             let str = document.getElementById('todo').value;
             let origPos = getCursorPos();
@@ -165,13 +202,29 @@ if (isset($_POST["todo"])) {
             newStr = newStr.replaceAll(/\:clock /gi, "🕓 ");
             newStr = newStr.replaceAll(/\:warning /gi, "⚠️ ");
             newStr = newStr.replaceAll(/\:arrow /gi, "⏩ ");
+            newStr = newStr.replaceAll(/\:bug /gi, "🐛 ");
+            newStr = newStr.replaceAll(/\:poop /gi, "💩 ");
+            newStr = newStr.replaceAll(/\:star /gi, "⭐ ");
+            newStr = newStr.replaceAll(/\:heart /gi, "❤️ ");
+            newStr = newStr.replaceAll(/\:love /gi, "❤️ ");
+            newStr = newStr.replaceAll(/\:fire /gi, "🔥 ");
+            newStr = newStr.replaceAll(/\:like /gi, "👎 ");
+            newStr = newStr.replaceAll(/\:dislike /gi, "👍 ");
+            newStr = newStr.replaceAll(/\:info /gi, "ℹ️ ");
+            newStr = newStr.replaceAll(/\:pin /gi, "📌 ");
+            
+            
+            
+            
+            
+            
             
             
 
 
             if (str != newStr) {
                 let newPos = getCursorPos();
-                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)|(\:shrug)|(\:clock)|(\:warning)|(\:arrow)/;
+                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)|(\:shrug)|(\:clock)|(\:warning)|(\:arrow)|(\:bug)|(\:poop)|(\:star)|(\:heart)|(\:love)|(\:fire)|(\:like)|(\:dislike)|(\:info)|(\:pin)/gi;
                 const match = str.match(regex);
 
                 offset = origPos;
@@ -179,11 +232,11 @@ if (isset($_POST["todo"])) {
                 if (match) {
                     const substring = match[0];
                     const substringLength = substring.length;
-                    console.log("SUBSTRING Len: " + substring.length)
+                    //console.log("SUBSTRING Len: " + substring.length)
                     offset = origPos - substringLength + 1;
                 }
 
-                console.log("Offset: " + offset);
+                //console.log("Offset: " + offset);
                 document.getElementById('todo').value = newStr;
                 setCursorPos(offset);
             }
