@@ -491,6 +491,8 @@ BEGIN
     (CASE 
       WHEN location REGEXP '^.{1}$' THEN UPPER(location) 
       WHEN location REGEXP 'checkout|check-out|check out' THEN 'Check Out'
+      WHEN location REGEXP 'cam desk|cams desk|cam''s desk' THEN 'Cam''s Desk'
+      WHEN location REGEXP 'matthew desk|matthews desk|matthew''s desk' THEN 'Matthew''s Desk'
       ELSE location END)
   );
   RETURN ret;
