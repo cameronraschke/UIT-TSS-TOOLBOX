@@ -210,15 +210,7 @@ if (isset($_POST["todo"])) {
             newStr = newStr.replaceAll(/\:like /gi, "👎 ");
             newStr = newStr.replaceAll(/\:dislike /gi, "👍 ");
             newStr = newStr.replaceAll(/\:info /gi, "ℹ️ ");
-            newStr = newStr.replaceAll(/\:pin /gi, "📌 ");
-            
-            
-            
-            
-            
-            
-            
-            
+            newStr = newStr.replaceAll(/\:pin /gi, "📌 ");            
 
 
             if (str != newStr) {
@@ -250,7 +242,7 @@ if (isset($_POST["todo"])) {
             // Replace first bullet point
             newStr = newStr.replaceAll(/^\* /g, "● ");
             // Replace subsequent bullet points on enter or space
-            newStr = newStr.replaceAll(/\n\* /g, "\n\n● ");
+            newStr = newStr.replaceAll(/\n\* /g, "\n● ");
             //newStr = newStr.replaceAll(/\n\*\n/g, "\n\n● ");
             // Replace indents on either enter or space
             newStr = newStr.replaceAll(/\n\> /g, "\n\t> ");
