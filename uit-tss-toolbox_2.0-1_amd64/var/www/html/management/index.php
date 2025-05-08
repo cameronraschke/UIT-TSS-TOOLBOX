@@ -207,8 +207,8 @@ if (isset($_POST["todo"])) {
             newStr = newStr.replaceAll(/\:heart /gi, "❤️ ");
             newStr = newStr.replaceAll(/\:love /gi, "❤️ ");
             newStr = newStr.replaceAll(/\:fire /gi, "🔥 ");
-            newStr = newStr.replaceAll(/\:like /gi, "👎 ");
-            newStr = newStr.replaceAll(/\:dislike /gi, "👍 ");
+            newStr = newStr.replaceAll(/\:like /gi, "👍 ");
+            newStr = newStr.replaceAll(/\:dislike /gi, "👎 ");
             newStr = newStr.replaceAll(/\:info /gi, "ℹ️ ");
             newStr = newStr.replaceAll(/\:pin /gi, "📌 ");
             newStr = newStr.replaceAll(/\:clap /gi, "👏 ");
