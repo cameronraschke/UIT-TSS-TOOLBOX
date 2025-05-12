@@ -568,7 +568,7 @@ class db {
             $db = new MySQLConn();
             $this->pdo = $db->dbObj();
 
-            $sql = "UPDATE os_stats SET $key = :value, time = :updateTime WHERE tagnumber = :tagNum";
+            $sql = "UPDATE os_stats SET $key = :value WHERE tagnumber = :tagNum";
             $stmt = $this->pdo->prepare($sql);
     
             if (strFilter($value) === 0) {

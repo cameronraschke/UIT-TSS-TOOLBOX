@@ -47,7 +47,7 @@ foreach ($db->get() as $key => $value) {
         $db->insertOS($value["tagnumber"]);
     }
     
-    $db->updateOS($value["tagnumber"], "time", $value["time"])
+    $db->updateOS($value["tagnumber"], "time", $value["time"]);
     $db->updateOS($value["tagnumber"], "os_installed", $value["os_installed"]);
     $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"]);
 
