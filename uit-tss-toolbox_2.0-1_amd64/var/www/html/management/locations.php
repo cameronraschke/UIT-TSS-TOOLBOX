@@ -31,9 +31,9 @@ $db = new db();
 
 if (isset($_POST['serial'])) {
   $uuid = uniqid("location-", true);
-  $tagNum = $_POST["tagnumber"];
-  $serial = $_POST['serial'];
-  $location = $_POST['location'];
+  $tagNum = trim($_POST["tagnumber"]);
+  $serial = trim($_POST['serial']);
+  $location = trim($_POST['location']);
   $status = $_POST["status"];
   $diskRemoved = $_POST['disk_removed'];
   $department = $_POST['department'];
@@ -41,9 +41,9 @@ if (isset($_POST['serial'])) {
   $domain = $_POST["domain"];
   $checkoutDate = $_POST["checkout_date"];
   $returnDate = $_POST["return_date"];
-  $customerName = $_POST["customer_name"];
-  $customerPSID = $_POST["customer_psid"];
-  $systemModel = $_POST["model"];
+  $customerName = trim($_POST["customer_name"]);
+  $customerPSID = trim($_POST["customer_psid"]);
+  $systemModel = trim($_POST["model"]);
 
 
   //Insert jobstats data
