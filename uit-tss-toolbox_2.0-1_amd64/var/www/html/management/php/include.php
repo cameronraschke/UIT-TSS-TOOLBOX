@@ -616,7 +616,7 @@ class db {
         if (strFilter($time) == 0) {
             $db = new MySQLConn();
             $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO todo (time) VALUES (:time)";
+            $sql = "INSERT INTO notes (time) VALUES (:time)";
             $stmt = $this->pdo->prepare($sql);
     
             $stmt->bindParam(':time', $time, PDO::PARAM_STR);
@@ -631,7 +631,7 @@ class db {
         if (strFilter($key) == 0 && strFilter($time) == 0) {
             $db = new MySQLConn();
             $this->pdo = $db->dbObj();
-            $sql = "UPDATE todo SET $key = :value WHERE time = :time";
+            $sql = "UPDATE notes SET $key = :value WHERE time = :time";
             $stmt = $this->pdo->prepare($sql);
     
             if (strFilter($value) == 0) {

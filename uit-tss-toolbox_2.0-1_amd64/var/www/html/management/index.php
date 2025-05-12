@@ -4,9 +4,9 @@ include('/var/www/html/management/php/include.php');
 
 $db = new db();
 
-if (isset($_POST["todo"])) {
+if (isset($_POST["note"]) && isset($_GET["note-type"])) {
     $db->insertToDo($time);
-    $db->updateToDo("note", $_POST["todo"], $time);
+    $db->updateToDo($_GET["note-type"], $_POST["note"], $time);
     unset($_POST);
 }
 ?>
@@ -40,18 +40,41 @@ if (isset($_POST["todo"])) {
                 <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
                 <!--<div><h3 class='page-content'><a href="/clientstats.php">Client Report</a></h3></div> -->
                 <div class='location-form' style='height: 100%;'>
+                    <!--<a href="/index.php?note-type=todo">Edit: To Do</a>
+                    <a href="/index.php?note-type=general">Edit: General</a>-->
+                    <form method='get'>
+                        <select name='note-type' id='note-type' onchange='this.form.submit()'>
+                            <option value="">--Select Notes to Edit--</option>
+                            <option value='todo'>To-Do List</option>
+                            <option value='general'>General Notes</option>
+                            <option value='checklist'>Checklists</option>
+                        </select>
+                    </form>
+                </div>
+                <div class='location-form' style='height: 100%;'>
                     <form method="post">
                         <?php
-                            //$db->select("SELECT IF (time IS NOT NULL, DATE_FORMAT(time, '%m/%d/%y, %r'), 'N/A') AS 'time', IF (note IS NOT NULL, REGEXP_REPLACE(note, '^[*]', '&#9679;'), 'Enter List...') AS 'note' FROM todo");
-                            $db->select("SELECT IF (time IS NOT NULL, DATE_FORMAT(time, '%m/%d/%y, %r'), 'N/A') AS 'time', IF (note IS NOT NULL, note, 'Enter List...') AS 'note' FROM todo");
-                            foreach ($db->get() as $key => $value1) {
-                                $todo = $value1["note"];
-                                $todoTime = $value1["time"];
+                        if (isset($_GET)) {
+                            if ($_GET["note-type"] == "todo") {
+                                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', todo AS 'note' FROM notes WHERE todo IS NOT NULL ORDER BY time DESC LIMIT 1";
+                            } elseif ($_GET["note-type"] == "general") {
+                                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', general AS 'note' FROM notes WHERE general IS NOT NULL ORDER BY time DESC LIMIT 1";
+                            } elseif ($_GET["note-type"] == "checklist") {
+                                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', checklist AS 'note' FROM notes WHERE checklist IS NOT NULL ORDER BY time DESC LIMIT 1";
+                            } else {
+                                $sql = "SELECT NULL AS 'note'"; 
                             }
+                            $db->select($sql);
+                            foreach ($db->get() as $key => $value1) {
+                                $note = $value1["note"];
+                                $noteTime = $value1["time"];
+                            }
+                            unset($sql);
                             unset($value1);
+                        }
                         ?>
                         <div>
-                            <label for='todo'>To-Do List (Last Updated: <?php echo htmlspecialchars($todoTime); ?>)</label>
+                            <label for='note'>To-Do List (Last Updated: <?php echo htmlspecialchars($noteTime); ?>)</label>
                             <p id='charLen' name='charLen'>Charater count: 0</p>
                             <div class="tooltip">?
                                 <span class="tooltiptext">
@@ -69,8 +92,8 @@ if (isset($_POST["todo"])) {
                             </div>
                         </div>
                         <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
-                        <div><textarea id='todo' name='todo' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($todo); ?> </textarea></div>
-                        <div><button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Update To-Do List</button></div>
+                        <div><textarea id='note' name='note' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php if (isset($_GET)) { echo htmlspecialchars($note); } ?> </textarea></div>
+                        <div name='edit-button' id='edit-button'></div><div><a href='/index.php'>Cancel Edit</a></div>
                     </form>
                 </div>
                 <div id="jobTimes" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
@@ -95,18 +118,46 @@ if (isset($_POST["todo"])) {
         </div>
 
         <script>
+        // Get the current URL
+        const url = window.location.href;
+
+        // Create a URLSearchParams object
+        let params = new URLSearchParams(document.location.search);
+        let note = params.get("note-type");
+
+        // Check if the "get" parameter exists
+        if (note == "todo") {
+            var myElement = document.getElementById('note');
+            document.getElementById("note").readOnly = false;
+            document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update To-Do List</button>";
+        } else if (note == "general") {
+            var myElement = document.getElementById('note');
+            document.getElementById("note").readOnly = false;
+            document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update Notes</button>";
+        } else if (note == "checklist") {
+            var myElement = document.getElementById('note');
+            document.getElementById("note").readOnly = false;
+            document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update Checklist</button>";
+        } else {
+            console.log("nothing in the URL.");
+            document.getElementById("note").readOnly = true;
+            document.getElementById("note").value = "Please edit the note by selecting a type of note in the dropdown menu above.";
+            document.getElementById("note").style.backgroundColor = "rgb(187, 185, 185) ";
+            document.getElementById("note").style.color = "rgb(0, 0, 0)";
+            document.getElementById('edit-button').innerHTML = "<a href='/index.php'>Cancel Edit</a>";
+
+        }
+
         function input_changed() {
-            document.getElementById("todo").style.border = "medium dashed #C8102E";
+            document.getElementById("note").style.border = "medium dashed #C8102E";
             document.getElementById('unsaved-changes').innerHTML = "Unsaved Changes... ";
         }
         function charCount() {
-            var myElement = document.getElementById('todo');
             myElement.focus();
-            var len = document.getElementById('todo').value.length;
+            var len = myElement.value.length;
 
-            document.getElementById("todo").addEventListener("keydown", function(){
-                var myElement = document.getElementById('todo').value;
-                var len = myElement.length;
+            myElement.addEventListener("keyup", function(){
+                var len = myElement.value.length;
                 document.getElementById('charLen').innerHTML = "Character count: " + len;
             },false);
 
@@ -116,8 +167,6 @@ if (isset($_POST["todo"])) {
             return(len);
         }
         function setCursorPos(pos) {
-            var myElement = document.getElementById('todo');
-
             myElement.focus();
             myElement.setSelectionRange(pos, pos);
             
@@ -125,7 +174,6 @@ if (isset($_POST["todo"])) {
             return(pos);
         }
         function getCursorPos() {
-                let myElement = document.getElementById('todo');
                 let startPosition = myElement.selectionStart;
                 let endPosition = myElement.selectionEnd;
 
@@ -141,7 +189,7 @@ if (isset($_POST["todo"])) {
         }
 
         function replaceHeaders() {
-            let str = document.getElementById('todo').value;
+            let str = myElement.value;
             let origPos = getCursorPos();
             let newStr = str;
             let pos = 0;
@@ -160,19 +208,19 @@ if (isset($_POST["todo"])) {
                 if (match) {
                     const substring = match[0];
                     const substringLength = substring.length;
-                    //console.log("SUBSTRING Len: " + substring.length + 8)
-                    offset = origPos - substringLength + substring.length + 8;
+                    //console.log("SUBSTRING Len: " + substring.length + 9)
+                    offset = origPos - substringLength + substring.length + 9;
                 }
 
                 //console.log("Offset: " + offset);
-                document.getElementById('todo').value = newStr;
+                myElement.value = newStr;
                 setCursorPos(offset);
             }
             return(offset);
         }
 
         function replaceEmoji() {
-            let str = document.getElementById('todo').value;
+            let str = myElement.value;
             let origPos = getCursorPos();
             let newStr = str;
             let pos = 0;
@@ -231,14 +279,14 @@ if (isset($_POST["todo"])) {
                 }
 
                 //console.log("Offset: " + offset);
-                document.getElementById('todo').value = newStr;
+                myElement.value = newStr;
                 setCursorPos(offset);
             }
             return(offset);
         }
 
         function replaceAsterisk() {
-            let str = document.getElementById('todo').value;
+            let str = myElement.value;
             let newStr = str;
             let pos = 0;
             
@@ -262,7 +310,7 @@ if (isset($_POST["todo"])) {
             if (str != newStr) {
                 let pos = getCursorPos();
                 //console.log("New string: " + newStr);
-                document.getElementById('todo').value = newStr;
+                myElement.value = newStr;
                 //console.log("Position + Offset: " + pos + offset)
                 setCursorPos(pos);
                 let endOfLine = newStr.indexOf('\n', pos);
