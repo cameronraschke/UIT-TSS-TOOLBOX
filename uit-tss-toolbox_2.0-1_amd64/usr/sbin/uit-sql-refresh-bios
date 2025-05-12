@@ -55,7 +55,13 @@ foreach ($db->get() as $key => $value) {
 unset($value);
 
 
-$db->select("SELECT os_stats.tagnumber, os_stats.os_name, os_stats.os_installed, IF (os_stats.os_installed = 1 AND os_stats.os_name IS NULL, 'Yes, Unknown OS', os_stats.os_name) AS 'image_name_readable' FROM os_stats");
+$db->select("SELECT os_stats.tagnumber, os_stats.os_name, os_stats.os_installed, IF (os_stats.os_installed = 1 AND os_stats.os_name IS NULL, 'Unknown OS', os_stats.os_name) AS 'image_name_readable' FROM os_stats");
+foreach ($db->get() as $key => $value) {
+    $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"]);
+}
+unset($value);
+
+$db->select("SELECT os_stats.tagnumber, os_stats.os_name, os_stats.os_installed, IF (os_stats.os_installed = 0 OR os_stats.os_installed IS NULL, 'No OS', os_stats.os_name) AS 'image_name_readable' FROM os_stats");
 foreach ($db->get() as $key => $value) {
     $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"]);
 }
