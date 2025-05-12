@@ -43,6 +43,7 @@ if (isset($_POST['serial'])) {
   $returnDate = $_POST["return_date"];
   $customerName = $_POST["customer_name"];
   $customerPSID = $_POST["customer_psid"];
+  $systemModel = $_POST["model"];
 
 
   //Insert jobstats data
@@ -57,6 +58,20 @@ if (isset($_POST['serial'])) {
   $db->updateDepartments("tagnumber", $tagNum, $time);
   $db->updateDepartments("system_serial", $serial, $time);
   $db->updateDepartments("department", $department, $time);
+
+  // Insert & update system_data
+  $db->Pselect("SELECT tagnumber FROM system_data WHERE tagnumber = :tag", array(':tag' => $tagNum));
+  foreach ($db->get() as $key => $value1) {
+    if (strFilter($value1["tagnumber"]) === 0) {
+      $db->updateSystemData($tagNum, "system_model", $systemModel);
+      $db->updateSystemData($tagNum, "time", $time);
+    } else {
+      $db->insertSystemData($tagNum);
+      $db->updateSystemData($tagNum, "system_model", $systemModel);
+      $db->updateSystemData($tagNum, "time", $time);
+    }
+  }
+  unset($value1);
   
   //Insert location data
   $db->insertLocation($time);
@@ -185,16 +200,16 @@ if (isset($_POST['serial'])) {
       //If tagnumber is POSTed, show data in the location form.
       if (isset($_POST["tagnumber"])) {
         unset($formSql);
-        $formSql = "SELECT locations.tagnumber, 
-          jobstats.system_serial, IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted', 
+        $formSql = "SELECT locations.tagnumber, locations.system_serial, system_data.system_model, 
+          IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted', 
           DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
           t4.department, locations.disk_removed, locations.status, t3.note AS 'most_recent_note', t5.department_readable, 
           DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', locations.domain, locations.status, IF (t3.time = locations.time, 1, 0) AS 'placeholder_bool'
           FROM locations 
-          INNER JOIN jobstats ON jobstats.tagnumber = locations.tagnumber 
+          LEFT JOIN jobstats ON jobstats.tagnumber = locations.tagnumber 
           INNER JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations) t1 
             ON t1.time = locations.time 
-          INNER JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM jobstats) t2 
+          LEFT JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM jobstats) t2 
             ON t2.time = jobstats.time 
           LEFT JOIN (SELECT tagnumber, time, note, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations WHERE note IS NOT NULL) t3 
             ON t3.tagnumber = locations.tagnumber
@@ -202,11 +217,13 @@ if (isset($_POST['serial'])) {
             ON locations.tagnumber = t4.tagnumber
           LEFT JOIN (SELECT department, department_readable FROM static_departments) t5
             ON t4.department = t5.department
-          WHERE t1.row_count = 1 AND t2.row_count = 1 AND (t3.row_count = 1 OR t3.row_count IS NULL)
-            AND jobstats.tagnumber = :tagnumberJob AND locations.tagnumber = :tagnumberLoc";
+          LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
+          WHERE t1.row_count = 1 AND (t2.row_count = 1 OR t2.row_count IS NULL) AND (t3.row_count = 1 OR t3.row_count IS NULL)
+            AND locations.tagnumber = :tagnumberLoc";
         
         unset($formArr);
-        $db->Pselect($formSql, array(':tagnumberJob' => htmlspecialchars_decode($_POST["tagnumber"]), ':tagnumberLoc' => htmlspecialchars_decode($_POST["tagnumber"])));
+        //$db->Pselect($formSql, array(':tagnumberJob' => htmlspecialchars_decode($_POST["tagnumber"]), ':tagnumberLoc' => htmlspecialchars_decode($_POST["tagnumber"])));
+        $db->Pselect($formSql, array(':tagnumberLoc' => htmlspecialchars_decode($_POST["tagnumber"])));
         if ($db->get() === "NULL") {
           $formArr = array( array( "system_serial" => "NULL", "location" => "NULL", "time_formatted" => "NULL") );
           $tagDataExists = 0;
@@ -229,7 +246,7 @@ if (isset($_POST['serial'])) {
                 <div><label for='tagnumber'>Tag Number</label></div>
                 <input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . htmlspecialchars($_POST["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' readonly required>
               </div>";
-
+            // Line above this closes tag number data div
 
           // Change appearance of serial number field based on sql data
             echo "
@@ -240,6 +257,7 @@ if (isset($_POST['serial'])) {
           } else {
             echo "<input type='text' id='serial' name='serial' autocomplete='off' autofocus required>" . PHP_EOL;
           }
+          // Close serial number column
           echo "</div>";
 
           // Close first row DIV
@@ -257,6 +275,7 @@ if (isset($_POST['serial'])) {
             echo "<div><label for='location'>Location</label></div>" . PHP_EOL;
             echo "<input type='text' id='location' name='location' required>" . PHP_EOL;
           }
+            // close location data column
             echo "</div>";
 
           // Department data in the form
@@ -289,10 +308,31 @@ if (isset($_POST['serial'])) {
             unset($value1);
           }
           echo "</select>" . PHP_EOL;
+          // Close department div
+          echo "</div>";
+          // close row div
           echo "</div>";
 
+          // New row
+          echo "<div class='row'>";
+          // System Model
+          echo "<div class='column'>";
+          echo "<div><label for='model'>System Model</label></div>" . PHP_EOL;
+					if ($tagDataExists === 1) {
+						if (strFilter($value["system_model"]) === 0) {
+              echo "<input type='text' id='model' name='model' value='" . htmlspecialchars($value["system_model"]) . "'>";
+            }  else {
+              echo "<input type='text' id='model' name='model' placeholder='Enter system model...'>";
+            }
+          } else {
+            echo "<input type='text' id='model' name='model' placeholder='Enter system model...'>";
+          }
+          // Close system model div
+          echo "</div>" . PHP_EOL;
+
+
 					// Joined to domain
-					echo "<div>";
+          echo "<div class='column'>";
 					echo "<div><label for='domain'>AD Domain</label></div>" . PHP_EOL;
 					echo "<select name='domain' id='domain'>" . PHP_EOL;
 					if ($tagDataExists === 1) {
@@ -325,12 +365,11 @@ if (isset($_POST['serial'])) {
 						echo "<option value=''>No domain</option>";
 					}
 					echo "</select>";
+          // close domain div
 					echo "</div>";
-					
-					// close row div
-					echo "</div>";
-
-
+          // Close row
+          echo "</div>";
+      
 
 					// New row
           echo "<div class='row'>";
@@ -348,6 +387,7 @@ if (isset($_POST['serial'])) {
             <option value='0'>Yes</option>
             <option value='1'>No, Broken</option>";
           }
+          // Close column div
           echo "</select></div>";
 
 
@@ -361,10 +401,8 @@ if (isset($_POST['serial'])) {
                   echo "<option value='0'>No</option>" . PHP_EOL;
                   echo "<option value='1'>Yes</option>" . PHP_EOL;
                 }
+          // close column div
           echo "</select></div>" . PHP_EOL;
-
-
-
 					//Close row div
 					echo "</div>";
 
