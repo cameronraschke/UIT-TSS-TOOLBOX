@@ -160,11 +160,11 @@ if (isset($_POST["todo"])) {
                 if (match) {
                     const substring = match[0];
                     const substringLength = substring.length;
-                    console.log("SUBSTRING Len: " + substring.length + 10)
-                    offset = origPos - substringLength + substring.length + 10;
+                    //console.log("SUBSTRING Len: " + substring.length + 8)
+                    offset = origPos - substringLength + substring.length + 8;
                 }
 
-                console.log("Offset: " + offset);
+                //console.log("Offset: " + offset);
                 document.getElementById('todo').value = newStr;
                 setCursorPos(offset);
             }
