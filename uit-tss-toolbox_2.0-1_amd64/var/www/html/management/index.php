@@ -54,7 +54,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 <div class='location-form' style='height: 100%;'>
                     <form method="post">
                         <?php
-                        if (isset($_GET)) {
+                        if (isset($_GET["note-type"])) {
                             if ($_GET["note-type"] == "todo") {
                                 $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', todo AS 'note' FROM notes WHERE todo IS NOT NULL ORDER BY time DESC LIMIT 1";
                             } elseif ($_GET["note-type"] == "general") {
@@ -62,7 +62,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                             } elseif ($_GET["note-type"] == "checklist") {
                                 $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', checklist AS 'note' FROM notes WHERE checklist IS NOT NULL ORDER BY time DESC LIMIT 1";
                             } else {
-                                $sql = "SELECT NULL AS 'note'"; 
+                                $sql = "SELECT NULL AS 'note', NULL AS 'time'"; 
                             }
                             $db->select($sql);
                             foreach ($db->get() as $key => $value1) {
@@ -92,7 +92,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                             </div>
                         </div>
                         <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
-                        <div><textarea id='note' name='note' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php if (isset($_GET)) { echo htmlspecialchars($note); } ?> </textarea></div>
+                        <div><textarea id='note' name='note' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($note); ?> </textarea></div>
                         <div name='edit-button' id='edit-button'></div><div><a href='/index.php'>Cancel Edit</a></div>
                     </form>
                 </div>
