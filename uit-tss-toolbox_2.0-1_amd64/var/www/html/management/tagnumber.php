@@ -16,10 +16,10 @@ if (isset($_POST["job_queued_tagnumber"])) {
 
 if (isset($_POST['department'])) {
   $uuid = uniqid("location-", true);
-  $tagNum = $_GET["tagnumber"];
-  $serial = $_POST["serial"];
+  $tagNum = trim($_GET["tagnumber"]);
+  $serial = trim($_POST["serial"]);
   $department = $_POST['department'];
-  $location = $_POST['location'];
+  $location = trim($_POST['location']);
   $status = $_POST["status"];
   $note = $_POST['note'];
   $diskRemoved = $_POST['disk_removed'];
