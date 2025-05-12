@@ -581,7 +581,7 @@ class db {
         }
     }
 
-    public function updateOS ($tagNum, $key, $value, $updateTime) {
+    public function updateOS ($tagNum, $key, $value) {
         if (strFilter($tagNum) === 0) {
             $db = new MySQLConn();
             $this->pdo = $db->dbObj();
@@ -592,18 +592,18 @@ class db {
             if (strFilter($value) === 0) {
                 $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
                 $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
+                //$stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
             } else {
                 $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
                 $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
+                //$stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
             }
     
             if (strFilter($stmt) == 0) {
                 $stmt->execute();
             }
 
-            unset($updateTime);
+            //unset($updateTime);
             $dt = null;
             $stmt = null;
             $sql = null;

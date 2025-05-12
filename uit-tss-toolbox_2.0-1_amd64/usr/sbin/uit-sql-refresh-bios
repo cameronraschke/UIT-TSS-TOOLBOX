@@ -47,9 +47,16 @@ foreach ($db->get() as $key => $value) {
         $db->insertOS($value["tagnumber"]);
     }
     
-    $db->updateOS($value["tagnumber"], "os_installed", $value["os_installed"], $value["time"]);
+    $db->updateOS($value["tagnumber"], "time", $value["time"])
+    $db->updateOS($value["tagnumber"], "os_installed", $value["os_installed"]);
+    $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"]);
 
-    $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"], $value["time"]);
+}
+unset($value);
 
+
+$db->select("SELECT os_stats.tagnumber, os_stats.os_name, os_stats.os_installed, IF (os_stats.os_installed = 1 AND os_stats.os_name IS NULL, 'Yes, Unknown OS', os_stats.os_name) AS 'image_name_readable' FROM os_stats");
+foreach ($db->get() as $key => $value) {
+    $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"]);
 }
 unset($value);

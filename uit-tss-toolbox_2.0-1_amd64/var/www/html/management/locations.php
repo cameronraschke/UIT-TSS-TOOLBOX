@@ -514,7 +514,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted',
   static_departments.department_readable AS 'department_formatted', departments.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Yes', 'Broken') AS 'status_formatted', locations.status AS 'locations_status', 
-  IF (os_stats.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'os_installed_formatted', os_stats.os_installed,
+  IF (os_stats.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'os_installed_formatted', os_stats.os_installed, os_stats.os_name, 
   IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
   locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain
@@ -624,10 +624,10 @@ if (isset($_GET["order_by"])) {
     $sql .= "locations.time ASC, ";
   }
   if($_GET["order_by"] == "os_desc") {
-    $sql .= "os_stats.os_installed DESC, ";
+    $sql .= "os_stats.os_installed DESC, os_stats.os_name ASC, ";
   }
   if($_GET["order_by"] == "os_asc") {
-    $sql .= "os_stats.os_installed ASC, ";
+    $sql .= "os_stats.os_installed ASC, os_stats.os_name ASC, ";
   }
   if($_GET["order_by"] == "bios_desc") {
     $sql .= "bios_stats.bios_updated DESC, ";
@@ -769,18 +769,18 @@ if (arrFilter($db->get()) === 0) {
           <div>
             <select id="order_by" name="order_by">
               <option value=''>--Order By--</option>
-              <option value="time_desc">Time &#8595;</option>
-              <option value="time_asc">Time &#8593;</option>
-              <option value="tag_desc">Tagnumber &#8595;</option>
-              <option value="tag_asc">Tagnumber &#8593;</option>
-              <option value="location_desc">Location &#8595;</option>
-              <option value="location_asc">Location &#8593;</option>
-              <option value="model_desc">Model &#8595;</option>
-              <option value="model_asc">Model &#8593;</option>
-              <option value="os_desc">OS Installed &#8595;</option>
-              <option value="os_asc">OS Installed &#8593;</option>
-              <option value="bios_desc">BIOS Updated &#8595;</option>
-              <option value="bios_asc">BIOS Updated &#8593;</option>
+              <option value="time_desc">Time &#8595; (new to old)</option>
+              <option value="time_asc">Time &#8593; (old to new)</option>
+              <option value="tag_desc">Tagnumber &#8595; (large to small)</option>
+              <option value="tag_asc">Tagnumber &#8593; (small to large)</option>
+              <option value="location_asc">Location &#8593; (a-z)</option>
+              <option value="location_desc">Location &#8595; (z-a)</option>
+              <option value="model_asc">Model &#8593; (a-z)</option>
+              <option value="model_desc">Model &#8595; (z-a)</option>
+              <option value="os_desc">OS Installed &#8595; (installed on top)</option>
+              <option value="os_asc">OS Installed &#8593; (installed on bottom)</option>
+              <option value="bios_desc">BIOS Updated &#8595; (updated on top)</option>
+              <option value="bios_asc">BIOS Updated &#8593; (updated on bottom)</option>
             </select>
           </div>
         </div>
