@@ -11,142 +11,156 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
 }
 ?>
 <!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-    <head>
-        <meta charset='UTF-8'>
-        <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
-        <script src="/jquery/jquery-3.7.1.min.js"></script>
-        <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
-        <title>Home - UIT Client Management</title>
-        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    </head>
-    <body onload="fetchHTML();charCount();">
-        <div class='menubar'>
-            <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-            <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
-            <br>
-            <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
-        </div>
+<html lang="en">
+  <head>
+  <meta charset='UTF-8'>
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel='stylesheet' type='text/css' href='/css/main.css' />
+  <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
+  <script src="/jquery/jquery-3.7.1.min.js"></script>
+  <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
+  <title>Home - UIT Client Management</title>
+</head>
+<body onload="fetchHTML();charCount();">
+  <div class='menubar'>
+    <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
+    <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
+    <br>
+    <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
+  </div>
 
-        <div class='pagetitle' style="text-align:center;"><h1 style="margin:auto;">TechComm Laptop Management Site</h1></div>
-        <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
+  <div class='pagetitle' style="text-align:center;"><h1 style="margin:auto;">TechComm Laptop Management Site</h1></div>
+  <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
 
-        <div>
-            <div style='width: 50%; height: 50%; float: left;'>
-                <div><h3 class='page-content'><a href="/remote.php">Remote Management and Live Overview</a></h3></div>
-                <div><h3 class='page-content'><a href="/locations.php">Update and View Client Locations</a></h3></div>
-                <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
-                <!--<div><h3 class='page-content'><a href="/clientstats.php">Client Report</a></h3></div> -->
-                <div class='location-form' style='height: 100%;'>
-                    <!--<a href="/index.php?note-type=todo">Edit: To Do</a>
-                    <a href="/index.php?note-type=general">Edit: General</a>-->
-                    <form method='get'>
-                        <select name='note-type' id='note-type' onchange='this.form.submit()'>
-                            <option value="">--Select Notes to Edit--</option>
-                            <option value='todo'>To-Do List</option>
-                            <option value='general'>General Notes</option>
-                            <option value='checklist'>Checklists</option>
-                        </select>
-                    </form>
-                </div>
-                <div class='location-form' style='height: 100%;'>
-                    <form method="post">
-                        <?php
-                        if (isset($_GET["note-type"])) {
-                            if ($_GET["note-type"] == "todo") {
-                                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', todo AS 'note' FROM notes WHERE todo IS NOT NULL ORDER BY time DESC LIMIT 1";
-                            } elseif ($_GET["note-type"] == "general") {
-                                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', general AS 'note' FROM notes WHERE general IS NOT NULL ORDER BY time DESC LIMIT 1";
-                            } elseif ($_GET["note-type"] == "checklist") {
-                                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', checklist AS 'note' FROM notes WHERE checklist IS NOT NULL ORDER BY time DESC LIMIT 1";
-                            } else {
-                                $sql = "SELECT NULL AS 'note', NULL AS 'time'"; 
-                            }
-                            $db->select($sql);
-                            foreach ($db->get() as $key => $value1) {
-                                $note = $value1["note"];
-                                $noteTime = $value1["time"];
-                            }
-                            unset($sql);
-                            unset($value1);
-                        }
-                        ?>
-                        <div>
-                            <label for='note'>To-Do List (Last Updated: <?php echo htmlspecialchars($noteTime); ?>)</label>
-                            <p id='charLen' name='charLen'>Charater count: 0</p>
-                            <div class="tooltip">?
-                                <span class="tooltiptext">
-                                <?php echo htmlspecialchars("Press ** before and after a word to create a heading. Ex) **Bugs** "); ?> <br><br>
-                                <?php echo htmlspecialchars("Press * to create a bulleted item."); ?> <br><br>
-                                <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
-                                <?php echo htmlspecialchars("Enter emoticons OR key words preceeded by a colon to get an emoji:  "); ?> <br><br>
-                                <?php echo htmlspecialchars(":check :x :cancel :waiting :warning :done"); ?> <br>
-                                <?php echo htmlspecialchars(":like :dislike :star :pin :info :heart :fire :shrug :clap :celebrate :hmm"); ?> <br>
-                                <?php echo htmlspecialchars(":clock :bug :arrow :poop"); ?><br>
-                                --------
-                                <br>
-                                <?php echo htmlspecialchars(" :) :P :( :| ;( "); ?>
-                            </span>
-                            </div>
-                        </div>
-                        <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
-                        <div><textarea id='note' name='note' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($note); ?> </textarea></div>
-                        <div name='edit-button' id='edit-button'></div><div><a href='/index.php'>Cancel Edit</a></div>
-                    </form>
-                </div>
-                <div id="jobTimes" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
+  <div class='row'>
+    <div class='column'>
+      <div><h3 class='page-content'><a href="/remote.php">Remote Management and Live Overview</a></h3></div>
+      <div><h3 class='page-content'><a href="/locations.php">Update and View Client Locations</a></h3></div>
+      <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
+
+
+      <div class='location-form' style='height: auto;'>
+        <form method='get'>
+          <select name='note-type' id='note-type' onchange='this.form.submit()'>
+            <option value="">--Select Notes to Edit--</option>
+            <option value='todo'>To-Do List</option>
+            <option value='general'>General Notes</option>
+            <option value='checklist'>Checklists</option>
+          </select>
+        </form>
+
+        <div class='location-form' style='height: 100%;'>
+          <form method="post">
+            <?php
+            if (isset($_GET["note-type"])) {
+              if ($_GET["note-type"] == "todo") {
+                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', todo AS 'note' FROM notes WHERE todo IS NOT NULL ORDER BY time DESC LIMIT 1";
+              } elseif ($_GET["note-type"] == "general") {
+                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', general AS 'note' FROM notes WHERE general IS NOT NULL ORDER BY time DESC LIMIT 1";
+              } elseif ($_GET["note-type"] == "checklist") {
+                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', checklist AS 'note' FROM notes WHERE checklist IS NOT NULL ORDER BY time DESC LIMIT 1";
+              } else {
+                $sql = "SELECT NULL AS 'note', NULL AS 'time'"; 
+              }
+              $db->select($sql);
+              foreach ($db->get() as $key => $value1) {
+                $note = $value1["note"];
+                $noteTime = $value1["time"];
+              }
+              unset($sql);
+              unset($value1);
+            }
+            ?>
+            <label for='note'>To-Do List (Last Updated: <?php echo htmlspecialchars($noteTime); ?>)</label>
+            <p id='charLen' name='charLen'>Charater count: 0</p>
+            <div class="tooltip">?
+              <span class="tooltiptext">
+              <?php echo htmlspecialchars("Press ** before and after a word to create a heading. Ex) **Bugs** "); ?> <br><br>
+              <?php echo htmlspecialchars("Press * to create a bulleted item."); ?> <br><br>
+              <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
+              <?php echo htmlspecialchars("Enter emoticons OR key words preceeded by a colon to get an emoji:  "); ?> <br><br>
+              <?php echo htmlspecialchars(":check :x :cancel :waiting :warning :done"); ?> <br>
+              <?php echo htmlspecialchars(":like :dislike :star :pin :info :heart :fire :shrug :clap :celebrate :hmm"); ?> <br>
+              <?php echo htmlspecialchars(":clock :bug :arrow :poop"); ?><br>
+              --------
+              <br>
+              <?php echo htmlspecialchars(" :) :P :( :| ;( "); ?>
+              </span>
             </div>
-            <div style='width: 50%; float: right;'>
-                <div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 5% 1%;'>
-                            <?php
-                            $db->select("SELECT COUNT(tagnumber) AS 'count' FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = 1");
-                            if (arrFilter($db->get()) === 0) {
-                              foreach ($db->get() as $key => $value) {
-                                echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"]) . "</h3>";
-                              }
-                            } else {
-                              echo "<h3><b>Queued Jobs: </b>None</h3>";
-                            }
-                            ?>
-                </div>
-                <div id="numberImaged" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
-                <div id="numberJoinedDomain" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
-                <div id="biosUpdated" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
-            </div>
+            <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
+            <div><textarea id='note' name='note' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($note); ?></textarea></div>
+              <div style='overflow:hidden'>
+                  <div name='edit-button' id='edit-button'></div>
+                  <div name='cancel-button' id='cancel-button'></div>
+              </div>
+          </form>
         </div>
+      </div>
 
-        <script>
-        // Get the current URL
-        const url = window.location.href;
+      <div id="jobTimes" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
+    </div>
 
-        // Create a URLSearchParams object
-        let params = new URLSearchParams(document.location.search);
-        let note = params.get("note-type");
 
-        // Check if the "get" parameter exists
-        if (note == "todo") {
-            var myElement = document.getElementById('note');
-            document.getElementById("note").readOnly = false;
-            document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update To-Do List</button>";
-        } else if (note == "general") {
-            var myElement = document.getElementById('note');
-            document.getElementById("note").readOnly = false;
-            document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update Notes</button>";
-        } else if (note == "checklist") {
-            var myElement = document.getElementById('note');
-            document.getElementById("note").readOnly = false;
-            document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update Checklist</button>";
+    <div class='column'>
+      <div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 5% 1%;'>
+        <?php
+        $db->select("SELECT COUNT(tagnumber) AS 'count' FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = 1");
+        if (arrFilter($db->get()) === 0) {
+          foreach ($db->get() as $key => $value) {
+            echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"]) . "</h3>";
+          }
         } else {
-            console.log("nothing in the URL.");
-            document.getElementById("note").readOnly = true;
-            document.getElementById("note").value = "Please edit the note by selecting a type of note in the dropdown menu above.";
-            document.getElementById("note").style.backgroundColor = "rgb(187, 185, 185) ";
-            document.getElementById("note").style.color = "rgb(0, 0, 0)";
-            document.getElementById('edit-button').innerHTML = "<a href='/index.php'>Cancel Edit</a>";
-
+          echo "<h3><b>Queued Jobs: </b>None</h3>";
         }
+        ?>
+        </div>
+      <div id="numberImaged" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
+      <div id="numberJoinedDomain" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
+      <div id="biosUpdated" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
+    </div>
+  </div>
+
+<script>
+  // Get the current URL
+  const url = window.location.href;
+
+  // Create a URLSearchParams object
+  let params = new URLSearchParams(document.location.search);
+  let note = params.get("note-type");
+
+  // Check if the "get" parameter exists
+  if (note == "todo") {
+    var myElement = document.getElementById('note');
+    document.getElementById("note").readOnly = false;
+    document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update To-Do List</button>";
+    document.getElementById('edit-button').style.float = "left";
+    document.getElementById('cancel-button').innerHTML = "<button type='button' onclick='jsRedirect();'>Cancel</button>";
+  } else if (note == "general") {
+    var myElement = document.getElementById('note');
+    document.getElementById("note").readOnly = false;
+    document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update Notes</button>";
+    document.getElementById('edit-button').style.float = "left";
+    document.getElementById('cancel-button').innerHTML = "<button type='button' onclick='jsRedirect();'>Cancel</button>";
+  } else if (note == "checklist") {
+    var myElement = document.getElementById('note');
+    document.getElementById("note").readOnly = false;
+    document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update Checklist</button>";
+    document.getElementById('edit-button').style.float = "left";
+    document.getElementById('cancel-button').innerHTML = "<button type='button' onclick='jsRedirect();'>Cancel</button>";
+  } else {
+    //console.log("nothing in the URL.");
+    document.getElementById("note").readOnly = true;
+    document.getElementById('note').style.height = "10%";
+    document.getElementById("note").value = "Please edit the note by selecting a type of note in the dropdown menu above.";
+    document.getElementById("note").style.backgroundColor = "rgb(187, 185, 185) ";
+    document.getElementById("note").style.color = "rgb(0, 0, 0)";
+
+    //document.getElementById('edit-button').innerHTML = "<a href='/index.php'>Cancel Edit</a>";
+  }
+
+  function jsRedirect() {
+    window.location.href = "/index.php";
+  }
 
         function input_changed() {
             document.getElementById("note").style.border = "medium dashed #C8102E";
