@@ -9,6 +9,25 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
     $db->updateToDo($_GET["note-type"], $_POST["note"], $time);
     unset($_POST);
 }
+
+if (isset($_GET["note-type"])) {
+  if ($_GET["note-type"] == "todo") {
+    $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'timeFormatted', todo AS 'note' FROM notes WHERE todo IS NOT NULL ORDER BY time DESC LIMIT 1";
+  } elseif ($_GET["note-type"] == "general") {
+    $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'timeFormatted', general AS 'note' FROM notes WHERE general IS NOT NULL ORDER BY time DESC LIMIT 1";
+  } elseif ($_GET["note-type"] == "checklist") {
+    $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'timeFormatted', checklist AS 'note' FROM notes WHERE checklist IS NOT NULL ORDER BY time DESC LIMIT 1";
+  } else {
+    $sql = "SELECT NULL AS 'note', NULL AS 'time'"; 
+  }
+  $db->select($sql);
+  foreach ($db->get() as $key => $value1) {
+    $note = $value1["note"];
+    $noteTime = $value1["timeFormatted"];
+  }
+  unset($sql);
+  unset($value1);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,26 +71,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
 
         <div class='location-form' style='height: 100%;'>
           <form method="post">
-            <?php
-            if (isset($_GET["note-type"])) {
-              if ($_GET["note-type"] == "todo") {
-                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', todo AS 'note' FROM notes WHERE todo IS NOT NULL ORDER BY time DESC LIMIT 1";
-              } elseif ($_GET["note-type"] == "general") {
-                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', general AS 'note' FROM notes WHERE general IS NOT NULL ORDER BY time DESC LIMIT 1";
-              } elseif ($_GET["note-type"] == "checklist") {
-                $sql = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time', checklist AS 'note' FROM notes WHERE checklist IS NOT NULL ORDER BY time DESC LIMIT 1";
-              } else {
-                $sql = "SELECT NULL AS 'note', NULL AS 'time'"; 
-              }
-              $db->select($sql);
-              foreach ($db->get() as $key => $value1) {
-                $note = $value1["note"];
-                $noteTime = $value1["time"];
-              }
-              unset($sql);
-              unset($value1);
-            }
-            ?>
+
             <label for='note'>To-Do List (Last Updated: <?php echo htmlspecialchars($noteTime); ?>)</label>
             <p id='charLen' name='charLen'>Charater count: 0</p>
             <div class="tooltip">?
