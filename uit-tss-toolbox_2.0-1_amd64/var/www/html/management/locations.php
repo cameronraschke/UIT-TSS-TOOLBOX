@@ -91,10 +91,19 @@ if (isset($_POST['serial'])) {
     $db->updateCheckout("tagnumber", $tagNum, $time);
     $db->updateCheckout("customer_name", $customerName, $time);
     $db->updateCheckout("customer_psid", $customerPSID, $time);
-    $db->Pselect("SELECT IF(DATE(NOW()) >= :returnDate , 0, 1) AS 'checkout_bool'", array(':returnDate' => $_POST["return_date"]));
-    foreach ($db->get() as $key => $value1) {
-      $db->updateCheckout("checkout_bool", $value1["checkout_bool"], $time);
+
+    $postDate1 = new \DateTimeImmutable($_POST["return_date"]);
+    $postDate2 = new \DateTimeImmutable($_POST["checkout_date"]);
+    $returnDateDT = $postDate1->format('Y-m-d');
+    $checkoutDateDT = $postDate2->format('Y-m-d');
+    if ($date < $returnDateDT || $date >= $checkoutDateDT) {
+      $db->updateCheckout("checkout_bool", 1, $time);
+    } elseif ($date >= $returnDateDT) {
+      $db->updateCheckout("checkout_bool", 2, $time);
+    } else {
+      //$db->updateCheckout("checkout_bool", 1, $time);
     }
+
     $db->updateCheckout("checkout_date", $checkoutDate, $time);
     $db->updateCheckout("return_date", $returnDate, $time);
     $db->updateCheckout("note", $note, $time);
@@ -461,7 +470,8 @@ if (isset($_POST['serial'])) {
                       echo "<div><div><label for='customer_name'>Customer name: </label></div>";
                       echo "<input type='text' name='customer_name' id='customer_name' value='" . htmlspecialchars($value1["customer_name"]) . "'></div>";
                       echo "<div><div><label for='customer_psid'>Customer PSID: </label></div>";
-                      echo "<input type='text' name='customer_psid' id='customer_psid' value='" . htmlspecialchars($value1["customer_psid"]) . "'></div>";
+                      //echo "<input type='text' name='customer_psid' id='customer_psid' value='" . htmlspecialchars($value1["customer_psid"]) . "'></div>";
+                      echo "<input type='text' name='customer_psid' id='customer_psid' placeholder='Customer PSID' style='background-color:#888B8D;' readonly></div>";
                       echo "</div>";
                     }
                   } else {
@@ -478,7 +488,7 @@ if (isset($_POST['serial'])) {
                       echo "<div><div><label for='customer_name'>Customer name: </label></div>";
                       echo "<input type='text' name='customer_name' id='customer_name' placeholder='Customer Name'></div>";
                       echo "<div><div><label for='customer_psid'>Customer PSID: </label></div>";
-                      echo "<input type='text' name='customer_psid' id='customer_psid' placeholder='Customer PSID'></div>";
+                      echo "<input type='text' name='customer_psid' id='customer_psid' placeholder='Customer PSID' style='background-color:#888B8D;' readonly></div>";
                       echo "</div>";        
                     }
                     unset($value1);

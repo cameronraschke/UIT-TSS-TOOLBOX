@@ -39,33 +39,43 @@ $db = new db();
 <?php
 unset($sqlArr);
 unset($sql);
-$sql = "SELECT tagnumber, customer_name, customer_psid, checkout_date, return_date
+$sql = "SELECT checkout.time, t1.bold_bool, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note
     FROM checkout
-        WHERE (checkout.checkout_date IS NOT NULL OR checkout.return_date) IS NOT NULL ";
-
-if (isset($_GET["checkout_bool"])) {
-    $sql .= "AND checkout.checkout_bool = :checkoutBool ";
-    $sqlArr[":checkoutBool"] = $_GET["checkout_bool"];
-}
-
-$sql .= "ORDER BY checkout.time DESC";
+    LEFT JOIN (SELECT time, '1' AS 'bold_bool', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE checkout_bool = 1) t1
+        ON t1.time = checkout.time
+    LEFT JOIN (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE (checkout_bool IS NULL OR checkout_bool = 0)) t2
+        ON t2.time = checkout.time
+    WHERE (checkout.checkout_date IS NOT NULL OR checkout.return_date) IS NOT NULL 
+        AND (t1.row_nums <= 1 OR t1.row_nums IS NULL) AND (t2.row_nums <= 1 OR t2.row_nums IS NULL) 
+        AND NOT (t1.row_nums IS NULL AND t2.row_nums IS NULL) ORDER BY checkout.tagnumber DESC, checkout.time DESC";
 
 if (isset($sqlArr)) {
     $db->Pselect($sql, $sqlArr);
 } else {
     $db->select($sql);
 }
+unset($sql);
+
 
 if (arrFilter($db->get()) === 0) {
   foreach ($db->get() as $key => $value) {
-    echo "<tr>" . PHP_EOL;
-
-    //tag number
+    echo "<tr>";
+    //tagnumber
     echo "<td>";
-    if (strFilter($value["tagnumber"]) === 0) {
-        echo htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+    // $sql = "SELECT t1.checkout_bool FROM (SELECT tagnumber, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) t1 WHERE t1.tagnumber = :tag AND t1.row_nums = 1 AND t1.checkout_bool = 1";
+    // $db->Pselect($sql, array(':tag' => $value["tagnumber"]));
+    // if (strFilter($db->get()) === 0) {
+    if ($value["bold_bool"] == 1) {
+        if (strFilter($value["tagnumber"]) === 0) {
+            echo "<b>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</b>";
+        }
+    } else {
+        if (strFilter($value["tagnumber"]) === 0) {
+            echo htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+        }
     }
     echo "</td>" . PHP_EOL;
+
 
     //customer name
     echo "<td>";
@@ -74,24 +84,24 @@ if (arrFilter($db->get()) === 0) {
     }
     echo "</td>" . PHP_EOL;
 
-    //customer psid
-    echo "<td>";
-    if (strFilter($value["customer_psid"]) === 0) {
-        echo htmlspecialchars($value["customer_psid"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
-    }
-    echo "</td>" . PHP_EOL;
+    // //customer psid
+    // echo "<td>";
+    // if (strFilter($value["customer_psid"]) === 0) {
+    //     echo htmlspecialchars($value["customer_psid"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+    // }
+    // echo "</td>" . PHP_EOL;
 
     //checkout_date
     echo "<td>";
     if (strFilter($value["checkout_date"]) === 0) {
-        echo htmlspecialchars($value["checkout_date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "%";
+        echo htmlspecialchars($value["checkout_date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
     }
     echo "</td>" . PHP_EOL;
 
     //return_date
     echo "<td>";
     if (strFilter($value["return_date"]) === 0) {
-        echo htmlspecialchars($value["return_date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "%";
+        echo htmlspecialchars($value["return_date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
     }
     echo "</td>" . PHP_EOL;
 
