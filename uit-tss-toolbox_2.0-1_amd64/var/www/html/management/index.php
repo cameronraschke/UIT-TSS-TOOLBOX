@@ -36,6 +36,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
     <div class='column'>
       <div><h3 class='page-content'><a href="/remote.php">Remote Management and Live Overview</a></h3></div>
       <div><h3 class='page-content'><a href="/locations.php">Update and View Client Locations</a></h3></div>
+      <div><h3 class='page-content'><a href="/checkouts.php">View Checkout History (WIP)</a></h3></div>
       <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
 
 

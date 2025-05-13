@@ -84,16 +84,22 @@ if (isset($_POST['serial'])) {
   $db->updateLocation("domain", $domain, $time);
 
   //Insert checkout data
-  $locationRegex = '/(checkout)|(check out)/i';
-  if (preg_match($locationRegex, $location)) {
+  //$locationRegex = '/(checkout)|(check out)/i';
+  //if (preg_match($locationRegex, $location)) {
+  if (isset($_POST["return_date"]) || isset($_POST["checkout_date"])) {
     $db->insertCheckout($time);
     $db->updateCheckout("tagnumber", $tagNum, $time);
     $db->updateCheckout("customer_name", $customerName, $time);
     $db->updateCheckout("customer_psid", $customerPSID, $time);
+    $db->Pselect("SELECT IF(DATE(NOW()) >= :returnDate , 0, 1) AS 'checkout_bool'", array(':returnDate' => $_POST["return_date"]));
+    foreach ($db->get() as $key => $value1) {
+      $db->updateCheckout("checkout_bool", $value1["checkout_bool"], $time);
+    }
     $db->updateCheckout("checkout_date", $checkoutDate, $time);
     $db->updateCheckout("return_date", $returnDate, $time);
     $db->updateCheckout("note", $note, $time);
   }
+  unset($value1);
 
   //Printing
   if ($_POST["print"] == "1") {
@@ -441,13 +447,15 @@ if (isset($_POST['serial'])) {
             </div>
             <div class='row'>
               <div class='column'>";
-                  $db->Pselect("SELECT * FROM (SELECT customer_name, customer_psid, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkout WHERE tagnumber = :tagnumber) t1 WHERE NOT t1.customer_name = 'returned' AND t1.row_count = 1", array(':tagnumber' => $_POST["tagnumber"]));
+                  $db->Pselect("SELECT * FROM (SELECT customer_name, customer_psid, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkout WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_POST["tagnumber"]));
                   if (strFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value1) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
-                      echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value1["checkout_date"]) . "' min='2020-01-01' /></div>";
+                      //echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value1["checkout_date"]) . "' min='2020-01-01' /></div>";
+                      echo "<input type='date' id='checkout_date' name='checkout_date' value='' min='2020-01-01' /></div>";
                       echo "<div><div><label for='return_date'>Return date: </label></div>";
-                      echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value1["return_date"]) . "' min='2020-01-01' /></div>";
+                      //echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value1["return_date"]) . "' min='2020-01-01' /></div>";
+                      echo "<input type='date' id='return_date' name='return_date' value='' min='2020-01-01' /></div>";
                       echo "</div>";
                       echo "<div class='column'>";
                       echo "<div><div><label for='customer_name'>Customer name: </label></div>";
@@ -460,9 +468,11 @@ if (isset($_POST['serial'])) {
                     $db->select("SELECT DATE_FORMAT(NOW(), '%Y-%m-%d') AS 'cur_date', DATE_FORMAT(NOW() + INTERVAL 1 WEEK, '%Y-%m-%d') AS 'next_date'");
                     foreach ($db->get() as $key => $value2) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
-                      echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value2["cur_date"]) . "' min='2020-01-01' /></div>";
+                      //echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value2["cur_date"]) . "' min='2020-01-01' /></div>";
+                      echo "<input type='date' id='checkout_date' name='checkout_date' value='' min='2020-01-01' /></div>";
                       echo "<div><div><label for='return_date'>Return date: </label></div>";
-                      echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value2["next_date"]) . "' min='2020-01-01' /></div>";
+                      //echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value2["next_date"]) . "' min='2020-01-01' /></div>";
+                      echo "<input type='date' id='return_date' name='return_date' value='' min='2020-01-01' /></div>";
                       echo "</div>";
                       echo "<div class='column'>";
                       echo "<div><div><label for='customer_name'>Customer name: </label></div>";
