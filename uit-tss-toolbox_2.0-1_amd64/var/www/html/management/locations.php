@@ -97,12 +97,11 @@ if (isset($_POST['serial'])) {
     $returnDateDT = $postDate1->format('Y-m-d');
     $checkoutDateDT = $postDate2->format('Y-m-d');
     
-    if ($date >= $returnDateDT) {
+    if ($date >= $returnDateDT && strFilter($_POST["return_date"]) === 0) {
       $db->updateCheckout("checkout_bool", 0, $time);
     } else {
       $db->updateCheckout("checkout_bool", 1, $time);
     }
-
 
     $db->updateCheckout("checkout_date", $checkoutDate, $time);
     $db->updateCheckout("return_date", $returnDate, $time);
