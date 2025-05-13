@@ -30,7 +30,6 @@ $db = new db();
                 <tr>
                     <th>Tag Number</th>
                     <th>Customer Name</th>
-                    <th>Customer PSID</th>
                     <th>Checkout Date</th>
                     <th>Return Date</th>
                 </tr>

@@ -96,13 +96,13 @@ if (isset($_POST['serial'])) {
     $postDate2 = new \DateTimeImmutable($_POST["checkout_date"]);
     $returnDateDT = $postDate1->format('Y-m-d');
     $checkoutDateDT = $postDate2->format('Y-m-d');
-    if ($date < $returnDateDT || $date >= $checkoutDateDT) {
-      $db->updateCheckout("checkout_bool", 1, $time);
-    } elseif ($date >= $returnDateDT) {
-      $db->updateCheckout("checkout_bool", 2, $time);
+    
+    if ($date >= $returnDateDT) {
+      $db->updateCheckout("checkout_bool", 0, $time);
     } else {
-      //$db->updateCheckout("checkout_bool", 1, $time);
+      $db->updateCheckout("checkout_bool", 1, $time);
     }
+
 
     $db->updateCheckout("checkout_date", $checkoutDate, $time);
     $db->updateCheckout("return_date", $returnDate, $time);
