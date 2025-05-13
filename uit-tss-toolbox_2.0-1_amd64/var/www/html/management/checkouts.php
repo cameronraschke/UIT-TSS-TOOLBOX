@@ -10,7 +10,7 @@ $db = new db();
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <title>Client Reports - UIT Client Mgmt</title>
+        <title>Checkout History - UIT Client Mgmt</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
@@ -21,8 +21,8 @@ $db = new db();
             <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle'><h1>Client Report</h1></div>
-        <div class='pagetitle'><h2>The client report shows aggregated statistics and information about every client.</h2></div>
+        <div class='pagetitle'><h1>Checkout History</h1></div>
+        <div class='pagetitle'><h2>The bolded clients are currently checked out.</h2></div>
 
         <div class='styled-table'>
             <table>
@@ -39,9 +39,9 @@ $db = new db();
 <?php
 unset($sqlArr);
 unset($sql);
-$sql = "SELECT checkout.time, t1.bold_bool, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note
+$sql = "SELECT checkout.time, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note
     FROM checkout
-    LEFT JOIN (SELECT time, '1' AS 'bold_bool', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE checkout_bool = 1) t1
+    LEFT JOIN (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE checkout_bool = 1) t1
         ON t1.time = checkout.time
     LEFT JOIN (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE (checkout_bool IS NULL OR checkout_bool = 0)) t2
         ON t2.time = checkout.time
@@ -62,15 +62,12 @@ if (arrFilter($db->get()) === 0) {
     echo "<tr>";
     //tagnumber
     echo "<td>";
-    // $sql = "SELECT t1.checkout_bool FROM (SELECT tagnumber, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) t1 WHERE t1.tagnumber = :tag AND t1.row_nums = 1 AND t1.checkout_bool = 1";
-    // $db->Pselect($sql, array(':tag' => $value["tagnumber"]));
-    // if (strFilter($db->get()) === 0) {
-    if ($value["bold_bool"] == 1) {
-        if (strFilter($value["tagnumber"]) === 0) {
+    $sql = "SELECT t1.checkout_bool FROM (SELECT tagnumber, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) t1 WHERE t1.tagnumber = :tag AND t1.row_nums = 1";
+    $db->Pselect($sql, array(':tag' => $value["tagnumber"]));
+    foreach ($db->get() as $key => $value1) {
+        if (strFilter($value["checkout_bool"]) === 0) {
             echo "<b>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</b>";
-        }
-    } else {
-        if (strFilter($value["tagnumber"]) === 0) {
+        } elseif (strFilter($value["tagnumber"]) === 0) {
             echo htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
         }
     }
