@@ -610,3 +610,52 @@ ALTER TABLE checkout
     MODIFY COLUMN checkout_group VARCHAR(48) DEFAULT NULL,
     MODIFY COLUMN note VARCHAR(128) DEFAULT NULL
     ;
+
+DROP TABLE IF EXISTS static_emojis;
+CREATE TABLE IF NOT EXISTS static_emojis (
+    keyword VARCHAR(64) PRIMARY KEY,
+    regex VARCHAR(64) DEFAULT NULL,
+    replacement VARCHAR(64) DEFAULT NULL,
+    text_bool BOOLEAN DEFAULT NULL,
+    case_sensitive_bool BOOLEAN DEFAULT NULL
+);
+
+INSERT INTO static_emojis (keyword, regex, replacement, text_bool, case_sensitive_bool) VALUES 
+    (':)', '\\:\\)', '😀', NULL, NULL),
+    (':D', '\\:D\\)', '😁', NULL, 1),
+    (';)', '\\;\\)', '😉', NULL, NULL),
+    (':P', '\\:P', '😋', NULL, NULL),
+    (':|', '\\:\\|', '😑', NULL, NULL),
+    (':0', '\\:0', '😲', NULL, NULL),
+    (':O', '\\:O', '😲', NULL, NULL),
+    (':(', '\\:\\(', '😞', NULL, NULL),
+    (':<', '\\:\\<', '😡', NULL, NULL),
+    (':\\', '\\:\\\\', '😕', NULL, NULL),
+    (';(', '\\;\\(', '😢', NULL, NULL),
+    ('check', '\\:check', '✅', 1, 1),
+    ('done', '\\:done', '✅', 1, 1),
+    ('x', '\\:x', "❌", 1, NULL),
+    ('cancel', '\\:cancel', "🚫", 1, 1),
+    ('working', '\\:working', "⌛", 1, 1),
+    ('waiting', '\\:waiting', "⌛", 1, 1),
+    ('inprogress', '\\:inprogress', '⌛', 1, 1),
+    ('shurg', '\\:shrug', "🤷", 1, 1),
+    ('clock', '\\:clock', "🕓", 1, 1),
+    ('warning', '\\:warning', "⚠️", 1, 1),
+    ('arrow', '\\:arrow', "⏩", 1, 1),
+    ('bug', '\\:bug', "🐛", 1, 1),
+    ('poop', '\\:poop', "💩", 1, 1),
+    ('star', '\\:star', "⭐", 1, 1),
+    ('heart', '\\:heart', "❤️", 1, 1),
+    ('love', '\\:love', "❤️", 1, 1),
+    ('fire', '\\:fire', "🔥", 1, 1),
+    ('like', '\\:like', "👍", 1, 1),
+    ('dislike', '\\:dislike', "👎", 1, 1),
+    ('info', '\\:info', "ℹ️", 1, 1),
+    ('pin', '\\:pin', "📌", 1, 1),
+    ('clap', '\\:clap', "👏", 1, 1),
+    ('celebrate', '\\:celebrate', "🥳", 1, 1),
+    ('hmm', '\\:hmm', "🤔", 1, 1),
+    ('alert', '\\:alert', "🚨", 1, 1),
+    ('wow', '\\:wow', '🤯', 1, 1)
+;

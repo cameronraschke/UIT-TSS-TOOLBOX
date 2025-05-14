@@ -103,7 +103,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
               </span>
             </div>
             <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
-            <div><textarea id='note' name='note' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed()" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($note); ?></textarea></div>
+            <div><textarea id='note' name='note' onkeydown onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed();replaceEmoji();" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($note); ?></textarea></div>
               <div style='overflow:hidden'>
                   <div name='edit-button' id='edit-button'></div>
                   <div name='cancel-button' id='cancel-button'></div>
@@ -240,60 +240,41 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             let str = myElement.value;
             let origPos = getCursorPos();
             let newStr = str;
-            let pos = 0;
+            let newPos = 0;
             let offset = 0;
             // Replace smiley face with emoji
-            newStr = newStr.replaceAll(/\:\) /g, "😀 ");
-            newStr = newStr.replaceAll(/\:D /g, "😁 ");
-            newStr = newStr.replaceAll(/\;\) /g, "😉 ");
-            newStr = newStr.replaceAll(/\:P /g, "😋 ");
-            newStr = newStr.replaceAll(/\:\| /g, "😑 ");
-            newStr = newStr.replaceAll(/\:0 /g, "😲 ");
-            newStr = newStr.replaceAll(/\:O /g, "😲 ");
-            newStr = newStr.replaceAll(/\:o /g, "😲 ");
-            newStr = newStr.replaceAll(/\:\( /g, "😞 ");
-            newStr = newStr.replaceAll(/\:\< /g, "😡 ");
-            newStr = newStr.replaceAll(/\:\\ /g, "😕 ");
-            newStr = newStr.replaceAll(/\;\( /g, "😢 ");
-            newStr = newStr.replaceAll(/\:check /gi, "✅ ");
-            newStr = newStr.replaceAll(/\:done /gi, "✅ ");
-            newStr = newStr.replaceAll(/\:x /gi, "❌ ");
-            newStr = newStr.replaceAll(/\:cancel /gi, "🚫 ");
-            newStr = newStr.replaceAll(/\:working /gi, "⏳ ");
-            newStr = newStr.replaceAll(/\:waiting /gi, "⏳ ");
-            newStr = newStr.replaceAll(/\:inprogress /gi, "⏳ ");
-            newStr = newStr.replaceAll(/\:shrug /gi, "🤷 ");
-            newStr = newStr.replaceAll(/\:clock /gi, "🕓 ");
-            newStr = newStr.replaceAll(/\:warning /gi, "⚠️ ");
-            newStr = newStr.replaceAll(/\:arrow /gi, "⏩ ");
-            newStr = newStr.replaceAll(/\:bug /gi, "🐛 ");
-            newStr = newStr.replaceAll(/\:poop /gi, "💩 ");
-            newStr = newStr.replaceAll(/\:star /gi, "⭐ ");
-            newStr = newStr.replaceAll(/\:heart /gi, "❤️ ");
-            newStr = newStr.replaceAll(/\:love /gi, "❤️ ");
-            newStr = newStr.replaceAll(/\:fire /gi, "🔥 ");
-            newStr = newStr.replaceAll(/\:like /gi, "👍 ");
-            newStr = newStr.replaceAll(/\:dislike /gi, "👎 ");
-            newStr = newStr.replaceAll(/\:info /gi, "ℹ️ ");
-            newStr = newStr.replaceAll(/\:pin /gi, "📌 ");
-            newStr = newStr.replaceAll(/\:clap /gi, "👏 ");
-            newStr = newStr.replaceAll(/\:celebrate /gi, "🥳 ");
-            newStr = newStr.replaceAll(/\:hmm /gi, "🤔 ");
-            newStr = newStr.replaceAll(/\:alert /gi, "🚨 ");
-            
 
+            <?php 
+            unset($jsConst);
+            //newStr = newStr.replaceAll(/\:\\ /g, "😕 ");
+            $db->select("SELECT keyword, regex, replacement, text_bool, case_sensitive_bool FROM static_emojis");
+            foreach ($db->get() as $key => $value) {
+              if ($value["case_sensitive_bool"] === 1) {
+                echo "newStr = newStr.replaceAll(/" .  $value["regex"] . " /gi, '" . $value["replacement"] . " ');" . PHP_EOL;
+              } else {
+                echo "newStr = newStr.replaceAll(/" .  $value["regex"] . " /g, '" . $value["replacement"] . " ');" . PHP_EOL;
+              }
+
+              //if ($value["text_bool"] === 1) {
+                $jsConst .= "|(" . $value["regex"] . ")";
+              //}
+            }
+            unset($value);
+            $jsConst = $str = ltrim($jsConst, '|');
+
+            ?>
+          
             if (str != newStr) {
-                let newPos = getCursorPos();
-                const regex = /(\:inprogress)|(\:working)|(\:cancel)|(\:check)|(\:done)|(\:x)|(\:waiting)|(\:shrug)|(\:clock)|(\:warning)|(\:arrow)|(\:bug)|(\:poop)|(\:star)|(\:heart)|(\:love)|(\:fire)|(\:like)|(\:dislike)|(\:info)|(\:pin)|(\:clap)|(\:celebrate)|(\:hmm)/gi;
+                const regex = /<?php echo $jsConst; ?>/g;
                 const match = str.match(regex);
 
-                offset = origPos;
-
                 if (match) {
+                    let newPos = getCursorPos();
                     const substring = match[0];
                     const substringLength = substring.length;
-                    //console.log("SUBSTRING Len: " + substring.length)
-                    offset = origPos - substringLength + 1;
+                    //offset = origPos - substringLength + 1;
+                    offset = newPos - substringLength + 2;
+                    console.log("Offset: " + offset);
                 }
 
                 //console.log("Offset: " + offset);
