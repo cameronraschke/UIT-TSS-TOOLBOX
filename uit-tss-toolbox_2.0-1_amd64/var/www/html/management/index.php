@@ -103,7 +103,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
               </span>
             </div>
             <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
-            <div><textarea id='note' name='note' onkeydown onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed();replaceEmoji();" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($note); ?></textarea></div>
+            <div><textarea id='note' name='note' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed();replaceEmoji();" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($note); ?></textarea></div>
               <div style='overflow:hidden'>
                   <div name='edit-button' id='edit-button'></div>
                   <div name='cancel-button' id='cancel-button'></div>
@@ -270,16 +270,14 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
 
                 if (match) {
                     let newPos = getCursorPos();
+                    myElement.value = newStr;
                     const substring = match[0];
                     const substringLength = substring.length;
                     //offset = origPos - substringLength + 1;
-                    offset = newPos - substringLength + 2;
-                    console.log("Offset: " + offset);
+                    offset = newPos - substringLength + 1;
+                    //console.log("Offset: " + offset);
+                    setCursorPos(offset);
                 }
-
-                //console.log("Offset: " + offset);
-                myElement.value = newStr;
-                setCursorPos(offset);
             }
             return(offset);
         }
