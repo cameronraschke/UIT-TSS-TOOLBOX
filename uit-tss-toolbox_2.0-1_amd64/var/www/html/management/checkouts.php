@@ -3,6 +3,20 @@ require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
 
 $db = new db();
+
+$sql = "SELECT * FROM (SELECT checkout.time, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note,
+    ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' 
+    FROM checkout) t1
+    WHERE (t1.checkout_date IS NOT NULL OR t1.return_date) IS NOT NULL 
+        AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = 1 ORDER BY t1.customer_name, t1.tagnumber DESC, t1.time DESC";
+
+if (isset($sqlArr)) {
+    $db->Pselect($sql, $sqlArr);
+} else {
+    $db->select($sql);
+}
+unset($sql);
+$rowCount = count($db->get());
 ?>
 
 <!DOCTYPE html>
@@ -22,10 +36,15 @@ $db = new db();
         </div>
 
         <div class='pagetitle'><h1>Checkout History</h1></div>
-        <div class='pagetitle'><h2>The bolded clients are currently checked out.</h2></div>
+        <div class='pagetitle'><h2>These clients are currently checked out.</h2></div>
 
+        <div class='pagetitle'>Clients checked out: <?php echo $rowCount; ?></div>
+        <div class='styled-form2'>
+            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">
+            <input type="text" id="myInputName" onkeyup="myFunctionName()" placeholder="Search customer name...">
+        </div>
         <div class='styled-table'>
-            <table>
+            <table id='myTable' style='min-width: 50%;'>
                 <thead>
                 <tr>
                     <th>Tag Number</th>
@@ -38,22 +57,15 @@ $db = new db();
 <?php
 unset($sqlArr);
 unset($sql);
-$sql = "SELECT checkout.time, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note
-    FROM checkout
-    LEFT JOIN (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE checkout_bool = 1) t1
-        ON t1.time = checkout.time
-    LEFT JOIN (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE (checkout_bool IS NULL OR checkout_bool = 0)) t2
-        ON t2.time = checkout.time
-    WHERE (checkout.checkout_date IS NOT NULL OR checkout.return_date) IS NOT NULL 
-        AND (t1.row_nums <= 1 OR t1.row_nums IS NULL) AND (t2.row_nums <= 1 OR t2.row_nums IS NULL) 
-        AND NOT (t1.row_nums IS NULL AND t2.row_nums IS NULL) ORDER BY checkout.tagnumber DESC, checkout.time DESC";
-
-if (isset($sqlArr)) {
-    $db->Pselect($sql, $sqlArr);
-} else {
-    $db->select($sql);
-}
-unset($sql);
+// $sql = "SELECT checkout.time, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note
+//     FROM checkout
+//     LEFT JOIN (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE checkout_bool = 1) t1
+//         ON t1.time = checkout.time
+//     LEFT JOIN (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE (checkout_bool IS NULL OR checkout_bool = 0)) t2
+//         ON t2.time = checkout.time
+//     WHERE (checkout.checkout_date IS NOT NULL OR checkout.return_date) IS NOT NULL 
+//         AND (t1.row_nums <= 1 OR t1.row_nums IS NULL) AND (t2.row_nums <= 1 OR t2.row_nums IS NULL) 
+//         AND NOT (t1.row_nums IS NULL AND t2.row_nums IS NULL) ORDER BY checkout.customer_name, checkout.tagnumber DESC, checkout.time DESC";
 
 
 if (arrFilter($db->get()) === 0) {
@@ -61,15 +73,16 @@ if (arrFilter($db->get()) === 0) {
     echo "<tr>";
     //tagnumber
     echo "<td>";
-    $sql = "SELECT t1.checkout_bool FROM (SELECT tagnumber, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) t1 WHERE t1.tagnumber = :tag AND t1.row_nums = 1";
-    $db->Pselect($sql, array(':tag' => $value["tagnumber"]));
-    foreach ($db->get() as $key => $value1) {
-        if (strFilter($value["checkout_bool"]) === 0) {
-            echo "<b>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</b>";
-        } elseif (strFilter($value["tagnumber"]) === 0) {
-            echo htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
-        }
-    }
+    // $sql = "SELECT t1.checkout_bool FROM (SELECT tagnumber, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) t1 WHERE t1.tagnumber = :tag AND t1.row_nums = 1";
+    // $db->Pselect($sql, array(':tag' => $value["tagnumber"]));
+    // foreach ($db->get() as $key => $value1) {
+    //     if (strFilter($value["checkout_bool"]) === 0) {
+    //         echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
+    //     } elseif (strFilter($value["tagnumber"]) === 0) {
+    //         echo htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+    //     }
+    // }
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
     echo "</td>" . PHP_EOL;
 
 
@@ -113,4 +126,46 @@ if (arrFilter($db->get()) === 0) {
             <img src="/images/uh-footer.svg">
         </div>
     </body>
+
+    <script>
+          function myFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[0];
+          if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
+
+    function myFunctionName() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInputName");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[1];
+          if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
+    </script>
 </html>

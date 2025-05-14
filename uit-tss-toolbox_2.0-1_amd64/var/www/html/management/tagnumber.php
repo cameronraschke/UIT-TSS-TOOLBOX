@@ -625,6 +625,36 @@ if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
             unset($value1);
         ?>
 
+        <div class='pagetitle'><h3>Checkout Log - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
+        <div name='checkoutLog' id='checkoutLog' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
+        <table width="100%">
+            <thead>
+                <tr>
+                  <th>Time of Entry</th>
+                  <th>Customer Name</th>
+                  <th>Checkout Date</th>
+                  <th>Return Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $db->Pselect("SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', customer_name, checkout_date, return_date FROM checkout WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
+                if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value1) {
+                        echo "<tr>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['customer_name'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['checkout_date'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "<td>" . htmlspecialchars($value1['return_date'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+                        echo "</tr>" . PHP_EOL;
+                    }
+                }
+                unset($value1);
+                ?>
+            </tbody>
+        </table>
+        </div>
+
         <div class='pagetitle'><h3>Job Log - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
         <div name='updateDiv4' id='updateDiv4' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
         <table width="100%">
