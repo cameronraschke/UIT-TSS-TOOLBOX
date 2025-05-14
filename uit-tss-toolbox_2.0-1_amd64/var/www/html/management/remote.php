@@ -2,6 +2,11 @@
 require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
 
+session_start();
+if ($_SESSION['authorized'] != "yes") {
+  die();
+}
+
 $db = new db();
 
 // Job by location form

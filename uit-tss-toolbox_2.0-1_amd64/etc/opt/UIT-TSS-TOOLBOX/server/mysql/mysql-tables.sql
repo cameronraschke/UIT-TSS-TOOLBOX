@@ -566,9 +566,24 @@ VALUES
 CREATE TABLE IF NOT EXISTS notes (
     time DATETIME(3) NOT NULL PRIMARY KEY,
     todo TEXT DEFAULT NULL,
-    general TEXT DEFAULT NULL,
-    checklist TEXT DEFAULT NULL
+    projects TEXT DEFAULT NULL,
+    misc TEXT DEFAULT NULL
+    bugs TEXT DEFAULT NULL
 );
+
+DROP TABLE IF EXISTS static_notes;
+CREATE TABLE IF NOT EXISTS static_notes (
+    note VARCHAR(64) PRIMARY KEY,
+    note_readable VARCHAR(64) NOT NULL,
+    sort_order TINYINT DEFAULT NULL
+);
+
+INSERT INTO static_notes (note, note_readable, sort_order) VALUES 
+    ('todo', 'Short-Term', 10),
+    ('projects', 'Projects', 20),
+    ('misc', 'Misc. Notes', 30),
+    ('bugs', 'Software Bugs 🐛', 40)
+;
 
 
 CREATE TABLE IF NOT EXISTS checkout (

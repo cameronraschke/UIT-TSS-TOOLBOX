@@ -2,6 +2,10 @@
 require('/var/www/html/management/header.php');
 include('/var/www/html/management/php/include.php');
 
+if ($_SESSION['authorized'] != "yes") {
+  die();
+}
+
 $db = new db();
 
 if (isset($_POST["note"]) && isset($_GET["note-type"])) {
@@ -10,24 +14,6 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
     unset($_POST);
 }
 
-if (isset($_GET["note-type"])) {
-  if ($_GET["note-type"] == "todo") {
-    $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'timeFormatted', todo AS 'note' FROM notes WHERE todo IS NOT NULL ORDER BY time DESC LIMIT 1";
-  } elseif ($_GET["note-type"] == "general") {
-    $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'timeFormatted', general AS 'note' FROM notes WHERE general IS NOT NULL ORDER BY time DESC LIMIT 1";
-  } elseif ($_GET["note-type"] == "checklist") {
-    $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'timeFormatted', checklist AS 'note' FROM notes WHERE checklist IS NOT NULL ORDER BY time DESC LIMIT 1";
-  } else {
-    $sql = "SELECT NULL AS 'note', NULL AS 'time'"; 
-  }
-  $db->select($sql);
-  foreach ($db->get() as $key => $value1) {
-    $note = $value1["note"];
-    $noteTime = $value1["timeFormatted"];
-  }
-  unset($sql);
-  unset($value1);
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -59,15 +45,43 @@ if (isset($_GET["note-type"])) {
       <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
 
 
-      <div class='location-form' style='height: auto;'>
-        <form method='get'>
-          <select name='note-type' id='note-type' onchange='this.form.submit()'>
-            <option value="">--Select Notes to Edit--</option>
-            <option value='todo'>To-Do List</option>
-            <option value='general'>General Notes</option>
-            <option value='checklist'>Checklists</option>
-          </select>
-        </form>
+  <div class='location-form' style='height: auto;'>
+    <form method='get'>
+      <select name='note-type' id='note-type' onchange='this.form.submit()'>
+        <?php
+          if (strFilter($_GET["note-type"]) === 0) {
+            $db->Pselect("SELECT note, note_readable FROM static_notes WHERE note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
+            foreach ($db->get() as $key => $value1) {
+              if (strFilter($value1["note"]) === 0) {
+                $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'timeFormatted', " . $value1["note"]. " AS 'note' FROM notes WHERE " . $value1["note"] . " IS NOT NULL ORDER BY time DESC LIMIT 1";
+              } else {
+                $sql = "SELECT NULL AS 'time', NULL AS 'timeFormatted', NULL AS 'note'"; 
+              }
+                echo "<option value='" . htmlspecialchars($value1["note"]) . "'>Editing: " . htmlspecialchars($value1["note_readable"]) . "</option>";
+              $db->Pselect("SELECT note, note_readable FROM static_notes WHERE NOT note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
+              foreach ($db->get() as $key => $value2) {
+                echo "<option value='" . htmlspecialchars($value2["note"]) . "'>" . htmlspecialchars($value2["note_readable"]) . "</option>";
+              }
+              unset($value2);
+            }
+            unset($value1);
+            $db->select($sql);
+            foreach ($db->get() as $key => $value1) {
+              $note = $value1["note"];
+              $noteTime = $value1["timeFormatted"];
+            }
+            unset($sql);
+            unset($value1);
+          } else {
+            echo "<option value=''>--Select Notes to Edit--</option>";
+            $db->select("SELECT note, note_readable FROM static_notes ORDER BY sort_order ASC");
+            foreach ($db->get() as $key => $value1) {
+                echo "<option value='" . htmlspecialchars($value1["note"]) . "'>" . htmlspecialchars($value1["note_readable"]) . "</option>";
+            }
+          }
+        ?>
+      </select>
+    </form>
 
         <div class='location-form' style='height: 100%;'>
           <form method="post">
@@ -127,22 +141,10 @@ if (isset($_GET["note-type"])) {
 
   // Create a URLSearchParams object
   let params = new URLSearchParams(document.location.search);
-  let note = params.get("note-type");
+  //let note = params.get("note-type");
 
   // Check if the "get" parameter exists
-  if (note == "todo") {
-    var myElement = document.getElementById('note');
-    document.getElementById("note").readOnly = false;
-    document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update To-Do List</button>";
-    document.getElementById('edit-button').style.float = "left";
-    document.getElementById('cancel-button').innerHTML = "<button type='button' onclick='jsRedirect();'>Cancel</button>";
-  } else if (note == "general") {
-    var myElement = document.getElementById('note');
-    document.getElementById("note").readOnly = false;
-    document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update Notes</button>";
-    document.getElementById('edit-button').style.float = "left";
-    document.getElementById('cancel-button').innerHTML = "<button type='button' onclick='jsRedirect();'>Cancel</button>";
-  } else if (note == "checklist") {
+  if (params.has('note-type')) {
     var myElement = document.getElementById('note');
     document.getElementById("note").readOnly = false;
     document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update Checklist</button>";
@@ -277,6 +279,7 @@ if (isset($_GET["note-type"])) {
             newStr = newStr.replaceAll(/\:clap /gi, "👏 ");
             newStr = newStr.replaceAll(/\:celebrate /gi, "🥳 ");
             newStr = newStr.replaceAll(/\:hmm /gi, "🤔 ");
+            newStr = newStr.replaceAll(/\:alert /gi, "🚨 ");
             
 
             if (str != newStr) {

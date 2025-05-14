@@ -2,6 +2,11 @@
 require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
 
+session_start();
+if ($_SESSION['authorized'] != "yes") {
+  die();
+}
+
 $db = new db();
 
 $sql = "SELECT * FROM (SELECT checkout.time, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note,
