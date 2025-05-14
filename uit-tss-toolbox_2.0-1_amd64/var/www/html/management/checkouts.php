@@ -56,6 +56,7 @@ $rowCount = count($db->get());
                     <th>Customer Name</th>
                     <th>Checkout Date</th>
                     <th>Return Date</th>
+                    <th>Note</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -116,6 +117,13 @@ if (arrFilter($db->get()) === 0) {
     echo "<td>";
     if (strFilter($value["return_date"]) === 0) {
         echo htmlspecialchars($value["return_date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+    }
+    echo "</td>" . PHP_EOL;
+
+    //note
+    echo "<td>";
+    if (strFilter($value["note"]) === 0) {
+        echo htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
     }
     echo "</td>" . PHP_EOL;
 
