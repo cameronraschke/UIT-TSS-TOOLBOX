@@ -657,5 +657,6 @@ INSERT INTO static_emojis (keyword, regex, replacement, text_bool, case_sensitiv
     ('celebrate', '\\:celebrate', "🥳", 1, 1),
     ('hmm', '\\:hmm', "🤔", 1, 1),
     ('alert', '\\:alert', "🚨", 1, 1),
-    ('wow', '\\:wow', '🤯', 1, 1)
+    ('wow', '\\:wow', '🤯', 1, 1),
+    ('shock', '\\:shock', '⚡', 1, 1)
 ;
