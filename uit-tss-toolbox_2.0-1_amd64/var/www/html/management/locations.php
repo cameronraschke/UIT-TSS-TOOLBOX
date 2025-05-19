@@ -977,7 +977,7 @@ unset($value1);
         locationField.addEventListener('input', function() {
           const inputText = this.value;
           //const matchingSuggestion = availableLocations.find(suggestion => suggestion.startsWith(inputText));
-          var re = new RegExp(inputText, 'gi');
+          var re = new RegExp('^' + inputText, 'gi');
           const matchingSuggestion = availableLocations.find(suggestion => suggestion.match(re));
 
           if (matchingSuggestion && inputText.length > 0) {
