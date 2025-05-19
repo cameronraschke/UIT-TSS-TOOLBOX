@@ -93,13 +93,13 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
               <?php echo htmlspecialchars("Press ** before and after a word to create a heading. Ex) **Bugs** "); ?> <br><br>
               <?php echo htmlspecialchars("Press * to create a bulleted item."); ?> <br><br>
               <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
-              <?php echo htmlspecialchars("Enter emoticons OR key words preceeded by a colon to get an emoji:  "); ?> <br><br>
-              <?php echo htmlspecialchars(":check :x :cancel :waiting :warning :done"); ?> <br>
-              <?php echo htmlspecialchars(":like :dislike :star :pin :info :heart :fire :shrug :clap :celebrate :hmm"); ?> <br>
+              <p>Enter <a href='/documentation/emojis.php'>supported emoticons</a>, key words preceeded by a colon, or emojis from your keyboard to get an emoji: </p> <br><br>
+              <?php echo htmlspecialchars(":check :x :cancel :waiting :pin :warning :alert"); ?> <br>
+              <?php echo htmlspecialchars(":like :dislike :star :info :heart :fire :shrug :clap :celebrate :hmm :mindblown "); ?> <br>
               <?php echo htmlspecialchars(":clock :bug :arrow :poop"); ?><br>
               --------
               <br>
-              <?php echo htmlspecialchars(" :) :P :( :| ;( "); ?>
+              <?php echo htmlspecialchars(" :) :P :( :| ;( :< :O"); ?>
               </span>
             </div>
             <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
