@@ -226,10 +226,10 @@ if (isset($_POST['serial'])) {
       //If tagnumber is POSTed, show data in the location form.
       if (isset($_POST["tagnumber"])) {
         unset($formSql);
-        $formSql = "SELECT locations.tagnumber, locations.system_serial, system_data.system_model, 
+        $formSql = "SELECT TRIM(locations.tagnumber) AS 'tagnumber', TRIM(locations.system_serial) AS 'system_serial', TRIM(system_data.system_model) AS 'system_model', 
           IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted', 
           DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
-          t4.department, locations.disk_removed, locations.status, t3.note AS 'most_recent_note', t5.department_readable, 
+          t4.department, locations.disk_removed, locations.status, TRIM(t3.note) AS 'most_recent_note', t5.department_readable, 
           DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', locations.domain, locations.status, IF (t3.time = locations.time, 1, 0) AS 'placeholder_bool'
           FROM locations 
           LEFT JOIN jobstats ON jobstats.tagnumber = locations.tagnumber 
@@ -270,7 +270,7 @@ if (isset($_POST['serial'])) {
             <div class='row'>
               <div class='column'>
                 <div><label for='tagnumber'>Tag Number</label></div>
-                <input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . htmlspecialchars($_POST["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' readonly required>
+                <input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . trim(htmlspecialchars($_POST["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>
               </div>";
             // Line above this closes tag number data div
 
@@ -279,7 +279,7 @@ if (isset($_POST['serial'])) {
               <div class='column'>
                 <div><label for='serial'>Serial Number</label></div>";
           if ($tagDataExists === 1) {
-            echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial' value='" . htmlspecialchars($value["system_serial"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' readonly required>" . PHP_EOL;
+            echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial' value='" . trim(htmlspecialchars($value["system_serial"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>" . PHP_EOL;
           } else {
             echo "<input type='text' id='serial' name='serial' autocomplete='off' autofocus required>" . PHP_EOL;
           }
@@ -312,13 +312,13 @@ if (isset($_POST['serial'])) {
             if (strFilter($value["department"]) === 0) {
               echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>" . PHP_EOL;
               $db->Pselect("SELECT department, department_readable 
-                FROM static_departments WHERE NOT department = :department", array(':department' => $value["department"]));
+                FROM static_departments WHERE NOT department = :department ORDER BY department_readable ASC", array(':department' => $value["department"]));
               foreach ($db->get() as $key => $value1) {
                 echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
               }
             } else {
               echo "<option value=''>--Please Select--</option>";
-              $db->select("SELECT department, department_readable FROM static_departments");
+              $db->select("SELECT department, department_readable FROM static_departments ORDER BY department_readable ASC");
               foreach ($db->get() as $key => $value1) {
                 echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
               }
@@ -327,7 +327,7 @@ if (isset($_POST['serial'])) {
             unset($value1);
           } else {
             echo "<option value=''>--Please Select--</option>";
-            $db->select("SELECT department, department_readable FROM static_departments");
+            $db->select("SELECT department, department_readable FROM static_departments ORDER BY department_readable ASC");
             foreach ($db->get() as $key => $value1) {
               echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
             }
@@ -346,7 +346,7 @@ if (isset($_POST['serial'])) {
           echo "<div><label for='model'>System Model</label></div>" . PHP_EOL;
 					if ($tagDataExists === 1) {
 						if (strFilter($value["system_model"]) === 0) {
-              echo "<input type='text' id='model' name='model' value='" . htmlspecialchars($value["system_model"]) . "'>";
+              echo "<input type='text' id='model' name='model' value='" . trim(htmlspecialchars($value["system_model"])) . "'>";
             }  else {
               echo "<input type='text' id='model' name='model' placeholder='Enter system model...'>";
             }
@@ -436,13 +436,13 @@ if (isset($_POST['serial'])) {
           // Most recent note
           echo "<div class='row'>";
           if (strFilter($value["most_recent_note"]) === 0 && $value["locations_status"] === 1) {
-            echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
+            echo "<div><label for='note'>Note (Last Entry: " . trim(htmlspecialchars($value["note_time_formatted"])) . ")</label></div>" . PHP_EOL;
             echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
           } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] === 1)  {
-            echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
+            echo "<div><label for='note'>Note (Last Entry: " . trim(htmlspecialchars($value["note_time_formatted"])) . ")</label></div>" . PHP_EOL;
             echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
           } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] !== 1) {
-            echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
+            echo "<div><label for='note'>Note (Last Entry: " . trim(htmlspecialchars($value["note_time_formatted"])) . ")</label></div>" . PHP_EOL;
             echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
           } else {
             echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
@@ -467,7 +467,7 @@ if (isset($_POST['serial'])) {
             </div>
             <div class='row'>
               <div class='column'>";
-                  $db->Pselect("SELECT * FROM (SELECT customer_name, customer_psid, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkout WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_POST["tagnumber"]));
+                  $db->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkout WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_POST["tagnumber"]));
                   if (strFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value1) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
@@ -732,7 +732,7 @@ if (arrFilter($db->get()) === 0) {
             <select id="department" name="department">
             <option value=''>--Filter By Department--</option>
               <?php
-              $db->select("SELECT department, department_readable, owner, department_bool FROM static_departments ORDER BY department ASC");
+              $db->select("SELECT department, department_readable, owner, department_bool FROM static_departments ORDER BY department_readable ASC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
                   $db->Pselect("SELECT COUNT(tagnumber) AS 'department_rows' FROM departments WHERE department = :department AND time IN (SELECT MAX(time) FROM departments WHERE department IS NOT NULL GROUP BY tagnumber)", array(':department' => $value1["department"]));
