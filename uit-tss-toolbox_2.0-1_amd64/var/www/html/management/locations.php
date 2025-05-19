@@ -66,16 +66,23 @@ if (isset($_POST['serial'])) {
 
   // Insert & update system_data
   $db->Pselect("SELECT tagnumber FROM system_data WHERE tagnumber = :tag", array(':tag' => $tagNum));
-  foreach ($db->get() as $key => $value1) {
-    if (strFilter($value1["tagnumber"]) === 0) {
-      $db->updateSystemData($tagNum, "system_model", $systemModel);
-      $db->updateSystemData($tagNum, "time", $time);
-    } else {
-      $db->insertSystemData($tagNum);
-      $db->updateSystemData($tagNum, "system_model", $systemModel);
-      $db->updateSystemData($tagNum, "time", $time);
+  if (strFilter($db->get()) === 0) {
+    foreach ($db->get() as $key => $value1) {
+      if (strFilter($value1["tagnumber"]) === 0) {
+        $db->updateSystemData($tagNum, "system_model", $systemModel);
+        $db->updateSystemData($tagNum, "time", $time);
+      } else {
+        $db->insertSystemData($tagNum);
+        $db->updateSystemData($tagNum, "system_model", $systemModel);
+        $db->updateSystemData($tagNum, "time", $time);
+      }
     }
+  } else {
+    $db->insertSystemData($tagNum);
+    $db->updateSystemData($tagNum, "system_model", $systemModel);
+    $db->updateSystemData($tagNum, "time", $time);
   }
+
   unset($value1);
   
   //Insert location data
