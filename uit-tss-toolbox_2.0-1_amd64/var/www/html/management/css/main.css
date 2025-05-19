@@ -110,6 +110,7 @@ button {
 	padding: 8px 7px;
 	background-color: #FFFFFF;
 	border-bottom: 1px solid #888B8D;
+	white-space: pre-wrap;
 }
 .styled-table td:nth-child(odd) td{
 	padding: 8px 7px;
