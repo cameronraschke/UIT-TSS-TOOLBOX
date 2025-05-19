@@ -399,12 +399,12 @@ if (isset($_POST['serial'])) {
           <select name='status' id='status'>";
           if ($value["status"] === 1) {
             echo "
-            <option value='1'>No, Broken</option>
-            <option value='0'>Yes</option>";
+            <option id='status-broken' style='rgba(200, 16, 47, 0.31);' value='1'>No, Broken</option>
+            <option id='status-working' style='rgba(0, 179, 137, 0.31);' value='0'>Yes</option>";
           } else {
             echo "
-            <option value='0'>Yes</option>
-            <option value='1'>No, Broken</option>";
+            <option id='status-working' style='rgba(200, 16, 47, 0.31);' value='0'>Yes</option>
+            <option id='status-broken' style='rgba(0, 179, 137, 0.31);' value='1'>No, Broken</option>";
           }
           // Close column div
           echo "</select></div>";
@@ -414,11 +414,11 @@ if (isset($_POST['serial'])) {
             <div><label for='disk_removed'>Disk removed?</label></div>
               <select name='disk_removed' id='disk_removed'>" . PHP_EOL;
                 if ($value["disk_removed"] === 1) {
-                  echo "<option value='1'>Yes</option>" . PHP_EOL;
-                  echo "<option value='0'>No</option>" . PHP_EOL;
+                  echo "<option id='disk_removed-true' value='1'>Yes</option>" . PHP_EOL;
+                  echo "<option id='disk_removed-false' value='0'>No</option>" . PHP_EOL;
                 } else {
-                  echo "<option value='0'>No</option>" . PHP_EOL;
-                  echo "<option value='1'>Yes</option>" . PHP_EOL;
+                  echo "<option id='disk_removed-false' value='0'>No</option>" . PHP_EOL;
+                  echo "<option id='disk_removed-true' value='1'>Yes</option>" . PHP_EOL;
                 }
           // close column div
           echo "</select></div>" . PHP_EOL;
@@ -974,6 +974,63 @@ unset($value1);
     </div>
 
     <script>
+
+      // Change disk removed colors in form
+      var DBdiskRemoved = document.getElementById('disk_removed');
+      //var DBdiskRemovedFalse = document.getElementById('disk_removed-true');
+      //var DBdiskRemovedTrue = document.getElementById('disk_removed-false');
+
+      if (DBdiskRemoved.value == "1") {
+        //console.log("red");
+        DBdiskRemoved.style.background = "rgba(200, 16, 47, 0.31)";
+        //DBdiskRemovedFalse.style.background = "rgba(0, 179, 137, 0.31)";
+        //DBdiskRemovedTrue.style.background = "rgba(200, 16, 47, 0.31)";
+      }
+
+      function changeDiskRemovedColors() {
+        if (DBdiskRemoved.value == "1") {
+          //console.log("red");
+          DBdiskRemoved.style.background = "rgba(200, 16, 47, 0.31)";
+          //DBdiskRemovedTrue.style.background = "rgba(200, 16, 47, 0.31)";
+          //DBdiskRemovedFalse.style.background = "rgba(0, 179, 137, 0.31)";
+        } else {
+          //console.log("green");
+          DBdiskRemoved.style.background = "rgba(0, 179, 137, 0.31)";
+          //DBdiskRemovedFalse.style.background = "rgba(0, 179, 137, 0.31)";
+          //DBdiskRemovedTrue.style.background = "rgba(200, 16, 47, 0.31)";
+        }
+      }
+
+      DBdiskRemoved.addEventListener("change", function () {changeDiskRemovedColors();},false);
+
+      // Change status colors in form
+      var DBstatus = document.getElementById('status');
+      //var DBstatusWorking = document.getElementById('status-working');
+      //var DBstatusBroken = document.getElementById('status-broken');
+
+      if (DBstatus.value == "1") {
+        //console.log("red");
+        DBstatus.style.background = "rgba(200, 16, 47, 0.31)";
+        //DBstatusWorking.style.background = "rgba(0, 179, 137, 0.31)";
+        //DBstatusBroken.style.background = "rgba(200, 16, 47, 0.31)";
+      }
+
+      function changeStatusColors() {
+        if (DBstatus.value == "1") {
+          //console.log("red");
+          DBstatus.style.background = "rgba(200, 16, 47, 0.31)";
+          //DBstatusWorking.style.background = "rgba(0, 179, 137, 0.31)";
+          //DBstatusBroken.style.background = "rgba(200, 16, 47, 0.31)";
+        } else {
+          //console.log("green");
+          DBstatus.style.background = "rgba(0, 179, 137, 0.31)";
+          //DBstatusWorking.style.background = "rgba(0, 179, 137, 0.31)";
+          //DBstatusBroken.style.background = "rgba(200, 16, 47, 0.31)";
+        }
+      }
+
+      DBstatus.addEventListener("change", function () {changeStatusColors();},false);
+
       function myFunction() {
         var input, filter, table, tr, td, i, txtValue;
         input = document.getElementById("myInput");
