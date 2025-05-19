@@ -155,64 +155,10 @@ if (isset($_POST['serial'])) {
   <head>
     <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
-    <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
-    <script src="/jquery/jquery-3.7.1.min.js"></script>
-    <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
     <title>Locations - UIT Client Mgmt</title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <style>
-      .ui-autocomplete {
-      max-height: 100px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      }
-    </style>
   </head>
   <body>
-    <script>
-      $( function() {
-      var availableTags = [
-        <?php
-        //Select all distinct tagnumbers and put them into a JavaScript array
-        if (!isset($_POST['serial'])) {
-          $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
-          if (arrFilter($db->get()) === 0) {
-            foreach ($db->get() as $key => $value) {
-              echo "'" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "',";
-            }
-          }
-        }
-        ?>
-      ];
-
-      $( "#tagnumber" ).autocomplete({
-          source: availableTags
-        });
-      } );
-
-      $( function() {
-        var availableLocations = [
-          <?php
-            $sql =<<<'EOD'
-              SELECT MAX(t1.time) AS 'time', t1.location, MAX(t1.row_nums) AS 'row_nums' FROM (SELECT time, locationFormatting(REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"')) AS 'location', ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'row_nums' FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)) t1 GROUP BY t1.location ORDER BY row_nums DESC;
-            EOD;
-          $db->select($sql);
-          if (arrFilter($db->get()) === 0) {
-            foreach ($db->get() as $key => $value) {
-              echo "'" . $value["location"] . " (" . $value["row_nums"] . ")',";
-            }
-          }
-          unset($value);
-          unset($sql);
-          ?>
-        ];
-
-      $( "#location" ).autocomplete({
-        source: availableLocations
-      });
-      } );
-    </script>
-
     <div class='menubar'>
       <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
       <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
@@ -983,7 +929,63 @@ unset($value1);
         </tbody>
       </table>
     </div>
+    <script>
+      // Autofill tag numbers
+          var availableTagnumbers = [
+          <?php
+          $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
+          if (arrFilter($db->get()) === 0) {
+            foreach ($db->get() as $key => $value) {
+              echo "'" . $value["tagnumber"] . "',";
+            }
+          }
+          unset($value);
+          ?>
+        ];
 
+        const tagnumberField = document.getElementById('tagnumber');
+
+        tagnumberField.addEventListener('input', function() {
+          const inputText = this.value;
+          const matchingSuggestion = availableTagnumbers.find(suggestion => suggestion.startsWith(inputText));
+
+          if (matchingSuggestion && inputText.length > 0) {
+            this.value = matchingSuggestion;
+            this.setSelectionRange(inputText.length, matchingSuggestion.length); // Select the autofilled part
+          }
+        });
+
+        // Autofill locations
+        var availableLocations = [
+          <?php
+            $sql =<<<'EOD'
+              SELECT MAX(t1.time) AS 'time', t1.location, MAX(t1.row_nums) AS 'row_nums' FROM (SELECT time, locationFormatting(REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"')) AS 'location', ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'row_nums' FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)) t1 GROUP BY t1.location ORDER BY row_nums DESC;
+            EOD;
+          $db->select($sql);
+          if (arrFilter($db->get()) === 0) {
+            foreach ($db->get() as $key => $value) {
+              echo "'" . $value["location"] . "',";
+            }
+          }
+          unset($value);
+          unset($sql);
+          ?>
+        ];
+
+        const locationField = document.getElementById('location');
+
+        locationField.addEventListener('input', function() {
+          const inputText = this.value;
+          //const matchingSuggestion = availableLocations.find(suggestion => suggestion.startsWith(inputText));
+          var re = new RegExp(inputText, 'gi');
+          const matchingSuggestion = availableLocations.find(suggestion => suggestion.match(re));
+
+          if (matchingSuggestion && inputText.length > 0) {
+            this.value = matchingSuggestion;
+            this.setSelectionRange(inputText.length, matchingSuggestion.length); // Select the autofilled part
+          }
+        });
+    </script>
     <script>
 
       // Change disk removed colors in form
