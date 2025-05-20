@@ -529,7 +529,7 @@ if (strFilter($_GET["location"]) === 0) {
 // department filter
 if (strFilter($_GET["department"]) === 0) {
   if ($_GET["not-department"] == "1") {
-    $sql .= "AND NOT departments.department = :department ";
+    $sql .= "AND (NOT departments.department = :department OR departments.department IS NULL) ";
     $sqlArr[":department"] = $_GET["department"];
   } else {
     $sql .= "AND departments.department = :department ";
@@ -540,7 +540,7 @@ if (strFilter($_GET["department"]) === 0) {
 // domain filter
 if (strFilter($_GET["domain"]) === 0) {
   if ($_GET["not-domain"] == "1") {
-    $sql .= "AND NOT locations.domain = :domain ";
+    $sql .= "AND (NOT locations.domain = :domain OR locations.domain IS NULL) ";
     $sqlArr[":domain"] = $_GET["domain"];
   } else {
     $sql .= "AND locations.domain = :domain ";
@@ -930,6 +930,24 @@ unset($value1);
       </table>
     </div>
     <script>
+
+
+      function getCursorPos(myElement) {
+        let startPosition = myElement.selectionStart;
+        let endPosition = myElement.selectionEnd;
+
+        myElement.focus();
+
+        // Check if you've selected text
+        //if(startPosition == endPosition){
+            //console.log("The position of the cursor is (" + startPosition + "/" + myElement.value.length + ")");
+        //}else{
+            //console.log("Selected text from ("+ startPosition +" to "+ endPosition + " of " + myElement.value.length + ")");
+        //}
+        return(startPosition);
+      }
+
+
       // Autofill tag numbers
           var availableTagnumbers = [
           <?php
@@ -943,17 +961,31 @@ unset($value1);
           ?>
         ];
 
-        const tagnumberField = document.getElementById('tagnumber');
+        var tagnumberField = document.getElementById('tagnumber');
 
-        tagnumberField.addEventListener('input', function() {
-          const inputText = this.value;
-          const matchingSuggestion = availableTagnumbers.find(suggestion => suggestion.startsWith(inputText));
+        tagnumberField.addEventListener('keyup', (event) => {
+          const inputText = tagnumberField.value;
 
-          if (matchingSuggestion && inputText.length > 0) {
-            this.value = matchingSuggestion;
-            this.setSelectionRange(inputText.length, matchingSuggestion.length); // Select the autofilled part
+          if (event.key === 'Backspace' || event.key === 'Delete') {
+            tagnumberField.value = tagnumberField.value.substr(0, getCursorPos(tagnumberField));
+            console.log("Backspace Value: " + tagnumberField.value);
+            console.log("Backspace Position: " + getCursorPos(tagnumberField) + ", " + getCursorPos(tagnumberField));
+            tagnumberField.setSelectionRange(getCursorPos(tagnumberField), getCursorPos(tagnumberField));
           }
         });
+
+        tagnumberField.addEventListener('input', function() {
+          const inputText = tagnumberField.value;
+          var re = new RegExp('^' + inputText, 'gi');
+          const matchingSuggestion = availableTagnumbers.find(suggestion => suggestion.match(re));
+
+
+          if (matchingSuggestion && inputText.length > 0) {
+            tagnumberField.value = matchingSuggestion;
+            tagnumberField.setSelectionRange(inputText.length, matchingSuggestion.length);
+          }
+        });
+
 
         // Autofill locations
         var availableLocations = [
@@ -972,17 +1004,28 @@ unset($value1);
           ?>
         ];
 
-        const locationField = document.getElementById('location');
+        var locationField = document.getElementById('location');
+
+        locationField.addEventListener('keyup', (event) => {
+          const inputText = locationField.value;
+
+          if (event.key === 'Backspace' || event.key === 'Delete') {
+            locationField.value = locationField.value.substr(0, getCursorPos(locationField));
+            console.log("Backspace Value: " + locationField.value);
+            console.log("Backspace Position: " + getCursorPos(locationField) + ", " + getCursorPos(locationField));
+            locationField.setSelectionRange(getCursorPos(locationField), getCursorPos(locationField));
+          }
+        });
 
         locationField.addEventListener('input', function() {
-          const inputText = this.value;
-          //const matchingSuggestion = availableLocations.find(suggestion => suggestion.startsWith(inputText));
+          const inputText = locationField.value;
           var re = new RegExp('^' + inputText, 'gi');
           const matchingSuggestion = availableLocations.find(suggestion => suggestion.match(re));
 
+
           if (matchingSuggestion && inputText.length > 0) {
-            this.value = matchingSuggestion;
-            this.setSelectionRange(inputText.length, matchingSuggestion.length); // Select the autofilled part
+            locationField.value = matchingSuggestion;
+            locationField.setSelectionRange(inputText.length, matchingSuggestion.length);
           }
         });
     </script>
