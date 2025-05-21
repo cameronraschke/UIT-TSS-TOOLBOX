@@ -13,7 +13,7 @@ $sql = "SELECT * FROM (SELECT checkout.time, checkout.tagnumber, checkout.custom
     ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' 
     FROM checkout) t1
     WHERE (t1.checkout_date IS NOT NULL OR t1.return_date) IS NOT NULL 
-        AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = 1 ORDER BY t1.customer_name, t1.tagnumber DESC, t1.time DESC";
+        AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = 1 ORDER BY t1.time DESC, t1.customer_name ASC, t1.tagnumber DESC";
 
 if (isset($sqlArr)) {
     $db->Pselect($sql, $sqlArr);

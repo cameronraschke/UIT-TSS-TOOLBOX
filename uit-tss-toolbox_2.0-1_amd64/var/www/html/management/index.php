@@ -9,9 +9,13 @@ if ($_SESSION['authorized'] != "yes") {
 $db = new db();
 
 if (isset($_POST["note"]) && isset($_GET["note-type"])) {
-    $db->insertToDo($time);
-    $db->updateToDo($_GET["note-type"], $_POST["note"], $time);
-    unset($_POST);
+  $db->insertToDo($time);
+  $db->Pselect("SELECT COMPRESS(:note) AS 'note_compressed'", array(':note' => $_POST["note"]));
+  foreach ($db->get() as $key => $value) {
+    $db->updateToDo($_GET["note-type"], $value["note_compressed"], $time);
+  }
+  unset($_POST);
+  unset($value);
 }
 
 ?>
@@ -53,7 +57,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             $db->Pselect("SELECT note, note_readable FROM static_notes WHERE note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
             foreach ($db->get() as $key => $value1) {
               if (strFilter($value1["note"]) === 0) {
-                $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'timeFormatted', " . $value1["note"]. " AS 'note' FROM notes WHERE " . $value1["note"] . " IS NOT NULL ORDER BY time DESC LIMIT 1";
+                $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'timeFormatted', CAST(IF (UNCOMPRESSED_LENGTH(" . $value1["note"] . ") < 67108864 AND UNCOMPRESS(" . $value1["note"] . ") IS NOT NULL, UNCOMPRESS(" . $value1["note"] . "), " . $value1["note"] . ") AS CHAR) AS 'note' FROM notes WHERE " . $value1["note"] . " IS NOT NULL ORDER BY time DESC LIMIT 1";
               } else {
                 $sql = "SELECT NULL AS 'time', NULL AS 'timeFormatted', NULL AS 'note'"; 
               }

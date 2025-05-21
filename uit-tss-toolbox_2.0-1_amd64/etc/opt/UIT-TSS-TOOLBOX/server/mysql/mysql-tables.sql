@@ -566,10 +566,10 @@ VALUES
 
 CREATE TABLE IF NOT EXISTS notes (
     time DATETIME(3) NOT NULL PRIMARY KEY,
-    todo TEXT DEFAULT NULL,
-    projects TEXT DEFAULT NULL,
-    misc TEXT DEFAULT NULL,
-    bugs TEXT DEFAULT NULL
+    todo BLOB DEFAULT NULL,
+    projects BLOB DEFAULT NULL,
+    misc BLOB DEFAULT NULL,
+    bugs BLOB DEFAULT NULL
 );
 
 DROP TABLE IF EXISTS static_notes;
@@ -659,5 +659,8 @@ INSERT INTO static_emojis (keyword, regex, replacement, text_bool, case_sensitiv
     ('hmm', '\\:hmm', "🤔", 1, 1),
     ('alert', '\\:alert', "🚨", 1, 1),
     ('mindblown', '\\:mindblown', '🤯', 1, 1),
-    ('shock', '\\:shock', '⚡', 1, 1)
+    ('shock', '\\:shock', '⚡', 1, 1),
+    ('wow', '\\:wow', '😲', 1, 1),
+    ('eyes', '\\:eyes', '👀', 1, 1),
+    ('looking', '\\:looking', '👀', 1, 1)
 ;
