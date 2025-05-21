@@ -58,7 +58,9 @@ if (strFilter($_POST) === 0) {
     unset($_POST);
     header("Location: " . $_SERVER['REQUEST_URI']);
   } else {
-    $formErr = "<div style='color: red;'><b>Missing required data, please go to <a href='/locations.php'>here</a> to update the client</b></div>";
+    if (strFilter($_POST["job_queued"]) === 1 || strFilter($_POST["job_queued_tagnumber"]) === 1) {
+      $formErr = "<div style='color: red;'><b>Missing required data, please go to <a href='/locations.php'>here</a> to update the client</b></div>";
+    }
   }
 }
 unset($_POST);
