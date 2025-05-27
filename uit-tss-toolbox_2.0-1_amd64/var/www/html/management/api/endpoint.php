@@ -16,7 +16,7 @@ foreach ($db->get() as $key => $value) {
 unset($value);
 
 if (array_search($_POST["table"], $acceptableTables) === false) {
-  echo "ERR: Bad table name" . PHP_EOL;
+  //echo "ERR: Bad table name" . PHP_EOL;
   exit();
 }
 
@@ -35,14 +35,14 @@ $columnsArr = array();
 $postCols = json_decode($_POST["columns"]);
 foreach ($postCols as $nums => $cols) {
   if (array_search($cols, $acceptableCols) === false) {
-    echo "ERR: Bad column name" . PHP_EOL;
+    //echo "ERR: Bad column name" . PHP_EOL;
     exit();
   }
   array_push($columnsArr, $cols);
 }
 $columns = implode(", ", $columnsArr);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["queryType"] == "select") {
   $sql = "SELECT " . $columns . " FROM " . $_POST["table"] . " WHERE tagnumber = :tagnumber";
   $sqlArr = array(
     ':tagnumber' => $_POST["tagnumber"],

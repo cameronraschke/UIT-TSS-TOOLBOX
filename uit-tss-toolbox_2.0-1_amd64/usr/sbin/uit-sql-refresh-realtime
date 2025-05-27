@@ -66,3 +66,14 @@ foreach ($db->get() as $key => $value) {
     $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"]);
 }
 unset($value);
+
+// Update checkouts
+$db->select("SELECT t1.time, t1.tagnumber, 
+    (CASE WHEN t1.return_date IS NOT NULL AND NOW() >= t1.return_date THEN 1
+        ELSE 0 END) AS 'checkout_bool' FROM 
+    (SELECT time, tagnumber, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) t1
+    WHERE t1.row_nums <= 1");
+foreach ($db->get() as $key => $value) {
+    $db->updateCheckout("checkout_bool", $value["checkout_bool"], $value["time"]);
+}
+unset($value);

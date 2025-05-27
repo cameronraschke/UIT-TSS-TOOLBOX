@@ -1,11 +1,7 @@
 <?php
-include("/var/www/html/management/php/include.php");
+include("/opt/UIT-TSS-TOOLBOX/include.php");
 
-if ($_GET["password"] !== "UHouston!") {
-  exit();
-}
-
-$url = 'http://localhost:1411/api/endpoint.php';
+$url = 'http://10.0.0.1:1411/api/endpoint.php';
 
 $postData = http_build_query(
   array(
