@@ -422,10 +422,10 @@ if (isset($_POST['serial'])) {
                     foreach ($db->get() as $key => $value1) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
                       //echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value1["checkout_date"]) . "' min='2020-01-01' /></div>";
-                      echo "<input type='date' id='checkout_date' name='checkout_date' value='' min='2020-01-01' /></div>";
+                      echo "<input type='date' id='checkout_date' name='checkout_date' value='" . $value1["checkout_date"] . "' min='2020-01-01' /></div>";
                       echo "<div><div><label for='return_date'>Return date: </label></div>";
                       //echo "<input type='date' id='return_date' name='return_date' value='" . htmlspecialchars($value1["return_date"]) . "' min='2020-01-01' /></div>";
-                      echo "<input type='date' id='return_date' name='return_date' value='' min='2020-01-01' /></div>";
+                      echo "<input type='date' id='return_date' name='return_date' value='" . $value1["return_date"] . "' min='2020-01-01' /></div>";
                       echo "</div>";
                       echo "<div class='column'>";
                       echo "<div><div><label for='customer_name'>Customer name: </label></div>";
