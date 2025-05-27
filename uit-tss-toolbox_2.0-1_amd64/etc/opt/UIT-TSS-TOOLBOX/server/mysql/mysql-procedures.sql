@@ -590,11 +590,14 @@ BEGIN
 
 (SELECT 'Tag Number', 'Serial Number', 'System Model', 'Checkout Date', 'Return Date', 'Note', 'Last Entry')
 UNION ALL
-(SELECT * FROM (SELECT checkout.time, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note,
+(SELECT t1.tagnumber, t2.system_serial, system_data.system_model, t1.checkout_date, t1.return_date, t1.note, t1.time FROM (SELECT checkout.time, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note,
     ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' 
     FROM checkout) t1
+    INNER JOIN (SELECT s2.tagnumber, s2.time, s2.system_serial, s2.row_nums FROM (SELECT tagnumber, time, system_serial, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM locations) s2 WHERE s2.row_nums = 1) t2 ON t1.tagnumber = t2.tagnumber
+    LEFT JOIN system_data ON t1.tagnumber = system_data.tagnumber
     WHERE (t1.checkout_date IS NOT NULL OR t1.return_date) IS NOT NULL 
-        AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = 1 AND t1.customer_name = 'Blake Mudd' ORDER BY t1.time DESC, t1.customer_name ASC, t1.tagnumber DESC);
+        AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = 1 AND t1.customer_name = 'Blake Mudd' 
+    ORDER BY t1.time DESC, t1.customer_name ASC, t1.tagnumber DESC);
 
 END; //
 DELIMITER ;
