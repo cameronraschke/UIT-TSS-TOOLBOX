@@ -69,7 +69,7 @@ unset($value);
 
 // Update checkouts
 $db->select("SELECT t1.time, t1.tagnumber, 
-    (CASE WHEN t1.return_date IS NOT NULL AND NOW() >= t1.return_date THEN 1
+    (CASE WHEN t1.checkout_date IS NOT NULL AND (t1.return_date IS NULL OR DATE(NOW()) >= t1.return_date) THEN 1
         ELSE 0 END) AS 'checkout_bool' FROM 
     (SELECT time, tagnumber, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) t1
     WHERE t1.row_nums <= 1");
