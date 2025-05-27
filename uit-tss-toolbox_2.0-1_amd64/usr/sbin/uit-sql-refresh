@@ -4,7 +4,7 @@ clientStart=$(date +%s.%N)
 uit-sql-refresh-client
 locationStart=$(date +%s.%N)
 uit-sql-refresh-remote
-uit-sql-refresh-bios
+uit-sql-refresh-realtime
 serverStart=$(date +%s.%N)
 uit-sql-refresh-server
 serverEnd=$(date +%s.%N)
