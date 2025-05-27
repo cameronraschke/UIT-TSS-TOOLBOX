@@ -498,7 +498,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   os_stats.os_name AS 'os_installed_formatted', os_stats.os_installed, os_stats.os_name, 
   IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
-  locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain, checkout.checkout_bool
+  locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain, t2.checkout_bool
   FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
     LEFT JOIN departments ON (locations.tagnumber = departments.tagnumber AND departments.time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber))
@@ -506,11 +506,11 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
     LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
     LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
     LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
-    LEFT JOIN checkout ON locations.tagnumber = checkout.tagnumber
+    LEFT JOIN (SELECT * FROM (SELECT time, tagnumber, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) s2 WHERE s2.row_nums = 1) t2 ON locations.tagnumber = t2.tagnumber
     LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
       ON locations.tagnumber = t1.tagnumber
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
-  WHERE locations.tagnumber IS NOT NULL
+  WHERE locations.tagnumber IS NOT NULL 
   AND locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) ";
 
 
