@@ -681,6 +681,7 @@ $sqlArr = $db->get();
 <th>Customer Name</th>
 <th>Checkout Date</th>
 <th>Return Date</th>
+<th>Note</th>
 </tr>
 </thead>
 <tbody>
