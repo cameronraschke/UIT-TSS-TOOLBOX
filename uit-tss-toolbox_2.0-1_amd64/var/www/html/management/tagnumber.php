@@ -685,7 +685,7 @@ $sqlArr = $db->get();
 </thead>
 <tbody>
 <?php
-$db->Pselect("SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', customer_name, checkout_date, return_date FROM checkout WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
+$db->Pselect("SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', customer_name, checkout_date, return_date, note FROM checkout WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
 if (arrFilter($db->get()) === 0) {
 foreach ($db->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
@@ -693,6 +693,7 @@ echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBST
 echo "<td>" . htmlspecialchars($value1['customer_name'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['checkout_date'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['return_date'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 echo "</tr>" . PHP_EOL;
 }
 }
