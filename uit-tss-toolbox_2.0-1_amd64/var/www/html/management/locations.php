@@ -498,7 +498,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   os_stats.os_name AS 'os_installed_formatted', os_stats.os_installed, os_stats.os_name, 
   IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
-  locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain, t2.checkout_bool
+  locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain, t2.checkout_bool, t2.checkout_date, t2.return_date
   FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
     LEFT JOIN departments ON (locations.tagnumber = departments.tagnumber AND departments.time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber))
@@ -560,13 +560,19 @@ if (strFilter($_GET["system_model"]) === 0) {
   }
 }
 
-// Lost filter
-if ($_GET["lost"] == "0") {
-  $sql .= "AND NOT (locations.time <= NOW() - INTERVAL 3 MONTH
-    OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) ";
-} elseif ($_GET["lost"] == "1") {
-  $sql .= "AND (locations.time <= NOW() - INTERVAL 3 MONTH
-    OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) ";
+// // Lost filter
+// if ($_GET["lost"] == "0") {
+//   $sql .= "AND NOT (locations.time <= NOW() - INTERVAL 3 MONTH
+//     OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) ";
+// } elseif ($_GET["lost"] == "1") {
+//   $sql .= "AND (locations.time <= NOW() - INTERVAL 3 MONTH
+//     OR (locations.location = 'Stolen' OR locations.location = 'Lost' OR locations.location = 'Missing' OR locations.location = 'Unknown')) ";
+// }
+
+if ($_GET["checkout"] == "0") {
+  $sql .= "AND t2.checkout_bool IS NULL ";
+} elseif ($_GET["checkout"] == "1") {
+  $sql .= "AND t2.checkout_bool = 1 ";
 }
 
 // Broken filter
@@ -769,7 +775,7 @@ if (arrFilter($db->get()) === 0) {
 
         <div class="row">
           <div class="dense-column">
-            <p>Device Lost?</p>
+            <!-- <p>Device Lost?</p>
             <div class="column">
               <label for="lost_yes">Yes</label>
               <input type="radio" id="lost_yes" name="lost" value="1">
@@ -777,7 +783,17 @@ if (arrFilter($db->get()) === 0) {
             <div class="column">
               <label for="lost_no">No</label>
               <input type="radio" id="lost_no" name="lost" value="0">
+            </div> -->
+            <p>Checked Out?</p>
+            <div class="column">
+              <label for="checkout_yes">Yes</label>
+              <input type="radio" id="checkout_yes" name="checkout" value="1">
             </div>
+            <div class="column">
+              <label for="checkout_no">No</label>
+              <input type="radio" id="checkout_no" name="checkout" value="0">
+            </div>
+
           </div>
 
           <div class="dense-column">
@@ -825,7 +841,10 @@ if (arrFilter($db->get()) === 0) {
         </div>
 
         <div class='filtering-form'>
-            <?php echo "Results: <b>" . $rowCount . "</b>" . PHP_EOL; ?>
+            <?php
+              if ($_GET["checkout"] == "1") { echo "<div><h3>Click <a href='/checkouts.php' target='_blank'>here</a> for a checkout overview.</h3></div>"; }
+            ?>
+            <?php echo "<div>Results: <b>" . $rowCount . "</b></div>" . PHP_EOL; ?>
         </div>
       </form>
     </div>
