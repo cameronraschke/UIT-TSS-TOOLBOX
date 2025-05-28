@@ -40,7 +40,7 @@ foreach (json_decode($_POST["columns"]) as $nums => $cols) {
 }
 $columns = implode(", ", $columns);
 
-
+// Same logic as columns
 $notnull = array();
 foreach (json_decode($_POST["notnull"]) as $nums => $cols) {
   if (array_search($cols, $acceptableCols) === false) {
@@ -51,14 +51,24 @@ foreach (json_decode($_POST["notnull"]) as $nums => $cols) {
 }
 $notnull = implode(" IS NOT NULL AND ", $notnull);
 
+// Same logic as columns
+foreach (json_decode($_POST["preparedCols"]) as $key => $value) {
+        $preparedColsArr = array_chunk(explode('=', $value), 2, true);
+        var_dump($preparedColsArr);
+        foreach ($preparedColsArr as $key1 => $value1) {
+                echo $key1 . " => " . $value1;
+        }
+}
 
+unset($sqlArr);
 unset($returnArr);
 $returnArr = array();
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["queryType"] == "select") {
-  $sql = "SELECT " . $columns . " FROM " . $_POST["table"] . " WHERE tagnumber = :tagnumber AND $notnull IS NOT NULL ORDER BY time DESC LIMIT 1";
-  $sqlArr = array(
-    ':tagnumber' => $_POST["tagnumber"]
-  );
+  $sql = "SELECT " . $columns . " FROM " . $_POST["table"] . " WHERE $preparedCols AND $notnull IS NOT NULL ORDER BY time DESC LIMIT 1";
+  #foreach (json_decode($_POST["preparedCols"]) as $key => $value) {
+  #  $sqlArr += [ ":" . $key => $value ];
+  #}
+  unset($value);
   $db->AssocPSelect($sql, $sqlArr);
   foreach ($db->nested_get() as $key => $value) {
     $returnArr += [ $key => $value ];

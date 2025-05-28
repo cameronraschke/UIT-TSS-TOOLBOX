@@ -14,7 +14,8 @@ $queryType = $arr[0];
 $table = $arr[1];
 $columns = explode(', ', htmlspecialchars($arr[2]));
 $tagNum = $arr[3];
-$notnull = explode(', ', htmlspecialchars($arr[4]));
+$preparedCols = explode(', ', htmlspecialchars($arr[4]));
+$notnull = explode(', ', htmlspecialchars($arr[5]));
 
 
 $postData = http_build_query(
@@ -24,6 +25,7 @@ $postData = http_build_query(
     'table' => $table,
     'queryType' => $queryType,
     'columns' => json_encode($columns),
+    'preparedCols' => json_encode($preparedCols),
     'notnull' => json_encode($notnull),
   )
 );
