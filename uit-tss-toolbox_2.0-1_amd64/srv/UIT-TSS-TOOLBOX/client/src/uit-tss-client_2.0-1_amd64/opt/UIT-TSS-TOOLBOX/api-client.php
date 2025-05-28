@@ -16,11 +16,6 @@ $columns = explode(', ', htmlspecialchars($arr[2]));
 $tagNum = $arr[3];
 $notnull = explode(', ', htmlspecialchars($arr[4]));
 
-// echo "Q type: " . $queryType . PHP_EOL;
-// echo "Table: " . $table . PHP_EOL;
-// foreach ($columns as $value) {
-//   echo "Columns: " . $value . PHP_EOL;
-// }
 
 $postData = http_build_query(
   array(
@@ -46,6 +41,6 @@ $context = stream_context_create($opts);
 $result = file_get_contents($url, false, $context);
 
 foreach (json_decode($result) as $key => $value) {
-  echo htmlspecialchars_decode($value);
+  echo htmlspecialchars_decode($value1);
 }
 ?>

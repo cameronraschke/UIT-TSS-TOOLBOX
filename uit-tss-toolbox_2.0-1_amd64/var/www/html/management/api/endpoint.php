@@ -55,19 +55,13 @@ $notnull = implode(" IS NOT NULL AND ", $notnull);
 unset($returnArr);
 $returnArr = array();
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["queryType"] == "select") {
-  
   $sql = "SELECT " . $columns . " FROM " . $_POST["table"] . " WHERE tagnumber = :tagnumber AND $notnull IS NOT NULL ORDER BY time DESC LIMIT 1";
   $sqlArr = array(
-    ':tagnumber' => $_POST["tagnumber"],
+    ':tagnumber' => $_POST["tagnumber"]
   );
-  $db->Pselect($sql, $sqlArr);
-  foreach ($db->get() as $key => $value) {
-    $colCount = count($value) / 2;
-    $colArr = explode(", ", implode(', ', range(1, $colCount)));
-    foreach ($colArr as $num => $count) {
-      $count = $count - 1;
-      $returnArr += [ $columnsArr[$count] => htmlspecialchars($value[$count]) ];
-    }
+  $db->AssocPSelect($sql, $sqlArr);
+  foreach ($db->nested_get() as $key => $value) {
+    $returnArr += [ $key => $value ];
   }
   echo json_encode($returnArr) . PHP_EOL;
 }

@@ -170,8 +170,28 @@ class db {
         $this->arr = $stmt->fetchAll();
     }
 
+    public function AssocPSelect($sql, $arr) {
+        $db = new MySQLConn();
+        $pdo = $db->dbObj();
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($arr);
+        $this->arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->rowCount = $stmt->rowCount();
+    }
+
     public function get() {
         if(is_array($this->arr) && arrFilter($this->arr) == 0) {
+            return $this->arr;
+        } else {
+            return "NULL";
+        }
+    }
+
+    public function nested_get() {
+        if(is_array($this->arr) && arrFilter($this->arr) == 0) {
+            foreach ($this->arr as $nestedKey => $nestedValue) {
+                $this->arr = $nestedValue;
+            }
             return $this->arr;
         } else {
             return "NULL";
