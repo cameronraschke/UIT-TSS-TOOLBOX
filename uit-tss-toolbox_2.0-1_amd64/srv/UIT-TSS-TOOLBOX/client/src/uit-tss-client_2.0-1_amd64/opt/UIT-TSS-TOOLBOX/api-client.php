@@ -41,6 +41,6 @@ $context = stream_context_create($opts);
 $result = file_get_contents($url, false, $context);
 
 foreach (json_decode($result) as $key => $value) {
-  echo htmlspecialchars_decode($value1);
+  echo htmlspecialchars_decode($value);
 }
 ?>
