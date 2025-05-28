@@ -40,7 +40,13 @@ $context = stream_context_create($opts);
 
 $result = file_get_contents($url, false, $context);
 
-foreach (json_decode($result) as $key => $value) {
-  echo htmlspecialchars_decode($value);
+$jsonArr = json_decode($result, true);
+
+foreach ($jsonArr as $key => $value) {
+  if (count($jsonArr) > 1) {
+    echo htmlspecialchars_decode($key) . "|" . htmlspecialchars_decode($value) . PHP_EOL;
+  } elseif (count($jsonArr) === 1) {
+    echo htmlspecialchars_decode($value);
+  }
 }
 ?>
