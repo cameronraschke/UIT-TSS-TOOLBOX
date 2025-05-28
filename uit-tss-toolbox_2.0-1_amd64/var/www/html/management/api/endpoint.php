@@ -7,6 +7,7 @@ if ($_POST["password"] !== "UHouston!") {
 
 $db = new db();
 
+//ORDER OF THESE ENTRIES MATTER
 unset($acceptableTables);
 $acceptableTables = array();
 $db->select("SHOW TABLES");
@@ -29,21 +30,33 @@ foreach ($db->get() as $key => $value) {
 }
 unset($value);
 
-unset($cols);
-unset($columns);
-$columnsArr = array();
-$postCols = json_decode($_POST["columns"]);
-foreach ($postCols as $nums => $cols) {
+$columns = array();
+foreach (json_decode($_POST["columns"]) as $nums => $cols) {
   if (array_search($cols, $acceptableCols) === false) {
     //echo "ERR: Bad column name" . PHP_EOL;
     exit();
   }
-  array_push($columnsArr, $cols);
+  array_push($columns, $cols);
 }
-$columns = implode(", ", $columnsArr);
+$columns = implode(", ", $columns);
 
+
+$notnull = array();
+foreach (json_decode($_POST["notnull"]) as $nums => $cols) {
+  if (array_search($cols, $acceptableCols) === false) {
+    //echo "ERR: Bad column name" . PHP_EOL;
+    exit();
+  }
+  array_push($notnull, $cols);
+}
+$notnull = implode(" IS NOT NULL AND ", $notnull);
+
+
+unset($returnArr);
+$returnArr = array();
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["queryType"] == "select") {
-  $sql = "SELECT " . $columns . " FROM " . $_POST["table"] . " WHERE tagnumber = :tagnumber";
+  
+  $sql = "SELECT " . $columns . " FROM " . $_POST["table"] . " WHERE tagnumber = :tagnumber AND $notnull IS NOT NULL ORDER BY time DESC LIMIT 1";
   $sqlArr = array(
     ':tagnumber' => $_POST["tagnumber"],
   );
@@ -53,10 +66,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["queryType"] == "select") {
     $colArr = explode(", ", implode(', ', range(1, $colCount)));
     foreach ($colArr as $num => $count) {
       $count = $count - 1;
-      echo $columnsArr[$count] . " => ";
-      echo $value[$count] . PHP_EOL;
+      $returnArr += [ $columnsArr[$count] => htmlspecialchars($value[$count]) ];
     }
   }
+  echo json_encode($returnArr) . PHP_EOL;
 }
-
 ?>
