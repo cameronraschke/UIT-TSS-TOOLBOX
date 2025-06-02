@@ -76,7 +76,7 @@ unset($value);
 $file = null;
 
 // Checkout to a specific person
-$file = new SplFileObject("/tmp/uit-tmp-reports/blake-mudd-checkout-report-" . $date . ".csv", "w");
+$file = new SplFileObject("/tmp/uit-tmp-reports/checkout-report-" . $date . ".csv", "w");
 $db->AssocSelect("CALL iterateCheckoutName()");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
