@@ -152,7 +152,8 @@ WHEN t4.disk_reads IS NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_rea
 END) AS 'disk_tbw_formatted',
 CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
 t4.disk_power_cycles, t4.disk_errors, locations.domain, static_domains.domain_readable,
-IF (os_stats.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'os_installed_formatted'
+IF (os_stats.os_installed = 1, CONCAT(static_image_names.image_name_readable, ' (Imaged on ', DATE_FORMAT(t6.time, '%m/%d/%y, %r'), ')'), 'No OS') AS 'os_installed_formatted',
+checkout.customer_name, checkout.checkout_date, checkout.checkout_bool
 FROM locations
 LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
 LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
@@ -169,7 +170,7 @@ LEFT JOIN (SELECT tagnumber, disk_model, disk_serial, disk_size, disk_type, disk
 ON locations.tagnumber = t4.tagnumber
 LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5 
 ON locations.tagnumber = t5.tagnumber
-LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s6 WHERE s6.row_nums = 1) t6
+LEFT JOIN (SELECT time, tagnumber, clone_image, row_nums FROM (SELECT time, tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s6 WHERE s6.row_nums = 1) t6
 ON locations.tagnumber = t6.tagnumber
 LEFT JOIN static_image_names ON t6.clone_image = static_image_names.image_name
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
@@ -178,6 +179,7 @@ LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
 ON locations.time = t10.time
 LEFT JOIN static_domains ON locations.domain = static_domains.domain
+LEFT JOIN checkout ON locations.tagnumber = checkout.tagnumber AND checkout.time IN (SELECT s11.time FROM (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) s11 WHERE s11.row_nums = 1)
 WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
 AND locations.tagnumber = :tagnumber";
 
@@ -288,7 +290,18 @@ $sqlArr = $db->get();
               ?>
                 <tr>
                   <td>Current Location</td>
-                  <td><?php echo "<a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'>" . trim(htmlspecialchars($value["location"])) . " - <i>(Click to Update)</i></a>"; ?></td>
+                  <td>
+                    <?php
+                    if ($value["checkout_bool"] === 1) {
+                      echo "<p>Currently checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
+                    }
+                    ?>
+                    <?php echo "<p>\"" . trim(htmlspecialchars($value["location"])) . "\"</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'><i>(Click to Update Location)</i></a></p>"; ?>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Current Department</td>
+                  <td><?php echo "<p>" . trim(htmlspecialchars($value["department_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'><i>(Click to Update Department)</i></a></p>"; ?></td>
                 </tr>
                 <tr>
                   <td>System Serial</td>
