@@ -174,7 +174,7 @@ if (isset($_POST['serial'])) {
       <div class="column">
       <?php
       //If tagnumber is POSTed, show data in the location form.
-      if (isset($_POST["tagnumber"])) {
+      if (isset($_GET["tagnumber"])) {
         unset($formSql);
         $formSql = "SELECT TRIM(locations.tagnumber) AS 'tagnumber', TRIM(locations.system_serial) AS 'system_serial', TRIM(system_data.system_model) AS 'system_model', 
           IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted', 
@@ -199,7 +199,7 @@ if (isset($_POST['serial'])) {
         
         unset($formArr);
         //$db->Pselect($formSql, array(':tagnumberJob' => htmlspecialchars_decode($_POST["tagnumber"]), ':tagnumberLoc' => htmlspecialchars_decode($_POST["tagnumber"])));
-        $db->Pselect($formSql, array(':tagnumberLoc' => htmlspecialchars_decode($_POST["tagnumber"])));
+        $db->Pselect($formSql, array(':tagnumberLoc' => htmlspecialchars_decode($_GET["tagnumber"])));
         if ($db->get() === "NULL") {
           $formArr = array( array( "system_serial" => "NULL", "location" => "NULL", "time_formatted" => "NULL") );
           $tagDataExists = 0;
@@ -216,11 +216,11 @@ if (isset($_POST['serial'])) {
         foreach ($formArr as $key => $value) {
           //Tag number
           echo "
-          <form method='post'>
+          <form method='post' action='/locations.php'>
             <div class='row'>
               <div class='column'>
-                <div><label for='tagnumber'>Tag Number - <a href='/tagnumber.php?tagnumber=" . $_POST["tagnumber"] . "' target='_blank'>Open in New Tab</a></label></div>
-                <input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . trim(htmlspecialchars($_POST["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>
+                <div><label for='tagnumber'>Tag Number - <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "' target='_blank'>Open client details in New Tab</a></label></div>
+                <input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . trim(htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>
               </div>";
             // Line above this closes tag number data div
 
@@ -417,7 +417,7 @@ if (isset($_POST['serial'])) {
             </div>
             <div class='row'>
               <div class='column'>";
-                  $db->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkout WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_POST["tagnumber"]));
+                  $db->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkout WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_GET["tagnumber"]));
                   if (strFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value1) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
@@ -473,7 +473,7 @@ if (isset($_POST['serial'])) {
         echo "
           <div class='page-content'><h2>Update Client Locations</h2></div>
           <div class='location-form'>
-            <form method='post'>
+            <form method='get'>
               <div><label for='tagnumber'>Enter a Tag Number: </label></div>
                 <input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>
               <button type='submit' value='Continue'>Continue</button>

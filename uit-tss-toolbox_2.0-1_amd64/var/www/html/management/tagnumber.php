@@ -114,62 +114,6 @@ unset($_POST);
 
     <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
 
-    <div class='laptop-images'>
-      <?php
-      $db->Pselect("SELECT system_model FROM system_data WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-      if (arrFilter($db->get()) === 0) {
-        foreach ($db->get() as $key => $value) {
-          if ($value["system_model"] === "Aspire T3-710") {
-          echo "<img src='/images/aspireT3710.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "HP ProBook 450 G6") {
-          echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 3500") {
-          echo "<img src='/images/Latitude3500.avif'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 3560") {
-          echo "<img src='/images/Latitude3560.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 3590") {
-          echo "<img src='/images/latitude3590.jpeg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 5289") {
-          echo "<img src='/images/latitude5289.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 5480") {
-          echo "<img src='/images/latitude5480.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 5590") {
-          echo "<img src='/images/latitude5590.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 7400") {
-          echo "<img src='/images/latitude7400.avif'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 7430") {
-          echo "<img src='/images/latitude7430.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 7480") {
-          echo "<img src='/images/latitude7480.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude 7490") {
-          echo "<img src='/images/latitude7490.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude E6430") {
-          echo "<img src='/images/latitudeE6430.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Latitude E7470") {
-          echo "<img src='/images/latitudeE7470.webp'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "OptiPlex 7000") {
-          echo "<img src='/images/optiplex7000.avif'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "OptiPlex 7460 AIO") {
-          echo "<img src='/images/optiplex7460AIO.avif'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "OptiPlex 780") {
-          echo "<img src='/images/optiplex780.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "OptiPlex 790") {
-          echo "<img src='/images/optiplex790.avif'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "OptiPlex 9010 AIO") {
-          echo "<img src='/images/optiplex9010AIO.webp'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Surface Book") {
-          echo "<img src='/images/surfaceBook.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Surface Pro") {
-          echo "<img src='/images/surfacePro.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "Surface Pro 4") {
-          echo "<img src='/images/surfacePro4.jpg'>" . PHP_EOL;
-          } elseif ($value["system_model"] === "XPS 15 9560") {
-          echo "<img src='/images/xps15-9560.jpg'>" . PHP_EOL;
-          }
-        }
-      }
-      ?>
-    </div>
 
 <?php
 // Get most client data - main sql query
@@ -251,223 +195,82 @@ $sqlArr = $db->get();
     <div class='row'>
 
       <div class='column'>
-        <form name="location-form" id="location-form" method="POST">
-          <div class='location-form'>
-            <?php
-              if (arrFilter($sqlArr) === 0) {
-                foreach ($sqlArr as $key => $value) {
-            ?>
-            <input type='hidden' name='serial' id='serial' value='<?php echo htmlspecialchars($value["system_serial"]); ?>'>
-            <div><label for='department'>Department</label></div>
-            <div>
-              <select name='department' id='department'>
-                <?php
-                if (strFilter($value["department"]) === 1) {
-                  echo "<option value=''>--Please Select--</option>";
-                  $db->select("SELECT department, department_readable FROM static_departments ORDER BY department_readable ASC");
-                    foreach ($db->get() as $key => $value1) {
-                      echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
-                    }
-                } else {
-                  $db->Pselect("SELECT department, department_readable FROM static_departments WHERE NOT department = :department", array(':department' => $value["department"]));
-                  if (arrFilter($db->get()) === 0) {
-                    echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>";
-                    foreach ($db->get() as $key => $value1) {
-                      echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
-                    }
-                  }
-                }
-                unset($value1);
-                ?>
-              </select>
-            </div>
+        <div class='location-form'>
 
-            <div><label for='domain'>AD Domain</label></div>
-            <div>
-              <select name='domain' id='domain'>
-                <?php
-                  if (strFilter($value["domain"]) === 0) {
-                    echo "<option value='" . htmlspecialchars($value["domain"]) . "'>" . htmlspecialchars($value["domain_readable"]) . "</option>";
-                    $db->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains WHERE NOT domain = :domain ORDER BY domain_readable ASC", array(':domain' => $value["domain"]));
-                    foreach ($db->get() as $key => $value2) {
-                      echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
-                    }
-                    echo "<option value=''>No domain</option>";
-                  } else {
-                    echo "<option value=''>--Select Domain--</option>";
-                    $db->select("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains ORDER BY domain_readable ASC");
-                    foreach ($db->get() as $key => $value2) {
-                      echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
-                    }
-                    echo "<option value=''>No domain</option>";
-                  }
-                  unset($value1);
-                  unset($value2);
-                  ?>
-              </select>
-            </div>
-
-            <div><label for='location'>Location (Last Updated: <?php echo htmlspecialchars($value["location_time_formatted"]); ?>)</label></div>
-            <div><input type='text' id='location' name='location' value='<?php echo htmlspecialchars($value["location"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>' required style='width: 50%; height: 4%;'></div>
-
-            <div>
-              <?php
-                if (strFilter($value["most_recent_note"]) === 0 && $value["locations_status"] === 1) {
-                  echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
-                  echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
-                } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] === 1)  {
-                  echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
-                  echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
-                } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] !== 1) {
-                  echo "<div><label for='note'>Note (Last Entry: " . htmlspecialchars($value["note_time_formatted"]) . ")</label></div>" . PHP_EOL;
-                  echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
-                } else {
-                  echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
-                  echo "<textarea id='note' name='note' style='width: 70%;' placeholder='Enter Note...'></textarea>" . PHP_EOL;
-                }
-              ?>
-            </div>
-
-            <div style='width: 60%;'>
-              <div style='float: left;'>
-                <div><label for='disk_removed'>Disk removed?</label></div>
-                <div>
-                  <select name='disk_removed' id='disk_removed'>
-                    <?php
-                    if ($value["disk_removed"] === 1) {
-                    echo "<option value='1'>Yes</option>" . PHP_EOL;
-                    echo "<option value='0'>No</option>" . PHP_EOL;
-                    } else {
-                    echo "<option value='0'>No</option>" . PHP_EOL;
-                    echo "<option value='1'>Yes</option>" . PHP_EOL;
-                    }
-                    ?>
-                  </select>
-                </div>
-              </div>
-              
-              <div style='float: right;'>
-                <div><label for='status'>Functional</label></div>
-                <div>
-                  <select name='status' id='status'>
-                    <?php
-                    if ($value["locations_status"] === 1) {
-                      echo "<option value='1'>No, Broken</option>" . PHP_EOL;
-                      echo "<option value='0'>Yes</option>" . PHP_EOL;
-                    } else {
-                      echo "<option value='0'>Yes</option>" . PHP_EOL;
-                      echo "<option value='1'>No, Broken</option>" . PHP_EOL;
-                    }
-                    ?>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div style='margin: 3% 0% 0% 0%;' class='page-content'><input type='submit' style='background-color:rgba(0, 179, 136, 0.30);' value='Update Location Data'></div>
-
-            <div style='margin: 1% 0% 0% 0%;' class='page-content'><a href='locations.php' target='_blank'>Update a different client's location.</a></div>
-            <?php
-              unset($value);
-              //close foreach
+        <div name='curJob' id='curJob'>
+          <p>Current Status: </p>
+          <?php
+          if (arrFilter($sqlArr) === 0) {
+            foreach ($sqlArr as $key => $value) {
+              // BIOS and kernel updated (check mark)
+              if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
+              echo "Online, no errors <span>&#10004;&#65039;</span>";
+              // BIOS and kernel out of date (x)
+              } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== 1)) {
+              echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
+              // BIOS out of date, kernel updated (warning sign)
+              } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== 1)) {
+              echo "Online, please update BIOS <span>&#9888;&#65039;</span>";
+              // BIOS updated, kernel out of date (x)
+              } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === 1)) {
+              echo "Online, kernel out of date <span>&#10060;</span>)";
+              // Offline (x)
+              } elseif ($value["present_bool"] !== 1) {
+              echo "Offline <span>&#9940;</span>";
+              } else {
+              echo "Unknown <span>&#9940;&#65039;</span>";
               }
-            //close if
+
+              if (strFilter($value["remote_status"]) === 0) {
+                echo "<p><b>'" . htmlspecialchars($value["remote_status"]) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"]) . "</p>" . PHP_EOL;
+              }
             }
-            ?>
-          </div>
-        </form>
-        <?php if (strFilter($formErr) === 0) { echo $formErr; } ?>
-        <!--Close column div-->
-      </div>
+          } else {
+            echo "Missing required info. Please plug into laptop server to gather information.<br>
+            To update the location, please update it from the <a href='/locations.php'>locations page</a>";
+          }
+          ?>
+        </div>
 
-
-
-      <div class='column'>
-        <div class="styled-table" style="width: 100%; height: auto; overflow:auto; margin: 1% 1% 5% 4%; float: left;">
-          <table width='100%;'>
-            <thead>
-              <tr>
-              <th>Queued Job</th>
-              <th>Current Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <form name="job_queued_form" method="post">
-                    <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
-                    <select name="job_queued" onchange='this.form.submit()'>
-                      <?php
-                      // Get/set current jobs.
-                      if ($_GET['tagnumber'] && arrFilter($sqlArr) === 0) {
-                        $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-                        if (arrFilter($db->get()) === 0 ) {
-                          $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
-                            IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted',
-                            IF (remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
-                            FROM remote 
-                            INNER JOIN static_job_names 
-                            ON remote.job_queued = static_job_names.job 
-                            WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-                          if (arrFilter($db->get()) === 0) {
-                            foreach ($db->get() as $key => $value1) {
-                              echo "<option value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
-                            }
-                            unset($value1);
-                          }
-                          echo "<option value=''>--Select Job Below--</option>" . PHP_EOL;
-                          $db->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 AND NOT job IN (SELECT IF (remote.job_queued IS NULL, '', remote.job_queued) FROM remote WHERE remote.tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
-                          foreach ($db->get() as $key => $value2) {
-                            echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
-                          }
-                          unset($value2);
-                          unset($value);
-                        }
-                      } else {
-                        echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " missing info :((</option>";
-                      }
-                      ?>
-                    </select>
-                  </form>
-                </td>
-                <td>
-                  <div name='curJob' id='curJob'>
-                    <?php
-                    if (arrFilter($sqlArr) === 0) {
-                      foreach ($sqlArr as $key => $value) {
-                        // BIOS and kernel updated (check mark)
-                        if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
-                        echo "Online, no errors <span>&#10004;&#65039;</span>";
-                        // BIOS and kernel out of date (x)
-                        } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== 1)) {
-                        echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
-                        // BIOS out of date, kernel updated (warning sign)
-                        } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== 1)) {
-                        echo "Online, please update BIOS <span>&#9888;&#65039;</span>";
-                        // BIOS updated, kernel out of date (x)
-                        } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === 1)) {
-                        echo "Online, kernel out of date <span>&#10060;</span>)";
-                        // Offline (x)
-                        } elseif ($value["present_bool"] !== 1) {
-                        echo "Offline <span>&#9940;</span>";
-                        } else {
-                        echo "Unknown <span>&#9940;&#65039;</span>";
-                        }
-
-                        if (strFilter($value["remote_status"]) === 0) {
-                          echo "<p><b>'" . htmlspecialchars($value["remote_status"]) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"]) . "</p>" . PHP_EOL;
-                        }
-                      }
-                    } else {
-                      echo "Missing required info. Please plug into laptop server to gather information.<br>
-                      To update the location, please update it from the <a href='/locations.php'>locations page</a>";
+          <form name="job_queued_form" method="post">
+            <div><label for='tagnumber'>Enter a job to queue: </label></div>
+            <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
+            <select name="job_queued">
+              <?php
+              // Get/set current jobs.
+              if ($_GET['tagnumber'] && arrFilter($sqlArr) === 0) {
+                $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+                if (arrFilter($db->get()) === 0 ) {
+                  $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
+                    IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted',
+                    IF (remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
+                    FROM remote 
+                    INNER JOIN static_job_names 
+                    ON remote.job_queued = static_job_names.job 
+                    WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
+                  if (arrFilter($db->get()) === 0) {
+                    foreach ($db->get() as $key => $value1) {
+                      echo "<option value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
                     }
-                    ?>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    unset($value1);
+                  }
+                  echo "<option value=''>--Select Job Below--</option>" . PHP_EOL;
+                  $db->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 AND NOT job IN (SELECT IF (remote.job_queued IS NULL, '', remote.job_queued) FROM remote WHERE remote.tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
+                  foreach ($db->get() as $key => $value2) {
+                    echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
+                  }
+                  unset($value2);
+                  unset($value);
+                }
+              } else {
+                echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " missing info :((</option>";
+              }
+              ?>
+            </select>
+            <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Queue Job</button>
+          </form>
+
+
         </div>
 
         <div class='pagetitle'><h3></u></h3></div>
@@ -483,6 +286,10 @@ $sqlArr = $db->get();
               <?php
                 foreach ($sqlArr as $key => $value) {
               ?>
+                <tr>
+                  <td>Current Location</td>
+                  <td><?php echo "<a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'>" . trim(htmlspecialchars($value["location"])) . " - <i>(Click to Update)</i></a>"; ?></td>
+                </tr>
                 <tr>
                   <td>System Serial</td>
                   <td><?php echo htmlspecialchars($value['system_serial'])?></td>
@@ -543,6 +350,67 @@ $sqlArr = $db->get();
         </div>
         <!-- Close column div-->
       </div>
+
+      <div class='column'>
+        <div class='laptop-images'>
+        <?php
+        $db->Pselect("SELECT system_model FROM system_data WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
+        if (arrFilter($db->get()) === 0) {
+          foreach ($db->get() as $key => $value) {
+            if ($value["system_model"] === "Aspire T3-710") {
+            echo "<img src='/images/aspireT3710.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "HP ProBook 450 G6") {
+            echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 3500") {
+            echo "<img src='/images/Latitude3500.avif'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 3560") {
+            echo "<img src='/images/Latitude3560.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 3590") {
+            echo "<img src='/images/latitude3590.jpeg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 5289") {
+            echo "<img src='/images/latitude5289.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 5480") {
+            echo "<img src='/images/latitude5480.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 5590") {
+            echo "<img src='/images/latitude5590.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 7400") {
+            echo "<img src='/images/latitude7400.avif'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 7430") {
+            echo "<img src='/images/latitude7430.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 7480") {
+            echo "<img src='/images/latitude7480.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude 7490") {
+            echo "<img src='/images/latitude7490.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude E6430") {
+            echo "<img src='/images/latitudeE6430.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Latitude E7470") {
+            echo "<img src='/images/latitudeE7470.webp'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "OptiPlex 7000") {
+            echo "<img src='/images/optiplex7000.avif'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "OptiPlex 7460 AIO") {
+            echo "<img src='/images/optiplex7460AIO.avif'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "OptiPlex 780") {
+            echo "<img src='/images/optiplex780.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "OptiPlex 790") {
+            echo "<img src='/images/optiplex790.avif'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "OptiPlex 9010 AIO") {
+            echo "<img src='/images/optiplex9010AIO.webp'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Surface Book") {
+            echo "<img src='/images/surfaceBook.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Surface Pro") {
+            echo "<img src='/images/surfacePro.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "Surface Pro 4") {
+            echo "<img src='/images/surfacePro4.jpg'>" . PHP_EOL;
+            } elseif ($value["system_model"] === "XPS 15 9560") {
+            echo "<img src='/images/xps15-9560.jpg'>" . PHP_EOL;
+            }
+          }
+        }
+        ?>
+      </div>
+
+      </div>
+
       <!--Close row div-->
     </div>
 
