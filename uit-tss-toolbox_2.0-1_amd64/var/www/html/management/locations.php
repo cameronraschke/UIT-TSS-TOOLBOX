@@ -260,7 +260,7 @@ if (isset($_POST['serial'])) {
           echo "<select name='department' id='department'>" . PHP_EOL;
           if ($tagDataExists === 1) {
             if (strFilter($value["department"]) === 0) {
-              echo "<option value='" . htmlspecialchars($value["department"]) . "'>" . htmlspecialchars($value["department_readable"]) . "</option>" . PHP_EOL;
+              echo "<option value='" . htmlspecialchars($value["department"]) . "'>Current dept.: " . htmlspecialchars($value["department_readable"]) . "</option>" . PHP_EOL;
               $db->Pselect("SELECT department, department_readable 
                 FROM static_departments WHERE NOT department = :department ORDER BY department_readable ASC", array(':department' => $value["department"]));
               foreach ($db->get() as $key => $value1) {
