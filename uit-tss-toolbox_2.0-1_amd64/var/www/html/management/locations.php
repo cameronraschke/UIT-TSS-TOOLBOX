@@ -457,7 +457,7 @@ if (isset($_POST['serial'])) {
         echo "</div>";
 
           echo "<div class='row'>";
-          echo "<a href='/locations.php'>Cancel</a>";
+          echo "<button type='button' onclick='jsRedirect();'>Cancel</button>";
           if ($value["status"] === 1) {
             //echo "<button style='background-color:rgba(200, 16, 47, 0.30); margin-left: 1em;' type='submit' value='Update Location Data (Broken)'>Update Location Data (Broken)</button>" . PHP_EOL;
             echo "<button style='background-color:rgba(0, 179, 136, 0.30); margin-left: 1em;' type='submit' value='Update Location Data'>Update Location Data</button>" . PHP_EOL;
@@ -836,8 +836,8 @@ if (arrFilter($db->get()) === 0) {
         </div>
 
         <div class='filtering-form'>
-            <a href='/locations.php'><button>Reset Filters</button></a>
             <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Filter</button>
+            <button type='button' onclick='jsRedirect();'>Reset Filters</button>
         </div>
 
         <div class='filtering-form'>
@@ -956,7 +956,9 @@ unset($value1);
       </table>
     </div>
     <script>
-
+    function jsRedirect() {
+      window.location.href = "/locations.php";
+    }
 
       function getCursorPos(myElement) {
         let startPosition = myElement.selectionStart;
