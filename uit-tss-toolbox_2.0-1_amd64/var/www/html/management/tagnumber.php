@@ -266,12 +266,12 @@ $sqlArr = $db->get();
                       echo "<p>Currently checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
                     }
                     ?>
-                    <?php echo "<p>\"" . trim(htmlspecialchars($value["location"])) . "\"</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>"; ?>
+                    <?php echo "<p>\"" . trim(htmlspecialchars($value["location"])) . "\"</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>"; ?>
                   </td>
                 </tr>
                 <tr>
                   <td>Current Department</td>
-                  <td><?php echo "<p>" . trim(htmlspecialchars($value["department_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>"; ?></td>
+                  <td><?php echo "<p>" . trim(htmlspecialchars($value["department_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>"; ?></td>
                 </tr>
                 <tr>
                   <td>System Serial</td>
