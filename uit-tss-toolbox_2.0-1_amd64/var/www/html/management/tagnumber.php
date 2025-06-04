@@ -70,49 +70,19 @@ unset($_POST);
   <head>
     <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
-    <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
-    <script src="/jquery/jquery-3.7.1.min.js"></script>
-    <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
-    <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <title><?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " - UIT Client Mgmt"; ?></title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <style>
-      .ui-autocomplete {
-        max-height: 100px;
-        overflow-y: auto;
-        /* prevent horizontal scrollbar */
-        overflow-x: hidden;
-      }
-    </style>
   </head>
   <body onload="fetchHTML()">
-    <script>
-      $( function() {
-        var availableLocations = [
-          <?php
-          $db->select("CALL selectLocationAutocomplete()");
-          if (arrFilter($db->get()) === 0) {
-            foreach ($db->get() as $key => $value) {
-              echo "'" . $value["location"] . "',";
-            }
-          }
-          ?>
-        ];
 
-        $( "#location" ).autocomplete({
-          source: availableLocations
-        });
-      });
-    </script>
+  <div class='menubar'>
+  <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
+  <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
+  <br>
+  <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
+  </div>
 
-    <div class='menubar'>
-    <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-    <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
-    <br>
-    <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
-    </div>
-
-    <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
+  <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
 
 
 <?php
@@ -296,12 +266,12 @@ $sqlArr = $db->get();
                       echo "<p>Currently checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
                     }
                     ?>
-                    <?php echo "<p>\"" . trim(htmlspecialchars($value["location"])) . "\"</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'><i>(Click to Update Location)</i></a></p>"; ?>
+                    <?php echo "<p>\"" . trim(htmlspecialchars($value["location"])) . "\"</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>"; ?>
                   </td>
                 </tr>
                 <tr>
                   <td>Current Department</td>
-                  <td><?php echo "<p>" . trim(htmlspecialchars($value["department_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'><i>(Click to Update Department)</i></a></p>"; ?></td>
+                  <td><?php echo "<p>" . trim(htmlspecialchars($value["department_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>"; ?></td>
                 </tr>
                 <tr>
                   <td>System Serial</td>

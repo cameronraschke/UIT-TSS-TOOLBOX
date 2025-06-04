@@ -375,7 +375,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 ?>
                 ]);
 
-                var options = {title: 'Number of OS\'s Installed', colors: ['#e7711b', '#6f9654'] };
+                var options = {title: 'Percent of OS\'s Installed', colors: ['#e7711b', '#6f9654'] };
                 var chart = new google.visualization.PieChart(document.getElementById('numberImaged'));
                 chart.draw(data, options);
             }

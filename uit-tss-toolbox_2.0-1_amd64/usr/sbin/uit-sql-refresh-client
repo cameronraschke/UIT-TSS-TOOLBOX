@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 # Connect to database and include custom functions
-include('/etc/opt/UIT-TSS-TOOLBOX/server/include.php');
+require('/var/www/html/management/php/include.php');
 
 $timer = new scriptTimer();
 

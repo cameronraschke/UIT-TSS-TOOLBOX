@@ -6,7 +6,7 @@ This script iterates through every date starting at 2023-01-09 (our first databa
 current date and updates all of the entries accordingly. */
 
 # Connect to database and include custom functions
-include('/etc/opt/UIT-TSS-TOOLBOX/server/include.php');
+require('/var/www/html/management/php/include.php');
 
 $timer = new scriptTimer();
 

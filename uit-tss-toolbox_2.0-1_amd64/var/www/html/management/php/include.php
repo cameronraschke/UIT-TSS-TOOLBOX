@@ -6,6 +6,7 @@ $dt = $dt->setTimezone($timeZone);
 $date = $dt->format('Y-m-d');
 $time = $dt->format('Y-m-d H:i:s.v');
 
+
 function updateTimeValue () {
     $dt = null;
     $date = null;
@@ -27,7 +28,7 @@ function strFilter ($string) {
 }
 
 function numFilter ($string) {
-    if (strFilter($string) == 0) {
+    if (strFilter($string) === 0) {
         if (is_numeric($string) && $string > 0) {
             return 0;
         } else {
@@ -135,593 +136,563 @@ class MySQLConn {
 }
 
 class db {
-    private $sql;
-    private $arr;
-    private $pdo;
+  private $sql;
+  private $arr;
+  private $pdo;
+  private $db;
+  private $rowCount;
+
+  public function __construct() {
+    $this->db = new MySQLConn();
+    $this->pdo = $this->db->dbObj();
+    $this->sql = "";
+    $this->arr = array();
+    $this->rowCount = 0;
+  }
 
 
-    public function select($sql) {
-        $db = new MySQLConn();
-        $this->pdo = $db->dbObj();
-        $this->sql = $sql;
-        $this->arr = array();
-        $stmt = $this->pdo->prepare($sql);
+  public function check_tables_cols (string $table, string $cols) {
+    if (strFilter($table) === 1 || strFilter($cols) === 1) {
+      return 1;
+      exit();
+    }
+
+    //ORDER OF THESE ENTRIES MATTER
+    $acceptableTables = array();
+    $stmt = $this->pdo->prepare("SHOW TABLES");
+    $stmt->execute();
+    $tableArr = $stmt->fetchAll();
+    foreach ($tableArr as $key => $value) {
+      array_push($acceptableTables, $value["Tables_in_laptopDB"]);
+    }
+    unset($tableArr);
+    unset($value);
+
+    if (array_search($table, $acceptableTables) === false) {
+      return 1;
+      exit();
+    }
+
+    //ORDER OF THESE ENTRIES MATTER
+    $acceptableCols = array();
+    $stmt = $this->pdo->prepare("DESCRIBE " . $table);
+    $stmt->execute();
+    $colsArr = $stmt->fetchAll();
+    foreach ($colsArr as $key => $value) {
+      array_push($acceptableCols, $value["Field"]);
+    }
+    unset($colsArr);
+    unset($value);
+
+    if (array_search($cols, $acceptableCols) === false) {
+      return 1;
+      exit();
+    }
+
+    return 0;
+  }
+
+
+  public function select($sql) {
+    $this->sql = $sql;
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+    $this->arr = $stmt->fetchAll();
+    $this->rowCount = $stmt->rowCount();
+  }
+
+  public function AssocSelect($sql) {
+    $this->sql = $sql;
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+    $this->arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $this->rowCount = $stmt->rowCount();
+  }
+
+  public function Pselect($sql, $arr) {
+    $this->sql = $sql;
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($arr);
+    $this->arr = $stmt->fetchAll();
+    $this->rowCount = $stmt->rowCount();
+  }
+
+  public function AssocPSelect($sql, $arr) {
+    $this->sql = $sql;
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($arr);
+    $this->arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $this->rowCount = $stmt->rowCount();
+  }
+
+  public function get() {
+    if(is_array($this->arr) && arrFilter($this->arr) === 0) {
+      return $this->arr;
+    } else {
+      return "NULL";
+    }
+  }
+
+  public function nested_get() {
+    if(is_array($this->arr) && arrFilter($this->arr) === 0) {
+      foreach ($this->arr as $nestedKey => $nestedValue) {
+        $this->arr = $nestedValue;
+      }
+      return $this->arr;
+    } else {
+      return "NULL";
+    }
+  }
+
+  public function get_rows() {
+    return $this->rowCount;
+  }
+
+  // JOBSTATS table
+  public function insertJob ($uuid) {
+    if (strFilter($uuid) === 0) {
+      $sql = "INSERT INTO jobstats (uuid) VALUES (:uuid)";
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+
+      if (strFilter($stmt) === 0) {
         $stmt->execute();
-        $this->arr = $stmt->fetchAll();
-        $rowCount = $stmt->rowCount();
+      }
     }
+  }
 
-    public function AssocSelect($sql) {
-        $db = new MySQLConn();
-        $this->pdo = $db->dbObj();
-        $this->sql = $sql;
-        $this->arr = array();
+  public function updateJob ($key, $value, $uuid) {
+    if (strFilter($key) === 0 && strFilter($uuid) === 0) {
+      if ($this->check_tables_cols("jobstats", $key) === 0) {
+        $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
         $stmt = $this->pdo->prepare($sql);
+
+        if (is_numeric($value) && numFilter($value) == 1) {
+          $value = "NULL";
+        }
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+          $stmt->bindParam('value', $value, PDO::PARAM_NULL);
+        }
+
+        if (strFilter($stmt) === 0) {
+          $stmt->execute();
+        }
+      }
+    }
+  }
+
+
+  // CLIENTSTATS table
+  public function insertCS ($tagNum) {
+    if (strFilter($tagNum) === 0) {
+      $sql = "INSERT INTO clientstats (tagnumber) VALUES (:tagNum)";
+      $stmt = $this->pdo->prepare($sql);
+
+      $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+
+      if (strFilter($stmt) === 0) {
         $stmt->execute();
-        $this->arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $this->rowCount = $stmt->rowCount();
+      }
     }
+  }
 
-    public function Pselect($sql, $arr) {
-        $db = new MySQLConn();
-        $pdo = $db->dbObj();
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($arr);
-        $this->arr = $stmt->fetchAll();
-    }
+  public function updateCS ($key, $value, $tagnumber) {
+    if (strFilter($key) === 0 && strFilter($tagnumber) === 0) {
+      if ($this->check_tables_cols("clientstats", $key) === 0) {
+        $sql = "UPDATE clientstats SET $key = :value WHERE tagnumber = :tagnumber";
+        $stmt = $this->pdo->prepare($sql);
 
-    public function AssocPSelect($sql, $arr) {
-        $db = new MySQLConn();
-        $pdo = $db->dbObj();
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($arr);
-        $this->arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $this->rowCount = $stmt->rowCount();
-    }
+        if (is_numeric($value) && numFilter($value) == 1) {
+          $value = "NULL";
+        }
 
-    public function get() {
-        if(is_array($this->arr) && arrFilter($this->arr) == 0) {
-            return $this->arr;
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
         } else {
-            return "NULL";
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
         }
-    }
 
-    public function nested_get() {
-        if(is_array($this->arr) && arrFilter($this->arr) == 0) {
-            foreach ($this->arr as $nestedKey => $nestedValue) {
-                $this->arr = $nestedValue;
-            }
-            return $this->arr;
+        if (strFilter($stmt) === 0) {
+          $stmt->execute();
+        }
+      }
+    }
+  }
+
+
+  // SERVERSTATS table
+  public function insertSS ($date) {
+    if (strFilter($date) === 0) {
+      $sql = "INSERT INTO serverstats (date) VALUES (:date)";
+      $stmt = $this->pdo->prepare($sql);
+
+      $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateSS ($key, $value, $date) {
+    if (strFilter($key) === 0 && strFilter($date) === 0) {
+      if ($this->check_tables_cols("serverstats", $key) === 0) {
+        $sql = "UPDATE serverstats SET $key = :value WHERE date = :date";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (is_numeric($value) && numFilter($value) === 1) {
+          $value = "NULL";
+        }
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          $stmt->bindParam(':date', $date, PDO::PARAM_STR);
         } else {
-            return "NULL";
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+          $stmt->bindParam(':date', $date, PDO::PARAM_STR);
         }
-    }
 
-    public function get_count() {
-        if(is_array($this->arr) && arrFilter($this->arr) == 0) {
-            return $this->rowCount;
+        if (strFilter($stmt) === 0) {
+          $stmt->execute();
+        }
+      }
+    }
+  }
+    
+
+  // Location table
+  public function insertLocation ($time) {
+    if (strFilter($time) === 0) {
+      $sql = "INSERT INTO locations (time) VALUES (:time)";
+      $stmt = $this->pdo->prepare($sql);
+
+      $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateLocation ($key, $value, $time) {
+    if (strFilter($key) === 0 && strFilter($time) === 0) {
+      if ($this->check_tables_cols("locations", $key) === 0) {
+        $sql = "UPDATE locations SET $key = :value WHERE time = :time";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         } else {
-            return 0;
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         }
-    }
 
-    // JOBSTATS table
-    public function insertJob ($uuid) {
-        if (strFilter($uuid) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO jobstats (uuid) VALUES (:uuid)";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
+        if (strFilter($stmt) === 0) {
+          $stmt->execute();
         }
+      }
     }
-
-    public function updateJob ($key, $value, $uuid) {
-        if (strFilter($key) == 0 && strFilter($uuid) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
-            $stmt = $this->pdo->prepare($sql);
-
-            if (is_numeric($value) && numFilter($value) == 1) {
-                $value = "NULL";
-            }
-
-            if (strFilter($value) == 0) {
-                $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-                $stmt->bindParam('value', $value, PDO::PARAM_NULL);
-            }
-
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-        }
-    }
-
-
-    // CLIENTSTATS table
-    public function insertCS ($tagNum) {
-        if (strFilter($tagNum) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO clientstats (tagnumber) VALUES (:tagNum)";
-            $stmt = $this->pdo->prepare($sql);
-
-            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-        }
-    }
-
-    public function updateCS ($key, $value, $tagnumber) {
-        if (strFilter($key) == 0 && strFilter($tagnumber) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "UPDATE clientstats SET $key = :value WHERE tagnumber = :tagnumber";
-            $stmt = $this->pdo->prepare($sql);
-
-            if (is_numeric($value) && numFilter($value) == 1) {
-                $value = "NULL";
-            }
-
-            if (strFilter($value) == 0) {
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
-            }
-
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-        }
-    }
-
-
-    // SERVERSTATS table
-    public function insertSS ($date) {
-        if (strFilter($date) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO serverstats (date) VALUES (:date)";
-            $stmt = $this->pdo->prepare($sql);
-    
-            $stmt->bindParam(':date', $date, PDO::PARAM_STR);
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-        }
-    }
-    
-    public function updateSS ($key, $value, $date) {
-        if (strFilter($key) == 0 && strFilter($date) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "UPDATE serverstats SET $key = :value WHERE date = :date";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (is_numeric($value) && numFilter($value) == 1) {
-                $value = "NULL";
-            }
-    
-            if (strFilter($value) == 0) {
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':date', $date, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':date', $date, PDO::PARAM_STR);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-        }
-    }
+  }
     
 
-    // Location table
-    public function insertLocation ($time) {
+  // Remote table
+  public function insertRemote ($tagNum) {
+    if (strFilter($tagNum) === 0) {
+      $sql = "INSERT INTO remote (tagnumber) VALUES (:tagNum)";
+      $stmt = $this->pdo->prepare($sql);
+
+      if (strFilter($tagNum) === 0) {
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+      } else {
+        exit();
+      }
+
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateRemote ($tagNum, $key, $value) {
+    if (strFilter($tagNum) === 0 && strFilter($key) === 0) {
+      if ($this->check_tables_cols("remote", $key) === 0) {
+        $sql = "UPDATE remote SET $key = :value WHERE tagnumber = :tagNum";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        }
+
+        if (strFilter($stmt) == 0) {
+          $stmt->execute();
+        }
+      }
+    }
+  }
+
+    
+  // SYSTEM_DATA table
+  public function insertSystemData ($tagNum) {
+    if (strFilter($tagNum) === 0) {
+      $sql = "INSERT INTO system_data (tagnumber) VALUES (:tagNum)";
+      $stmt = $this->pdo->prepare($sql);
+
+      if (strFilter($tagNum) === 0) {
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+      } else {
+        exit();
+      }
+
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateSystemData ($tagNum, $key, $value) {
+    if (strFilter($tagNum) === 0 && strFilter($key) === 0) {
+      if ($this->check_tables_cols("system_data", $key)) {
+        $sql = "UPDATE system_data SET $key = :value WHERE tagnumber = :tagNum";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (is_numeric($value) && numFilter($value) == 1) {
+          $value = "NULL";
+        }
+
+        if (strFilter($value) == 0) {
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        }
+
+        if (strFilter($stmt) == 0) {
+          $stmt->execute();
+        }
+
+        $dt = new DateTimeImmutable();
+        $time = $dt->format('Y-m-d H:i:s.v');
+
+        $sql = "UPDATE system_data SET time = :clienttime WHERE tagnumber = :tagNum";
+        $stmt = $this->pdo->prepare($sql);
+
         if (strFilter($time) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO locations (time) VALUES (:time)";
-            $stmt = $this->pdo->prepare($sql);
-    
-            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':clienttime', $time, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':clienttime', $time, PDO::PARAM_NULL);
         }
-    }
-    
-    public function updateLocation ($key, $value, $time) {
-        if (strFilter($key) == 0 && strFilter($time) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "UPDATE locations SET $key = :value WHERE time = :time";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (strFilter($value) == 0) {
-                if ($value == "TRUE") {
-                    $value = "0";
-                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-                } elseif ($value == "FALSE") {
-                    $value = "1";
-                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-                }
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
+
+        if (strFilter($stmt) == 0) {
+          $stmt->execute();
         }
+      }
     }
-    
+  }
 
-    // Remote table
-    public function insertRemote ($tagNum) {
-        if (strFilter($tagNum) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO remote (tagnumber) VALUES (:tagNum)";
-            $stmt = $this->pdo->prepare($sql);
-    
-            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
+
+  // DEPARTMENTS table
+  public function insertDepartments ($time) {
+    if (strFilter($time) == 0) {
+      $sql = "INSERT INTO departments (time) VALUES (:time)";
+      $stmt = $this->pdo->prepare($sql);
+
+      $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateDepartments ($key, $value, $time) {
+    if (strFilter($key) === 0 && strFilter($time) === 0) {
+      if ($this->check_tables_cols("departments", $key) === 0) {
+        $sql = "UPDATE departments SET $key = :value WHERE time = :time";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         }
-    }
-    
-    public function updateRemote ($tagNum, $key, $value) {
-        if (strFilter($tagNum) == 0 && strFilter($key) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "UPDATE remote SET $key = :value WHERE tagnumber = :tagNum";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (strFilter($value) == 0) {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
+
+        if (strFilter($stmt) === 0) {
+          $stmt->execute();
         }
+      }
     }
-    
-    
-    public function updateSystemData ($tagNum, $key, $value) {
-        if (strFilter($tagNum) == 0 && strFilter($key) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "UPDATE system_data SET $key = :value WHERE tagnumber = :tagNum";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (is_numeric($value) && numFilter($value) == 1) {
-                $value = "NULL";
-            }
-    
-            if (strFilter($value) == 0) {
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-            $stmt = null;
-            $sql = null;
-    
-            $dt = new DateTimeImmutable();
-            $time = $dt->format('Y-m-d H:i:s.v');
-    
-            $sql = "UPDATE system_data SET time = :clienttime WHERE tagnumber = :tagNum";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (strFilter($time) == 0) {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-                $stmt->bindParam(':clienttime', $time, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-                $stmt->bindParam(':clienttime', $time, PDO::PARAM_NULL);
-            }
-            
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-            $stmt = null;
-            $sql = null;
+  }
+
+
+  //BIOS table
+  public function insertBIOS ($tagNum) {
+    if (strFilter($tagNum) == 0) {
+      $sql = "INSERT INTO bios_stats (tagnumber) VALUES (:tagNum)";
+      $stmt = $this->pdo->prepare($sql);
+
+      if (strFilter($tagNum) === 0) {
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+      } else {
+        exit();
+      }
+
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateBIOS ($tagNum, $key, $value) {
+    if (strFilter($tagNum) === 0 && strFilter($key) === 0) {
+      if ($this->check_tables_cols("bios_stats", $key)) {
+        $sql = "UPDATE bios_stats SET $key = :value, time = :updateTime WHERE tagnumber = :tagNum";
+        $stmt = $this->pdo->prepare($sql);
+
+        $dt = new DateTimeImmutable();
+        $updateTime = $dt->format('Y-m-d H:i:s.v');
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+          $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
         }
-    }
-    
-    public function insertSystemData ($tagNum) {
-        if (strFilter($tagNum) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO system_data (tagnumber) VALUES (:tagNum)";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (strFilter($tagNum) == 0) {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
+
+        if (strFilter($stmt) == 0) {
+          $stmt->execute();
         }
+      }
     }
+  }
 
-    // Departments table
-    public function insertDepartments ($time) {
-        if (strFilter($time) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO departments (time) VALUES (:time)";
-            $stmt = $this->pdo->prepare($sql);
-    
-            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
+  //OS_STATS table
+  public function insertOS ($tagNum) {
+    if (strFilter($tagNum) === 0) {
+      $sql = "INSERT INTO os_stats (tagnumber) VALUES (:tagNum)";
+      $stmt = $this->pdo->prepare($sql);
+
+      if (strFilter($tagNum) === 0) {
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+      } else {
+        exit();
+      }
+
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateOS ($tagNum, $key, $value) {
+    if (strFilter($tagNum) === 0 && strFilter($key) === 0) {
+      if ($this->check_tables_cols("os_stats", $key) === 0) {
+        $sql = "UPDATE os_stats SET $key = :value WHERE tagnumber = :tagNum";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
-    }
-    
-    public function updateDepartments ($key, $value, $time) {
-        if (strFilter($key) == 0 && strFilter($time) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "UPDATE departments SET $key = :value WHERE time = :time";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (strFilter($value) == 0) {
-                if ($value == "TRUE") {
-                    $value = "0";
-                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-                } elseif ($value == "FALSE") {
-                    $value = "1";
-                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-                }
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
+
+        if (strFilter($stmt) == 0) {
+          $stmt->execute();
         }
+      }
     }
+  }
 
-    
-    public function insertBIOS ($tagNum) {
-        if (strFilter($tagNum) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
+  // TODO/NOTES table
+  public function insertToDo ($time) {
+    if (strFilter($time) === 0) {
+      $sql = "INSERT INTO notes (time) VALUES (:time)";
+      $stmt = $this->pdo->prepare($sql);
 
-            $sql = "INSERT INTO bios_stats (tagnumber) VALUES (:tagNum)";
-            $stmt = $this->pdo->prepare($sql);
-    
-            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-    
-            if (strFilter($stmt) === 0) {
-                $stmt->execute();
-            }
+      $stmt->bindParam(':time', $time, PDO::PARAM_STR);
 
-            $stmt = null;
-            $sql = null;
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateToDo ($key, $value, $time) {
+    if (strFilter($key) === 0 && strFilter($time) === 0) {
+      if ($this->check_tables_cols("notes", $key) === 0) {
+        $sql = "UPDATE notes SET $key = :value WHERE time = :time";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         }
-    }
 
-    public function updateBIOS ($tagNum, $key, $value) {
-        if (strFilter($tagNum) === 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-
-            $sql = "UPDATE bios_stats SET $key = :value, time = :updateTime WHERE tagnumber = :tagNum";
-            $stmt = $this->pdo->prepare($sql);
-
-            $dt = new DateTimeImmutable();
-            $updateTime = $dt->format('Y-m-d H:i:s.v');
-    
-            if (strFilter($value) === 0) {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-
-            unset($updateTime);
-            $dt = null;
-            $stmt = null;
-            $sql = null;
-    
+        if (strFilter($stmt) === 0) {
+          $stmt->execute();
         }
+      }
     }
+  }
 
-    
-    public function insertOS ($tagNum) {
-        if (strFilter($tagNum) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
+  // CHECKOUT table
+  public function insertCheckout ($time) {
+    if (strFilter($time) == 0) {
+      $sql = "INSERT INTO checkout (time) VALUES (:time)";
+      $stmt = $this->pdo->prepare($sql);
 
-            $sql = "INSERT INTO os_stats (tagnumber) VALUES (:tagNum)";
-            $stmt = $this->pdo->prepare($sql);
-    
-            $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-    
-            if (strFilter($stmt) === 0) {
-                $stmt->execute();
-            }
+      $stmt->bindParam(':time', $time, PDO::PARAM_STR);
 
-            $stmt = null;
-            $sql = null;
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateCheckout ($key, $value, $time) {
+    if (strFilter($key) === 0 && strFilter($time) === 0) {
+      if ($this->check_tables_cols("checkout", $key) === 0) {
+        $sql = "UPDATE checkout SET $key = :value WHERE time = :time";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         }
-    }
 
-    public function updateOS ($tagNum, $key, $value) {
-        if (strFilter($tagNum) === 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-
-            $sql = "UPDATE os_stats SET $key = :value WHERE tagnumber = :tagNum";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (strFilter($value) === 0) {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                //$stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                //$stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-
-            //unset($updateTime);
-            $dt = null;
-            $stmt = null;
-            $sql = null;
-    
+        if (strFilter($stmt) === 0) {
+          $stmt->execute();
         }
+      }
     }
-
-    // To-Do table
-    public function insertToDo ($time) {
-        if (strFilter($time) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO notes (time) VALUES (:time)";
-            $stmt = $this->pdo->prepare($sql);
-    
-            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-        }
-    }
-    
-    public function updateToDo ($key, $value, $time) {
-        if (strFilter($key) == 0 && strFilter($time) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "UPDATE notes SET $key = :value WHERE time = :time";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (strFilter($value) == 0) {
-                if ($value == "TRUE") {
-                    $value = "0";
-                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-                } elseif ($value == "FALSE") {
-                    $value = "1";
-                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-                }
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-        }
-    }
-
-    // Checkout table
-    public function insertCheckout ($time) {
-        if (strFilter($time) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "INSERT INTO checkout (time) VALUES (:time)";
-            $stmt = $this->pdo->prepare($sql);
-    
-            $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-        }
-    }
-    
-    public function updateCheckout ($key, $value, $time) {
-        if (strFilter($key) == 0 && strFilter($time) == 0) {
-            $db = new MySQLConn();
-            $this->pdo = $db->dbObj();
-            $sql = "UPDATE checkout SET $key = :value WHERE time = :time";
-            $stmt = $this->pdo->prepare($sql);
-    
-            if (strFilter($value) == 0) {
-                if ($value == "TRUE") {
-                    $value = "0";
-                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-                } elseif ($value == "FALSE") {
-                    $value = "1";
-                    $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                    $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-                }
-                $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            } else {
-                $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-                $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-            }
-    
-            if (strFilter($stmt) == 0) {
-                $stmt->execute();
-            }
-        }
-    }
+  }
 
 }
 
