@@ -166,9 +166,7 @@ if (isset($_POST['serial'])) {
       <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
     </div>
     
-    <div class='pagetitle'><h1>Locations Table</h1></div>
-
-    <div class='pagetitle'><h2>The locations table displays the location and status of every client.</h2></div>
+    <div class='pagetitle'><h1>Client Update and Search (<a href='/documentation/pages.php?page=locations'>Click for Help</a>)</h1></div>
 
     <div class="row">
       <div class="column">

@@ -61,104 +61,115 @@ unset($_POST['location-action']);
         </div>
 
         <div class='pagetitle'><h1>Remote Management</h1></div>
-        <div class='pagetitle'><h2>The remote table allows you to remotely control laptops currently plugged into the server.</h2></div>
-        <div class='pagetitle' id='time'><h3>Last updated: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%m/%d/%y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
+        <div class='pagetitle'><h2>This page allows you to queue and view active jobs for clients plugged into the server.</h2></div>
+        <div class='pagetitle' id='time'><h3>Page last updated: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%m/%d/%y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
-        <div class='styled-table'>
-            <table id='remoteStats'>
-                <thead>
-                <tr>
-                    <th>Total Laptops Present</th>
-                    <th>Average Battery Charge</th>
-                    <th>Average CPU Temp</th>
-                    <th>Average Disk Temp</th>
-                    <th>Average Actual Power Draw</th>
-                    <th>Total Actual Power Draw</th>
-                    <th>Total Power Draw From Wall</th>
-                    <th>Sum of OS's Installed</th>
-                </tr>
-                </thead>
-<?php
-$db->select("CALL selectRemoteStats");
-if (arrFilter($db->get()) === 0) {
-    foreach ($db->get() as $key => $value) {
-        echo "<tbody>";
-        echo "<tr>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value['Present Laptops'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value['Avg. Battery Charge'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value['Avg. CPU Temp'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value['Avg. Disk Temp'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value['Avg. Actual Power Draw'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value['Actual Power Draw'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value['Power Draw from Wall'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "<td>" . htmlspecialchars($value['OS Installed Sum'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-        echo "</tr>" . PHP_EOL;
-        echo "</tbody>";
-        echo "</table>";
-        echo "</div>";
-    }
-}
-?>
+  <div class='row'>
+    <div class='column'>
+      <div class='location-form'>
+        <form name="job_queued_form" method="post">
+          <div>
+            <label for='location'>Enter a location and a job to queue:
+              <div class="tooltip">?
+                <span class="tooltiptext">
+                  <p>A checkmark (<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>) means a client is currently online and ready for a job.</p><br>
+                  <p>A warning sign (<span>&#9888;&#65039;</span>) means a client has an out of date BIOS. Running jobs is not advised.</p><br>
+                  <p>An X (<span>&#10060;</span>) means a client has an out of date kernel. Do not run jobs on these clients.</p><br>
+                </span>
+              </div>
+            </label>
+          </div>
+          <select name="location" id="location">
+            <option>--Select Location--</option>
+            <?php
+            $db->select("SELECT MAX(remote.present) AS 'present', locationFormatting(locations.location) AS 'location'
+            FROM remote 
+            INNER JOIN locations ON remote.tagnumber = locations.tagnumber 
+            INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 
+            ON locations.time = t1.time 
+            WHERE remote.present IS NOT NULL
+            AND TIMESTAMPDIFF(DAY, present, NOW()) < 1
+            GROUP BY location 
+            ORDER BY present DESC");
+            if (arrFilter($db->get()) === 0) {
+            foreach ($db->get() as $key => $value) {
+            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars($value["location"]) . "</option>" . PHP_EOL;
+            }
+            }
+            unset($value);
+            ?>
+          </select>
+          <select name="location-action" id="location-action">
+            <option value=' '>No Job</option>
+            <?php
+              $db->select("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 ORDER BY job_rank ASC");
+              foreach($db->get() as $key => $value) {
+                echo "<option value='" . htmlspecialchars($value["job"]) . "'>" . htmlspecialchars($value["job_readable"]) . "</option>";
+              }
+            ?>
+          </select>
 
-<div class='pagetitle'>
-    <h3>Update Jobs for a Given Location</h3>
-</div>
-<div class='styled-table'>
-<table>
-    <thead>
-        <tr>
-        <th>Select a Location</th>
-        <th>Select a Job to Queue</th>
-        <th>Submit</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                <form method="post">
-                <select name="location" id="location">
-                <option>--Please Select--</option>
-                <?php
-                    $db->select("SELECT MAX(remote.present) AS 'present', locationFormatting(locations.location) AS 'location'
-                        FROM remote 
-                        INNER JOIN locations ON remote.tagnumber = locations.tagnumber 
-                        INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 
-                            ON locations.time = t1.time 
-                        WHERE remote.present IS NOT NULL
-                            AND TIMESTAMPDIFF(DAY, present, NOW()) < 1
-                        GROUP BY location 
-                        ORDER BY present DESC");
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value) {
-                            echo "<option value='" . htmlspecialchars($value["location"]) . "'>" . htmlspecialchars($value["location"]) . "</option>" . PHP_EOL;
-                        }
-                    }
-                    unset($value);
-                ?>
-                </select>
-            </td>
-            <td>
-                <select name="location-action" id="location-action">
-                    <option value=' '>No Job</option>
-                    <option value='update'>Update</option>
-                    <option value='nvmeErase'>Erase Only</option>
-                    <option value='hpCloneOnly'>Clone Only</option>
-                    <option value='hpEraseAndClone'>Erase + Clone</option>
-                    <option value='findmy'>Play Sound</option>
-                    <option value=' '>Clear Pending Jobs</option>
-                </select>
-            </td>
-            <td><input type="submit" value="Submit"></td>
-            </form>
-        </tr>
-    </tbody>
-</table>
-</div>
+          <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Queue Job</button>
+        </form>
+
+      </div>
+    </div>
+    <div class='column'>
+      <div class='styled-table'>
+        <table id='remoteStats'>
+          <thead>
+            <tr>
+              <th>Stats for Online Clients</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <?php
+            $db->select("CALL selectRemoteStats");
+            if (arrFilter($db->get()) === 0) {
+              foreach ($db->get() as $key => $value) {
+            ?>
+            <tr>
+              <td>Total Laptops Present</td>
+              <td><?php echo htmlspecialchars($value['Present Laptops']); ?> </td>
+            </tr>
+            <tr>
+              <td>Average Battery Charge</td>
+              <td><?php echo htmlspecialchars($value['Avg. Battery Charge']); ?></td>
+            </tr>
+            <tr>
+              <td>Average CPU Temp</td>
+              <td><?php echo htmlspecialchars($value['Avg. CPU Temp']); ?></td>
+            </tr>
+            <tr>
+              <td>Average Disk Temp</td>
+              <td><?php echo htmlspecialchars($value['Avg. Disk Temp']); ?></td>
+            </tr>
+            <tr>
+              <td>Average Actual Power Draw</td>
+              <td><?php echo htmlspecialchars($value['Avg. Actual Power Draw']); ?></td>
+            </tr>
+            <tr>
+              <td>Total Actual Power Draw</td>
+              <td><?php echo htmlspecialchars($value['Actual Power Draw']); ?></td>
+            </tr>
+            <tr>
+              <td>Total Power Draw From Wall</td>
+              <td><?php echo htmlspecialchars($value['Power Draw from Wall']); ?></td>
+            </tr>
+            <tr>
+              <td>Sum of OS's Installed</td>
+              <td><?php echo htmlspecialchars($value['OS Installed Sum']); ?></td>
+            </tr>
+              <?php }} unset($value); ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
 <div class='row'>
-      <div class='page-content'><h3>A checkmark (<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>) means a client is currently online and ready for a job.</h3></div>
-      <div class='page-content'><h3>A warning sign (<span>&#9888;&#65039;</span>) means a client has an out of date BIOS. Running jobs is not advised.</h3></div>
-      <div class='page-content'><h3>An X (<span>&#10060;</span>) means a client has an out of date kernel. Do not run jobs on these clients.</h3></div>
 </div>
 
 
