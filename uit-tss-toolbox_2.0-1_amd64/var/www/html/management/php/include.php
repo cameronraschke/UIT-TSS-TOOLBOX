@@ -543,7 +543,7 @@ class db {
 
   //BIOS table
   public function insertBIOS ($tagNum) {
-    if (strFilter($tagNum) == 0) {
+    if (strFilter($tagNum) === 0) {
       $sql = "INSERT INTO bios_stats (tagnumber) VALUES (:tagNum)";
       $stmt = $this->pdo->prepare($sql);
 
@@ -561,7 +561,7 @@ class db {
 
   public function updateBIOS ($tagNum, $key, $value) {
     if (strFilter($tagNum) === 0 && strFilter($key) === 0) {
-      if ($this->check_tables_cols("bios_stats", $key)) {
+      if ($this->check_tables_cols("bios_stats", $key) === 0) {
         $sql = "UPDATE bios_stats SET $key = :value, time = :updateTime WHERE tagnumber = :tagNum";
         $stmt = $this->pdo->prepare($sql);
 
@@ -578,7 +578,7 @@ class db {
           $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
         }
 
-        if (strFilter($stmt) == 0) {
+        if (strFilter($stmt) === 0) {
           $stmt->execute();
         }
       }
