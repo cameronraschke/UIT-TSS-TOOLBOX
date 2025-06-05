@@ -7,7 +7,11 @@ $db = new db();
 unset($sql);
 $sql = "SELECT * FROM 
     (SELECT NOW() AS 'time', locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', 
-    IF (client_health.os_installed = 1, static_image_names.image_name_readable, 'No OS') AS 'image_name_readable', 
+    (CASE 
+      WHEN client_health.os_installed = 1 AND t1.clone_image IS NOT NULL THEN static_image_names.image_name_readable
+      WHEN client_health.os_installed IS NULL AND t1.clone_image IS NOT NULL THEN 'No OS'
+      ELSE 'Unknown OS'
+    END) AS 'image_name_readable', 
     (CASE WHEN locations.disk_removed = 1 THEN 0
     WHEN t4.checkout_bool = 1 THEN 1
     WHEN t2.erase_completed = 1 AND t2.clone_completed IS NULL THEN 0

@@ -122,7 +122,7 @@ WHEN t4.disk_reads IS NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_rea
 END) AS 'disk_tbw_formatted',
 CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
 t4.disk_power_cycles, t4.disk_errors, locations.domain, static_domains.domain_readable,
-IF (client_health.os_installed = 1, CONCAT(static_image_names.image_name_readable, ' (Imaged on ', DATE_FORMAT(t6.time, '%m/%d/%y, %r'), ')'), 'No OS') AS 'os_installed_formatted',
+IF (client_health.os_installed = 1, CONCAT(client_health.os_name, ' (Imaged on ', DATE_FORMAT(t6.time, '%m/%d/%y, %r'), ')'), client_health.os_name) AS 'os_installed_formatted',
 checkout.customer_name, checkout.checkout_date, checkout.checkout_bool
 FROM locations
 LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
