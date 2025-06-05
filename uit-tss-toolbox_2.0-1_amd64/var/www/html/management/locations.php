@@ -993,8 +993,8 @@ unset($value1);
 
           if (event.key === 'Backspace' || event.key === 'Delete') {
             tagnumberField.value = tagnumberField.value.substr(0, getCursorPos(tagnumberField));
-            console.log("Backspace Value: " + tagnumberField.value);
-            console.log("Backspace Position: " + getCursorPos(tagnumberField) + ", " + getCursorPos(tagnumberField));
+            //console.log("Backspace Value: " + tagnumberField.value);
+            //console.log("Backspace Position: " + getCursorPos(tagnumberField) + ", " + getCursorPos(tagnumberField));
             tagnumberField.setSelectionRange(getCursorPos(tagnumberField), getCursorPos(tagnumberField));
           }
         });
@@ -1002,11 +1002,16 @@ unset($value1);
         tagnumberField.addEventListener('input', function() {
           const inputText = tagnumberField.value;
           var re = new RegExp('^' + inputText, 'gi');
+          var re1 = new RegExp('^' + inputText + '$', 'gi');
+          const matchingExact = availableLocations.find(suggestion => suggestion.match(re1));
           const matchingSuggestion = availableTagnumbers.find(suggestion => suggestion.match(re));
 
-
           if (matchingSuggestion && inputText.length > 0) {
-            tagnumberField.value = matchingSuggestion;
+            if (matchingExact) {
+              tagnumberField.value = matchingExact;
+            } else {
+              tagnumberField.value = matchingSuggestion;
+            }
             tagnumberField.setSelectionRange(inputText.length, matchingSuggestion.length);
           }
         });
@@ -1036,8 +1041,8 @@ unset($value1);
 
           if (event.key === 'Backspace' || event.key === 'Delete') {
             locationField.value = locationField.value.substr(0, getCursorPos(locationField));
-            console.log("Backspace Value: " + locationField.value);
-            console.log("Backspace Position: " + getCursorPos(locationField) + ", " + getCursorPos(locationField));
+            //console.log("Backspace Value: " + locationField.value);
+            //console.log("Backspace Position: " + getCursorPos(locationField) + ", " + getCursorPos(locationField));
             locationField.setSelectionRange(getCursorPos(locationField), getCursorPos(locationField));
           }
         });
@@ -1045,11 +1050,17 @@ unset($value1);
         locationField.addEventListener('input', function() {
           const inputText = locationField.value;
           var re = new RegExp('^' + inputText, 'gi');
+          var re1 = new RegExp('^' + inputText + '$', 'gi');
+          const matchingExact = availableLocations.find(suggestion => suggestion.match(re1));
           const matchingSuggestion = availableLocations.find(suggestion => suggestion.match(re));
 
 
           if (matchingSuggestion && inputText.length > 0) {
-            locationField.value = matchingSuggestion;
+            if (matchingExact) {
+              locationField.value = matchingExact;
+            } else {
+              locationField.value = matchingSuggestion;
+            }
             locationField.setSelectionRange(inputText.length, matchingSuggestion.length);
           }
         });
