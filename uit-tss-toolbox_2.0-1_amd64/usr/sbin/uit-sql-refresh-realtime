@@ -24,7 +24,7 @@ $sql = "SELECT * FROM
     ROW_NUMBER() OVER (PARTITION BY locations.tagnumber ORDER BY locations.time DESC) AS 'row_nums'
     FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
-    LEFT JOIN client_health ON system_data.tagnumber = client_health.tagnumber
+    LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
     LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
       ON locations.tagnumber = t1.tagnumber
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
@@ -36,7 +36,7 @@ $sql = "SELECT * FROM
     LEFT JOIN (SELECT tagnumber, time, checkout_bool, checkout_date, return_date FROM (SELECT tagnumber, time, checkout_bool, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) s4 WHERE s4.row_nums = 1) t4
       ON locations.tagnumber = t4.tagnumber
     WHERE locations.tagnumber IS NOT NULL) table1
-    WHERE table1.row_nums <= 1
+    WHERE table1.row_nums = 1
     ";
 $db->select($sql);
 foreach ($db->get() as $key => $value) {
