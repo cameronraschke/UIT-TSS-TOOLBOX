@@ -53,10 +53,10 @@ unset($sql);
 $sql = "SELECT clientstats.tagnumber, clientstats.system_serial, clientstats.system_model, 
             IF (clientstats.last_job_time LIKE '%00:00:00', DATE_FORMAT(clientstats.last_job_time, '%b %D %Y'), 
             DATE_FORMAT(clientstats.last_job_time, '%m/%d/%y, %r')) AS 'last_job_time', clientstats.battery_health, 
-            clientstats.disk_health, clientstats.disk_type, IF (bios_stats.bios_updated = '1', 'Yes', 'No') AS 'bios_updated', 
+            clientstats.disk_health, clientstats.disk_type, IF (client_health.bios_updated = '1', 'Yes', 'No') AS 'bios_updated', 
             clientstats.erase_avgtime, clientstats.clone_avgtime, clientstats.all_jobs, locationFormatting(locations.location) AS 'location_formatted' 
         FROM clientstats 
-        LEFT JOIN bios_stats ON clientstats.tagnumber = bios_stats.tagnumber
+        LEFT JOIN client_health ON clientstats.tagnumber = client_health.tagnumber
         LEFT JOIN locations ON (locations.tagnumber = clientstats.tagnumber AND locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber))
         WHERE clientstats.tagnumber IS NOT NULL ";
 
@@ -86,9 +86,9 @@ if (arrFilter($db->get()) === 0) {
         //tagnumber
         echo "<td>";
         if (strFilter($value["tagnumber"]) === 0) {
-            $db->Pselect("SELECT remote.present_bool, remote.kernel_updated, bios_stats.bios_updated 
+            $db->Pselect("SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated 
                 FROM remote 
-                LEFT JOIN bios_stats ON remote.tagnumber = bios_stats.tagnumber
+                LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
                 WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => $value["tagnumber"]));
             if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {

@@ -115,12 +115,12 @@ UNION
   CONCAT(clientstats.battery_health, '%'),
   CONCAT(clientstats.disk_health, '%'),
   clientstats.disk_type,
-  IF (bios_stats.bios_updated = 1, "Yes", "No"),
+  IF (client_health.bios_updated = 1, "Yes", "No"),
   CONCAT(clientstats.erase_avgtime, ' minutes'),
   CONCAT(clientstats.clone_avgtime, ' minutes'),
   all_jobs
 FROM clientstats 
-LEFT JOIN bios_stats ON clientstats.tagnumber = bios_stats.tagnumber
+LEFT JOIN client_health ON clientstats.tagnumber = client_health.tagnumber
 WHERE clientstats.tagnumber IS NOT NULL 
 ORDER BY clientstats.last_job_time DESC);
 END; //
@@ -190,15 +190,14 @@ UNION
   departments.department,
   locations.location,
   IF (locations.status = 0 OR status IS NULL, "Functional", "Broken"),
-  IF (os_stats.os_installed = 1 , "Yes", "No"),
-  IF (bios_stats.bios_updated = 1 , "Yes", "No"),
+  IF (client_health.os_installed = 1 , "Yes", "No"),
+  IF (client_health.bios_updated = 1 , "Yes", "No"),
   locations.note,
   CONVERT(locations.time, DATETIME) 
 FROM locations 
-LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
+LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
 LEFT JOIN departments ON locations.tagnumber = departments.tagnumber
-LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t1 ON departments.time = t1.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
 ORDER BY locations.time DESC);
@@ -426,9 +425,9 @@ SELECT
     CONCAT(ROUND(AVG(remote.watts_now), 1), ' Watts') AS 'Avg. Actual Power Draw',
     CONCAT(ROUND(SUM(remote.watts_now), 0), ' Watts') AS 'Actual Power Draw',
     CONCAT(ROUND(SUM(IF (remote.battery_status NOT IN ('Discharging') AND remote.present_bool = 1, 55, 0)), 0), ' Cur. Watts', '/' , ROUND(SUM(IF (remote.present_bool = 1, 55, 0)), 0), ' Watts') AS 'Power Draw from Wall',
-    SUM(os_stats.os_installed) AS 'OS Installed Sum'
+    SUM(client_health.os_installed) AS 'OS Installed Sum'
     FROM remote 
-    LEFT JOIN os_stats ON remote.tagnumber = os_stats.tagnumber 
+    LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber 
     WHERE remote.present_bool = 1;
     END; //
 
@@ -548,11 +547,11 @@ UNION ALL
     locationFormatting(locations.location) AS 'location', locations.note, locations.time
   FROM locations
   LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
-  LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
+  LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
   LEFT JOIN static_domains ON locations.domain = static_domains.domain
   LEFT JOIN departments ON (locations.tagnumber = departments.tagnumber AND departments.time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber))
   WHERE locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)
-    AND os_stats.os_installed = 1
+    AND client_health.os_installed = 1
     AND departments.department = 'techComm'
 );
 

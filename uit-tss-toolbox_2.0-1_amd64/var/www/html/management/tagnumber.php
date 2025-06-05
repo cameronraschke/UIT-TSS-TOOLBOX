@@ -113,8 +113,8 @@ CONCAT(clientstats.battery_health, '%') AS 'battery_health', CONCAT(clientstats.
 CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
 clientstats.all_jobs, 
 DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
-remote.kernel_updated, CONCAT(remote.network_speed, ' mbps') AS 'network_speed', bios_stats.bios_updated, 
-IF (bios_stats.bios_updated = 1, CONCAT('Updated ', '(', bios_stats.bios_version, ')'), CONCAT('Out of date ', '(', bios_stats.bios_version, ')')) AS 'bios_updated_formatted', 
+remote.kernel_updated, CONCAT(remote.network_speed, ' mbps') AS 'network_speed', client_health.bios_updated, 
+IF (client_health.bios_updated = 1, CONCAT('Updated ', '(', client_health.bios_version, ')'), CONCAT('Out of date ', '(', client_health.bios_version, ')')) AS 'bios_updated_formatted', 
 (CASE
 WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_writes, ' TBW/', t4.disk_reads, 'TBR')
 WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NULL THEN CONCAT(t4.disk_writes, ' TBW')
@@ -122,11 +122,11 @@ WHEN t4.disk_reads IS NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_rea
 END) AS 'disk_tbw_formatted',
 CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
 t4.disk_power_cycles, t4.disk_errors, locations.domain, static_domains.domain_readable,
-IF (os_stats.os_installed = 1, CONCAT(static_image_names.image_name_readable, ' (Imaged on ', DATE_FORMAT(t6.time, '%m/%d/%y, %r'), ')'), 'No OS') AS 'os_installed_formatted',
+IF (client_health.os_installed = 1, CONCAT(static_image_names.image_name_readable, ' (Imaged on ', DATE_FORMAT(t6.time, '%m/%d/%y, %r'), ')'), 'No OS') AS 'os_installed_formatted',
 checkout.customer_name, checkout.checkout_date, checkout.checkout_bool
 FROM locations
 LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
-LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
+LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
 LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND (host_connected = 1 or (uuid LIKE 'techComm-%' AND etheraddress IS NOT NULL)) GROUP BY tagnumber))
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
 LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE tagnumber IS NOT NULL GROUP BY tagnumber)) t1 
@@ -145,7 +145,6 @@ ON locations.tagnumber = t6.tagnumber
 LEFT JOIN static_image_names ON t6.clone_image = static_image_names.image_name
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
 ON locations.tagnumber = t8.tagnumber
-LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
 ON locations.time = t10.time
 LEFT JOIN static_domains ON locations.domain = static_domains.domain
@@ -615,11 +614,11 @@ $db->Pselect("SELECT t2.* FROM
 locationFormatting(locations.location) AS 'location', 
 ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
 IF (locations.status = 1, 'No, Broken', 'Yes') AS 'status_formatted', locations.status, 
-IF (os_stats.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
+IF (client_health.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
 IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', 
 note 
 FROM locations 
-LEFT JOIN os_stats ON (locations.tagnumber = :tagnumber AND os_stats.tagnumber = :tagnumber)
+LEFT JOIN client_health ON (locations.tagnumber = :tagnumber AND client_health.tagnumber = :tagnumber)
 INNER JOIN departments ON (locations.tagnumber = :tagnumber AND departments.tagnumber = :tagnumber AND departments.time = locations.time)
 INNER JOIN static_departments ON departments.department = static_departments.department
 WHERE 

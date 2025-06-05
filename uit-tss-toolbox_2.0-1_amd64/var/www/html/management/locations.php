@@ -493,16 +493,15 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted',
   static_departments.department_readable AS 'department_formatted', departments.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Yes', 'Broken') AS 'status_formatted', locations.status AS 'locations_status', 
-  os_stats.os_name AS 'os_installed_formatted', os_stats.os_installed, os_stats.os_name, 
-  IF (bios_stats.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', bios_stats.bios_updated,
+  client_health.os_name AS 'os_installed_formatted', client_health.os_installed, client_health.os_name, 
+  IF (client_health.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', client_health.bios_updated,
   IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
   locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain, t2.checkout_bool, t2.checkout_date, t2.return_date
   FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
     LEFT JOIN departments ON (locations.tagnumber = departments.tagnumber AND departments.time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber))
     LEFT JOIN static_departments ON static_departments.department = departments.department
-    LEFT JOIN bios_stats ON locations.tagnumber = bios_stats.tagnumber
-    LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
+    LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
     LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
     LEFT JOIN (SELECT * FROM (SELECT time, tagnumber, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) s2 WHERE s2.row_nums = 1) t2 ON locations.tagnumber = t2.tagnumber
     LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
@@ -589,9 +588,9 @@ if ($_GET["disk_removed"] == "0") {
 
 // OS Installed filter
 if ($_GET["os_installed"] == "0") {
-  $sql .= "AND (os_stats.os_installed IS NULL OR os_stats.os_installed = 0) ";
+  $sql .= "AND (client_health.os_installed IS NULL OR client_health.os_installed = 0) ";
 } elseif ($_GET["os_installed"] == "1") {
-  $sql .= "AND (os_stats.os_installed = 1 OR os_stats.os_installed IS NOT NULL) ";
+  $sql .= "AND (client_health.os_installed = 1 OR client_health.os_installed IS NOT NULL) ";
 }
 
 // Order by modifiers
@@ -610,16 +609,16 @@ if (isset($_GET["order_by"])) {
     $sql .= "locations.time ASC, ";
   }
   if($_GET["order_by"] == "os_desc") {
-    $sql .= "os_stats.os_installed DESC, os_stats.os_name ASC, ";
+    $sql .= "client_health.os_installed DESC, client_health.os_name ASC, ";
   }
   if($_GET["order_by"] == "os_asc") {
-    $sql .= "os_stats.os_installed ASC, os_stats.os_name ASC, ";
+    $sql .= "client_health.os_installed ASC, client_health.os_name ASC, ";
   }
   if($_GET["order_by"] == "bios_desc") {
-    $sql .= "bios_stats.bios_updated DESC, ";
+    $sql .= "client_health.bios_updated DESC, ";
   }
   if($_GET["order_by"] == "bios_asc") {
-    $sql .= "bios_stats.bios_updated ASC, ";
+    $sql .= "client_health.bios_updated ASC, ";
   }
   if($_GET["order_by"] == "location_desc") {
     $sql .= "locations.location DESC, ";
