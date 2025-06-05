@@ -3,78 +3,54 @@
 require('/var/www/html/management/php/include.php');
 $db = new db();
 
-unset($sql);
-$sql = "SELECT system_data.tagnumber,
-bios_stats.tagnumber AS 'bios_table_tag', system_data.system_model,
-IF (jobstats.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated'
-FROM system_data
-LEFT JOIN bios_stats ON system_data.tagnumber = bios_stats.tagnumber
-LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model
-LEFT JOIN jobstats ON system_data.tagnumber = jobstats.tagnumber
-INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND bios_version IS NOT NULL GROUP BY tagnumber) t1 
-    ON jobstats.time = t1.time";
-
-$db->select($sql);
-foreach ($db->get() as $key => $value) {
-    if (strFilter($value["bios_table_tag"]) === 1) {
-        $db->insertBIOS($value["tagnumber"]);
-    }
-
-    $db->updateBIOS($value["tagnumber"], "bios_updated", $value["bios_updated"]);
-}
-unset($value);
-
 
 unset($sql);
-$sql = "SELECT jobstats.uuid, locations.tagnumber, jobstats.time, os_stats.tagnumber AS 'os_table_tag', 
-    system_data.system_model, static_image_names.image_name_readable, 
+$sql = "SELECT * FROM 
+    (SELECT NOW() AS 'time', locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', 
+    static_image_names.image_name_readable, 
     (CASE WHEN locations.disk_removed = 1 THEN 0
-    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed IS NULL THEN 0
-    WHEN jobstats.erase_completed IS NULL AND jobstats.clone_completed = 1 THEN 1
-    WHEN jobstats.erase_completed = 1 AND jobstats.clone_completed = 1 THEN 1 
-    ELSE 1 END) AS 'os_installed'
+    WHEN t4.checkout_bool = 1 THEN 1
+    WHEN t2.erase_completed = 1 AND t2.clone_completed IS NULL THEN 0
+    WHEN t2.erase_completed IS NULL AND t2.clone_completed = 1 THEN 1
+    WHEN t2.erase_completed = 1 AND t2.clone_completed = 1 THEN 1 
+    ELSE 1 END) AS 'os_installed',
+    IF (t3.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated',
+    t3.bios_version, 
+    t4.time AS 'checkout_time',
+    (CASE WHEN t4.checkout_date IS NOT NULL AND (t4.return_date IS NULL OR DATE(NOW()) <= t4.return_date) THEN 1
+      WHEN t4.checkout_date IS NOT NULL AND (t4.return_date IS NULL OR DATE(NOW()) >= t4.return_date) THEN 0
+      ELSE 0 
+    END) AS 'checkout_bool', 
+    ROW_NUMBER() OVER (PARTITION BY locations.tagnumber ORDER BY locations.time DESC) AS 'row_nums'
     FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
+    LEFT JOIN client_health ON system_data.tagnumber = client_health.tagnumber
     LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
       ON locations.tagnumber = t1.tagnumber
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
-    LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS 'time' FROM jobstats WHERE (erase_completed IS NOT NULL OR clone_completed IS NOT NULL) AND tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber))
-    LEFT JOIN os_stats ON locations.tagnumber = os_stats.tagnumber
-    INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON t2.time = locations.time";
+    LEFT JOIN (SELECT tagnumber, erase_completed, clone_completed FROM (SELECT tagnumber, erase_completed, clone_completed, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s2 WHERE s2.row_nums = 1) t2
+      ON locations.tagnumber = t2.tagnumber
+    LEFT JOIN (SELECT tagnumber, bios_version, row_nums FROM (SELECT tagnumber, bios_version, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND bios_version IS NOT NULL) s3 WHERE s3.row_nums = 1) t3
+      ON locations.tagnumber = t3.tagnumber
+    LEFT JOIN static_bios_stats ON t3.bios_version = static_bios_stats.bios_version
+    LEFT JOIN (SELECT tagnumber, time, checkout_bool, checkout_date, return_date FROM (SELECT tagnumber, time, checkout_bool, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) s4 WHERE s4.row_nums = 1) t4
+      ON locations.tagnumber = t4.tagnumber
+    WHERE locations.tagnumber IS NOT NULL) table1
+    WHERE table1.row_nums <= 1
+    ";
 $db->select($sql);
 foreach ($db->get() as $key => $value) {
     if (strFilter($value["os_table_tag"]) === 1) {
-        $db->insertOS($value["tagnumber"]);
+        $db->insertClientHealth($value["tagnumber"]);
     }
-    
-    $db->updateOS($value["tagnumber"], "time", $value["time"]);
-    $db->updateOS($value["tagnumber"], "os_installed", $value["os_installed"]);
-    $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"]);
 
-}
-unset($value);
+    $db->updateClientHealth($value["tagnumber"], "system_serial",  $value["system_serial"]);
+    $db->updateClientHealth($value["tagnumber"], "bios_version",  $value["bios_version"]);
+    $db->updateClientHealth($value["tagnumber"], "bios_updated",  $value["bios_updated"]);
+    $db->updateClientHealth($value["tagnumber"], "os_name", $value["image_name_readable"]);
+    $db->updateClientHealth($value["tagnumber"], "os_installed", $value["os_installed"]);
+    $db->updateClientHealth($value["tagnumber"], "time", $value["time"]);
 
-
-$db->select("SELECT os_stats.tagnumber, os_stats.os_name, os_stats.os_installed, IF (os_stats.os_installed = 1 AND os_stats.os_name IS NULL, 'Unknown OS', os_stats.os_name) AS 'image_name_readable' FROM os_stats");
-foreach ($db->get() as $key => $value) {
-    $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"]);
-}
-unset($value);
-
-$db->select("SELECT os_stats.tagnumber, os_stats.os_name, os_stats.os_installed, IF (os_stats.os_installed = 0 OR os_stats.os_installed IS NULL, 'No OS', os_stats.os_name) AS 'image_name_readable' FROM os_stats");
-foreach ($db->get() as $key => $value) {
-    $db->updateOS($value["tagnumber"], "os_name", $value["image_name_readable"]);
-}
-unset($value);
-
-// Update checkouts
-$db->select("SELECT t1.time, t1.tagnumber, 
-    (CASE WHEN t1.checkout_date IS NOT NULL AND (t1.return_date IS NULL OR DATE(NOW()) <= t1.return_date) THEN 1
-        WHEN t1.checkout_date IS NOT NULL AND (t1.return_date IS NULL OR DATE(NOW()) >= t1.return_date) THEN 0
-        ELSE 0 END) AS 'checkout_bool' FROM 
-    (SELECT time, tagnumber, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) t1
-    WHERE t1.row_nums <= 1");
-foreach ($db->get() as $key => $value) {
     $db->updateCheckout("checkout_bool", $value["checkout_bool"], $value["time"]);
 }
 unset($value);

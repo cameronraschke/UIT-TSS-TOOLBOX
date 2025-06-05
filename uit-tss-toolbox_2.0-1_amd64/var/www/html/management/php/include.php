@@ -694,6 +694,45 @@ class db {
     }
   }
 
+  //CLIENT_HEALTH table
+  public function insertClientHealth ($tagNum) {
+    if (strFilter($tagNum) === 0) {
+      $sql = "INSERT INTO client_health (tagnumber) VALUES (:tagNum)";
+      $stmt = $this->pdo->prepare($sql);
+
+      if (strFilter($tagNum) === 0) {
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+      } else {
+        exit();
+      }
+
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateClientHealth ($tagNum, $key, $value) {
+    if (strFilter($tagNum) === 0 && strFilter($key) === 0) {
+      if ($this->check_tables_cols("client_health", $key) === 0) {
+        $sql = "UPDATE client_health SET $key = :value WHERE tagnumber = :tagNum";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        }
+
+        if (strFilter($stmt) == 0) {
+          $stmt->execute();
+        }
+      }
+    }
+  }
+
 }
 
 ?>

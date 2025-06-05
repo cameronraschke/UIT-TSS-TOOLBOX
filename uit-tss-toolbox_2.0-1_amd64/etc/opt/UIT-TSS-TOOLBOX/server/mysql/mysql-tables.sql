@@ -297,6 +297,28 @@ ALTER TABLE os_stats
     ;
 
 
+CREATE TABLE IF NOT EXISTS client_health (
+    tagnumber VARCHAR(6) PRIMARY KEY,
+    system_serial VARCHAR(24) DEFAULT NULL,
+    bios_version VARCHAR(24) DEFAULT NULL,
+    bios_updated BOOLEAN DEFAULT NULL,
+    os_name VARCHAR(24) DEFAULT NULL,
+    os_installed BOOLEAN DEFAULT NULL,
+    time DATETIME(3) DEFAULT NULL
+);
+
+ALTER TABLE client_health
+    DROP PRIMARY KEY,
+    MODIFY COLUMN tagnumber VARCHAR(6) PRIMARY KEY FIRST,
+    MODIFY COLUMN system_serial VARCHAR(24) DEFAULT NULL AFTER tagnumber,
+    MODIFY COLUMN bios_version VARCHAR(24) DEFAULT NULL AFTER system_serial,
+    MODIFY COLUMN bios_updated BOOLEAN DEFAULT NULL AFTER bios_version,
+    MODIFY COLUMN os_name VARCHAR(24) DEFAULT NULL AFTER bios_updated,
+    MODIFY COLUMN os_installed BOOLEAN DEFAULT NULL AFTER os_name,
+    MODIFY COLUMN time DATETIME(3) DEFAULT NULL AFTER os_installed
+    ;
+
+
 CREATE TABLE IF NOT EXISTS remote (
     tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
     job_queued VARCHAR(24) DEFAULT NULL,
@@ -365,6 +387,7 @@ INSERT INTO logins
 
 CREATE TABLE IF NOT EXISTS system_data (
     tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
+    etheraddress VARCHAR(17) DEFAULT NULL,
     wifi_mac VARCHAR(17) DEFAULT NULL,
     system_manufacturer VARCHAR(24) DEFAULT NULL,
     system_model VARCHAR(64) DEFAULT NULL,
@@ -384,7 +407,8 @@ CREATE TABLE IF NOT EXISTS system_data (
 ALTER TABLE system_data
     DROP PRIMARY KEY,
     MODIFY COLUMN tagnumber VARCHAR(8) NOT NULL PRIMARY KEY FIRST,
-    MODIFY COLUMN wifi_mac VARCHAR(17) DEFAULT NULL AFTER tagnumber,
+    MODIFY COLUMN etheraddress VARCHAR(17) DEFAULT NULL AFTER tagnumber,
+    MODIFY COLUMN wifi_mac VARCHAR(17) DEFAULT NULL AFTER etheraddress,
     MODIFY COLUMN system_manufacturer VARCHAR(24) DEFAULT NULL AFTER wifi_mac,
     MODIFY COLUMN system_model VARCHAR(64) DEFAULT NULL AFTER system_manufacturer,
     MODIFY COLUMN system_uuid VARCHAR(64) DEFAULT NULL AFTER system_model,
