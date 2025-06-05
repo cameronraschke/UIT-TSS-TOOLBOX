@@ -40,7 +40,7 @@ $sql = "SELECT * FROM
     ";
 $db->select($sql);
 foreach ($db->get() as $key => $value) {
-    if (strFilter($value["os_table_tag"]) === 1) {
+    if (strFilter($value["client_health_tag"]) === 1) {
         $db->insertClientHealth($value["tagnumber"]);
     }
 
