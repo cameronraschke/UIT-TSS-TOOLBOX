@@ -103,7 +103,7 @@ WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS
 WHEN system_data.system_manufacturer IS NULL AND system_data.system_model IS NOT NULL THEN system_data.system_model
 WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NULL THEN system_data.system_manufacturer
 END) AS 'system_model_formatted',
-system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS 'cpu_maxspeed', IF(system_data.cpu_threads > system_data.cpu_cores, CONCAT(system_data.cpu_cores, '/', system_data.cpu_threads, ' (Multithreaded)'), system_data.cpu_cores) AS 'multithreaded', 
+system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS 'cpu_maxspeed', IF(system_data.cpu_threads > system_data.cpu_cores, CONCAT(system_data.cpu_cores, ' cores/', system_data.cpu_threads, ' threads (Multithreaded)'), CONCAT(system_data.cpu_cores, ' cores (Not Multithreaded)')) AS 'multithreaded', 
 (CASE 
 WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NOT NULL THEN CONCAT(t8.ram_capacity, ' GB (', t8.ram_speed, ' MHz)')
 WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NULL THEN CONCAT(t8.ram_capacity, ' GB')
@@ -455,7 +455,7 @@ $sqlArr = $db->get();
                   <td><?php echo htmlspecialchars($value["cpu_model"]); ?></td>
                 </tr>
                 <tr>
-                  <td>Multithreaded</td>
+                  <td>CPU Cores</td>
                   <td><?php echo htmlspecialchars($value["multithreaded"]); ?></td>
                 </tr>
                 <tr>

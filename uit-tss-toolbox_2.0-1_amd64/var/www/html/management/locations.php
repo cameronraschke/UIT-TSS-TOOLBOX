@@ -957,7 +957,13 @@ unset($value1);
     </div>
     <script>
     function jsRedirect() {
-      window.location.href = "/locations.php";
+      <?php
+      if (strFilter($_GET["ref"]) === 1) {
+        echo "window.location.href = '/locations.php';";
+      } elseif ($_GET["ref"] == 1) {
+        echo "window.location.href = '/tagnumber.php?tagnumber=" . $_GET["tagnumber"] . "';";
+      }
+      ?>
     }
 
       function getCursorPos(myElement) {
