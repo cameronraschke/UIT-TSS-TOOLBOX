@@ -145,7 +145,11 @@ if (isset($_POST['serial'])) {
   }
   
   unset($_POST);
-  header("Location: " . $_SERVER['REQUEST_URI']);
+  if (strFilter($_GET["ref"]) === 1 || $_GET["ref"] != 1) {
+    header("Location: " . $_SERVER['REQUEST_URI']);
+  } elseif (strFilter($_GET["ref"]) === 0 && $_GET["ref"] == 1) {
+    header("Location: " . $_SERVER['REQUEST_URI']);
+  }
   unset($_POST);
 }
 ?>
@@ -464,7 +468,11 @@ if (isset($_POST['serial'])) {
             echo "<button style='background-color:rgba(0, 179, 136, 0.30); margin-left: 1em;' type='submit' value='Update Location Data'>Update Location Data</button>" . PHP_EOL;
           }
           //echo "<button type='button' id='closeButton' onclick='closeLocationWindow();jsRedirect();'>Cancel</button>";
-          echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Cancel</button>";
+          if ($_GET["ref"] == 1) {
+            echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button>";
+          } else {
+            echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Cancel</button>";
+          }
           echo "</div>";
           echo "</form>" . PHP_EOL;
           echo "</div>";
@@ -474,10 +482,20 @@ if (isset($_POST['serial'])) {
         echo "
           <div class='page-content'><h2>Update Client Locations</h2></div>
           <div class='location-form'>
-            <form method='get'>
+            <form method='get' action='/locations.php?location=z'>
               <div><label for='tagnumber'>Enter a Tag Number: </label></div>
                 <input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>
-              <button type='submit' value='Continue'>Continue</button>
+                <input type='hidden' id='ref' name='ref' value='" . htmlspecialchars($_GET["ref"]) . "'>
+                <input type='hidden' id='location' name='location' value='" . htmlspecialchars($_GET["location"]) . "'>
+                <input type='hidden' id='department' name='department' value='" . htmlspecialchars($_GET["department"]) . "'>
+                <input type='hidden' id='domain' name='domain' value='" . htmlspecialchars($_GET["domain"]) . "'>
+                <input type='hidden' id='system_model' name='system_model' value='" . htmlspecialchars($_GET["system_model"]) . "'>
+                <input type='hidden' id='order_by' name='order_by' value='" . htmlspecialchars($_GET["order_by"]) . "'>
+                <input type='hidden' id='checkout' name='checkout' value='" . htmlspecialchars($_GET["checkout"]) . "'>
+                <input type='hidden' id='broken' name='broken' value='" . htmlspecialchars($_GET["broken"]) . "'>
+                <input type='hidden' id='disk_removed' name='disk_removed' value='" . htmlspecialchars($_GET["disk_removed"]) . "'>
+                <input type='hidden' id='os_installed' name='os_installed' value='" . htmlspecialchars($_GET["os_installed"]) . "'>
+                <button type='submit' value='Continue'>Continue</button>
             </form>
         </div>";
       }
@@ -853,10 +871,12 @@ if (arrFilter($db->get()) === 0) {
 
 
 <?php
-if (strFilter($_GET["location"]) === 0) {
-    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
-} else {
+if (count($_GET) > 1) {
     echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> queried clients are online.</h3></div>";
+} else if (count($_GET) === 1) {
+  if (strFilter($_GET["location"]) === 0) {
+    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
+  }
 }
 ?>
 

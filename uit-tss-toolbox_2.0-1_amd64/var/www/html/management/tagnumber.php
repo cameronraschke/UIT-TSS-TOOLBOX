@@ -271,11 +271,15 @@ $sqlArr = $db->get();
                 </tr>
                 <tr>
                   <td>Department</td>
-                  <td><?php echo "<p>" . trim(htmlspecialchars($value["department_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "&department=" . trim(htmlspecialchars($value["department"])) . "'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>"; ?></td>
+                  <td>
+                    <p>"<?php echo trim(htmlspecialchars($value["department_readable"])); ?>"</p><p><a href='#' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "<?php echo trim(htmlspecialchars($value["department"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>
+                  </td>
                 </tr>
                 <tr>
                   <td>AD Domain</td>
-                  <td><?php echo "<p>" . trim(htmlspecialchars($value["domain_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "&domain=" . trim(htmlspecialchars($value["domain"])) . "'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Domain)</i></a></p>"; ?></td>
+                  <td>
+                    <p>"<?php echo trim(htmlspecialchars($value["domain_readable"])); ?>"</p><p><a href='#' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "", "<?php echo trim(htmlspecialchars($value["domain"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Domain)</i></a></p>
+                  </td>
                 </tr>
                 <tr>
                   <td>System Serial</td>
