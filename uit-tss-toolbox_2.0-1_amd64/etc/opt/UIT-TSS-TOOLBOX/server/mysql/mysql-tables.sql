@@ -508,7 +508,8 @@ INSERT INTO static_departments (
   ('o365', 'Office 365', 'Andy Moon', 0),
   ('property', 'Property', 'Unknown', 0),
   ('tss-apple', 'Apple Devices', 'Mark Norgan', 0),
-  ('uit-security', 'UIT Security', 'Kevin Vu', 0)
+  ('uit-security', 'UIT Security', 'Kevin Vu', 0),
+  ('itac', 'ITAC', 'ITAC', 0)
 ;
 
 -- Departments table --
