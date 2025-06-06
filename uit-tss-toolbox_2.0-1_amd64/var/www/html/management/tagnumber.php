@@ -72,6 +72,7 @@ unset($_POST);
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <title><?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " - UIT Client Mgmt"; ?></title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <script src="/js/include.js"></script>
   </head>
   <body onload="fetchHTML()">
 
@@ -265,16 +266,16 @@ $sqlArr = $db->get();
                       echo "<p>Currently checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
                     }
                     ?>
-                    <?php echo "<p>\"" . trim(htmlspecialchars($value["location"])) . "\"</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>"; ?>
+                    <p>"<?php echo trim(htmlspecialchars($value["location"])); ?>"</p><p><a href='#' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>
                   </td>
                 </tr>
                 <tr>
                   <td>Department</td>
-                  <td><?php echo "<p>" . trim(htmlspecialchars($value["department_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>"; ?></td>
+                  <td><?php echo "<p>" . trim(htmlspecialchars($value["department_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "&department=" . trim(htmlspecialchars($value["department"])) . "'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>"; ?></td>
                 </tr>
                 <tr>
                   <td>AD Domain</td>
-                  <td><?php echo "<p>" . trim(htmlspecialchars($value["domain_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Domain)</i></a></p>"; ?></td>
+                  <td><?php echo "<p>" . trim(htmlspecialchars($value["domain_readable"])) . "</p><p><a href='/locations.php?location=" . trim(htmlspecialchars($value["location"])) . "&tagnumber=" . trim(htmlspecialchars($value["tagnumber"])) . "&domain=" . trim(htmlspecialchars($value["domain"])) . "'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Domain)</i></a></p>"; ?></td>
                 </tr>
                 <tr>
                   <td>System Serial</td>

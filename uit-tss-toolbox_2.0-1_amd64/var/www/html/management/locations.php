@@ -151,12 +151,14 @@ if (isset($_POST['serial'])) {
 ?>
 
 
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <title>Locations - UIT Client Mgmt</title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <script src="/js/include.js"></script>
   </head>
   <body>
     <div class='menubar'>
@@ -461,7 +463,8 @@ if (isset($_POST['serial'])) {
           } else {
             echo "<button style='background-color:rgba(0, 179, 136, 0.30); margin-left: 1em;' type='submit' value='Update Location Data'>Update Location Data</button>" . PHP_EOL;
           }
-          echo "<button type='button' onclick='jsRedirect();'>Cancel</button>";
+          //echo "<button type='button' id='closeButton' onclick='closeLocationWindow();jsRedirect();'>Cancel</button>";
+          echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Cancel</button>";
           echo "</div>";
           echo "</form>" . PHP_EOL;
           echo "</div>";
