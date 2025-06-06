@@ -463,7 +463,7 @@ class db {
 
   public function updateSystemData ($tagNum, $key, $value) {
     if (strFilter($tagNum) === 0 && strFilter($key) === 0) {
-      if ($this->check_tables_cols("system_data", $key)) {
+      if ($this->check_tables_cols("system_data", $key) === 0) {
         $sql = "UPDATE system_data SET $key = :value WHERE tagnumber = :tagNum";
         $stmt = $this->pdo->prepare($sql);
 
