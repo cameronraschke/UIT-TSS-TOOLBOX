@@ -35,6 +35,7 @@ $db = new db();
 
 
 if (isset($_POST['serial'])) {
+  $updatedHTMLConfirmation = "<p>Updated <span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span></p>";
   $uuid = uniqid("location-", true);
   $tagNum = trim($_POST["tagnumber"]);
   $serial = trim($_POST['serial']);
@@ -144,12 +145,12 @@ if (isset($_POST['serial'])) {
     System("bash /var/www/html/management/bash/uit-print-pdf" . " " . escapeshellarg("UHouston!") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
   }
   
-  unset($_POST);
-  if (strFilter($_GET["ref"]) === 1 || $_GET["ref"] != 1) {
-    header("Location: " . $_SERVER['REQUEST_URI']);
-  } elseif (strFilter($_GET["ref"]) === 0 && $_GET["ref"] == 1) {
-    header("Location: " . $_SERVER['REQUEST_URI']);
-  }
+  // unset($_POST);
+  // if (strFilter($_GET["ref"]) === 1 || $_GET["ref"] != 1) {
+  //   header("Location: " . $_SERVER['REQUEST_URI']);
+  // } elseif (strFilter($_GET["ref"]) === 0 && $_GET["ref"] == 1) {
+  //   header("Location: " . $_SERVER['REQUEST_URI']);
+  // }
   unset($_POST);
 }
 ?>
@@ -469,10 +470,13 @@ if (isset($_POST['serial'])) {
           }
           //echo "<button type='button' id='closeButton' onclick='closeLocationWindow();jsRedirect();'>Cancel</button>";
           if ($_GET["ref"] == 1) {
-            echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button><div id='updated-client'></div>";
+            echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button>";
           } else {
             echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Cancel</button>";
           }
+          
+          echo "<div>" . $updatedHTMLConfirmation . "</div>";
+
           echo "</div>";
           echo "</form>" . PHP_EOL;
           echo "</div>";
@@ -968,14 +972,9 @@ unset($value1);
     <script>
     function jsRedirect() {
       <?php
-      $updatedHTMLConfirmation = "<p>Updated <span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span></p>";
       if (strFilter($_GET["ref"]) === 1) {
         echo "window.location.href = '/locations.php';";
       } elseif ($_GET["ref"] == 1) {
-        if (strFilter($_POST["tagnumber"]) === 0) {
-          echo "var updatedClient = document.getElementById('updated-client').innerHTML";
-          echo "updatedClient.innerHTML = \"$updatedHTMLConfirmation\"";
-        }
         echo "window.location.href = 'tagnumber.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "';";
       }
       ?>
