@@ -550,7 +550,8 @@ VALUES
     ('generic-erase', 'Erase Only (manual)', 61, 0),
     ('nvmeVerify', 'Verify Erase', 70, 0),
     ('data collection', 'Data Collection', 80, 0),
-    ('shutdown', 'Shutdown', 90, 1),
+    ('shutdown', 'Shutdown', 90, 0),
+    ('clean-shutdown', 'Shutdown', 91, 0),
     ('cancel', 'Cancel/Clear Job(s)', 95, 1)
     ;
 
