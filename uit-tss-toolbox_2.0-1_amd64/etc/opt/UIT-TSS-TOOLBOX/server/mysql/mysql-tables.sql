@@ -551,7 +551,7 @@ VALUES
     ('nvmeVerify', 'Verify Erase', 70, 0),
     ('data collection', 'Data Collection', 80, 0),
     ('shutdown', 'Shutdown', 90, 0),
-    ('clean-shutdown', 'Shutdown', 91, 0),
+    ('clean-shutdown', 'Shutdown', 91, 1),
     ('cancel', 'Cancel/Clear Job(s)', 95, 1)
     ;
 
