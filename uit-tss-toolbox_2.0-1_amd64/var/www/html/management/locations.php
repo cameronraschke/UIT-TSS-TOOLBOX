@@ -50,6 +50,7 @@ if (isset($_POST['serial'])) {
   $customerName = trim($_POST["customer_name"]);
   $customerPSID = trim($_POST["customer_psid"]);
   $systemModel = trim($_POST["model"]);
+  $systemManufacturer = trim($_POST["system_manufacturer"]);
 
 
   //Insert jobstats data
@@ -70,16 +71,19 @@ if (isset($_POST['serial'])) {
   if (strFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value1) {
       if (strFilter($value1["tagnumber"]) === 0) {
+        $db->updateSystemData($tagNum, "system_manufacturer", $systemManufacturer);
         $db->updateSystemData($tagNum, "system_model", $systemModel);
         $db->updateSystemData($tagNum, "time", $time);
       } else {
         $db->insertSystemData($tagNum);
+        $db->updateSystemData($tagNum, "system_manufacturer", $systemManufacturer);
         $db->updateSystemData($tagNum, "system_model", $systemModel);
         $db->updateSystemData($tagNum, "time", $time);
       }
     }
   } else {
     $db->insertSystemData($tagNum);
+    $db->updateSystemData($tagNum, "system_manufacturer", $systemManufacturer);
     $db->updateSystemData($tagNum, "system_model", $systemModel);
     $db->updateSystemData($tagNum, "time", $time);
   }
@@ -182,6 +186,7 @@ if (isset($_POST['serial'])) {
       if (isset($_GET["tagnumber"])) {
         unset($formSql);
         $formSql = "SELECT TRIM(locations.tagnumber) AS 'tagnumber', TRIM(locations.system_serial) AS 'system_serial', TRIM(system_data.system_model) AS 'system_model', 
+          TRIM(system_data.system_manufacturer) AS 'system_manufacturer', 
           IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted', 
           DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
           t4.department, locations.disk_removed, locations.status, TRIM(t3.note) AS 'most_recent_note', t5.department_readable, 
@@ -301,12 +306,12 @@ if (isset($_POST['serial'])) {
           echo "<div><label for='model'>System Model</label></div>" . PHP_EOL;
 					if ($tagDataExists === 1) {
 						if (strFilter($value["system_model"]) === 0) {
-              echo "<input type='text' id='model' name='model' value='" . trim(htmlspecialchars($value["system_model"])) . "'>";
+              echo "<input type='text' id='system_manufacturer' name='system_manufacturer' value='" . trim(htmlspecialchars($value["system_manufacturer"])) . "'><input type='text' id='model' name='model' value='" . trim(htmlspecialchars($value["system_model"])) . "'>";
             }  else {
-              echo "<input type='text' id='model' name='model' placeholder='Enter system model...'>";
+              echo "<input type='text' id='system_manufacturer' name='system_manufacturer' placeholder='Enter manufacturer...'><input type='text' id='model' name='model' placeholder='Enter system model...'>";
             }
           } else {
-            echo "<input type='text' id='model' name='model' placeholder='Enter system model...'>";
+              echo "<input type='text' id='system_manufacturer' name='system_manufacturer' placeholder='Enter manufacturer...'><input type='text' id='model' name='model' placeholder='Enter system model...'>";
           }
           // Close system model div
           echo "</div>" . PHP_EOL;
@@ -750,15 +755,16 @@ if (arrFilter($db->get()) === 0) {
             <select id="system_model" name="system_model">
               <option value=''>--Filter By Model--</option>
               <?php
-              $db->select("SELECT system_model,
-                COUNT(system_model) AS 'system_model_rows'
-                FROM system_data
-                WHERE system_model IS NOT NULL
-                GROUP BY system_model
-                ORDER BY system_model ASC");
+              $db->select("SELECT t1.system_model, 
+                t2.system_manufacturer 
+                  FROM (select time, system_manufacturer, system_model, ROW_NUMBER() OVER (PARTITION BY system_model ORDER BY time DESC) as 'row_nums' from system_data) t1 
+                  LEFT JOIN (select time, system_manufacturer, system_model, ROW_NUMBER() OVER (PARTITION BY system_model ORDER BY time DESC) as 'row_nums' from system_data) t2 
+                    ON t1.time = t2.time
+                  where t1.row_nums = 1 AND t2.row_nums = 1 AND t1.system_model IS NOT NULL
+                  ORDER BY t2.system_manufacturer ASC, t1.system_model ASC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
-                  echo "<option value='" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value1["system_model_rows"] . ")" . "</option>" . PHP_EOL;
+                  echo "<option value='" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>(" . htmlspecialchars($value1["system_manufacturer"]) . ") " . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value1["system_model_rows"] . ")" . "</option>" . PHP_EOL;
                 }
               }
               unset($value1);
