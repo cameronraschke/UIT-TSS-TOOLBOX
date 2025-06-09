@@ -220,7 +220,7 @@ if (isset($_POST['serial'])) {
         foreach ($formArr as $key => $value) {
           //Tag number
           echo "
-          <form method='post' action='/locations.php'>
+          <form method='post'>
             <div class='row'>
               <div class='column'>
                 <div><label for='tagnumber'>Tag Number - <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "' target='_blank'>Open client details in New Tab</a></label></div>
@@ -469,7 +469,7 @@ if (isset($_POST['serial'])) {
           }
           //echo "<button type='button' id='closeButton' onclick='closeLocationWindow();jsRedirect();'>Cancel</button>";
           if ($_GET["ref"] == 1) {
-            echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button>";
+            echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button><div id='updated-client'></div>";
           } else {
             echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Cancel</button>";
           }
@@ -482,19 +482,9 @@ if (isset($_POST['serial'])) {
         echo "
           <div class='page-content'><h2>Update Client Locations</h2></div>
           <div class='location-form'>
-            <form method='get' action='/locations.php?location=z'>
+            <form method='get'>
               <div><label for='tagnumber'>Enter a Tag Number: </label></div>
                 <input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>
-                <input type='hidden' id='ref' name='ref' value='" . htmlspecialchars($_GET["ref"]) . "'>
-                <input type='hidden' id='location' name='location' value='" . htmlspecialchars($_GET["location"]) . "'>
-                <input type='hidden' id='department' name='department' value='" . htmlspecialchars($_GET["department"]) . "'>
-                <input type='hidden' id='domain' name='domain' value='" . htmlspecialchars($_GET["domain"]) . "'>
-                <input type='hidden' id='system_model' name='system_model' value='" . htmlspecialchars($_GET["system_model"]) . "'>
-                <input type='hidden' id='order_by' name='order_by' value='" . htmlspecialchars($_GET["order_by"]) . "'>
-                <input type='hidden' id='checkout' name='checkout' value='" . htmlspecialchars($_GET["checkout"]) . "'>
-                <input type='hidden' id='broken' name='broken' value='" . htmlspecialchars($_GET["broken"]) . "'>
-                <input type='hidden' id='disk_removed' name='disk_removed' value='" . htmlspecialchars($_GET["disk_removed"]) . "'>
-                <input type='hidden' id='os_installed' name='os_installed' value='" . htmlspecialchars($_GET["os_installed"]) . "'>
                 <button type='submit' value='Continue'>Continue</button>
             </form>
         </div>";
@@ -978,13 +968,19 @@ unset($value1);
     <script>
     function jsRedirect() {
       <?php
+      $updatedHTMLConfirmation = "<p>Updated <span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span></p>";
       if (strFilter($_GET["ref"]) === 1) {
         echo "window.location.href = '/locations.php';";
       } elseif ($_GET["ref"] == 1) {
-        echo "window.location.href = '/tagnumber.php?tagnumber=" . $_GET["tagnumber"] . "';";
+        if (strFilter($_POST["tagnumber"]) === 0) {
+          echo "var updatedClient = document.getElementById('updated-client').innerHTML";
+          echo "updatedClient.innerHTML = \"$updatedHTMLConfirmation\"";
+        }
+        echo "window.location.href = 'tagnumber.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "';";
       }
       ?>
     }
+
 
       function getCursorPos(myElement) {
         let startPosition = myElement.selectionStart;
