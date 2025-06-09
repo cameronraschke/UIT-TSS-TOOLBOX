@@ -229,19 +229,19 @@ if (isset($_POST['serial'])) {
           <form method='post'>
             <div class='row'>
               <div class='column'>
-                <div><label for='tagnumber'>Tag Number - <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "' target='_blank'>Open client details in New Tab</a></label></div>
-                <input type='text' style='background-color:#888B8D;' id='tagnumber' name='tagnumber' value='" . trim(htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>
+                <div><label for='tagnumber'>Tag Number* - <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "' target='_blank'>Open client details in New Tab</a></label></div>
+                <input type='text' style='background-color:#888B8D;' id='tagnumber' placeholder='Enter tag number...' name='tagnumber' value='" . trim(htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>
               </div>";
             // Line above this closes tag number data div
 
           // Change appearance of serial number field based on sql data
             echo "
               <div class='column'>
-                <div><label for='serial'>Serial Number</label></div>";
+                <div><label for='serial'>Serial Number*</label></div>";
           if ($tagDataExists === 1) {
-            echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial' value='" . trim(htmlspecialchars($value["system_serial"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>" . PHP_EOL;
+            echo "<input type='text' style='background-color:#888B8D;' id='serial' name='serial' placeholder='Enter serial number...' value='" . trim(htmlspecialchars($value["system_serial"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>" . PHP_EOL;
           } else {
-            echo "<input type='text' id='serial' name='serial' autocomplete='off' autofocus required>" . PHP_EOL;
+            echo "<input type='text' id='serial' name='serial' autocomplete='off' placeholder='Enter serial number...' autofocus required>" . PHP_EOL;
           }
           // Close serial number column
           echo "</div>";
@@ -255,11 +255,11 @@ if (isset($_POST['serial'])) {
             <div class='column'>";
           // Location data
           if ($tagDataExists === 1) {
-            echo "<div><label for='location'>Location (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
-            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location_formatted"]) . "' autofocus required>" . PHP_EOL;
+            echo "<div><label for='location'>Location* (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
+            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location_formatted"]) . "' autofocus placeholder='Enter location...' required>" . PHP_EOL;
           } else {
-            echo "<div><label for='location'>Location</label></div>" . PHP_EOL;
-            echo "<input type='text' id='location' name='location' required>" . PHP_EOL;
+            echo "<div><label for='location'>Location*</label></div>" . PHP_EOL;
+            echo "<input type='text' id='location' name='location' placeholder='Enter location...' required>" . PHP_EOL;
           }
             // close location data column
             echo "</div>";
@@ -1051,7 +1051,7 @@ unset($value1);
         var availableLocations = [
           <?php
             $sql =<<<'EOD'
-              SELECT MAX(t1.time) AS 'time', t1.location, MAX(t1.row_nums) AS 'row_nums' FROM (SELECT time, locationFormatting(REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"')) AS 'location', ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'row_nums' FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)) t1 GROUP BY t1.location ORDER BY row_nums DESC;
+              SELECT MAX(t1.time) AS 'time', t1.location, MAX(t1.row_nums) AS 'row_nums' FROM (SELECT time, locationFormatting(REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"')) AS 'location', ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'row_nums' FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)) t1 GROUP BY t1.location ORDER BY LENGTH(t1.location),  row_nums DESC;
             EOD;
           $db->select($sql);
           if (arrFilter($db->get()) === 0) {
@@ -1094,6 +1094,7 @@ unset($value1);
             locationField.setSelectionRange(inputText.length, matchingSuggestion.length);
           }
         });
+        
     </script>
     <script>
 
