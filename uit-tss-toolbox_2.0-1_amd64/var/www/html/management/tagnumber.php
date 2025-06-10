@@ -124,7 +124,7 @@ END) AS 'disk_tbw_formatted',
 CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
 t4.disk_power_cycles, t4.disk_errors, locations.domain, IF (locations.domain IS NOT NULL, static_domains.domain_readable, 'Not Joined') AS 'domain_readable',
 IF (client_health.os_installed = 1, CONCAT(client_health.os_name, ' (Imaged on ', DATE_FORMAT(t6.time, '%m/%d/%y, %r'), ')'), client_health.os_name) AS 'os_installed_formatted',
-checkout.customer_name, checkout.checkout_date, checkout.checkout_bool
+checkouts.customer_name, checkouts.checkout_date, checkouts.checkout_bool
 FROM locations
 LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
 LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
@@ -149,7 +149,7 @@ ON locations.tagnumber = t8.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
 ON locations.time = t10.time
 LEFT JOIN static_domains ON locations.domain = static_domains.domain
-LEFT JOIN checkout ON locations.tagnumber = checkout.tagnumber AND checkout.time IN (SELECT s11.time FROM (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) s11 WHERE s11.row_nums = 1)
+LEFT JOIN checkouts ON locations.tagnumber = checkouts.tagnumber AND checkouts.time IN (SELECT s11.time FROM (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) s11 WHERE s11.row_nums = 1)
 WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
 AND locations.tagnumber = :tagnumber";
 
@@ -545,7 +545,7 @@ $sqlArr = $db->get();
 </thead>
 <tbody>
 <?php
-$db->Pselect("SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', customer_name, checkout_date, return_date, note FROM checkout WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
+$db->Pselect("SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', customer_name, checkout_date, return_date, note FROM checkouts WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
 if (arrFilter($db->get()) === 0) {
 foreach ($db->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;

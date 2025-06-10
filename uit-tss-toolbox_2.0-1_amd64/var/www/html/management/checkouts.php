@@ -9,9 +9,9 @@ if ($_SESSION['authorized'] != "yes") {
 
 $db = new db();
 
-$sql = "SELECT * FROM (SELECT checkout.time, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note,
+$sql = "SELECT * FROM (SELECT checkouts.time, checkouts.tagnumber, checkouts.customer_name, checkouts.customer_psid, checkouts.checkout_date, checkouts.return_date, checkouts.checkout_bool, checkouts.note,
     ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' 
-    FROM checkout) t1
+    FROM checkouts) t1
     WHERE (t1.checkout_date IS NOT NULL OR t1.return_date) IS NOT NULL 
         AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = 1 ORDER BY t1.customer_name ASC, t1.checkout_date DESC, t1.tagnumber DESC";
 
@@ -63,15 +63,15 @@ $rowCount = count($db->get());
 <?php
 unset($sqlArr);
 unset($sql);
-// $sql = "SELECT checkout.time, checkout.tagnumber, checkout.customer_name, checkout.customer_psid, checkout.checkout_date, checkout.return_date, checkout.checkout_bool, checkout.note
+// $sql = "SELECT checkouts.time, checkouts.tagnumber, checkouts.customer_name, checkouts.customer_psid, checkouts.checkout_date, checkouts.return_date, checkouts.checkout_bool, checkouts.note
 //     FROM checkout
-//     LEFT JOIN (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE checkout_bool = 1) t1
-//         ON t1.time = checkout.time
-//     LEFT JOIN (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout WHERE (checkout_bool IS NULL OR checkout_bool = 0)) t2
-//         ON t2.time = checkout.time
-//     WHERE (checkout.checkout_date IS NOT NULL OR checkout.return_date) IS NOT NULL 
+//     LEFT JOIN (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts WHERE checkout_bool = 1) t1
+//         ON t1.time = checkouts.time
+//     LEFT JOIN (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts WHERE (checkout_bool IS NULL OR checkout_bool = 0)) t2
+//         ON t2.time = checkouts.time
+//     WHERE (checkouts.checkout_date IS NOT NULL OR checkouts.return_date) IS NOT NULL 
 //         AND (t1.row_nums <= 1 OR t1.row_nums IS NULL) AND (t2.row_nums <= 1 OR t2.row_nums IS NULL) 
-//         AND NOT (t1.row_nums IS NULL AND t2.row_nums IS NULL) ORDER BY checkout.customer_name, checkout.tagnumber DESC, checkout.time DESC";
+//         AND NOT (t1.row_nums IS NULL AND t2.row_nums IS NULL) ORDER BY checkouts.customer_name, checkouts.tagnumber DESC, checkouts.time DESC";
 
 
 if (arrFilter($db->get()) === 0) {
@@ -79,7 +79,7 @@ if (arrFilter($db->get()) === 0) {
     echo "<tr>";
     //tagnumber
     echo "<td>";
-    // $sql = "SELECT t1.checkout_bool FROM (SELECT tagnumber, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) t1 WHERE t1.tagnumber = :tag AND t1.row_nums = 1";
+    // $sql = "SELECT t1.checkout_bool FROM (SELECT tagnumber, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) t1 WHERE t1.tagnumber = :tag AND t1.row_nums = 1";
     // $db->Pselect($sql, array(':tag' => $value["tagnumber"]));
     // foreach ($db->get() as $key => $value1) {
     //     if (strFilter($value["checkout_bool"]) === 0) {

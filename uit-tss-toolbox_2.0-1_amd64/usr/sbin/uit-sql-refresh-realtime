@@ -37,7 +37,7 @@ $sql = "SELECT * FROM
     LEFT JOIN (SELECT tagnumber, bios_version, row_nums FROM (SELECT tagnumber, bios_version, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND bios_version IS NOT NULL) s3 WHERE s3.row_nums = 1) t3
       ON locations.tagnumber = t3.tagnumber
     LEFT JOIN static_bios_stats ON t3.bios_version = static_bios_stats.bios_version
-    LEFT JOIN (SELECT tagnumber, time, checkout_bool, checkout_date, return_date FROM (SELECT tagnumber, time, checkout_bool, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) s4 WHERE s4.row_nums = 1) t4
+    LEFT JOIN (SELECT tagnumber, time, checkout_bool, checkout_date, return_date FROM (SELECT tagnumber, time, checkout_bool, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) s4 WHERE s4.row_nums = 1) t4
       ON locations.tagnumber = t4.tagnumber
     WHERE locations.tagnumber IS NOT NULL) table1
     WHERE table1.row_nums = 1

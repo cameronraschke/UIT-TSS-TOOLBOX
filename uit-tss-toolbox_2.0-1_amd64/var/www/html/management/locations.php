@@ -427,7 +427,7 @@ if (isset($_POST['serial'])) {
             </div>
             <div class='row'>
               <div class='column'>";
-                  $db->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkout WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_GET["tagnumber"]));
+                  $db->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkouts WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_GET["tagnumber"]));
                   if (strFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value1) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
@@ -523,7 +523,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
     LEFT JOIN static_departments ON static_departments.department = departments.department
     LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
     LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
-    LEFT JOIN (SELECT * FROM (SELECT time, tagnumber, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkout) s2 WHERE s2.row_nums = 1) t2 ON locations.tagnumber = t2.tagnumber
+    LEFT JOIN (SELECT * FROM (SELECT time, tagnumber, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) s2 WHERE s2.row_nums = 1) t2 ON locations.tagnumber = t2.tagnumber
     LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
       ON locations.tagnumber = t1.tagnumber
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
