@@ -267,6 +267,11 @@ $sqlArr = $db->get();
                     }
                     ?>
                     <p>"<?php echo trim(htmlspecialchars($value["location"])); ?>"</p><p><a href='#' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>
+                    <?php
+                    if (strFilter($value["note"]) === 0) {
+                      echo "<p><b>Note:</b> \"" . trim(htmlspecialchars($value["note"])) . "\"</p>";
+                    }
+                    ?>
                   </td>
                 </tr>
                 <tr>
