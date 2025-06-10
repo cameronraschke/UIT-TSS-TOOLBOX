@@ -1,4 +1,4 @@
--- Tables with tagnmbers: clientstats, jobstats, locations, client_health, remote, system_data, bitlocker, 
+-- Tables with tagnmbers: clientstats, jobstats, locations, client_health, remote, system_data, departments, bitlocker, checkout
 DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
     date DATE NOT NULL PRIMARY KEY,
@@ -383,7 +383,8 @@ INSERT INTO logins
     ('kvu', 'UHouston!', 'Kevin'),
     ('rcarroyo', 'UHouston!', 'Rafael'),
     ('isdavis', 'UHouston!', 'Ivey'),
-    ('hdtrin2', 'UHouston!', 'Haley');
+    ('hdtrin2', 'UHouston!', 'Haley'),
+    ('andrew', 'Andrew''sPassword');
 
 
 CREATE TABLE IF NOT EXISTS system_data (
