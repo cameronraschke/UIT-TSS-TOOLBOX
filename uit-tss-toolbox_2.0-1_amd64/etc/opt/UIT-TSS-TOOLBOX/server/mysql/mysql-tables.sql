@@ -1,3 +1,4 @@
+-- Tables with tagnmbers: clientstats, jobstats, locations, client_health, remote, system_data, bitlocker, 
 DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
     date DATE NOT NULL PRIMARY KEY,
