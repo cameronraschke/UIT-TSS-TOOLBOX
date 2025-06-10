@@ -233,8 +233,12 @@ if (arrFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $value) {
       echo "<tr>" . PHP_EOL;
       echo "<td>" . PHP_EOL;
-        if (($value["status"] !== "Waiting for job" || strFilter($value["job_queued"]) === 0) && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
-          echo "<b>In Progress: </b>";
+        if (strFilter($value["status"]) === 1) {
+          echo "<b>New Entry: </b>";
+        } else if (strFilter($value["status"]) === 0) {
+          if (($value["status"] !== "Waiting for job" || strFilter($value["job_queued"]) === 0) && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
+            echo "<b>In Progress: </b>";
+          }
         }
 
         $db->Pselect("SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated 
