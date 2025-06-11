@@ -62,7 +62,7 @@ mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
 
 DB_ADMIN_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g')
 if [[ -f /home/cameron/.my.cnf ]]; then 
- DB_ADMIN_PASSWD=$(cat .my.cnf | grep '^password=' | sed 's/password=//g')
+ DB_ADMIN_PASSWD=$(cat /home/cameron/.my.cnf | grep '^password=' | sed 's/password=//g')
 fi
 DB_CLIENT_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g')
 #DB_WEB_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_WEB_PASSWD=' | sed 's/DB_WEB_PASSWD=//g')
