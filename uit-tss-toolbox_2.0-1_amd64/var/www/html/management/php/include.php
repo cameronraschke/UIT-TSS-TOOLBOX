@@ -124,7 +124,7 @@ class scriptTimer {
 
 
 class MySQLConn {
-    private static $user = "uituser";
+    private static $user = "uitweb";
     private static $pass = "UHouston!";
     private static $host = "localhost";
     private static $dbName = "laptopDB";
