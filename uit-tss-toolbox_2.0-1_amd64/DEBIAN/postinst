@@ -45,6 +45,8 @@ find /srv/UIT-TSS-TOOLBOX/ -type d -not -path "*/iso*" -exec chmod 755 {} \;
 find /srv/UIT-TSS-TOOLBOX/ -type f -not -path "*/iso/*" -exec chmod 664 {} \;
 echo -e "\n" >> /etc/cron.d/uit-cron
 
+# Insert include.php with modifications to the clients.
+cat /var/www/html/management/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
 
 (cd /srv/UIT-TSS-TOOLBOX/client/src/
 chmod 755 /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/
