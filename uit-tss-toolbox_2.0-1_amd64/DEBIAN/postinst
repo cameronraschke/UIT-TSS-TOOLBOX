@@ -64,7 +64,8 @@ DB_ADMIN_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_ADMIN_PASSWD=' | sed
 if [[ -f /home/cameron/.my.cnf ]]; then 
  DB_ADMIN_PASSWD=$(cat /home/cameron/.my.cnf | grep '^password=' | sed 's/password=//g')
 fi
-DB_CLIENT_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g')
+#DB_CLIENT_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g')
+DB_CLIENT_PASSWD=$(openssl rand 10 | hexdump | sed 's/[[:space:]]//g' | head -n1)
 #DB_WEB_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_WEB_PASSWD=' | sed 's/DB_WEB_PASSWD=//g')
 DB_WEB_PASSWD=$(openssl rand 10 | hexdump | sed 's/[[:space:]]//g' | head -n1)
 DB_WEB_USER_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_WEB_USER_PASSWD=' | sed 's/DB_WEB_USER_PASSWD=//g')
