@@ -78,7 +78,7 @@ mysql --database='laptopDB' --execute="ALTER USER 'cameron'@'localhost' IDENTIFI
 mysql --database='laptopDB' --execute="ALTER USER 'uitclients'@'10.0.0.0/255.255.0.0' IDENTIFIED BY '${DB_CLIENT_PASSWD}';"
 mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIED BY '${DB_WEB_PASSWD}';"
 mysql --database='laptopDB' --execute="UPDATE logins SET username = MD5(username);"
-mysql --database='laptopDB' --execute="UPDATE logins SET password = MD5(${DB_WEB_USER_PASSWD});"
+mysql --database='laptopDB' --execute="UPDATE logins SET password = MD5('${DB_WEB_USER_PASSWD}');"
 
 if [[ ! -f /var/www/html/management/favicon.ico ]]; then
     wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico

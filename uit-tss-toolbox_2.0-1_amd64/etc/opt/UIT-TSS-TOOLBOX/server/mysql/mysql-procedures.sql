@@ -250,11 +250,11 @@ DROP USER IF EXISTS 'cameron'@'localhost';
 CREATE USER IF NOT EXISTS 'cameron'@'localhost' IDENTIFIED BY 'UHouston!';
 GRANT ALL ON *.* TO 'cameron'@'localhost' WITH GRANT OPTION;
 
-DROP USER 'uitclients'@'10.0.0.0/255.255.0.0';
+DROP USER IF EXISTS 'uitclients'@'10.0.0.0/255.255.0.0';
 CREATE USER IF NOT EXISTS 'uitclients'@'10.0.0.0/255.255.0.0' IDENTIFIED BY 'UHouston!';
 GRANT SELECT, INSERT, UPDATE, EXECUTE ON laptopDB.* TO 'uitclients'@'10.0.0.0/255.255.0.0';
 
-DROP USER 'uitweb'@'localhost';
+DROP USER IF EXISTS 'uitweb'@'localhost';
 CREATE USER IF NOT EXISTS 'uitweb'@'localhost' IDENTIFIED BY 'UHouston!';
 GRANT SELECT, INSERT, UPDATE, EXECUTE ON laptopDB.* TO 'uitweb'@'localhost';
 
