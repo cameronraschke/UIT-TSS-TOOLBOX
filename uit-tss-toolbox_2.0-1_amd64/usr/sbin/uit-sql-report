@@ -9,6 +9,6 @@ uit-sql-csv
 mkdir /home/cameron/reports/${DATE}/
 
 mv /tmp/uit-tmp-reports/* /home/cameron/reports/${DATE}/
-mysqldump laptopDB -pUHouston! > /home/cameron/reports/${DATE}/laptopDB-${DATE}.sql
+mysqldump --user="cameron" --password="UHouston!" --host="localhost" laptopDB > /home/cameron/reports/${DATE}/laptopDB-${DATE}.sql
 
 rm -r /tmp/uit-tmp-reports

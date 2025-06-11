@@ -60,6 +60,25 @@ find /srv/UIT-TSS-TOOLBOX/client/netboot/tftp -type f -exec chmod 644 {} \;
 mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-procedures.sql
 mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
 
+DB_ADMIN_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g')
+DB_CLIENT_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g')
+DB_WEB_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_WEB_PASSWD=' | sed 's/DB_WEB_PASSWD=//g')
+DB_WEB_USER_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_WEB_USER_PASSWD=' | sed 's/DB_WEB_USER_PASSWD=//g')
+
+sed --in-place "s/UHouston!/${DB_ADMIN_PASSWD}/g" /usr/sbin/uit-backup
+sed --in-place "s/UHouston!/${DB_ADMIN_PASSWD}/g" /usr/sbin/uit-sql-report
+sed --in-place "s/UHouston!/${DB_CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/usr/sbin/uit-tss-client
+sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/locations.php
+sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/api/endpoint.php
+sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/bash/uit-print-pdf
+sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/include.php
+sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
+
+mysql --database='laptopDB' --execute="ALTER USER 'cameron'@'localhost' IDENTIFIED BY '${DB_ADMIN_PASSWD}';"
+mysql --database='laptopDB' --execute="ALTER USER 'uitclients'@'10.0.0.0/255.255.0.0' IDENTIFIED BY '${DB_CLIENT_PASSWD}';"
+mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIED BY '${DB_WEB_PASSWD}';"
+mysql --database='laptopDB' --execute="UPDATE logins SET username = MD5(username);"
+mysql --database='laptopDB' --execute="UPDATE logins SET password = MD5(${DB_WEB_USER_PASSWD});"
 
 if [[ ! -f /var/www/html/management/favicon.ico ]]; then
     wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico

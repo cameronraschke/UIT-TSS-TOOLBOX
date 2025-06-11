@@ -384,7 +384,7 @@ INSERT INTO logins
     ('rcarroyo', 'UHouston!', 'Rafael'),
     ('isdavis', 'UHouston!', 'Ivey'),
     ('hdtrin2', 'UHouston!', 'Haley'),
-    ('andrew', 'Andrew''sPassword', 'Andrew');
+    ('andrew', 'UHouston!', 'Andrew');
 
 
 CREATE TABLE IF NOT EXISTS system_data (

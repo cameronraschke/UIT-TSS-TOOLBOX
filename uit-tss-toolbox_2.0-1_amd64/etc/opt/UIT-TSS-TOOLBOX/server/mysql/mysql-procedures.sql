@@ -246,19 +246,17 @@ CREATE PROCEDURE sqlPermissions()
 DETERMINISTIC
 BEGIN
 
-DROP USER IF EXISTS 'cameron'@'10.0.0.0/255.0.0.0';
+DROP USER IF EXISTS 'cameron'@'localhost';
 CREATE USER IF NOT EXISTS 'cameron'@'localhost' IDENTIFIED BY 'UHouston!';
 GRANT ALL ON *.* TO 'cameron'@'localhost' WITH GRANT OPTION;
 
-CREATE USER IF NOT EXISTS 'laptops'@'10.0.0.0/255.0.0.0' IDENTIFIED BY 'UHouston!';
-GRANT INSERT, SELECT, UPDATE, EXECUTE ON laptopDB.* TO 'laptops'@'10.0.0.0/255.0.0.0';
+DROP USER 'uitclients'@'10.0.0.0/255.255.0.0';
+CREATE USER IF NOT EXISTS 'uitclients'@'10.0.0.0/255.255.0.0' IDENTIFIED BY 'UHouston!';
+GRANT SELECT, INSERT, UPDATE, EXECUTE ON laptopDB.* TO 'uitclients'@'10.0.0.0/255.255.0.0';
 
-CREATE USER IF NOT EXISTS 'shrl'@'10.0.0.0/255.0.0.0' IDENTIFIED BY 'UHouston!';
-GRANT INSERT, SELECT, UPDATE, EXECUTE ON shrl.* TO 'shrl'@'10.0.0.0/255.0.0.0';
-
-CREATE USER IF NOT EXISTS 'management'@'localhost' IDENTIFIED BY 'UHouston!';
-GRANT SELECT, UPDATE ON laptopDB.remote TO 'management'@'localhost';
-GRANT SELECT, EXECUTE ON laptopDB.* TO 'management'@'localhost';
+DROP USER 'uitweb'@'localhost';
+CREATE USER IF NOT EXISTS 'uitweb'@'localhost' IDENTIFIED BY 'UHouston!';
+GRANT SELECT, INSERT, UPDATE, EXECUTE ON laptopDB.* TO 'uitweb'@'localhost';
 
 END; //
 
