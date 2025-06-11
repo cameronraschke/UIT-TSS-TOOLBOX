@@ -173,7 +173,6 @@ util-linux
 nvme-cli
 coreutils
 pv
-postfix
 default-mysql-client
 dmidecode
 sshfs
@@ -198,11 +197,6 @@ EOF
 
 mkdir -p /opt/UIT-TSS-TOOLBOX/config/includes.chroot/root/
 cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
-
-touch /root/.ssh_passwd
-echo "UHouston!" > /root/.ssh_passwd
-chown root:root /root/.ssh_passwd
-chmod 600 /root/.ssh_passwd
 
 sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
 sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
@@ -258,20 +252,10 @@ sysctl --quiet --write "vm.mmap_min_addr=65536"
 sysctl --quiet --load
 echo "${GREEN}Done.${RESET}"
 
-echo ""
-echo "${BOLD}Configuring SSH...${RESET}"
-if [ ! -f /root/.ssh/id_rsa ]; then
-ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N "" &>/dev/null
-fi
-sshpass -f /root/.ssh_passwd ssh-copy-id \
-	-o "StrictHostKeyChecking=no" uitclient@mickey.uit &>/dev/null
-
-echo "Host *
-	StrictHostKeyChecking=no" > /root/.ssh/config
-echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Installing the client package${RESET}"
+curl http://mickey.uit/client/pkg/uit-tss-client_2.0-1_amd64.deb --output /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 while [[ ! -f /root/uit-tss-client_2.0-1_amd64.deb ]]; do
 	curl http://mickey.uit/client/pkg/uit-tss-client_2.0-1_amd64.deb --output /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 	sleep 1
