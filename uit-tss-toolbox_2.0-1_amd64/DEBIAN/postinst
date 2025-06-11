@@ -45,6 +45,11 @@ find /srv/UIT-TSS-TOOLBOX/ -type d -not -path "*/iso*" -exec chmod 755 {} \;
 find /srv/UIT-TSS-TOOLBOX/ -type f -not -path "*/iso/*" -exec chmod 664 {} \;
 echo -e "\n" >> /etc/cron.d/uit-cron
 
+# Update mysql tables & procedures
+mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-procedures.sql
+mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
+
+# Set passwords for various services
 DB_ADMIN_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g')
 if [[ -f /home/cameron/.my.cnf ]]; then 
  DB_ADMIN_PASSWD=$(cat /home/cameron/.my.cnf | grep '^password=' | sed 's/password=//g')
@@ -76,6 +81,7 @@ sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/inc
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
 
 
+# Build client .deb package
 (cd /srv/UIT-TSS-TOOLBOX/client/src/
 chmod 755 /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/
 chmod 755 /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/control
@@ -86,9 +92,6 @@ mv -v /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64.deb /srv/UIT-TS
 
 chown dnsmasq:root /srv/UIT-TSS-TOOLBOX/client/netboot/tftp -R
 find /srv/UIT-TSS-TOOLBOX/client/netboot/tftp -type f -exec chmod 644 {} \;
-
-mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-procedures.sql
-mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
 
 if [[ ! -f /var/www/html/management/favicon.ico ]]; then
     wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico
