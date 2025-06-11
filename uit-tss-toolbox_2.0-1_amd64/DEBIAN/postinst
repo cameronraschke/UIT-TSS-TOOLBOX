@@ -56,6 +56,15 @@ echo ${DB_CLIENT_PASSWD} > /home/cameron/test-client-passwd
 DB_WEB_PASSWD=$(openssl rand 10 | hexdump | sed 's/[[:space:]]//g' | head -n1)
 DB_WEB_USER_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_WEB_USER_PASSWD=' | sed 's/DB_WEB_USER_PASSWD=//g')
 
+mysql --database='laptopDB' --execute="ALTER USER 'cameron'@'localhost' IDENTIFIED BY '${DB_ADMIN_PASSWD}';"
+mysql --database='laptopDB' --execute="ALTER USER 'uitclient'@'10.0.0.0/255.255.0.0' IDENTIFIED BY '${DB_CLIENT_PASSWD}';"
+mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIED BY '${DB_WEB_PASSWD}';"
+mysql --database='laptopDB' --execute="UPDATE logins SET username = MD5(username);"
+mysql --database='laptopDB' --execute="UPDATE logins SET password = MD5('${DB_WEB_USER_PASSWD}');"
+
+# Insert include.php with modifications to the clients.
+cat /var/www/html/management/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
+
 sed --in-place "s/UHouston!/${DB_ADMIN_PASSWD}/g" /usr/sbin/uit-backup
 sed --in-place "s/UHouston!/${DB_ADMIN_PASSWD}/g" /usr/sbin/uit-sql-report
 sed --in-place "s/UHouston!/${DB_CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/usr/sbin/uit-tss-client
@@ -66,15 +75,6 @@ sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/bash/ui
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/include.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
 
-mysql --database='laptopDB' --execute="ALTER USER 'cameron'@'localhost' IDENTIFIED BY '${DB_ADMIN_PASSWD}';"
-mysql --database='laptopDB' --execute="ALTER USER 'uitclient'@'10.0.0.0/255.255.0.0' IDENTIFIED BY '${DB_CLIENT_PASSWD}';"
-mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIED BY '${DB_WEB_PASSWD}';"
-mysql --database='laptopDB' --execute="UPDATE logins SET username = MD5(username);"
-mysql --database='laptopDB' --execute="UPDATE logins SET password = MD5('${DB_WEB_USER_PASSWD}');"
-
-
-# Insert include.php with modifications to the clients.
-cat /var/www/html/management/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
 
 (cd /srv/UIT-TSS-TOOLBOX/client/src/
 chmod 755 /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/
