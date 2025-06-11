@@ -1512,8 +1512,6 @@ function execute_Clone {
 	echo "0" > /tmp/network-usage.txt
 	SECONDS=0
 	start_time=$SECONDS
-	linuxUser="cameron"
-	linuxPassword='UHouston!'
 	linuxServer="10.0.0.1"
 	linuxDNS="mickey.uit"
 	umount /home/partimag 2>/dev/null
@@ -1924,8 +1922,6 @@ function autodetectClient {
 				shredMode="autodetect"
 				RMODE="Autodetect"
 					echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				linuxUser="cameron"
-				linuxPassword="UHouston!"
 				linuxServer="10.0.0.1"
 				linuxDNS="mickey.uit"
 				footer
@@ -1955,8 +1951,6 @@ function autodetectClient {
 				fi
 					echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 				cloneMode="restoredisk"
-				linuxUser="cameron"
-				linuxPassword="UHouston!"
 				linuxServer="10.0.0.1"
 				linuxDNS="mickey.uit"
 				footer
@@ -2123,8 +2117,6 @@ function main {
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-		linuxUser="cameron"
-		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
 		powerWarning
@@ -2143,8 +2135,6 @@ function main {
 		shredMode="autodetect"
 		RMODE="autodetect"
 			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-		linuxUser="cameron"
-		linuxPassword="UHouston!"
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
 		powerWarning
