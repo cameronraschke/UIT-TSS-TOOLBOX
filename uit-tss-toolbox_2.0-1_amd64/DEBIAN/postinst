@@ -57,7 +57,7 @@ fi
 
 DB_CLIENT_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g')
 
-DB_WEB_PASSWD=$(openssl rand 10 | hexdump | sed 's/[[:space:]]//g' | head -n1)
+DB_WEB_PASSWD=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}')
 
 DB_WEB_USER_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_WEB_USER_PASSWD=' | sed 's/DB_WEB_USER_PASSWD=//g')
 
@@ -80,6 +80,10 @@ sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/bash/ui
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/include.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
 
+EMAIL_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^EMAIL_ADDRESS=' | sed 's/EMAIL_ADDRESS=//g')
+IP_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^IP_ADDRESS=' | sed 's/IP_ADDRESS=//g')
+sed --in-place "s/^email.*/email = \"${EMAIL_ADDRESS}\"/g" /root/ssl/uit-web.cfg
+sed --in-place "s/^ip_address = REPLACE_ME/ip_address = \"${IP_ADDRESS}\"/g" /root/ssl/uit-web.cfg
 
 # Build client .deb package
 (cd /srv/UIT-TSS-TOOLBOX/client/src/
