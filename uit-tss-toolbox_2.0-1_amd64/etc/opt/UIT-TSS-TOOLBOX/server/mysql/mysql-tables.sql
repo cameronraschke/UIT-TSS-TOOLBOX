@@ -569,7 +569,7 @@ INSERT INTO static_notes (note, note_readable, sort_order) VALUES
 ;
 
 
-CREATE TABLE IF NOT EXISTS checkout (
+CREATE TABLE IF NOT EXISTS checkouts (
     time DATETIME(3) NOT NULL PRIMARY KEY,
     tagnumber VARCHAR(6) DEFAULT NULL,
     customer_name VARCHAR(48) DEFAULT NULL,
@@ -581,7 +581,7 @@ CREATE TABLE IF NOT EXISTS checkout (
     note VARCHAR(128) DEFAULT NULL
 );
 
-ALTER TABLE checkout
+ALTER TABLE checkouts
     DROP PRIMARY KEY,
     MODIFY COLUMN time DATETIME(3) NOT NULL PRIMARY KEY,
     MODIFY COLUMN tagnumber VARCHAR(6) DEFAULT NULL,
