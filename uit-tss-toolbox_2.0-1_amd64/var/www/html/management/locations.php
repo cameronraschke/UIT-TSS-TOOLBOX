@@ -156,10 +156,12 @@ if (isset($_POST['serial'])) {
 unset($getStr);
 foreach ($_GET as $key => $value) {
   if ($key != "edit" && $key != "tagnumber") {
-    $getStr .= "&" . htmlspecialchars($key, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "=" . htmlspecialchars($value);
+    $getStr .=  "&" . $key . "=" . htmlspecialchars(htmlspecialchars_decode($value));
   }
 }
-$getStr = substr($getStr, 1);
+if (strFilter($_GET["tagnumber"]) === 0) {
+   $getStr = substr($getStr, 1);
+}
 ?>
 
 
@@ -912,7 +914,7 @@ foreach ($tableArr as $key => $value1) {
 
   // Tagnumber
   echo "<td>" . PHP_EOL;
-  echo "<b><a href='locations.php?edit=1&tagnumber=" . htmlspecialchars($value1["tagnumber"]) . "&" . $getStr . "'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
+  echo "<b><a href='locations.php?edit=1&tagnumber=" . htmlspecialchars($value1["tagnumber"]) . $getStr . "'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
   // kernel and bios up to date (check mark)
   if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
     echo " <span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>" . PHP_EOL;
