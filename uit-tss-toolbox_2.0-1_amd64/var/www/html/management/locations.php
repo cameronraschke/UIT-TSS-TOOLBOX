@@ -159,9 +159,8 @@ foreach ($_GET as $key => $value) {
     $getStr .=  "&" . $key . "=" . htmlspecialchars(htmlspecialchars_decode($value));
   }
 }
-if (strFilter($_GET["tagnumber"]) === 0) {
-   $getStr = substr($getStr, 1);
-}
+
+$getStr = substr($getStr, 1);
 ?>
 
 
@@ -211,8 +210,7 @@ if (strFilter($_GET["tagnumber"]) === 0) {
             AND locations.tagnumber = :tagnumberLoc";
         
         unset($formArr);
-        //$db->Pselect($formSql, array(':tagnumberJob' => htmlspecialchars_decode($_POST["tagnumber"]), ':tagnumberLoc' => htmlspecialchars_decode($_POST["tagnumber"])));
-        $db->Pselect($formSql, array(':tagnumberLoc' => htmlspecialchars_decode($_GET["tagnumber"])));
+        $db->Pselect($formSql, array(':tagnumberLoc' => $_GET["tagnumber"]));
         if ($db->get() === "NULL") {
           $formArr = array( array( "system_serial" => "NULL", "location" => "NULL", "time_formatted" => "NULL") );
           $tagDataExists = 0;
@@ -476,11 +474,11 @@ if (strFilter($_GET["tagnumber"]) === 0) {
           } else {
             echo "<button style='background-color:rgba(0, 179, 136, 0.30); margin-left: 1em;' type='submit' value='Update Location Data'>Update Location Data</button>" . PHP_EOL;
           }
-          //echo "<button type='button' id='closeButton' onclick='closeLocationWindow();jsRedirect();'>Cancel</button>";
           if ($_GET["ref"] == 1) {
             echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button>";
           } else {
-            echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Cancel</button>";
+            //echo "<button type='button' id='closeButton'>Cancel</button>";
+            echo "<a href='locations.php?" . $getStr . "'>Cancel</a>";
           }
           
           echo "<div>" . $updatedHTMLConfirmation . "</div>";
@@ -914,7 +912,7 @@ foreach ($tableArr as $key => $value1) {
 
   // Tagnumber
   echo "<td>" . PHP_EOL;
-  echo "<b><a href='locations.php?edit=1&tagnumber=" . htmlspecialchars($value1["tagnumber"]) . $getStr . "'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
+  echo "<b><a href='locations.php?edit=1&tagnumber=" . htmlspecialchars($value1["tagnumber"]) . "&" . $getStr . "'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
   // kernel and bios up to date (check mark)
   if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
     echo " <span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>" . PHP_EOL;
@@ -981,12 +979,9 @@ unset($value1);
     function jsRedirect() {
       <?php
       if (strFilter($_GET["ref"]) === 1) {
-        if ($_GET["edit"] == 1) {
-          echo "window.location.href = '/locations.php?" . $getStr . "';";
-        } else {
+        if ($_GET["edit"] != 1) {
           echo "window.location.href = '/locations.php';";
         }
-        //href='locations.php?edit=1&tagnumber=" . htmlspecialchars($value1["tagnumber"]) . "&" . $getStr . "'>
       } elseif ($_GET["ref"] == 1) {
         echo "window.location.href = 'tagnumber.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "';";
       } 
