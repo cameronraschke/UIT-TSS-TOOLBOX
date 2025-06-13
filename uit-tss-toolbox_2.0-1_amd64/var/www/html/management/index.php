@@ -386,13 +386,12 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 var data = google.visualization.arrayToDataTable([ ['Joined to AD', 'Not Joined to AD'],
                 <?php
                 $db->select("SELECT 
-                    (SELECT COUNT(locations.tagnumber) FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
-                        INNER JOIN locations ON locations.tagnumber = locations.tagnumber 
+                    (SELECT COUNT(locations.tagnumber) FROM locations INNER JOIN (SELECT MAX(time) AS 'time' 
+                    FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
                         INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
                         WHERE locations.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NOT NULL)
                         AS 'domain_joined',
                     (SELECT COUNT(locations.tagnumber) FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
-                        INNER JOIN locations ON locations.tagnumber = locations.tagnumber 
                         INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
                         WHERE locations.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NULL)
                         AS 'domain_not_joined'");
