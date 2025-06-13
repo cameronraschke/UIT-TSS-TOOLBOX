@@ -107,6 +107,4 @@ fi
 
 rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/management/images/
 
-rsync -Pav --delete /home/cameron/jquery /var/www/html/management/
-
 rsync -Pav --delete /home/cameron/google-charts /var/www/html/management/

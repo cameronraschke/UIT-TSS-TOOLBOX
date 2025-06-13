@@ -25,9 +25,6 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
   <meta charset='UTF-8'>
   <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   <link rel='stylesheet' type='text/css' href='/css/main.css' />
-  <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
-  <script src="/jquery/jquery-3.7.1.min.js"></script>
-  <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script>
   <title>Home - UIT Client Management</title>
 </head>
 <body onload="fetchHTML();charCount();">

@@ -34,9 +34,6 @@ unset($_POST['location-action']);
     <head>
         <meta charset='UTF-8'>
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
-        <!-- <link rel="stylesheet" href="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.css">
-        <script src="/jquery/jquery-3.7.1.min.js"></script>
-        <script src="/jquery/jquery-ui/jquery-ui-1.14.0/jquery-ui.min.js"></script> -->
         <title>Remote Jobs - UIT Client Mgmt</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
