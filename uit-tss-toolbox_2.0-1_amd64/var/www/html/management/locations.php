@@ -157,6 +157,14 @@ if (isset($_POST['serial'])) {
   // }
   unset($_POST);
 }
+
+unset($getStr);
+foreach ($_GET as $key => $value) {
+  if ($key != "edit" && $key != "tagnumber") {
+    $getStr .= "&" . htmlspecialchars($key, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "=" . htmlspecialchars($value);
+  }
+}
+$getStr = substr($getStr, 1);
 ?>
 
 
@@ -229,7 +237,7 @@ if (isset($_POST['serial'])) {
           <form method='post'>
             <div class='row'>
               <div class='column'>
-                <div><label for='tagnumber'>Tag Number* - <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "' target='_blank'>Open client details in New Tab</a></label></div>
+                <div><label for='tagnumber'>Tag Number* - <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "'>Open client details</a></label></div>
                 <input type='text' style='background-color:#888B8D;' id='tagnumber' placeholder='Enter tag number...' name='tagnumber' value='" . trim(htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>
               </div>";
             // Line above this closes tag number data div
@@ -855,7 +863,7 @@ if (arrFilter($db->get()) === 0) {
 
         <div class='filtering-form'>
             <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Filter</button>
-            <button type='button' onclick='jsRedirect();'>Reset Filters</button>
+            <button type='button' onclick="window.location.href = '/locations.php';">Reset Filters</button>
         </div>
 
         <div class='filtering-form'>
@@ -912,7 +920,7 @@ foreach ($tableArr as $key => $value1) {
 
   // Tagnumber
   echo "<td>" . PHP_EOL;
-  echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
+  echo "<b><a href='locations.php?edit=1&tagnumber=" . htmlspecialchars($value1["tagnumber"]) . "&" . $getStr . "'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
   // kernel and bios up to date (check mark)
   if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
     echo " <span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>" . PHP_EOL;
@@ -979,10 +987,15 @@ unset($value1);
     function jsRedirect() {
       <?php
       if (strFilter($_GET["ref"]) === 1) {
-        echo "window.location.href = '/locations.php';";
+        if ($_GET["edit"] == 1) {
+          echo "window.location.href = '/locations.php?" . $getStr . "';";
+        } else {
+          echo "window.location.href = '/locations.php';";
+        }
+        //href='locations.php?edit=1&tagnumber=" . htmlspecialchars($value1["tagnumber"]) . "&" . $getStr . "'>
       } elseif ($_GET["ref"] == 1) {
         echo "window.location.href = 'tagnumber.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "';";
-      }
+      } 
       ?>
     }
 
