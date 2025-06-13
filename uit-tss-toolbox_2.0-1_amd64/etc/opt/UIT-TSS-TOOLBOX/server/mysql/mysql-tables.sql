@@ -1,4 +1,4 @@
--- Tables with tagnmbers: clientstats, jobstats, locations, client_health, remote, system_data, departments, bitlocker, checkout
+-- Tables with tagnmbers: clientstats, jobstats, locations, client_health, remote, system_data, bitlocker, checkout
 DROP TABLE IF EXISTS serverstats;
 CREATE TABLE serverstats (
     date DATE NOT NULL PRIMARY KEY,
@@ -131,6 +131,7 @@ CREATE TABLE IF NOT EXISTS locations (
     location VARCHAR(128) DEFAULT NULL,
     status BOOLEAN DEFAULT NULL,
     disk_removed BOOLEAN DEFAULT NULL,
+    department VARCHAR(24) DEFAULT NULL,
     domain VARCHAR(24) DEFAULT NULL,
     note VARCHAR(256) DEFAULT NULL
 );
@@ -143,7 +144,8 @@ ALTER TABLE locations
     MODIFY COLUMN location VARCHAR(128) DEFAULT NULL AFTER system_serial,
     MODIFY COLUMN status BOOLEAN DEFAULT NULL AFTER location,
     MODIFY COLUMN disk_removed BOOLEAN DEFAULT NULL AFTER status,
-    MODIFY COLUMN domain VARCHAR(24) DEFAULT NULL AFTER disk_removed,
+    MODIFY COLUMN department VARCHAR(24) DEFAULT NULL AFTER disk_removed,
+    MODIFY COLUMN domain VARCHAR(24) DEFAULT NULL AFTER department,
     MODIFY COLUMN note VARCHAR(256) DEFAULT NULL AFTER domain;
 
 
@@ -264,38 +266,6 @@ INSERT INTO static_bios_stats
     ('OptiPlex 5070', '1.31.1'),
     ('OptiPlex 7010', 'A29'),
     ('OptiPlex 7780', '1.36.1');
-
-
-CREATE TABLE IF NOT EXISTS bios_stats (
-    tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
-    time DATETIME(3) DEFAULT NULL,
-    bios_version VARCHAR(24) DEFAULT NULL,
-    bios_updated BOOLEAN DEFAULT NULL
-);
-
-ALTER TABLE bios_stats
-    DROP PRIMARY KEY,
-    MODIFY COLUMN tagnumber VARCHAR(8) NOT NULL PRIMARY KEY FIRST,
-    MODIFY COLUMN time DATETIME(3) DEFAULT NULL AFTER tagnumber,
-    MODIFY COLUMN bios_version VARCHAR(24) DEFAULT NULL AFTER time,
-    MODIFY COLUMN bios_updated BOOLEAN DEFAULT NULL AFTER bios_version
-    ;
-
-
-CREATE TABLE IF NOT EXISTS os_stats (
-    tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
-    time DATETIME(3) DEFAULT NULL,
-    os_name VARCHAR(24) DEFAULT NULL,
-    os_installed BOOLEAN DEFAULT NULL
-);
-
-ALTER TABLE os_stats
-    DROP PRIMARY KEY,
-    MODIFY COLUMN tagnumber VARCHAR(8) NOT NULL PRIMARY KEY FIRST,
-    MODIFY COLUMN time DATETIME(3) DEFAULT NULL AFTER tagnumber,
-    MODIFY COLUMN os_name VARCHAR(24) DEFAULT NULL AFTER time,
-    MODIFY COLUMN os_installed BOOLEAN DEFAULT NULL AFTER os_name
-    ;
 
 
 CREATE TABLE IF NOT EXISTS client_health (
@@ -513,23 +483,6 @@ INSERT INTO static_departments (
   ('uit-security', 'UIT Security', 'Kevin Vu', 0),
   ('itac', 'ITAC', 'ITAC', 0)
 ;
-
--- Departments table --
-CREATE TABLE IF NOT EXISTS departments (
-    time DATETIME(3) NOT NULL PRIMARY KEY,
-    tagnumber VARCHAR(8) NOT NULL,
-    system_serial VARCHAR(24) DEFAULT NULL,
-    department VARCHAR(32) DEFAULT NULL,
-    subdepartment VARCHAR(64) DEFAULT NULL
-);
-
-ALTER TABLE departments
-    DROP PRIMARY KEY,
-    MODIFY COLUMN time DATETIME(3) NOT NULL PRIMARY KEY FIRST,
-    MODIFY COLUMN tagnumber VARCHAR(8) DEFAULT NULL AFTER time,
-    MODIFY COLUMN system_serial VARCHAR(24) DEFAULT NULL AFTER tagnumber,
-    MODIFY COLUMN department VARCHAR(32) DEFAULT NULL AFTER system_serial,
-    MODIFY COLUMN subdepartment VARCHAR(64) DEFAULT NULL AFTER department;
 
 DROP TABLE IF EXISTS static_job_names;
 CREATE TABLE IF NOT EXISTS static_job_names (

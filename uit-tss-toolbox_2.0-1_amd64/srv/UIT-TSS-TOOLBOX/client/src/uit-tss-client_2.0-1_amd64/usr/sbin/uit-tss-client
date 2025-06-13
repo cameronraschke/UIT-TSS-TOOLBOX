@@ -128,7 +128,7 @@ function remote {
 }
 
 function department {
-	sqlDepartment=$(echo "SELECT department AS 'result' FROM departments WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+	sqlDepartment=$(echo "SELECT department AS 'result' FROM locations WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
 }
 
 DATE=$(date --iso)
@@ -431,7 +431,6 @@ function enterTag {
 
 		#sleep ${RANDOM::1}
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /opt/UIT-TSS-TOOLBOX/parse
-		#echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /opt/UIT-TSS-TOOLBOX/parse
 		return
 	else
 		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
@@ -455,7 +454,6 @@ function enterTag {
 		UUID=$(echo -n "newEntry-"; cat /proc/sys/kernel/random/uuid)
 
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /opt/UIT-TSS-TOOLBOX/parse
-		#echo "departments|${tagNum}|${tOneSerialNumber}|${department}|NULL" | /opt/UIT-TSS-TOOLBOX/parse
 		echo "location|custom|${tagNum}|${tOneSerialNumber}|new entry|0|" | /opt/UIT-TSS-TOOLBOX/parse
 		department
 		enterTag

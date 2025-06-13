@@ -359,9 +359,9 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 var data = google.visualization.arrayToDataTable([ ['OS Status', 'Client Count'],
                 <?php
                 $db->select("SELECT 
-                    (SELECT COUNT(client_health.tagnumber) FROM client_health INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber WHERE client_health.os_installed = 1)
+                    (SELECT COUNT(client_health.tagnumber) FROM client_health INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = 1 AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber WHERE client_health.os_installed = 1)
                         AS 'os_installed',
-                    (SELECT COUNT(client_health.tagnumber) FROM client_health INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber WHERE client_health.os_installed IS NULL)
+                    (SELECT COUNT(client_health.tagnumber) FROM client_health INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = 1 AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber WHERE client_health.os_installed IS NULL)
                         AS 'os_not_installed'");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value) {
@@ -387,14 +387,14 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 <?php
                 $db->select("SELECT 
                     (SELECT COUNT(locations.tagnumber) FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
-                        INNER JOIN departments ON locations.tagnumber = departments.tagnumber 
-                        INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t2 ON departments.time = t2.time
-                        WHERE departments.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NOT NULL)
+                        INNER JOIN locations ON locations.tagnumber = locations.tagnumber 
+                        INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
+                        WHERE locations.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NOT NULL)
                         AS 'domain_joined',
                     (SELECT COUNT(locations.tagnumber) FROM locations INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
-                        INNER JOIN departments ON locations.tagnumber = departments.tagnumber 
-                        INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t2 ON departments.time = t2.time
-                        WHERE departments.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NULL)
+                        INNER JOIN locations ON locations.tagnumber = locations.tagnumber 
+                        INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
+                        WHERE locations.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NULL)
                         AS 'domain_not_joined'");
                     if (arrFilter($db->get()) === 0) {
                         foreach ($db->get() as $key => $value) {
@@ -422,11 +422,11 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 $db->select("SELECT 
                     (SELECT COUNT(client_health.bios_updated) 
                     FROM client_health 
-                    INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber
+                    INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = 1 AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber
                         WHERE client_health.bios_updated = 1) AS 'bios_updated', 
                     (SELECT SUM(IF(client_health.bios_updated IS NULL, 1, 0)) 
                     FROM client_health 
-                    INNER JOIN (SELECT departments.tagnumber, departments.department FROM departments LEFT JOIN static_departments ON static_departments.department = departments.department WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber) AND static_departments.department_bool = 1 AND departments.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber
+                    INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = 1 AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber
                         WHERE bios_updated IS NULL) AS 'bios_not_updated'");
                     if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value) {

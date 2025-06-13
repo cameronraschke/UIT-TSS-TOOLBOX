@@ -60,12 +60,6 @@ if (isset($_POST['serial'])) {
   //$db->updateJob ("date", $date, $uuid);
   //$db->updateJob ("time", $time, $uuid);
 
-  // Insert department data
-  $db->insertDepartments($time);
-  $db->updateDepartments("tagnumber", $tagNum, $time);
-  $db->updateDepartments("system_serial", $serial, $time);
-  $db->updateDepartments("department", $department, $time);
-
   // Insert & update system_data
   $db->Pselect("SELECT tagnumber FROM system_data WHERE tagnumber = :tag", array(':tag' => $tagNum));
   if (strFilter($db->get()) === 0) {
@@ -99,6 +93,7 @@ if (isset($_POST['serial'])) {
   $db->updateLocation("disk_removed", $diskRemoved, $time);
   $db->updateLocation("note", $note, $time);
   $db->updateLocation("domain", $domain, $time);
+  $db->updateLocation("department", $department, $time);
 
   //Insert checkout data
   //$locationRegex = '/(checkout)|(check out)/i';
@@ -197,7 +192,7 @@ $getStr = substr($getStr, 1);
           TRIM(system_data.system_manufacturer) AS 'system_manufacturer', 
           IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted', 
           DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
-          t4.department, locations.disk_removed, locations.status, TRIM(t3.note) AS 'most_recent_note', t5.department_readable, 
+          locations.department, locations.disk_removed, locations.status, TRIM(t3.note) AS 'most_recent_note', t5.department_readable, 
           DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', locations.domain, locations.status, IF (t3.time = locations.time, 1, 0) AS 'placeholder_bool'
           FROM locations 
           LEFT JOIN jobstats ON jobstats.tagnumber = locations.tagnumber 
@@ -207,10 +202,8 @@ $getStr = substr($getStr, 1);
             ON t2.time = jobstats.time 
           LEFT JOIN (SELECT tagnumber, time, note, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations WHERE note IS NOT NULL) t3 
             ON t3.tagnumber = locations.tagnumber
-          LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber)) t4
-            ON locations.tagnumber = t4.tagnumber
           LEFT JOIN (SELECT department, department_readable FROM static_departments) t5
-            ON t4.department = t5.department
+            ON locations.department = t5.department
           LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
           WHERE t1.row_count = 1 AND (t2.row_count = 1 OR t2.row_count IS NULL) AND (t3.row_count = 1 OR t3.row_count IS NULL)
             AND locations.tagnumber = :tagnumberLoc";
@@ -519,7 +512,7 @@ $rowCount = 0;
 $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, 
   IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted',
-  static_departments.department_readable AS 'department_formatted', departments.department,
+  static_departments.department_readable AS 'department_formatted', locations.department,
   IF ((locations.status = 0 OR locations.status IS NULL), 'Yes', 'Broken') AS 'status_formatted', locations.status AS 'locations_status', 
   client_health.os_name AS 'os_installed_formatted', client_health.os_installed, client_health.os_name, 
   IF (client_health.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', client_health.bios_updated,
@@ -527,8 +520,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
   locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain, t2.checkout_bool, t2.checkout_date, t2.return_date
   FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
-    LEFT JOIN departments ON (locations.tagnumber = departments.tagnumber AND departments.time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber))
-    LEFT JOIN static_departments ON static_departments.department = departments.department
+    LEFT JOIN static_departments ON locations.department = static_departments.department
     LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
     LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
     LEFT JOIN (SELECT * FROM (SELECT time, tagnumber, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) s2 WHERE s2.row_nums = 1) t2 ON locations.tagnumber = t2.tagnumber
@@ -555,10 +547,10 @@ if (strFilter($_GET["location"]) === 0) {
 // department filter
 if (strFilter($_GET["department"]) === 0) {
   if ($_GET["not-department"] == "1") {
-    $sql .= "AND (NOT departments.department = :department OR departments.department IS NULL) ";
+    $sql .= "AND (NOT locations.department = :department OR locations.department IS NULL) ";
     $sqlArr[":department"] = $_GET["department"];
   } else {
-    $sql .= "AND departments.department = :department ";
+    $sql .= "AND locations.department = :department ";
     $sqlArr[":department"] = $_GET["department"];
   }
 }
@@ -717,7 +709,7 @@ if (arrFilter($db->get()) === 0) {
               $db->select("SELECT department, department_readable, owner, department_bool FROM static_departments ORDER BY department_readable ASC");
               if (arrFilter($db->get()) === 0) {
                 foreach ($db->get() as $key => $value1) {
-                  $db->Pselect("SELECT COUNT(tagnumber) AS 'department_rows' FROM departments WHERE department = :department AND time IN (SELECT MAX(time) FROM departments WHERE department IS NOT NULL GROUP BY tagnumber)", array(':department' => $value1["department"]));
+                  $db->Pselect("SELECT COUNT(tagnumber) AS 'department_rows' FROM locations WHERE department = :department AND time IN (SELECT MAX(time) FROM locations WHERE department IS NOT NULL GROUP BY tagnumber)", array(':department' => $value1["department"]));
                   if (arrFilter($db->get()) === 0) {
                     foreach ($db->get() as $key => $value2) {
                       echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . " (" . $value2["department_rows"] . ")</option>" . PHP_EOL;

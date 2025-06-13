@@ -505,42 +505,6 @@ class db {
   }
 
 
-  // DEPARTMENTS table
-  public function insertDepartments ($time) {
-    if (strFilter($time) == 0) {
-      $sql = "INSERT INTO departments (time) VALUES (:time)";
-      $stmt = $this->pdo->prepare($sql);
-
-      $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-
-      if (strFilter($stmt) === 0) {
-        $stmt->execute();
-      }
-    }
-  }
-
-  public function updateDepartments ($key, $value, $time) {
-    if (strFilter($key) === 0 && strFilter($time) === 0) {
-      if ($this->check_tables_cols("departments", $key) === 0) {
-        $sql = "UPDATE departments SET $key = :value WHERE time = :time";
-        $stmt = $this->pdo->prepare($sql);
-
-        if (strFilter($value) === 0) {
-          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-        } else {
-          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-        }
-
-        if (strFilter($stmt) === 0) {
-          $stmt->execute();
-        }
-      }
-    }
-  }
-
-
   //BIOS table
   public function insertBIOS ($tagNum) {
     if (strFilter($tagNum) === 0) {
@@ -555,71 +519,6 @@ class db {
 
       if (strFilter($stmt) === 0) {
         $stmt->execute();
-      }
-    }
-  }
-
-  public function updateBIOS ($tagNum, $key, $value) {
-    if (strFilter($tagNum) === 0 && strFilter($key) === 0) {
-      if ($this->check_tables_cols("bios_stats", $key) === 0) {
-        $sql = "UPDATE bios_stats SET $key = :value, time = :updateTime WHERE tagnumber = :tagNum";
-        $stmt = $this->pdo->prepare($sql);
-
-        $dt = new DateTimeImmutable();
-        $updateTime = $dt->format('Y-m-d H:i:s.v');
-
-        if (strFilter($value) === 0) {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-          $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
-        } else {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-          $stmt->bindParam(':updateTime', $updateTime, PDO::PARAM_STR);
-        }
-
-        if (strFilter($stmt) === 0) {
-          $stmt->execute();
-        }
-      }
-    }
-  }
-
-  //OS_STATS table
-  public function insertOS ($tagNum) {
-    if (strFilter($tagNum) === 0) {
-      $sql = "INSERT INTO os_stats (tagnumber) VALUES (:tagNum)";
-      $stmt = $this->pdo->prepare($sql);
-
-      if (strFilter($tagNum) === 0) {
-        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-      } else {
-        exit();
-      }
-
-      if (strFilter($stmt) === 0) {
-        $stmt->execute();
-      }
-    }
-  }
-
-  public function updateOS ($tagNum, $key, $value) {
-    if (strFilter($tagNum) === 0 && strFilter($key) === 0) {
-      if ($this->check_tables_cols("os_stats", $key) === 0) {
-        $sql = "UPDATE os_stats SET $key = :value WHERE tagnumber = :tagNum";
-        $stmt = $this->pdo->prepare($sql);
-
-        if (strFilter($value) === 0) {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-        } else {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-        }
-
-        if (strFilter($stmt) == 0) {
-          $stmt->execute();
-        }
       }
     }
   }

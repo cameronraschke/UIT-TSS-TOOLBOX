@@ -81,7 +81,6 @@ UNION
   REPLACE(jobstats.clone_completed, '1', 'Yes'), REPLACE(jobstats.clone_master, '1', 'Yes'), CONCAT(jobstats.clone_time, 's'), IF (jobstats.host_connected='1', 'Yes', '')
 FROM jobstats
 LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
-LEFT JOIN departments ON jobstats.time = departments.time
 ORDER BY jobstats.time DESC);
 END; //
 DELIMITER ;
@@ -187,7 +186,7 @@ UNION
   locations.tagnumber,
   locations.system_serial,
   system_data.system_model,
-  departments.department,
+  locations.department,
   locations.location,
   IF (locations.status = 0 OR status IS NULL, "Functional", "Broken"),
   IF (client_health.os_installed = 1 , "Yes", "No"),
@@ -197,8 +196,6 @@ UNION
 FROM locations 
 LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
-LEFT JOIN departments ON locations.tagnumber = departments.tagnumber
-INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t1 ON departments.time = t1.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
 ORDER BY locations.time DESC);
 END; //
@@ -228,10 +225,8 @@ UNION
   locations.note,
   CONVERT(locations.time, DATETIME) 
 FROM locations 
-INNER JOIN departments ON locations.tagnumber = departments.tagnumber
-INNER JOIN static_departments ON departments.department = static_departments.department
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
-WHERE departments.department = 'property'
+WHERE locations.department = 'property'
 AND locations.tagnumber IS NOT NULL
 ORDER BY locations.time DESC
 );
@@ -447,19 +442,17 @@ CREATE PROCEDURE iterateSHRLCSV()
 DETERMINISTIC
 BEGIN
 
-(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Department', 'Location', 'CPU Model', 'CPU Cores', 'RAM Capacity', 'Disk Size', 'Disk Type', 'Disk Health', 'Note')
+(SELECT 'Last Entry', 'Tag Number', 'Serial Number', 'System Model', 'Location', 'CPU Model', 'CPU Cores', 'RAM Capacity', 'Disk Size', 'Disk Type', 'Disk Health', 'Note')
 UNION
 (SELECT 
   locations.time, jobstats.tagnumber, jobstats.system_serial, 
-  system_data.system_model, static_departments.department_readable, 
+  system_data.system_model,
   locations.location, system_data.cpu_model, system_data.cpu_cores,
   CONCAT(t1.ram_capacity, ' GB'), CONCAT(t1.disk_size, ' GB'), t1.disk_type,
   CONCAT(clientstats.disk_health, '%'), locations.note
 FROM jobstats 
 LEFT JOIN locations ON jobstats.tagnumber = locations.tagnumber 
-LEFT JOIN departments ON jobstats.tagnumber = departments.tagnumber
 LEFT JOIN clientstats ON jobstats.tagnumber = clientstats.tagnumber
-LEFT JOIN static_departments ON departments.department = static_departments.department_readable
 LEFT JOIN system_data ON jobstats.tagnumber = system_data.tagnumber
 LEFT JOIN (SELECT tagnumber, ram_capacity, disk_type, disk_size FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE host_connected = 1 AND tagnumber IS NOT NULL GROUP BY tagnumber)) t1
   ON jobstats.tagnumber = t1.tagnumber
@@ -467,9 +460,7 @@ INNER JOIN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL
   ON jobstats.time = t2.time
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t3
   ON locations.time = t3.time
-INNER JOIN (SELECT MAX(time) AS 'time' FROM departments WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t4
-  ON departments.time = t4.time
-WHERE departments.department = 'shrl'
+WHERE locations.department = 'shrl'
 ORDER BY locations.location ASC, jobstats.tagnumber ASC, locations.time ASC);
 
 END; //
@@ -547,10 +538,9 @@ UNION ALL
   LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
   LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
   LEFT JOIN static_domains ON locations.domain = static_domains.domain
-  LEFT JOIN departments ON (locations.tagnumber = departments.tagnumber AND departments.time IN (SELECT MAX(time) FROM departments GROUP BY tagnumber))
   WHERE locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)
     AND client_health.os_installed = 1
-    AND departments.department = 'techComm'
+    AND locations.department = 'techComm'
 );
 
 END; //
@@ -568,11 +558,9 @@ UNION ALL
 (SELECT IF (locations.tagnumber LIKE '77204%' OR locations.tagnumber LIKE '999%', 'NO TAG', locations.tagnumber) AS 'tagnumber', locations.system_serial, system_data.system_model, 
 	IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', IF (locationFormatting(locations.location) = 'On top of Z', 'Z', locationFormatting(locations.location)) AS 'location', locations.note, locations.time
 FROM locations
-LEFT JOIN departments ON locations.tagnumber = departments.tagnumber
-INNER JOIN (SELECT MAX(time) AS 'time' FROM departments GROUP BY tagnumber) t2 ON departments.time = t2.time
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
 INNER JOIN (SELECT MAX(time) AS 'time' FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
-WHERE departments.department IN ('pre-property')
+WHERE locations.department IN ('pre-property')
 ORDER BY location, tagnumber);
 
 END; //

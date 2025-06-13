@@ -38,12 +38,6 @@ if (strFilter($_POST) === 0) {
     //$db->updateJob ("date", $date, $uuid);
     //$db->updateJob ("time", $time, $uuid);
 
-    // Insert department data
-    $db->insertDepartments($time);
-    $db->updateDepartments("tagnumber", $tagNum, $time);
-    $db->updateDepartments("system_serial", $serial, $time);
-    $db->updateDepartments("department", $department, $time);
-
     //Insert location data
     $db->insertLocation($time);
     $db->updateLocation("tagnumber", $tagNum, $time);
@@ -53,6 +47,7 @@ if (strFilter($_POST) === 0) {
     $db->updateLocation("disk_removed", $diskRemoved, $time);
     $db->updateLocation("note", $note, $time);
     $db->updateLocation("domain", $domain, $time);
+    $db->updateLocation("department", $department, $time);
 
 
     unset($_POST);
@@ -91,7 +86,7 @@ unset($_POST);
 unset($sql);
 $sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
 IF (t3.time = t10.time, 1, 0) AS 'placeholder_bool',
-jobstats.time AS 'jobstatsTime', locations.tagnumber, locations.system_serial, t1.department, 
+jobstats.time AS 'jobstatsTime', locations.tagnumber, locations.system_serial, locations.department, 
 locationFormatting(locations.location) AS 'location', 
 IF(locations.status = 1, 'Broken', 'Yes') AS 'status_formatted', locations.status AS 'locations_status', t2.department_readable, t3.note AS 'most_recent_note',
 locations.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
@@ -130,11 +125,9 @@ LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
 LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
 LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND (host_connected = 1 or (uuid LIKE 'techComm-%' AND etheraddress IS NOT NULL)) GROUP BY tagnumber))
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
-LEFT JOIN (SELECT tagnumber, department FROM departments WHERE time IN (SELECT MAX(time) FROM departments WHERE tagnumber IS NOT NULL GROUP BY tagnumber)) t1 
-ON locations.tagnumber = t1.tagnumber
 LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
 LEFT JOIN (SELECT department, department_readable FROM static_departments) t2
-ON t1.department = t2.department
+ON locations.department = t2.department
 LEFT JOIN (SELECT tagnumber, time, note FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE note IS NOT NULL GROUP BY tagnumber)) t3
 ON locations.tagnumber = t3.tagnumber
 LEFT JOIN (SELECT tagnumber, disk_model, disk_serial, disk_size, disk_type, disk_writes, disk_reads, disk_power_on_hours, disk_power_cycles, IF(disk_errors IS NOT NULL, disk_errors, 0) AS 'disk_errors' FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE disk_type IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t4 
@@ -622,9 +615,8 @@ unset($value1);
 </thead>
 <tbody>
 <?php
-//Use this if you want range of department data instead of equal times: --INNER JOIN departments ON (locations.tagnumber = :tagnumber AND departments.tagnumber = :tagnumber AND departments.time IN (SELECT MAX(time) FROM departments WHERE time <= locations.time))
 $db->Pselect("SELECT t2.* FROM 
-(SELECT static_departments.department_readable, departments.time AS 'deptTime', locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
+(SELECT static_departments.department_readable, locations.time AS 'deptTime', locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
 locationFormatting(locations.location) AS 'location', 
 ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
 IF (locations.status = 1, 'No, Broken', 'Yes') AS 'status_formatted', locations.status, 
@@ -633,13 +625,11 @@ IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed',
 note 
 FROM locations 
 LEFT JOIN client_health ON (locations.tagnumber = :tagnumber AND client_health.tagnumber = :tagnumber)
-INNER JOIN departments ON (locations.tagnumber = :tagnumber AND departments.tagnumber = :tagnumber AND departments.time = locations.time)
-INNER JOIN static_departments ON departments.department = static_departments.department
+INNER JOIN static_departments ON locations.department = static_departments.department
 WHERE 
 NOT locations.location = 'Plugged in and booted on laptop table.' 
 AND NOT locations.location = 'Finished work on laptop table.' 
 AND locations.tagnumber = :tagnumber
-AND departments.tagnumber = :tagnumber
 AND locations.location IS NOT NULL) t2
 WHERE t2.location_num <= 3
 ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
