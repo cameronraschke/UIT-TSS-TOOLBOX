@@ -941,7 +941,7 @@ foreach ($tableArr as $key => $value1) {
   echo "<td><b><a href='locations.php?system_model=" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
 
   // Location
-  echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location_formatted"]) . "</a></b></td>" . PHP_EOL;
+  echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "'>" . htmlspecialchars($value1["location_formatted"]) . "</a></b></td>" . PHP_EOL;
 
   // Department
   echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;

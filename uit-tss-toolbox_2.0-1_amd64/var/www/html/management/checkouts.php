@@ -79,16 +79,7 @@ if (arrFilter($db->get()) === 0) {
     echo "<tr>";
     //tagnumber
     echo "<td>";
-    // $sql = "SELECT t1.checkout_bool FROM (SELECT tagnumber, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) t1 WHERE t1.tagnumber = :tag AND t1.row_nums = 1";
-    // $db->Pselect($sql, array(':tag' => $value["tagnumber"]));
-    // foreach ($db->get() as $key => $value1) {
-    //     if (strFilter($value["checkout_bool"]) === 0) {
-    //         echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
-    //     } elseif (strFilter($value["tagnumber"]) === 0) {
-    //         echo htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
-    //     }
-    // }
-        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
     echo "</td>" . PHP_EOL;
 
 

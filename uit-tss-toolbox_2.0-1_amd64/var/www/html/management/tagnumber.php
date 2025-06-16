@@ -638,7 +638,7 @@ foreach ($db->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
 //Time formatted
 echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
+echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['department_readable'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['status_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
