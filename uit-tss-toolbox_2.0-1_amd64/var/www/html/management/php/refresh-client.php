@@ -1,4 +1,3 @@
-#!/bin/php
 <?php
 require('/var/www/html/management/php/include.php');
 $db = new db();
@@ -49,7 +48,7 @@ $sql = "SELECT * FROM
     WHERE locations.tagnumber IS NOT NULL) table1
     WHERE table1.row_nums = 1 AND table1.tagnumber = :tagnumber
     ";
-$db->Pselect($sql, htmlspecialchars($_GET["tagnumber"]));
+$db->Pselect($sql, array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
 foreach ($db->get() as $key => $value) {
     if (strFilter($value["client_health_tag"]) === 1) {
         $db->insertClientHealth($value["tagnumber"]);
