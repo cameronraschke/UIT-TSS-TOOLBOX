@@ -52,7 +52,7 @@ mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
 # Set passwords for various services
 DB_ADMIN_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g')
 if [[ -f /home/cameron/.my.cnf ]]; then 
-    DB_ADMIN_PASSWD=$(cat /home/cameron/.my.cnf | grep '^password=' | sed 's/password=//g')
+    DB_ADMIN_PASSWD=$(cat /home/cameron/.my.cnf | grep '^password=' | sed 's/password=//g' | head -n1)
 fi
 
 DB_CLIENT_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g')
