@@ -18,7 +18,7 @@ cloneElapsed="0"
 shredElapsed="0"
 ACTION="burn an ISO to"
 
-if [[ ! -f /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
+if [[ ! -f /opt/UIT-TSS-TOOLBOX/debian-live/UIT-TSS-TOOLBOX-amd64.hybrid.iso ]]; then
         echo ""
         echo "${BOLD}${RED}ISO file does not exist. Please run uit-iso-configure.${RESET}"
 		exit
@@ -93,7 +93,6 @@ function execute {
                 echo "Making FAT32 filesystem on ${BOLD}${CLIENTDISK}${RESET}"
                 mkfs.vfat -I -F 32 /dev/${CLIENTDISK} &>/dev/null
 				echo "Mounting ${BOLD}${CLIENTDISK}${RESET}"
-                #/usr/bin/pv < /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso > /dev/${CLIENTDISK}
 				mkdir -p /mnt/usb/
 				echo "Writing files to ${BOLD}${CLIENTDISK}${RESET}, this may take a while..."
 				mount /dev/${CLIENTDISK} /mnt/usb/

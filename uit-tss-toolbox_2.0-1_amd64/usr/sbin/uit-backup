@@ -1,6 +1,6 @@
 #!/bin/bash
 
 DTIME=$(date '+%F-%H%M%S')
-mysqldump --databases laptopDB > /srv/nfs/UIT-TSS-TOOLBOX/sql-backups/laptopDB-${DTIME}.sql
+mysqldump --databases laptopDB > /opt/UIT-TSS-TOOLBOX/sql-backups/laptopDB-${DTIME}.sql
 
-rsync -a --delete /srv/nfs/UIT-TSS-TOOLBOX/sql-backups /mnt/images
+rsync -a --delete /srv/nfs/UIT-TSS-TOOLBOX/images/ /opt/UIT-TSS-TOOLBOX/image-backups/

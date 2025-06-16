@@ -4,4 +4,4 @@ systemctl restart dnsmasq chrony mysql nginx apache2 nfs-kernel-server
 
 uit-firewall
 
-mount -o loop /opt/UIT-TSS-TOOLBOX/UIT-TSS-TOOLBOX-amd64.hybrid.iso /srv/UIT-TSS-TOOLBOX/client/iso/
+mount -o loop /opt/UIT-TSS-TOOLBOX/debian-live/UIT-TSS-TOOLBOX-amd64.hybrid.iso /srv/UIT-TSS-TOOLBOX/client/iso/

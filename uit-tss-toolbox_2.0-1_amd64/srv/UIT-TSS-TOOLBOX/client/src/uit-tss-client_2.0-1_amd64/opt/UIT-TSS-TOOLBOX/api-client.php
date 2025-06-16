@@ -1,6 +1,6 @@
 #!/bin/php
 <?php
-require('/opt/UIT-TSS-TOOLBOX/include.php');
+require('/var/www/html/php/include.php');
 
 $url = 'http://10.0.0.1:1411/api/endpoint.php';
 
