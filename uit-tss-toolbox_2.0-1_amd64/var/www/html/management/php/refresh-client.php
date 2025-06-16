@@ -12,7 +12,7 @@ if (strFilter($_GET["tagnumber"]) === 1) {
 
 unset($sql);
 $sql = "SELECT * FROM 
-    (SELECT NOW() AS 'time', locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', 
+    (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', 
     (CASE 
       WHEN client_health.os_installed = 1 AND t1.clone_image IS NOT NULL THEN static_image_names.image_name_readable
       WHEN client_health.os_installed IS NULL AND t1.clone_image IS NOT NULL THEN 'No OS'
@@ -59,7 +59,7 @@ foreach ($db->get() as $key => $value) {
     $db->updateClientHealth($value["tagnumber"], "bios_updated",  $value["bios_updated"]);
     $db->updateClientHealth($value["tagnumber"], "os_name", $value["image_name_readable"]);
     $db->updateClientHealth($value["tagnumber"], "os_installed", $value["os_installed"]);
-    $db->updateClientHealth($value["tagnumber"], "time", $value["time"]);
+    $db->updateClientHealth($value["tagnumber"], "time", $time);
 
     $db->updateCheckout("checkout_bool", $value["checkout_bool"], $value["time"]);
 }
