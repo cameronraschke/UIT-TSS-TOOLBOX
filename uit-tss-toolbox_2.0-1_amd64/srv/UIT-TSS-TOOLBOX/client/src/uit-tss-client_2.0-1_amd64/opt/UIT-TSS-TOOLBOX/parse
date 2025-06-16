@@ -224,7 +224,7 @@ if ($arr[0] == "bios") {
     $key = $arr[2];
     $value = $arr[3];
 
-    $db->updateBIOS($tagNum, $key, $value);
+    $db->updateClientHealth($tagNum, $key, $value);
 }
 
 ?>
