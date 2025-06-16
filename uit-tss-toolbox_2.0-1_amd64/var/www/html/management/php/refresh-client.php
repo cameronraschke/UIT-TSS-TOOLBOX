@@ -3,6 +3,13 @@
 require('/var/www/html/management/php/include.php');
 $db = new db();
 
+if ($_GET["password"] !== "UHouston!") {
+  exit();
+}
+
+if (strFilter($_GET["tagnumber"]) === 1) {
+  exit();
+}
 
 unset($sql);
 $sql = "SELECT * FROM 
@@ -40,9 +47,9 @@ $sql = "SELECT * FROM
     LEFT JOIN (SELECT tagnumber, time, checkout_bool, checkout_date, return_date FROM (SELECT tagnumber, time, checkout_bool, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) s4 WHERE s4.row_nums = 1) t4
       ON locations.tagnumber = t4.tagnumber
     WHERE locations.tagnumber IS NOT NULL) table1
-    WHERE table1.row_nums = 1
+    WHERE table1.row_nums = 1 AND table1.tagnumber = :tagnumber
     ";
-$db->select($sql);
+$db->Pselect($sql, htmlspecialchars($_GET["tagnumber"]));
 foreach ($db->get() as $key => $value) {
     if (strFilter($value["client_health_tag"]) === 1) {
         $db->insertClientHealth($value["tagnumber"]);

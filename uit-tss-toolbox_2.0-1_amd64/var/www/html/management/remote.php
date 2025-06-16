@@ -207,7 +207,7 @@ unset($_POST['location-action']);
 <?php
 
 $db->select("SELECT remote.tagnumber, 
-        IF (remote.status LIKE 'fail%', 1, 0) AS 'failstatus', 
+        IF (remote.status LIKE 'fail%', 1, 0) AS 'failstatus', t1.domain, 
         DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'time_formatted', 
         DATE_FORMAT(remote.last_job_time, '%m/%d/%y, %r') AS 'last_job_time_formatted', 
         remote.job_queued, remote.status, t2.queue_position,
@@ -218,10 +218,12 @@ $db->select("SELECT remote.tagnumber,
         CONCAT(remote.cpu_temp, '°C') AS 'cpu_temp', CONCAT(remote.disk_temp, '°C') AS 'disk_temp', 
         CONCAT(remote.watts_now, ' Watts') AS 'watts_now', remote.job_active
     FROM remote 
+    LEFT JOIN (SELECT s1.time, s1.tagnumber, s1.domain FROM (SELECT time, tagnumber, domain, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM locations) s1 WHERE s1.row_nums = 1) t1
+        ON remote.tagnumber = t1.tagnumber
     LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
-    LEFT JOIN (SELECT * FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) t1) t2
+    LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) s2) t2
         ON remote.tagnumber = t2.tagnumber
-    WHERE present_bool = '1' 
+    WHERE remote.present_bool = 1
     ORDER BY 
         failstatus DESC, ISNULL(job_queued) ASC, job_active DESC, queue_position ASC,
         FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, 
