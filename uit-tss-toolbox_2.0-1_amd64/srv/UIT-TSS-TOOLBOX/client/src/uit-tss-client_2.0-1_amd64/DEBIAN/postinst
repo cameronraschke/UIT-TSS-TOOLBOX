@@ -1,5 +1,8 @@
 #!/bin/bash
 
+curl 'http://mickey.uit/client/certs/ca.crt' --output /usr/local/share/ca-certificates/ca.crt &>/dev/null
+update-ca-certificates
+
 /usr/bin/chmod 700 /usr/sbin/uit-*
 /usr/bin/chown root:root /usr/sbin/uit-*
 /usr/bin/chmod 750 /opt/UIT-TSS-TOOLBOX/ -R
