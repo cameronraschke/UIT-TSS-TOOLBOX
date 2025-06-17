@@ -26,7 +26,7 @@ openedWindow.addEventListener('DOMContentLoaded', () => {
 });
 
 async function refreshClients() {
-  const url = "/php/refresh-all-clients.php?password=UHouston!";
+  const url = "https://localhost:1411/php/refresh-all-clients.php?password=UHouston!";
   try {
     const response = await fetch(url);
     if (!response.ok) {
