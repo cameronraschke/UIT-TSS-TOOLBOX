@@ -36,7 +36,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
   </div>
 
   <div class='pagetitle' style="text-align:center;"><h1 style="margin:auto;">TechComm Laptop Management Site</h1></div>
-  <div class='pagetitle' style="text-align:center;"><h3 style="margin:auto;">Concact WEBMASTER_NAME for Assistance: <a href='mailto:WEBMASTER_EMAIL?subject=UIT-TC-MGMT%20Assistance%20with%20<?php echo $_SERVER["REQUEST_URI"]; ?>'>WEBMASTER_EMAIL</a></h3></div>
+  <div class='pagetitle' style="text-align:center;"><h3 style="margin:auto;">Contact WEBMASTER_NAME for Assistance: <a href='mailto:WEBMASTER_EMAIL?subject=UIT-TC-MGMT%20Assistance%20with%20<?php echo $_SERVER["REQUEST_URI"]; ?>'>WEBMASTER_EMAIL</a></h3></div>
   <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
 
   <div class='row'>
