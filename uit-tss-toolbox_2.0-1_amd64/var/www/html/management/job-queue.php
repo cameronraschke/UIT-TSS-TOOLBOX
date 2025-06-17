@@ -229,7 +229,7 @@ unset($_POST);
                 echo "<b>In Progress: </b>";
               }
             }
-            echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "'>" . htmlspecialchars($value["tagnumber"]) . "</a></b>";
+            echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b>";
             if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
               echo "<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>";
               // BIOS out of date, kernel not updated (x)
@@ -246,7 +246,7 @@ unset($_POST);
             ?>
 
             <td id='lastJobTime'><?php echo $value["last_job_time_formatted"]; ?></td>
-            <td id='presentLocation'><b><a href='locations.php?location=<?php echo htmlspecialchars($value["location_formatted"]); ?>'><?php echo htmlspecialchars($value["location_formatted"]); ?></a></b></td>
+            <td id='presentLocation'><b><a href='locations.php?location=<?php echo htmlspecialchars($value["location_formatted"]); ?>' target='_blank'><?php echo htmlspecialchars($value["location_formatted"]); ?></a></b></td>
             <td id='presentStatus'><?php echo htmlspecialchars($value["status"]); ?></td>
             <td id='osInstalled'><?php echo htmlspecialchars($value["os_installed_formatted"]); if ($value["os_installed"] === 1 && strFilter($value["domain"]) === 0) { echo "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>"; }?>
             </td>
@@ -288,13 +288,13 @@ unset($_POST);
       foreach ($db->get() as $key => $value) {
       echo "<tr>". PHP_EOL;
       echo "<td>" . PHP_EOL;
-      echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
+      echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
       echo "</td>";
       echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
       $db->Pselect("SELECT locationFormatting(location) AS 'location_formatted' FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
       if (arrFilter($db->get()) === 0) {
       foreach ($db->get() as $key => $value1) {
-      echo "<td id='absentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
+      echo "<td id='absentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "' target='_blank'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
       }
       } else {
       echo "<td><b>" . "<i>No Location</i>" . "</b></td>" . PHP_EOL;

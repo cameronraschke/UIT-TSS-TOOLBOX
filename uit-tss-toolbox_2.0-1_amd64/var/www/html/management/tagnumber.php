@@ -259,7 +259,7 @@ $sqlArr = $db->get();
                       echo "<p>Currently checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
                     }
                     ?>
-                    <p>"<?php echo trim(htmlspecialchars($value["location"])); ?>"</p><p><a href='#' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>
+                    <p>"<?php echo trim(htmlspecialchars($value["location"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>
                     <?php
                     if (strFilter($value["note"]) === 0) {
                       echo "<p><b>Note:</b> \"" . trim(htmlspecialchars($value["note"])) . "\"</p>";
@@ -270,13 +270,13 @@ $sqlArr = $db->get();
                 <tr>
                   <td>Department</td>
                   <td>
-                    <p>"<?php echo trim(htmlspecialchars($value["department_readable"])); ?>"</p><p><a href='#' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "<?php echo trim(htmlspecialchars($value["department"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>
+                    <p>"<?php echo trim(htmlspecialchars($value["department_readable"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "<?php echo trim(htmlspecialchars($value["department"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>
                   </td>
                 </tr>
                 <tr>
                   <td>AD Domain</td>
                   <td>
-                    <p>"<?php echo trim(htmlspecialchars($value["domain_readable"])); ?>"</p><p><a href='#' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "", "<?php echo trim(htmlspecialchars($value["domain"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Domain)</i></a></p>
+                    <p>"<?php echo trim(htmlspecialchars($value["domain_readable"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "", "<?php echo trim(htmlspecialchars($value["domain"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Domain)</i></a></p>
                   </td>
                 </tr>
                 <tr>
