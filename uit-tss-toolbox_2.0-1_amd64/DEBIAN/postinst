@@ -81,7 +81,7 @@ sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/locatio
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/api/endpoint.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/bash/uit-print-pdf
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/include.php
-sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
+sed --in-place "s/REPLACE_ME/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/js/include.js
 
 WEBMASTER_EMAIL=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g')
