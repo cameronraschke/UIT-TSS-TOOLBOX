@@ -889,7 +889,7 @@ if (count($_GET) > 1) {
       <input type="text" id="myInputLocations" onkeyup="myFunctionLocations()" placeholder="Search locations...">
     </div>
     <div>
-      <button onclick='refreshClients("UHouston!")'></button>
+      <button onclick='refreshClients()'></button>
     </div>
     <div class='styled-table'>
       <table id="myTable">

@@ -82,7 +82,7 @@ sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/api/end
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/bash/uit-print-pdf
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/include.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
-sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/refresh-all-clients.php
+sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/js/include.js
 
 EMAIL_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^EMAIL_ADDRESS=' | sed 's/EMAIL_ADDRESS=//g')
 IP_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^IP_ADDRESS=' | sed 's/IP_ADDRESS=//g')
