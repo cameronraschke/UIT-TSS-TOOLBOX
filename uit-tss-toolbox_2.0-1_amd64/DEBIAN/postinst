@@ -83,6 +83,7 @@ sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/bash/ui
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/include.php
 sed --in-place "s/REPLACE_ME/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/js/include.js
+sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/refresh-all-clients.php
 
 WEBMASTER_EMAIL=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g')
 WEBMASTER_NAME=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_NAME=' | sed 's/WEBMASTER_NAME=//g')
