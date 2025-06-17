@@ -26,6 +26,12 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
   <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   <link rel='stylesheet' type='text/css' href='/css/main.css' />
   <title>Home - UIT Client Management</title>
+  <style> 
+    select {
+      font-size: 2em; /* Adjust the font size as needed */
+      padding: 5px; /* Optional: Add padding for better appearance */
+    }
+  </style>
 </head>
 <body onload="fetchHTML();charCount();">
   <div class='menubar'>
@@ -40,7 +46,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
 
   <div class='row'>
     <div class='column'>
-      <div><h3 class='page-content'><a href="/job-queue.php">Remote Management and Live Overview</a></h3></div>
+      <div><h3 class='page-content'><a href="/job-queue.php">Job Queue and Live Client Overview</a></h3></div>
       <div><h3 class='page-content'><a href="/locations.php">Update and View Client Locations</a></h3></div>
       <div><h3 class='page-content'><a href="/checkouts.php">View Checkout History (WIP)</a></h3></div>
       <div><h3 class='page-content'><a href="/serverstats.php">Daily Reports</a></h3></div>
