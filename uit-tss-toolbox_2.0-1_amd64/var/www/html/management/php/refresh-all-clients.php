@@ -2,10 +2,6 @@
 require('/var/www/html/management/php/include.php');
 $db = new db();
 
-if ($_GET["password"] !== "UHouston!") {
-  exit();
-}
-
 unset($sql);
 $sql = "SELECT * FROM 
     (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', 

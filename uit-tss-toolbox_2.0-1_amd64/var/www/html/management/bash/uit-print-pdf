@@ -13,4 +13,4 @@ return_date="$6"
 
 wkhtmltopdf --quiet \
     --page-size Letter \
-    "https://localhost:1411/php/print-page.php?password=${password}&tagnumber=${tagnumber}&customer_name=${customer_name}&checkout_date=${checkout_date}&customer_psid=${customer_psid}&return_date=${return_date}" - | lp -o page-ranges=1
+    "https://localhost:1411/api/print-page.php?password=${password}&tagnumber=${tagnumber}&customer_name=${customer_name}&checkout_date=${checkout_date}&customer_psid=${customer_psid}&return_date=${return_date}" - | lp -o page-ranges=1

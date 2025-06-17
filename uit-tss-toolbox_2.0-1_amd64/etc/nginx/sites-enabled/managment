@@ -26,4 +26,9 @@ server {
             fastcgi_index index.php;
             include fastcgi.conf;
         }
+
+        location ~ /(php) {
+                deny all;
+                return 404;
+        }
 }

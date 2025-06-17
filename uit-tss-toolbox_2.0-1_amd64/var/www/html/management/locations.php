@@ -8,6 +8,10 @@ if ($_SESSION['authorized'] != "yes") {
 }
 
 $db = new db();
+
+if ($_GET["refresh"] == "1") {
+  include('/var/www/html/management/php/refresh-all-clients.php')
+}
 ?>
 
 
@@ -889,7 +893,7 @@ if (count($_GET) > 1) {
       <input type="text" id="myInputLocations" onkeyup="myFunctionLocations()" placeholder="Search locations...">
     </div>
     <div class='location-form'>
-      <button onclick='refreshClients()'>Refresh Clients</button>
+      <?php echo "<button onclick=\"window.location.href = '/locations.php?refresh=1&" . $_SERVER["QUERY_STRING"] . "';\">Refresh Clients</button>"; ?>
     </div>
     <div class='styled-table'>
       <table id="myTable">
