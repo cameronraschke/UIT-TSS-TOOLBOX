@@ -26,12 +26,6 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
   <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   <link rel='stylesheet' type='text/css' href='/css/main.css' />
   <title>Home - UIT Client Management</title>
-  <style> 
-    select {
-      font-size: 2em; /* Adjust the font size as needed */
-      padding: 5px; /* Optional: Add padding for better appearance */
-    }
-  </style>
 </head>
 <body onload="fetchHTML();charCount();">
   <div class='menubar'>
