@@ -477,8 +477,11 @@ $getStr = substr($getStr, 1);
           if ($_GET["ref"] == 1) {
             echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button>";
           } else {
-            //echo "<button type='button' id='closeButton'>Cancel</button>";
-            echo "<a href='locations.php?" . $getStr . "'>Cancel</a>";
+            if (isset($updatedHTMLConfirmation)) {
+              echo "<a href='locations.php?" . $getStr . "'>Update Another Client</a>";
+            } else {
+              echo "<a href='locations.php?" . $getStr . "'>Cancel</a>";
+            }
           }
           
           echo "<div>" . $updatedHTMLConfirmation . "</div>";
