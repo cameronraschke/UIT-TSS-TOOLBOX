@@ -888,8 +888,8 @@ if (count($_GET) > 1) {
       <input type="text" id="myInputSerial" onkeyup="myFunctionSerial()" placeholder="Search serial number...">
       <input type="text" id="myInputLocations" onkeyup="myFunctionLocations()" placeholder="Search locations...">
     </div>
-    <div>
-      <button onclick='refreshClients()'></button>
+    <div class='location-form'>
+      <button onclick='refreshClients()'>Refresh Clients</button>
     </div>
     <div class='styled-table'>
       <table id="myTable">
