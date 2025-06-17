@@ -17,6 +17,15 @@ table {
 
 button {
 	cursor:pointer;
+	font-size: 1em;
+}
+
+input {
+	font-size: 1em;
+}
+
+textarea {
+	font-size: 1em;
 }
 
 .styled-form {

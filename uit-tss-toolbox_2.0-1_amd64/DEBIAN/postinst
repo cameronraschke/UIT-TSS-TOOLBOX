@@ -84,6 +84,13 @@ sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/inc
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/js/include.js
 
+WEBMASTER_EMAIL=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g')
+WEBMASTER_NAME=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_NAME=' | sed 's/WEBMASTER_NAME=//g')
+
+sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /var/www/html/management/index.php
+sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /var/www/html/management/index.php
+
+
 EMAIL_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^EMAIL_ADDRESS=' | sed 's/EMAIL_ADDRESS=//g')
 IP_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^IP_ADDRESS=' | sed 's/IP_ADDRESS=//g')
 sed --in-place "s/^email.*/email = \"${EMAIL_ADDRESS}\"/g" /root/ssl/uit-web.cfg
