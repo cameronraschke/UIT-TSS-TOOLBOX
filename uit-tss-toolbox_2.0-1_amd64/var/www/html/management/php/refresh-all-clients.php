@@ -1,5 +1,4 @@
 <?php
-require('/var/www/html/management/php/include.php');
 $db = new db();
 
 unset($sql);
@@ -53,6 +52,6 @@ foreach ($db->get() as $key => $value) {
     $db->updateClientHealth($value["tagnumber"], "os_installed", $value["os_installed"]);
     $db->updateClientHealth($value["tagnumber"], "time", $time);
 
-    $db->updateCheckout("checkout_bool", $value["checkout_bool"], $value["time"]);
+    $db->updateCheckout("checkout_bool", $value["checkout_bool"], $value["checkout_time"]);
 }
 unset($value);

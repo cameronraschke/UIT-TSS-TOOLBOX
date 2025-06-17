@@ -10,7 +10,7 @@ if ($_SESSION['authorized'] != "yes") {
 $db = new db();
 
 if ($_GET["refresh"] == "1") {
-  include('/var/www/html/management/php/refresh-all-clients.php')
+  include('/var/www/html/management/php/refresh-all-clients.php');
 }
 ?>
 
