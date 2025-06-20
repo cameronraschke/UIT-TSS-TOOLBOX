@@ -163,6 +163,10 @@ if (isset($_POST['serial'])) {
   // } elseif (strFilter($_GET["ref"]) === 0 && $_GET["ref"] == 1) {
   //   header("Location: " . $_SERVER['REQUEST_URI']);
   // }
+
+  $newURL = preg_replace("/edit=1&tagnumber=[0-9]{6}/", "", $_SERVER["QUERY_STRING"]);
+  header("Location: /locations.php?" . $newURL);
+
   unset($_POST);
 }
 
