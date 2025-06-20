@@ -45,7 +45,7 @@ if ($_GET["redirect"] == "1") {
   }
 }
 
-if ($_GET["tagnumber"] == "") {
+if (isset($_GET["tagnumber"]) && $_GET["tagnumber"] == "") {
   $params = $_GET;
   $db->select("SELECT (MAX(tagnumber) + 1) AS 'tagnumber' FROM locations WHERE tagnumber like '999%'");
   foreach ($db->get() as $key => $value) {
@@ -502,7 +502,7 @@ $getStr = substr($getStr, 1);
           }
           echo "</form>";
           if ($_GET["ref"] == 1) {
-            echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button>";
+            echo "<button type='button' id='closeButton' onclick=\"window.location.href = '/tagnumber.php?tagnumber=" . $_GET["tagnumber"] . "'\">Go Back</button>";
           } else {
             echo "<button style='margin-left: 1em;' type='button' value='Cancel' onclick=\"window.location.href = '/locations.php?redirect=1&" . $_SERVER["QUERY_STRING"] . "'\">Cancel</button>" . PHP_EOL;
           }
@@ -1015,17 +1015,6 @@ unset($value1);
       </table>
     </div>
     <script>
-    function jsRedirect() {
-      <?php
-      if (strFilter($_GET["ref"]) === 1) {
-        if ($_GET["edit"] != 1) {
-          echo "window.location.href = '/locations.php';";
-        }
-      }
-      ?>
-    }
-
-
       function getCursorPos(myElement) {
         let startPosition = myElement.selectionStart;
         let endPosition = myElement.selectionEnd;
