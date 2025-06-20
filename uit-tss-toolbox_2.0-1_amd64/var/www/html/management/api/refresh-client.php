@@ -2,7 +2,7 @@
 require('/var/www/html/management/php/include.php');
 $db = new db();
 
-if ($_GET["password"] !== "UHouston!") {
+if ($_GET["password"] !== "DB_CLIENT_PASSWD") {
   exit();
 }
 
