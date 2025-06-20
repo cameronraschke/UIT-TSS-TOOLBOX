@@ -23,51 +23,34 @@ if ($_GET["refresh"] == "1") {
   $response = curl_exec($ch);
   curl_close($ch);
   if (strFilter($_SERVER["QUERY_STRING"]) === 0) {
-    $newURL = $_SERVER["QUERY_STRING"];
-    $newURL = str_replace("refresh=1&", "", $newURL);
-    $newURL = str_replace("refresh=1", "", $newURL);
-    header("Location: /locations.php?" . $newURL);
+    $params = $_GET;
+    unset($params["refresh"]);
+    $queryString = http_build_query($params);
+    header("Location: /locations.php?" . $queryString);
   } else {
     header("Location: /locations.php");
   }
 }
 
 if ($_GET["redirect"] == "1") {
-  $newUrl = $_SERVER["QUERY_STRING"];
-  $newURL = preg_replace("/redirect=1&/", "", $newURL);
-  $newURL = preg_replace("/edit=1&tagnumber=[0-9]{6}&/", "", $newURL);
-  $newURL = preg_replace("/edit=1&/", "", $newURL);
-  $newURL = preg_replace("/tagnumber=[0-9]{6}&/", "", $newURL);
-  $newURL = preg_replace("/tagnumber=[0-9]{6}/", "", $newURL);
-  header("Location: /locations.php?" . $newURL);
+  if (strFilter($_SERVER["QUERY_STRING"]) === 0) {
+    $params = $_GET;
+    unset($params["tagnumber"]);
+    unset($params["redirect"]);
+    unset($params["edit"]);
+    $queryString = http_build_query($params);
+    header("Location: /locations.php?" . $queryString);
+  } else {
+    header("Location: /locations.php");
+  }
 }
 ?>
 
 
 <?php
 //POST stuff
-/* if (isset($_POST["csv-sql"])) {
-  $filename = "csv-report-". $time . ".csv";
-  header('Content-Disposition: attachment; filename="filename.csv";'); 
-    $sql = unserialize($_POST["csv-sql"]);
-    $db->AssocSelect($sql);
-    $file = new SplTempFileObject();
-    foreach ($db->get() as $key => $value) {
-        $file->fputcsv($value);
-    }
-    unset($value);
-    $file->rewind();
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $filename . '";');
-    $file->fpassthru();
-    $file = null;
-    unset($filename);
-    unset($sql);
-    unset($value);
-} */
 
-
-if (isset($_POST['serial'])) {
+if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["location"])) {
   $updatedHTMLConfirmation = "<p>Updated <span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span></p>";
   $uuid = uniqid("location-", true);
   $tagNum = trim($_POST["tagnumber"]);
@@ -85,13 +68,6 @@ if (isset($_POST['serial'])) {
   $systemModel = trim($_POST["model"]);
   $systemManufacturer = trim($_POST["system_manufacturer"]);
 
-
-  //Insert jobstats data
-  //$db->insertJob($uuid);
-  //$db->updateJob("tagnumber", $tagNum, $uuid);
-  //$db->updateJob("system_serial", $serial, $uuid);
-  //$db->updateJob ("date", $date, $uuid);
-  //$db->updateJob ("time", $time, $uuid);
 
   // Insert & update system_data
   $db->Pselect("SELECT tagnumber FROM system_data WHERE tagnumber = :tag", array(':tag' => $tagNum));
@@ -129,8 +105,6 @@ if (isset($_POST['serial'])) {
   $db->updateLocation("department", $department, $time);
 
   //Insert checkout data
-  //$locationRegex = '/(checkout)|(check out)/i';
-  //if (preg_match($locationRegex, $location)) {
   if (strFilter($_POST["return_date"]) === 0 || strFilter($_POST["checkout_date"]) === 0) {
     $db->insertCheckout($time);
     $db->updateCheckout("tagnumber", $tagNum, $time);
@@ -176,19 +150,15 @@ if (isset($_POST['serial'])) {
 
     System("bash /var/www/html/management/bash/uit-print-pdf" . " " . escapeshellarg("UHouston!") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
   }
-  
-  // unset($_POST);
-  // if (strFilter($_GET["ref"]) === 1 || $_GET["ref"] != 1) {
-  //   header("Location: " . $_SERVER['REQUEST_URI']);
-  // } elseif (strFilter($_GET["ref"]) === 0 && $_GET["ref"] == 1) {
-  //   header("Location: " . $_SERVER['REQUEST_URI']);
-  // }
-
-  $newURL = preg_replace("/edit=1&tagnumber=[0-9]{6}/", "", $_SERVER["QUERY_STRING"]);
-  $newURL = preg_replace("/tagnumber=[0-9]{6}/", "", $newURL);
-  header("Location: /locations.php?" . $newURL);
 
   unset($_POST);
+
+  
+  $params = $_GET;
+  unset($params["tagnumber"]);
+  unset($params["edit"]);
+  $queryString = http_build_query($params);
+  header("Location: /locations.php?" . $queryString);
 }
 
 unset($getStr);
@@ -516,11 +486,7 @@ $getStr = substr($getStr, 1);
           if ($_GET["ref"] == 1) {
             echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button>";
           } else {
-            if (isset($updatedHTMLConfirmation)) {
-              echo "<a href='locations.php?" . $getStr . "'>Update Another Client</a>";
-            } else {
-              echo "<button style='margin-left: 1em;' type='button' value='Cancel' onclick=\"window.location.href = '/locations.php?redirect=1&" . $_SERVER["QUERY_STRING"] . "'\">Cancel</button>" . PHP_EOL;
-            }
+            echo "<button style='margin-left: 1em;' type='button' value='Cancel' onclick=\"window.location.href = '/locations.php?redirect=1&" . $_SERVER["QUERY_STRING"] . "'\">Cancel</button>" . PHP_EOL;
           }
           
           echo "<div>" . $updatedHTMLConfirmation . "</div>";
@@ -535,8 +501,14 @@ $getStr = substr($getStr, 1);
           <div class='location-form'>
             <form method='get'>
               <div><label for='tagnumber'>Enter a Tag Number: </label></div>
-                <input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>
-                <button type='submit' value='Continue'>Continue</button>
+                <input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>";
+
+                foreach($_GET as $name => $value) {
+                  $get_name = htmlspecialchars($name);
+                  $get_value = htmlspecialchars($value);
+                  echo "<input type='hidden' name='". $get_name . "' value='" . $get_value . "'>";
+                }
+                echo "<button type='submit' value='Continue'>Continue</button>
             </form>
         </div>";
       }
@@ -1031,9 +1003,7 @@ unset($value1);
         if ($_GET["edit"] != 1) {
           echo "window.location.href = '/locations.php';";
         }
-      } elseif ($_GET["ref"] == 1) {
-        echo "window.location.href = 'tagnumber.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "';";
-      } 
+      }
       ?>
     }
 
