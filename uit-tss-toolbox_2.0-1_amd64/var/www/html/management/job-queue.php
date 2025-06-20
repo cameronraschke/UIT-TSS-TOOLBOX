@@ -197,7 +197,7 @@ unset($_POST);
     <div class='pagetitle'>
       <h3>Clients Currently Present</h3>
     </div>
-      <div class='styled-table' style="width: auto; max-height: 70%; overflow:auto; margin: 1% 1% 0% 1%;">
+      <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 0% 1%;">
 
       <table id="myTable" width="100%">
         <thead>
@@ -273,7 +273,7 @@ unset($_POST);
       <th>Tag Number</th>
       <th>Last Heard</th>
       <th>Last Location</th>
-      <th>Current Status</th>
+      <th>Last Known Status</th>
       <th>Battery Charge</th>
       <th>CPU Temp</th>
       <th>Disk Temp</th>
@@ -332,7 +332,7 @@ unset($_POST);
     var i = 0;
     function fetchHTML() {
     const var1 = setTimeout(function() {
-    fetch('/queue-jobs.php')
+    fetch('/job-queue.php')
     .then((response) => {
     return response.text();
     })
