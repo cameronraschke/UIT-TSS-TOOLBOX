@@ -44,6 +44,24 @@ if ($_GET["redirect"] == "1") {
     header("Location: /locations.php");
   }
 }
+
+if ($_GET["tagnumber"] == "") {
+  $params = $_GET;
+  $db->select("SELECT (MAX(tagnumber) + 1) AS 'tagnumber' FROM locations WHERE tagnumber like '999%'");
+  foreach ($db->get() as $key => $value) {
+    $placeholderTag = $value["tagnumber"];
+    $db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $placeholderTag));
+    foreach ($db->get() as $key => $value1) {
+      if (strFilter($value1["tagnumber"]) === 1) {
+        header("Location: /locations.php");
+        exit();
+      }
+    }
+  }
+  $params["tagnumber"] = $placeholderTag;
+  $queryString = http_build_query($params);
+  header("Location: /locations.php?" . $queryString);
+}
 ?>
 
 
@@ -501,7 +519,7 @@ $getStr = substr($getStr, 1);
           <div class='location-form'>
             <form method='get'>
               <div><label for='tagnumber'>Enter a Tag Number: </label></div>
-                <input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus required>";
+                <input type='text' id='tagnumber' name='tagnumber' placeholder='Tag Number' autofocus>";
 
                 foreach($_GET as $name => $value) {
                   $get_name = htmlspecialchars($name);
