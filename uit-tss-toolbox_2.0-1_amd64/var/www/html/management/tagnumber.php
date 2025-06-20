@@ -1,19 +1,27 @@
 <?php
+if (strFilter($_GET["tagnumber"]) === 1) {
+  http_response_code(500);
+  exit();
+}
+
+if (preg_match('/^[0-9]{6}$/', $_GET["tagnumber"]) !== 1) {
+  http_response_code(500);
+  exit();
+}
+
 require('/var/www/html/management/header.php');
 require('/var/www/html/management/php/include.php');
 
+session_start();
+if ($_SESSION['authorized'] != "yes") {
+  exit();
+}
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "https://localhost:1411/api/refresh-client.php?password=DB_CLIENT_PASSWD?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "");
+curl_setopt($ch, CURLOPT_URL, "https://localhost:1411/api/refresh-client.php?password=DB_CLIENT_PASSWD&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
 curl_close($ch);
-
-
-session_start();
-if ($_SESSION['authorized'] != "yes") {
-  die();
-}
 
 $db = new db();
 ?>
