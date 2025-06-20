@@ -98,6 +98,7 @@ EMAIL_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^EMAIL_ADDRESS=' | sed 's/
 IP_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^IP_ADDRESS=' | sed 's/IP_ADDRESS=//g')
 sed --in-place "s/^email.*/email = \"${EMAIL_ADDRESS}\"/g" /root/ssl/uit-web.cfg
 sed --in-place "s/^ip_address = REPLACE_ME/ip_address = \"${IP_ADDRESS}\"/g" /root/ssl/uit-web.cfg
+sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /root/ssl/uit-web.cfg
 
 # Build client .deb package
 (cd /srv/UIT-TSS-TOOLBOX/client/src/
