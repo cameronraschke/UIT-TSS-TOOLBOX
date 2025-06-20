@@ -165,6 +165,7 @@ if (isset($_POST['serial'])) {
   // }
 
   $newURL = preg_replace("/edit=1&tagnumber=[0-9]{6}/", "", $_SERVER["QUERY_STRING"]);
+  $newURL = preg_replace("/tagnumber=[0-9]{6}/", "", $newURL);
   header("Location: /locations.php?" . $newURL);
 
   unset($_POST);
