@@ -22,8 +22,14 @@ if ($_GET["refresh"] == "1") {
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   $response = curl_exec($ch);
   curl_close($ch);
-  $newURL = str_replace("refresh=1", "", $_SERVER["QUERY_STRING"]);
-  header("Location: /locations.php?" . $newURL);
+  if (strFilter($_SERVER["QUERY_STRING"]) === 0) {
+    $newURL = $_SERVER["QUERY_STRING"];
+    $newURL = str_replace("refresh=1&", "", $newURL);
+    $newURL = str_replace("refresh=1", "", $newURL);
+    header("Location: /locations.php?" . $newURL);
+  } else {
+    header("Location: /locations.php");
+  }
 }
 
 if ($_GET["redirect"] == "1") {
@@ -921,7 +927,13 @@ if (count($_GET) > 1) {
       <input type="text" id="myInputLocations" onkeyup="myFunctionLocations()" placeholder="Search locations...">
     </div>
     <div class='location-form'>
-      <?php echo "<button onclick=\"window.location.href = '/locations.php?refresh=1&" . $_SERVER["QUERY_STRING"] . "';\">Refresh Clients</button>"; ?>
+      <?php
+      if (strFilter($_SERVER["QUERY_STRING"]) === 0) {
+        echo "<button onclick=\"window.location.href = '/locations.php?refresh=1&" . $_SERVER["QUERY_STRING"] . "';\">Refresh Clients</button>"; 
+      } else {
+        echo "<button onclick=\"window.location.href = '/locations.php?refresh=1';\">Refresh Clients</button>"; 
+      }
+      ?>
     </div>
     <div class='styled-table'>
       <table id="myTable">
