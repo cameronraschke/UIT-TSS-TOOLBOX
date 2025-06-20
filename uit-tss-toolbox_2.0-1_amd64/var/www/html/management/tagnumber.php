@@ -1,4 +1,7 @@
 <?php
+require('/var/www/html/management/header.php');
+require('/var/www/html/management/php/include.php');
+
 if (strFilter($_GET["tagnumber"]) === 1) {
   http_response_code(500);
   exit();
@@ -8,9 +11,6 @@ if (preg_match('/^[0-9]{6}$/', $_GET["tagnumber"]) !== 1) {
   http_response_code(500);
   exit();
 }
-
-require('/var/www/html/management/header.php');
-require('/var/www/html/management/php/include.php');
 
 session_start();
 if ($_SESSION['authorized'] != "yes") {
