@@ -21,6 +21,15 @@ if ($_GET["refresh"] == "1") {
   $newURL = str_replace("refresh=1", "", $_SERVER["QUERY_STRING"]);
   header("Location: /locations.php?" . $newURL);
 }
+
+if ($_GET["redirect"] == "1") {
+  $newURL = preg_replace("/redirect=1&/", "", $_SERVER["QUERY_STRING"]);
+  $newURL = preg_replace("/edit=1&tagnumber=[0-9]{6}&/", "", $newURL);
+  $newURL = preg_replace("/edit=1&/", "", $newURL);
+    $newURL = preg_replace("/tagnumber=[0-9]{6}&/", "", $newURL);
+  $newURL = preg_replace("/tagnumber=[0-9]{6}/", "", $newURL);
+  header("Location: /locations.php?" . $newURL);
+}
 ?>
 
 
@@ -492,20 +501,20 @@ $getStr = substr($getStr, 1);
           } else {
             echo "<button style='background-color:rgba(0, 179, 136, 0.30); margin-left: 1em;' type='submit' value='Update Location Data'>Update Location Data</button>" . PHP_EOL;
           }
+          echo "</form>";
           if ($_GET["ref"] == 1) {
             echo "<button type='button' id='closeButton' onclick='jsRedirect();'>Go Back</button>";
           } else {
             if (isset($updatedHTMLConfirmation)) {
               echo "<a href='locations.php?" . $getStr . "'>Update Another Client</a>";
             } else {
-              echo "<a href='locations.php?" . $getStr . "'>Cancel</a>";
+              echo "<button style='margin-left: 1em;' type='button' value='Cancel' onclick=\"window.location.href = '/locations.php?redirect=1&" . $_SERVER["QUERY_STRING"] . "'\">Cancel</button>" . PHP_EOL;
             }
           }
           
           echo "<div>" . $updatedHTMLConfirmation . "</div>";
 
           echo "</div>";
-          echo "</form>" . PHP_EOL;
           echo "</div>";
           }
           unset($formArr);
