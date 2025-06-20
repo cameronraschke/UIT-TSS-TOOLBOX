@@ -74,18 +74,18 @@ sed --in-place "s/UHouston!/${DB_ADMIN_PASSWD}/g" /usr/sbin/uit-backup
 sed --in-place "s/UHouston!/${DB_ADMIN_PASSWD}/g" /usr/sbin/uit-sql-report
 sed --in-place "s/UHouston!/${DB_CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/usr/sbin/uit-tss-client
 sed --in-place "s/UHouston!/${DB_CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
-# This is client password because clients don't know web password
+# This is the client password because clients don't know web password
 sed --in-place "s/DB_CLIENT_PASSWD/${DB_CLIENT_PASSWD}/g" /var/www/html/management/api/refresh-client.php
 sed --in-place "s/DB_CLIENT_PASSWD/${DB_CLIENT_PASSWD}/g" /var/www/html/management/tagnumber.php
+sed --in-place "s/DB_CLIENT_PASSWD/${DB_CLIENT_PASSWD}/g" /var/www/html/management/locations.php
 
 
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/locations.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/api/endpoint.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/bash/uit-print-pdf
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/include.php
-sed --in-place "s/REPLACE_ME/${DB_WEB_PASSWD}/g" /var/www/html/management/php/print-page.php
+sed --in-place "s/DB_WEB_PASSWD/${DB_WEB_PASSWD}/g" /var/www/html/management/api/print-page.php
 sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/js/include.js
-sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/refresh-all-clients.php
 
 WEBMASTER_EMAIL=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g')
 WEBMASTER_NAME=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_NAME=' | sed 's/WEBMASTER_NAME=//g')

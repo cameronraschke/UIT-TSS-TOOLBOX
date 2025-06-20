@@ -1,7 +1,7 @@
 <?php
 include("/var/www/html/management/php/include.php");
 
-if ($_GET["password"] !== "REPLACE_ME") {
+if ($_GET["password"] !== "DB_WEB_PASSWD") {
   exit();
 }
 

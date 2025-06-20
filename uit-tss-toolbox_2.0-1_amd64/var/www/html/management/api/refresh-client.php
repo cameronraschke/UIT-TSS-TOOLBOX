@@ -46,9 +46,14 @@ $sql = "SELECT * FROM
     LEFT JOIN (SELECT tagnumber, time, checkout_bool, checkout_date, return_date FROM (SELECT tagnumber, time, checkout_bool, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) s4 WHERE s4.row_nums = 1) t4
       ON locations.tagnumber = t4.tagnumber
     WHERE locations.tagnumber IS NOT NULL) table1
-    WHERE table1.row_nums = 1 AND table1.tagnumber = :tagnumber
+    WHERE table1.row_nums = 1 
     ";
-$db->Pselect($sql, array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
+    if ($_GET["tagnumber"] === "refresh-all") {
+      $db->select($sql);
+    } elseif (preg_match('/^[0-9]{6}$/', $_GET["tagnumber"]) !== 1) {
+      $sql .= "AND table1.tagnumber = :tagnumber ";
+      $db->Pselect($sql, array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
+    }
 foreach ($db->get() as $key => $value) {
     if (strFilter($value["client_health_tag"]) === 1) {
         $db->insertClientHealth($value["tagnumber"]);
