@@ -18,6 +18,8 @@ $db = new db();
 
 if ($_GET["refresh"] == "1") {
   include('/var/www/html/management/php/refresh-all-clients.php');
+  $newURL = str_replace("refresh=1", "", $_SERVER["QUERY_STRING"]);
+  header("Location: /locations.php?" . $newURL);
 }
 ?>
 
