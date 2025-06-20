@@ -14,16 +14,19 @@ unset($sql);
 $sql = "SELECT * FROM 
     (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', 
     (CASE 
-      WHEN client_health.os_installed = 1 AND t1.clone_image IS NOT NULL THEN static_image_names.image_name_readable
-      WHEN client_health.os_installed IS NULL AND t1.clone_image IS NOT NULL THEN 'No OS'
+      WHEN locations.disk_removed = 1 THEN 'No OS'
+      WHEN t2.clone_completed IS NULL AND t2.erase_completed = 1 THEN 'No OS'
+      WHEN t2.clone_completed = 1 THEN static_image_names.image_name_readable
       ELSE 'Unknown OS'
     END) AS 'image_name_readable', 
-    (CASE WHEN locations.disk_removed = 1 THEN 0
-    WHEN t4.checkout_bool = 1 THEN 1
-    WHEN t2.erase_completed = 1 AND t2.clone_completed IS NULL THEN 0
-    WHEN t2.erase_completed IS NULL AND t2.clone_completed = 1 THEN 1
-    WHEN t2.erase_completed = 1 AND t2.clone_completed = 1 THEN 1 
-    ELSE 1 END) AS 'os_installed',
+    (CASE 
+      WHEN locations.disk_removed = 1 THEN 0
+      WHEN t4.checkout_bool = 1 THEN 1
+      WHEN t2.erase_completed = 1 AND t2.clone_completed IS NULL THEN 0
+      WHEN t2.erase_completed IS NULL AND t2.clone_completed = 1 THEN 1
+      WHEN t2.erase_completed = 1 AND t2.clone_completed = 1 THEN 1 
+      ELSE 1 
+    END) AS 'os_installed',
     IF (t3.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated',
     t3.bios_version, 
     t4.time AS 'checkout_time',
@@ -48,24 +51,29 @@ $sql = "SELECT * FROM
     WHERE locations.tagnumber IS NOT NULL) table1
     WHERE table1.row_nums = 1 
     ";
-    if ($_GET["tagnumber"] === "refresh-all") {
-      $db->select($sql);
-    } elseif (preg_match('/^[0-9]{6}$/', $_GET["tagnumber"]) !== 1) {
-      $sql .= "AND table1.tagnumber = :tagnumber ";
-      $db->Pselect($sql, array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
-    }
+
+if ($_GET["tagnumber"] === "refresh-all") {
+  $db->select($sql);
+} elseif (preg_match('/^[0-9]{6}$/', $_GET["tagnumber"]) === 1) {
+  $sql .= "AND table1.tagnumber = :tagnumber ";
+  $db->Pselect($sql, array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
+} else {
+  http_response_code(500);
+  exit();
+}
+
 foreach ($db->get() as $key => $value) {
-    if (strFilter($value["client_health_tag"]) === 1) {
-        $db->insertClientHealth($value["tagnumber"]);
-    }
+  if (strFilter($value["client_health_tag"]) === 1) {
+    $db->insertClientHealth($value["tagnumber"]);
+  }
 
-    $db->updateClientHealth($value["tagnumber"], "system_serial",  $value["system_serial"]);
-    $db->updateClientHealth($value["tagnumber"], "bios_version",  $value["bios_version"]);
-    $db->updateClientHealth($value["tagnumber"], "bios_updated",  $value["bios_updated"]);
-    $db->updateClientHealth($value["tagnumber"], "os_name", $value["image_name_readable"]);
-    $db->updateClientHealth($value["tagnumber"], "os_installed", $value["os_installed"]);
-    $db->updateClientHealth($value["tagnumber"], "time", $time);
+  $db->updateClientHealth($value["tagnumber"], "system_serial",  $value["system_serial"]);
+  $db->updateClientHealth($value["tagnumber"], "bios_version",  $value["bios_version"]);
+  $db->updateClientHealth($value["tagnumber"], "bios_updated",  $value["bios_updated"]);
+  $db->updateClientHealth($value["tagnumber"], "os_name", $value["image_name_readable"]);
+  $db->updateClientHealth($value["tagnumber"], "os_installed", $value["os_installed"]);
+  $db->updateClientHealth($value["tagnumber"], "time", $time);
 
-    $db->updateCheckout("checkout_bool", $value["checkout_bool"], $value["checkout_time"]);
+  $db->updateCheckout("checkout_bool", $value["checkout_bool"], $value["checkout_time"]);
 }
 unset($value);
