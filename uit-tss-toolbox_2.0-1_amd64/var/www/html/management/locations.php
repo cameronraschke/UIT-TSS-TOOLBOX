@@ -248,7 +248,7 @@ $getStr = substr($getStr, 1);
           <form method='post'>
             <div class='row'>
               <div class='column'>
-                <div><label for='tagnumber'>Tag Number* - <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "'>Open client details</a></label></div>
+                <div><label for='tagnumber'>Tag Number* - <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img>Open client details</a></label></div>
                 <input type='text' style='background-color:#888B8D;' id='tagnumber' placeholder='Enter tag number...' name='tagnumber' value='" . trim(htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE)) . "' readonly required>
               </div>";
             // Line above this closes tag number data div
