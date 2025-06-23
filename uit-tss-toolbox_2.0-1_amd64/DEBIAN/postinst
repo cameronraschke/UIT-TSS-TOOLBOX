@@ -48,6 +48,7 @@ mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
 
 # Insert include.php with modifications for the clients.
 cat /var/www/html/management/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
+sed --in-place 's/WEB_SVC_PASSWD/CLIENT_PASSWD/g' /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
 
 /sbin/uit-passwd
 
