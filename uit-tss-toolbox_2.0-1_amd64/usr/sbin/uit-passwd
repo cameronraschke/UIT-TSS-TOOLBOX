@@ -20,7 +20,7 @@ echo "  --Web Service Password"
 WEB_SVC_PASSWD=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}')
 
 # All Users for the Website
-echo "  -Web User Password"
+echo "  --Web User Password"
 WEB_USER_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^WEB_USER_PASSWD=' | sed 's/WEB_USER_PASSWD=//g')
 
 # Webmaster Email
