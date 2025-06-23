@@ -566,7 +566,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
 
 // Location filter
 if (strFilter($_GET["location"]) === 0) {
-  if ($_GET["not-location"] == "1") {
+  if ($_GET["location-bool"] == "1") {
     $sql .= "AND NOT locations.location = :location ";
     $sqlArr[":location"] = $_GET["location"];
   } else {
@@ -577,7 +577,7 @@ if (strFilter($_GET["location"]) === 0) {
 
 // department filter
 if (strFilter($_GET["department"]) === 0) {
-  if ($_GET["not-department"] == "1") {
+  if ($_GET["department-bool"] == "1") {
     $sql .= "AND (NOT locations.department = :department OR locations.department IS NULL) ";
     $sqlArr[":department"] = $_GET["department"];
   } else {
@@ -588,7 +588,7 @@ if (strFilter($_GET["department"]) === 0) {
 
 // domain filter
 if (strFilter($_GET["domain"]) === 0) {
-  if ($_GET["not-domain"] == "1") {
+  if ($_GET["domain-bool"] == "1") {
     $sql .= "AND (NOT locations.domain = :domain OR locations.domain IS NULL) ";
     $sqlArr[":domain"] = $_GET["domain"];
   } else {
@@ -599,7 +599,7 @@ if (strFilter($_GET["domain"]) === 0) {
 
 // System model filter
 if (strFilter($_GET["system_model"]) === 0) {
-  if ($_GET["not-system_model"] == "1") {
+  if ($_GET["system_model-bool"] == "1") {
     $sql .= "AND NOT system_data.system_model = :systemmodel ";
     $sqlArr[":systemmodel"] = $_GET["system_model"];
   } else {
@@ -714,7 +714,7 @@ if (arrFilter($db->get()) === 0) {
 
           <div>
             <label for="location-filter">
-              <input type="checkbox" id="not-location" name="not-location" value="1"> NOT
+              <input type="checkbox" id="location-bool" name="location-bool" value="1"> NOT
             </label>
             <select name="location" id="location-filter">
               <option value="">--Filter By Location--</option>
@@ -732,7 +732,7 @@ if (arrFilter($db->get()) === 0) {
 
           <div>
             <label for="department">
-              <input type="checkbox" id="not-department" name="not-department" value="1"> NOT
+              <input type="checkbox" id="department-bool" name="department-bool" value="1"> NOT
             </label>
             <select id="department" name="department">
             <option value=''>--Filter By Department--</option>
@@ -757,7 +757,7 @@ if (arrFilter($db->get()) === 0) {
 
 					<div>
             <label for="domain">
-              <input type="checkbox" id="not-domain" name="not-domain" value="1"> NOT
+              <input type="checkbox" id="domain-bool" name="domain-bool" value="1"> NOT
             </label>
             <select id="domain" name="domain">
             <option value=''>--Filter By AD Domain--</option>
@@ -781,7 +781,7 @@ if (arrFilter($db->get()) === 0) {
 
           <div>
             <label for="system_model">
-              <input type="checkbox" id="not-system_model" name="not-system_model" value="1"> NOT
+              <input type="checkbox" id="system_model-bool" name="system_model-bool" value="1"> NOT
             </label>
             <select id="system_model" name="system_model">
               <option value=''>--Filter By Model--</option>
