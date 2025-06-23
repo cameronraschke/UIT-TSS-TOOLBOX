@@ -1,7 +1,7 @@
 <?php
 require("/var/www/html/management/php/include.php");
 
-if ($_POST["password"] !== "UHouston!") {
+if ($_POST["password"] !== "WEB_SVC_PASSWD") {
   exit();
 }
 

@@ -7,7 +7,7 @@ fi
 
 if [[ ! -f /home/cameron/.uit-passwd ]]; then
   echo "/home/cameron/.uit-passwd is missing. Exiting..."
-  echo "Make sure EMAIL_ADDRESS, IP_ADDRESS, DB_ADMIN_PASSWD, DB_CLIENT_PASSWORD, DB_WEB_USER_PASSWD, and DB_WEB_PASSWORD are all set."
+  echo "Make sure all variables in .uit-password are set."
   exit 1
 fi
 

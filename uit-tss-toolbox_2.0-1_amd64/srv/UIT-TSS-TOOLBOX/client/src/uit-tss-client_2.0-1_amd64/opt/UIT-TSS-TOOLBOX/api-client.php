@@ -20,7 +20,7 @@ $notnull = explode(', ', htmlspecialchars($arr[5]));
 
 $postData = http_build_query(
   array(
-    'password' => 'UHouston!',
+    'password' => 'CLIENT_PASSWD',
     'tagnumber' => $tagNum,
     'table' => $table,
     'queryType' => $queryType,

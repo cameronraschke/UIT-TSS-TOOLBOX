@@ -3,6 +3,10 @@
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
 
+/usr/bin/chmod 700 /root/uit-ssl
+/usr/bin/chmod 700 /root/uit-ssl/update-certs
+/usr/bin/chown root:root /root/uit-ssl -R
+
 if [[ ! -d /srv/nfs/UIT-TSS-TOOLBOX/images ]]; then
     mkdir -p /srv/nfs/UIT-TSS-TOOLBOX/images
 fi
@@ -30,16 +34,9 @@ fi
 if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/iso/ ]]; then
     mkdir /srv/UIT-TSS-TOOLBOX/client/iso/
 fi
-if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/netboot/ ]]; then
-    mkdir /srv/UIT-TSS-TOOLBOX/client/netboot/
-fi
-if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/netboot/tftp ]]; then
-    mkdir /srv/UIT-TSS-TOOLBOX/client/netboot/tftp
-fi
 
 /usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/src -R
 /usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/pkg -R
-/usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/netboot/ -R
 # Find command w/ directory is different regex
 find /srv/UIT-TSS-TOOLBOX/ -type d -not -path "*/iso*" -exec chmod 755 {} \;
 find /srv/UIT-TSS-TOOLBOX/ -type f -not -path "*/iso/*" -exec chmod 664 {} \;
@@ -49,56 +46,10 @@ echo -e "\n" >> /etc/cron.d/uit-cron
 mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-procedures.sql
 mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
 
-# Set passwords for various services
-DB_ADMIN_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g')
-if [[ -f /home/cameron/.my.cnf ]]; then 
-    DB_ADMIN_PASSWD=$(cat /home/cameron/.my.cnf | grep '^password=' | sed 's/password=//g' | head -n1)
-fi
-
-DB_CLIENT_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g')
-
-DB_WEB_PASSWD=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}')
-
-DB_WEB_USER_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_WEB_USER_PASSWD=' | sed 's/DB_WEB_USER_PASSWD=//g')
-
-mysql --database='laptopDB' --execute="ALTER USER 'cameron'@'localhost' IDENTIFIED BY '${DB_ADMIN_PASSWD}';"
-mysql --database='laptopDB' --execute="ALTER USER 'uitclient'@'10.0.0.0/255.255.0.0' IDENTIFIED BY '${DB_CLIENT_PASSWD}';"
-mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIED BY '${DB_WEB_PASSWD}';"
-mysql --database='laptopDB' --execute="UPDATE logins SET username = MD5(username);"
-mysql --database='laptopDB' --execute="UPDATE logins SET password = MD5('${DB_WEB_USER_PASSWD}');"
-
-# Insert include.php with modifications to the clients.
+# Insert include.php with modifications for the clients.
 cat /var/www/html/management/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
 
-sed --in-place "s/UHouston!/${DB_ADMIN_PASSWD}/g" /usr/sbin/uit-backup
-sed --in-place "s/UHouston!/${DB_ADMIN_PASSWD}/g" /usr/sbin/uit-sql-report
-sed --in-place "s/UHouston!/${DB_CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/usr/sbin/uit-tss-client
-sed --in-place "s/UHouston!/${DB_CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
-# This is the client password because clients don't know web password
-sed --in-place "s/DB_CLIENT_PASSWD/${DB_CLIENT_PASSWD}/g" /var/www/html/management/api/refresh-client.php
-sed --in-place "s/DB_CLIENT_PASSWD/${DB_CLIENT_PASSWD}/g" /var/www/html/management/tagnumber.php
-sed --in-place "s/DB_CLIENT_PASSWD/${DB_CLIENT_PASSWD}/g" /var/www/html/management/locations.php
-
-
-sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/locations.php
-sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/api/endpoint.php
-sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/bash/uit-print-pdf
-sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/php/include.php
-sed --in-place "s/DB_WEB_PASSWD/${DB_WEB_PASSWD}/g" /var/www/html/management/api/print-page.php
-sed --in-place "s/UHouston!/${DB_WEB_PASSWD}/g" /var/www/html/management/js/include.js
-
-WEBMASTER_EMAIL=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g')
-WEBMASTER_NAME=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_NAME=' | sed 's/WEBMASTER_NAME=//g')
-
-sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /var/www/html/management/index.php
-sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /var/www/html/management/index.php
-
-
-EMAIL_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^EMAIL_ADDRESS=' | sed 's/EMAIL_ADDRESS=//g')
-IP_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^IP_ADDRESS=' | sed 's/IP_ADDRESS=//g')
-sed --in-place "s/^email.*/email = \"${EMAIL_ADDRESS}\"/g" /root/ssl/uit-web.cfg
-sed --in-place "s/^ip_address = REPLACE_ME/ip_address = \"${IP_ADDRESS}\"/g" /root/ssl/uit-web.cfg
-sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /root/ssl/uit-web.cfg
+/sbin/uit-passwd
 
 # Build client .deb package
 (cd /srv/UIT-TSS-TOOLBOX/client/src/
@@ -108,9 +59,6 @@ chmod 755 /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/post
 dpkg-deb --build --root-owner-group /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64 
 mv -v /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64.deb /srv/UIT-TSS-TOOLBOX/client/pkg/uit-tss-client_2.0-1_amd64.deb 
 )
-
-chown dnsmasq:root /srv/UIT-TSS-TOOLBOX/client/netboot/tftp -R
-find /srv/UIT-TSS-TOOLBOX/client/netboot/tftp -type f -exec chmod 644 {} \;
 
 if [[ ! -f /var/www/html/management/favicon.ico ]]; then
     wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico

@@ -18,7 +18,7 @@ $db = new db();
 
 if ($_GET["refresh"] == "1") {
   $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, "https://localhost:1411/api/refresh-client.php?password=DB_CLIENT_PASSWD&tagnumber=refresh-all");
+  curl_setopt($ch, CURLOPT_URL, "https://localhost:1411/api/refresh-client.php?password=CLIENT_PASSWD&tagnumber=refresh-all");
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   $response = curl_exec($ch);
   curl_close($ch);
@@ -166,7 +166,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     }
     unset($value1);
 
-    System("bash /var/www/html/management/bash/uit-print-pdf" . " " . escapeshellarg("UHouston!") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
+    System("bash /var/www/html/management/bash/uit-print-pdf" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
   }
 
   unset($_POST);

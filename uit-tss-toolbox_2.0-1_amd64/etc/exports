@@ -1,2 +1,1 @@
 /srv/nfs/UIT-TSS-TOOLBOX/ 10.0.0.0/16(rw,sync,no_subtree_check)
-/srv/UIT-TSS-TOOLBOX/client/netboot/nfs 10.0.0.0/16(ro,async,no_root_squash,no_subtree_check)

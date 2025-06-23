@@ -4,5 +4,4 @@ Section: Utilities
 Priority: optional
 Architecture: amd64
 Maintainer: Cameron Raschke <caraschke@uh.edu>
-Description: Server software for cloning and securely erasing 
- computers.
+Description: Software for inventory management, remote job management, disk cloning, and securely erasing disks.

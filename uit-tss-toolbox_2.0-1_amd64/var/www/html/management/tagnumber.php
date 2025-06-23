@@ -18,7 +18,7 @@ if ($_SESSION['authorized'] != "yes") {
 }
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "https://localhost:1411/api/refresh-client.php?password=DB_CLIENT_PASSWD&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "");
+curl_setopt($ch, CURLOPT_URL, "https://localhost:1411/api/refresh-client.php?password=CLIENT_PASSWD&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
 curl_close($ch);
