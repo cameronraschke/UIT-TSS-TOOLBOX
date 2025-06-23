@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ "$EUID" > 0 ]]; then 
+  echo "Please run as root. Exiting..."
+  exit 1
+fi
+
 # Set passwords for various services
 echo "Updating Passwords..."
 
@@ -20,8 +25,14 @@ echo "  --Web Service Password"
 WEB_SVC_PASSWD=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}')
 
 # All Users for the Website
-echo "  --Web User Password"
+echo "  --Web User Username and Password"
+mysql --database='laptopDB' --execute="DELETE FROM logins;"
 WEB_USER_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^WEB_USER_PASSWD=' | sed 's/WEB_USER_PASSWD=//g')
+for i in $(cat /home/cameron/.uit-passwd | grep '^WEB_USERS=' | sed 's/WEB_USERS=//g'); do
+        mysql --database='laptopDB' --execute="INSERT INTO logins (username, name, password) VALUES (${i},MD5('${WEB_USER_PASSWD}'));"
+done
+mysql --database='laptopDB' --execute="UPDATE logins SET username = MD5(username);"
+
 
 # Webmaster Email
 echo "  --Webmaster Email"
@@ -35,13 +46,11 @@ WEBMASTER_NAME=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_NAME=' | sed '
 echo "  --Server IP Address"
 IP_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^IP_ADDRESS=' | sed 's/IP_ADDRESS=//g')
 
-
 # MySQL Users
 mysql --database='laptopDB' --execute="ALTER USER 'cameron'@'localhost' IDENTIFIED BY '${DB_ADMIN_PASSWD}';"
 mysql --database='laptopDB' --execute="ALTER USER 'uitclient'@'10.0.0.0/255.255.0.0' IDENTIFIED BY '${CLIENT_PASSWD}';"
 mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIED BY '${WEB_SVC_PASSWD}';"
-mysql --database='laptopDB' --execute="UPDATE logins SET username = MD5(username);"
-mysql --database='laptopDB' --execute="UPDATE logins SET password = MD5('${WEB_USER_PASSWD}');"
+
 
 # Client-side Bash Scripts
 sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/usr/sbin/uit-tss-client

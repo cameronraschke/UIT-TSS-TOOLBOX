@@ -340,22 +340,6 @@ CREATE TABLE IF NOT EXISTS logins (
     name VARCHAR(36) NOT NULL
 );
 
-INSERT INTO logins
-    (
-        username,
-        password,
-        name
-    )
-    VALUES
-    ('caraschk', 'UHouston!', 'Cameron'),
-    ('mrharvey', 'UHouston!', 'Matthew'),
-    ('ama', 'UHouston!', 'Amy'),
-    ('kvu', 'UHouston!', 'Kevin'),
-    ('rcarroyo', 'UHouston!', 'Rafael'),
-    ('isdavis', 'UHouston!', 'Ivey'),
-    ('hdtrin2', 'UHouston!', 'Haley'),
-    ('andrew', 'UHouston!', 'Andrew');
-
 
 CREATE TABLE IF NOT EXISTS system_data (
     tagnumber VARCHAR(8) NOT NULL PRIMARY KEY,
