@@ -574,7 +574,7 @@ class db {
 
   public function updateCheckout ($key, $value, $time) {
     if (strFilter($key) === 0 && strFilter($time) === 0) {
-      if ($this->check_tables_cols("checkout", $key) === 0) {
+      if ($this->check_tables_cols("checkouts", $key) === 0) {
         $sql = "UPDATE checkouts SET $key = :value WHERE time = :time";
         $stmt = $this->pdo->prepare($sql);
 
