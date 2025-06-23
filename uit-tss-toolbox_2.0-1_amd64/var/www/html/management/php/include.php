@@ -561,7 +561,7 @@ class db {
   // CHECKOUT table
   public function insertCheckout ($time) {
     if (strFilter($time) == 0) {
-      $sql = "INSERT INTO checkout (time) VALUES (:time)";
+      $sql = "INSERT INTO checkouts (time) VALUES (:time)";
       $stmt = $this->pdo->prepare($sql);
 
       $stmt->bindParam(':time', $time, PDO::PARAM_STR);
@@ -575,7 +575,7 @@ class db {
   public function updateCheckout ($key, $value, $time) {
     if (strFilter($key) === 0 && strFilter($time) === 0) {
       if ($this->check_tables_cols("checkout", $key) === 0) {
-        $sql = "UPDATE checkout SET $key = :value WHERE time = :time";
+        $sql = "UPDATE checkouts SET $key = :value WHERE time = :time";
         $stmt = $this->pdo->prepare($sql);
 
         if (strFilter($value) === 0) {
