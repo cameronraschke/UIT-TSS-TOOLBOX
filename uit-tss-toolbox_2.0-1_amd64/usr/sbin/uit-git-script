@@ -11,7 +11,12 @@ if [[ ! -f /home/cameron/.uit-passwd ]]; then
   exit 1
 fi
 
-git clone https://github.com/cameronraschke/UIT-TSS-TOOLBOX /tmp/UIT-TSS-TOOLBOX/
+read -p "Download from GitHub? [Y/n]: " gitBool
+
+if [[ -z $gitBool || $gitBool == "y" || $gitBool == "Y" ]]; then
+  rm -r /tmp/UIT-TSS-TOOLBOX/
+  git clone https://github.com/cameronraschke/UIT-TSS-TOOLBOX /tmp/UIT-TSS-TOOLBOX/
+fi
 
 if [[ -d /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64 ]]; then
   dpkg --purge uit-toolbox
@@ -21,4 +26,3 @@ chmod 755 /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64/DEBIAN/postinst
 dpkg-deb --build /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64/ /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64.deb
 dpkg --install /tmp/UIT-TSS-TOOLBOX/uit-tss-toolbox_2.0-1_amd64.deb
 
-rm -r /tmp/UIT-TSS-TOOLBOX/
