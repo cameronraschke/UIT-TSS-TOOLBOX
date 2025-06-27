@@ -1,7 +1,7 @@
 <?php
 include("/var/www/html/management/php/include.php");
 
-if ($_GET["password"] !== "WEB_PASSWD") {
+if ($_GET["password"] !== "WEB_SVC_PASSWD") {
   exit();
 }
 
