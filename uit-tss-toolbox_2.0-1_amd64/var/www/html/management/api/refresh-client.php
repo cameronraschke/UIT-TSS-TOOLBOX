@@ -11,7 +11,8 @@ if (strFilter($_GET["tagnumber"]) === 1) {
 }
 
 unset($sql);
-$sql = "SELECT * FROM 
+$sql = "SELECT tagnumber, client_health_tag, system_serial, bios_version, bios_updated, image_name_readable, os_installed,
+   checkout_time, checkout_bool, image_time FROM 
     (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', 
     (CASE 
       WHEN locations.disk_removed = 1 THEN 'No OS'
@@ -27,6 +28,7 @@ $sql = "SELECT * FROM
       WHEN t2.erase_completed = 1 AND t2.clone_completed = 1 THEN 1 
       ELSE 1 
     END) AS 'os_installed',
+    t1.time AS 'image_time',
     IF (t3.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated',
     t3.bios_version, 
     t4.time AS 'checkout_time',
@@ -38,14 +40,14 @@ $sql = "SELECT * FROM
     FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
     LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
-    LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
+    LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model
+    LEFT JOIN (SELECT time, tagnumber, clone_image, row_nums FROM (SELECT time, tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
       ON locations.tagnumber = t1.tagnumber
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
     LEFT JOIN (SELECT tagnumber, erase_completed, clone_completed FROM (SELECT tagnumber, erase_completed, clone_completed, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND (erase_completed = 1 OR clone_completed = 1)) s2 WHERE s2.row_nums = 1) t2
       ON locations.tagnumber = t2.tagnumber
     LEFT JOIN (SELECT tagnumber, bios_version, row_nums FROM (SELECT tagnumber, bios_version, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND bios_version IS NOT NULL) s3 WHERE s3.row_nums = 1) t3
       ON locations.tagnumber = t3.tagnumber
-    LEFT JOIN static_bios_stats ON t3.bios_version = static_bios_stats.bios_version
     LEFT JOIN (SELECT tagnumber, time, checkout_bool, checkout_date, return_date FROM (SELECT tagnumber, time, checkout_bool, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) s4 WHERE s4.row_nums = 1) t4
       ON locations.tagnumber = t4.tagnumber
     WHERE locations.tagnumber IS NOT NULL) table1

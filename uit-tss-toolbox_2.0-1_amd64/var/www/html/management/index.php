@@ -41,8 +41,8 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
 
   <div class='row'>
     <div class='column'>
-      <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/job-queue.php" target='_blank'>Job Queue and Live Client Overview</a></h3></div>
-      <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/locations.php" target='_blank'>Update and View Client Locations</a></h3></div>
+      <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/job-queue.php" target='_blank'>Job Queue</a></h3></div>
+      <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/locations.php" target='_blank'>Update & View Client Info</a></h3></div>
       <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/checkouts.php" target='_blank'>View Checkout History (WIP)</a></h3></div>
       <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/serverstats.php" target='_blank'>Daily Reports</a></h3></div>
 
