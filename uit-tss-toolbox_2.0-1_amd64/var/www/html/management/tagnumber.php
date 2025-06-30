@@ -179,7 +179,7 @@ $sqlArr = $db->get();
         <div class='location-form'>
 
         <div name='curJob' id='curJob'>
-          <p>Current Status: </p>
+          <p>Real-time Job Status: </p>
           <?php
           if (arrFilter($sqlArr) === 0) {
             foreach ($sqlArr as $key => $value) {
@@ -271,8 +271,13 @@ $sqlArr = $db->get();
                   <td>Current Location</td>
                   <td>
                     <?php
+                    if ($value["locations_status"] === 1) {
+                      echo "<p><b style='color: #C8102E'>[REPORTED BROKEN]</b> on " . htmlspecialchars($value["location_time_formatted"]) . "</b></p>";
+                    }
+                    ?>
+                    <?php
                     if ($value["checkout_bool"] === 1) {
-                      echo "<p>Currently checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
+                      echo "<p><b>[CHECKOUT]</b> - Checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
                     }
                     ?>
                     <p>"<?php echo trim(htmlspecialchars($value["location"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>
