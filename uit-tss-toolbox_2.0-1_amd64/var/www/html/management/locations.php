@@ -197,9 +197,9 @@ $getStr = substr($getStr, 1);
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <?php
     if (strFilter($_GET["tagnumber"]) === 0) {
-      echo "<title>Update Client " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>"
+      echo "<title>Update Client " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>";
     } else {
-      echo "<title>Client Data - UIT Client Mgmt</title>"
+      echo "<title>Client Data - UIT Client Mgmt</title>";
     }
     
     ?>
