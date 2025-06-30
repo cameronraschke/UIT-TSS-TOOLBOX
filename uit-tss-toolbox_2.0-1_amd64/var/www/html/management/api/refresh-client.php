@@ -32,8 +32,10 @@ $sql = "SELECT tagnumber, client_health_tag, system_serial, bios_version, bios_u
     IF (t3.bios_version = static_bios_stats.bios_version, 1, 0) AS 'bios_updated',
     t3.bios_version, 
     t4.time AS 'checkout_time',
-    (CASE WHEN t4.checkout_date IS NOT NULL AND (t4.return_date IS NULL OR DATE(NOW()) <= t4.return_date) THEN 1
-      WHEN t4.checkout_date IS NOT NULL AND (t4.return_date IS NULL OR DATE(NOW()) >= t4.return_date) THEN 0
+    (CASE 
+      WHEN t4.checkout_date IS NOT NULL AND t4.checkout_date > DATE(NOW()) THEN 0
+      WHEN t4.checkout_date IS NOT NULL AND t4.checkout_date <= DATE(NOW()) AND (t4.return_date IS NULL OR DATE(NOW()) < t4.return_date) THEN 1
+      WHEN t4.checkout_date IS NOT NULL AND t4.checkout_date <= DATE(NOW()) AND (t4.return_date IS NULL OR DATE(NOW()) >= t4.return_date) THEN 0
       ELSE 0 
     END) AS 'checkout_bool', 
     ROW_NUMBER() OVER (PARTITION BY locations.tagnumber ORDER BY locations.time DESC) AS 'row_nums'

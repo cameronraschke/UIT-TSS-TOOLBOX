@@ -195,7 +195,7 @@ unset($_POST);
         FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, kernel_updated DESC, bios_updated DESC, last_job_time DESC");
     ?>
     <div class='pagetitle'>
-      <h3>Clients Currently Present</h3>
+      <h3>Online Clients</h3>
     </div>
       <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 0% 1%;">
 
@@ -264,7 +264,7 @@ unset($_POST);
     </div>
 
     <div class='pagetitle'>
-      <h3>Clients <u>NOT</u> Currently Present</h3>
+      <h3>Offline Clients</h3>
     </div>
     <div class='styled-table' style="width: auto; max-height: 70%; overflow:auto; margin: 1% 1% 0% 1%;">
       <table id="myTable1" width="100%">

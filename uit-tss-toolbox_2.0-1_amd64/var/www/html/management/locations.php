@@ -195,7 +195,14 @@ $getStr = substr($getStr, 1);
   <head>
     <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
-    <title>Locations - UIT Client Mgmt</title>
+    <?php
+    if (strFilter($_GET["tagnumber"]) === 0) {
+      echo "<title>Update Client " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>"
+    } else {
+      echo "<title>Client Data - UIT Client Mgmt</title>"
+    }
+    
+    ?>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <script src="/js/include.js"></script>
   </head>
