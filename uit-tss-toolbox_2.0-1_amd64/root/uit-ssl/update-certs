@@ -12,8 +12,8 @@ chmod 600 /etc/ssl/private/ca.key
 
 ## Only uncomment if creating new certs for web server
 certtool --generate-privkey --outfile /etc/ssl/private/uit-web.key
-certtool --generate-request --load-privkey /etc/ssl/private/uit-web.key --template uit-web.cfg --outfile uit-web.crq
-certtool --generate-certificate --load-request uit-web.crq --template uit-web.cfg --load-ca-certificate /etc/ssl/certs/ca.crt --load-ca-privkey /etc/ssl/private/ca.key --outfile /etc/ssl/certs/uit-web.crt
+certtool --generate-request --load-privkey /etc/ssl/private/uit-web.key --template /root/uit-ssl/uit-web.cfg --outfile /root/uit-ssl/uit-web.crq
+certtool --generate-certificate --load-request /root/uit-ssl/uit-web.crq --template /root/uit-ssl/uit-web.cfg --load-ca-certificate /etc/ssl/certs/ca.crt --load-ca-privkey /etc/ssl/private/ca.key --outfile /etc/ssl/certs/uit-web.crt
 
 chmod 640 /etc/ssl/private/uit-web.key
 chown root:www-data /etc/ssl/private/uit-web.key
