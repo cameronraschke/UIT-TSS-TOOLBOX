@@ -7,6 +7,8 @@
 /usr/bin/chmod 700 /root/uit-ssl/update-certs
 /usr/bin/chown root:root /root/uit-ssl -R
 
+/usr/bin/chown cameron:cameron /home/cameron/powershell -R
+
 if [[ ! -d /srv/nfs/UIT-TSS-TOOLBOX/images ]]; then
     mkdir -p /srv/nfs/UIT-TSS-TOOLBOX/images
 fi
