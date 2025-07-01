@@ -32,7 +32,7 @@ CREATE TABLE clientstats (
 
 
 CREATE TABLE IF NOT EXISTS jobstats (
-    uuid VARCHAR(64) NOT NULL,
+    uuid VARCHAR(64) NOT NULL PRIMARY KEY,
     tagnumber VARCHAR(8) DEFAULT NULL,
     etheraddress VARCHAR(17) DEFAULT NULL,
     date DATE DEFAULT NULL,
@@ -125,7 +125,7 @@ ALTER TABLE jobstats
 
 
 CREATE TABLE IF NOT EXISTS locations (
-    time DATETIME(3) NOT NULL,
+    time DATETIME(3) NOT NULL PRIMARY KEY,
     tagnumber VARCHAR(8) DEFAULT NULL,
     system_serial VARCHAR(24) DEFAULT NULL,
     location VARCHAR(128) DEFAULT NULL,
