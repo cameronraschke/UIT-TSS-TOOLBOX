@@ -332,6 +332,10 @@ $sqlArr = $db->get();
                   <td><?php echo htmlspecialchars($value["system_model_formatted"]); ?></td>
                 </tr>
                 <tr>
+                  <td>TPM Version</td>
+                  <td><?php echo htmlspecialchars($value["tpm_version"]); ?></td>
+                </tr>
+                <tr>
                   <td>OS Version</td>
                   <td><?php echo htmlspecialchars($value["os_installed_formatted"]); ?></td>
                 </tr>
@@ -641,7 +645,7 @@ $db->Pselect("SELECT t2.* FROM
 locationFormatting(locations.location) AS 'location', 
 ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
 IF (locations.status = 1, 'No, Broken', 'Yes') AS 'status_formatted', locations.status, 
-IF (client_health.os_installed = 1, 'Yes', 'No') AS 'os_installed', 
+IF (client_health.os_installed = 1, 'Yes', 'No') AS 'os_installed', client_health.tpm_version, 
 IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', 
 note 
 FROM locations 

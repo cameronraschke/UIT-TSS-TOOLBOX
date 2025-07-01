@@ -271,6 +271,7 @@ INSERT INTO static_bios_stats
 CREATE TABLE IF NOT EXISTS client_health (
     tagnumber VARCHAR(6) PRIMARY KEY,
     system_serial VARCHAR(24) DEFAULT NULL,
+    tpm_version VARCHAR(24) DEFAULT NULL,
     bios_version VARCHAR(24) DEFAULT NULL,
     bios_updated BOOLEAN DEFAULT NULL,
     os_name VARCHAR(24) DEFAULT NULL,

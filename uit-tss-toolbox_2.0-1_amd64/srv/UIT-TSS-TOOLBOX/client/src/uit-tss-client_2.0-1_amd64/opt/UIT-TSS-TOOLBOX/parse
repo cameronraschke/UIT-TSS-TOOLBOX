@@ -219,7 +219,7 @@ if ($arr[0] == "remote") {
     $db->updateRemote($tagNum, $key, $value);
 }
 
-if ($arr[0] == "bios") {
+if ($arr[0] == "bios" || $arr[0] == "client_health") {
     $tagNum = $arr[1];
     $key = $arr[2];
     $value = $arr[3];
