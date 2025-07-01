@@ -4,7 +4,7 @@
 
 ## Only uncomment if creating new CA
 # certtool --generate-privkey --sec-param High --key-type=ecdsa --outfile /etc/ssl/private/ca.key
-# certtool --generate-self-signed --load-privkey /etc/ssl/pricate/ca.key --template ca.cfg --outfile /etc/ssl/certs/ca.crt
+# certtool --generate-self-signed --load-privkey /etc/ssl/private/ca.key --template ca.cfg --outfile /etc/ssl/certs/ca.crt
 # sudo cp /etc/ssl/certs/ca.crt /usr/local/share/ca-certificates
 # update-ca-certificates
 chown root:root /etc/ssl/private/ca.key
