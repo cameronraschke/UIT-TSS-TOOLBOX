@@ -135,7 +135,7 @@ END) AS 'disk_tbw_formatted',
 CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
 t4.disk_power_cycles, t4.disk_errors, locations.domain, IF (locations.domain IS NOT NULL, static_domains.domain_readable, 'Not Joined') AS 'domain_readable',
 IF (client_health.os_installed = 1, CONCAT(client_health.os_name, ' (Imaged on ', DATE_FORMAT(t6.time, '%m/%d/%y, %r'), ')'), client_health.os_name) AS 'os_installed_formatted',
-checkouts.customer_name, checkouts.checkout_date, checkouts.checkout_bool
+checkouts.customer_name, checkouts.checkout_date, checkouts.checkout_bool, client_health.tpm_version
 FROM locations
 LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
 LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
@@ -645,7 +645,7 @@ $db->Pselect("SELECT t2.* FROM
 locationFormatting(locations.location) AS 'location', 
 ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
 IF (locations.status = 1, 'No, Broken', 'Yes') AS 'status_formatted', locations.status, 
-IF (client_health.os_installed = 1, 'Yes', 'No') AS 'os_installed', client_health.tpm_version, 
+IF (client_health.os_installed = 1, 'Yes', 'No') AS 'os_installed',
 IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', 
 note 
 FROM locations 
