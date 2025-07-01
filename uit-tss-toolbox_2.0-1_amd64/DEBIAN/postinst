@@ -119,7 +119,7 @@ sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /var/www/html/management
 sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /var/www/html/management/index.php
 
 # Webmaster IP Address, Name, and Email for SSL Cert
-sed --in-place "s/WEBMASTER_EMAIL/\"${WEBMASTER_EMAIL}\"/g" /root/uit-ssl/uit-web.cfg
+sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /root/uit-ssl/uit-web.cfg
 sed --in-place "s/IP_ADDRESS/${IP_ADDRESS}/g" /root/uit-ssl/uit-web.cfg
 sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /root/uit-ssl/uit-web.cfg
 
