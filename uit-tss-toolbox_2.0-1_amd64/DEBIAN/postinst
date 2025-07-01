@@ -10,10 +10,10 @@
 /usr/bin/chown cameron:cameron /home/cameron/powershell -R
 
 sed --in-place "s/WAN_IF/$(cat /home/cameron/.uit-passwd | grep '^WAN_IF=' | sed 's/WAN_IF=//g')/g" /usr/sbin/uit-firewall
-sed --in-place "s/WAN_IP/$(cat /home/cameron/.uit-passwd | grep '^WAN_IP=' | sed 's/WAN_IP=//g')/g" /usr/sbin/uit-firewall
+sed --in-place "s/WAN_IP/$(cat /home/cameron/.uit-passwd | grep '^WAN_IP=' | sed 's/WAN_IP=//g' | sed 's/\//\\\//g')/g" /usr/sbin/uit-firewall
 sed --in-place "s/LAN_IF/$(cat /home/cameron/.uit-passwd | grep '^LAN_IF=' | sed 's/LAN_IF=//g')/g" /usr/sbin/uit-firewall
-sed --in-place "s/LAN_IP/$(cat /home/cameron/.uit-passwd | grep '^LAN_IP=' | sed 's/LAN_IP=//g')/g" /usr/sbin/uit-firewall
-sed --in-place "s/PRINTER_IP/$(cat /home/cameron/.uit-passwd | grep '^PRINTER_IP=' | sed 's/PRINTER_IP=//g')/g" /usr/sbin/uit-firewall
+sed --in-place "s/LAN_IP/$(cat /home/cameron/.uit-passwd | grep '^LAN_IP=' | sed 's/LAN_IP=//g' | sed 's/\//\\\//g')/g" /usr/sbin/uit-firewall
+sed --in-place "s/PRINTER_IP/$(cat /home/cameron/.uit-passwd | grep '^PRINTER_IP=' | sed 's/PRINTER_IP=//g' | sed 's/\//\\\//g')/g" /usr/sbin/uit-firewall
 
 if [[ ! -d /srv/nfs/UIT-TSS-TOOLBOX/images ]]; then
     mkdir -p /srv/nfs/UIT-TSS-TOOLBOX/images
