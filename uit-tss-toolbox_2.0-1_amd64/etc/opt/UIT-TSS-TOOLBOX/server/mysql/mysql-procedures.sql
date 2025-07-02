@@ -418,7 +418,7 @@ BEGIN
         ON t3.tagnumber = remote.tagnumber
       LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) s2) t2
         ON remote.tagnumber = t2.tagnumber
-      WHERE remote.present_bool = 1
+      WHERE remote.present_bool = 0 OR remote.present_bool IS NULL
       ORDER BY
         IF (remote.status LIKE 'fail%', 1, 0) DESC, ISNULL(job_queued) ASC, job_active DESC, queue_position ASC,
         FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, 
