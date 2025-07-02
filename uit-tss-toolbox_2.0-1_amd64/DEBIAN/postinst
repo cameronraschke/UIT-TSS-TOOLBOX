@@ -117,12 +117,12 @@ sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/a
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/bash/uit-print-pdf
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/php/include.php
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/api/print-page.php
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /usr/sbin/uit-sql-refresh
 
 # This is the client password because clients don't know web password
 sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/management/api/refresh-client.php
 sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/management/tagnumber.php
 sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/management/locations.php
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /usr/sbin/uit-sql-refresh
 
 # Webmaster Name and Email
 sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /var/www/html/management/index.php
