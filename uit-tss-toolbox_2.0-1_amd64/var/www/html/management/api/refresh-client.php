@@ -11,9 +11,10 @@ if (strFilter($_GET["tagnumber"]) === 1) {
 }
 
 unset($sql);
-$sql = "SELECT tagnumber, client_health_tag, system_serial, bios_version, bios_updated, image_name_readable, os_installed,
+$sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_time, disk_temp, system_serial, bios_version, bios_updated, image_name_readable, os_installed,
    checkout_time, checkout_bool, image_time FROM 
-    (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', 
+    (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', remote.tagnumber AS 'remote_tag', 
+    IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 30, 1, 0) AS 'present_bool', t2.time AS 'last_job_time', remote.disk_temp, 
     (CASE 
       WHEN locations.disk_removed = 1 THEN 'No OS'
       WHEN t2.clone_completed IS NULL AND t2.erase_completed = 1 THEN 'No OS'
@@ -42,11 +43,12 @@ $sql = "SELECT tagnumber, client_health_tag, system_serial, bios_version, bios_u
     FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
     LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
+    LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
     LEFT JOIN static_bios_stats ON system_data.system_model = static_bios_stats.system_model
     LEFT JOIN (SELECT time, tagnumber, clone_image, row_nums FROM (SELECT time, tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
       ON locations.tagnumber = t1.tagnumber
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
-    LEFT JOIN (SELECT tagnumber, erase_completed, clone_completed FROM (SELECT tagnumber, erase_completed, clone_completed, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND (erase_completed = 1 OR clone_completed = 1)) s2 WHERE s2.row_nums = 1) t2
+    LEFT JOIN (SELECT time, tagnumber, erase_completed, clone_completed FROM (SELECT time, tagnumber, erase_completed, clone_completed, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND (erase_completed = 1 OR clone_completed = 1)) s2 WHERE s2.row_nums = 1) t2
       ON locations.tagnumber = t2.tagnumber
     LEFT JOIN (SELECT tagnumber, bios_version, row_nums FROM (SELECT tagnumber, bios_version, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND bios_version IS NOT NULL) s3 WHERE s3.row_nums = 1) t3
       ON locations.tagnumber = t3.tagnumber
@@ -79,5 +81,21 @@ foreach ($db->get() as $key => $value) {
   $db->updateClientHealth($value["tagnumber"], "time", $time);
 
   $db->updateCheckout("checkout_bool", $value["checkout_bool"], $value["checkout_time"]);
+
+  if (strFilter($value["remote_tag"]) === 1) {
+    $db->insertRemote($value["tagnumber"]);
+  }
+
+  // Update presence
+  $db->updateRemote($value["tagnumber"], "present_bool", $value["present_bool"]);
+
+  // Update Last Job Time
+  $db->updateRemote($value["tagnumber"], "last_job_time", $value["last_job_time"]);
+
+  // Disk Temp
+  if ($value["disk_temp"] >= 82) {
+    $db->updateRemote($value["tagnumber"], "status", "fail - high disk temp");
+    $db->updateRemote($value["tagnumber"], "job_queued", "shutdown");
+  }
 }
 unset($value);

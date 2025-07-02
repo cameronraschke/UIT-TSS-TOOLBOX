@@ -117,6 +117,7 @@ sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/a
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/bash/uit-print-pdf
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/php/include.php
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/api/print-page.php
+sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /usr/sbin/uit-sql-refresh
 
 # This is the client password because clients don't know web password
 sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/management/api/refresh-client.php

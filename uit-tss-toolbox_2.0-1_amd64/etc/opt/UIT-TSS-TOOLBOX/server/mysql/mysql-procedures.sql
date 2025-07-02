@@ -371,16 +371,27 @@ DELIMITER //
 CREATE PROCEDURE selectRemote()
 DETERMINISTIC
 BEGIN
-SELECT tagnumber AS 'Tag',
-    present AS 'Last Heard',
-    job_queued AS 'Pending Job',
-    status AS 'Status',
-    CONCAT(battery_charge, '%') AS 'Battery Charge',
-    battery_status AS 'Battery Status',
-    CONCAT(cpu_temp, '°C') AS 'CPU Temp',
-    CONCAT(disk_temp, '°C') AS 'Disk Temp',
-    CONCAT(watts_now, ' Watts') AS 'Power Draw'
-    FROM remote WHERE present_bool = '1' OR status LIKE 'fail%' ORDER BY present DESC LIMIT 20;
+    SELECT remote.tagnumber AS 'Tag', 
+        DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'Last Heard', locationFormatting(t3.location) AS 'Location', 
+        DATE_FORMAT(remote.last_job_time, '%m/%d/%y, %r') AS 'Last Job Time', 
+        remote.job_queued AS 'Pending Job', remote.status AS 'Status',
+        CONCAT(IF (remote.kernel_updated = 1, 'Yes', 'No'), '/', IF (client_health.bios_updated = 1, 'Yes', 'No')) AS 'Kernel/BIOS Updated', client_health.os_name AS 'OS Name', 
+        CONCAT(remote.battery_charge, '% (', remote.battery_status, ')') AS 'Battery Status', 
+        CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS 'Uptime', 
+        CONCAT(remote.cpu_temp, '°C', '/' , remote.disk_temp, '°C', '/', remote.watts_now, ' Watts') AS 'CPU Temp/Disk Temp/Watts'
+      FROM remote 
+      LEFT JOIN (SELECT s1.time, s1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM locations) s1 WHERE s1.row_nums = 1) t1
+        ON remote.tagnumber = t1.tagnumber
+      LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
+      LEFT JOIN (SELECT tagnumber, location, row_nums FROM (SELECT tagnumber, location, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM locations) s3 WHERE s3.row_nums = 1) t3
+        ON t3.tagnumber = remote.tagnumber
+      LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) s2) t2
+        ON remote.tagnumber = t2.tagnumber
+      WHERE remote.present_bool = 1
+      ORDER BY
+        IF (remote.status LIKE 'fail%', 1, 0) DESC, ISNULL(job_queued) ASC, job_active DESC, queue_position ASC,
+        FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, 
+        FIELD (status, 'Waiting for job', '%') ASC, client_health.os_installed DESC, remote.kernel_updated DESC, client_health.bios_updated DESC, remote.last_job_time DESC;
     END; //
 
 DELIMITER ;
@@ -391,15 +402,28 @@ DELIMITER //
 CREATE PROCEDURE selectRemoteMissing()
 DETERMINISTIC
 BEGIN
-SELECT tagnumber AS 'Tag',
-    present AS 'Last Heard',
-    job_queued AS 'Pending Job',
-    status AS 'Status',
-    CONCAT(battery_charge, '%') AS 'Battery Charge',
-    battery_status AS 'Battery Status',
-    CONCAT(cpu_temp, '°C') AS 'CPU Temp',
-    CONCAT(disk_temp, '°C') AS 'Disk Temp'
-    FROM remote WHERE present_bool IS NULL ORDER BY present DESC LIMIT 10;
+    SELECT remote.tagnumber AS 'Tag', 
+        DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'Last Heard', locationFormatting(t3.location) AS 'Location', 
+        DATE_FORMAT(remote.last_job_time, '%m/%d/%y, %r') AS 'Last Job Time', 
+        remote.job_queued AS 'Pending Job', remote.status AS 'Status',
+        CONCAT(IF (remote.kernel_updated = 1, 'Yes', 'No'), '/', IF (client_health.bios_updated = 1, 'Yes', 'No')) AS 'Kernel/BIOS Updated', client_health.os_name AS 'OS Name', 
+        CONCAT(remote.battery_charge, '% (', remote.battery_status, ')') AS 'Battery Status', 
+        CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS 'Uptime', 
+        CONCAT(remote.cpu_temp, '°C', '/' , remote.disk_temp, '°C', '/', remote.watts_now, ' Watts') AS 'CPU Temp/Disk Temp/Watts'
+      FROM remote 
+      LEFT JOIN (SELECT s1.time, s1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM locations) s1 WHERE s1.row_nums = 1) t1
+        ON remote.tagnumber = t1.tagnumber
+      LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
+      LEFT JOIN (SELECT tagnumber, location, row_nums FROM (SELECT tagnumber, location, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM locations) s3 WHERE s3.row_nums = 1) t3
+        ON t3.tagnumber = remote.tagnumber
+      LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) s2) t2
+        ON remote.tagnumber = t2.tagnumber
+      WHERE remote.present_bool = 1
+      ORDER BY
+        IF (remote.status LIKE 'fail%', 1, 0) DESC, ISNULL(job_queued) ASC, job_active DESC, queue_position ASC,
+        FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, 
+        FIELD (status, 'Waiting for job', '%') ASC, client_health.os_installed DESC, remote.kernel_updated DESC, client_health.bios_updated DESC, remote.last_job_time DESC
+        LIMIT 10;
     END; //
 
 DELIMITER ;
