@@ -155,5 +155,7 @@ rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/management/imag
 
 rsync -Pav --delete /home/cameron/google-charts /var/www/html/management/
 
-rsync -Pav /etc/ssl/certs/ca.crt /srv/UIT-TSS-TOOLBOX/client/certs/ca.crt
-rsync -Pav /etc/ssl/certs/uit-web.crt /srv/UIT-TSS-TOOLBOX/client/certs/uit-web.crt
+rm /srv/UIT-TSS-TOOLBOX/client/certs
+mkdir -p /srv/UIT-TSS-TOOLBOX/client/certs/
+cp /etc/ssl/certs/ca.crt /srv/UIT-TSS-TOOLBOX/client/certs/ca.crt
+cp /etc/ssl/certs/uit-web.crt /srv/UIT-TSS-TOOLBOX/client/certs/uit-web.crt
