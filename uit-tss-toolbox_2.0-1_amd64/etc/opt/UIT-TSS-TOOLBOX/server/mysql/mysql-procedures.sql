@@ -406,7 +406,7 @@ BEGIN
         DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'Last Heard', locationFormatting(t3.location) AS 'Location', 
         DATE_FORMAT(remote.last_job_time, '%m/%d/%y, %r') AS 'Last Job Time', 
         remote.job_queued AS 'Pending Job', remote.status AS 'Status',
-        CONCAT(IF (remote.kernel_updated = 1, 'Yes', 'No'), '/', IF (client_health.bios_updated = 1, 'Yes', 'No')) AS 'Kernel/BIOS Updated', client_health.os_name AS 'OS Name', 
+        IF (client_health.bios_updated = 1, 'Yes', 'No') AS 'BIOS Updated', client_health.os_name AS 'OS Name', 
         CONCAT(remote.battery_charge, '% (', remote.battery_status, ')') AS 'Battery Status', 
         CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS 'Uptime', 
         CONCAT(remote.cpu_temp, '°C', '/' , remote.disk_temp, '°C', '/', remote.watts_now, ' Watts') AS 'CPU Temp/Disk Temp/Watts'
@@ -419,11 +419,8 @@ BEGIN
       LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'queue_position' FROM remote WHERE job_queued IS NOT NULL) s2) t2
         ON remote.tagnumber = t2.tagnumber
       WHERE remote.present_bool = 0 OR remote.present_bool IS NULL
-      ORDER BY
-        IF (remote.status LIKE 'fail%', 1, 0) DESC, ISNULL(job_queued) ASC, job_active DESC, queue_position ASC,
-        FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, 
-        FIELD (status, 'Waiting for job', '%') ASC, client_health.os_installed DESC, remote.kernel_updated DESC, client_health.bios_updated DESC, remote.last_job_time DESC
-        LIMIT 10;
+      ORDER BY remote.present DESC
+      LIMIT 10;
     END; //
 
 DELIMITER ;
