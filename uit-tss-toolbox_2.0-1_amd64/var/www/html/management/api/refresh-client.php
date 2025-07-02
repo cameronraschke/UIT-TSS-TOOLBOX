@@ -93,7 +93,7 @@ foreach ($db->get() as $key => $value) {
   $db->updateRemote($value["tagnumber"], "last_job_time", $value["last_job_time"]);
 
   // Disk Temp
-  if ($value["disk_temp"] >= $value["max_disk_temp"]) {
+  if (strFilter($value["max_disk_temp"]) === 0 && $value["disk_temp"] >= $value["max_disk_temp"]) {
     $db->updateRemote($value["tagnumber"], "status", "fail - high disk temp");
     $db->updateRemote($value["tagnumber"], "job_queued", "shutdown");
   }
