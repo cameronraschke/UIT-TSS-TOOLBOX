@@ -238,7 +238,7 @@ INSERT INTO static_bios_stats
     VALUES
     ('HP ProBook 450 G6', 'R71 Ver. 01.32.00'),
     ('Latitude 7400', '1.40.1'),
-    ('OptiPlex 7000', '1.30.0'),
+    ('OptiPlex 7000', '1.31.1'),
     ('Latitude 7420', '1.43.1'),
     ('Latitude 3500', '1.36.0'),
     ('Latitude 3560', 'A19'),
