@@ -408,7 +408,7 @@ fi
 	echo "system-stats|cpu|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	echo "system-stats|network|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse.
 
-	echo "client_health|${tagNum}|tpm_version|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/UIT-TSS-TOOLBOX/parse
+	#echo "client_health|${tagNum}|tpm_version|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/UIT-TSS-TOOLBOX/parse
 }
 
 function checkNetwork {
@@ -432,7 +432,7 @@ function enterTag {
 		department=$sqlDepartment
 
 		#sleep ${RANDOM::1}
-		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/UIT-TSS-TOOLBOX/parse
 		return
 	else
 		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
@@ -455,7 +455,7 @@ function enterTag {
 
 		UUID=$(echo -n "newEntry-"; cat /proc/sys/kernel/random/uuid)
 
-		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/UIT-TSS-TOOLBOX/parse
 		echo "location|custom|${tagNum}|${tOneSerialNumber}|new entry|0|" | /opt/UIT-TSS-TOOLBOX/parse
 		department
 		enterTag

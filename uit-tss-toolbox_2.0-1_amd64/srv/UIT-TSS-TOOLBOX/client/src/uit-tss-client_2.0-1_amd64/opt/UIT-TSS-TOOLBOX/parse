@@ -17,13 +17,22 @@ if ($arr[0] == "init") {
     $serial = $arr[3];
     $macAddr = $arr[4];
     $wifiMac = $arr[5];
+    $tpmVersion = $arr[6];
 
     $db->insertJob($uuid);
 
     $db->updateJob("tagnumber", $tagNum, $uuid);
     $db->updateJob("system_serial", $serial, $uuid);
     $db->updateJob("etheraddress", $macAddr, $uuid);
-    $db->updateSystemData($tagNum, "wifi_mac", $wifiMac);
+    if (strFilter($macAddr) === 0) {
+        $db->updateSystemData($tagNum, "etheraddress", $macAddr);
+    }
+    if (strFilter($wifiMac) === 0) {
+        $db->updateSystemData($tagNum, "wifi_mac", $wifiMac);
+    }
+    if (strFilter($tpmVersion) === 0) {
+        $db->updateClientHealth($tagNum, "tpm_version", $tpmVersion);
+    }
     $db->updateJob("date", $date, $uuid);
 
     function queryTime($queryTime) {
