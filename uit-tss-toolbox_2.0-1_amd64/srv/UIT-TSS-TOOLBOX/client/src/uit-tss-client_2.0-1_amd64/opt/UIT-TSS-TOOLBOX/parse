@@ -209,7 +209,7 @@ if ($arr[0] == "remote") {
         $value = round(bcdiv("$value", 1000, 2), 0);
     }
 
-    if ($key == "disk_temp") {
+    if ($key == "disk_temp" || $key == "max_disk_temp") {
         if ($value > 1000) {
             $cur = round(bcdiv($value, 1000, 2), 0);
             $value = $cur;

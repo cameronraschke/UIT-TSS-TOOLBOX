@@ -308,6 +308,7 @@ CREATE TABLE IF NOT EXISTS remote (
     uptime INT DEFAULT NULL,
     cpu_temp TINYINT DEFAULT NULL,
     disk_temp TINYINT DEFAULT NULL,
+    max_disk_temp TINYINT DEFAULT NULL,
     watts_now SMALLINT DEFAULT NULL,
     network_speed SMALLINT DEFAULT NULL
 );
@@ -330,7 +331,8 @@ ALTER TABLE remote
     MODIFY COLUMN uptime INT DEFAULT NULL AFTER battery_status,
     MODIFY COLUMN cpu_temp TINYINT DEFAULT NULL AFTER uptime,
     MODIFY COLUMN disk_temp TINYINT DEFAULT NULL AFTER cpu_temp,
-    MODIFY COLUMN watts_now SMALLINT DEFAULT NULL AFTER disk_temp,
+    MODIFY COLUMN max_disk_temp TINYINT DEFAULT NULL AFTER disk_temp,
+    MODIFY COLUMN watts_now SMALLINT DEFAULT NULL AFTER max_disk_temp,
     MODIFY COLUMN network_speed SMALLINT DEFAULT NULL AFTER watts_now;
 
 

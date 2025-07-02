@@ -11,10 +11,10 @@ if (strFilter($_GET["tagnumber"]) === 1) {
 }
 
 unset($sql);
-$sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_time, disk_temp, system_serial, bios_version, bios_updated, image_name_readable, os_installed,
+$sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_time, disk_temp, max_disk_temp, system_serial, bios_version, bios_updated, image_name_readable, os_installed,
    checkout_time, checkout_bool, image_time FROM 
     (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS 'client_health_tag', remote.tagnumber AS 'remote_tag', 
-    IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 30, 1, 0) AS 'present_bool', t2.time AS 'last_job_time', remote.disk_temp, 
+    IF(TIME_TO_SEC(TIMEDIFF(NOW(), remote.present)) < 30, 1, 0) AS 'present_bool', t2.time AS 'last_job_time', remote.disk_temp, remote.max_disk_temp, 
     (CASE 
       WHEN locations.disk_removed = 1 THEN 'No OS'
       WHEN t2.clone_completed IS NULL AND t2.erase_completed = 1 THEN 'No OS'
@@ -93,7 +93,7 @@ foreach ($db->get() as $key => $value) {
   $db->updateRemote($value["tagnumber"], "last_job_time", $value["last_job_time"]);
 
   // Disk Temp
-  if ($value["disk_temp"] >= 82) {
+  if ($value["disk_temp"] >= $value["max_disk_temp"]) {
     $db->updateRemote($value["tagnumber"], "status", "fail - high disk temp");
     $db->updateRemote($value["tagnumber"], "job_queued", "shutdown");
   }

@@ -20,10 +20,6 @@ echo "0" > /root/uptime
 echo "0" > /tmp/cpu-usage.txt
 echo "0" > /tmp/network-usage.txt
 
-coproc uit_cpu { uit-cpu 2>/dev/null; }
-coproc uit_network { uit-network 2>/dev/null; }
-coproc uit_sql { uit-sql 2>/dev/null; }
-
 umount /home/partimag 2>/dev/null
 
 #scp -r cameron@mickey.uit:/home/cameron/sounds/findmy1.mp3 /root &>/dev/null
@@ -392,7 +388,7 @@ fi
 	###Memory Data
 	memSerial=$(dmidecode --type memory | grep -P '\tSerial Number' | sed 's/Serial Number: //g' | tr '\n' ' ' | tr '\t' ' ' | sed 's/ Not Specified //g' | sed 's/^ //g' | tr ' ' '-' | sed 's/-$//g')
 		echo "general|ram_serial|${memSerial}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-	memCapacity=$(grep MemTotal /proc/meminfo | awk '{ print $2 }')
+	memCapacity=$(grep '^MemTotal' /proc/meminfo | awk '{ print $2 }')
 		echo "general|ram_capacity|${memCapacity}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
 	memSpeed=$(dmidecode --type 17 | grep '^[[:space:]]*Speed\:' | head -n1 | sed 's/[^0-9]'//g)
 		echo "general|ram_speed|${memSpeed}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
@@ -433,6 +429,9 @@ function enterTag {
 
 		#sleep ${RANDOM::1}
 		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/UIT-TSS-TOOLBOX/parse
+		coproc uit_cpu { uit-cpu 2>/dev/null; }
+		coproc uit_network { uit-network 2>/dev/null; }
+		coproc uit_sql { uit-sql 2>/dev/null; }
 		return
 	else
 		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum

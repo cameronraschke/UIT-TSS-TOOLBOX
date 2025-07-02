@@ -1,55 +1,72 @@
 #!/bin/bash
 while true; do
 serial=$(dmidecode --string system-serial-number)
-tagNum=$(echo "SELECT tagnumber AS result FROM jobstats WHERE system_serial = '$serial' ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+tagNum=$(echo "SELECT tagnumber AS 'result' FROM locations WHERE system_serial = '${serial}' ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
 echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /opt/UIT-TSS-TOOLBOX/parse
 
-if [[ -d /sys/class/power_supply/BAT0 ]]; then
-    batCharge=0
-    batStatus=""
-    batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
-    batStatus=$(cat /sys/class/power_supply/BAT0/status)
-elif [[ -d /sys/class/power_supply/BAT1 ]]; then
-    batCharge=$(cat /sys/class/power_supply/BAT0/capacity)
-    batStatus=$(cat /sys/class/power_supply/BAT0/status)
-else
-    batCharge="0"
-fi
-echo "remote|${tagNum}|battery_charge|${batCharge}" | /opt/UIT-TSS-TOOLBOX/parse
-echo "remote|${tagNum}|battery_status|${batStatus}" | /opt/UIT-TSS-TOOLBOX/parse
+for i in $(find /sys/class/hwmon/ -mindepth 1); do
+    type=$(cat ${i}/name)
+    if [[ $type == "coretemp" ]]; then
+        cpuTemp=$(cat ${i}/temp1_input)
+        echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /opt/UIT-TSS-TOOLBOX/parse
+        fi
+    
+    if [[ $type == "BAT0" || $type == "BAT1" ]]; then
+     if [[ -f ${i}/device/charge_full_design ]]; then
+        battCapacityFactory=$(cat ${i}/device/charge_full_design)
+        elif [[ -f ${i}/device/energy_full_design ]]; then 
+            battCapacityFactory=$(cat ${i}/device/energy_full_design)
+        fi
+        #battCapacityNow=$(cat ${i}/device/charge_full)
+        #battCharge=$(cat ${i}/device/charge_now)
+        battCharePcnt=$(cat ${i}/device/capacity)
+        battStatus=$(cat ${i}/device/status)
+        #battModel=$(cat ${i}/device/model_name)
+        echo "remote|${tagNum}|battery_charge|${battCharePcnt}" | /opt/UIT-TSS-TOOLBOX/parse
+        echo "remote|${tagNum}|battery_status|${battStatus}" | /opt/UIT-TSS-TOOLBOX/parse
+        fi
 
-cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
-echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /opt/UIT-TSS-TOOLBOX/parse
+    if [[ $type == "nvme" ]]; then
+        nvmeTemp=$(cat ${i}/temp1_input)
+        nvmeMaxTemp=$(cat ${i}/temp1_max)
+        nvmeAlarm=$(cat ${i}/temp1_alarm)
+        nvmeFirmware=$(cat ${i}/device/firmware_rev)
+        nvmeModel=$(cat ${i}/device/model)
+        nvmeSerial=$(cat ${i}/device/serial)
+        echo "remote|${tagNum}|disk_temp|${nvmeTemp}" | /opt/UIT-TSS-TOOLBOX/parse
+        echo "remote|${tagNum}|max_disk_temp|${nvmeMaxTemp}" | /opt/UIT-TSS-TOOLBOX/parse
+        fi
 
-if [[ -d /sys/class/nvme/nvme0/hwmon2 ]]; then
-    diskTemp=0
-    diskMax=0
-    if [[ -f /sys/class/nvme/nvme0/hwmon2/temp1_input ]]; then
-        diskTemp=$(cat /sys/class/nvme/nvme0/hwmon2/temp1_input)
-    fi
-    if [[ -f /sys/class/nvme/nvme0/hwmon2/temp1_max ]]; then
-        diskMax=$(cat /sys/class/nvme/nvme0/hwmon2/temp1_max)
-    fi
-    echo "remote|${tagNum}|disk_temp|${diskTemp}|${diskMax}" | /opt/UIT-TSS-TOOLBOX/parse
-fi
+    # # Dell BIOS/Motherboard Temp
+    # if [[ $type == "dell_smm" ]]; then
+    #     tmpSum=0
+    #     tmpNum=0
+    #     for tmp in $(find ${i}/temp*_input); do
+    #         tmpSum=$(( tmpSum + tmp ))
+    #         tmpNum=$(( tmpNum + 1 ))
+    #         done
+    #     motherboardTemp=$(( tmpSum / tmpNum ))
+    #     fi
+done
 
+
+# See realtime energy usage
 if [[ -d /sys/class/powercap ]]; then
-    uj1=$(cat /sys/class/powercap/*/energy_uj 2>/dev/null)
+    uj1=0
+    uj2=0
+    for i in $(cat /sys/class/powercap/*/energy_uj 2>/dev/null); do
+        uj1=$(( uj1 + i ))
+    done
     sleep 1
-    uj2=$(cat /sys/class/powercap/*/energy_uj 2>/dev/null)
-    a=0
-    n=0
-    for i in $uj1; do
-        first=$(( a + i ))
+    for i in $(cat /sys/class/powercap/*/energy_uj 2>/dev/null); do
+        uj2=$(( uj2 + i ))
     done
 
-    for i in $uj2; do
-        second=$(( n + i ))
-    done
-
-    echo "remote|${tagNum}|watts_now|${first}|${second}" | /opt/UIT-TSS-TOOLBOX/parse
+    echo "remote|${tagNum}|watts_now|${uj1}|${uj2}" | /opt/UIT-TSS-TOOLBOX/parse
 fi
 
+
+# Check if running kernel is up to date
 for i in $(ls /lib/modules); do
     echo "${i}" | grep -i --quiet "$(uname -r)"
     if [[ ${PIPESTATUS[1]} == "0" ]]; then
@@ -60,7 +77,9 @@ for i in $(ls /lib/modules); do
     fi
 done
 
-if [[ $(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
+
+# Check if cancel job has been sent
+if [[ $(echo "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
     echo "remote|${tagNum}|job_queued|" | /opt/UIT-TSS-TOOLBOX/parse
     echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
     echo "remote|${tagNum}|status|fail - Job cancelled :(" | /opt/UIT-TSS-TOOLBOX/parse
@@ -70,6 +89,7 @@ if [[ $(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = '${tagNu
     pkill --terminal tty1
 fi
 
+
 #Network link speed
 for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
     netSpeed=$(cat /sys/class/net/${i}/speed 2>/dev/null)
@@ -78,12 +98,7 @@ for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
     fi
 done
 
-cat <<EOF > /root/execute
-#!/bin/bash
-EOF
-chmod 750 /root/execute
-/root/execute
-
+# Sleep before next loop
 sleep 5
 
 elapsed=0
@@ -93,7 +108,7 @@ if [[ -z $elapsed ]]; then
 fi
 
 elapsed=$(( elapsed + 5 ))
-echo "$elapsed" > /root/uptime
-echo "remote|${tagNum}|uptime|$elapsed" | /opt/UIT-TSS-TOOLBOX/parse
+echo "${elapsed}" > /root/uptime
+echo "remote|${tagNum}|uptime|${elapsed}" | /opt/UIT-TSS-TOOLBOX/parse
 
 done
