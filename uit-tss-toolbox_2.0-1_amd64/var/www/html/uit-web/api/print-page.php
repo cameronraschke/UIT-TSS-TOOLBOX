@@ -143,8 +143,7 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
     <div class="page-content">
       <p>
         <i>
-          By receiving this laptop as part of UIT's laptop checkout program, I
-          agree to the following: 
+          In receiving this laptop loan from UIT, I agree to the following: 
           <ul>
             <li>I acknowledge that this laptop is the property of the State of Texas.
             <li>I agree to follow all federal, state, and local laws as well as UH 
@@ -173,6 +172,14 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
       </div>
       <div style="width: 45%; margin-left: 3%;">
         <p>Return Date: <span><?php echo htmlspecialchars($returnDate); ?></span></p>
+      </div>
+    </div>
+    <div class="signature">
+      <div style="width: 60%">
+        <p>Customer Signature: <span></span></p>
+      </div>
+      <div style="width: 30%; margin-left: 3%;">
+        <p>Date: <span></span></p>
       </div>
     </div>
     <div class="contact-info">
