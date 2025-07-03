@@ -254,7 +254,7 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Installing the client package${RESET}"
-if [[ $(dpkg-query -l | grep uit-toolbox-client; echo $?) == 0 ]]; then
+if [[ $(dpkg-query -l | grep --quiet uit-toolbox-client; echo $?) == 0 ]]; then
 	dpkg --purge uit-toolbox-client 
 	fi
 curl http://mickey.uit/client/pkg/uit-toolbox-client.deb --output /root/uit-toolbox-client.deb &>/dev/null
