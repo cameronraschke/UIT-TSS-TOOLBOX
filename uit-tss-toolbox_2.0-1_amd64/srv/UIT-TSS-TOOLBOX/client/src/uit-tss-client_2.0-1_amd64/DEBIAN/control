@@ -1,9 +1,9 @@
-Package: uit-tss-client
-Source: uit-tss-client
+Package: uit-toolbox-client
+Source: uit-toolbox-client
 Version: 2.0-1
 Section: utils
 Priority: optional
 Architecture: amd64
 Maintainer: Cameron Raschke <caraschke@uh.edu>
-Description: UIT-TSS-CLIENT.
+Description: uit-toolbox-client.
 Pre-Depends: wget

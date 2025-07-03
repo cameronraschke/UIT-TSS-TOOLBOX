@@ -254,13 +254,18 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Installing the client package${RESET}"
-curl http://mickey.uit/client/pkg/uit-client.deb --output /root/uit-client.deb &>/dev/null
-while [[ ! -f /root/uit-client.deb ]]; do
-	curl http://mickey.uit/client/pkg/uit-client.deb --output /root/uit-client.deb &>/dev/null
+if [[ $(dpkg-query -l | grep uit-toolbox-client; echo $?) == 0 ]]; then
+	dpkg --purge uit-toolbox-client 
+	fi
+curl http://mickey.uit/client/pkg/uit-toolbox-client.deb --output /root/uit-toolbox-client.deb &>/dev/null
+while [[ ! -f /root/uit-toolbox-client.deb ]]; do
+	curl http://mickey.uit/client/pkg/uit-toolbox-client.deb --output /root/uit-toolbox-client.deb &>/dev/null
 	sleep 1
 done
-dpkg --install /root/uit-client.deb &>/dev/null
+dpkg --install /root/uit-toolbox-client.deb &>/dev/null
 echo "${GREEN}Done.${RESET}"
+
+rm /root/uit-toolbox-client.deb
 
 /usr/sbin/uit-tss-client
 EOF

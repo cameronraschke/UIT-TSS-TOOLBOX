@@ -1891,12 +1891,12 @@ function autodetectClient {
 				systemData
 				hardwareData
 				echo "remote|${tagNum}|status|Updating..." | /opt/uit-toolbox/parse
-				rm /root/uit-tss-client_2.0-1_amd64.deb
-				while [[ ! -f /root/uit-tss-client_2.0-1_amd64.deb ]]; do
-					curl http://mickey.uit/client/pkg/uit-tss-client_2.0-1_amd64.deb --output /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
+				rm /root/uit-toolbox-client.deb
+				while [[ ! -f /root/uit-toolbox-client.deb ]]; do
+					curl http://mickey.uit/client/pkg/uit-toolbox-client.deb --output /root/uit-toolbox-client.deb &>/dev/null
 					sleep 1
 				done
-				dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
+				dpkg --install /root/uit-toolbox-client.deb &>/dev/null
 				resetForClientRestart
 			elif [[ $job_queued == "findmy" ]]; then
 				echo "remote|${tagNum}|status|Playing sound" | /opt/uit-toolbox/parse
