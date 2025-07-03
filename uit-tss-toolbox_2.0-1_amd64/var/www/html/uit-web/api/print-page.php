@@ -176,10 +176,10 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
     </div>
     <div class="signature">
       <div style="width: 60%">
-        <p>Customer Signature: <span style='background-color:rgb(207, 207, 207)'></span></p>
+        <p>Customer Signature: <span style='background-color:rgb(230, 230, 230)'></span></p>
       </div>
       <div style="width: 30%; margin-left: 3%;">
-        <p>Date: <span></span></p>
+        <p>Date: <span style='background-color:rgb(230, 230, 230)'></span></p>
       </div>
     </div>
     <div class="contact-info">
