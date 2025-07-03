@@ -190,12 +190,5 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
       <br><b>Live Chat</b>: https://gethelp.uh.edu/live_chat (Select UIT Support Center)
     </p>
     </div>
-    <div class="footer">
-      <p>
-        <br>Laptop Model: <?php echo htmlspecialchars($systemModel); ?>
-        <br>Laptop Serial Number: <?php echo htmlspecialchars($serial); ?>
-        <br>Laptop Imaged on <?php echo htmlspecialchars($lastJobTime); ?>
-      </p>
-    </div>
   </body>
 </html>
