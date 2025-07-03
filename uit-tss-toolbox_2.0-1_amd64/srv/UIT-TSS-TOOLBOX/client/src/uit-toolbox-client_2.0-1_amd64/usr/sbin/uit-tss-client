@@ -516,7 +516,7 @@ function footer {
 	echo "Tag: ${tagNum}, Serial: ${tOneSerialNumber}, BIOS: ${biosUpdated}, Location: \"${sqlLocation}\", Battery: ${batCharge}%${RESET}"
 	tput cup $(( lines - 2 )) 0
 	tput el
-	echo "${DIM}UIT-TSS-TOOLBOX by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"
+	echo "${DIM}UIT-Toolbox Client by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"
 	tput cup 1 0
 	info
 }
@@ -525,7 +525,7 @@ function footer {
 
 function logo {
 	footer
-	echo "${RESET}Welcome to UIT-TSS-TOOLBOX by Cameron Raschke ${DIM}(caraschke@uh.edu).${RESET}"
+	echo "${RESET}Welcome to UIT-Toolbox Client by Cameron Raschke ${DIM}(caraschke@uh.edu).${RESET}"
 	echo ""
 	tput bold
 	tput setaf 1
@@ -1083,7 +1083,7 @@ function secUnlock_Shred {
 
 function nistMode_Shred {
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BOLD}${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	echo "${BOLD}UIT-Toolbox Client running in ${BOLD}${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	
 	echo ""
 	echo ""
@@ -1108,7 +1108,7 @@ function nistMode_Shred {
 
 function zeroMode_Shred {
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	echo "${BOLD}UIT-Toolbox Client running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	
 	echo ""
 	echo ""	
@@ -1131,7 +1131,7 @@ function zeroMode_Shred {
 
 function dodMode_Shred {
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	echo "${BOLD}UIT-Toolbox Client running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	
 	echo ""
 	echo ""
@@ -1182,7 +1182,7 @@ function dodMode_Shred {
 
 function rcmpMode_Shred {
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	echo "${BOLD}UIT-Toolbox Client running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	
 	echo ""
 	echo ""
@@ -1243,7 +1243,7 @@ function rcmpMode_Shred {
 
 function schneierMode_Shred {
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	echo "${BOLD}UIT-Toolbox Client running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	
 	echo ""
 	echo ""
@@ -1300,7 +1300,7 @@ function gutmann {
 	GUTMANNARRAY+=(01101101 10110110 11011011)
 
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	echo "${BOLD}UIT-Toolbox Client running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	
 	echo ""
 	echo ""	
@@ -1343,7 +1343,7 @@ function verifyMode_Shred {
 		VRFYMODE='vfast'
 		input='0'
 	else
-		echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Verifying disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+		echo "${BOLD}UIT-Toolbox Client running in ${BLUE}${RMODE}${RESET}${BOLD}. Verifying disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 
 		echo ""
 		echo ""
@@ -1429,7 +1429,7 @@ function verifyMode_Shred {
 	fi
 
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${VRFYMODE}${RESET}${BOLD} verify mode. ${BLUE}${PCNTOFSECTOR}%${RESET}${BOLD} of ${BLUE}${CLIENTDISK}${RESET}${BOLD} is being verified.${RESET}"
+	echo "${BOLD}UIT-Toolbox Client running in ${BLUE}${VRFYMODE}${RESET}${BOLD} verify mode. ${BLUE}${PCNTOFSECTOR}%${RESET}${BOLD} of ${BLUE}${CLIENTDISK}${RESET}${BOLD} is being verified.${RESET}"
 
 	vrfyDisk_Shred
 }
@@ -1438,7 +1438,7 @@ function verifyMode_Shred {
 
 function unlockMode_Shred {
 	footer
-	echo "${BOLD}UIT-TSS-TOOLBOX running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
+	echo "${BOLD}UIT-Toolbox Client running in ${BLUE}${RMODE}${RESET}${BOLD}. Erasing disk ${BLUE}${CLIENTDISK}${RESET}${BOLD}.${RESET}"
 	
 	echo ""
 	echo ""
@@ -1789,8 +1789,8 @@ function resetForClientRestart {
 	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
-	dpkg --purge uit-tss-client
-	rm -r /root/uit-tss-client*
+	dpkg --purge uit-toolbox-client
+	rm -r /root/uit-toolbox-client*
 	rm -r /root/.ssh/known_hosts*
 	echo "0" > /root/uptime
 	echo "0" > /tmp/cpu-usage.txt

@@ -56,8 +56,8 @@ mysql laptopDB < /etc/opt/uit-toolbox/server/mysql/mysql-procedures.sql
 mysql laptopDB < /etc/opt/uit-toolbox/server/mysql/mysql-tables.sql
 
 # Insert include.php with modifications for the clients.
-cat /var/www/html/uit-web/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/opt/uit-toolbox/include.php
-sed --in-place 's/WEB_SVC_PASSWD/CLIENT_PASSWD/g' /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/opt/uit-toolbox/include.php
+cat /var/www/html/uit-web/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
+sed --in-place 's/WEB_SVC_PASSWD/CLIENT_PASSWD/g' /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
 
 
 # Set passwords for various services
@@ -107,9 +107,9 @@ mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIE
 
 
 # Client-side Bash Scripts
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/usr/sbin/uit-tss-client
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/opt/uit-toolbox/include.php
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/opt/uit-toolbox/api-client.php
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/usr/sbin/uit-toolbox-client
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/api-client.php
 
 # Web PHP Scripts
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/locations.php
@@ -136,11 +136,11 @@ sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /root/uit-ssl/uit-web.cfg
 
 # Build client .deb package
 (cd /srv/uit-toolbox/client/src/
-chmod 755 /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/
-chmod 755 /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/control
-chmod 755 /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
-dpkg-deb --build --root-owner-group /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64 
-mv -v /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64.deb /srv/uit-toolbox/client/pkg/uit-toolbox-client.deb 
+chmod 755 /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/DEBIAN/
+chmod 755 /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/DEBIAN/control
+chmod 755 /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/DEBIAN/postinst
+dpkg-deb --build --root-owner-group /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64 
+mv -v /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64.deb /srv/uit-toolbox/client/pkg/uit-toolbox-client.deb 
 )
 
 if [[ ! -f /var/www/html/uit-web/favicon.ico ]]; then

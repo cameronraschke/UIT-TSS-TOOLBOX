@@ -22,7 +22,7 @@ if ($_SESSION['authorized'] != "yes") {
             <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle'><h1>UIT-TSS-TOOLBOX Documentation</h1></div>
+        <div class='pagetitle'><h1>UIT Toolbox Documentation</h1></div>
 
         <div class='documentation'>
             <h3>Error - Kernel out of Date</h3>

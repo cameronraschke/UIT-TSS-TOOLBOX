@@ -46,7 +46,7 @@ fi
 			--binary-filesystem fat32 \
 			--binary-images iso-hybrid \
 			--bootappend-live "fetch=10.0.0.1/client/iso/live/filesystem.squashfs \
- 				boot=live toram username=root hostname=UIT-TSS-CLIENT \
+ 				boot=live toram username=root hostname=uit-toolbox-client \
 				timezone=America/Chicago locales=en_US.UTF-8" \
 			--bootloaders "grub-efi syslinux" \
 			--chroot-filesystem squashfs \
@@ -57,15 +57,15 @@ fi
 			--debian-installer-distribution bookworm \
 			--distribution bookworm \
 			--debootstrap-options "--arch=amd64 --variant=minbase" \
-			--hdd-label UIT-TSS-TOOLBOX \
+			--hdd-label uit-toolbox-client \
 			--hdd-size auto \
-			--image-name UIT-TSS-TOOLBOX \
+			--image-name uit-toolbox-client \
 			--initramfs live-boot \
 			--initsystem systemd \
-			--iso-application UIT-TSS-TOOLBOX \
+			--iso-application uit-toolbox-client \
 			--iso-preparer "Cameron Raschke caraschke@uh.edu" \
 			--iso-publisher "Cameron Raschke caraschke@uh.edu" \
-			--iso-volume UIT-TSS-TOOLBOX \
+			--iso-volume uit-toolbox-client \
 			--memtest none \
 			--mode debian \
 			--system live \
@@ -83,9 +83,9 @@ MENU TITLE Boot Menu
 DEFAULT linux
         TIMEOUT 10
         MENU RESOLUTION 640 480
-        SAY Now booting into UIT-TSS-TOOLBOX by Cameron Raschke
+        SAY Now booting into UIT-Toolbox Client by Cameron Raschke
 label linux
-        menu label UIT-TSS-TOOLBOX by Cameron Raschke
+        menu label UIT-Toolbox Client by Cameron Raschke
         menu default
         linux /live/vmlinuz
         initrd /live/initrd.img
@@ -107,7 +107,7 @@ set default="0"
 set timeout=0
 set timeout_style=hidden
 
-menuentry "UIT-TSS-TOOLBOX by Cameron Raschke" {
+menuentry "UIT-Toolbox Client by Cameron Raschke" {
     	linux @KERNEL_LIVE@ @APPEND_LIVE@
     	initrd @INITRD_LIVE@
 }
@@ -195,7 +195,7 @@ iperf3
 EOF
 
 mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root/
-cat <<'EOF' > /opt/uit-toolbox/debian-live/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+cat <<'EOF' > /opt/uit-toolbox/debian-live/config/hooks/live/0100-uit-toolbox-client-setup.hook.chroot
 
 sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
 sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
@@ -212,14 +212,14 @@ sysctl --quiet --write "vm.mmap_min_addr=65536"
 sysctl --quiet --load
 
 echo "uit-toolbox-client" > /etc/hostname
-echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/motd
-echo -e "\nWelcome to UIT-TSS-TOOLBOX by Cameron Raschke.\n" > /etc/issue.net
+echo -e "\nWelcome to UIT-Toolbox Client by Cameron Raschke.\n" > /etc/motd
+echo -e "\nWelcome to UIT-Toolbox Client by Cameron Raschke.\n" > /etc/issue.net
 echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 
 update-smart-drivedb
 EOF
 
-chmod 777 /opt/uit-toolbox/debian-live/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+chmod 777 /opt/uit-toolbox/debian-live/config/hooks/live/0100-uit-toolbox-client-setup.hook.chroot
 
 mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
@@ -239,7 +239,7 @@ RESET=$(tput sgr0)
 
 tput reset
 echo ""
-echo -n "${RESET}UIT-TSS-TOOLBOX by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
+echo -n "${RESET}UIT-Toolbox Client by ${BOLD}Cameron Raschke${RESET} ${DIM}(caraschke@uh.edu)${RESET}${BOLD}. "
 echo "${BOLD}${RED}Go coogs!!${RESET}"
 echo ""
 
@@ -267,7 +267,7 @@ echo "${GREEN}Done.${RESET}"
 
 rm /root/uit-toolbox-client.deb
 
-/usr/sbin/uit-tss-client
+/usr/sbin/uit-toolbox-client
 EOF
 
 (cd /opt/uit-toolbox/debian-live/
