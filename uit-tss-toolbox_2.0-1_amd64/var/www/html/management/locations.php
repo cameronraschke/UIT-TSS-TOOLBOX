@@ -1,6 +1,6 @@
 <?php
-require('/var/www/html/management/header.php');
-require('/var/www/html/management/php/include.php');
+require('/var/www/html/uit-web/header.php');
+require('/var/www/html/uit-web/php/include.php');
 
 if (strFilter($_GET["tagnumber"]) === 0) {
   if (preg_match('/^[0-9]{6}$/', trim($_GET["tagnumber"])) !== 1) {
@@ -166,7 +166,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     }
     unset($value1);
 
-    System("bash /var/www/html/management/bash/uit-print-pdf" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
+    System("bash /var/www/html/uit-web/bash/uit-print-pdf" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
   }
 
   unset($_POST);

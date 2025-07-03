@@ -1,14 +1,14 @@
 #!/bin/bash
 while true; do
 serial=$(dmidecode --string system-serial-number)
-tagNum=$(echo "SELECT tagnumber AS 'result' FROM locations WHERE system_serial = '${serial}' ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
-echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /opt/UIT-TSS-TOOLBOX/parse
+tagNum=$(echo "SELECT tagnumber AS 'result' FROM locations WHERE system_serial = '${serial}' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /opt/uit-toolbox/parse
 
 for i in $(find /sys/class/hwmon/ -mindepth 1); do
     type=$(cat ${i}/name)
     if [[ $type == "coretemp" ]]; then
         cpuTemp=$(cat ${i}/temp1_input)
-        echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /opt/UIT-TSS-TOOLBOX/parse
+        echo "remote|${tagNum}|cpu_temp|${cpuTemp}" | /opt/uit-toolbox/parse
         fi
     
     if [[ $type == "BAT0" || $type == "BAT1" ]]; then
@@ -22,8 +22,8 @@ for i in $(find /sys/class/hwmon/ -mindepth 1); do
         battCharePcnt=$(cat ${i}/device/capacity)
         battStatus=$(cat ${i}/device/status)
         #battModel=$(cat ${i}/device/model_name)
-        echo "remote|${tagNum}|battery_charge|${battCharePcnt}" | /opt/UIT-TSS-TOOLBOX/parse
-        echo "remote|${tagNum}|battery_status|${battStatus}" | /opt/UIT-TSS-TOOLBOX/parse
+        echo "remote|${tagNum}|battery_charge|${battCharePcnt}" | /opt/uit-toolbox/parse
+        echo "remote|${tagNum}|battery_status|${battStatus}" | /opt/uit-toolbox/parse
         fi
 
     if [[ $type == "nvme" ]]; then
@@ -33,8 +33,8 @@ for i in $(find /sys/class/hwmon/ -mindepth 1); do
         nvmeFirmware=$(cat ${i}/device/firmware_rev)
         nvmeModel=$(cat ${i}/device/model)
         nvmeSerial=$(cat ${i}/device/serial)
-        echo "remote|${tagNum}|disk_temp|${nvmeTemp}" | /opt/UIT-TSS-TOOLBOX/parse
-        echo "remote|${tagNum}|max_disk_temp|${nvmeMaxTemp}" | /opt/UIT-TSS-TOOLBOX/parse
+        echo "remote|${tagNum}|disk_temp|${nvmeTemp}" | /opt/uit-toolbox/parse
+        echo "remote|${tagNum}|max_disk_temp|${nvmeMaxTemp}" | /opt/uit-toolbox/parse
         fi
 
     # # Dell BIOS/Motherboard Temp
@@ -62,7 +62,7 @@ if [[ -d /sys/class/powercap ]]; then
         uj2=$(( uj2 + i ))
     done
 
-    echo "remote|${tagNum}|watts_now|${uj1}|${uj2}" | /opt/UIT-TSS-TOOLBOX/parse
+    echo "remote|${tagNum}|watts_now|${uj1}|${uj2}" | /opt/uit-toolbox/parse
 fi
 
 
@@ -70,22 +70,22 @@ fi
 for i in $(ls /lib/modules); do
     echo "${i}" | grep -i --quiet "$(uname -r)"
     if [[ ${PIPESTATUS[1]} == "0" ]]; then
-        echo "remote|${tagNum}|kernel_updated|1" | /opt/UIT-TSS-TOOLBOX/parse
+        echo "remote|${tagNum}|kernel_updated|1" | /opt/uit-toolbox/parse
         break
     else
-        echo "remote|${tagNum}|kernel_updated|" | /opt/UIT-TSS-TOOLBOX/parse
+        echo "remote|${tagNum}|kernel_updated|" | /opt/uit-toolbox/parse
     fi
 done
 
 
 # Check if cancel job has been sent
-if [[ $(echo "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select) == "cancel" ]]; then
-    echo "remote|${tagNum}|job_queued|" | /opt/UIT-TSS-TOOLBOX/parse
-    echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
-    echo "remote|${tagNum}|status|fail - Job cancelled :(" | /opt/UIT-TSS-TOOLBOX/parse
-    UUID=$(echo "SELECT uuid AS 'result' FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = 1 ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
-    echo "general|erase_completed||${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-    echo "general|clone_completed||${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+if [[ $(echo "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select) == "cancel" ]]; then
+    echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
+    echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+    echo "remote|${tagNum}|status|fail - Job cancelled :(" | /opt/uit-toolbox/parse
+    UUID=$(echo "SELECT uuid AS 'result' FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = 1 ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+    echo "general|erase_completed||${UUID}" | /opt/uit-toolbox/parse
+    echo "general|clone_completed||${UUID}" | /opt/uit-toolbox/parse
     pkill --terminal tty1
 fi
 
@@ -93,8 +93,8 @@ fi
 #Network link speed
 for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
     netSpeed=$(cat /sys/class/net/${i}/speed 2>/dev/null)
-    if [[ $netSpeed != $(echo "SELECT network_speed AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select) ]]; then
-        echo "remote|${tagNum}|network_speed|$netSpeed" | /opt/UIT-TSS-TOOLBOX/parse
+    if [[ $netSpeed != $(echo "SELECT network_speed AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select) ]]; then
+        echo "remote|${tagNum}|network_speed|$netSpeed" | /opt/uit-toolbox/parse
     fi
 done
 
@@ -109,6 +109,6 @@ fi
 
 elapsed=$(( elapsed + 5 ))
 echo "${elapsed}" > /root/uptime
-echo "remote|${tagNum}|uptime|${elapsed}" | /opt/UIT-TSS-TOOLBOX/parse
+echo "remote|${tagNum}|uptime|${elapsed}" | /opt/uit-toolbox/parse
 
 done

@@ -2,7 +2,7 @@
 <?php
 //Migrate departments back into the locaitons table
 
-require('/var/www/html/management/php/include.php');
+require('/var/www/html/uit-web/php/include.php');
 
 $db = new db();
 

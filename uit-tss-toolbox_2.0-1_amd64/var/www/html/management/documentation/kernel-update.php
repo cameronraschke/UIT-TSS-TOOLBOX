@@ -1,6 +1,6 @@
 <?php
-require('/var/www/html/management/header.php');
-require('/var/www/html/management/php/include.php');
+require('/var/www/html/uit-web/header.php');
+require('/var/www/html/uit-web/php/include.php');
 
 if ($_SESSION['authorized'] != "yes") {
   die();

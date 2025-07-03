@@ -2,7 +2,7 @@
 <?php
 // Migrate department date to a new table called "departments" and rename the current departments table to static_departments
 
-require('/var/www/html/management/php/include.php');
+require('/var/www/html/uit-web/php/include.php');
 
 $db = new db();
 

@@ -1,6 +1,6 @@
 <?php
-    require('/var/www/html/management/header.php');
-    require('/var/www/html/management/php/include.php');
+    require('/var/www/html/uit-web/header.php');
+    require('/var/www/html/uit-web/php/include.php');
 
     session_start();
     if ($_SESSION['authorized'] != "yes") {
@@ -35,17 +35,17 @@
 <?php
     if ($_POST["refresh-value"] == "1") {
         echo "<p>Updating Client Statistics...</p>" . PHP_EOL;
-        include('/var/www/html/management/php/uit-sql-refresh-client');
+        include('/var/www/html/uit-web/php/uit-sql-refresh-client');
         echo "<p><i>Done!</i></p>" . PHP_EOL;
         echo "<p>Updating Location Data... </p>" . PHP_EOL;
-        include('/var/www/html/management/php/uit-sql-refresh-location');
+        include('/var/www/html/uit-web/php/uit-sql-refresh-location');
         echo "<p><i>Done!</i></p>" . PHP_EOL;
         echo "<p>Updating Remote Job Data... </p>" . PHP_EOL;
-        include('/var/www/html/management/php/uit-sql-refresh-remote');
+        include('/var/www/html/uit-web/php/uit-sql-refresh-remote');
         echo "<p><i>Done!</i></p>" . PHP_EOL;
         echo "<p>Daily Reports Not Updating. </p>" . PHP_EOL;
         //echo "<p>Updating Daily Reports Data... </p>" . PHP_EOL;
-        //include('/var/www/html/management/php/uit-sql-refresh-server');
+        //include('/var/www/html/uit-web/php/uit-sql-refresh-server');
         //echo "<p><i>Done!</i></p>" . PHP_EOL;
     }
 ?>

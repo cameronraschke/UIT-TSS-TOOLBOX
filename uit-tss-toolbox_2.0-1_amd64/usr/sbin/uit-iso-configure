@@ -6,9 +6,9 @@ if [[ "$EUID" > 0 ]]
 fi
 
 function confirmDelete {
-    read -p "Are you sure you want to unmount /srv/UIT-TSS-TOOLBOX/client/iso? [y/n]: " CONFIRM
+    read -p "Are you sure you want to unmount /srv/uit-toolbox/client/iso? [y/n]: " CONFIRM
     if [[ $CONFIRM == "y" ]]; then
-		umount /srv/UIT-TSS-TOOLBOX/client/iso
+		umount /srv/uit-toolbox/client/iso
         return
     elif [[ $CONFIRM == "n" ]]; then
         exit 1
@@ -27,11 +27,11 @@ apt install dosfstools -y
 
 apt install debian-archive-keyring -y
 
-if [[ ! -d /opt/UIT-TSS-TOOLBOX/debian-live/ ]]; then
-	mkdir /opt/UIT-TSS-TOOLBOX/debian-live/
+if [[ ! -d /opt/uit-toolbox/debian-live/ ]]; then
+	mkdir /opt/uit-toolbox/debian-live/
 fi
 
-( cd /opt/UIT-TSS-TOOLBOX/debian-live/ && \
+( cd /opt/uit-toolbox/debian-live/ && \
 
 		lb clean && \
 
@@ -73,11 +73,11 @@ fi
 			--updates true \
 			--zsync true)
 
-mkdir -p /opt/UIT-TSS-TOOLBOX/debian-live/config/bootloaders
-cp -r /usr/share/live/build/bootloaders/isolinux /opt/UIT-TSS-TOOLBOX/debian-live/config/bootloaders
-cp -r /usr/share/live/build/bootloaders/grub-pc /opt/UIT-TSS-TOOLBOX/debian-live/config/bootloaders
+mkdir -p /opt/uit-toolbox/debian-live/config/bootloaders
+cp -r /usr/share/live/build/bootloaders/isolinux /opt/uit-toolbox/debian-live/config/bootloaders
+cp -r /usr/share/live/build/bootloaders/grub-pc /opt/uit-toolbox/debian-live/config/bootloaders
 
-cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/debian-live/config/bootloaders/isolinux/isolinux.cfg
+cat <<'EOF' > /opt/uit-toolbox/debian-live/config/bootloaders/isolinux/isolinux.cfg
 UI vesamenu.c32
 MENU TITLE Boot Menu
 DEFAULT linux
@@ -92,8 +92,8 @@ label linux
         append @APPEND_LIVE@
 EOF
 
-rm -r /opt/UIT-TSS-TOOLBOX/debian-live/config/bootloaders/grub-pc/*
-cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/debian-live/config/bootloaders/grub-pc/grub.cfg
+rm -r /opt/uit-toolbox/debian-live/config/bootloaders/grub-pc/*
+cat <<'EOF' > /opt/uit-toolbox/debian-live/config/bootloaders/grub-pc/grub.cfg
 insmod part_gpt
 insmod part_msdos
 insmod fat
@@ -113,7 +113,7 @@ menuentry "UIT-TSS-TOOLBOX by Cameron Raschke" {
 }
 EOF
 
-cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/debian-live/config/package-lists/live.list.chroot
+cat <<'EOF' > /opt/uit-toolbox/debian-live/config/package-lists/live.list.chroot
 live-boot
 live-config
 live-config-systemd
@@ -194,8 +194,8 @@ netcat-traditional
 iperf3
 EOF
 
-mkdir -p /opt/UIT-TSS-TOOLBOX/debian-live/config/includes.chroot/root/
-cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/debian-live/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root/
+cat <<'EOF' > /opt/uit-toolbox/debian-live/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
 sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
 sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
@@ -219,15 +219,15 @@ echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 update-smart-drivedb
 EOF
 
-chmod 777 /opt/UIT-TSS-TOOLBOX/debian-live/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
+chmod 777 /opt/uit-toolbox/debian-live/config/hooks/live/0100-uit-tss-toolbox-setup.hook.chroot
 
-mkdir -p /opt/UIT-TSS-TOOLBOX/debian-live/config/includes.chroot/root/
+mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
---output-document=/opt/UIT-TSS-TOOLBOX/debian-live//config/includes.chroot/root/oven.mp3
+--output-document=/opt/uit-toolbox/debian-live//config/includes.chroot/root/oven.mp3
 
-mkdir -p /opt/UIT-TSS-TOOLBOX/debian-live/config/includes.chroot/root
-touch /opt/UIT-TSS-TOOLBOX/debian-live/config/includes.chroot/root/.bash_profile
-cat <<'EOF' > /opt/UIT-TSS-TOOLBOX/debian-live/config/includes.chroot/root/.bash_profile
+mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root
+touch /opt/uit-toolbox/debian-live/config/includes.chroot/root/.bash_profile
+cat <<'EOF' > /opt/uit-toolbox/debian-live/config/includes.chroot/root/.bash_profile
 #!/bin/bash
 
 RED=$(tput setaf 1)
@@ -254,21 +254,21 @@ echo "${GREEN}Done.${RESET}"
 
 echo ""
 echo "${BOLD}Installing the client package${RESET}"
-curl http://mickey.uit/client/pkg/uit-tss-client_2.0-1_amd64.deb --output /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
-while [[ ! -f /root/uit-tss-client_2.0-1_amd64.deb ]]; do
-	curl http://mickey.uit/client/pkg/uit-tss-client_2.0-1_amd64.deb --output /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
+curl http://mickey.uit/client/pkg/uit-client.deb --output /root/uit-client.deb &>/dev/null
+while [[ ! -f /root/uit-client.deb ]]; do
+	curl http://mickey.uit/client/pkg/uit-client.deb --output /root/uit-client.deb &>/dev/null
 	sleep 1
 done
-dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
+dpkg --install /root/uit-client.deb &>/dev/null
 echo "${GREEN}Done.${RESET}"
 
 /usr/sbin/uit-tss-client
 EOF
 
-(cd /opt/UIT-TSS-TOOLBOX/debian-live/
+(cd /opt/uit-toolbox/debian-live/
 lb build)
 
 rm /tmp/debian-live.deb
 
-umount /srv/UIT-TSS-TOOLBOX/client/iso
-mount /opt/UIT-TSS-TOOLBOX/debian-live/UIT-TSS-TOOLBOX-amd64.hybrid.iso /srv/UIT-TSS-TOOLBOX/client/iso
+umount /srvuit-toolbox/client/iso
+mount /opt/uit-toolbox/debian-live/uit-toolbox-client-amd64.hybrid.iso /srv/uit-toolbox/client/iso

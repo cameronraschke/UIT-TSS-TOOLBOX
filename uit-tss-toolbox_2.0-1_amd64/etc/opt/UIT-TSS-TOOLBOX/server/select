@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
-require('/var/www/html/management/php/include.php');
+require('/var/www/html/uit-web/php/include.php');
 
 $stdin = fopen('php://stdin', 'r');
 $input = trim(fgets(STDIN));

@@ -6,5 +6,5 @@ update-ca-certificates
 
 /usr/bin/chmod 700 /usr/sbin/uit-*
 /usr/bin/chown root:root /usr/sbin/uit-*
-/usr/bin/chmod 750 /opt/UIT-TSS-TOOLBOX/ -R
-/usr/bin/chown root:root /opt/UIT-TSS-TOOLBOX/ -R
+/usr/bin/chmod 750 /opt/uit-toolbox/ -R
+/usr/bin/chown root:root /opt/uit-toolbox/ -R

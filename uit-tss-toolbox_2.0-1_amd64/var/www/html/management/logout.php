@@ -1,6 +1,6 @@
 <?php
 #logout.php
-require('/var/www/html/management/header.php');
+require('/var/www/html/uit-web/header.php');
 
 	my_session_destroy();
 	my_session_regenerate_id();

@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 # Connect to database and include custom functions
-require('/var/www/html/management/php/include.php');
+require('/var/www/html/uit-web/php/include.php');
 
 $timer = new scriptTimer();
 

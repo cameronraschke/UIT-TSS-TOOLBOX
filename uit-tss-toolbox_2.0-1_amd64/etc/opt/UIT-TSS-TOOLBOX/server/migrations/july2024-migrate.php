@@ -16,7 +16,7 @@ motherboard_manufacturer
 motherboard_serial
 */
 
-include('/var/www/html/management/php/include.php');
+include('/var/www/html/uit-web/php/include.php');
 
 $db = new db();
 

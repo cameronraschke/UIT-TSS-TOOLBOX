@@ -16,48 +16,48 @@ sed --in-place "s/LAN_IP/$(cat /home/cameron/.uit-passwd | grep '^LAN_IP=' | sed
 sed --in-place "s/PRINTER_IP/$(cat /home/cameron/.uit-passwd | grep '^PRINTER_IP=' | sed 's/PRINTER_IP=//g' | sed 's/\//\\\//g')/g" /usr/sbin/uit-firewall
 sed --in-place "s/LAN_IF/$(cat /home/cameron/.uit-passwd | grep '^LAN_IF=' | sed 's/LAN_IF=//g')/g" /etc/dnsmasq.d/uit-dhcp.conf
 
-if [[ ! -d /srv/nfs/UIT-TSS-TOOLBOX/images ]]; then
-    mkdir -p /srv/nfs/UIT-TSS-TOOLBOX/images
+if [[ ! -d /srv/nfs/uit-toolbox/images ]]; then
+    mkdir -p /srv/nfs/uit-toolbox/images
 fi
 find /srv/nfs/ -type d -exec chmod 755 {} \;
-#find /srv/nfs/UIT-TSS-TOOLBOX/images -type d -exec chmod 755 {} \;
-#find /srv/nfs/UIT-TSS-TOOLBOX/images -type f -exec chmod 664 {} \;
-/usr/bin/chown nobody:nogroup /srv/nfs/UIT-TSS-TOOLBOX/images -R
+#find /srv/nfs/uit-toolbox/images -type d -exec chmod 755 {} \;
+#find /srv/nfs/uit-toolbox/images -type f -exec chmod 664 {} \;
+/usr/bin/chown nobody:nogroup /srv/nfs/uit-toolbox/images -R
 
-/usr/bin/chown root:uit /etc/opt/UIT-TSS-TOOLBOX -R
-find /etc/opt/UIT-TSS-TOOLBOX -type d -exec chmod 750 {} \;
-find /etc/opt/UIT-TSS-TOOLBOX -type f -exec chmod 660 {} \;
+/usr/bin/chown root:uit /etc/opt/uit-toolbox -R
+find /etc/opt/uit-toolbox -type d -exec chmod 750 {} \;
+find /etc/opt/uit-toolbox -type f -exec chmod 660 {} \;
 
-/usr/bin/chown root:uit /var/www/html/management -R
-find /var/www/html/management -type d -exec chmod 755 {} \;
-find /var/www/html/management -type f -exec chmod 664 {} \;
-chown www-data:uit /var/www/html/management/bash/uit-print-pdf
-chmod 750 /var/www/html/management/bash/uit-print-pdf
+/usr/bin/chown root:uit /var/www/html/uit-web -R
+find /var/www/html/uit-web -type d -exec chmod 755 {} \;
+find /var/www/html/uit-web -type f -exec chmod 664 {} \;
+chown www-data:uit /var/www/html/uit-web/bash/uit-print-pdf
+chmod 750 /var/www/html/uit-web/bash/uit-print-pdf
 
-if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/src/ ]]; then
-    mkdir /srv/UIT-TSS-TOOLBOX/client/src/
+if [[ ! -d /srv/uit-toolbox/client/src/ ]]; then
+    mkdir /srv/uit-toolbox/client/src/
 fi
-if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/pkg/ ]]; then
-    mkdir /srv/UIT-TSS-TOOLBOX/client/pkg/
+if [[ ! -d /srv/uit-toolbox/client/pkg/ ]]; then
+    mkdir /srv/uit-toolbox/client/pkg/
 fi
-if [[ ! -d /srv/UIT-TSS-TOOLBOX/client/iso/ ]]; then
-    mkdir /srv/UIT-TSS-TOOLBOX/client/iso/
+if [[ ! -d /srv/uit-toolbox/client/iso/ ]]; then
+    mkdir /srv/uit-toolbox/client/iso/
 fi
 
-/usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/src -R
-/usr/bin/chown root:uit /srv/UIT-TSS-TOOLBOX/client/pkg -R
+/usr/bin/chown root:uit /srv/uit-toolbox/client/src -R
+/usr/bin/chown root:uit /srv/uit-toolbox/client/pkg -R
 # Find command w/ directory is different regex
-find /srv/UIT-TSS-TOOLBOX/ -type d -not -path "*/iso*" -exec chmod 755 {} \;
-find /srv/UIT-TSS-TOOLBOX/ -type f -not -path "*/iso/*" -exec chmod 664 {} \;
+find /srv/uit-toolbox/ -type d -not -path "*/iso*" -exec chmod 755 {} \;
+find /srv/uit-toolbox/ -type f -not -path "*/iso/*" -exec chmod 664 {} \;
 echo -e "\n" >> /etc/cron.d/uit-cron
 
 # Update mysql tables & procedures
-mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-procedures.sql
-mysql laptopDB < /etc/opt/UIT-TSS-TOOLBOX/server/mysql/mysql-tables.sql
+mysql laptopDB < /etc/opt/uit-toolbox/server/mysql/mysql-procedures.sql
+mysql laptopDB < /etc/opt/uit-toolbox/server/mysql/mysql-tables.sql
 
 # Insert include.php with modifications for the clients.
-cat /var/www/html/management/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
-sed --in-place 's/WEB_SVC_PASSWD/CLIENT_PASSWD/g' /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
+cat /var/www/html/uit-web/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/opt/uit-toolbox/include.php
+sed --in-place 's/WEB_SVC_PASSWD/CLIENT_PASSWD/g' /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/opt/uit-toolbox/include.php
 
 
 # Set passwords for various services
@@ -107,26 +107,26 @@ mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIE
 
 
 # Client-side Bash Scripts
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/usr/sbin/uit-tss-client
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/include.php
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/opt/UIT-TSS-TOOLBOX/api-client.php
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/usr/sbin/uit-tss-client
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/opt/uit-toolbox/include.php
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/opt/uit-toolbox/api-client.php
 
 # Web PHP Scripts
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/locations.php
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/api/endpoint.php
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/bash/uit-print-pdf
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/php/include.php
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/management/api/print-page.php
+sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/locations.php
+sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/api/endpoint.php
+sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/bash/uit-print-pdf
+sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/php/include.php
+sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/api/print-page.php
 
 # This is the client password because clients don't know web password
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/management/api/refresh-client.php
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/management/tagnumber.php
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/management/locations.php
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/uit-web/api/refresh-client.php
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/uit-web/tagnumber.php
+sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/uit-web/locations.php
 sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /usr/sbin/uit-sql-refresh
 
 # Webmaster Name and Email
-sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /var/www/html/management/index.php
-sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /var/www/html/management/index.php
+sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /var/www/html/uit-web/index.php
+sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /var/www/html/uit-web/index.php
 
 # Webmaster IP Address, Name, and Email for SSL Cert
 sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /root/uit-ssl/uit-web.cfg
@@ -135,30 +135,30 @@ sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /root/uit-ssl/uit-web.cfg
 
 
 # Build client .deb package
-(cd /srv/UIT-TSS-TOOLBOX/client/src/
-chmod 755 /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/
-chmod 755 /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/control
-chmod 755 /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
-dpkg-deb --build --root-owner-group /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64 
-mv -v /srv/UIT-TSS-TOOLBOX/client/src/uit-tss-client_2.0-1_amd64.deb /srv/UIT-TSS-TOOLBOX/client/pkg/uit-tss-client_2.0-1_amd64.deb 
+(cd /srv/uit-toolbox/client/src/
+chmod 755 /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/
+chmod 755 /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/control
+chmod 755 /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64/DEBIAN/postinst
+dpkg-deb --build --root-owner-group /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64 
+mv -v /srv/uit-toolbox/client/src/uit-tss-client_2.0-1_amd64.deb /srv/uit-toolbox/client/pkg/uit-client.deb 
 )
 
-if [[ ! -f /var/www/html/management/favicon.ico ]]; then
-    wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/management/favicon.ico
+if [[ ! -f /var/www/html/uit-web/favicon.ico ]]; then
+    wget 'https://uh.edu/favicon.ico' --output-document /var/www/html/uit-web/favicon.ico
 fi
 
-if [[ ! -f  /var/www/html/management/images/uh-logo.png ]]; then
-    wget 'http://www.sa.uh.edu/brand/_img/uh-wide-full-color-rgb.png' --output-document=/var/www/html/management/images/uh-logo.png
+if [[ ! -f  /var/www/html/uit-web/images/uh-logo.png ]]; then
+    wget 'http://www.sa.uh.edu/brand/_img/uh-wide-full-color-rgb.png' --output-document=/var/www/html/uit-web/images/uh-logo.png
 fi
 
-rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/management/images/
+rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/uit-web/images/
 
-rsync -Pav --delete /home/cameron/google-charts /var/www/html/management/
+rsync -Pav --delete /home/cameron/google-charts /var/www/html/uit-web/
 
-if [[ -f /srv/UIT-TSS-TOOLBOX/client/certs ]]; then
-    rm /srv/UIT-TSS-TOOLBOX/client/certs
+if [[ -f /srv/uit-toolbox/client/certs ]]; then
+    rm /srv/uit-toolbox/client/certs
 fi
 
-mkdir -p /srv/UIT-TSS-TOOLBOX/client/certs/
-cp /etc/ssl/certs/ca.crt /srv/UIT-TSS-TOOLBOX/client/certs/ca.crt
-cp /etc/ssl/certs/uit-web.crt /srv/UIT-TSS-TOOLBOX/client/certs/uit-web.crt
+mkdir -p /srv/uit-toolbox/client/certs/
+cp /etc/ssl/certs/ca.crt /srv/uit-toolbox/client/certs/ca.crt
+cp /etc/ssl/certs/uit-web.crt /srv/uit-toolbox/client/certs/uit-web.crt

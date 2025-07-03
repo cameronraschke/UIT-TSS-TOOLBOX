@@ -76,7 +76,7 @@ systemctl daemon-reload &>/dev/null
 /usr/bin/chronyc add server 10.0.0.1 iburst
 /usr/bin/chronyc makestep
 
-while [[ $(echo "SELECT CONCAT(CURDATE(), ' ', CURTIME()) AS 'result'" | /opt/UIT-TSS-TOOLBOX/select) != $(date '+%Y-%m-%d %H:%M:%S') ]]; do
+while [[ $(echo "SELECT CONCAT(CURDATE(), ' ', CURTIME()) AS 'result'" | /opt/uit-toolbox/select) != $(date '+%Y-%m-%d %H:%M:%S') ]]; do
 	sleep 0.01
 done
 echo "${GREEN}Done.${RESET}"
@@ -115,16 +115,16 @@ tOneSerialNumber=$(dmidecode --string system-serial-number)
 ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1,3}/16' | sed 's/\/16//g')
 
 function remote {
-	job_queued=$(echo "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select)
-	job_queued_override=$(echo "SELECT job_queued AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select)
-	job_queued_formatted=$(echo "SELECT (CASE WHEN job_queued = 'data collection' THEN 'data collection' WHEN job_queued = 'update' THEN 'update' WHEN job_queued = 'findmy' THEN 'playing a sound' WHEN (job_queued = 'hpEraseAndClone' OR job_queued = 'generic-erase+clone') THEN 'disk erase & clone' WHEN (job_queued = 'hpCloneOnly' OR job_queued = 'generic-clone') THEN 'disk clone' WHEN job_queued = 'nvmeErase' THEN 'disk erase' WHEN job_queued = 'nvmeVerify' THEN 'disk verify' WHEN job_queued = 'shutdown' THEN 'shutdown' WHEN job_queued = 'clean-shutdown' THEN 'shutdown' ELSE job_queued END) AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select) 
-	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, job_active, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_queued IS NOT NULL AND job_active IS NULL) t1 WHERE t1.tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select)
-	job_active=$(echo "SELECT job_active AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select)
-	job_available=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active IS NOT NULL" | /opt/UIT-TSS-TOOLBOX/select)
+	job_queued=$(echo "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
+	job_queued_override=$(echo "SELECT job_queued AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
+	job_queued_formatted=$(echo "SELECT (CASE WHEN job_queued = 'data collection' THEN 'data collection' WHEN job_queued = 'update' THEN 'update' WHEN job_queued = 'findmy' THEN 'playing a sound' WHEN (job_queued = 'hpEraseAndClone' OR job_queued = 'generic-erase+clone') THEN 'disk erase & clone' WHEN (job_queued = 'hpCloneOnly' OR job_queued = 'generic-clone') THEN 'disk clone' WHEN job_queued = 'nvmeErase' THEN 'disk erase' WHEN job_queued = 'nvmeVerify' THEN 'disk verify' WHEN job_queued = 'shutdown' THEN 'shutdown' WHEN job_queued = 'clean-shutdown' THEN 'shutdown' ELSE job_queued END) AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select) 
+	job_queued_position=$(echo "SELECT result FROM (SELECT tagnumber, job_active, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_queued IS NOT NULL AND job_active IS NULL) t1 WHERE t1.tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
+	job_active=$(echo "SELECT job_active AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
+	job_available=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active IS NOT NULL" | /opt/uit-toolbox/select)
 }
 
 function department {
-	sqlDepartment=$(echo "SELECT department AS 'result' FROM locations WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+	sqlDepartment=$(echo "SELECT department AS 'result' FROM locations WHERE system_serial = '${tOneSerialNumber}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 }
 
 DATE=$(date --iso)
@@ -137,88 +137,88 @@ function diskData {
 	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
 		if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
 			DISK="$i"
-			echo "general|disk|${DISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk|${DISK}|${UUID}" | /opt/uit-toolbox/parse
 		fi
 
 		if [[ $DISK =~ $NVME_REGEX ]]; then
 		diskModel=$(cat /root/smartctl-data | grep '^Model Number: ' | sed 's/Model Number: *//g')
-			echo "general|disk_model|${diskModel}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_model|${diskModel}|${UUID}" | /opt/uit-toolbox/parse
 		diskSerial=$(cat /root/smartctl-data | grep '^Serial Number: ' | sed 's/Serial Number: *//g')
-			echo "general|disk_serial|${diskSerial}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_serial|${diskSerial}|${UUID}" | /opt/uit-toolbox/parse
 		diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
-			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /opt/uit-toolbox/parse
 		diskTemp=$(cat /root/smartctl-data | grep '^Temperature: ' | sed 's/[^0-9]//g')
-			echo "general|disk_temp|${diskTemp}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_temp|${diskTemp}|${UUID}" | /opt/uit-toolbox/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep 'Size/Capacity' | sed 's/,//g' | awk '{print $4}') / 1000000000 ))
-			echo "general|disk_size|${diskSize}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_size|${diskSize}|${UUID}" | /opt/uit-toolbox/parse
 		diskReadsLBA=$(cat /root/smartctl-data | grep '^Data Units Read: ' | sed 's/,//g' | awk '{print $4}')
-			echo "general|disk_reads|${diskReadsLBA}|${UUID}|nvme" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_reads|${diskReadsLBA}|${UUID}|nvme" | /opt/uit-toolbox/parse
 		diskWritesLBA=$(cat /root/smartctl-data | grep '^Data Units Written: ' | sed 's/,//g' | awk '{print $4}')
-			echo "general|disk_writes|${diskWritesLBA}|${UUID}|nvme" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_writes|${diskWritesLBA}|${UUID}|nvme" | /opt/uit-toolbox/parse
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '^Power On Hours: ' | awk '{print $4}' | sed 's/,//g')
-			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /opt/uit-toolbox/parse
 		diskPowerCycles=$(cat /root/smartctl-data | grep '^Power Cycles: ' | awk '{print $3}' | sed 's/,//g')
-			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /opt/uit-toolbox/parse
 		diskType=nvme
-			echo "general|disk_type|${diskType}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_type|${diskType}|${UUID}" | /opt/uit-toolbox/parse
 		# Disk errors
 		diskGenericErr=$(cat /root/smartctl-data | grep 'Error Information Log Entries:' | awk '{print $5}' | sed 's/,//g')
 		diskDataErr=$(cat /root/smartctl-data | grep 'Media and Data Integrity Errors:' | awk '{print $6}' | sed 's/,//g')
 
 		diskErrors=$(( diskGenericErr + diskDataErr ))
-			echo "general|disk_errors|${diskErrors}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_errors|${diskErrors}|${UUID}" | /opt/uit-toolbox/parse
 		fi
 
 		if [[ $DISK =~ $SSD_REGEX ]]; then
 		diskModel=$(cat /root/smartctl-data | grep '^Device Model: ' | sed 's/Device Model: *//g')
-			echo "general|disk_model|${diskModel}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_model|${diskModel}|${UUID}" | /opt/uit-toolbox/parse
 		diskSerial=$(cat /root/smartctl-data | grep '^Serial Number: ' | sed 's/Serial Number: *//g')
-			echo "general|disk_serial|${diskSerial}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_serial|${diskSerial}|${UUID}" | /opt/uit-toolbox/parse
 		diskFirmware=$(cat /root/smartctl-data | grep '^Firmware Version: ' | sed 's/Firmware Version: *//g')
-			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_firmware|${diskFirmware}|${UUID}" | /opt/uit-toolbox/parse
 		diskTemp=$(cat /root/smartctl-data | grep '194 Temperature_Celsius' | awk '{print $10}')
-			echo "general|disk_temp|${diskTemp}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_temp|${diskTemp}|${UUID}" | /opt/uit-toolbox/parse
 		diskSize=$(( $(cat /root/smartctl-data | grep '^User Capacity' | sed 's/,//g' | awk '{print $3}') / 1000000000 ))
-			echo "general|disk_size|${diskSize}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_size|${diskSize}|${UUID}" | /opt/uit-toolbox/parse
 
 		# Disk reads
 		diskReadsGiB=$(cat /root/smartctl-data | grep '242 Total_Reads_GiB' | awk '{print $10}')
 		if [[ -n $diskReadsGiB ]]; then
-			echo "general|disk_reads|${diskReadsGiB}|${UUID}|sata|gib" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_reads|${diskReadsGiB}|${UUID}|sata|gib" | /opt/uit-toolbox/parse
 		fi
 
 		diskReadsLBA=$(cat /root/smartctl-data | grep '242 Total_LBAs_Read' | awk '{print $10}')
 		if [[ -n $diskReadsLBA ]]; then
-			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_reads|${diskReadsLBA}|${UUID}|sata" | /opt/uit-toolbox/parse
 		fi
 
 		# Disk writes
 		diskWritesGiB=$(cat /root/smartctl-data | grep '241 Total_Writes_GiB' | awk '{print $10}')
 		if [[ -n $diskWritesGiB ]]; then
-			echo "general|disk_writes|${diskWritesGiB}|${UUID}|sata|gib" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_writes|${diskWritesGiB}|${UUID}|sata|gib" | /opt/uit-toolbox/parse
 		fi
 		
 		diskWritesLBA=$(cat /root/smartctl-data | grep '241 Total_LBAs_Written' | awk '{print $10}')
 		if [[ -n $diskWritesLBA ]]; then
-			echo "general|disk_writes|${diskWritesLBA}|${UUID}|sata" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_writes|${diskWritesLBA}|${UUID}|sata" | /opt/uit-toolbox/parse
 		fi
 
 		diskType=$(lsblk --nodeps --output NAME,ROTA | grep -i "${DISK}"  | awk '{ print $2 }' | tail -n 1)
-			echo "general|disk_type|${diskType}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_type|${diskType}|${UUID}" | /opt/uit-toolbox/parse
 			if [[ $diskType == "1" ]]; then
 				diskType="hdd"
 				else
 				diskType="ssd"
 			fi
 		diskPowerOnHours=$(cat /root/smartctl-data | grep '9 Power_On_Hours' | awk '{print $10}')
-			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_power_on_hours|${diskPowerOnHours}|${UUID}" | /opt/uit-toolbox/parse
 
 		diskPowerCycles=$(cat /root/smartctl-data | grep '12 Power_Cycle_Count' | awk '{print $10}' | sed 's/,//g')
-			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_power_cycles|${diskPowerCycles}|${UUID}" | /opt/uit-toolbox/parse
 
 		# Disk errors
 		diskErrors=$(cat /root/smartctl-data | grep 'ATA Error Count:' | awk '{print $4}' | sed 's/,//g')
-			echo "general|disk_errors|${diskErrors}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk_errors|${diskErrors}|${UUID}" | /opt/uit-toolbox/parse
 		fi
 	done
 }
@@ -227,55 +227,55 @@ function diskData {
 function systemData {
 	# WiFi MAC Address
 	wifiMac=$(cat /sys/class/ieee80211/phy*/macaddress 2>/dev/null)
-	echo "system_data|${tagNum}|wifi_mac|${wifiMac}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|wifi_mac|${wifiMac}" | /opt/uit-toolbox/parse
 
 	# System Model Name
 	tOneProductName=$(dmidecode --string system-product-name)
-	echo "system_data|${tagNum}|system_model|${tOneProductName}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|system_model|${tOneProductName}" | /opt/uit-toolbox/parse
 
 	# System UUID
 	tOneUUID=$(dmidecode --string system-uuid)
-	echo "system_data|${tagNum}|system_uuid|${tOneUUID}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|system_uuid|${tOneUUID}" | /opt/uit-toolbox/parse
 
 	# System SKU
 	tOneSKU=$(dmidecode --string system-sku-number)
-	echo "system_data|${tagNum}|system_sku|${tOneSKU}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|system_sku|${tOneSKU}" | /opt/uit-toolbox/parse
 
 	# Chassis Type
 	tThreeType=$(dmidecode --string chassis-type | head -n1)
-	echo "system_data|${tagNum}|chassis_type|${tThreeType}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|chassis_type|${tThreeType}" | /opt/uit-toolbox/parse
 
 	# CPU Manufacturer
 	tFourManufacturer=$(dmidecode --string processor-manufacturer)
-	echo "system_data|${tagNum}|cpu_manufacturer|${tFourManufacturer}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_manufacturer|${tFourManufacturer}" | /opt/uit-toolbox/parse
 
 	# CPU Model
 	tFourVersion=$(dmidecode --string processor-version)
-	echo "system_data|${tagNum}|cpu_model|${tFourVersion}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_model|${tFourVersion}" | /opt/uit-toolbox/parse
 
 	# CPU Max Speed
 	tFourMaxSpeed=$(dmidecode -t4 | grep 'Max Speed' | sed 's/[^0-9]//g')
-	echo "system_data|${tagNum}|cpu_maxspeed|${tFourMaxSpeed}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_maxspeed|${tFourMaxSpeed}" | /opt/uit-toolbox/parse
 
 	# CPU Core Count
 	tFourCoreCount=$(dmidecode -t4 | grep 'Core Count' | sed 's/Core Count: //g' | sed 's/^[[:space:]]*//g')
-	echo "system_data|${tagNum}|cpu_cores|${tFourCoreCount}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_cores|${tFourCoreCount}" | /opt/uit-toolbox/parse
 
 	# CPU Thread Count
 	tFourThreadCount=$(dmidecode -t4 | grep 'Thread Count' | sed 's/Thread Count: //g' | sed 's/^[[:space:]]*//g')
-	echo "system_data|${tagNum}|cpu_threads|${tFourThreadCount}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|cpu_threads|${tFourThreadCount}" | /opt/uit-toolbox/parse
 
 	# Motherboard Manufacturer
 	tTwoManufacturer=$(dmidecode --string baseboard-manufacturer)
-	echo "system_data|${tagNum}|motherboard_manufacturer|${tTwoManufacturer}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|motherboard_manufacturer|${tTwoManufacturer}" | /opt/uit-toolbox/parse
 
 	# Motherboard Serial
 	tTwoSerialNumber=$(dmidecode --string baseboard-serial-number)
-	echo "system_data|${tagNum}|motherboard_serial|${tTwoSerialNumber}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|motherboard_serial|${tTwoSerialNumber}" | /opt/uit-toolbox/parse
 
 	# System Manufacturer
 	tOneManufacturer=$(dmidecode --string system-manufacturer)
-	echo "system_data|${tagNum}|system_manufacturer|${tOneManufacturer}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system_data|${tagNum}|system_manufacturer|${tOneManufacturer}" | /opt/uit-toolbox/parse
 }
 
 function hardwareData {
@@ -321,7 +321,7 @@ EOF
 echo "${RESET}"
 echo "${BOLD}Inputting data into database...${RESET}"
 fi
-	echo "general|host_connected|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "general|host_connected|1|${UUID}" | /opt/uit-toolbox/parse
 	### DMI Data
 	#t0 = BIOS
 	#t1 = system
@@ -331,13 +331,13 @@ fi
 	#t22 = Battery
 	#t32 = Boot Status
 	tZeroBiosVersion=$(dmidecode --string bios-version)
-		echo "general|bios_version|${tZeroBiosVersion}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|bios_version|${tZeroBiosVersion}|${UUID}" | /opt/uit-toolbox/parse
 	tZeroBiosReleaseDate=$(dmidecode --string bios-release-date)
-		echo "general|bios_date|${tZeroBiosReleaseDate}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|bios_date|${tZeroBiosReleaseDate}|${UUID}" | /opt/uit-toolbox/parse
 	tZeroFirmwareRevision=$(dmidecode --string firmware-revision)
-		echo "general|bios_firmware|${tZeroFirmwareRevision}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|bios_firmware|${tZeroFirmwareRevision}|${UUID}" | /opt/uit-toolbox/parse
 	tOneSerialNumber=$(dmidecode --string system-serial-number)
-		echo "general|system_serial|${tOneSerialNumber}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|system_serial|${tOneSerialNumber}|${UUID}" | /opt/uit-toolbox/parse
 
 	###Disk Data
 	diskData
@@ -347,16 +347,16 @@ fi
 		batChargeNow=$(cat /sys/class/power_supply/BAT0/charge_full)
 		batChargeFactory=$(cat /sys/class/power_supply/BAT0/charge_full_design)
 		batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
-			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /opt/uit-toolbox/parse
 		batChargeCycles=$(cat /sys/class/power_supply/BAT0/cycle_count)
-			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /opt/uit-toolbox/parse
 	elif [[ -f /sys/class/power_supply/BAT1/energy_full_design ]]; then
 		batChargeNow=$(cat /sys/class/power_supply/BAT1/energy_full)
 		batChargeFactory=$(cat /sys/class/power_supply/BAT1/energy_full_design)
 		batHealthPCNT=$(( batChargeNow * 100 / batChargeFactory ))
-			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|battery_health|${batHealthPCNT}|${UUID}" | /opt/uit-toolbox/parse
 		batChargeCycles=$(cat /sys/class/power_supply/BAT1/cycle_count)
-			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|battery_charge_cycles|${batChargeCycles}|${UUID}" | /opt/uit-toolbox/parse
 	fi
 	
 	tTwentyTwoName=$(dmidecode -t22 | grep 'Name' | sed 's/Name: //g' | sed 's/^[[:space:]]*//g')
@@ -367,10 +367,10 @@ fi
 			tTwentyTwoName=$(cat /sys/class/power_supply/BAT1/model_name)
 		fi
 	fi
-		echo "general|battery_model|${tTwentyTwoName}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_model|${tTwentyTwoName}|${UUID}" | /opt/uit-toolbox/parse
 	
 	tTwentyTwoCapacity=$(dmidecode -t22 | grep 'Design Capacity' | sed 's/[^0-9]//g')
-		echo "general|battery_capacity|${tTwentyTwoCapacity}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_capacity|${tTwentyTwoCapacity}|${UUID}" | /opt/uit-toolbox/parse
 
 	tTwentyTwoSerialNumber=$(dmidecode -t22 | grep 'SBDS Serial Number' | sed 's/SBDS Serial Number: //g' | sed 's/^[[:space:]]*//g')
 	if [[ -z $tTwentyTwoSerialNumber ]]; then
@@ -380,31 +380,31 @@ fi
 			tTwentyTwoSerialNumber=$(cat /sys/class/power_supply/BAT1/serial_number)
 		fi
 	fi
-		echo "general|battery_serial|${tTwentyTwoSerialNumber}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_serial|${tTwentyTwoSerialNumber}|${UUID}" | /opt/uit-toolbox/parse
 
 	tTwentyTwoManufactureDate=$(dmidecode -t22 | grep 'SBDS Manufacture Date' | sed 's/SBDS Manufacture Date: //g' | sed 's/^[[:space:]]*//g')
-		echo "general|battery_manufacturedate|${tTwentyTwoManufactureDate}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|battery_manufacturedate|${tTwentyTwoManufactureDate}|${UUID}" | /opt/uit-toolbox/parse
 
 	###Memory Data
 	memSerial=$(dmidecode --type memory | grep -P '\tSerial Number' | sed 's/Serial Number: //g' | tr '\n' ' ' | tr '\t' ' ' | sed 's/ Not Specified //g' | sed 's/^ //g' | tr ' ' '-' | sed 's/-$//g')
-		echo "general|ram_serial|${memSerial}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|ram_serial|${memSerial}|${UUID}" | /opt/uit-toolbox/parse
 	memCapacity=$(grep '^MemTotal' /proc/meminfo | awk '{ print $2 }')
-		echo "general|ram_capacity|${memCapacity}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|ram_capacity|${memCapacity}|${UUID}" | /opt/uit-toolbox/parse
 	memSpeed=$(dmidecode --type 17 | grep '^[[:space:]]*Speed\:' | head -n1 | sed 's/[^0-9]'//g)
-		echo "general|ram_speed|${memSpeed}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|ram_speed|${memSpeed}|${UUID}" | /opt/uit-toolbox/parse
 
 	###Boot Times
 	bootTime=$(systemd-analyze | grep -oP '[0-9]+[0-9.]*' | head -n 1)
-		echo "general|boot_time|${bootTime}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|boot_time|${bootTime}|${UUID}" | /opt/uit-toolbox/parse
 
 	###CPU Info
 	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
-		echo "general|cpu_temp|${cpuTemp}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|cpu_temp|${cpuTemp}|${UUID}" | /opt/uit-toolbox/parse
 
-	echo "system-stats|cpu|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-	echo "system-stats|network|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse.
+	echo "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
+	echo "system-stats|network|${UUID}" | /opt/uit-toolbox/parse.
 
-	#echo "client_health|${tagNum}|tpm_version|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/UIT-TSS-TOOLBOX/parse
+	#echo "client_health|${tagNum}|tpm_version|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/uit-toolbox/parse
 }
 
 function checkNetwork {
@@ -420,7 +420,7 @@ function enterTag {
 	tput reset
 	echo ""
 
-	tagNum=$(echo "SELECT tagnumber AS result FROM locations WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+	tagNum=$(echo "SELECT tagnumber AS result FROM locations WHERE system_serial = '$tOneSerialNumber' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 	department
 	if [[ $tagNum != "NULL" ]]; then
 		UUID=""
@@ -428,7 +428,7 @@ function enterTag {
 		department=$sqlDepartment
 
 		#sleep ${RANDOM::1}
-		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/uit-toolbox/parse
 		coproc uit_cpu { uit-cpu 2>/dev/null; }
 		coproc uit_network { uit-network 2>/dev/null; }
 		coproc uit_sql { uit-sql 2>/dev/null; }
@@ -454,8 +454,8 @@ function enterTag {
 
 		UUID=$(echo -n "newEntry-"; cat /proc/sys/kernel/random/uuid)
 
-		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/UIT-TSS-TOOLBOX/parse
-		echo "location|custom|${tagNum}|${tOneSerialNumber}|new entry|0|" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "init|${UUID}|${tagNum}|${tOneSerialNumber}|${etherAddr}|${wifiMac}|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/uit-toolbox/parse
+		echo "location|custom|${tagNum}|${tOneSerialNumber}|new entry|0|" | /opt/uit-toolbox/parse
 		department
 		enterTag
 	fi
@@ -485,18 +485,18 @@ function info {
 
 
 function footer {
-	biosUpdatedSQL=$(echo "SELECT bios_version AS 'result' FROM static_bios_stats WHERE system_model = '${tOneProductName}'" | /opt/UIT-TSS-TOOLBOX/select 2>/dev/null)
+	biosUpdatedSQL=$(echo "SELECT bios_version AS 'result' FROM static_bios_stats WHERE system_model = '${tOneProductName}'" | /opt/uit-toolbox/select 2>/dev/null)
 	if [[ $biosUpdatedSQL == "NULL" ]]; then
 		biosUpdated="$(dmidecode --string bios-version)"
-		echo "bios|${tagNum}|bios_version|$(dmidecode --string bios-version)" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "bios|${tagNum}|bios_version|$(dmidecode --string bios-version)" | /opt/uit-toolbox/parse
 	elif [[ $biosUpdatedSQL == $(dmidecode --string bios-version) ]]; then
 		biosUpdated="${GREEN}Updated${RESET}"
-		echo "bios|${tagNum}|bios_version|$(dmidecode --string bios-version)" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "bios|${tagNum}|bios_version|$(dmidecode --string bios-version)" | /opt/uit-toolbox/parse
 	elif [[ $biosUpdatedSQL != $(dmidecode --string bios-version) ]]; then
 		biosUpdated="${RED}Needs Update${RESET}"
-		echo "bios|${tagNum}|bios_version|$(dmidecode --string bios-version)" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "bios|${tagNum}|bios_version|$(dmidecode --string bios-version)" | /opt/uit-toolbox/parse
 	fi
-	sqlLocation=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select 2>/dev/null)
+	sqlLocation=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select 2>/dev/null)
 
 	if [[ -d /sys/class/power_supply/BAT0 ]]; then
     batCharge=0
@@ -595,7 +595,7 @@ function powerWarning {
 
 
 function monitorBattery {
-	echo "remote|${tagNum}|status|monitoring battery" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|monitoring battery" | /opt/uit-toolbox/parse
 	footer
 	lines=$(tput lines)
 	while sleep 1; do
@@ -682,7 +682,7 @@ function basicEraseMode_Shred {
 			fi
 		fi
 	fi
-	echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "general|erase_mode|${RMODE}|${UUID}" | /opt/uit-toolbox/parse
 }
 
 
@@ -783,7 +783,7 @@ function advEraseMode_Shred {
 	footer
 	read -p "Are you sure you want to use ${BOLD}${BLUE}${RMODE}${RESET} on ${BOLD}${BLUE}${CLIENTDISK}${RESET}? Press ${BOLD}${GREEN}Enter${RESET} to continue...${RESET} "
 
-	echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "general|erase_mode|${RMODE}|${UUID}" | /opt/uit-toolbox/parse
 }
 
 
@@ -834,7 +834,7 @@ function diskSelect {
 	fi
 	
 	if [[ $CLIENTDISK =~ ${NVME_REGEX} || $CLIENTDISK =~ ${SSD_REGEX} ]]; then
-		echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/uit-toolbox/parse
 	else
 	    echo ""
 	    echo "${BOLD}${RED}Invalid disk regex check.${RESET}"
@@ -858,7 +858,7 @@ function randPattern_Shred {
 
 
 function writeDisk_Shred {
-	echo "remote|${tagNum}|status|Erasing disk ($shredMode)" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|Erasing disk ($shredMode)" | /opt/uit-toolbox/parse
 	if [[ -z $writeSections ]]; then
 		writeSections='1000'
 	fi
@@ -907,7 +907,7 @@ function writeDisk_Shred {
 	sectorSize=$((diskBytes / BS / writeSections))
 
 	echo "Filling ${PCNTOFSECTOR}% of ${CLIENTDISK} with a stream of ${BITS}...."
-	echo "general|erase_diskpercent|${PCNTOFSECTOR}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "general|erase_diskpercent|${PCNTOFSECTOR}|${UUID}" | /opt/uit-toolbox/parse
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
 		${SOURCE} | (pv > /dev/${CLIENTDISK})
@@ -920,7 +920,7 @@ function writeDisk_Shred {
 		tput el
 		echo "Writing to section ${i}/${writeSections}"
 		if (( $i % 25 == 0 )); then
-			echo "remote|${tagNum}|status|Writing to section ${i}/${writeSections} ($shredMode)" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|status|Writing to section ${i}/${writeSections} ($shredMode)" | /opt/uit-toolbox/parse
 		fi
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
@@ -942,7 +942,7 @@ function writeDisk_Shred {
 
 
 function vrfyDisk_Shred {
-	echo "remote|${tagNum}|status|Verifying erase ($shredMode)" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|Verifying erase ($shredMode)" | /opt/uit-toolbox/parse
 	if [[ -z $vrfySections ]]; then
 		vrfySections='1000'
 	fi
@@ -964,10 +964,10 @@ function vrfyDisk_Shred {
 	echo "Looking for non-${CHAR}'s on ${CLIENTDISK}...."
 
 	if [[ $PCNTOFSECTOR == '100' ]]; then
-		echo "remote|${tagNum}|status|Verifying the entire disk" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|Verifying the entire disk" | /opt/uit-toolbox/parse
 		if [[ $(pv /dev/${CLIENTDISK} | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
 		    PROCFAIL='1'
-			echo "remote|${tagNum}|status|fail - verifying erase" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|status|fail - verifying erase" | /opt/uit-toolbox/parse
             read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 			pkill --terminal tty1
 		else
@@ -982,7 +982,7 @@ function vrfyDisk_Shred {
 		tput el
 		echo "Verifying section ${i}/${vrfySections}"
 		if (( $i % 25 == 0 )); then
-			echo "remote|${tagNum}|status|Verifying section ${i}/${vrfySections}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|status|Verifying section ${i}/${vrfySections}" | /opt/uit-toolbox/parse
 		fi
 		sectorMin=$((i * sectorSize))
 		sectorMax=$((sectorMin + sectorSize))
@@ -995,7 +995,7 @@ function vrfyDisk_Shred {
     	if [[ $(dd if=/dev/${CLIENTDISK} bs=${BS} count=${COUNT} skip=${SKIP} iflag=fullblock status=none 2>/dev/null \
         	| xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
-				echo "remote|${tagNum}|status|fail - verifying erase" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - verifying erase" | /opt/uit-toolbox/parse
             	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				pkill --terminal tty1
     	fi
@@ -1004,32 +1004,32 @@ function vrfyDisk_Shred {
 
 	echo ""
 	echo "Verifing the first sector of the disk...."
-		echo "remote|${tagNum}|status|Verifing the first sector of the disk..." | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|Verifing the first sector of the disk..." | /opt/uit-toolbox/parse
 	if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorCount} skip=0 iflag=fullblock status=none 2>/dev/null \
         | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0'  ]]; then
             	PROCFAIL='1'
-				echo "remote|${tagNum}|status|fail - verifying erase" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - verifying erase" | /opt/uit-toolbox/parse
             	read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				pkill --terminal tty1
     fi
 	echo "Verifing the last sector of the disk...."
-		echo "remote|${tagNum}|status|Verifing the last sector of the disk..." | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|Verifing the last sector of the disk..." | /opt/uit-toolbox/parse
     if [[ $(dd if=/dev/${CLIENTDISK} count=${sectorCount} skip=$(( ${sectorCount} - 1 )) \
 		iflag=fullblock status=none 2>/dev/null \
         | xxd -p | grep --quiet -m 1 "[^${CHAR}]"; echo ${PIPESTATUS[2]}) == '0' ]]; then
             	PROCFAIL='1'
-				echo "remote|${tagNum}|status|fail - verifying erase" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - verifying erase" | /opt/uit-toolbox/parse
 				read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 				pkill --terminal tty1
     fi
 
     echo "${PCNTOFSECTOR}% of ${CLIENTDISK} has been verified."
-	echo "remote|${tagNum}|status|${PCNTOFSECTOR}% of ${CLIENTDISK} has been verified." | /opt/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|${PCNTOFSECTOR}% of ${CLIENTDISK} has been verified." | /opt/uit-toolbox/parse
 	if [[ $PROCFAIL == '0' ]]; then
 		echo "Test passed successfully!"
 		return 0
 	else
-		echo "remote|${tagNum}|status|fail - verifying erase" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|fail - verifying erase" | /opt/uit-toolbox/parse
 		read -t 10 -p "${BOLD}${RED}Verification test failed${RESET}${BOLD}. Press ${GREEN}Enter${RESET}${BOLD}..."
 		pkill --terminal tty1
 	fi
@@ -1038,7 +1038,7 @@ function vrfyDisk_Shred {
 
 
 function secErase_Shred {
-	echo "remote|${tagNum}|status|Using secure erase on ${CLIENTDISK}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|Using secure erase on ${CLIENTDISK}" | /opt/uit-toolbox/parse
 	footer
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Using Secure Erase on ${CLIENTDISK}. This can take a while, please keep the device powered on...."
@@ -1053,7 +1053,7 @@ function secErase_Shred {
 			nvme format /dev/${CLIENTDISK:0:-2} --ses=2 --namespace-id=1 &>/dev/null
 		fi
 	else
-		echo "remote|${tagNum}|status|fail - secure erase" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|fail - secure erase" | /opt/uit-toolbox/parse
 		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't use Secure Erase on ${CLIENTDISK}."
 		pkill --terminal tty1
 	fi
@@ -1062,7 +1062,7 @@ function secErase_Shred {
 
 
 function secUnlock_Shred {
-	echo "remote|${tagNum}|status|Unlocking ${CLIENTDISK}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|status|Unlocking ${CLIENTDISK}" | /opt/uit-toolbox/parse
 	footer
 	if [[ $CLIENTDISK =~ $SSD_REGEX ]]; then 
 		echo "Unlocking ${CLIENTDISK}, please keep the device powered on...."
@@ -1073,7 +1073,7 @@ function secUnlock_Shred {
 	elif [[ $CLIENTDISK =~ $NVME_REGEX ]]; then
 		echo "NVME drives do not need to be unlocked. Continuing...."
 	else
-		echo "remote|${tagNum}|status|fail - secure unlock" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|fail - secure unlock" | /opt/uit-toolbox/parse
 		read -t 10 -p "No compatible SATA or NVME drive is selected. Can't unlock ${CLIENTDISK}."
 		pkill --terminal tty1
 	fi
@@ -1504,8 +1504,8 @@ function clientselect_Clone {
 
 
 function execute_Clone {
-	echo "general|clone_image|${cloneImgName}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-	echo "remote|${tagNum}|status|Cloning ${cloneImgName} -> ${CLIENTDISK} ($cloneMode)" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "general|clone_image|${cloneImgName}|${UUID}" | /opt/uit-toolbox/parse
+	echo "remote|${tagNum}|status|Cloning ${cloneImgName} -> ${CLIENTDISK} ($cloneMode)" | /opt/uit-toolbox/parse
 	echo "0" > /root/uptime
 	echo "0" > /tmp/cpu-usage.txt
 	echo "0" > /tmp/network-usage.txt
@@ -1516,21 +1516,21 @@ function execute_Clone {
 	umount /home/partimag 2>/dev/null
 	mkdir -p /home/partimag
 	if [[ $cloneMode == "restoredisk" ]]; then
-		mount -t nfs -o ro ${linuxServer}:/srv/nfs/UIT-TSS-TOOLBOX/${linuxPath} /home/partimag
+		mount -t nfs -o ro ${linuxServer}:/srv/nfs/uit-toolbox/${linuxPath} /home/partimag
 		footer
 		sleep 1
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
 			-k1 --skip-check-restorable-r ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	if [[ $cloneMode == "savedisk" ]]; then
-		mount -t nfs ${linuxServer}:/srv/nfs/UIT-TSS-TOOLBOX/${linuxPath} /home/partimag
+		mount -t nfs ${linuxServer}:/srv/nfs/uit-toolbox/${linuxPath} /home/partimag
 		footer
 		sleep 1
 		/usr/sbin/ocs-sr --language en_US.UTF-8 --postaction command --user-mode beginner \
 			--skip-enc-ocs-img --skip-fsck-src-part --use-partclone -z8 ${cloneMode} ${cloneImgName} ${CLIENTDISK}
 	fi
 	cloneElapsed=$(( SECONDS - start_time))
-	echo "general|clone_time|${cloneElapsed}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "general|clone_time|${cloneElapsed}|${UUID}" | /opt/uit-toolbox/parse
 	umount /home/partimag 2>/dev/null
 	return
 }
@@ -1573,7 +1573,7 @@ function execute_Shred {
 			unlockMode_Shred
 		fi
 		shredElapsed=$(( SECONDS - start_time ))
-		echo "general|erase_time|${shredElapsed}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|erase_time|${shredElapsed}|${UUID}" | /opt/uit-toolbox/parse
 	fi
 	return
 }
@@ -1585,10 +1585,10 @@ function execute {
 	echo "0" > /tmp/cpu-usage.txt
 	echo "0" > /tmp/network-usage.txt
 
-	echo "remote|${tagNum}|job_active|1" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|job_active|1" | /opt/uit-toolbox/parse
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
-		echo "remote|${tagNum}|status|fail - Can't erase master image" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|status|fail - Can't erase master image" | /opt/uit-toolbox/parse
 		read -t 10 -p "${BOLD}Cannot erase device and save its image.${RESET}"
 		pkill --terminal tty1
 	fi
@@ -1598,11 +1598,11 @@ function execute {
 			clientselect_Clone
 		fi
 		if [[ $job_queued != "hpEraseAndClone" ]]; then
-			echo "remote|${tagNum}|job_queued|generic-erase+clone" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|job_queued|generic-erase+clone" | /opt/uit-toolbox/parse
 		fi
 		basicEraseMode_Shred
-		echo "remote|${tagNum}|clone_mode|$cloneMode" | /opt/UIT-TSS-TOOLBOX/parse
-		echo "remote|${tagNum}|erase_mode|$shredMode" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|clone_mode|$cloneMode" | /opt/uit-toolbox/parse
+		echo "remote|${tagNum}|erase_mode|$shredMode" | /opt/uit-toolbox/parse
 		execute_Shred
 		execute_Clone
 	elif [[ $APPSELECT == "E" ]]; then
@@ -1612,23 +1612,23 @@ function execute {
 			basicEraseMode_Shred
 		fi
 		if [[ $job_queued != "nvmeErase" ]]; then
-			echo "remote|${tagNum}|job_queued|generic-erase" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|job_queued|generic-erase" | /opt/uit-toolbox/parse
 		fi
-		echo "remote|${tagNum}|erase_mode|$shredMode" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|erase_mode|$shredMode" | /opt/uit-toolbox/parse
 		execute_Shred
 	elif [[ $APPSELECT == "C" ]]; then
 		if [[ -z $cloneMode ]]; then
 			clientselect_Clone
 		fi
 		if [[ $job_queued != "hpCloneOnly" ]]; then
-			echo "remote|${tagNum}|job_queued|generic-clone" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|job_queued|generic-clone" | /opt/uit-toolbox/parse
 		fi
-		echo "remote|${tagNum}|clone_mode|$cloneMode" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|clone_mode|$cloneMode" | /opt/uit-toolbox/parse
 		execute_Clone
 	else
-		echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
-		echo "remote|${tagNum}|job_queued|" | /opt/UIT-TSS-TOOLBOX/parse
-		echo "remote|${tagNum}|status|fail - Invalid application selected" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+		echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
+		echo "remote|${tagNum}|status|fail - Invalid application selected" | /opt/uit-toolbox/parse
 		read -t 10 -p "${BOLD}${RED}Error - Invalid application selected.${RESET}"
 		pkill --terminal tty1
 	fi
@@ -1651,15 +1651,15 @@ function location {
 	RESET=$(tput sgr0)
 
 	echo ""
-	sql=$(echo "SELECT system_serial AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+	sql=$(echo "SELECT system_serial AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND system_serial IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 	echo "The last reported serial number for ${BOLD}${tagNum}${RESET} was: ${BOLD}${sql}${RESET}"
 	if [[ $sql == "NULL" ]]; then
 		read -p "Please enter the ${BOLD}${GREEN}serial number${RESET}: " serial
 	else
 		serial="${sql}"
 	fi
-	sql=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
-	sql1=$(echo "SELECT CONVERT(time, DATETIME) AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+	sql=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+	sql1=$(echo "SELECT CONVERT(time, DATETIME) AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT location = 'Plugged in and booted on laptop table.' AND NOT location = 'Finished work on laptop table.' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 	echo "The last reported location for ${BOLD}${tagNum}${RESET} was: ${BOLD}${sql}${RESET} at ${BOLD}${sql1}${RESET}"
 	read -p "Please enter the ${BOLD}${GREEN}location${RESET}: " location
 	read -n 1 -p "Please enter the ${BOLD}${GREEN}status${RESET} ${BOLD}${GREEN}[1] ${RESET}${BOLD}Functioning ${BOLD}${GREEN}[2] ${RESET}${BOLD}Broken${RESET}: " status
@@ -1670,7 +1670,7 @@ function location {
 		read -p "Please enter a ${BOLD}${GREEN}note${GREEN}${RESET} (leave blank for no note): " note
 	elif [[ $status == "2" ]]; then
 		echo ""
-		sql=$(echo "SELECT note AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT note = 'Unattended' AND note IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+		sql=$(echo "SELECT note AS result FROM locations WHERE tagnumber = '${tagNum}' AND NOT note = 'Unattended' AND note IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 		echo "The last reported issue for ${tagNum} was: ${BOLD}${sql}${RESET}"
 		status="FALSE"
 		read -p "Please enter the ${BOLD}${GREEN}problem${GREEN}${RESET}: " note
@@ -1679,14 +1679,14 @@ function location {
 		note=""
 	fi
 
-	echo "location|custom|${tagNum}|${serial}|${location}|${status}|${note}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "location|custom|${tagNum}|${serial}|${location}|${status}|${note}" | /opt/uit-toolbox/parse
 }
 
 
 function terminate {
-	echo "remote|${tagNum}|job_queued|" | /opt/UIT-TSS-TOOLBOX/parse
-	echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
-	echo "remote|${tagNum}|status|Waiting for job" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
+	echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+	echo "remote|${tagNum}|status|Waiting for job" | /opt/uit-toolbox/parse
 	echo "0" > /root/uptime
 	echo "0" > /tmp/cpu-usage.txt
 	echo "0" > /tmp/network-usage.txt
@@ -1699,17 +1699,17 @@ function terminate {
 	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 
-	echo "system-stats|cpu|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-	echo "system-stats|network|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
+	echo "system-stats|network|${UUID}" | /opt/uit-toolbox/parse
 
-	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = '1' ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select)
+	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = '1' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 	imgUpdate=${imgUpdate::10}
 
-	cloneNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = '1' AND time > '${DATE} 00:00:00.000'" | /opt/UIT-TSS-TOOLBOX/select)
+	cloneNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = '1' AND time > '${DATE} 00:00:00.000'" | /opt/uit-toolbox/select)
 
-	eraseNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE erase_completed = '1' AND time > '${DATE} 00:00:00.000'" | /opt/UIT-TSS-TOOLBOX/select)
+	eraseNumToday=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE erase_completed = '1' AND time > '${DATE} 00:00:00.000'" | /opt/uit-toolbox/select)
 
-	clientCloneTotal=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = '1' AND tagnumber = '${tagNum}'" | /opt/UIT-TSS-TOOLBOX/select)
+	clientCloneTotal=$(echo "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = '1' AND tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
 
 	jobsToday=$(( cloneNumToday + eraseNumToday ))
 
@@ -1724,10 +1724,10 @@ function terminate {
 				terminateAction="Cloned"
 			fi
 
-			echo "general|clone_completed|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_completed|1|${UUID}" | /opt/uit-toolbox/parse
 
 			if [[ $APPSELECT == "EC" ]]; then
-				echo "general|erase_completed|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "general|erase_completed|1|${UUID}" | /opt/uit-toolbox/parse
 			fi
 
 			terminateMessage=$(echo "Tag#: ${tagNum}"
@@ -1740,8 +1740,8 @@ function terminate {
 			)
 		fi
 		if [[ $cloneMode == "savedisk" ]]; then
-			echo "general|clone_master|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-			echo "general|clone_completed|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|clone_master|1|${UUID}" | /opt/uit-toolbox/parse
+			echo "general|clone_completed|1|${UUID}" | /opt/uit-toolbox/parse
 
 			terminateMessage=$(echo "Tag#: ${tagNum}"
 			echo "MAC: ${etherAddr}"
@@ -1756,7 +1756,7 @@ function terminate {
 	
 
 	if [[ $APPSELECT == "E" ]]; then
-		echo "general|erase_completed|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "general|erase_completed|1|${UUID}" | /opt/uit-toolbox/parse
 
 		terminateAction="erased"
 
@@ -1784,8 +1784,8 @@ function terminate {
 }
 
 function resetForClientRestart {
-	echo "remote|${tagNum}|job_queued|" | /opt/UIT-TSS-TOOLBOX/parse
-	echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
+	echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
+	echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
 	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1830,19 +1830,19 @@ function autodetectClient {
 		echo ""
 		echo ""
 
-		sql=$(echo "SELECT tagnumber AS 'result' FROM remote WHERE tagnumber = '${tagNum}' AND status NOT like 'fail%'" | /opt/UIT-TSS-TOOLBOX/select)
+		sql=$(echo "SELECT tagnumber AS 'result' FROM remote WHERE tagnumber = '${tagNum}' AND status NOT like 'fail%'" | /opt/uit-toolbox/select)
 		if [[ $sql == $tagNum ]]; then
-			echo "remote|${tagNum}|status|Waiting for job" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "remote|${tagNum}|status|Waiting for job" | /opt/uit-toolbox/parse
 		fi
 
 		unattended="true"
 
 		remote
 		if [[ $job_queued != "NULL" ]]; then
-			#location=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/UIT-TSS-TOOLBOX/select 2>/dev/null)
+			#location=$(echo "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' AND location IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select 2>/dev/null)
 			#status="0"
 			#note="Unattended"
-			#echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /opt/UIT-TSS-TOOLBOX/parse
+			#echo "location|custom|${tagNum}|${tOneSerialNumber}|${location}|${status}|${note}" | /opt/uit-toolbox/parse
 			tput cuu1
 			tput el
 			while true; do
@@ -1856,25 +1856,25 @@ function autodetectClient {
 					break
 				fi
 				if [[ $job_queued_override == "NULL" ]]; then
-					echo "remote|${tagNum}|job_active|1" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|job_active|1" | /opt/uit-toolbox/parse
 					break
 				fi
 				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
-					okay_to_go=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active = 1" | /opt/UIT-TSS-TOOLBOX/select)
+					okay_to_go=$(echo "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active = 1" | /opt/uit-toolbox/select)
 					if [[ $okay_to_go == "NULL" ]]; then
-						echo "remote|${tagNum}|job_active|1" | /opt/UIT-TSS-TOOLBOX/parse
+						echo "remote|${tagNum}|job_active|1" | /opt/uit-toolbox/parse
 						break
 					fi
 				fi
 				echo "	${BOLD}Tagnumber ${tagNum} (${tOneSerialNumber}) is scheduled for ${job_queued_formatted} and is ${job_queued_position} in queue. Press ${BOLD}${GREEN}'q' ${RESET}${BOLD}to exit.${RESET}"
-				echo "remote|${tagNum}|status|Scheduled for ${job_queued_formatted}, ${job_queued_position} in queue." | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Scheduled for ${job_queued_formatted}, ${job_queued_position} in queue." | /opt/uit-toolbox/parse
 				read -t 3 -N 1 input
 				if [[ $input = "q" ]] || [[ $input = "Q" ]]; then
 					echo "0" > /root/uptime
 					echo "0" > /tmp/cpu-usage.txt
 					echo "0" > /tmp/network-usage.txt
-					echo "remote|${tagNum}|job_queued|" | /opt/UIT-TSS-TOOLBOX/parse
-					echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
+					echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
 					pkill --terminal tty1
 				fi
 			done
@@ -1883,14 +1883,14 @@ function autodetectClient {
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Starting data collection" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting data collection" | /opt/uit-toolbox/parse
 				resetForClientRestart
 			elif [[ $job_queued == "update" ]]; then
 				department
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Updating..." | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Updating..." | /opt/uit-toolbox/parse
 				rm /root/uit-tss-client_2.0-1_amd64.deb
 				while [[ ! -f /root/uit-tss-client_2.0-1_amd64.deb ]]; do
 					curl http://mickey.uit/client/pkg/uit-tss-client_2.0-1_amd64.deb --output /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
@@ -1899,7 +1899,7 @@ function autodetectClient {
 				dpkg --install /root/uit-tss-client_2.0-1_amd64.deb &>/dev/null
 				resetForClientRestart
 			elif [[ $job_queued == "findmy" ]]; then
-				echo "remote|${tagNum}|status|Playing sound" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Playing sound" | /opt/uit-toolbox/parse
 				play /root/findmy1.mp3 &> /dev/null
 				resetForClientRestart
 			elif [[ $job_queued == "hpEraseAndClone" ]]; then
@@ -1907,20 +1907,20 @@ function autodetectClient {
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Starting Erase + Clone job (HP)" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting Erase + Clone job (HP)" | /opt/uit-toolbox/parse
 				APPSELECT="EC"
 				ACTION="erase and clone"
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
-					echo "remote|${tagNum}|status|fail - Disk doesn't exist" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|status|fail - Disk doesn't exist" | /opt/uit-toolbox/parse
 					autodetectClient
 				fi
-					echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/uit-toolbox/parse
 				cloneMode="restoredisk"
 				shredMode="autodetect"
 				RMODE="Autodetect"
-					echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "general|erase_mode|${RMODE}|${UUID}" | /opt/uit-toolbox/parse
 				linuxServer="10.0.0.1"
 				linuxDNS="mickey.uit"
 				footer
@@ -1929,26 +1929,26 @@ function autodetectClient {
 				footer
 				execute
 				totaltime
-				echo "general|clone_completed|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "general|erase_completed|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "system-stats|cpu|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "system-stats|network|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "general|clone_completed|1|${UUID}" | /opt/uit-toolbox/parse
+				echo "general|erase_completed|1|${UUID}" | /opt/uit-toolbox/parse
+				echo "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
+				echo "system-stats|network|${UUID}" | /opt/uit-toolbox/parse
 				resetForClientRestart
 			elif [[ $job_queued == "hpCloneOnly" ]]; then
 				department
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Starting Clone only job (HP)" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting Clone only job (HP)" | /opt/uit-toolbox/parse
 				APPSELECT="C"
 				ACTION="clone"
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
-					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /opt/uit-toolbox/parse
 					autodetectClient
 				fi
-					echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/uit-toolbox/parse
 				cloneMode="restoredisk"
 				linuxServer="10.0.0.1"
 				linuxDNS="mickey.uit"
@@ -1958,9 +1958,9 @@ function autodetectClient {
 				footer
 				execute
 				totaltime
-				echo "general|clone_completed|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "system-stats|cpu|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "system-stats|network|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "general|clone_completed|1|${UUID}" | /opt/uit-toolbox/parse
+				echo "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
+				echo "system-stats|network|${UUID}" | /opt/uit-toolbox/parse
 				resetForClientRestart
 			elif [[ $job_queued == "nvmeErase" ]]; then
 				department
@@ -1970,11 +1970,11 @@ function autodetectClient {
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
-					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /opt/uit-toolbox/parse
 					autodetectClient
 				fi
-					echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|status|Starting NVME Erase job (${CLIENTDISK})" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/uit-toolbox/parse
+				echo "remote|${tagNum}|status|Starting NVME Erase job (${CLIENTDISK})" | /opt/uit-toolbox/parse
 				vrfySections="1000"
 				writeSections="1000"
 				PCNTOFSECTOR='10'
@@ -1983,23 +1983,23 @@ function autodetectClient {
 				ACTION="erase"
 				shredMode="autodetect"
 				RMODE="Autodetect"
-					echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "general|erase_mode|${RMODE}|${UUID}" | /opt/uit-toolbox/parse
 				footer
 				rtcwake --mode mem --seconds 3
 				checkNetwork
 				footer
 				execute
 				totaltime
-				echo "general|erase_completed|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "system-stats|cpu|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "system-stats|network|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "general|erase_completed|1|${UUID}" | /opt/uit-toolbox/parse
+				echo "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
+				echo "system-stats|network|${UUID}" | /opt/uit-toolbox/parse
 				resetForClientRestart
 			elif [[ $job_queued == "nvmeVerify" ]]; then
 				department
 				enterTag
 				systemData
 				hardwareData
-				echo "remote|${tagNum}|status|Starting Verify job (${CLIENTDISK})" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Starting Verify job (${CLIENTDISK})" | /opt/uit-toolbox/parse
 				vrfySections=""
 				writeSections=""
 				PCNTOFSECTOR='10'
@@ -2009,35 +2009,35 @@ function autodetectClient {
 				if [[ /dev/nvme0n1 ]]; then
 					CLIENTDISK='nvme0n1'
 				else
-					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "remote|${tagNum}|status|fail - disk doesn't exist" | /opt/uit-toolbox/parse
 					autodetectClient
 				fi
-					echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/uit-toolbox/parse
 				shredMode="verify"
 				RMODE="Verify Mode"
-					echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+					echo "general|erase_mode|${RMODE}|${UUID}" | /opt/uit-toolbox/parse
 				footer
 				rtcwake --mode mem --seconds 3
 				checkNetwork
 				footer
 				execute
 				totaltime
-				echo "general|erase_completed|1|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "system-stats|cpu|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "system-stats|network|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "general|erase_completed|1|${UUID}" | /opt/uit-toolbox/parse
+				echo "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
+				echo "system-stats|network|${UUID}" | /opt/uit-toolbox/parse
 				resetForClientRestart
 			elif [[ $job_queued == "shutdown" ]]; then
-				echo "remote|${tagNum}|status|fail - Shutting down" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_queued|" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - Shutting down" | /opt/uit-toolbox/parse
+				echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
+				echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
 				poweroff
 			elif [[ $job_queued == "clean-shutdown" ]]; then
-				echo "remote|${tagNum}|status|Shutting down" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_queued|" | /opt/UIT-TSS-TOOLBOX/parse
-				echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|Shutting down" | /opt/uit-toolbox/parse
+				echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
+				echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
 				poweroff				
 			elif [[ $job_queued == "fail-test" ]]; then
-				echo "remote|${tagNum}|status|fail - test" | /opt/UIT-TSS-TOOLBOX/parse
+				echo "remote|${tagNum}|status|fail - test" | /opt/uit-toolbox/parse
 				resetForClientRestart
 			fi
 		else
@@ -2111,12 +2111,12 @@ function main {
 		else
 			diskSelect
 		fi
-			echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/uit-toolbox/parse
 		cloneMode="restoredisk"
 		cloneImgName="TechCommons-HP-LaptopsLZ4"
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/uit-toolbox/parse
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
 		powerWarning
@@ -2129,12 +2129,12 @@ function main {
 		else
 			diskSelect
 		fi
-			echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/uit-toolbox/parse
 		cloneMode="restoredisk"
 		cloneImgName="TechCommons-Dell-Laptops"
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/uit-toolbox/parse
 		linuxServer="10.0.0.1"
 		linuxDNS="mickey.uit"
 		powerWarning
@@ -2143,10 +2143,10 @@ function main {
 		APPSELECT="E"
 		ACTION="erase"
 		diskSelect
-			echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|disk|${CLIENTDISK}|${UUID}" | /opt/uit-toolbox/parse
 		shredMode="autodetect"
 		RMODE="autodetect"
-			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/UIT-TSS-TOOLBOX/parse
+			echo "general|erase_mode|${RMODE}|${UUID}" | /opt/uit-toolbox/parse
 		powerWarning
 		execute
 	elif [[ $mainMenuOpt == "9" ]]; then
@@ -2163,7 +2163,7 @@ function main {
 		pkill --terminal tty1
 	fi
 	if [[ $unattended == "false" ]]; then
-		echo "remote|${tagNum}|job_active|" | /opt/UIT-TSS-TOOLBOX/parse
+		echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
 		terminate
 	fi
 }

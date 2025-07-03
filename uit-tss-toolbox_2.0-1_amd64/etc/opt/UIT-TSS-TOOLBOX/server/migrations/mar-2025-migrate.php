@@ -1,7 +1,7 @@
 #!/bin/php
 <?php
 // update image name on most recent entries
-require('/var/www/html/management/php/include.php');
+require('/var/www/html/uit-web/php/include.php');
 
 $db = new db();
 

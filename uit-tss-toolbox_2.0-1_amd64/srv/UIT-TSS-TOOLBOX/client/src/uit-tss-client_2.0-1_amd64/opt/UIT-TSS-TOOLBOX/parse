@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
-include('/opt/UIT-TSS-TOOLBOX/include.php');
+include('/opt/uit-toolbox/include.php');
 
 
 $fd = fopen('php://stdin', 'r');
