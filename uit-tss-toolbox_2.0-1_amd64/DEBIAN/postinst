@@ -7,8 +7,6 @@
 /usr/bin/chmod 700 /root/uit-ssl/update-certs
 /usr/bin/chown root:root /root/uit-ssl -R
 
-/usr/bin/chown cameron:cameron /home/cameron/powershell -R
-
 sed --in-place "s/WAN_IF/$(cat /home/cameron/.uit-passwd | grep '^WAN_IF=' | sed 's/WAN_IF=//g')/g" /usr/sbin/uit-firewall
 sed --in-place "s/WAN_IP/$(cat /home/cameron/.uit-passwd | grep '^WAN_IP=' | sed 's/WAN_IP=//g' | sed 's/\//\\\//g')/g" /usr/sbin/uit-firewall
 sed --in-place "s/LAN_IF/$(cat /home/cameron/.uit-passwd | grep '^LAN_IF=' | sed 's/LAN_IF=//g')/g" /usr/sbin/uit-firewall
