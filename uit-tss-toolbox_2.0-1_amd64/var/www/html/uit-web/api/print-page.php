@@ -111,8 +111,8 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
     </div>
     <div class="page-content">
       <p>
-        We hope that you enjoy your new laptop. We have preinstalled a few apps for you, 
-        including Microsoft Office, Microsoft Teams, Microsoft Outlook, Chrome, Edge, Firefox, 
+        We hope that you enjoy using this laptop. We have pre-installed a few apps for you, 
+        including Microsoft Office, Microsoft Outlook, Microsoft Teams, Zoom, Chrome, Edge, Firefox, 
         LockDown Browser, and Cisco Secure Client (VPN).
       </p>
     </div>
@@ -125,9 +125,10 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
     </div>
     <div class="page-content">
       <p>
-        To login to this laptop, please use the following credentials:
+        <!--To login to this laptop, please use the following credentials:
         <br>Username: <b><u>Student</u></b>
-        <br>Password: <b><u>UHouston!</u></b>
+        <br>Password: <b><u>UHouston!</u></b>-->
+        To login to this laptop, please use your <b><u>CougarNet ID</u></b> and <b><u>CougarNet Password</u></b>
       </p>
     </div>
     <div class="page-content" style="border-bottom: 1px solid black;">
@@ -148,7 +149,7 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
             <li>I acknowledge that this laptop is the property of the State of Texas.
             <li>I agree to follow all federal, state, and local laws as well as UH 
                 policies regarding proper usage of this laptop.
-            <li>I agree to return this laptop, charger, and any other checked out accessories 
+            <li>I agree to return this laptop, charger, and any other loaned accessories 
                 by the return date written below. UIT reserves the right to modify the return
                 date at any time.
             <li>I agree to treat this laptop with respect, to not modify the hardware 
