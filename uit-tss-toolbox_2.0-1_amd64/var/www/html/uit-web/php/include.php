@@ -631,7 +631,23 @@ class db {
       }
     }
   }
+}
 
+function removeUrlVar ($url, $varName) {
+  list($urlPart, $queryPart) = array_pad(explode('?', $url), 2, '');
+  parse_str($queryPart, $queryVars);
+  unset($queryVars[$varName]);
+  $newUrl = http_build_query($queryVars);
+  return $urlPart . "?" . $newUrl;
+}
+
+function addUrlVar ($url, $varName, $varValue) {
+  list($urlPart, $queryPart) = array_pad(explode('?', $url), 2, '');
+  parse_str($queryPart, $queryVars);
+  unset($queryVars[$varName]);
+  $queryVars[$varName] = $varValue;
+  $newUrl = http_build_query($queryVars);
+  return $urlPart . "?" . $newUrl;
 }
 
 ?>

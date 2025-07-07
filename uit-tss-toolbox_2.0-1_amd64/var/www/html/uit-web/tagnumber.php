@@ -624,7 +624,7 @@ unset($value1);
 </table>
 </div>
 
-<div class='pagetitle'><h3>Location Log - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
+<div class='pagetitle'><h3>Location Log <i><a href='<?php if ($_GET["full-loc-log"] == "1") { echo removeUrlVar($_SERVER["REQUEST_URI"], "full-loc-log"); } else { echo addUrlVar($_SERVER["REQUEST_URI"], "full-loc-log", "1"); } ?>'>Change Log View</a></i>- <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
 <div name='updateDiv5' id='updateDiv5' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
 <table width="100%">
 <thead>
@@ -640,7 +640,7 @@ unset($value1);
 </thead>
 <tbody>
 <?php
-$db->Pselect("SELECT t2.* FROM 
+$locationSQL = "SELECT t2.* FROM 
 (SELECT static_departments.department_readable, locations.time AS 'deptTime', locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
 locationFormatting(locations.location) AS 'location', 
 ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
@@ -655,9 +655,12 @@ WHERE
 NOT locations.location = 'Plugged in and booted on laptop table.' 
 AND NOT locations.location = 'Finished work on laptop table.' 
 AND locations.tagnumber = :tagnumber
-AND locations.location IS NOT NULL) t2
-WHERE t2.location_num <= 3
-ORDER BY t2.time DESC", array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+AND locations.location IS NOT NULL) t2 ";
+if ($_GET["full-loc-log=1"]) {
+  $locationSQL .= "WHERE t2.location_num <= 3 ";
+}
+$locationSQL .= "ORDER BY t2.time DESC";
+$db->Pselect($locationSQL, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
 if (arrFilter($db->get()) === 0) {
 foreach ($db->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
