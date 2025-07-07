@@ -496,7 +496,7 @@ $sqlArr = $db->get();
         </div>
 
         <div class='column'>
-          <div name='updateDiv3' id='updateDiv3' class='styled-table' style='width: auto; overflow:auto; margin: 1% 1% 5% 2%;'>
+          <div class='styled-table' style='width: auto; overflow:auto; margin: 1% 1% 5% 2%;'>
             <table width='100%'>
               <thead>
                 <tr>
@@ -572,11 +572,11 @@ $db->Pselect("SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted'
 if (arrFilter($db->get()) === 0) {
 foreach ($db->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['customer_name'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['checkout_date'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['return_date'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['time_formatted']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['customer_name']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['checkout_date']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['return_date']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['note']) . "</td>" . PHP_EOL;
 echo "</tr>" . PHP_EOL;
 }
 }
@@ -586,8 +586,8 @@ unset($value1);
 </table>
 </div>
 
-<div class='pagetitle'><h3>Job Log - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-<div name='updateDiv4' id='updateDiv4' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
+<div class='pagetitle'><h3>Job Log <i><a href='<?php if ($_GET["full-job-log"] == "1") { echo removeUrlVar($_SERVER["REQUEST_URI"], "full-job-log"); } else { echo addUrlVar($_SERVER["REQUEST_URI"], "full-job-log", "1"); } ?>'> <?php if ($_GET["full-job-log"] == "1") { echo "(Collapse Log View)"; } else { echo "(Expand Log View)"; } ?></a></i> - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
+<div class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
 <table width="100%">
 <thead>
 <tr>
@@ -596,25 +596,34 @@ unset($value1);
 <th>Network Usage</th>
 <th>Erase Mode</th>
 <th>Erase Time Elapsed</th>
-<th>Clone Master</th>
 <th>Clone Time</th>
 <th>BIOS Version</th>
 </tr>
 </thead>
 <tbody>
 <?php
-$db->Pselect("SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS clone_completed, IF (clone_master = 1, 'Yes', 'No') AS clone_master, SEC_TO_TIME(clone_time) AS 'clone_time', bios_version FROM jobstats WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ORDER BY time DESC", array(':tagnumber' =>  $_GET['tagnumber']));
+$jobLogSQL = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', 
+    IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS 'clone_completed',
+    SEC_TO_TIME(clone_time) AS 'clone_time', bios_version 
+  FROM jobstats 
+  WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ";
+if (isset($_GET["full-job-log"]) && $_GET["full-job-log"] == "1") {
+  $jobLogSQL .= "ORDER BY time DESC ";
+} else {
+  $jobLogSQL .= "AND jobstats.time >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY time DESC LIMIT 10 ";
+}
+
+$db->Pselect($jobLogSQL, array(':tagnumber' =>  $_GET['tagnumber']));
 if (arrFilter($db->get()) === 0) {
 foreach ($db->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['cpu_usage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['network_usage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['erase_mode'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['erase_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['clone_master'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['clone_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['bios_version'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['time_formatted']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['cpu_usage']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['network_usage']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['erase_mode']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['erase_time']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['clone_time']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['bios_version']) . "</td>" . PHP_EOL;
 echo "</tr>" . PHP_EOL;
 }
 }
@@ -624,8 +633,8 @@ unset($value1);
 </table>
 </div>
 
-<div class='pagetitle'><h3>Location Log <i><a href='<?php if ($_GET["full-loc-log"] == "1") { echo removeUrlVar($_SERVER["REQUEST_URI"], "full-loc-log"); } else { echo addUrlVar($_SERVER["REQUEST_URI"], "full-loc-log", "1"); } ?>'>Change Log View</a></i>- <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-<div name='updateDiv5' id='updateDiv5' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
+<div class='pagetitle'><h3>Location Log <i><a href='<?php if ($_GET["full-loc-log"] == "1") { echo removeUrlVar($_SERVER["REQUEST_URI"], "full-loc-log"); } else { echo addUrlVar($_SERVER["REQUEST_URI"], "full-loc-log", "1"); } ?>'> <?php if ($_GET["full-loc-log"] == "1") { echo "(Collapse Log View)"; } else { echo "(Expand Log View)"; } ?></a></i> - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
+<div class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
 <table width="100%">
 <thead>
 <tr>
@@ -640,36 +649,26 @@ unset($value1);
 </thead>
 <tbody>
 <?php
-$locationSQL = "SELECT t2.* FROM 
-(SELECT static_departments.department_readable, locations.time AS 'deptTime', locations.time, DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
-locationFormatting(locations.location) AS 'location', 
-ROW_NUMBER() OVER (PARTITION BY locations.location ORDER BY locations.time DESC) AS 'location_num', 
-IF (locations.status = 1, 'No, Broken', 'Yes') AS 'status_formatted', locations.status, 
-IF (client_health.os_installed = 1, 'Yes', 'No') AS 'os_installed',
-IF (locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed', 
-note 
-FROM locations 
-LEFT JOIN client_health ON (locations.tagnumber = :tagnumber AND client_health.tagnumber = :tagnumber)
-INNER JOIN static_departments ON locations.department = static_departments.department
-WHERE 
-NOT locations.location = 'Plugged in and booted on laptop table.' 
-AND NOT locations.location = 'Finished work on laptop table.' 
-AND locations.tagnumber = :tagnumber
-AND locations.location IS NOT NULL) t2 ";
-if ($_GET["full-loc-log=1"]) {
-  $locationSQL .= "WHERE t2.location_num <= 3 ";
+$locLogSQL = "SELECT t1.time, DATE_FORMAT(t1.time, '%m/%d/%y, %r') AS 'time_formatted', locationFormatting(t1.location) AS 'location_formatted', 
+  static_departments.department_readable, IF (t1.status = 1, 'No', 'Yes') AS 'status_formatted', IF (t1.disk_removed = 1, 'No', 'Yes') AS 'disk_removed_formatted',
+  t1.note
+  FROM (SELECT locations.time, locations.location, locations.department, locations.status, locations.disk_removed, locations.note, 
+    ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'row_nums' FROM locations WHERE locations.tagnumber = :tagnumber ORDER BY locations.time DESC) t1 
+  LEFT JOIN static_departments ON t1.department = static_departments.department ";
+if (!isset($_GET["full-loc-log"]) || $_GET["full-loc-log"] != "1") {
+  $locLogSQL .= "WHERE t1.row_nums <= 3 AND t1.time >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
 }
-$locationSQL .= "ORDER BY t2.time DESC";
-$db->Pselect($locationSQL, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+
+$db->Pselect($locLogSQL, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
 if (arrFilter($db->get()) === 0) {
 foreach ($db->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
 //Time formatted
 echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "'>" . htmlspecialchars($value1["location"]) . "</a></b></td>" . PHP_EOL;
+echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location_formatted"]) . "'>" . htmlspecialchars($value1["location_formatted"]) . "</a></b></td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['department_readable'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['status_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['disk_removed'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['disk_removed_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
 echo "</tr>" . PHP_EOL;
 }
@@ -702,18 +701,6 @@ document.getElementById("curJob").innerHTML = curJob
 // update all other tables
 const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
 document.getElementById("updateDiv1").innerHTML = updateDiv1
-//const updateDiv2 = doc.getElementById('updateDiv2').innerHTML
-//document.getElementById("updateDiv2").innerHTML = updateDiv2
-const updateDiv3 = doc.getElementById('updateDiv3').innerHTML
-document.getElementById("updateDiv3").innerHTML = updateDiv3
-const updateDiv4 = doc.getElementById('updateDiv4').innerHTML
-document.getElementById("updateDiv4").innerHTML = updateDiv4
-const updateDiv5 = doc.getElementById('updateDiv5').innerHTML
-document.getElementById("updateDiv5").innerHTML = updateDiv5
-const location = doc.getElementById('location').innerHTML
-document.getElementById("location").innerHTML = location
-const note = doc.getElementById('note').innerHTML
-document.getElementById("note").innerHTML = note
 });
 fetchHTML();
 }, 3000)}

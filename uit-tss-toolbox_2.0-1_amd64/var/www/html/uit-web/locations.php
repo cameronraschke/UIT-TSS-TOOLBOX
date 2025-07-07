@@ -22,31 +22,18 @@ if ($_GET["refresh"] == "1") {
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   $response = curl_exec($ch);
   curl_close($ch);
-  if (strFilter($_SERVER["QUERY_STRING"]) === 0) {
-    $params = $_GET;
-    unset($params["refresh"]);
-    $queryString = http_build_query($params);
-    header("Location: /locations.php?" . $queryString);
-  } else {
-    header("Location: /locations.php");
-  }
+  header("Location: " . removeUrlVar($_SERVER["REQUEST_URI"], "refresh"));
 }
 
 if ($_GET["redirect"] == "1") {
-  if (strFilter($_SERVER["QUERY_STRING"]) === 0) {
-    $params = $_GET;
-    unset($params["tagnumber"]);
-    unset($params["redirect"]);
-    unset($params["edit"]);
-    $queryString = http_build_query($params);
-    header("Location: /locations.php?" . $queryString);
-  } else {
-    header("Location: /locations.php");
-  }
+  $queryString = getUrlVar($_SERVER["REQUEST_URI"]);
+  $queryString = removeUrlVar($queryString, "tagnumber");
+  $queryString = removeUrlVar($queryString, "edit");
+  $queryString = removeUrlVar($queryString, "redirect");
+  header("Location: " . $queryString);
 }
 
 if (isset($_GET["tagnumber"]) && $_GET["tagnumber"] == "") {
-  $params = $_GET;
   $db->select("SELECT (MAX(tagnumber) + 1) AS 'tagnumber' FROM locations WHERE tagnumber like '999%'");
   foreach ($db->get() as $key => $value) {
     $placeholderTag = $value["tagnumber"];
@@ -58,9 +45,7 @@ if (isset($_GET["tagnumber"]) && $_GET["tagnumber"] == "") {
       }
     }
   }
-  $params["tagnumber"] = $placeholderTag;
-  $queryString = http_build_query($params);
-  header("Location: /locations.php?" . $queryString);
+  header("Location: " . addUrlVar($_SERVER["REQUEST_URI"], "tagnumber", $placeholderTag));
 }
 ?>
 
@@ -171,22 +156,9 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
 
   unset($_POST);
 
-  
-  $params = $_GET;
-  unset($params["tagnumber"]);
-  unset($params["edit"]);
-  $queryString = http_build_query($params);
-  header("Location: /locations.php?" . $queryString);
+  header("Location: " . getUrlVars($_SERVER["REQUEST_URI"]));
 }
 
-unset($getStr);
-foreach ($_GET as $key => $value) {
-  if ($key != "edit" && $key != "tagnumber") {
-    $getStr .=  "&" . $key . "=" . htmlspecialchars(htmlspecialchars_decode($value));
-  }
-}
-
-$getStr = substr($getStr, 1);
 ?>
 
 
@@ -511,7 +483,7 @@ $getStr = substr($getStr, 1);
           if ($_GET["ref"] == 1) {
             echo "<button type='button' id='closeButton' onclick=\"window.location.href = '/tagnumber.php?tagnumber=" . $_GET["tagnumber"] . "'\">Go Back</button>";
           } else {
-            echo "<button style='margin-left: 1em;' type='button' value='Cancel' onclick=\"window.location.href = '/locations.php?redirect=1&" . $_SERVER["QUERY_STRING"] . "'\">Cancel</button>" . PHP_EOL;
+            echo "<button style='margin-left: 1em;' type='button' value='Cancel' onclick=\"window.location.href = '" . addUrlVar($_SERVER["REQUEST_URI"], "redirect", "1") . "'\">Cancel</button>" . PHP_EOL;
           }
           
           echo "<div>" . $updatedHTMLConfirmation . "</div>";
@@ -925,11 +897,7 @@ if (count($_GET) > 1) {
     </div>
     <div class='location-form'>
       <?php
-      if (strFilter($_SERVER["QUERY_STRING"]) === 0) {
-        echo "<button onclick=\"window.location.href = '/locations.php?refresh=1&" . $_SERVER["QUERY_STRING"] . "';\">Refresh Clients</button>"; 
-      } else {
-        echo "<button onclick=\"window.location.href = '/locations.php?refresh=1';\">Refresh Clients</button>"; 
-      }
+        echo "<button onclick=\"window.location.href = '" . addUrlVar($_SERVER["REQUEST_URI"], "refresh", "1") . "';\">Refresh Clients</button>"; 
       ?>
     </div>
     <div class='styled-table'>
@@ -958,7 +926,7 @@ foreach ($tableArr as $key => $value1) {
 
   // Tagnumber
   echo "<td>" . PHP_EOL;
-  echo "<b><a href='locations.php?edit=1&tagnumber=" . htmlspecialchars($value1["tagnumber"]) . "&" . $getStr . "'>" . htmlspecialchars($value1["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>";
+  echo "<b><a href='" . addUrlVar(addUrlVar($_SERVER["REQUEST_URI"], "edit", "1"), "tagnumber", htmlspecialchars($value1["tagnumber"])) . "'>" . htmlspecialchars($value1["tagnumber"]) . "</a></b>";
   // kernel and bios up to date (check mark)
   if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
     echo " <span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>" . PHP_EOL;
@@ -981,19 +949,19 @@ foreach ($tableArr as $key => $value1) {
   echo "</td>" . PHP_EOL;
 
   // Serial Number
-  echo "<td>" . htmlspecialchars($value1['system_serial'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+  echo "<td>" . htmlspecialchars($value1['system_serial']) . "</td>" . PHP_EOL;
 
   // System Model
-  echo "<td><b><a href='locations.php?system_model=" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1['system_model'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b></td>" . PHP_EOL;
+  echo "<td><b><a href='" . addUrlVar($_SERVER["REQUEST_URI"], "system_model", htmlspecialchars($value1['system_model'])) . "'>" . htmlspecialchars($value1['system_model']) . "</a></b></td>" . PHP_EOL;
 
   // Location
-  echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location"]) . "'>" . htmlspecialchars($value1["location_formatted"]) . "</a></b></td>" . PHP_EOL;
+  echo "<td><b><a href='" . addUrlVar($_SERVER["REQUEST_URI"], "location", htmlspecialchars($value1['location_formatted'])) . "'>" . htmlspecialchars($value1["location_formatted"]) . "</a></b></td>" . PHP_EOL;
 
   // Department
-  echo "<td>" . htmlspecialchars($value1["department_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+  echo "<td>" . htmlspecialchars($value1["department_formatted"]) . "</td>" . PHP_EOL;
 
   // Status (working/broken)
-  echo "<td>" . htmlspecialchars($value1['status_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+  echo "<td>" . htmlspecialchars($value1['status_formatted']) . "</td>" . PHP_EOL;
 
   // Os installed
 	if ($value1["os_installed"] === 1 && strFilter($value1["domain"]) === 0) {
@@ -1003,13 +971,13 @@ foreach ($tableArr as $key => $value1) {
 	}
 
   //BIOS updated
-  echo "<td>" . htmlspecialchars($value1["bios_updated_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+  echo "<td>" . htmlspecialchars($value1["bios_updated_formatted"]) . "</td>" . PHP_EOL;
 
   // Note
-  echo "<td>" . htmlspecialchars($value1['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+  echo "<td>" . htmlspecialchars($value1['note']) . "</td>" . PHP_EOL;
 
   // Timestamp
-  echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " </td>" . PHP_EOL;
+  echo "<td>" . htmlspecialchars($value1['time_formatted']) . " </td>" . PHP_EOL;
 }
 
 echo "</tr>" . PHP_EOL;
