@@ -1687,6 +1687,8 @@ function terminate {
 	echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
 	echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
 	echo "remote|${tagNum}|status|Waiting for job" | /opt/uit-toolbox/parse
+	echo "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
+	echo "system-stats|network|${UUID}" | /opt/uit-toolbox/parse
 	echo "0" > /root/uptime
 	echo "0" > /tmp/cpu-usage.txt
 	echo "0" > /tmp/network-usage.txt
@@ -1699,8 +1701,6 @@ function terminate {
 	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 
-	echo "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
-	echo "system-stats|network|${UUID}" | /opt/uit-toolbox/parse
 
 	imgUpdate=$(echo "SELECT time AS result FROM jobstats WHERE clone_master = '1' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 	imgUpdate=${imgUpdate::10}

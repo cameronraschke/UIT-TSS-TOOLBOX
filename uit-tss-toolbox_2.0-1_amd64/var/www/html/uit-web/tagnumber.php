@@ -604,7 +604,7 @@ unset($value1);
 <?php
 $jobLogSQL = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', 
     IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS 'clone_completed',
-    SEC_TO_TIME(clone_time) AS 'clone_time', bios_version 
+    SEC_TO_TIME(clone_time) AS 'clone_time', IF (clone_master = 1, '(Master Image)', '') AS 'clone_master_formatted', bios_version 
   FROM jobstats 
   WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ";
 if (isset($_GET["full-job-log"]) && $_GET["full-job-log"] == "1") {
@@ -622,7 +622,7 @@ echo "<td>" . htmlspecialchars($value1['cpu_usage']) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['network_usage']) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['erase_mode']) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['erase_time']) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['clone_time']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['clone_time']) . " " . $value1["clone_master_formatted"] . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['bios_version']) . "</td>" . PHP_EOL;
 echo "</tr>" . PHP_EOL;
 }
