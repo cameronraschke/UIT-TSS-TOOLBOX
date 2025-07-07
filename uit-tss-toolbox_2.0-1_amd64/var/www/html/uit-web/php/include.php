@@ -633,13 +633,15 @@ class db {
   }
 
 //CLIENT_IMAGES table
-  public function insertImage ($uuid) {
+  public function insertImage ($uuid, $time, $tagnumber) {
     if (strFilter($uuid) === 0) {
-      $sql = "INSERT INTO client_images (uuid) VALUES (:uuid)";
+      $sql = "INSERT INTO client_images (uuid, time, tagnumber) VALUES (:uuid, :time, :tagnumber)";
       $stmt = $this->pdo->prepare($sql);
 
-      if (strFilter($uuid) === 0) {
+      if (strFilter($uuid) === 0 && strFilter($time) === 0 && strFilter($tagnumber) === 0) {
         $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+        $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+        $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
       } else {
         exit();
       }

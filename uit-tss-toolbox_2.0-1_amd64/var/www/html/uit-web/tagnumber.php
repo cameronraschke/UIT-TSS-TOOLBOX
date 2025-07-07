@@ -28,12 +28,10 @@ $db = new db();
 
 <?php
 //POST data
-if (isset($_POST["userfile"])) {
+if (isset($_FILES["userfile"])) {
   $imageUUID = uniqid("image-", true);
-  $db->insertImage($imageUUID);
-  $db->updateImage("time", $time, $imageUUID);
-  $db->updateImage("tagnumber", $_GET["tagnumber"], $imageUUID);
-  $db->updateImage("image", file_get_contents($_POST["userfile"]), $imageUUID);
+  $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
+  $db->updateImage("image", file_get_contents($_FILES["userfile"]), $imageUUID);
 }
 if (isset($_POST["job_queued_tagnumber"])) {
   if (strFilter($_POST["job_queued"]) === 0) {
