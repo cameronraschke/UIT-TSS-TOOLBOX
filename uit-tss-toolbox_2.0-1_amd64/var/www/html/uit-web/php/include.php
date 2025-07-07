@@ -650,7 +650,7 @@ function addUrlVar ($url, $varName, $varValue) {
   return $urlPart . "?" . $newUrl;
 }
 
-function getUrlVars ($url) {
+function getUrlVar ($url) {
   list($urlPart, $queryPart) = array_pad(explode('?', $url), 2, '');
   parse_str($queryPart, $queryVars);
   $newUrl = http_build_query($queryVars);

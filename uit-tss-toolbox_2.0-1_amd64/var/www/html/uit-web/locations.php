@@ -156,7 +156,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
 
   unset($_POST);
 
-  header("Location: " . getUrlVars($_SERVER["REQUEST_URI"]));
+  header("Location: " . getUrlVar($_SERVER["REQUEST_URI"]));
 }
 
 ?>
