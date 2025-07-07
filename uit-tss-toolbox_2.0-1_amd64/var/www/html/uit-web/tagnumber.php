@@ -32,7 +32,7 @@ if (isset($_FILES["userfile"])) {
   $imageUUID = uniqid("image-", true);
   $imageFileStr = file_get_contents($_FILES["userfile"]["tmp_name"]);
   $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
-  $db->updateImage("image", $imageFileStr, $imageUUID);
+  $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
   unset($imageFileStr);
 }
 if (isset($_POST["job_queued_tagnumber"])) {
@@ -443,7 +443,7 @@ $sqlArr = $db->get();
         <?php
           $db->Pselect("SELECT image FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
           foreach ($db->get() as $key => $image) {
-            echo "<img src='data:image/png;base64," . base64_encode($image["image"]) . "</img>";
+            //echo "<img src='data:image/png;base64," . ($image["image"]) . "'></img>";
           }
          ?>
       </div>
