@@ -631,6 +631,45 @@ class db {
       }
     }
   }
+
+//CLIENT_IMAGES table
+  public function insertImage ($uuid) {
+    if (strFilter($uuid) === 0) {
+      $sql = "INSERT INTO client_images (uuid) VALUES (:uuid)";
+      $stmt = $this->pdo->prepare($sql);
+
+      if (strFilter($uuid) === 0) {
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+      } else {
+        exit();
+      }
+
+      if (strFilter($stmt) === 0) {
+        $stmt->execute();
+      }
+    }
+  }
+
+  public function updateImage ($key, $value, $uuid) {
+    if (strFilter($uuid) === 0 && strFilter($key) === 0) {
+      if ($this->check_tables_cols("client_images", $key) === 0) {
+        $sql = "UPDATE client_images SET $key = :value WHERE uuid = :uuid";
+        $stmt = $this->pdo->prepare($sql);
+
+        if (strFilter($value) === 0) {
+          $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        }
+
+        if (strFilter($stmt) == 0) {
+          $stmt->execute();
+        }
+      }
+    }
+  }
 }
 
 function removeUrlVar ($url, $varName) {

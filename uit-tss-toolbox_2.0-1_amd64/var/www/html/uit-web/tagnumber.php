@@ -28,6 +28,13 @@ $db = new db();
 
 <?php
 //POST data
+if (isset($_POST["userfile"])) {
+  $imageUUID = uniqid("image-", true);
+  $db->insertImage($imageUUID);
+  $db->updateImage("time", $time, $imageUUID);
+  $db->updateImage("tagnumber", $_GET["tagnumber"], $imageUUID);
+  $db->updateImage("image", file_get_contents($_POST["userfile"]), $imageUUID);
+}
 if (isset($_POST["job_queued_tagnumber"])) {
   if (strFilter($_POST["job_queued"]) === 0) {
     $db->updateRemote($_POST["job_queued_tagnumber"], "job_queued", $_POST["job_queued"]);
@@ -250,6 +257,15 @@ $sqlArr = $db->get();
             </select>
             <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Queue Job</button>
           </form>
+        <div>
+          <!-- The data encoding type, enctype, MUST be specified as below -->
+          <form enctype="multipart/form-data" method="POST">
+            <!-- Name of input element determines name in $_FILES array -->
+            <div>Upload Image: </div>
+            <div><input name="userfile" type="file" /></div>
+            <div><input type="submit" value="Upload File" /></div>
+          </form>
+      </div>
 
 
         </div>
@@ -421,6 +437,7 @@ $sqlArr = $db->get();
           }
         }
         ?>
+
       </div>
 
       </div>

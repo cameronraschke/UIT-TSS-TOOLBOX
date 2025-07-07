@@ -440,11 +440,18 @@ INSERT INTO static_tags (
     ;
 
 
-CREATE TABLE IF NOT EXISTS tags (
-    tagnumber VARCHAR(128) NOT NULL,
-    tag VARCHAR(128) NOT NULL
-);
+-- CREATE TABLE IF NOT EXISTS tags (
+--     tagnumber VARCHAR(128) NOT NULL,
+--     tag VARCHAR(128) NOT NULL
+-- );
 
+CREATE TABLE IF NOT EXISTS client_images (
+    uuid VARCHAR(64) NOT NULL PRIMARY KEY,
+    time DATETIME(3) NOT NULL,
+    tagnumber VARCHAR(6), 
+    name VARCHAR(64) DEFAULT NULL,
+    image MEDIUMBLOB DEFAULT NULL
+);
 
 DROP TABLE IF EXISTS static_departments;
 CREATE TABLE IF NOT EXISTS static_departments (
