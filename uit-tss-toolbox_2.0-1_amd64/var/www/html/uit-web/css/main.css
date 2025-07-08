@@ -249,6 +249,11 @@ textarea {
 	padding: 0.5em 0.5em 0.5em 0.5em;
 	width: auto;
 }
+.location-form input[type=file]::file-selector-button {
+	padding: 0.5em 0.5em 0.5em 0.5em;
+	width: auto;
+	cursor: pointer;
+}
 .location-form select {
 	text-align: center;
 	width: auto;

@@ -252,6 +252,7 @@ GRANT SELECT, INSERT, UPDATE, EXECUTE ON laptopDB.* TO 'uitclient'@'10.0.0.0/255
 DROP USER IF EXISTS 'uitweb'@'localhost';
 CREATE USER IF NOT EXISTS 'uitweb'@'localhost' IDENTIFIED BY 'UHouston!';
 GRANT SELECT, INSERT, UPDATE, EXECUTE ON laptopDB.* TO 'uitweb'@'localhost';
+GRANT DELETE ON laptopDB.client_images TO 'uitweb'@'localhost';
 
 END; //
 

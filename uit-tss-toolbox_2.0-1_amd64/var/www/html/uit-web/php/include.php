@@ -634,21 +634,19 @@ class db {
 
 //CLIENT_IMAGES table
   public function insertImage ($uuid, $time, $tagnumber) {
-    if (strFilter($uuid) === 0) {
+    if (strFilter($uuid) === 0 && strFilter($time) === 0 && strFilter($tagnumber) === 0) {
       $sql = "INSERT INTO client_images (uuid, time, tagnumber) VALUES (:uuid, :time, :tagnumber)";
       $stmt = $this->pdo->prepare($sql);
 
-      if (strFilter($uuid) === 0 && strFilter($time) === 0 && strFilter($tagnumber) === 0) {
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-        $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-        $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
-      } else {
-        exit();
-      }
+      $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+      $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+      $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+    } else {
+      exit();
+    }
 
-      if (strFilter($stmt) === 0) {
-        $stmt->execute();
-      }
+    if (strFilter($stmt) === 0) {
+      $stmt->execute();
     }
   }
 
@@ -672,6 +670,24 @@ class db {
       }
     }
   }
+
+  public function deleteImage ($uuid, $time, $tagnumber) {
+    if (strFilter($uuid) === 0 && strFilter($time) === 0 && strFilter($tagnumber) === 0) {
+      $sql = "DELETE FROM client_images WHERE uuid = :uuid AND time = :time AND tagnumber = :tagnumber";
+      $stmt = $this->pdo->prepare($sql);
+
+      $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+      $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+      $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+    } else {
+      exit();
+    }
+
+    if (strFilter($stmt) === 0) {
+      $stmt->execute();
+    }
+  }
+
 }
 
 function removeUrlVar ($url, $varName) {

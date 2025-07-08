@@ -450,7 +450,9 @@ CREATE TABLE IF NOT EXISTS client_images (
     time DATETIME(3) NOT NULL,
     tagnumber VARCHAR(6) NOT NULL, 
     name VARCHAR(64) DEFAULT NULL,
-    image MEDIUMBLOB DEFAULT NULL
+    image MEDIUMBLOB DEFAULT NULL,
+    md5_hash VARCHAR(32) DEFAULT NULL,
+    hidden BOOLEAN DEFAULT 0
 );
 
 DROP TABLE IF EXISTS static_departments;

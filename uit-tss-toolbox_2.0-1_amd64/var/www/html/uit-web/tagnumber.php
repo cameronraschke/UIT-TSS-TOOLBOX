@@ -28,17 +28,28 @@ $db = new db();
 
 <?php
 //POST data
+if (isset($_POST["delete-image"]) && $_POST["delete-image"] === 1) {
+  $db->deleteImage($_POST["delete-image-uuid"], $_POST["delete-image-time"], $_POST["delete-image-tagnumber"]);
+}
 if (isset($_FILES["userfile"])) {
-  $imageUUID = uniqid("image-", true);
-  $imageData = imagecreatefromstring(file_get_contents($_FILES["userfile"]["tmp_name"]));
-  ob_start();
-  imagejpeg($imageData, NULL, 60);
-  $imageFileStr = ob_get_clean();
-  $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
-  imagedestroy($imageData);
-  $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
-  unset($imageFileStr);
-  unset($imageData);
+  $imageHash = md5(file_get_contents($_FILES["userfile"]["tmp_name"]));
+  $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash", array(':md5_hash' => $imageHash));
+  if (strFilter($db->get()) === 1) {
+    $imageUUID = uniqid("image-", true);
+    $imageData = imagecreatefromstring(file_get_contents($_FILES["userfile"]["tmp_name"]));
+    ob_start();
+    imagejpeg($imageData, NULL, 80);
+    $imageFileStr = ob_get_clean();
+    $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
+    imagedestroy($imageData);
+    $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
+    $db->updateImage("md5_hash", $imageHash, $imageUUID);
+    $db->updateImage("hidden", "0", $_POST["delete-image"]);
+    unset($imageFileStr);
+    unset($imageData);
+  } else {
+    $imageUploadError = 1;
+  }
 }
 if (isset($_POST["job_queued_tagnumber"])) {
   if (strFilter($_POST["job_queued"]) === 0) {
@@ -266,10 +277,14 @@ $sqlArr = $db->get();
           <!-- The data encoding type, enctype, MUST be specified as below -->
           <form enctype="multipart/form-data" method="POST">
             <!-- Name of input element determines name in $_FILES array -->
-            <div>Upload Image: </div>
-            <div><input name="userfile" type="file" /></div>
-            <div><input type="submit" value="Upload Image" style='background-color:rgba(0, 179, 136, 0.30);' /></div>
+            <div><p>Upload Image: </p></div>
+            <div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>
           </form>
+          <?php 
+          if ($imageUploadError === 1) {
+            echo "<p style='color: red;'><b>Error: File already uploaded.</b></p>";
+          }
+          ?>
       </div>
 
 
@@ -446,9 +461,9 @@ $sqlArr = $db->get();
       </div>
         <div class='grid-container' style='width: 100%;'>
         <?php
-          $db->Pselect("SELECT image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted' FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
+          $db->Pselect("SELECT uuid, time, tagnumber, image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
           foreach ($db->get() as $key => $image) {
-            echo "<div class='grid-box'><p>" . htmlspecialchars($image["time_formatted"]) . "</p><img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img></div>";
+            echo "<div class='grid-box'><form method='post'><input type='hidden' name='delete-image' value='1'><input type='hidden' name='delete-image-uuid' value='" . $image["uuid"] . "'><input type='hidden' name='delete-image-time' value='" . $image["time"] . "'><input type='hidden' name='delete-image-tagnumber' value='" . $image["tagnumber"] . "'><b>[<input type=submit style='background-color: transparent; text-decoration: underline; color:red; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='x'>]</b></form><p> " . htmlspecialchars($image["time_formatted"]) . "</p><img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img></div>";
           }
           unset($image);
          ?>
