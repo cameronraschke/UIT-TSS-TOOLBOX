@@ -42,7 +42,7 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
             <div>
                 <form method="post" class="styled-form">
                     <label for="username">Username</label>
-                    <input type="text" name="username" id="username" autocomplete="username" spellcheck="false" required autofocus>
+                    <input type="text" name="username" id="username" autocapitalize='none' autocomplete='username' autocorrect='off' spellcheck='false' required autofocus>
                     <label for="password">Password</label>
                     <input type="password" name="password" id="password" autocomplete="current-password" required>
                     <?php if (isset($err)) { echo "<div><h3 style='color: #C8102E;'>Invalid credentials, try again. </h3></div>"; } ?>
