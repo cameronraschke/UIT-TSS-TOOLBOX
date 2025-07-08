@@ -298,7 +298,7 @@ $sqlArr = $db->get();
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
             <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif" /></div>
-            <div><input name="image-note" type="text" placeholder="Add Image Description..."></div>
+            <div><input name="image-note" type="text" spellcheck="false" autocomplete="off" placeholder="Add Image Description..."></div>
             <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image</button></div>
           </form>
             <?php 

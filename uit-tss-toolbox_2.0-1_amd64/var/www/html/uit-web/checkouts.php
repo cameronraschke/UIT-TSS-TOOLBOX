@@ -45,8 +45,8 @@ $rowCount = count($db->get());
 
         <div class='pagetitle'>Clients checked out: <?php echo $rowCount; ?></div>
         <div class='styled-form2'>
-            <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search tag number...">
-            <input type="text" id="myInputName" onkeyup="myFunctionName()" placeholder="Search customer name...">
+            <input type="text" id="myInput" onkeyup="myFunction()" spellcheck="false" autocomplete="off" placeholder="Search tag number...">
+            <input type="text" id="myInputName" onkeyup="myFunctionName()" spellcheck="false" autocomplete="off" placeholder="Search customer name...">
         </div>
         <div class='styled-table'>
             <table id='myTable' style='min-width: 50%;'>
