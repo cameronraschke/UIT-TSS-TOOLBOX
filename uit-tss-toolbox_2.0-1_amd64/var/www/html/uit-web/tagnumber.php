@@ -28,27 +28,34 @@ $db = new db();
 
 <?php
 //POST data
-if (isset($_POST["delete-image"]) && $_POST["delete-image"] === 1) {
+if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
   $db->deleteImage($_POST["delete-image-uuid"], $_POST["delete-image-time"], $_POST["delete-image-tagnumber"]);
 }
+
 if (isset($_FILES["userfile"])) {
-  $imageHash = md5(file_get_contents($_FILES["userfile"]["tmp_name"]));
-  $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash", array(':md5_hash' => $imageHash));
-  if (strFilter($db->get()) === 1) {
-    $imageUUID = uniqid("image-", true);
-    $imageData = imagecreatefromstring(file_get_contents($_FILES["userfile"]["tmp_name"]));
-    ob_start();
-    imagejpeg($imageData, NULL, 80);
-    $imageFileStr = ob_get_clean();
-    $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
-    imagedestroy($imageData);
-    $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
-    $db->updateImage("md5_hash", $imageHash, $imageUUID);
-    $db->updateImage("hidden", "0", $_POST["delete-image"]);
-    unset($imageFileStr);
-    unset($imageData);
+  $fileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"]);
+  $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif'];
+  if (!in_array($fileMimeType, $fileAllowedMimes)) {
+    $imageUploadError = 2;
   } else {
-    $imageUploadError = 1;
+    $imageHash = md5(file_get_contents($_FILES["userfile"]["tmp_name"]));
+    $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash", array(':md5_hash' => $imageHash));
+    if (strFilter($db->get()) === 1) {
+      $imageUUID = uniqid("image-", true);
+      $imageData = imagecreatefromstring(file_get_contents($_FILES["userfile"]["tmp_name"]));
+      ob_start();
+      imagejpeg($imageData, NULL, 80);
+      $imageFileStr = ob_get_clean();
+      $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
+      imagedestroy($imageData);
+      $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
+      $db->updateImage("md5_hash", $imageHash, $imageUUID);
+      $db->updateImage("hidden", "0", $_POST["delete-image"]);
+      unset($imageFileStr);
+      unset($imageData);
+    } else {
+      $imageUploadError = 1;
+    }
   }
 }
 if (isset($_POST["job_queued_tagnumber"])) {
@@ -283,6 +290,8 @@ $sqlArr = $db->get();
           <?php 
           if ($imageUploadError === 1) {
             echo "<p style='color: red;'><b>Error: File already uploaded.</b></p>";
+          } elseif ($imageUploadError == 2) {
+            echo "<p style='color: red;'><b>Error: Incorrect file format.</b></p>";
           }
           ?>
       </div>
@@ -463,7 +472,7 @@ $sqlArr = $db->get();
         <?php
           $db->Pselect("SELECT uuid, time, tagnumber, image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
           foreach ($db->get() as $key => $image) {
-            echo "<div class='grid-box'><form method='post'><input type='hidden' name='delete-image' value='1'><input type='hidden' name='delete-image-uuid' value='" . $image["uuid"] . "'><input type='hidden' name='delete-image-time' value='" . $image["time"] . "'><input type='hidden' name='delete-image-tagnumber' value='" . $image["tagnumber"] . "'><b>[<input type=submit style='background-color: transparent; text-decoration: underline; color:red; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='x'>]</b></form><p> " . htmlspecialchars($image["time_formatted"]) . "</p><img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img></div>";
+            echo "<div class='grid-box'><div style='margin: 0 0 1em 0; padding: 0; width: fit-content;'><form method='post'><input type='hidden' name='delete-image' value='1'><input type='hidden' name='delete-image-uuid' value='" . $image["uuid"] . "'><input type='hidden' name='delete-image-time' value='" . $image["time"] . "'><input type='hidden' name='delete-image-tagnumber' value='" . $image["tagnumber"] . "'><div style='position: relative; top: 0; left: 0;'><b>[<input type=submit style='background-color: transparent; text-decoration: underline; color:red; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='x'>]</b></div></form></div><p>Upload Time: " . htmlspecialchars($image["time_formatted"]) . "</p><img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img></div>";
           }
           unset($image);
          ?>
