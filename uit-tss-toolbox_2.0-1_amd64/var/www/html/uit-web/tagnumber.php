@@ -33,16 +33,19 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
 }
 
 if (isset($_FILES["userfile"])) {
+  $fh = fopen($_FILES["userfile"]["tmp_name"], 'rb');
+  $rawFileData = file_get_contents($_FILES["userfile"]["tmp_name"]);
   $fileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"]);
   $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif'];
   if (!in_array($fileMimeType, $fileAllowedMimes)) {
     $imageUploadError = 2;
   } else {
-    $imageHash = md5(file_get_contents($_FILES["userfile"]["tmp_name"]));
+    $imageHash = md5($rawFileData);
     $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash", array(':md5_hash' => $imageHash));
     if (strFilter($db->get()) === 1) {
       $imageUUID = uniqid("image-", true);
-      $imageData = imagecreatefromstring(file_get_contents($_FILES["userfile"]["tmp_name"]));
+      $imageData = imagecreatefromstring($rawFileData);
+      $exifArr = exif_read_data($fh);
       ob_start();
       imagejpeg($imageData, NULL, 90);
       $imageFileStr = ob_get_clean();
@@ -50,6 +53,11 @@ if (isset($_FILES["userfile"])) {
       imagedestroy($imageData);
       $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
       $db->updateImage("md5_hash", $imageHash, $imageUUID);
+      $db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
+      $db->updateImage("resolution", imagesx($imageData) . "x" . imagesx($imageData), $imageUUID);
+      $db->updateImage("filename", $_FILES["userfile"]["name"], $imageUUID);
+      $db->updateImage("filesize", $_FILES["userfile"]["size"] / 1048576, $imageUUID);
+      $db->updateImage("note", $_POST["image-note"], $imageUUID);
       $db->updateImage("hidden", "0", $_POST["delete-image"]);
       unset($imageFileStr);
       unset($imageData);
@@ -57,6 +65,7 @@ if (isset($_FILES["userfile"])) {
       $imageUploadError = 1;
     }
   }
+  fclose($fh);
 }
 if (isset($_POST["job_queued_tagnumber"])) {
   if (strFilter($_POST["job_queued"]) === 0) {
@@ -208,95 +217,97 @@ $sqlArr = $db->get();
       <div class='column'>
         <div class='location-form'>
 
-        <div name='curJob' id='curJob'>
-          <p>Real-time Job Status: </p>
-          <?php
-          if (arrFilter($sqlArr) === 0) {
-            foreach ($sqlArr as $key => $value) {
-              // BIOS and kernel updated (check mark)
-              if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
-              echo "Online, no errors <span>&#10004;&#65039;</span>";
-              // BIOS and kernel out of date (x)
-              } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== 1)) {
-              echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
-              // BIOS out of date, kernel updated (warning sign)
-              } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== 1)) {
-              echo "Online, please update BIOS <span>&#9888;&#65039;</span>";
-              // BIOS updated, kernel out of date (x)
-              } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === 1)) {
-              echo "Online, kernel out of date <span>&#10060;</span>)";
-              // Offline (x)
-              } elseif ($value["present_bool"] !== 1) {
-              echo "Offline <span>&#9940;</span>";
-              } else {
-              echo "Unknown <span>&#9940;&#65039;</span>";
-              }
+          <div name='curJob' id='curJob'>
+            <p>Real-time Job Status: </p>
+            <?php
+            if (arrFilter($sqlArr) === 0) {
+              foreach ($sqlArr as $key => $value) {
+                // BIOS and kernel updated (check mark)
+                if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
+                echo "Online, no errors <span>&#10004;&#65039;</span>";
+                // BIOS and kernel out of date (x)
+                } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== 1)) {
+                echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
+                // BIOS out of date, kernel updated (warning sign)
+                } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== 1)) {
+                echo "Online, please update BIOS <span>&#9888;&#65039;</span>";
+                // BIOS updated, kernel out of date (x)
+                } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === 1)) {
+                echo "Online, kernel out of date <span>&#10060;</span>)";
+                // Offline (x)
+                } elseif ($value["present_bool"] !== 1) {
+                echo "Offline <span>&#9940;</span>";
+                } else {
+                echo "Unknown <span>&#9940;&#65039;</span>";
+                }
 
-              if (strFilter($value["remote_status"]) === 0) {
-                echo "<p><b>'" . htmlspecialchars($value["remote_status"]) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"]) . "</p>" . PHP_EOL;
+                if (strFilter($value["remote_status"]) === 0) {
+                  echo "<p><b>'" . htmlspecialchars($value["remote_status"]) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"]) . "</p>" . PHP_EOL;
+                }
               }
+            } else {
+              echo "Missing required info. Please plug into laptop server to gather information.<br>
+              To update the location, please update it from the <a href='/locations.php'>locations page</a>";
             }
-          } else {
-            echo "Missing required info. Please plug into laptop server to gather information.<br>
-            To update the location, please update it from the <a href='/locations.php'>locations page</a>";
-          }
-          ?>
+            ?>
+          </div>
+          
+          <div>
+            <form name="job_queued_form" method="post">
+              <div><label for='tagnumber'>Enter a job to queue: </label></div>
+              <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
+              <div><select name="job_queued">
+                <?php
+                // Get/set current jobs.
+                if ($_GET['tagnumber'] && arrFilter($sqlArr) === 0) {
+                  $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+                  if (arrFilter($db->get()) === 0 ) {
+                    $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
+                      IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted',
+                      IF (remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
+                      FROM remote 
+                      INNER JOIN static_job_names 
+                      ON remote.job_queued = static_job_names.job 
+                      WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
+                    if (arrFilter($db->get()) === 0) {
+                      foreach ($db->get() as $key => $value1) {
+                        echo "<option value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
+                      }
+                      unset($value1);
+                    }
+                    echo "<option value=''>--Select Job Below--</option>" . PHP_EOL;
+                    $db->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 AND NOT job IN (SELECT IF (remote.job_queued IS NULL, '', remote.job_queued) FROM remote WHERE remote.tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
+                    foreach ($db->get() as $key => $value2) {
+                      echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
+                    }
+                    unset($value2);
+                    unset($value);
+                  }
+                } else {
+                  echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " missing info :((</option>";
+                }
+                ?>
+              </select>
+              <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Queue Job</button></div>
+            </form>
+          </div>
         </div>
 
-          <form name="job_queued_form" method="post">
-            <div><label for='tagnumber'>Enter a job to queue: </label></div>
-            <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
-            <select name="job_queued">
-              <?php
-              // Get/set current jobs.
-              if ($_GET['tagnumber'] && arrFilter($sqlArr) === 0) {
-                $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-                if (arrFilter($db->get()) === 0 ) {
-                  $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
-                    IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted',
-                    IF (remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
-                    FROM remote 
-                    INNER JOIN static_job_names 
-                    ON remote.job_queued = static_job_names.job 
-                    WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-                  if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key => $value1) {
-                      echo "<option value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
-                    }
-                    unset($value1);
-                  }
-                  echo "<option value=''>--Select Job Below--</option>" . PHP_EOL;
-                  $db->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 AND NOT job IN (SELECT IF (remote.job_queued IS NULL, '', remote.job_queued) FROM remote WHERE remote.tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
-                  foreach ($db->get() as $key => $value2) {
-                    echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
-                  }
-                  unset($value2);
-                  unset($value);
-                }
-              } else {
-                echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " missing info :((</option>";
-              }
-              ?>
-            </select>
-            <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Queue Job</button>
-          </form>
-        <div>
-          <!-- The data encoding type, enctype, MUST be specified as below -->
+        <div class='location-form'>
           <form enctype="multipart/form-data" method="POST">
-            <!-- Name of input element determines name in $_FILES array -->
             <div><p>Upload Image: </p></div>
-            <div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>
+            <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
+            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif" /></div>
+            <div><input name="image-note" type="text" placeholder="Add Image Description..."></div>
+            <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image</button></div>
           </form>
-          <?php 
-          if ($imageUploadError === 1) {
-            echo "<p style='color: red;'><b>Error: File already uploaded.</b></p>";
-          } elseif ($imageUploadError == 2) {
-            echo "<p style='color: red;'><b>Error: Incorrect file format.</b></p>";
-          }
-          ?>
-      </div>
-
-
+            <?php 
+            if ($imageUploadError === 1) {
+              echo "<div><p style='color: red;'><b>Error: File already uploaded.</b></p></div>";
+            } elseif ($imageUploadError == 2) {
+              echo "<div><p style='color: red;'><b>Error: Incorrect file format.</b></p></div>";
+            }
+            ?>
         </div>
 
         <div class='pagetitle'><h3></u></h3></div>
@@ -412,11 +423,30 @@ $sqlArr = $db->get();
 
       <div class='column'>
         <?php
-        $db->Pselect("SELECT uuid, time, tagnumber, image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
+        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, image, note, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
+          echo "<div class='page-content'><b>[<a href='/view-images.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>View All Images</a>]</b></div>";
           echo "<div class='grid-container' style='width: 100%;'>";
           foreach ($db->get() as $key => $image) {
-            echo "<div class='grid-box'><div style='margin: 0 0 1em 0; padding: 0; width: fit-content;'><form method='post'><input type='hidden' name='delete-image' value='1'><input type='hidden' name='delete-image-uuid' value='" . $image["uuid"] . "'><input type='hidden' name='delete-image-time' value='" . $image["time"] . "'><input type='hidden' name='delete-image-tagnumber' value='" . $image["tagnumber"] . "'><div style='position: relative; top: 0; left: 0;'><b>[<input type=submit style='background-color: transparent; text-decoration: underline; color:red; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='x'>]</b></div></form></div><p>Upload Time: " . htmlspecialchars($image["time_formatted"]) . "</p><img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img></div>";
+            if ($image["row_nums"] <= 6) {
+              echo "<div class='grid-box'>";
+              echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content;'>";
+              echo "<form method='post'>";
+              echo "<input type='hidden' name='delete-image' value='1'>";
+              echo "<input type='hidden' name='delete-image-uuid' value='" . $image["uuid"] . "'>";
+              echo "<input type='hidden' name='delete-image-time' value='" . $image["time"] . "'>";
+              echo "<input type='hidden' name='delete-image-tagnumber' value='" . $image["tagnumber"] . "'>";
+              echo "<div style='position: relative; top: 0; left: 0;'>";
+              echo "<b>[<input type=submit style='background-color: transparent; text-decoration: underline; color:red; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='x'>]</b></input></form></div></div>";
+              echo "<div><p>(" . htmlspecialchars($image["row_nums"]) . "/" . htmlspecialchars($db->get_rows()) . ") Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
+              echo "<p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . $image["filesize"] . " MB" . ")</p>";
+              if (strFilter($image["note"]) === 0) {
+                echo "<div><p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p></div>";
+              }
+              echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img>";
+              echo "</div>";
+              echo "</div>";
+            }
           }
           unset($image);
         } else {
