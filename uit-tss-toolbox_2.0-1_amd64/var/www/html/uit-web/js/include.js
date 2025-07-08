@@ -24,3 +24,13 @@ openedWindow.addEventListener('DOMContentLoaded', () => {
         window.close();
     });
 });
+
+function openImage(imageData) {
+  const byteCharacters = atob(imageData);
+  const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: "image/png" });
+  const blobUrl = URL.createObjectURL(blob);
+  window.open(blobUrl);
+  //const newTab = window.open("data:image/jpeg;base64," + imageData);
+}

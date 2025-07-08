@@ -367,3 +367,15 @@ textarea {
 	height: 1em;
 	width: auto;
 }
+
+.grid-container {
+	display: grid; /* Enables CSS Grid */
+	grid-template-columns: repeat(2, 1fr); /* Creates two equal-width columns */
+	grid-gap: 10px; /* Adds a 10px gap between grid items */
+}
+
+.grid-box {
+	background-color:rgb(233, 233, 233);
+	padding: 20px;
+	text-align: center;
+}

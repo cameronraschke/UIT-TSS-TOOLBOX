@@ -30,10 +30,15 @@ $db = new db();
 //POST data
 if (isset($_FILES["userfile"])) {
   $imageUUID = uniqid("image-", true);
-  $imageFileStr = file_get_contents($_FILES["userfile"]["tmp_name"]);
+  $imageData = imagecreatefromstring(file_get_contents($_FILES["userfile"]["tmp_name"]));
+  ob_start();
+  imagejpeg($imageData, NULL, 60);
+  $imageFileStr = ob_get_clean();
   $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
+  imagedestroy($imageData);
   $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
   unset($imageFileStr);
+  unset($imageData);
 }
 if (isset($_POST["job_queued_tagnumber"])) {
   if (strFilter($_POST["job_queued"]) === 0) {
@@ -263,7 +268,7 @@ $sqlArr = $db->get();
             <!-- Name of input element determines name in $_FILES array -->
             <div>Upload Image: </div>
             <div><input name="userfile" type="file" /></div>
-            <div><input type="submit" value="Upload File" /></div>
+            <div><input type="submit" value="Upload Image" style='background-color:rgba(0, 179, 136, 0.30);' /></div>
           </form>
       </div>
 
@@ -439,12 +444,13 @@ $sqlArr = $db->get();
         ?>
 
       </div>
-      <div>
+        <div class='grid-container' style='width: 100%;'>
         <?php
-          $db->Pselect("SELECT image FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
+          $db->Pselect("SELECT image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted' FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
           foreach ($db->get() as $key => $image) {
-            //echo "<img src='data:image/png;base64," . ($image["image"]) . "'></img>";
+            echo "<div class='grid-box'><p>" . htmlspecialchars($image["time_formatted"]) . "</p><img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img></div>";
           }
+          unset($image);
          ?>
       </div>
 
