@@ -44,7 +44,7 @@ if (isset($_FILES["userfile"])) {
       $imageUUID = uniqid("image-", true);
       $imageData = imagecreatefromstring(file_get_contents($_FILES["userfile"]["tmp_name"]));
       ob_start();
-      imagejpeg($imageData, NULL, 80);
+      imagejpeg($imageData, NULL, 90);
       $imageFileStr = ob_get_clean();
       $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
       imagedestroy($imageData);
