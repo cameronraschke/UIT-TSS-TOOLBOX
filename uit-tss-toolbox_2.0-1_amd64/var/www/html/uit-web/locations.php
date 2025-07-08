@@ -262,10 +262,10 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
           // Location data
           if ($tagDataExists === 1) {
             echo "<div><label for='location'>Location* (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
-            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location_formatted"]) . "' autofocus autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter location...' required>" . PHP_EOL;
+            echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location_formatted"]) . "' autofocus autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter location...' required>" . PHP_EOL;
           } else {
             echo "<div><label for='location'>Location*</label></div>" . PHP_EOL;
-            echo "<input type='text' id='location' name='location' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter location...' required>" . PHP_EOL;
+            echo "<input type='text' id='location' name='location' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter location...' required>" . PHP_EOL;
           }
             // close location data column
             echo "</div>";
@@ -314,10 +314,10 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
 						if (strFilter($value["system_model"]) === 0) {
               echo "<input type='text' id='system_manufacturer' name='system_manufacturer' placeholder='Enter manufacturer...'value='" . trim(htmlspecialchars($value["system_manufacturer"])) . "'><input type='text' id='model' name='model' placeholder='Enter model...' value='" . trim(htmlspecialchars($value["system_model"])) . "'>";
             }  else {
-              echo "<input type='text' id='system_manufacturer' name='system_manufacturer' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter manufacturer...'><input type='text' id='model' name='model' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter system model...'>";
+              echo "<input type='text' id='system_manufacturer' name='system_manufacturer' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter manufacturer...'><input type='text' id='model' name='model' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter system model...'>";
             }
           } else {
-              echo "<input type='text' id='system_manufacturer' name='system_manufacturer' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter manufacturer...'><input type='text' id='model' name='model' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter system model...'>";
+              echo "<input type='text' id='system_manufacturer' name='system_manufacturer' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter manufacturer...'><input type='text' id='model' name='model' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter system model...'>";
           }
           // Close system model div
           echo "</div>" . PHP_EOL;
@@ -445,7 +445,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
                       echo "</div>";
                       echo "<div class='column'>";
                       echo "<div><div><label for='customer_name'>Customer name: </label></div>";
-                      echo "<input type='text' name='customer_name' id='customer_name' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' value='" . htmlspecialchars($value1["customer_name"]) . "'></div>";
+                      echo "<input type='text' name='customer_name' id='customer_name' autocapitalize='words' autocomplete='off' autocorrect='off' spellcheck='false' value='" . htmlspecialchars($value1["customer_name"]) . "'></div>";
                       echo "<div><div><label for='customer_psid'>Customer PSID: </label></div>";
                       //echo "<input type='text' name='customer_psid' id='customer_psid' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' value='" . htmlspecialchars($value1["customer_psid"]) . "'></div>";
                       echo "<input type='text' name='customer_psid' id='customer_psid' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Customer PSID' style='background-color:#888B8D;' readonly></div>";
@@ -463,7 +463,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
                       echo "</div>";
                       echo "<div class='column'>";
                       echo "<div><div><label for='customer_name'>Customer name: </label></div>";
-                      echo "<input type='text' name='customer_name' id='customer_name' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Customer Name'></div>";
+                      echo "<input type='text' name='customer_name' id='customer_name' autocapitalize='words' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Customer Name'></div>";
                       echo "<div><div><label for='customer_psid'>Customer PSID: </label></div>";
                       echo "<input type='text' name='customer_psid' id='customer_psid' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Customer PSID' style='background-color:#888B8D;' readonly></div>";
                       echo "</div>";        

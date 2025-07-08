@@ -133,7 +133,14 @@ unset($_POST);
   <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
   </div>
 
+  <div class='row'>
+    <div class='column'>
   <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
+</div>
+<div class='column'>
+  <div class='location-form' style='position: relative; width: 20em; top:5%; right:2%;'><form method='GET'><input type='text' name='tagnumber' style='width: 100%;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'></form></div>
+</div>
+</div>
 
 
 <?php
@@ -298,7 +305,7 @@ $sqlArr = $db->get();
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
             <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif" /></div>
-            <div><input name="image-note" type="text" spellcheck="false" autocomplete="off" placeholder="Add Image Description..."></div>
+            <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' autocorrect='off' spellcheck='false' placeholder="Add Image Description..."></div>
             <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image</button></div>
           </form>
             <?php 
