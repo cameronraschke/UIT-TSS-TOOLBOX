@@ -58,9 +58,9 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
             echo "<input type='hidden' name='delete-image-time' value='" . $image["time"] . "'>";
             echo "<input type='hidden' name='delete-image-tagnumber' value='" . $image["tagnumber"] . "'>";
             echo "<div style='position: relative; top: 0; left: 0;'>";
-            echo "<b>[<input type=submit style='background-color: transparent; text-decoration: underline; color:red; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='x'>]</b></input></form></div></div>";
+            echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: #C8102E; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='delete'></input>]</form></div></div>";
             echo "<div><p>Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
-            echo "<p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . $image["filesize"] . " MB" . ")</p>";
+            echo "<p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . htmlspecialchars($image["filesize"]) . " MB" . ")</p>";
             if (strFilter($image["note"]) === 0) {
                 echo "<p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p>";
             }
