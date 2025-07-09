@@ -76,7 +76,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         $imageObject = imagecreatefromstring($rawFileData);
         if ($imageObject !== false) {
           ob_start();
-          imagejpeg($imageObject, NULL, 90);
+          imagejpeg($imageObject, NULL, 100);
           $imageFileConverted = base64_encode(ob_get_clean());
           imagedestroy($imageObject);
         }
