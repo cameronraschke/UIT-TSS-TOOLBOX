@@ -34,7 +34,7 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
 
 if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) === 0) {
   $fileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"]);
-  $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'video/mp4'];
+  $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'video/mp4', 'video/quicktime'];
   if (!in_array($fileMimeType, $fileAllowedMimes)) {
     $imageUploadError = 2;
   } else {
@@ -57,7 +57,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         $imageFileStr = $rawFileData;
       }
 
-      if ($imageData !== false) {
+      if ($imageFileStr !== false) {
         $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
         $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
         $db->updateImage("md5_hash", $imageHash, $imageUUID);
@@ -67,7 +67,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         $db->updateImage("mime_type", $fileMimeType, $imageUUID);
         $db->updateImage("hidden", "0", $_POST["delete-image"]);
         if (preg_match('/^image.*/', $fileMimeType) === 1) {
-          $db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
+          //$db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
           $db->updateImage("resolution", imagesx($imageData) . "x" . imagesx($imageData), $imageUUID);
         }
         unset($imageFileStr);
@@ -318,7 +318,7 @@ $sqlArr = $db->get();
           <form enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
-            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4" /></div>
+            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" /></div>
             <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' autocorrect='off' spellcheck='false' placeholder="Add Image Description..."></div>
             <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image</button></div>
           </form>
@@ -467,8 +467,10 @@ $sqlArr = $db->get();
               echo "<div style='padding: 1em 1px 1px 1px;'>";
               if (preg_match('/^image.*/', $image["mime_type"]) === 1) {
                 echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img>";
-              } elseif (preg_match('/^video.*/', $image["mime_type"]) === 1) {
+              } elseif (preg_match('/^video\/mp4/', $image["mime_type"]) === 1) {
                 echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
+              } elseif (preg_match('/^video\/quicktime/', $image["mime_type"]) === 1) {
+                echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/quicktime' src='data:video/quicktime;base64," . $image["image"] . "' /></video>";
               }
               echo "</div>";
               echo "</div>";
