@@ -67,7 +67,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         $file = fopen("/var/www/html/uit-web/transcode/" . $transcodeFile, 'c');
         fwrite($file, $rawFileData);
         fclose($file);
-        $imageFileConverted = exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile);
+        $imageFileConverted = passthru("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile);
       }
 
       if ($imageObject !== false) {
