@@ -99,15 +99,23 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
 
               
               //Rotate image form
-              echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
-              echo "<form method='post'>";
-              echo "<input type='hidden' name='rotate-image' value='1'>";
-              echo "<input type='hidden' name='rotate-image-uuid' value='" . $image["uuid"] . "'>";
-              echo "<input type='hidden' name='rotate-image-time' value='" . $image["time"] . "'>";
-              echo "<input type='hidden' name='rotate-image-tagnumber' value='" . $image["tagnumber"] . "'>";
-              echo "<div style='position: relative; top: 0; right: 0;'>";
-              echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: black; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='rotate'></input>]</form></div></div>";
-
+              if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
+                echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
+                echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><b>[download uncompressed image]</b></a></div>";
+                echo "<form method='post'>";
+                echo "<input type='hidden' name='rotate-image' value='1'>";
+                echo "<input type='hidden' name='rotate-image-uuid' value='" . $image["uuid"] . "'>";
+                echo "<input type='hidden' name='rotate-image-time' value='" . $image["time"] . "'>";
+                echo "<input type='hidden' name='rotate-image-tagnumber' value='" . $image["tagnumber"] . "'>";
+                echo "<div style='position: relative; top: 0; right: 0;'>";
+                echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: black; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='rotate image 90&deg;'></input>]</form></div></div>";
+              }
+              if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
+                echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
+                echo "<div style='position: relative; top: 0; right: 0;'>";
+                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><b>[download uncompressed video]</b></a></div></div>";
+              }
+              
               echo "</div>";
 
             echo "<div><p>Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
