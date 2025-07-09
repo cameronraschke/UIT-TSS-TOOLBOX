@@ -31,6 +31,6 @@ function openImage(imageData) {
   const byteArray = new Uint8Array(byteNumbers);
   const blob = new Blob([byteArray], { type: "image/png" });
   const blobUrl = URL.createObjectURL(blob);
-  window.open(blobUrl);
-  //const newTab = window.open("data:image/jpeg;base64," + imageData);
+  //window.open(blobUrl);
+  window.location.href = blobUrl;
 }

@@ -37,6 +37,15 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
   }
   unset($value);
 }
+
+if (isset($_GET["uuid"])) {
+  $db->Pselect("SELECT image FROM client_images WHERE uuid = :uuid", array(':uuid' => $_GET["uuid"]));
+  foreach ($db->get() as $key => $value) {
+  echo "<html><head><script src='/js/include.js'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
+  }
+  unset($value);
+  exit();
+}
 ?>
 
 <html>

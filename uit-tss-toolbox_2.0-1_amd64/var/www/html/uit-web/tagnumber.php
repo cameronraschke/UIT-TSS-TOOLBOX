@@ -75,9 +75,17 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         //Create jpeg and check if can convert. Create base64 string.
         $imageObject = imagecreatefromstring($rawFileData);
         if ($imageObject !== false) {
+          $imageResolution = imagesx($imageObject) . "x" . imagesy($imageObject);
+
+          //Main jpeg
           ob_start();
           imagejpeg($imageObject, NULL, 100);
           $imageFileConverted = base64_encode(ob_get_clean());
+
+          //Thumbnail
+          ob_start();
+          imagejpeg($imageObject, NULL, 30);
+          $imageFileCompressed = base64_encode(ob_get_clean());
           imagedestroy($imageObject);
         }
         //Convert all videos to mp4. Outputs base64 string.
@@ -86,12 +94,14 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         $file = fopen("/var/www/html/uit-web/transcode/" . $transcodeFile, 'c');
         fwrite($file, $rawFileData);
         fclose($file);
-        $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile);
+        $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "normal-quality");
+        $imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
       }
 
       if ($imageObject !== false) {
         $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
         $db->updateImage("image", $imageFileConverted, $imageUUID);
+        $db->updateImage("thumbnail", $imageFileCompressed, $imageUUID);
         $db->updateImage("md5_hash", $imageHash, $imageUUID);
         $db->updateImage("filename", $_FILES["userfile"]["name"], $imageUUID);
         $db->updateImage("filesize", round($_FILES["userfile"]["size"] / 1000000, 3), $imageUUID);
@@ -100,7 +110,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         //$db->updateImage("hidden", "0", $_POST["delete-image"]);
         if (preg_match('/^image.*/', $fileMimeType) === 1) {
           //$db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
-          $db->updateImage("resolution", imagesx($imageObject) . "x" . imagesy($imageObject), $imageUUID);
+          $db->updateImage("resolution", $imageResolution, $imageUUID);
         }
         unset($imageObject);
         unset($imageFileConverted);
@@ -476,14 +486,14 @@ $sqlArr = $db->get();
 
       <div class='column'>
         <?php
-        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, image, note, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
+        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, thumbnail, note, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
           echo "<div class='page-content'><b>[<a href='/view-images.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>View All Images</a>]</b></div>";
           echo "<div class='grid-container' style='width: 100%;'>";
           foreach ($db->get() as $key => $image) {
-            if ($image["row_nums"] <= 6) {
+              $db->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0", array(':tagnumber' => $_GET["tagnumber"]));
+              $totalRows = $db->get_rows();
               echo "<div class='grid-box'>";
-
               echo "<div style='display: table; clear: both; width: 100%;'>";
               //Delete image form
               echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: left;'>";
@@ -497,25 +507,27 @@ $sqlArr = $db->get();
 
               
               //Rotate image form
-              echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
-              echo "<form method='post'>";
-              echo "<input type='hidden' name='rotate-image' value='1'>";
-              echo "<input type='hidden' name='rotate-image-uuid' value='" . $image["uuid"] . "'>";
-              echo "<input type='hidden' name='rotate-image-time' value='" . $image["time"] . "'>";
-              echo "<input type='hidden' name='rotate-image-tagnumber' value='" . $image["tagnumber"] . "'>";
-              echo "<div style='position: relative; top: 0; right: 0;'>";
-              echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: black; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='rotate'></input>]</form></div></div>";
+              if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
+                echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
+                echo "<form method='post'>";
+                echo "<input type='hidden' name='rotate-image' value='1'>";
+                echo "<input type='hidden' name='rotate-image-uuid' value='" . $image["uuid"] . "'>";
+                echo "<input type='hidden' name='rotate-image-time' value='" . $image["time"] . "'>";
+                echo "<input type='hidden' name='rotate-image-tagnumber' value='" . $image["tagnumber"] . "'>";
+                echo "<div style='position: relative; top: 0; right: 0;'>";
+                echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: black; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='rotate'></input>]</form></div></div>";
+              }
 
               echo "</div>";
 
-              echo "<div><p>(" . htmlspecialchars($image["row_nums"]) . "/" . htmlspecialchars($db->get_rows()) . ") Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
+              echo "<div><p>(" . htmlspecialchars($image["row_nums"]) . "/" . htmlspecialchars($totalRows) . ") Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
               echo "<div><p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . htmlspecialchars($image["filesize"]) . " MB" . ")</p></div>";
               if (strFilter($image["note"]) === 0) {
                 echo "<div><p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p></div>";
               }
               echo "<div style='padding: 1em 1px 1px 1px;'>";
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
-                echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . $image["image"] . "'></img>";
+                echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"window.location.href='/view-images.php?tagnumber=" . $image["tagnumber"] . "&uuid=" . htmlspecialchars($image["uuid"]) . "'\" src='data:image/jpeg;base64," . $image["thumbnail"] . "'></img>";
               } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
               }
@@ -524,7 +536,6 @@ $sqlArr = $db->get();
               echo "</div>";
               echo "</div>";
             }
-          }
           unset($image);
         } else {
           $db->Pselect("SELECT system_model FROM system_data WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
