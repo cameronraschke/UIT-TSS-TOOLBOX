@@ -33,34 +33,48 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
 }
 
 if (isset($_FILES["userfile"])) {
-  $fh = fopen($_FILES["userfile"]["tmp_name"], 'rb');
-  $rawFileData = file_get_contents($_FILES["userfile"]["tmp_name"]);
   $fileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"]);
-  $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif'];
+  $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'video/mp4'];
   if (!in_array($fileMimeType, $fileAllowedMimes)) {
     $imageUploadError = 2;
   } else {
+    $fh = fopen($_FILES["userfile"]["tmp_name"], 'rb');
+    $rawFileData = file_get_contents($_FILES["userfile"]["tmp_name"]);
     $imageHash = md5($rawFileData);
     $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash", array(':md5_hash' => $imageHash));
     if (strFilter($db->get()) === 1) {
       $imageUUID = uniqid("image-", true);
-      $imageData = imagecreatefromstring($rawFileData);
       $exifArr = exif_read_data($fh);
-      ob_start();
-      imagejpeg($imageData, NULL, 90);
-      $imageFileStr = ob_get_clean();
-      $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
-      imagedestroy($imageData);
-      $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
-      $db->updateImage("md5_hash", $imageHash, $imageUUID);
-      $db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
-      $db->updateImage("resolution", imagesx($imageData) . "x" . imagesx($imageData), $imageUUID);
-      $db->updateImage("filename", $_FILES["userfile"]["name"], $imageUUID);
-      $db->updateImage("filesize", $_FILES["userfile"]["size"] / 1048576, $imageUUID);
-      $db->updateImage("note", $_POST["image-note"], $imageUUID);
-      $db->updateImage("hidden", "0", $_POST["delete-image"]);
-      unset($imageFileStr);
-      unset($imageData);
+      if (preg_match('/^image*/', $fileMimeType) === 1) {
+        $imageData = imagecreatefromstring($rawFileData);
+        if ($imageData !== false) {
+          ob_start();
+          imagejpeg($imageData, NULL, 90);
+          $imageFileStr = ob_get_clean();
+        }
+        imagedestroy($imageData);
+      } elseif (preg_match('/^video*/', $fileMimeType) === 1) {
+        $imageFileStr = $rawFileData;
+      }
+
+      if ($imageData !== false) {
+        $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
+        $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
+        $db->updateImage("md5_hash", $imageHash, $imageUUID);
+        $db->updateImage("filename", $_FILES["userfile"]["name"], $imageUUID);
+        $db->updateImage("filesize", $_FILES["userfile"]["size"] / 1048576, $imageUUID);
+        $db->updateImage("note", $_POST["image-note"], $imageUUID);
+        $db->updateImage("mime_type", $fileMimeType, $imageUUID);
+        $db->updateImage("hidden", "0", $_POST["delete-image"]);
+        if (preg_match('/^image*/', $fileMimeType) === 1) {
+          $db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
+          $db->updateImage("resolution", imagesx($imageData) . "x" . imagesx($imageData), $imageUUID);
+        }
+        unset($imageFileStr);
+        unset($imageData);
+      } else {
+        $imageUploadError = 2;
+      }
     } else {
       $imageUploadError = 1;
     }
@@ -304,7 +318,7 @@ $sqlArr = $db->get();
           <form enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
-            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif" /></div>
+            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/jpeg" /></div>
             <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' autocorrect='off' spellcheck='false' placeholder="Add Image Description..."></div>
             <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image</button></div>
           </form>
@@ -430,7 +444,7 @@ $sqlArr = $db->get();
 
       <div class='column'>
         <?php
-        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, image, note, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
+        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, image, note, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
           echo "<div class='page-content'><b>[<a href='/view-images.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>View All Images</a>]</b></div>";
           echo "<div class='grid-container' style='width: 100%;'>";
@@ -450,7 +464,11 @@ $sqlArr = $db->get();
               if (strFilter($image["note"]) === 0) {
                 echo "<div><p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p></div>";
               }
-              echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img>";
+              if (preg_match('/^image*/', $value["mime_type"]) === 1) {
+                echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img>";
+              } else {
+                echo "<video style='max-height:100%; max-width:100%; controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "'></video>";
+              }
               echo "</div>";
               echo "</div>";
             }

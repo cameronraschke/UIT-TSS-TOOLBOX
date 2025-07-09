@@ -453,6 +453,7 @@ CREATE TABLE IF NOT EXISTS client_images (
     filesize DECIMAL(3,2) DEFAULT NULL,
     image MEDIUMBLOB DEFAULT NULL,
     md5_hash VARCHAR(32) DEFAULT NULL,
+    mime_type VARCHAR(24) DEFAULT NULL,
     exif_timestamp DATETIME(3) DEFAULT NULL,
     resolution VARCHAR(24) DEFAULT NULL,
     note VARCHAR(256) DEFAULT NULL,
