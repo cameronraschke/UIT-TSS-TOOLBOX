@@ -4,14 +4,6 @@ if [[ $1 != "WEB_SVC_PASSWD" ]]; then
     exit 1;
 fi
 
-if [[ $2 -n ]]; then
-    exit 1;
-fi
-
 filename=$2
 
-if [[ $filename -n ]]; then
-    ffmpeg -loglevel quiet -hide_banner -nostats -i "/var/www/html/uit-web/transcode/${filename}" -c:a aac -movflags frag_keyframe+empty_moov -f mp4 - | base64
-    fi
-
-rm "/var/www/html/uit-web/transcode/${filename}"
+ffmpeg -loglevel quiet -hide_banner -nostats -i "/var/www/html/uit-web/transcode/${filename}" -c:a aac -movflags frag_keyframe+empty_moov -f mp4 pipe:1 | base64
