@@ -63,8 +63,11 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         }
         //Convert all videos to mp4. Outputs base64 string.
       } elseif (preg_match('/^video.*/', $fileMimeType) === 1) {
-        $imageObject = $rawFileData;
-        $imageFileConverted = System("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . escapeshellarg($imageUUID) . " " . escapeshellarg($rawFileData));
+        $transcodeFile = uniqid("uit-transcode-", true);
+        $file = fopen($transcodeFile, 'c');
+        fwrite($file, $rawFileData);
+        fclose($file);
+        $imageFileConverted = System("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg(WEB_SVC_PASSWD) . " /tmp/" . $transcodeFile);
       }
 
       if ($imageObject !== false) {
@@ -72,15 +75,15 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         $db->updateImage("image", $imageFileConverted, $imageUUID);
         $db->updateImage("md5_hash", $imageHash, $imageUUID);
         $db->updateImage("filename", $_FILES["userfile"]["name"], $imageUUID);
-        $db->updateImage("filesize", $_FILES["userfile"]["size"] / 1048576, $imageUUID);
+        $db->updateImage("filesize", round($_FILES["userfile"]["size"] / 1048576, 3), $imageUUID);
         $db->updateImage("note", $_POST["image-note"], $imageUUID);
         $db->updateImage("mime_type", $fileMimeType, $imageUUID);
         //$db->updateImage("hidden", "0", $_POST["delete-image"]);
         if (preg_match('/^image.*/', $fileMimeType) === 1) {
           //$db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
-          $db->updateImage("resolution", imagesx($imageFileConverted) . "x" . imagesx($imageFileConverted), $imageUUID);
+          $db->updateImage("resolution", imagesx($imageObject) . "x" . imagesx($imageObject), $imageUUID);
         }
-        unset($imageFileStr);
+        unset($imageObject);
         unset($imageFileConverted);
       } else {
         $imageUploadError = 2;

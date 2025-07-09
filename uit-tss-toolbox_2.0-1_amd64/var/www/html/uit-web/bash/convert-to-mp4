@@ -4,9 +4,14 @@ if [[ $1 != "WEB_SVC_PASSWD" ]]; then
     exit 1;
 fi
 
-uuid=$2
-fileInput=$3
+if [[ $2 -n ]]; then
+    exit 1;
+fi
 
-if [[ $fileInput -n ]]; then
-    echo $fileInput | ffmpeg -loglevel quiet -hide_banner -nostats -i pipe: -c:a aac -f mp4 - | base64
+filename=$2
+
+if [[ $filename -n ]]; then
+    ffmpeg -loglevel quiet -hide_banner -nostats -i "/tmp/${filename}" -c:a aac -f mp4 - | base64
     fi
+
+rm "/tmp/${filename}"
