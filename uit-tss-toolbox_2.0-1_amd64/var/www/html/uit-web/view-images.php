@@ -38,7 +38,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
   unset($value);
 }
 
-if (isset($_GET["uuid"])) {
+if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
   $db->Pselect("SELECT uuid, mime_type, image FROM client_images WHERE uuid = :uuid", array(':uuid' => $_GET["uuid"]));
   foreach ($db->get() as $key => $value) {
     if ($value["mime_type"] == "image/jpeg") {
