@@ -64,7 +64,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         //Convert all videos to mp4. Outputs base64 string.
       } elseif (preg_match('/^video.*/', $fileMimeType) === 1) {
         $transcodeFile = uniqid("uit-transcode-", true);
-        $file = fopen($transcodeFile, 'c');
+        $file = fopen("/var/www/html/uit-web/transcode/" . $transcodeFile, 'c');
         fwrite($file, $rawFileData);
         fclose($file);
         $imageFileConverted = System("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " /var/www/html/uit-web/transcode/" . $transcodeFile);

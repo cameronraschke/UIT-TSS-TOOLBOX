@@ -26,13 +26,14 @@ find /srv/nfs/ -type d -exec chmod 755 {} \;
 find /etc/opt/uit-toolbox -type d -exec chmod 750 {} \;
 find /etc/opt/uit-toolbox -type f -exec chmod 660 {} \;
 
-/usr/bin/chown root:uit /var/www/html/uit-web -R
-find /var/www/html/uit-web -type d -exec chmod 755 {} \;
+mkdir /var/www/html/uit-web/transcode
+/usr/bin/chown www-data:uit /var/www/html/uit-web -R
+find /var/www/html/uit-web -type d -exec chmod 775 {} \;
 find /var/www/html/uit-web -type f -exec chmod 664 {} \;
 chown www-data:uit /var/www/html/uit-web/bash/uit-print-pdf
-chmod 750 /var/www/html/uit-web/bash/uit-print-pdf
+chmod 770 /var/www/html/uit-web/bash/uit-print-pdf
 chown www-data:uit /var/www/html/uit-web/bash/convert-to-mp4
-chmod 750 /var/www/html/uit-web/bash/convert-to-mp4
+chmod 770 /var/www/html/uit-web/bash/convert-to-mp4
 
 if [[ ! -d /srv/uit-toolbox/client/src/ ]]; then
     mkdir /srv/uit-toolbox/client/src/
