@@ -169,7 +169,8 @@ unset($_POST);
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <script src="/js/include.js"></script>
   </head>
-  <body onload="fetchHTML()">
+  <!--<body onload="fetchHTML()">-->
+  <body>
 
   <div class='menubar'>
   <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
@@ -848,23 +849,23 @@ window.history.replaceState( null, null, window.location.href );
 var i = 0;
 function fetchHTML() {
 const var1 = setTimeout(function() {
-fetch('/tagnumber.php?tagnumber=<?php echo $_GET['tagnumber']; ?>')
-.then((response) => {
-return response.text();
-})
-.then((html) => {
-//document.body.innerHTML = html
-const parser = new DOMParser()
-const doc = parser.parseFromString(html, "text/html")
-// update current job and status
-const curJob = doc.getElementById('curJob').innerHTML
-document.getElementById("curJob").innerHTML = curJob
-// update all other tables
-const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
-document.getElementById("updateDiv1").innerHTML = updateDiv1
-});
-fetchHTML();
-}, 3000)}
+// fetch('/tagnumber.php?tagnumber=<?php echo $_GET['tagnumber']; ?>')
+// .then((response) => {
+// return response.text();
+// })
+// .then((html) => {
+// //document.body.innerHTML = html
+// const parser = new DOMParser()
+// const doc = parser.parseFromString(html, "text/html")
+// // update current job and status
+// const curJob = doc.getElementById('curJob').innerHTML
+// document.getElementById("curJob").innerHTML = curJob
+// // update all other tables
+// const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
+// document.getElementById("updateDiv1").innerHTML = updateDiv1
+// });
+// fetchHTML();
+// }, 3000)}
 </script>
 
 <div class="uit-footer">
