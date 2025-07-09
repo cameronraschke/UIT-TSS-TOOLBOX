@@ -17,13 +17,17 @@ if ($_SESSION['authorized'] != "yes") {
   exit();
 }
 
+$db = new db();
+$db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+if (strFilter($db->get()) === 1) {
+  exit();
+}
+
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, "https://localhost:1411/api/refresh-client.php?password=CLIENT_PASSWD&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
 curl_close($ch);
-
-$db = new db();
 ?>
 
 <?php
@@ -45,7 +49,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
     //Get file hash
     $imageHash = md5($rawFileData);
     //Check if hash already in DB
-    $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash", array(':md5_hash' => $imageHash));
+    $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash AND tagnumber = :tagnumber", array(':md5_hash' => $imageHash, ':tagnumber' => $_GET["tagnumber"]));
     if (strFilter($db->get()) === 1) {
       $imageUUID = uniqid("image-", true);
       //Convert all images to jpeg
@@ -67,7 +71,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         $file = fopen("/var/www/html/uit-web/transcode/" . $transcodeFile, 'c');
         fwrite($file, $rawFileData);
         fclose($file);
-        $imageFileConverted = passthru("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile);
+        $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile);
       }
 
       if ($imageObject !== false) {
@@ -330,7 +334,7 @@ $sqlArr = $db->get();
           <form enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
-            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" /></div>
+            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" multiple/></div>
             <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' autocorrect='off' spellcheck='false' placeholder="Add Image Description..."></div>
             <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image</button></div>
           </form>
@@ -477,13 +481,12 @@ $sqlArr = $db->get();
                 echo "<div><p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p></div>";
               }
               echo "<div style='padding: 1em 1px 1px 1px;'>";
-              if (preg_match('/^image.*/', $image["mime_type"]) === 1) {
+              if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
                 echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . $image["image"] . "'></img>";
-              } elseif (preg_match('/^video\/mp4/', $image["mime_type"]) === 1) {
+              } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
-              } elseif (preg_match('/^video\/quicktime/', $image["mime_type"]) === 1) {
-                echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/quicktime' src='data:video/quicktime;base64," . $image["image"] . "' /></video>";
               }
+
               echo "</div>";
               echo "</div>";
               echo "</div>";

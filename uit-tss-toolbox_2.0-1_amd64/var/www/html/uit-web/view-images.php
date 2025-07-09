@@ -47,7 +47,7 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
 
 <div class='grid-container' style='width: 100%;'>
         <?php
-        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, image, note, resolution, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted' FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
+        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, mime_type, image, note, resolution, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted' FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
           foreach ($db->get() as $key => $image) {
             echo "<div class='grid-box'>";
@@ -65,8 +65,12 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
                 echo "<p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p>";
             }
 
-            echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img>";
-            echo "</div>";
+            if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
+              echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . $image["image"] . "'></img>";
+            } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
+              echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
+            }
+            echo "</div>";            
             echo "</div>";
           }
           unset($image);
