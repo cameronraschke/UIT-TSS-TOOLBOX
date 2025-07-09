@@ -32,7 +32,7 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
   $db->deleteImage($_POST["delete-image-uuid"], $_POST["delete-image-time"], $_POST["delete-image-tagnumber"]);
 }
 
-if (isset($_FILES["userfile"])) {
+if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) === 0) {
   $fileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"]);
   $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'video/mp4'];
   if (!in_array($fileMimeType, $fileAllowedMimes)) {
@@ -45,7 +45,7 @@ if (isset($_FILES["userfile"])) {
     if (strFilter($db->get()) === 1) {
       $imageUUID = uniqid("image-", true);
       $exifArr = exif_read_data($fh);
-      if (preg_match('/^image*/', $fileMimeType) === 1) {
+      if (preg_match('/^image.*/', $fileMimeType) === 1) {
         $imageData = imagecreatefromstring($rawFileData);
         if ($imageData !== false) {
           ob_start();
@@ -53,7 +53,7 @@ if (isset($_FILES["userfile"])) {
           $imageFileStr = ob_get_clean();
         }
         imagedestroy($imageData);
-      } elseif (preg_match('/^video*/', $fileMimeType) === 1) {
+      } elseif (preg_match('/^video.*/', $fileMimeType) === 1) {
         $imageFileStr = $rawFileData;
       }
 
@@ -66,7 +66,7 @@ if (isset($_FILES["userfile"])) {
         $db->updateImage("note", $_POST["image-note"], $imageUUID);
         $db->updateImage("mime_type", $fileMimeType, $imageUUID);
         $db->updateImage("hidden", "0", $_POST["delete-image"]);
-        if (preg_match('/^image*/', $fileMimeType) === 1) {
+        if (preg_match('/^image.*/', $fileMimeType) === 1) {
           $db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
           $db->updateImage("resolution", imagesx($imageData) . "x" . imagesx($imageData), $imageUUID);
         }
@@ -130,7 +130,7 @@ if (strFilter($_POST) === 0) {
 unset($_POST);
 ?>
 
-<html>
+<!DOCTYPE html>
   <head>
     <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
@@ -318,7 +318,7 @@ $sqlArr = $db->get();
           <form enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
-            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/jpeg" /></div>
+            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4" /></div>
             <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' autocorrect='off' spellcheck='false' placeholder="Add Image Description..."></div>
             <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image</button></div>
           </form>
@@ -460,15 +460,17 @@ $sqlArr = $db->get();
               echo "<div style='position: relative; top: 0; left: 0;'>";
               echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: #C8102E; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='delete'></input>]</form></div></div>";
               echo "<div><p>(" . htmlspecialchars($image["row_nums"]) . "/" . htmlspecialchars($db->get_rows()) . ") Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
-              echo "<p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . htmlspecialchars($image["filesize"]) . " MB" . ")</p>";
+              echo "<div><p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . htmlspecialchars($image["filesize"]) . " MB" . ")</p></div>";
               if (strFilter($image["note"]) === 0) {
                 echo "<div><p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p></div>";
               }
-              if (preg_match('/^image*/', $value["mime_type"]) === 1) {
+              echo "<div style='padding: 1em 1px 1px 1px;'>";
+              if (preg_match('/^image.*/', $image["mime_type"]) === 1) {
                 echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . ($image["image"]) . "'></img>";
-              } else {
-                echo "<video style='max-height:100%; max-width:100%; controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "'></video>";
+              } elseif (preg_match('/^video.*/', $image["mime_type"]) === 1) {
+                echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
               }
+              echo "</div>";
               echo "</div>";
               echo "</div>";
             }
