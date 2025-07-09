@@ -100,7 +100,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         //$db->updateImage("hidden", "0", $_POST["delete-image"]);
         if (preg_match('/^image.*/', $fileMimeType) === 1) {
           //$db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
-          $db->updateImage("resolution", imagesx($imageObject) . "x" . imagesx($imageObject), $imageUUID);
+          $db->updateImage("resolution", imagesx($imageObject) . "x" . imagesy($imageObject), $imageUUID);
         }
         unset($imageObject);
         unset($imageFileConverted);
