@@ -30,7 +30,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
     $rotateImageObject = imagecreatefromstring($rotateImageData);
     $rotatedImage = imagerotate($rotateImageObject, -90, 0);
     ob_start();
-    imagepng($rotatedImage, NULL, 100);
+    imagejpeg($rotatedImage, NULL, 100);
     $rotateImageEncoded = base64_encode(ob_get_clean());
     imagedestroy($rotateImageObject);
     $db->updateImage("image", $rotateImageEncoded, $_POST["rotate-image-uuid"]);
@@ -96,7 +96,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
             }
 
             if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
-              echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/png;base64," . $image["image"] . "'></img>";
+              echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . $image["image"] . "'></img>";
             } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
               echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
             }

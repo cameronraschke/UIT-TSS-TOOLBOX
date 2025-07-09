@@ -43,7 +43,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
     $rotateImageObject = imagecreatefromstring($rotateImageData);
     $rotatedImage = imagerotate($rotateImageObject, -90, 0);
     ob_start();
-    imagepng($rotatedImage, NULL, 0, -1);
+    imagejpeg($rotatedImage, NULL, 100);
     $rotateImageEncoded = base64_encode(ob_get_clean());
     imagedestroy($rotateImageObject);
     $db->updateImage("image", $rotateImageEncoded, $_POST["rotate-image-uuid"]);
@@ -67,16 +67,16 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
     $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash AND tagnumber = :tagnumber", array(':md5_hash' => $imageHash, ':tagnumber' => $_GET["tagnumber"]));
     if (strFilter($db->get()) === 1) {
       $imageUUID = uniqid("image-", true);
-      //Convert all images to png
+      //Convert all images to jpeg
       if (preg_match('/^image.*/', $fileMimeType) === 1) {
         // //Read image exif data
         // $exifArr = exif_read_data($fh);
         // fclose($fh);
-        //Create png and check if can convert. Create base64 string.
+        //Create jpeg and check if can convert. Create base64 string.
         $imageObject = imagecreatefromstring($rawFileData);
         if ($imageObject !== false) {
           ob_start();
-          imagepng($imageObject, NULL, 0, -1);
+          imagejpeg($imageObject, NULL, 100);
           $imageFileConverted = base64_encode(ob_get_clean());
           imagedestroy($imageObject);
         }
@@ -514,7 +514,7 @@ $sqlArr = $db->get();
               }
               echo "<div style='padding: 1em 1px 1px 1px;'>";
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
-                echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/png;base64," . $image["image"] . "'></img>";
+                echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . $image["image"] . "'></img>";
               } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
               }
