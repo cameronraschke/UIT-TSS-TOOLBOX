@@ -31,6 +31,8 @@ find /var/www/html/uit-web -type d -exec chmod 755 {} \;
 find /var/www/html/uit-web -type f -exec chmod 664 {} \;
 chown www-data:uit /var/www/html/uit-web/bash/uit-print-pdf
 chmod 750 /var/www/html/uit-web/bash/uit-print-pdf
+chown www-data:uit /var/www/html/uit-web/bash/convert-to-mp4
+chmod 750 /var/www/html/uit-web/bash/convert-to-mp4
 
 if [[ ! -d /srv/uit-toolbox/client/src/ ]]; then
     mkdir /srv/uit-toolbox/client/src/
@@ -113,8 +115,10 @@ sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/locations.php
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/api/endpoint.php
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/bash/uit-print-pdf
+sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/bash/convert-to-mp4
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/php/include.php
 sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/api/print-page.php
+sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/tagnumber.php
 
 # This is the client password because clients don't know web password
 sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/uit-web/api/refresh-client.php

@@ -33,45 +33,55 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
 }
 
 if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) === 0) {
+  //Check for accepted mime types
   $fileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"]);
   $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'video/mp4', 'video/quicktime'];
   if (!in_array($fileMimeType, $fileAllowedMimes)) {
     $imageUploadError = 2;
   } else {
     $fh = fopen($_FILES["userfile"]["tmp_name"], 'rb');
+    //Get raw file data
     $rawFileData = file_get_contents($_FILES["userfile"]["tmp_name"]);
+    //Get file hash
     $imageHash = md5($rawFileData);
+    //Check if hash already in DB
     $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash", array(':md5_hash' => $imageHash));
     if (strFilter($db->get()) === 1) {
       $imageUUID = uniqid("image-", true);
-      $exifArr = exif_read_data($fh);
+      //Convert all images to jpeg
       if (preg_match('/^image.*/', $fileMimeType) === 1) {
-        $imageData = imagecreatefromstring($rawFileData);
-        if ($imageData !== false) {
+        // //Read image exif data
+        // $exifArr = exif_read_data($fh);
+        // fclose($fh);
+        //Create jpeg and check if can convert. Create base64 string.
+        $imageObject = imagecreatefromstring($rawFileData);
+        if ($imageObject !== false) {
           ob_start();
-          imagejpeg($imageData, NULL, 90);
-          $imageFileStr = ob_get_clean();
+          imagejpeg($imageObject, NULL, 90);
+          $imageFileConverted = base64_encode(ob_get_clean());
+          imagedestroy($imageObject);
         }
-        imagedestroy($imageData);
+        //Convert all videos to mp4. Outputs base64 string.
       } elseif (preg_match('/^video.*/', $fileMimeType) === 1) {
-        $imageFileStr = $rawFileData;
+        $imageObject = $rawFileData;
+        $imageFileConverted = System("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . escapeshellarg($imageUUID) . " " . escapeshellarg($rawFileData));
       }
 
-      if ($imageFileStr !== false) {
+      if ($imageObject !== false) {
         $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
-        $db->updateImage("image", base64_encode($imageFileStr), $imageUUID);
+        $db->updateImage("image", $imageFileConverted, $imageUUID);
         $db->updateImage("md5_hash", $imageHash, $imageUUID);
         $db->updateImage("filename", $_FILES["userfile"]["name"], $imageUUID);
         $db->updateImage("filesize", $_FILES["userfile"]["size"] / 1048576, $imageUUID);
         $db->updateImage("note", $_POST["image-note"], $imageUUID);
         $db->updateImage("mime_type", $fileMimeType, $imageUUID);
-        $db->updateImage("hidden", "0", $_POST["delete-image"]);
+        //$db->updateImage("hidden", "0", $_POST["delete-image"]);
         if (preg_match('/^image.*/', $fileMimeType) === 1) {
           //$db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
-          $db->updateImage("resolution", imagesx($imageData) . "x" . imagesx($imageData), $imageUUID);
+          $db->updateImage("resolution", imagesx($imageFileConverted) . "x" . imagesx($imageFileConverted), $imageUUID);
         }
         unset($imageFileStr);
-        unset($imageData);
+        unset($imageFileConverted);
       } else {
         $imageUploadError = 2;
       }
@@ -79,7 +89,6 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
       $imageUploadError = 1;
     }
   }
-  fclose($fh);
 }
 if (isset($_POST["job_queued_tagnumber"])) {
   if (strFilter($_POST["job_queued"]) === 0) {
