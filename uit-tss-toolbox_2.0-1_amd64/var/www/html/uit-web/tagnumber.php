@@ -846,9 +846,8 @@ if ( window.history.replaceState ) {
 window.history.replaceState( null, null, window.location.href );
 }
 
-var i = 0;
-function fetchHTML() {
-const var1 = setTimeout(function() {
+// function fetchHTML() {
+// const var1 = setTimeout(function() {
 // fetch('/tagnumber.php?tagnumber=<?php echo $_GET['tagnumber']; ?>')
 // .then((response) => {
 // return response.text();
