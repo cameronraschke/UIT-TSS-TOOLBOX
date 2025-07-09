@@ -11,7 +11,7 @@ fi
 filename=$2
 
 if [[ $filename -n ]]; then
-    ffmpeg -loglevel quiet -hide_banner -nostats -i "/tmp/${filename}" -c:a aac -f mp4 - | base64
+    ffmpeg -loglevel quiet -hide_banner -nostats -i "/var/www/html/uit-web/transcode/${filename}" -c:a aac -f mp4 - | base64
     fi
 
-rm "/tmp/${filename}"
+rm "/var/www/html/uit-web/transcode/${filename}"
