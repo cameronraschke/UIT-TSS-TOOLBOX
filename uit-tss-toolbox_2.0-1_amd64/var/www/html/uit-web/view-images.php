@@ -39,9 +39,16 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
 }
 
 if (isset($_GET["uuid"])) {
-  $db->Pselect("SELECT image FROM client_images WHERE uuid = :uuid", array(':uuid' => $_GET["uuid"]));
+  $db->Pselect("SELECT mime_type, image FROM client_images WHERE uuid = :uuid", array(':uuid' => $_GET["uuid"]));
   foreach ($db->get() as $key => $value) {
-  echo "<html><head><script src='/js/include.js'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
+    if ($value["mime_type"] == "image/jpeg") {
+      echo "<html><head><script src='/js/include.js'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
+    } elseif ($value["mime_type"] == "video/mp4") {
+      echo "<html><body>
+    <video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $value["image"] . "' /></video>
+      
+      </body></html>";
+    }
   }
   unset($value);
   exit();

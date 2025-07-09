@@ -5,5 +5,11 @@ if [[ $1 != "WEB_SVC_PASSWD" ]]; then
 fi
 
 filename=$2
+compression=$3
 
-ffmpeg -loglevel quiet -hide_banner -nostats -i "/var/www/html/uit-web/transcode/${filename}" -c:a aac -movflags frag_keyframe+empty_moov -f mp4 pipe:1 | base64
+if [[ $compression == "low-quality" ]]; then
+    ffmpeg -loglevel quiet -hide_banner -nostats -i "/var/www/html/uit-web/transcode/${filename}" -c:a aac -vcodec libx264 -crf 28 -movflags frag_keyframe+empty_moov -f mp4 pipe:1 | base64;
+fi
+if [[ $compression == "normal-quality" ]]; then
+    ffmpeg -loglevel quiet -hide_banner -nostats -i "/var/www/html/uit-web/transcode/${filename}" -c:a aac -movflags frag_keyframe+empty_moov -f mp4 pipe:1 | base64;
+fi

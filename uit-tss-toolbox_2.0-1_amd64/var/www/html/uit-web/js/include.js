@@ -29,7 +29,7 @@ function openImage(imageData) {
   const byteCharacters = atob(imageData);
   const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
   const byteArray = new Uint8Array(byteNumbers);
-  const blob = new Blob([byteArray], { type: "image/png" });
+  const blob = new Blob([byteArray], { type: "image/jpeg" });
   const blobUrl = URL.createObjectURL(blob);
   //window.open(blobUrl);
   window.location.href = blobUrl;

@@ -486,7 +486,7 @@ $sqlArr = $db->get();
 
       <div class='column'>
         <?php
-        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, thumbnail, note, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
+        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, image AS 'thumbnail', note, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
           echo "<div class='page-content'><b>[<a href='/view-images.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>View All Images</a>]</b></div>";
           echo "<div class='grid-container' style='width: 100%;'>";
@@ -517,6 +517,11 @@ $sqlArr = $db->get();
                 echo "<div style='position: relative; top: 0; right: 0;'>";
                 echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: black; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='rotate'></input>]</form></div></div>";
               }
+              if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
+                echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
+                echo "<div style='position: relative; top: 0; right: 0;'>";
+                echo "<a style='color: black;' href='/view-images.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><b>[Open Video in New Tab]</b></a></div></div>";
+              }
 
               echo "</div>";
 
@@ -529,7 +534,7 @@ $sqlArr = $db->get();
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
                 echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"window.location.href='/view-images.php?tagnumber=" . $image["tagnumber"] . "&uuid=" . htmlspecialchars($image["uuid"]) . "'\" src='data:image/jpeg;base64," . $image["thumbnail"] . "'></img>";
               } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
-                echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
+                echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["thumbnail"] . "' /></video>";
               }
 
               echo "</div>";
