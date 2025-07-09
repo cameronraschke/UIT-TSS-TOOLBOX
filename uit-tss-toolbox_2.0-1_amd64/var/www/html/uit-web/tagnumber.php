@@ -94,7 +94,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         $db->updateImage("image", $imageFileConverted, $imageUUID);
         $db->updateImage("md5_hash", $imageHash, $imageUUID);
         $db->updateImage("filename", $_FILES["userfile"]["name"], $imageUUID);
-        $db->updateImage("filesize", round($_FILES["userfile"]["size"] / 1048576, 3), $imageUUID);
+        $db->updateImage("filesize", round($_FILES["userfile"]["size"] / 1000000, 3), $imageUUID);
         $db->updateImage("note", $_POST["image-note"], $imageUUID);
         $db->updateImage("mime_type", $fileMimeType, $imageUUID);
         //$db->updateImage("hidden", "0", $_POST["delete-image"]);
