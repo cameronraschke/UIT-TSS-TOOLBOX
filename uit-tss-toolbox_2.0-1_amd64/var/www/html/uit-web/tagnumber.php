@@ -39,6 +39,7 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
 if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
   $db->Pselect("SELECT image FROM client_images WHERE uuid = :uuid AND time = :time AND tagnumber = :tagnumber", array(':uuid' => $_POST["rotate-image-uuid"], ':time' => $_POST["rotate-image-time"], ':tagnumber' => $_POST["rotate-image-tagnumber"]));
   foreach ($db->get() as $key => $value) {
+    //Rotate original
     $rotateImageData = base64_decode($value["image"]);
     $rotateImageObject = imagecreatefromstring($rotateImageData);
     $rotatedImage = imagerotate($rotateImageObject, -90, 0);
@@ -47,7 +48,22 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
     $rotateImageEncoded = base64_encode(ob_get_clean());
     imagedestroy($rotateImageObject);
     $db->updateImage("image", $rotateImageEncoded, $_POST["rotate-image-uuid"]);
+    unset($value);
   }
+
+    $db->Pselect("SELECT image FROM client_images WHERE uuid = :uuid AND time = :time AND tagnumber = :tagnumber", array(':uuid' => $_POST["rotate-image-uuid"], ':time' => $_POST["rotate-image-time"], ':tagnumber' => $_POST["rotate-image-tagnumber"]));
+    foreach ($db->get() as $key => $value) {
+      //Rotate thumbnail
+      $rotateThumbnailData = base64_decode($value["image"]);
+      $rotateThumbnailObject = imagecreatefromstring($rotateThumbnailData);
+      ob_start();
+      imagejpeg($rotateThumbnailObject, NULL, 30);
+      $rotateThumbnailEncoded = base64_encode(ob_get_clean());
+      imagedestroy($rotateThumbnailObject);
+
+      $db->updateImage("thumbnail", $rotateThumbnailEncoded, $_POST["rotate-image-uuid"]);
+      unset($value);
+    }
   unset($value);
 }
 
