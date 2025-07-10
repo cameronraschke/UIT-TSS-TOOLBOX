@@ -186,7 +186,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
       <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
     </div>
     
-    <div class='pagetitle'><h1>Client Update and Search (<a href='/documentation/pages.php?page=locations' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img>Click for Help</a>)</h1></div>
+    <div class='pagetitle'><h1>Client Update and Search</h1></div>
 
     <div class="row">
       <div class="column">
@@ -225,7 +225,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
         }
 
         echo "
-        <div class='page-content'><h2>Update Client Locations</h2></div>
+        <div class='page-content'><h2>Update Client Locations - " . trim(htmlspecialchars($_GET["tagnumber"])) . " <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img>Open client details</a></h2></div>
         <div class='location-form'>" . PHP_EOL;
 
 
@@ -235,7 +235,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
           <form method='post'>
             <div class='row'>
               <div class='column'>
-                <div><label for='tagnumber'>Tag Number* - <a href='/tagnumber.php?tagnumber=" . trim(htmlspecialchars($_GET["tagnumber"])) . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img>Open client details</a></label></div>
+                <div><label for='tagnumber'>Tag Number*</label></div>
                 <input type='text' style='background-color:#888B8D;' id='tagnumber' placeholder='Enter tag number...' name='tagnumber' value='" . trim(htmlspecialchars($_GET["tagnumber"])) . "' readonly required>
               </div>";
             // Line above this closes tag number data div
