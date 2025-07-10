@@ -68,9 +68,9 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
 
 if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) === 0) {
   //Check for accepted mime types
-  $fileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"]);
+  $uploadFileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"]);
   $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'video/mp4', 'video/quicktime'];
-  if (!in_array($fileMimeType, $fileAllowedMimes)) {
+  if (!in_array($uploadFileMimeType, $fileAllowedMimes)) {
     $imageUploadError = 2;
   } else {
     $fh = fopen($_FILES["userfile"]["tmp_name"], 'rb');
@@ -83,7 +83,7 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
     if (strFilter($db->get()) === 1) {
       $imageUUID = uniqid("image-", true);
       //Convert all images to jpeg
-      if (preg_match('/^image.*/', $fileMimeType) === 1) {
+      if (preg_match('/^image.*/', $uploadFileMimeType) === 1) {
         // //Read image exif data
         // $exifArr = exif_read_data($fh);
         // fclose($fh);
@@ -100,17 +100,24 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
           //Thumbnail
           ob_start();
           imagejpeg($imageObject, NULL, 30);
-          $imageFileCompressed = base64_encode(ob_get_clean());
+          $thumbnailBuffer = ob_get_clean();
+          $imageFileCompressed = base64_encode($thumbnailBuffer);
+          $finfo = new finfo(FILEINFO_MIME);
+          $mimeType = explode(';', $finfo->buffer($thumbnailBuffer));
+          $mimeType = trim($mimeType[0]);
+          $finfo = null;
           imagedestroy($imageObject);
+          unset($thumbnailBuffer);
         }
         //Convert all videos to mp4. Outputs base64 string.
-      } elseif (preg_match('/^video.*/', $fileMimeType) === 1) {
+      } elseif (preg_match('/^video.*/', $uploadFileMimeType) === 1) {
         $transcodeFile = uniqid("uit-transcode-", true);
         $file = fopen("/var/www/html/uit-web/transcode/" . $transcodeFile, 'c');
         fwrite($file, $rawFileData);
         fclose($file);
         $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "normal-quality");
-        $imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
+        $mimeType = mime_content_type('/var/www/html/uit-web/transcode/' . $transcodeFile);
+        //$imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
       }
 
       if ($imageObject !== false) {
@@ -121,9 +128,9 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         $db->updateImage("filename", $_FILES["userfile"]["name"], $imageUUID);
         $db->updateImage("filesize", round($_FILES["userfile"]["size"] / 1000000, 3), $imageUUID);
         $db->updateImage("note", $_POST["image-note"], $imageUUID);
-        $db->updateImage("mime_type", $fileMimeType, $imageUUID);
+        $db->updateImage("mime_type", $mimeType, $imageUUID);
         //$db->updateImage("hidden", "0", $_POST["delete-image"]);
-        if (preg_match('/^image.*/', $fileMimeType) === 1) {
+        if (preg_match('/^image.*/', $uploadFileMimeType) === 1) {
           //$db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
           $db->updateImage("resolution", $imageResolution, $imageUUID);
         }
