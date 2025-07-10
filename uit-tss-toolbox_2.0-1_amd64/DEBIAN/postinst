@@ -137,8 +137,8 @@ sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/uit-web/locati
 sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /usr/sbin/uit-sql-refresh
 
 # Webmaster Name and Email
-sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /var/www/html/uit-web/index.php
-sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /var/www/html/uit-web/index.php
+sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /var/www/html/uit-web/php/navigation-bar.php
+sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /var/www/html/uit-web/php/navigation-bar.php
 
 # Webmaster IP Address, Name, and Email for SSL Cert
 sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /root/uit-ssl/uit-web.cfg
