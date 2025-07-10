@@ -2,11 +2,7 @@
 <ul>
 <?php 
   // Index
-  if ($_SERVER['PHP_SELF'] == "/index.php") {
-    echo "<li class='active-navigation-bar'><a href='/index.php'>Home</a></li>";
-  } else {
-    echo "<li><a href='/index.php'>Home</a></li>";
-  }
+  echo "<li><a href='/index.php'>Home</a></li>";
 
   // Job Queue
   if ($_SERVER['PHP_SELF'] == "/job-queue.php") {
@@ -37,7 +33,7 @@
   }
   
   echo "<li style='float: right; margin-right: 4em;'><a href='/logout.php'>Logout</a></li>";
-  echo "<div class='location-form' style='float: right; width: 20em; top:5%; right:2%;'><form method='GET'><input type='text' id='tagnumber-search' name='tagnumber' style='width: 80%;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button style='border: none;'><img class='icon' src='/images/search.svg'></button></form></div>";
+  echo "<div class='location-form' style='float: right; width: 20em; margin: 0.5em 3em 0.5em 3em;'><form method='GET' action='/tagnumber.php'><input type='text' id='tagnumber-search' name='tagnumber' style='width: 80%;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button style='border: none;'><img class='icon' src='/images/search.svg'></button></form></div>";
 ?>
 </ul>
 </div>
