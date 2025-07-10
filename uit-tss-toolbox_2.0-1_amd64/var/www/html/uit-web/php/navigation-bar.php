@@ -1,7 +1,6 @@
 
 <div class='navigation-bar'>
 <ul>
-<li><a href="/index.php">Home</a></li>
 <?php 
   // Index
   if ($_SERVER['PHP_SELF'] == "/index.php") {
@@ -22,13 +21,6 @@
     echo "<li class='active-navigation-bar'><a href='/locations.php'>Locations</a></li>";
   } else {
     echo "<li><a href='/locations.php'>Locations</a></li>";
-  }
-
-  // Tag number
-  if ($_SERVER['PHP_SELF'] == "/tagnumber.php") {
-    echo "<li class='active-navigation-bar'><a href='/tagnumber.php'>Home</a></li>";
-  } else {
-    echo "<li><a href='/tagnumber.php'>Home</a></li>";
   }
 
   // Checkouts

@@ -32,12 +32,7 @@ $rowCount = count($db->get());
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     </head>
     <body>
-        <div class='menubar'>
-            <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-            <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
-            <br>
-            <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
-        </div>
+  <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
         <div class='pagetitle'><h1>Checkout History</h1></div>
         <div class='pagetitle'><h2>These clients are currently checked out.</h2></div>
