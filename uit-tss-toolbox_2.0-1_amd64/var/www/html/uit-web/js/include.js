@@ -38,3 +38,11 @@ function openImage(imageData) {
 function scrollToTop() {
   window.scrollTo(0, 0);
 }
+
+function getCursorPos(myElement) {
+  let startPosition = myElement.selectionStart;
+  let endPosition = myElement.selectionEnd;
+
+  myElement.focus();
+  return(startPosition);
+}
