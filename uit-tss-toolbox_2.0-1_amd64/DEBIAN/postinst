@@ -1,4 +1,13 @@
 #!/bin/bash
+#https://www.svgrepo.com/download/479073/open-in-new-window-button-1.svg
+#https://www.svgrepo.com/svg/488905/download-2
+#https://www.svgrepo.com/download/513652/file-download.svg
+#https://www.svgrepo.com/svg/486234/download-backup
+# https://www.svgrepo.com/svg/486653/download
+# https://www.svgrepo.com/svg/459040/download
+# https://www.svgrepo.com/svg/450812/download-to
+# https://www.svgrepo.com/svg/459040/download
+# https://www.svgrepo.com/svg/449060/download
 
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
