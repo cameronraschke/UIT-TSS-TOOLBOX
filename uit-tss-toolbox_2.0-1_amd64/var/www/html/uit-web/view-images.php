@@ -81,9 +81,11 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
 
 <div class='grid-container' style='width: 100%;'>
         <?php
-        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, mime_type, image, note, resolution, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted' FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
+        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, mime_type, image, note, resolution, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
           foreach ($db->get() as $key => $image) {
+            $db->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0", array(':tagnumber' => $_GET["tagnumber"]));
+            $totalRows = $db->get_rows();
             echo "<div class='grid-box'>";
               echo "<div style='display: table; clear: both; width: 100%;'>";
               //Delete image form
@@ -94,30 +96,30 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
               echo "<input type='hidden' name='delete-image-time' value='" . $image["time"] . "'>";
               echo "<input type='hidden' name='delete-image-tagnumber' value='" . $image["tagnumber"] . "'>";
               echo "<div style='position: relative; top: 0; left: 0;'>";
-              echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: #C8102E; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='delete'></input>]</form></div></div>";
+              echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='delete'><img class='icon' src='/images/trash.svg'>[<b style='color: #C8102E;'>delete</b>]</button></form></div></div>";
 
               
               //Rotate image form
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
-                echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><b>[download uncompressed image]</b></a></div>";
+                echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
                 echo "<form method='post'>";
                 echo "<input type='hidden' name='rotate-image' value='1'>";
                 echo "<input type='hidden' name='rotate-image-uuid' value='" . $image["uuid"] . "'>";
                 echo "<input type='hidden' name='rotate-image-time' value='" . $image["time"] . "'>";
                 echo "<input type='hidden' name='rotate-image-tagnumber' value='" . $image["tagnumber"] . "'>";
                 echo "<div style='position: relative; top: 0; right: 0;'>";
-                echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: black; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='rotate image 90&deg;'></input>]</form></div></div>";
+                echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='rotate'><img class='icon' src='/images/rotate.svg'>[<b style='color: #C8102E;'>rotate</b>]</button></form></div></div>";
               }
               if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
                 echo "<div style='position: relative; top: 0; right: 0;'>";
-                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><b>[download uncompressed video]</b></a></div></div>";
+                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div></div>";
               }
               
               echo "</div>";
 
-            echo "<div><p>Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
+            echo "<div><p>(" . htmlspecialchars($image["row_nums"]) . "/" . htmlspecialchars($totalRows) . ") Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
             echo "<p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . htmlspecialchars($image["filesize"]) . " MB" . ")</p>";
             if (strFilter($image["note"]) === 0) {
                 echo "<p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p>";

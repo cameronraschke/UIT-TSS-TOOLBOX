@@ -405,7 +405,7 @@ $sqlArr = $db->get();
                       echo "<p><b>[CHECKOUT]</b> - Checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
                     }
                     ?>
-                    <p>"<?php echo trim(htmlspecialchars($value["location"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>
+                    <p>"<?php echo trim(htmlspecialchars($value["location"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>");'><img class='icon' src='/images/new-tab.svg'></img><i>(Click to Update Location)</i></a></p>
                     <?php
                     if (strFilter($value["note"]) === 0) {
                       echo "<p><b>Note:</b> \"" . trim(htmlspecialchars($value["note"])) . "\"</p>";
@@ -416,13 +416,13 @@ $sqlArr = $db->get();
                 <tr>
                   <td>Department</td>
                   <td>
-                    <p>"<?php echo trim(htmlspecialchars($value["department_readable"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "<?php echo trim(htmlspecialchars($value["department"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>
+                    <p>"<?php echo trim(htmlspecialchars($value["department_readable"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "<?php echo trim(htmlspecialchars($value["department"])); ?>");'><img class='icon' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>
                   </td>
                 </tr>
                 <tr>
                   <td>AD Domain</td>
                   <td>
-                    <p>"<?php echo trim(htmlspecialchars($value["domain_readable"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "", "<?php echo trim(htmlspecialchars($value["domain"])); ?>");'><img class='new-tab-image' src='/images/new-tab.svg'></img><i>(Click to Update Domain)</i></a></p>
+                    <p>"<?php echo trim(htmlspecialchars($value["domain_readable"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "", "<?php echo trim(htmlspecialchars($value["domain"])); ?>");'><img class='icon' src='/images/new-tab.svg'></img><i>(Click to Update Domain)</i></a></p>
                   </td>
                 </tr>
                 <tr>
@@ -494,7 +494,7 @@ $sqlArr = $db->get();
         <?php
         $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, IF (mime_type LIKE 'video%', image, thumbnail) AS 'thumbnail', note, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
-          echo "<div class='page-content'><b>[<a href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>View All Images</a>]</b></div>";
+          echo "<div class='page-content'><a style='color: black;' href='/view-images.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All Images</b>]</a></div>";
           echo "<div class='grid-container' style='width: 100%;'>";
           foreach ($db->get() as $key => $image) {
               $db->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0", array(':tagnumber' => $_GET["tagnumber"]));
@@ -509,25 +509,25 @@ $sqlArr = $db->get();
               echo "<input type='hidden' name='delete-image-time' value='" . $image["time"] . "'>";
               echo "<input type='hidden' name='delete-image-tagnumber' value='" . $image["tagnumber"] . "'>";
               echo "<div style='position: relative; top: 0; left: 0;'>";
-              echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: #C8102E; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='delete'></input>]</form></div></div>";
+              echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='delete'><img class='icon' src='/images/trash.svg'>[<b style='color: #C8102E;'>delete</b>]</button></form></div></div>";
 
               
               //Rotate image form
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
-                echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/download.svg'></img><b>[download uncompressed image]</b></a></div>";
+                echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
                 echo "<form method='post'>";
                 echo "<input type='hidden' name='rotate-image' value='1'>";
                 echo "<input type='hidden' name='rotate-image-uuid' value='" . $image["uuid"] . "'>";
                 echo "<input type='hidden' name='rotate-image-time' value='" . $image["time"] . "'>";
                 echo "<input type='hidden' name='rotate-image-tagnumber' value='" . $image["tagnumber"] . "'>";
                 echo "<div style='position: relative; top: 0; right: 0;'>";
-                echo "[<input type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; color: black; border: none; margin: 0; padding: 0; cursor: pointer; font-weight: bold;' onclick='this.form.submit()' value='rotate image 90&deg;'></input>]</form></div></div>";
+                echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='rotate'><img class='icon' src='/images/rotate.svg'>[<b style='color: #C8102E;'>rotate</b>]</button></form></div></div>";
               }
               if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
                 echo "<div style='position: relative; top: 0; right: 0;'>";
-                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/download.svg'></img><b>[download uncompressed video]</b></a></div></div>";
+                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div></div>";
               }
 
               echo "</div>";
@@ -539,7 +539,7 @@ $sqlArr = $db->get();
               }
               echo "<div style='padding: 1em 1px 1px 1px;'>";
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
-                echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"window.open('/view-images.php?tagnumber=" . $image["tagnumber"] . "&uuid=" . htmlspecialchars($image["uuid"]) . "', '_blank');\" src='data:image/jpeg;base64," . $image["thumbnail"] . "'></img>";
+                echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"window.open('/view-images.php?download=1&tagnumber=" . $image["tagnumber"] . "&uuid=" . htmlspecialchars($image["uuid"]) . "', '_blank');\" src='data:image/jpeg;base64," . $image["thumbnail"] . "'></img>";
               } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["thumbnail"] . "' /></video>";
               }
