@@ -1028,7 +1028,7 @@ unset($value1);
           const inputText = tagnumberField.value;
           var re = new RegExp('^' + inputText, 'gi');
           var re1 = new RegExp('^' + inputText + '$', 'gi');
-          const matchingExact = availableLocations.find(suggestion => suggestion.match(re1));
+          const matchingExact = availableTagnumbers.find(suggestion => suggestion.match(re1));
           const matchingSuggestion = availableTagnumbers.find(suggestion => suggestion.match(re));
 
           if (matchingSuggestion && inputText.length > 0) {

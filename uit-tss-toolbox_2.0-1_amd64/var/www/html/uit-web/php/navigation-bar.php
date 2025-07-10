@@ -1,4 +1,3 @@
-
 <div class='navigation-bar'>
 <ul>
 <?php 
@@ -36,7 +35,9 @@
   } else {
     echo "<li><a href='/serverstats.php'>Reports</a></li>";
   }
+  
   echo "<li style='float: right; margin-right: 4em;'><a href='/logout.php'>Logout</a></li>";
+  echo "<div class='location-form' style='float: right; width: 20em; top:5%; right:2%;'><form method='GET'><input type='text' id='tagnumber-search' name='tagnumber' style='width: 80%;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button style='border: none;'><img class='icon' src='/images/search.svg'></button></form></div>";
 ?>
 </ul>
 </div>

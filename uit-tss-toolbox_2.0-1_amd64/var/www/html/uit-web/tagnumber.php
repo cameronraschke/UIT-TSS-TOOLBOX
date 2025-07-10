@@ -202,9 +202,6 @@ unset($_POST);
     <div class='column'>
   <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
 </div>
-<div class='column'>
-  <div class='location-form' style='position: relative; width: 20em; top:5%; right:2%;'><form method='GET'><input type='text' name='tagnumber' style='width: 100%;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'></form></div>
-</div>
 </div>
 
 
@@ -518,7 +515,7 @@ $sqlArr = $db->get();
               //Rotate image form
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
-                echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><b>[download uncompressed image]</b></a></div>";
+                echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/download.svg'></img><b>[download uncompressed image]</b></a></div>";
                 echo "<form method='post'>";
                 echo "<input type='hidden' name='rotate-image' value='1'>";
                 echo "<input type='hidden' name='rotate-image-uuid' value='" . $image["uuid"] . "'>";
@@ -530,7 +527,7 @@ $sqlArr = $db->get();
               if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
                 echo "<div style='position: relative; top: 0; right: 0;'>";
-                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/new-tab.svg'></img><b>[download uncompressed video]</b></a></div></div>";
+                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='new-tab-image' src='/images/download.svg'></img><b>[download uncompressed video]</b></a></div></div>";
               }
 
               echo "</div>";
