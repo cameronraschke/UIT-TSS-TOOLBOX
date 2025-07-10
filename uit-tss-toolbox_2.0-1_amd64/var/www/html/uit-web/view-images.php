@@ -14,7 +14,6 @@ if (preg_match('/^[0-9]{6}$/', $_GET["tagnumber"]) !== 1) {
   exit();
 }
 
-session_start();
 if ($_SESSION['authorized'] != "yes") {
   exit();
 }

@@ -2,7 +2,6 @@
     require('/var/www/html/uit-web/header.php');
     require('/var/www/html/uit-web/php/include.php');
 
-    session_start();
     if ($_SESSION['authorized'] != "yes") {
         die();
     }

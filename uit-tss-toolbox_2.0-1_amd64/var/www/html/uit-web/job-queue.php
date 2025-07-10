@@ -2,7 +2,6 @@
 require('/var/www/html/uit-web/header.php');
 require('/var/www/html/uit-web/php/include.php');
 
-session_start();
 if ($_SESSION['authorized'] != "yes") {
   die();
 }
@@ -27,23 +26,17 @@ unset($value);
 unset($_POST);
 ?>
 
-<html>
+<!DOCTYPE html>
   <head>
     <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <title>Job Queue - UIT Client Mgmt</title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <script src="/js/include.js"></script>
   </head>
   <body onload="fetchHTML()">
-      <div class='menubar'>
-        <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-        <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
-        <br>
-        <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
-      </div>
+    <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
-    <div class='pagetitle'><h1>Job Queue</h1></div>
-    <div class='pagetitle'><h2>This page allows you to queue and view active jobs for clients plugged into the server.</h2></div>
     <div class='pagetitle' id='time'><h3>Page last updated: <?php $db->select("SELECT DATE_FORMAT(CONCAT(CURDATE(), ' ', CURTIME()), '%m/%d/%y, %r') AS 'time_formatted'"); if (arrFilter($db->get()) === 0) { foreach ($db->get() as $key => $sqlUpdatedTime) { echo $sqlUpdatedTime["time_formatted"]; } } ?></h3></div>
 
     <div class='row'>
@@ -97,10 +90,7 @@ unset($_POST);
           </form>
 
         </div>
-      </div>
-
-      <div class='column'>
-        <div class='styled-table'>
+                <div class='styled-table'>
           <table id='remoteStats'>
             <thead>
               <tr>
@@ -151,6 +141,10 @@ unset($_POST);
             </tbody>
           </table>
         </div>
+
+      </div>
+
+      <div class='column'>
       </div>
     </div>
 

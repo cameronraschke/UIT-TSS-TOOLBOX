@@ -28,24 +28,11 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
   <title>Home - UIT Client Management</title>
 </head>
 <body onload="fetchHTML();charCount();">
-  <div class='menubar'>
-    <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-    <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
-    <br>
-    <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
-  </div>
-
-  <div class='pagetitle' style="text-align:center;"><h1 style="margin:auto;">TechComm Laptop Management Site</h1></div>
-  <div class='pagetitle' style="text-align:center;"><h3 style="margin:auto;">Contact WEBMASTER_NAME for Assistance: <a href='mailto:WEBMASTER_EMAIL?subject=UIT-TC-MGMT%20Assistance%20with%20<?php echo $_SERVER["REQUEST_URI"]; ?>'>WEBMASTER_EMAIL</a></h3></div>
+  <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
   <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
 
   <div class='row'>
-    <div class='column'>
-      <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/job-queue.php" target='_blank'>Job Queue</a></h3></div>
-      <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/locations.php" target='_blank'>Update/View Locations</a></h3></div>
-      <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/checkouts.php" target='_blank'>View Checkouts (WIP)</a></h3></div>
-      <div><h3 class='pagetitle'><img class='new-tab-image' src='/images/new-tab.svg'></img><a href="/serverstats.php" target='_blank'>Daily Reports</a></h3></div>
-
+  <div class='column'>
 
   <div class='location-form' style='height: auto;'>
     <form method='get'>

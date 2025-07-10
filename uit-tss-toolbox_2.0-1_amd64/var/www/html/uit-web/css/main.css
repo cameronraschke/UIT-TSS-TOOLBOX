@@ -5,6 +5,10 @@
     font-family: sans-serif;
 }
 
+body { 
+	overflow-x: clip;
+}
+
 select {
 	font-size: 1em;
 	padding: 5px;
@@ -169,6 +173,9 @@ textarea {
 	margin: 0% 0% 1% 0%;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 	border-bottom: 2px solid #C8102E;
+}
+.menubar div {
+	position: relative
 }
 .menubar a p span {
 	padding: 4px 5px;
@@ -383,4 +390,71 @@ textarea {
 	background-color:rgb(233, 233, 233);
 	padding: 20px;
 	text-align: center;
+}
+
+.navigation-bar {
+	background-color: #C8102E;
+	border-bottom: 2px solid #888B8D;
+}
+
+.navigation-bar ul {
+	top: 0;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.navigation-bar li {
+	float: left;
+}
+
+.navigation-bar li a {
+  	vertical-align: middle;
+  	line-height: 3em;
+	float: left;
+	text-align: center;
+	cursor: pointer;
+  	padding: 0.5em 1em 0.5em 1em;
+	color: white;
+    text-decoration: none;
+}
+
+.navigation-bar li a:hover {
+	background-color:rgb(170, 170, 170);
+}
+
+.active-navigation-bar {
+	background-color:rgba(233, 233, 233, 0.699);
+}
+
+.scroll-to-top {
+	position: sticky;
+	width: 3em;
+	z-index: 10;
+	top: 90%;
+	left: 95%;
+}
+
+.scroll-to-top button {
+	border-radius: 30%;
+}
+
+.scroll-icon {
+	height: 3em;
+	width: auto;
+}
+
+.icon {
+	height: 1em;
+	width: auto;
+}
+
+.header-title {
+	padding: 5px;
+}
+
+.header-title a {
+	color: #C8102E;
+	font-weight: bold;
 }

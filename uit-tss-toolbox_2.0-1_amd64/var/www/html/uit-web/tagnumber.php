@@ -12,7 +12,6 @@ if (preg_match('/^[0-9]{6}$/', $_GET["tagnumber"]) !== 1) {
   exit();
 }
 
-session_start();
 if ($_SESSION['authorized'] != "yes") {
   exit();
 }
@@ -197,13 +196,7 @@ unset($_POST);
   </head>
   <!--<body onload="fetchHTML()">-->
   <body>
-
-  <div class='menubar'>
-  <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-  <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>.</span></p>
-  <br>
-  <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
-  </div>
+  <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
   <div class='row'>
     <div class='column'>

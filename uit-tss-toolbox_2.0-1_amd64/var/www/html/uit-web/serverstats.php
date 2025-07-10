@@ -25,8 +25,7 @@ $db = new db();
             <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
         </div>
 
-        <div class='pagetitle'><h1>Daily Reports</h1></div>
-        <div class='pagetitle'><h2>The daily reports show aggregated statistics for each day the server has been online, going back to Jan 9th, 2023.</h2></div>
+      <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
         <div class='styled-table'>
             <table>

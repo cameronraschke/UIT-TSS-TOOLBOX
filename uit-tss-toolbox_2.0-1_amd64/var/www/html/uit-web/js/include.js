@@ -34,3 +34,7 @@ function openImage(imageData) {
   //window.open(blobUrl);
   window.location.href = blobUrl;
 }
+
+function scrollToTop() {
+  window.scrollTo(0, 0);
+}
