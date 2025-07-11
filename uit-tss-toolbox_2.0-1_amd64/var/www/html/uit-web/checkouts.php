@@ -33,7 +33,7 @@ $rowCount = count($db->get());
         <script src="/js/include.js"></script>
     </head>
     <body>
-  <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
+        <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
         <div class='pagetitle'><h1>Checkout History</h1></div>
         <div class='pagetitle'><h2>These clients are currently checked out.</h2></div>
