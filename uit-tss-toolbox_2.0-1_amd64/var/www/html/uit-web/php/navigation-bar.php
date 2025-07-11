@@ -33,7 +33,7 @@
   }
   
   echo "<li style='float: right; margin-right: 4em;'><a href='/logout.php'>Logout</a></li>";
-  echo "<div class='location-form' style='float: right; width: 20em; margin: 0.5em 3em 0.5em 3em;'><form method='GET' action='/tagnumber.php'><input type='text' id='tagnumber-search' name='tagnumber' style='width: 80%;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button style='border: none;'><img class='icon' src='/images/search.svg'></button></form></div>";
+  echo "<div class='location-form' style='float: right; width: 20em; margin: 0.5em 3em 0.5em 3em;'><form method='GET' action='/tagnumber.php'><input type='text' id='tagnumber-search' name='tagnumber' style='width: 80%;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button style='border: none;'><img class='icon' src='/images/search.svg'></button></form><div id='dropdown-search' style='position: absolute; width: 19em;' class='dropdown-search'></div></div>";
 ?>
 </ul>
 </div>

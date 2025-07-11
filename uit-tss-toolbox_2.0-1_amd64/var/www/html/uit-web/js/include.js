@@ -66,12 +66,42 @@ let availableTagnumbers = tagStr.split('|');
     }
   });
 
+
+  document.getElementById('dropdown-search').style.display = "none";
+  document.getElementById('dropdown-search').innerHTML = "";
+
+  tagnumberField.addEventListener("blur", function() {
+    if (document.activeElement && document.activeElement !== document.getElementById('dropdown-search')) {
+      document.getElementById('dropdown-search').style.display = "none";
+      document.getElementById('dropdown-search').innerHTML = "";
+    }
+  });  
+
   tagnumberField.addEventListener('input', function() {
     const inputText = tagnumberField.value;
     var re = new RegExp('^' + inputText, 'gi');
     var re1 = new RegExp('^' + inputText + '$', 'gi');
     const matchingExact = availableTagnumbers.find(suggestion => suggestion.match(re1));
     const matchingSuggestion = availableTagnumbers.find(suggestion => suggestion.match(re));
+    const allMatches = availableTagnumbers.filter((suggestionList) => suggestionList.match(re))
+
+    if (allMatches.length > 0 && inputText.length > 0) {
+      document.getElementById('dropdown-search').style.display = "inline-block";
+      dropdownHTML = "<ul>";
+      allMatches.slice(0,6).forEach(element => {
+        console.log(allMatches[0] + "," + element);
+        if (allMatches[0] == element) {
+          dropdownHTML += "<li class='dropdown-search' style='float: none;'><a class='dropdown-search' style='float: none; color: black; background-color:rgb(170, 170, 170);' href='/tagnumber.php?tagnumber=" + element + "'>" + element + "</a>" + "</li>";
+        } else {
+          dropdownHTML += "<li class='dropdown-search' style='float: none;'><a class='dropdown-search' style='float: none; color: black;' href='/tagnumber.php?tagnumber=" + element + "'>" + element + "</a>" + "</li>";
+        }
+      });
+      dropdownHTML += "</ul>";
+      document.getElementById('dropdown-search').innerHTML = dropdownHTML;
+    } else {
+      document.getElementById('dropdown-search').style.display = "none";
+      document.getElementById('dropdown-search').innerHTML = "";
+    }
 
     if (matchingSuggestion && inputText.length > 0) {
       if (matchingExact) {

@@ -458,3 +458,27 @@ textarea {
 	color: #C8102E;
 	font-weight: bold;
 }
+
+.dropdown-search {
+	display: inline-block;
+	font-weight: bold;
+	color: black;
+	background-color:rgb(233, 233, 233);
+	position: relative;
+	z-index: 10;
+	float: none;
+	width: 100%;
+}
+
+.dropdown-search div ul li a {
+	width: 100%;
+	height:100%;
+	float: none;
+	color: black;
+}
+
+.dropdown-search ul {
+	margin: 0;
+	padding: 0;
+	border: 2px solid black;
+}
