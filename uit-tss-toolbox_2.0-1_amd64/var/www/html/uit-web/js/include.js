@@ -50,8 +50,19 @@ function getCursorPos(myElement) {
 
 // Autofill tag numbers
 function autoFillTags(input) {
+  
+document.getElementById('dropdown-search').style.display = "none";
+document.getElementById('dropdown-search').innerHTML = "";
+
 tagStr = input.toString();
 let availableTagnumbers = tagStr.split('|');
+
+document.querySelector('body').addEventListener('click', () => {
+  if (document.activeElement !== document.getElementById('tagnumber-search') && document.activeElement !== document.getElementById('tagnumber-search')) {
+      document.getElementById('dropdown-search').style.display = "none";
+      document.getElementById('dropdown-search').innerHTML = "";
+  }
+});
 
   var tagnumberField = document.getElementById('tagnumber-search');
 
@@ -60,22 +71,9 @@ let availableTagnumbers = tagStr.split('|');
 
     if (event.key === 'Backspace' || event.key === 'Delete') {
       tagnumberField.value = tagnumberField.value.substr(0, getCursorPos(tagnumberField));
-      //console.log("Backspace Value: " + tagnumberField.value);
-      //console.log("Backspace Position: " + getCursorPos(tagnumberField) + ", " + getCursorPos(tagnumberField));
       tagnumberField.setSelectionRange(getCursorPos(tagnumberField), getCursorPos(tagnumberField));
     }
   });
-
-
-  document.getElementById('dropdown-search').style.display = "none";
-  document.getElementById('dropdown-search').innerHTML = "";
-
-  tagnumberField.addEventListener("blur", function() {
-    if (document.activeElement && document.activeElement !== document.getElementById('dropdown-search')) {
-      document.getElementById('dropdown-search').style.display = "none";
-      document.getElementById('dropdown-search').innerHTML = "";
-    }
-  });  
 
   tagnumberField.addEventListener('input', function() {
     const inputText = tagnumberField.value;
@@ -89,7 +87,6 @@ let availableTagnumbers = tagStr.split('|');
       document.getElementById('dropdown-search').style.display = "inline-block";
       dropdownHTML = "<ul>";
       allMatches.slice(0,6).forEach(element => {
-        console.log(allMatches[0] + "," + element);
         if (allMatches[0] == element) {
           dropdownHTML += "<li class='dropdown-search' style='float: none;'><a class='dropdown-search' style='float: none; color: black; background-color:rgb(170, 170, 170);' href='/tagnumber.php?tagnumber=" + element + "'>" + element + "</a>" + "</li>";
         } else {
