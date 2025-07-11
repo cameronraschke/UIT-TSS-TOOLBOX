@@ -46,3 +46,40 @@ function getCursorPos(myElement) {
   myElement.focus();
   return(startPosition);
 }
+
+
+// Autofill tag numbers
+function autoFillTags(input) {
+tagStr = input.toString();
+let availableTagnumbers = tagStr.split('|');
+
+  var tagnumberField = document.getElementById('tagnumber-search');
+
+  tagnumberField.addEventListener('keyup', (event) => {
+    const inputText = tagnumberField.value;
+
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      tagnumberField.value = tagnumberField.value.substr(0, getCursorPos(tagnumberField));
+      //console.log("Backspace Value: " + tagnumberField.value);
+      //console.log("Backspace Position: " + getCursorPos(tagnumberField) + ", " + getCursorPos(tagnumberField));
+      tagnumberField.setSelectionRange(getCursorPos(tagnumberField), getCursorPos(tagnumberField));
+    }
+  });
+
+  tagnumberField.addEventListener('input', function() {
+    const inputText = tagnumberField.value;
+    var re = new RegExp('^' + inputText, 'gi');
+    var re1 = new RegExp('^' + inputText + '$', 'gi');
+    const matchingExact = availableTagnumbers.find(suggestion => suggestion.match(re1));
+    const matchingSuggestion = availableTagnumbers.find(suggestion => suggestion.match(re));
+
+    if (matchingSuggestion && inputText.length > 0) {
+      if (matchingExact) {
+        tagnumberField.value = matchingExact;
+      } else {
+        tagnumberField.value = matchingSuggestion;
+      }
+      tagnumberField.setSelectionRange(inputText.length, matchingSuggestion.length);
+    }
+  })
+};

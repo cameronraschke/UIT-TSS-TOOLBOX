@@ -1214,6 +1214,20 @@ unset($value1);
       }
     </script>
 
+  <script>
+    <?php
+    $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
+    if (arrFilter($db->get()) === 0) {
+      foreach ($db->get() as $key => $value) {
+        $tagStr .= $value["tagnumber"] . "|";
+      }
+    }
+    unset($value);
+    ?>
+
+    autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
+  </script>
+
     <div class="uit-footer">
         <img src="/images/uh-footer.svg">
     </div>

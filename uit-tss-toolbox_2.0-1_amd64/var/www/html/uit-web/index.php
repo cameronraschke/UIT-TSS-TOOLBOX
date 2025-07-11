@@ -83,7 +83,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
               <?php echo htmlspecialchars("Press ** before and after a word to create a heading. Ex) **Bugs** "); ?> <br><br>
               <?php echo htmlspecialchars("Press * to create a bulleted item."); ?> <br><br>
               <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
-              <p>Enter <a href='/documentation/emojis.php' target='_blank'>supported emoticons</a>, key words preceeded by a colon, or emojis from your keyboard to get an emoji: </p> <br><br>
+              <p>Enter <a href='/documentation/pages.php?page=supported-emojis' target='_blank'>supported emoticons</a>, key words preceeded by a colon, or emojis from your keyboard to get an emoji: </p> <br><br>
               <?php echo htmlspecialchars(":check :x :cancel :waiting :pin :warning :alert"); ?> <br>
               <?php echo htmlspecialchars(":like :dislike :star :info :heart :fire :shrug :clap :celebrate :hmm :mindblown "); ?> <br>
               <?php echo htmlspecialchars(":clock :bug :arrow :poop"); ?><br>
@@ -453,5 +453,20 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 window.history.replaceState( null, null, window.location.href );
             }
     </script>
+
+  <script>
+    <?php
+    $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
+    if (arrFilter($db->get()) === 0) {
+      foreach ($db->get() as $key => $value) {
+        $tagStr .= $value["tagnumber"] . "|";
+      }
+    }
+    unset($value);
+    ?>
+
+    autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
+  </script>
+
     </body>
 </html>

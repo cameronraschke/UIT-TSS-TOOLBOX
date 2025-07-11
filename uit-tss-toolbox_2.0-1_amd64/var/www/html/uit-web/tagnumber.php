@@ -898,49 +898,17 @@ window.history.replaceState( null, null, window.location.href );
 </script>
 
 <script>
+  <?php
+  $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
+  if (arrFilter($db->get()) === 0) {
+    foreach ($db->get() as $key => $value) {
+      $tagStr .= $value["tagnumber"] . "|";
+    }
+  }
+  unset($value);
+  ?>
 
-      // Autofill tag numbers
-      var availableTagnumbers = [
-          <?php
-          $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
-          if (arrFilter($db->get()) === 0) {
-            foreach ($db->get() as $key => $value) {
-              echo "'" . $value["tagnumber"] . "',";
-            }
-          }
-          unset($value);
-          ?>
-        ];
-
-        var tagnumberField = document.getElementById('tagnumber-search');
-
-        tagnumberField.addEventListener('keyup', (event) => {
-          const inputText = tagnumberField.value;
-
-          if (event.key === 'Backspace' || event.key === 'Delete') {
-            tagnumberField.value = tagnumberField.value.substr(0, getCursorPos(tagnumberField));
-            //console.log("Backspace Value: " + tagnumberField.value);
-            //console.log("Backspace Position: " + getCursorPos(tagnumberField) + ", " + getCursorPos(tagnumberField));
-            tagnumberField.setSelectionRange(getCursorPos(tagnumberField), getCursorPos(tagnumberField));
-          }
-        });
-
-        tagnumberField.addEventListener('input', function() {
-          const inputText = tagnumberField.value;
-          var re = new RegExp('^' + inputText, 'gi');
-          var re1 = new RegExp('^' + inputText + '$', 'gi');
-          const matchingExact = availableTagnumbers.find(suggestion => suggestion.match(re1));
-          const matchingSuggestion = availableTagnumbers.find(suggestion => suggestion.match(re));
-
-          if (matchingSuggestion && inputText.length > 0) {
-            if (matchingExact) {
-              tagnumberField.value = matchingExact;
-            } else {
-              tagnumberField.value = matchingSuggestion;
-            }
-            tagnumberField.setSelectionRange(inputText.length, matchingSuggestion.length);
-          }
-        });
+autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
 </script>
 
 <div class="uit-footer">

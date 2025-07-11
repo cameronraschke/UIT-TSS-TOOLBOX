@@ -75,6 +75,19 @@
       echo "<h2 class='header-title'>Daily reports back to January 2023</h2>";
       echo "<h3 class='header-title'><img class='icon' src='/images/new-tab.svg'><a href='/documentation/pages.php?page=serverstats' target='_blank'>Documentation</a></h3>";
     }
+
+    // DOCUMENTATION
+    if ($_SERVER['REQUEST_URI'] == "/documentation/pages.php?page=supported-emojis") {
+      echo "<h1 class='header-title'>Supported Emojis</h1>";
+      echo "<h2 class='header-title'>Type the left column's characters in order to get the corresponding emoji. Only works for notes on <a href='/index.php'>the home page</a>.</h2>";
+    }
+    if ($_SERVER['REQUEST_URI'] == "/documentation/pages.php?page=locations") {
+      echo "<h1 class='header-title'>Locations Documentation</h1>";
+      echo "<h2 class='header-title'>Go to <a href='/locations.php'>/locations.php</a>.</h2>";
+    }
+    if ($_SERVER['REQUEST_URI'] == "/documentation/pages.php?page=kernel-update") {
+      echo "<h1 class='header-title'>Kernel Update Documentation</h1>";
+    }
   ?>
 </div>
 
