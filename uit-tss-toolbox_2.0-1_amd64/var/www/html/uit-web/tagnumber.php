@@ -77,84 +77,89 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
   unset($value);
 }
 
-if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) === 0) {
-  //Check for accepted mime types
-  $uploadFileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"]);
-  $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'video/mp4', 'video/quicktime'];
-  if (!in_array($uploadFileMimeType, $fileAllowedMimes)) {
-    $imageUploadError = 2;
-  } else {
-    $fh = fopen($_FILES["userfile"]["tmp_name"], 'rb');
-    //Get raw file data
-    $rawFileData = file_get_contents($_FILES["userfile"]["tmp_name"]);
-    //Get file hash
-    $imageHash = md5($rawFileData);
-    //Check if hash already in DB
-    $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash AND tagnumber = :tagnumber", array(':md5_hash' => $imageHash, ':tagnumber' => $_GET["tagnumber"]));
-    if (strFilter($db->get()) === 1) {
-      $imageUUID = uniqid("image-", true);
-      //Convert all images to jpeg
-      if (preg_match('/^image.*/', $uploadFileMimeType) === 1) {
-        // //Read image exif data
-        // $exifArr = exif_read_data($fh);
-        // fclose($fh);
-        //Create jpeg and check if can convert. Create base64 string.
-        $imageObject = imagecreatefromstring($rawFileData);
-        if ($imageObject !== false) {
-          $imageResolution = imagesx($imageObject) . "x" . imagesy($imageObject);
-
-          //Main jpeg
-          ob_start();
-          imagejpeg($imageObject, NULL, 100);
-          $imageBuffer = ob_get_clean();
-          $imageFileConverted = base64_encode($imageBuffer);
-          unset($imageBuffer);
-
-          //Thumbnail
-          ob_start();
-          imagejpeg($imageObject, NULL, 30);
-          $thumbnailBuffer = ob_get_clean();
-          $imageFileCompressed = base64_encode($thumbnailBuffer);
-          $finfo = new finfo(FILEINFO_MIME);
-          $mimeType = explode(';', $finfo->buffer($thumbnailBuffer));
-          $mimeType = trim($mimeType[0]);
-          $finfo = null;
-          unset($thumbnailBuffer);
-        } else {
-          $imageUploadError = 2;
-        }
-        imagedestroy($imageObject);
-        //Convert all videos to mp4. Outputs base64 string.
-      } elseif (preg_match('/^video.*/', $uploadFileMimeType) === 1) {
-        $transcodeFile = uniqid("uit-transcode-", true);
-        $file = fopen("/var/www/html/uit-web/transcode/" . $transcodeFile, 'c');
-        fwrite($file, $rawFileData);
-        fclose($file);
-        $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "normal-quality");
-        $mimeType = mime_content_type('/var/www/html/uit-web/transcode/' . $transcodeFile);
-        //$imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
-      }
-
-        $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
-        $db->updateImage("image", $imageFileConverted, $imageUUID);
-        $db->updateImage("thumbnail", $imageFileCompressed, $imageUUID);
-        $db->updateImage("md5_hash", $imageHash, $imageUUID);
-        $db->updateImage("filename", $_FILES["userfile"]["name"], $imageUUID);
-        $db->updateImage("filesize", round($_FILES["userfile"]["size"] / 1000000, 3), $imageUUID);
-        $db->updateImage("note", $_POST["image-note"], $imageUUID);
-        $db->updateImage("mime_type", $mimeType, $imageUUID);
-        //$db->updateImage("hidden", "0", $_POST["delete-image"]);
-        if (preg_match('/^image.*/', $uploadFileMimeType) === 1) {
-          //$db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
-          $db->updateImage("resolution", $imageResolution, $imageUUID);
-        }
-        unset($imageObject);
-        unset($imageFileConverted);
+if (isset($_FILES) && strFilter($_FILES) === 0) {
+  foreach ($_FILES["userfile"]["tmp_name"] as $key => $tmp_name) {
+    //Check for accepted mime types
+    $uploadFileMimeType = mime_content_type($_FILES["userfile"]["tmp_name"][$key]);
+    $fileAllowedMimes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'video/mp4', 'video/quicktime'];
+    if (!in_array($uploadFileMimeType, $fileAllowedMimes)) {
+      $imageUploadError = array(2, $_FILES["userfile"]["name"][$key]);
     } else {
-      $imageUploadError = 1;
+      $fh = fopen($_FILES["userfile"]["tmp_name"][$key], 'rb');
+      //Get raw file data
+      $rawFileData = file_get_contents($_FILES["userfile"]["tmp_name"][$key]);
+      //Get file hash
+      $imageHash = md5($rawFileData);
+      //Check if hash already in DB
+      $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash AND tagnumber = :tagnumber", array(':md5_hash' => $imageHash, ':tagnumber' => $_GET["tagnumber"]));
+      if (strFilter($db->get()) === 1) {
+        unset($imageUUID);
+        $imageUUID = uniqid("image-", true);
+        //Convert all images to jpeg
+        if (preg_match('/^image.*/', $uploadFileMimeType) === 1) {
+          // //Read image exif data
+          // $exifArr = exif_read_data($fh);
+          // fclose($fh);
+          //Create jpeg and check if can convert. Create base64 string.
+          $imageObject = imagecreatefromstring($rawFileData);
+          if ($imageObject !== false) {
+            $imageResolution = imagesx($imageObject) . "x" . imagesy($imageObject);
+
+            //Main jpeg
+            ob_start();
+            imagejpeg($imageObject, NULL, 100);
+            $imageBuffer = ob_get_clean();
+            $imageFileConverted = base64_encode($imageBuffer);
+            unset($imageBuffer);
+
+            //Thumbnail
+            ob_start();
+            imagejpeg($imageObject, NULL, 30);
+            $thumbnailBuffer = ob_get_clean();
+            $imageFileCompressed = base64_encode($thumbnailBuffer);
+            $finfo = new finfo(FILEINFO_MIME);
+            $mimeType = explode(';', $finfo->buffer($thumbnailBuffer));
+            $mimeType = trim($mimeType[0]);
+            $finfo = null;
+            unset($thumbnailBuffer);
+          } else {
+            $imageUploadError = array(2, $_FILES["userfile"]["name"][$key]);
+          }
+          imagedestroy($imageObject);
+          //Convert all videos to mp4. Outputs base64 string.
+        } elseif (preg_match('/^video.*/', $uploadFileMimeType) === 1) {
+          $transcodeFile = uniqid("uit-transcode-", true);
+          $file = fopen("/var/www/html/uit-web/transcode/" . $transcodeFile, 'c');
+          fwrite($file, $rawFileData);
+          fclose($file);
+          $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "normal-quality");
+          $mimeType = mime_content_type('/var/www/html/uit-web/transcode/' . $transcodeFile);
+          //$imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
+        }
+
+          $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
+          $db->updateImage("image", $imageFileConverted, $imageUUID);
+          $db->updateImage("thumbnail", $imageFileCompressed, $imageUUID);
+          $db->updateImage("md5_hash", $imageHash, $imageUUID);
+          $db->updateImage("filename", $_FILES["userfile"]["name"][$key], $imageUUID);
+          $db->updateImage("filesize", round($_FILES["userfile"]["size"][$key] / 1000000, 3), $imageUUID);
+          $db->updateImage("note", $_POST["image-note"], $imageUUID);
+          $db->updateImage("mime_type", $mimeType, $imageUUID);
+          //$db->updateImage("hidden", "0", $_POST["delete-image"]);
+          if (preg_match('/^image.*/', $uploadFileMimeType) === 1) {
+            //$db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
+            $db->updateImage("resolution", $imageResolution, $imageUUID);
+          }
+          unset($imageObject);
+          unset($imageFileConverted);
+      } else {
+        $imageUploadError = array(1, $_FILES["userfile"]["name"][$key]);
+      }
     }
   }
 }
+
+
 if (isset($_POST["job_queued_tagnumber"])) {
   if (strFilter($_POST["job_queued"]) === 0) {
     $db->updateRemote($_POST["job_queued_tagnumber"], "job_queued", $_POST["job_queued"]);
@@ -384,15 +389,15 @@ $sqlArr = $db->get();
           <form enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
-            <div><input name="userfile" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" /></div>
+            <div><input name="userfile[]" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" multiple /></div>
             <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' autocorrect='off' spellcheck='false' placeholder="Add Image Description..."></div>
-            <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image</button></div>
+            <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image(s)</button></div>
           </form>
             <?php 
-            if ($imageUploadError === 1) {
-              echo "<div><p style='color: red;'><b>Error: File already uploaded.</b></p></div>";
-            } elseif ($imageUploadError == 2) {
-              echo "<div><p style='color: red;'><b>Error: Incorrect file format.</b></p></div>";
+            if ($imageUploadError[0] === 1) {
+              echo "<div><p style='color: red;'><b>Error: File already uploaded - $imageUploadError[1]</b></p></div>";
+            } elseif ($imageUploadError[0] == 2) {
+              echo "<div><p style='color: red;'><b>Error: Incorrect file format - $imageUploadError[1]</b></p></div>";
             }
             ?>
         </div>
