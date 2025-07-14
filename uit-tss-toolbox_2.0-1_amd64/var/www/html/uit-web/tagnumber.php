@@ -395,9 +395,9 @@ $sqlArr = $db->get();
           </form>
             <?php 
             if ($imageUploadError[0] === 1) {
-              echo "<div><p style='color: red;'><b>Error: File already uploaded - $imageUploadError[1]</b></p></div>";
+              echo "<div><p style='color: red;'><b>Error: File already uploaded - \"" . htmlspecialchars($imageUploadError[1]) . "\"</b></p></div>";
             } elseif ($imageUploadError[0] == 2) {
-              echo "<div><p style='color: red;'><b>Error: Incorrect file format - $imageUploadError[1]</b></p></div>";
+              echo "<div><p style='color: red;'><b>Error: Incorrect file format - \"" . htmlspecialchars($imageUploadError[1]) . "\"</b></p></div>";
             }
             ?>
         </div>
