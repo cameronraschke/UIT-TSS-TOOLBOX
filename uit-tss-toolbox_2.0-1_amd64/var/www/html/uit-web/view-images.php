@@ -128,7 +128,7 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
                 echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
               }
               
-              if ($image["primary_image"] === 0) {
+              if (strFilter($image["primary_image"]) === 1) {
                 echo "<div><form method='post'>";
                 echo "<input type='hidden' name='image-primary-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
                 echo "<input type='hidden' name='image-primary-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
