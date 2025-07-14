@@ -22,6 +22,17 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
   $db->deleteImage($_POST["delete-image-uuid"], $_POST["delete-image-time"], $_POST["delete-image-tagnumber"]);
 }
 
+if (isset($_POST["image-primary"]) && $_POST["image-primary"] == "1" && strFilter($_POST["image-primary-uuid"]) === 0 && strFilter($_POST["image-primary-tagnumber"]) === 0) {
+  $db->Pselect("SELECT uuid FROM client_images WHERE primary_image = 1 AND tagnumber = :tagnumber", array(':tagnumber' => $_POST["image-primary-tagnumber"]));
+  if (strFilter($db->get()) === 0) {
+    foreach ($db->get() as $key => $value) {
+      $db->updateImage("primary_image", "0", $value["uuid"]);
+    }
+  }
+  $db->updateImage("primary_image", "1", trim($_POST["image-primary-uuid"]));
+  unset($value);
+}
+
 if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
   $db->Pselect("SELECT image FROM client_images WHERE uuid = :uuid AND time = :time AND tagnumber = :tagnumber", array(':uuid' => $_POST["rotate-image-uuid"], ':time' => $_POST["rotate-image-time"], ':tagnumber' => $_POST["rotate-image-tagnumber"]));
   foreach ($db->get() as $key => $value) {
@@ -81,7 +92,7 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
 
 <div class='grid-container' style='width: 100%;'>
         <?php
-        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, mime_type, image, note, resolution, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
+        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, mime_type, image, note, resolution, primary_image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber ORDER BY time DESC", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
           foreach ($db->get() as $key => $image) {
             $db->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0", array(':tagnumber' => $_GET["tagnumber"]));
@@ -92,9 +103,9 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
               echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: left;'>";
               echo "<form method='post'>";
               echo "<input type='hidden' name='delete-image' value='1'>";
-              echo "<input type='hidden' name='delete-image-uuid' value='" . $image["uuid"] . "'>";
-              echo "<input type='hidden' name='delete-image-time' value='" . $image["time"] . "'>";
-              echo "<input type='hidden' name='delete-image-tagnumber' value='" . $image["tagnumber"] . "'>";
+              echo "<input type='hidden' name='delete-image-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
+              echo "<input type='hidden' name='delete-image-time' value='" . htmlspecialchars($image["time"]) . "'>";
+              echo "<input type='hidden' name='delete-image-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
               echo "<div style='position: relative; top: 0; left: 0;'>";
               echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='delete'><img class='icon' src='/images/trash.svg'>[<b style='color: #C8102E;'>delete</b>]</button></form></div></div>";
 
@@ -103,21 +114,30 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
                 echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
-                echo "<form method='post'>";
+                echo "<div style='margin: 0 0 1em 0;'><form method='post'>";
                 echo "<input type='hidden' name='rotate-image' value='1'>";
-                echo "<input type='hidden' name='rotate-image-uuid' value='" . $image["uuid"] . "'>";
-                echo "<input type='hidden' name='rotate-image-time' value='" . $image["time"] . "'>";
-                echo "<input type='hidden' name='rotate-image-tagnumber' value='" . $image["tagnumber"] . "'>";
+                echo "<input type='hidden' name='rotate-image-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
+                echo "<input type='hidden' name='rotate-image-time' value='" . htmlspecialchars($image["time"]) . "'>";
+                echo "<input type='hidden' name='rotate-image-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
                 echo "<div style='position: relative; top: 0; right: 0;'>";
                 echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='rotate'><img class='icon' src='/images/rotate.svg'>[<b style='color: #C8102E;'>rotate</b>]</button></form></div></div>";
               }
               if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
                 echo "<div style='position: relative; top: 0; right: 0;'>";
-                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div></div>";
+                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
               }
               
-              echo "</div>";
+              if ($image["primary_image"] === 0) {
+                echo "<div><form method='post'>";
+                echo "<input type='hidden' name='image-primary-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
+                echo "<input type='hidden' name='image-primary-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
+                echo "<input type='hidden' name='image-primary' value='1'>";
+                echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()'>[<b style='color: #C8102E;'>set primary</b>]</button>";
+                echo "</form></div>";
+              }
+
+              echo "</div></div>";
 
             echo "<div><p>(" . htmlspecialchars($image["row_nums"]) . "/" . htmlspecialchars($totalRows) . ") Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
             echo "<p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . htmlspecialchars($image["filesize"]) . " MB" . ")</p>";

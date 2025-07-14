@@ -458,7 +458,8 @@ CREATE TABLE IF NOT EXISTS client_images (
     exif_timestamp DATETIME(3) DEFAULT NULL,
     resolution VARCHAR(24) DEFAULT NULL,
     note VARCHAR(256) DEFAULT NULL,
-    hidden BOOLEAN DEFAULT 0
+    hidden BOOLEAN DEFAULT 0,
+    primary_image BOOLEAN DEFAULT 0
 );
 
 DROP TABLE IF EXISTS static_departments;

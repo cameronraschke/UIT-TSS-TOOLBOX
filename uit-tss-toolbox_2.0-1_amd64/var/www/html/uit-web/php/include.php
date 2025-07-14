@@ -657,8 +657,13 @@ class db {
         $stmt = $this->pdo->prepare($sql);
 
         if (strFilter($value) === 0) {
-          $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          if (is_numeric($value)) {
+            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+            $stmt->bindParam(':value', $value, PDO::PARAM_INT);
+          } else {
+            $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+          }
         } else {
           $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
