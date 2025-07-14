@@ -658,7 +658,7 @@ class db {
 
         if (strFilter($value) === 0) {
           $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
-          $stmt->bindParam(':value', $value, PDO::PARAM_INT);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         } else {
           $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_NULL);

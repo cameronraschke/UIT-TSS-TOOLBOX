@@ -106,7 +106,9 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
           //Main jpeg
           ob_start();
           imagejpeg($imageObject, NULL, 100);
-          $imageFileConverted = base64_encode(ob_get_clean());
+          $imageBuffer = ob_get_clean();
+          $imageFileConverted = base64_encode($imageBuffer);
+          unset($imageBuffer);
 
           //Thumbnail
           ob_start();
@@ -117,9 +119,11 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
           $mimeType = explode(';', $finfo->buffer($thumbnailBuffer));
           $mimeType = trim($mimeType[0]);
           $finfo = null;
-          imagedestroy($imageObject);
           unset($thumbnailBuffer);
+        } else {
+          $imageUploadError = 2;
         }
+        imagedestroy($imageObject);
         //Convert all videos to mp4. Outputs base64 string.
       } elseif (preg_match('/^video.*/', $uploadFileMimeType) === 1) {
         $transcodeFile = uniqid("uit-transcode-", true);
@@ -131,7 +135,6 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         //$imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
       }
 
-      if ($imageObject !== false) {
         $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
         $db->updateImage("image", $imageFileConverted, $imageUUID);
         $db->updateImage("thumbnail", $imageFileCompressed, $imageUUID);
@@ -147,9 +150,6 @@ if (isset($_FILES["userfile"]) && strFilter($_FILES["userfile"]["tmp_name"]) ===
         }
         unset($imageObject);
         unset($imageFileConverted);
-      } else {
-        $imageUploadError = 2;
-      }
     } else {
       $imageUploadError = 1;
     }
@@ -544,7 +544,7 @@ $sqlArr = $db->get();
               }
               if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
-                echo "<div style='position: relative; top: 0; right: 0;'>";
+                echo "<div style='position: relative; top: 0; right: 0; margin: 0 0 1em 0;'>";
                 echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
               }
 
