@@ -5,7 +5,7 @@ if (!isset($_GET["tagnumber"])) {
   exit();
 }
 
-if ($_GET["password"] !== "WEB_SVC_PASSWD") {
+if ($_GET["password"] !== md5("WEB_SVC_PASSWD")) {
   exit();
 }
 
