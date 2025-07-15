@@ -881,7 +881,7 @@ window.history.replaceState( null, null, window.location.href );
 }
 
 setInterval( async function () { 
-  const response = await fetchData('/api/pages/job-queue.php?tagnumber=<?php echo htmlspecialchars($_GET["tagnumber"])?>&password=<?php echo md5(WEB_SVC_PASSWD)?>');
+  const response = await fetchData('/api/pages/job-queue.php?tagnumber=<?php echo htmlspecialchars($_GET["tagnumber"]); ?>&password=<?php echo md5(WEB_SVC_PASSWD); ?>');
   //console.log(response);
   newHTML = '';
   Object.entries(response).forEach(([key, value]) => {
