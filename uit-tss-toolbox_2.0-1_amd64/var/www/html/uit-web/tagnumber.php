@@ -254,9 +254,7 @@ t4.disk_model, CONCAT(t4.disk_size, 'GB') AS 'disk_size', t4.disk_type, t4.disk_
 t5.identifier, t5.recovery_key, 
 CONCAT(clientstats.battery_health, '%') AS 'battery_health', CONCAT(clientstats.disk_health, '%') AS 'disk_health', 
 CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
-clientstats.all_jobs, 
-DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'remote_time_formatted', remote.status AS 'remote_status', remote.present_bool, 
-remote.kernel_updated, CONCAT(remote.network_speed, ' mbps') AS 'network_speed', client_health.bios_updated, 
+clientstats.all_jobs, CONCAT(remote.network_speed, ' mbps') AS 'network_speed', client_health.bios_updated, 
 IF (client_health.bios_updated = 1, CONCAT('Updated ', '(', client_health.bios_version, ')'), CONCAT('Out of date ', '(', client_health.bios_version, ')')) AS 'bios_updated_formatted', 
 (CASE
 WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_writes, ' TBW/', t4.disk_reads, 'TBR')
@@ -314,28 +312,9 @@ $sqlArr = $db->get();
             <?php
             if (arrFilter($sqlArr) === 0) {
               foreach ($sqlArr as $key => $value) {
-                // BIOS and kernel updated (check mark)
-                if ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] === 1)) {
-                echo "Online, no errors <span>&#10004;&#65039;</span>";
-                // BIOS and kernel out of date (x)
-                } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] !== 1)) {
-                echo "Online, kernel and BIOS out of date <span>&#10060;</span>";
-                // BIOS out of date, kernel updated (warning sign)
-                } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] === 1 && $value["bios_updated"] !== 1)) {
-                echo "Online, please update BIOS <span>&#9888;&#65039;</span>";
-                // BIOS updated, kernel out of date (x)
-                } elseif ($value["present_bool"] === 1 && ($value["kernel_updated"] !== 1 && $value["bios_updated"] === 1)) {
-                echo "Online, kernel out of date <span>&#10060;</span>)";
-                // Offline (x)
-                } elseif ($value["present_bool"] !== 1) {
-                echo "Offline <span>&#9940;</span>";
-                } else {
-                echo "Unknown <span>&#9940;&#65039;</span>";
-                }
+                echo "<p id='bios_kernel_updated'></p>";
 
-                if (strFilter($value["remote_status"]) === 0) {
-                  echo "<p><b>'" . htmlspecialchars($value["remote_status"]) . "'</b> at " . htmlspecialchars($value["remote_time_formatted"]) . "</p>" . PHP_EOL;
-                }
+                echo "<p id='remote_status'></p>";
               }
             } else {
               echo "Missing required info. Please plug into laptop server to gather information.<br>
@@ -901,7 +880,38 @@ if ( window.history.replaceState ) {
 window.history.replaceState( null, null, window.location.href );
 }
 
-setInterval(fetchData('/api/pages/job-queue.php'), 1000);
+setInterval( async function () { 
+  const response = await fetchData('/api/pages/job-queue.php?tagnumber=<?php echo htmlspecialchars($_GET["tagnumber"])?>');
+  //console.log(response);
+  newHTML = '';
+  Object.entries(response).forEach(([key, value]) => {
+    // BIOS and kernel updated (check mark)
+    if (response["present_bool"] === 1 && (response["kernel_updated"] === 1 && response["bios_updated"] === 1)) {
+      newHTML = "Online, no errors <span>&#10004;&#65039;</span>";
+    // BIOS and kernel out of date (x)
+    } else if (response["present_bool"] === 1 && (response["kernel_updated"] !== 1 && response["bios_updated"] !== 1)) {
+      newHTML = "Online, kernel and BIOS out of date <span>&#10060;</span>";
+    // BIOS out of date, kernel updated (warning sign)
+    } else if (response["present_bool"] === 1 && (response["kernel_updated"] === 1 && response["bios_updated"] !== 1)) {
+      newHTML = "Online, please update BIOS <span>&#9888;&#65039;</span>";
+    // BIOS updated, kernel out of date (x)
+    } else if (response["present_bool"] === 1 && (response["kernel_updated"] !== 1 && response["bios_updated"] === 1)) {
+      newHTML = "Online, kernel out of date <span>&#10060;</span>)";
+    // Offline (x)
+    } else if (response["present_bool"] !== 1) {
+      newHTML = "Offline <span>&#9940;</span>";
+    } else {
+      newHTML = "Unknown <span>&#9940;&#65039;</span>";
+    }
+    
+    document.getElementById('bios_kernel_updated').innerHTML = newHTML;
+
+    newHTML = '';
+    newHTML = '<b>' + response["remote_status"] + '</b> at ' + response["remote_time_formatted"];
+    document.getElementById('remote_status').innerHTML = newHTML;
+  });
+}, 1000); 
+
 </script>
 
 <script>

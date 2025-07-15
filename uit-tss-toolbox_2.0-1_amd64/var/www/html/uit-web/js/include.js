@@ -49,7 +49,7 @@ function getCursorPos(myElement) {
 
 
 // Autofill tag numbers
-function autoFillTags(input) {
+async function autoFillTags(input) {
   
 document.getElementById('dropdown-search').style.display = "none";
 document.getElementById('dropdown-search').innerHTML = "";
@@ -113,16 +113,15 @@ document.querySelector('body').addEventListener('click', () => {
 
 
 async function fetchData(url) {
-  const url = url;
   try {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }
 
-    const json = await response.json();
-    console.log(json);
+    const data = await response.json();
+    return(data);
   } catch (error) {
     console.error(error.message);
   }
-}
+};
