@@ -10,9 +10,12 @@ if (!isset($_GET["type"])) {
 // }
 
 $db = new db();
-$db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
-if (strFilter($db->get()) === 1) {
-  exit();
+
+if (isset($_GET["tagnumber"])) {
+  $db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
+  if (strFilter($db->get()) === 1) {
+    exit();
+  }
 }
 
 header("X-Accel-Buffering: no");
