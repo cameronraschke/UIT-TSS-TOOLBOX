@@ -90,58 +90,6 @@ unset($_POST);
           </form>
 
         </div>
-                <div class='styled-table'>
-          <table id='remoteStats'>
-            <thead>
-              <tr>
-                <th>Status of Online Clients</th>
-                <th></th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <?php
-              $db->select("CALL selectRemoteStats");
-                if (arrFilter($db->get()) === 0) {
-                foreach ($db->get() as $key => $value) {
-              ?>
-              <tr>
-              <td>Total Clients Present</td>
-              <td><?php echo htmlspecialchars($value['Present Laptops']); ?> </td>
-              </tr>
-              <tr>
-              <td>Average Battery Charge</td>
-              <td><?php echo htmlspecialchars($value['Avg. Battery Charge']); ?></td>
-              </tr>
-              <tr>
-              <td>Average CPU Temp</td>
-              <td><?php echo htmlspecialchars($value['Avg. CPU Temp']); ?></td>
-              </tr>
-              <tr>
-              <td>Average Disk Temp</td>
-              <td><?php echo htmlspecialchars($value['Avg. Disk Temp']); ?></td>
-              </tr>
-              <tr>
-              <td>Average Actual Power Draw</td>
-              <td><?php echo htmlspecialchars($value['Avg. Actual Power Draw']); ?></td>
-              </tr>
-              <tr>
-              <td>Total Actual Power Draw</td>
-              <td><?php echo htmlspecialchars($value['Actual Power Draw']); ?></td>
-              </tr>
-              <tr>
-              <td>Total Power Draw From Wall</td>
-              <td><?php echo htmlspecialchars($value['Power Draw from Wall']); ?></td>
-              </tr>
-              <tr>
-              <td>Sum of OS's Installed</td>
-              <td><?php echo htmlspecialchars($value['OS Installed Sum']); ?></td>
-              </tr>
-              <?php }} unset($value); ?>
-            </tbody>
-          </table>
-        </div>
-
       </div>
 
       <div class='column'>
@@ -162,18 +110,45 @@ unset($_POST);
       </div>
     </div>
 
-    <?php
-    $db->select("SELECT remote.tagnumber, 
+    <div id='remoteStats' class='pagetitle'>
+        <?php
+          $db->select("SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS 'tagnumber_count', CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS 'battery_charge_formatted', CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS 'cpu_temp_formatted', CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS 'disk_temp_formatted', CONCAT('(', SUM(client_health.os_installed), ')') AS 'os_installed_formatted', CONCAT('(', SUM(remote.watts_now), ' ', 'watts', ')') AS 'power_usage_formatted' FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.present_bool = 1");
+          foreach ($db->get() as $key => $value1) {
+        ?>
+      <h3>Online Clients <?php echo htmlspecialchars($value1["tagnumber_count"]); ?></h3>
+    </div>
+      <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 0% 1%;">
+
+      <table id="myTable" width="100%">
+        <thead>
+        <tr>
+        <th>Tag Number</th>
+        <th>Last Job Time</th>
+        <th>Location</th>
+        <th>Current Status</th>
+        <th>OS Installed <?php echo htmlspecialchars($value1["os_installed_formatted"]); ?></th>
+        <th>Battery Charge <?php echo htmlspecialchars($value1["battery_charge_formatted"]); ?></th>
+        <th>Uptime</th>
+        <th>CPU Temp <?php echo htmlspecialchars($value1["cpu_temp_formatted"]); ?></th>
+        <th>Disk Temp <?php echo htmlspecialchars($value1["disk_temp_formatted"]); ?></th>
+        <th>Power Usage <?php echo htmlspecialchars($value1["power_usage_formatted"]); ?></th>
+        </tr>
+        </thead>
+        <tbody>
+          <?php } 
+          unset($value1);?>
+        <?php
+      $db->select("SELECT remote.tagnumber, 
         IF (remote.status LIKE 'fail%', 1, 0) AS 'failstatus', t1.domain, 
         DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'time_formatted', locationFormatting(t3.location) AS 'location_formatted', 
         DATE_FORMAT(remote.last_job_time, '%m/%d/%y, %r') AS 'last_job_time_formatted', 
         remote.job_queued, remote.status, t2.queue_position, remote.present_bool, 
         client_health.os_name AS 'os_installed_formatted', client_health.os_installed , 
         client_health.bios_updated, IF (client_health.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', 
-        remote.kernel_updated, CONCAT(remote.battery_charge, '%') AS 'battery_charge', remote.battery_status, 
+        remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS 'battery_charge_formatted', 
         CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS 'uptime', 
         CONCAT(remote.cpu_temp, '°C') AS 'cpu_temp', CONCAT(remote.disk_temp, '°C') AS 'disk_temp', 
-        CONCAT(remote.watts_now, ' Watts') AS 'watts_now', remote.job_active
+        CONCAT(remote.watts_now, ' watts') AS 'watts_now', remote.job_active
       FROM remote 
       LEFT JOIN (SELECT s1.time, s1.tagnumber, s1.domain FROM (SELECT time, tagnumber, domain, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM locations) s1 WHERE s1.row_nums = 1) t1
         ON remote.tagnumber = t1.tagnumber
@@ -187,28 +162,6 @@ unset($_POST);
         failstatus DESC, ISNULL(job_queued) ASC, job_active DESC, queue_position ASC,
         FIELD (job_queued, 'data collection', 'update', 'nvmeVerify', 'nvmeErase', 'hpCloneOnly', 'hpEraseAndClone', 'findmy', 'shutdown', 'fail-test') DESC, 
         FIELD (status, 'Waiting for job', '%') ASC, os_installed DESC, kernel_updated DESC, bios_updated DESC, last_job_time DESC");
-    ?>
-    <div class='pagetitle'>
-      <h3>Online Clients</h3>
-    </div>
-      <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 0% 1%;">
-
-      <table id="myTable" width="100%">
-        <thead>
-        <tr>
-        <th>Tag Number</th>
-        <th>Last Job Time</th>
-        <th>Location</th>
-        <th>Current Status</th>
-        <th>OS Installed</th>
-        <th>Battery Charge</th>
-        <th>Uptime</th>
-        <th>CPU Temp</th>
-        <th>Disk Temp</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php
         if (arrFilter($db->get()) === 0) {
           foreach ($db->get() as $key => $value) {
         ?>
@@ -244,10 +197,11 @@ unset($_POST);
             <td id='presentStatus'><?php echo htmlspecialchars($value["status"]); ?></td>
             <td id='osInstalled'><?php echo htmlspecialchars($value["os_installed_formatted"]); if ($value["os_installed"] === 1 && strFilter($value["domain"]) === 0) { echo "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>"; }?>
             </td>
-            <td><?php echo htmlspecialchars($value["battery_charge"]); ?>(<?php echo $value["battery_status"]; ?>)</td>
+            <td><?php echo htmlspecialchars($value["battery_charge_formatted"]); ?></td>
             <td id='uptime'><?php echo htmlspecialchars($value["uptime"]); ?></td>
             <td id='presentCPUTemp'><?php echo htmlspecialchars($value["cpu_temp"]); ?></td>
             <td id='presentDiskTemp'><?php echo htmlspecialchars($value["disk_temp"]); ?></td>
+            <td><?php echo htmlspecialchars($value["watts_now"]); ?></td>
           </tr>
           <?php 
           //Close Loop
