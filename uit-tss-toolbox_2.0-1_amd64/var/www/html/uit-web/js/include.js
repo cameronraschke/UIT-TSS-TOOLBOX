@@ -127,9 +127,15 @@ async function fetchData(url) {
 };
 
 
-async function fetchSSE (type) {
+async function fetchSSE (type, tag = undefined) {
   return new Promise((resolve, reject) => {
-    const sse = new EventSource("/api/sse.php?type=" + type);
+
+    if (tag === undefined) {
+      const sse = new EventSource("/api/sse.php?type=" + type);
+    } else {
+      const sse = new EventSource("/api/sse.php?type=" + type + "&tagnumber=" + tag);
+    }
+
     sse.addEventListener("server_time", (event) => { 
       const ret = JSON.parse(event.data);
       resolve(ret);

@@ -31,6 +31,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
 <body onload="fetchHTML();charCount();">
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
   <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
+  <div class='pagetitle'><h2 id='server_time'></h2></div>
 
   <div class='row'>
   <div class='column'>
@@ -465,11 +466,18 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
     unset($value);
     ?>
 
-async function getSSE() { 
-  const response = await fetchSSE("server_time");
-}
+async function parseSSE() { 
+  const response = await fetchSSE("job_queue", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
+    newHTML = '';
+    Object.entries(response).forEach(([key, value]) => {
+      newHTML = "Server time: " + response["server_time"];
+      document.getElementById('server_time').innerHTML = newHTML;
+    });
+  };
 
-getSSE();
+parseSSE();
+setInterval(parseSSE, 3000);
+
 
     document.getElementById('dropdown-search').style.display = "none";
     document.getElementById('dropdown-search').innerHTML = "";

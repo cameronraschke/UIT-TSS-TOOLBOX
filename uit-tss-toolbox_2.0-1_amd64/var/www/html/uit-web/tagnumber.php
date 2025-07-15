@@ -880,10 +880,9 @@ if ( window.history.replaceState ) {
 window.history.replaceState( null, null, window.location.href );
 }
 
-if (document.hasFocus()) {
-  setInterval( async function () { 
-    const response = await fetchData('/api/pages/job-queue.php?tagnumber=<?php echo htmlspecialchars($_GET["tagnumber"]); ?>&password=<?php echo md5('WEB_SVC_PASSWD'); ?>');
-    //console.log(response);
+
+async function parseSSE() { 
+  const response = await fetchSSE("job_queue", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
     newHTML = '';
     Object.entries(response).forEach(([key, value]) => {
       // BIOS and kernel updated (check mark)
@@ -911,8 +910,11 @@ if (document.hasFocus()) {
       newHTML = '<b>"' + response["remote_status"] + '"</b> at ' + response["remote_time_formatted"];
       document.getElementById('remote_status').innerHTML = newHTML;
     });
-  }, 3000);
-}
+  };
+
+parseSSE();
+setInterval(parseSSE, 3000);
+
 
 </script>
 
