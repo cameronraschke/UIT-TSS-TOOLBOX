@@ -125,3 +125,13 @@ async function fetchData(url) {
     console.error(error.message);
   }
 };
+
+
+async function fetchSSE(type) {
+  const sse = new EventSource("/api/event-listener.php?type=" + type);
+
+  sse.addEventListener("message", (event) => {
+    console.log(event.data);
+    return(event.data);
+  });
+};

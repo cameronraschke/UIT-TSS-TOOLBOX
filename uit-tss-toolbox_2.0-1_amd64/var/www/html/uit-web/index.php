@@ -465,6 +465,11 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
     unset($value);
     ?>
 
+async function () { 
+  const response = await fetchSSE("server_time");
+  console.log("Notice received:", response);
+}
+
     document.getElementById('dropdown-search').style.display = "none";
     document.getElementById('dropdown-search').innerHTML = "";
     autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);

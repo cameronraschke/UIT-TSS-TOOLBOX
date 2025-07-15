@@ -907,10 +907,10 @@ setInterval( async function () {
     document.getElementById('bios_kernel_updated').innerHTML = newHTML;
 
     newHTML = '';
-    newHTML = '<b>' + response["remote_status"] + '</b> at ' + response["remote_time_formatted"];
+    newHTML = '<b>"' + response["remote_status"] + '"</b> at ' + response["remote_time_formatted"];
     document.getElementById('remote_status').innerHTML = newHTML;
   });
-}, 1000); 
+}, 3000); 
 
 </script>
 
