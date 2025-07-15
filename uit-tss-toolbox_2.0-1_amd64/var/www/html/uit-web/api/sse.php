@@ -22,7 +22,7 @@ header("Cache-Control: no-cache");
 
 if ($_GET["type"] == "server_time") {
   $event = "server_time";
-  $data = json_encode(array('server-time' => date('r')));
+  $data = json_encode(array('server_time' => date('r')));
 }
 
 

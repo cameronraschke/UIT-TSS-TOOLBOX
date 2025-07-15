@@ -467,7 +467,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
     ?>
 
 async function parseSSE() { 
-  const response = await fetchSSE("job_queue", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
+  const response = await fetchSSE("server_time", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
     newHTML = '';
     Object.entries(response).forEach(([key, value]) => {
       newHTML = "Server time: " + response["server_time"];
