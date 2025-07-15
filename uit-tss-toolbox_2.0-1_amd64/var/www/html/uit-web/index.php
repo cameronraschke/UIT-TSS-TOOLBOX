@@ -465,10 +465,12 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
     unset($value);
     ?>
 
-async function () { 
+async function SSE () { 
   const response = await fetchSSE("server_time");
   console.log("Notice received:", response);
 }
+
+SSE();
 
     document.getElementById('dropdown-search').style.display = "none";
     document.getElementById('dropdown-search').innerHTML = "";

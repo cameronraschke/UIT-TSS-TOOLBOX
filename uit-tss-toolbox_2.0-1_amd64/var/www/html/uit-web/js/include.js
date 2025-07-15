@@ -128,10 +128,31 @@ async function fetchData(url) {
 
 
 async function fetchSSE(type) {
-  const sse = new EventSource("/api/event-listener.php?type=" + type);
+  const sse = new EventSource("/api/sse.php?type=" + type);
 
-  sse.addEventListener("message", (event) => {
+  sse.addEventListener(type, (event) => {
+    const channel = new BroadcastChannel('my_bus');
+    channel.postMessage(new String(event.data));
     console.log(event.data);
     return(event.data);
   });
+};
+
+
+function logout() {
+  window.location.href = "/logout.php";
+}
+
+const authChannel = new BroadcastChannel('auth');
+
+const button = document.querySelector('#logout');
+button.addEventListener('click', e => {
+  logout();
+  authChannel.postMessage({cmd: 'logout'});
+});
+
+authChannel.onmessage = function(e) {
+  if (e.data.cmd === 'logout') {
+  logout();
+  }
 };
