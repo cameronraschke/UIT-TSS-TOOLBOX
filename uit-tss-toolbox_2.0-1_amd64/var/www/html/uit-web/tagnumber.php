@@ -901,25 +901,7 @@ if ( window.history.replaceState ) {
 window.history.replaceState( null, null, window.location.href );
 }
 
-// function fetchHTML() {
-// const var1 = setTimeout(function() {
-// fetch('/tagnumber.php?tagnumber=<?php echo $_GET['tagnumber']; ?>')
-// .then((response) => {
-// return response.text();
-// })
-// .then((html) => {
-// //document.body.innerHTML = html
-// const parser = new DOMParser()
-// const doc = parser.parseFromString(html, "text/html")
-// // update current job and status
-// const curJob = doc.getElementById('curJob').innerHTML
-// document.getElementById("curJob").innerHTML = curJob
-// // update all other tables
-// const updateDiv1 = doc.getElementById('updateDiv1').innerHTML
-// document.getElementById("updateDiv1").innerHTML = updateDiv1
-// });
-// fetchHTML();
-// }, 3000)}
+setInterval(fetchData('/api/pages/job-queue.php'), 1000);
 </script>
 
 <script>
