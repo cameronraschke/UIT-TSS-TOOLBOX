@@ -127,16 +127,19 @@ async function fetchData(url) {
 };
 
 
-async function fetchSSE(type) {
-  const sse = new EventSource("/api/sse.php?type=" + type);
-
-  sse.addEventListener(type, (event) => {
-    const channel = new BroadcastChannel('my_bus');
-    channel.postMessage(new String(event.data));
-    console.log(event.data);
-    return(event.data);
+async function fetchSSE (type) {
+  return new Promise((resolve, reject) => {
+    const sse = new EventSource("/api/sse.php?type=" + type);
+    sse.addEventListener("server_time", (event) => { 
+      const ret = JSON.parse(event.data);
+      resolve(ret);
+    });
+    sse.onerror = (error) => {
+      reject(error);
+      sse.close();
+    };
   });
-};
+}
 
 
 function logout() {
@@ -147,12 +150,12 @@ const authChannel = new BroadcastChannel('auth');
 
 const button = document.querySelector('#logout');
 button.addEventListener('click', e => {
-  logout();
   authChannel.postMessage({cmd: 'logout'});
+  logout();
 });
 
 authChannel.onmessage = function(e) {
   if (e.data.cmd === 'logout') {
-  logout();
+    logout();
   }
 };
