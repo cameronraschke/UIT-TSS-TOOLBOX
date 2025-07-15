@@ -131,9 +131,9 @@ async function fetchSSE (type, tag = undefined) {
   return new Promise((resolve, reject) => {
 
     if (tag === undefined) {
-      const sse = new EventSource("/api/sse.php?type=" + type);
+      var sse = new EventSource("/api/sse.php?type=" + type);
     } else {
-      const sse = new EventSource("/api/sse.php?type=" + type + "&tagnumber=" + tag);
+      var sse = new EventSource("/api/sse.php?type=" + type + "&tagnumber=" + tag);
     }
 
     sse.addEventListener("server_time", (event) => { 
