@@ -925,6 +925,8 @@ setInterval( async function () {
   unset($value);
   ?>
 
+document.getElementById('dropdown-search').style.display = "none";
+document.getElementById('dropdown-search').innerHTML = "";
 autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
 </script>
 

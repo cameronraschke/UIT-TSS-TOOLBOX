@@ -180,6 +180,8 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
   unset($value);
   ?>
 
+document.getElementById('dropdown-search').style.display = "none";
+document.getElementById('dropdown-search').innerHTML = "";
 autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
 </script>
 
