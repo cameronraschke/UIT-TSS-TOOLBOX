@@ -571,7 +571,7 @@ $sqlArr = $db->get();
               }
               echo "<div style='padding: 1em 1px 1px 1px;'>";
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
-                echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"window.open('/view-images.php?download=1&tagnumber=" . $image["tagnumber"] . "&uuid=" . htmlspecialchars($image["uuid"]) . "', '_blank');\" src='data:image/jpeg;base64," . $image["thumbnail"] . "'></img>";
+                echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"window.open('/view-images.php?view=1&tagnumber=" . $image["tagnumber"] . "&uuid=" . htmlspecialchars($image["uuid"]) . "', '_blank');\" src='data:image/jpeg;base64," . $image["thumbnail"] . "'></img>";
               } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["thumbnail"] . "' /></video>";
               }

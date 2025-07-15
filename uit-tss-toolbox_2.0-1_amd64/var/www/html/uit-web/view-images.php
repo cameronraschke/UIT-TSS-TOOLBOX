@@ -48,11 +48,19 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
   unset($value);
 }
 
+if (isset($_GET["uuid"]) && $_GET["view"] == "1") {
+  $db->Pselect("SELECT uuid, mime_type, image FROM client_images WHERE uuid = :uuid", array(':uuid' => $_GET["uuid"]));
+  foreach ($db->get() as $key => $value) {
+    echo "<html><head><script src='/js/include.js'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
+  }
+  unset($value);
+  exit();
+}
+
 if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
   $db->Pselect("SELECT uuid, mime_type, image FROM client_images WHERE uuid = :uuid", array(':uuid' => $_GET["uuid"]));
   foreach ($db->get() as $key => $value) {
     if ($value["mime_type"] == "image/jpeg") {
-      //echo "<html><head><script src='/js/include.js'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
       header("Content-type: " . $value["mime_type"]);
       header("Content-Disposition: attachment; filename=" . $value["uuid"] . ".jpeg");
       header("Content-length: " . strlen(base64_decode($value["image"])));
