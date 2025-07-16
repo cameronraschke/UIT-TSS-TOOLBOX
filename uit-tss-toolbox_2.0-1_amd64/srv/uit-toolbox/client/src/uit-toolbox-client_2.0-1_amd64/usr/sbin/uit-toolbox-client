@@ -467,7 +467,7 @@ function footer {
 		batCharge="0"
 	fi
 
-	sqlOS=$(printf '%s' "SELECT os_name FROM client_health WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select 2>/dev/null)
+	sqlOS=$(printf '%s' "SELECT os_name AS 'result' FROM client_health WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select 2>/dev/null)
 	batCharge=${GREEN}${batCharge}${RESET}
 	tput reset
 	lines=$(tput lines)
@@ -476,7 +476,7 @@ function footer {
 	printf '%s%s%s%s\n' "Tag: ${tagNum}, Serial: ${systemSerial}, Location: \"${sqlLocation}\", Time:" $(date "+%m/%d/%y") $(date "+%r") "${RESET}"
 	tput cup $(( lines - 3 )) 0
 	tput el 
-	printf '%s\n' "Battery: ${GREEN}${batCharge}${RESET}, BIOS: ${biosUpdated}${RESET}, OS: ${BLUE}${sqlOS}${RESET}"
+	printf '%s\n' "Battery: ${GREEN}${batCharge}%${RESET}, BIOS: ${biosUpdated}${RESET}, OS: ${BLUE}${sqlOS}${RESET}"
 	tput cup $(( lines - 2 )) 0
 	tput el
 	printf '%s\n' "${DIM}UIT-Toolbox Client by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"
