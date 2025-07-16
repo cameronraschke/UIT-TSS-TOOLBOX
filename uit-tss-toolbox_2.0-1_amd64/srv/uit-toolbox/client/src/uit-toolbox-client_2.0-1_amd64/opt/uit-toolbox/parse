@@ -242,9 +242,25 @@ if ($arr[0] == "live_images") {
     $value = $arr[3];
 
     $db->Pselect("SELECT tagnumber FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $tagNum));
-    if (strFilter($db->get() === 1)) {
+    if (strFilter($db->get()) === 1) {
         $db->insertLiveImages($tagNum);
     }
+
+  if ($arr[3] == "screenshot") {
+    $fd = fopen('/tmp/screenshot.png', 'c');
+    fwrite($fd, base64_decode($value));
+    $imageObject = imagecreatefromstring(fread($fd));
+    fclose($fd);
+    if ($imageObject !== false) {
+      ob_start();
+      imagejpeg($imageObject, NULL, 30);
+      $imageBuffer = ob_get_clean();
+      $imageFileConverted = base64_encode($imageBuffer);
+      $value = $imageFileConverted;
+      unset($imageBuffer);
+      imagedestroy($imageObject);
+    }
+  }
 
     $db->updateLiveImages($tagNum, $key, $value);
     $db->updateLiveImages($tagNum, "time", $time);

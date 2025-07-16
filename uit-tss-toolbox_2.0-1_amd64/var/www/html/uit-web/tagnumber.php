@@ -302,66 +302,71 @@ $sqlArr = $db->get();
     <?php echo "<div class='page-content'><h3>Update Queued Job and Location Data - <u>" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u></h3></div>"; ?>
 
     <div class='row'>
-
       <div class='column'>
         <div class='location-form'>
-
-          <div name='curJob' id='curJob'>
-            <p>Real-time Job Status: </p>
-            <?php
-            if (arrFilter($sqlArr) === 0) {
-              foreach ($sqlArr as $key => $value) {
-                echo "<p id='bios_kernel_updated'></p>";
-
-                echo "<p id='remote_status'></p>";
-              }
-            } else {
-              echo "Missing required info. Please plug into laptop server to gather information.<br>
-              To update the location, please update it from the <a href='/locations.php'>locations page</a>";
-            }
-            ?>
-          </div>
-          
-          <div>
-            <form name="job_queued_form" method="post">
-              <div><label for='tagnumber'>Enter a job to queue: </label></div>
-              <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
-              <div><select name="job_queued">
+          <div class='row'>
+            <div class='column'>
+              <div name='curJob' id='curJob'>
+                <p>Real-time Job Status: </p>
                 <?php
-                // Get/set current jobs.
-                if ($_GET['tagnumber'] && arrFilter($sqlArr) === 0) {
-                  $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-                  if (arrFilter($db->get()) === 0 ) {
-                    $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
-                      IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted',
-                      IF (remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
-                      FROM remote 
-                      INNER JOIN static_job_names 
-                      ON remote.job_queued = static_job_names.job 
-                      WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-                    if (arrFilter($db->get()) === 0) {
-                      foreach ($db->get() as $key => $value1) {
-                        echo "<option value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
-                      }
-                      unset($value1);
-                    }
-                    echo "<option value=''>--Select Job Below--</option>" . PHP_EOL;
-                    $db->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 AND NOT job IN (SELECT IF (remote.job_queued IS NULL, '', remote.job_queued) FROM remote WHERE remote.tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
-                    foreach ($db->get() as $key => $value2) {
-                      echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
-                    }
-                    unset($value2);
-                    unset($value);
+                if (arrFilter($sqlArr) === 0) {
+                  foreach ($sqlArr as $key => $value) {
+                    echo "<p id='bios_kernel_updated'></p>";
+
+                    echo "<p id='remote_status'></p>";
                   }
                 } else {
-                  echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " missing info :((</option>";
+                  echo "<p>Missing required info. Please plug into laptop server to gather information.
+                  To update the location, please update it from the <a href='/locations.php'>locations page</a></p>";
                 }
                 ?>
-              </select>
-              <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Queue Job</button></div>
-            </form>
+              </div>
+              <div style='padding-left: 0;'>
+                <form name="job_queued_form" method="post">
+                  <div style='padding-left: 0;'><label for='tagnumber'>Enter a job to queue: </label></div>
+                  <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
+                  <div style='padding-left: 0;'><select name="job_queued">
+                    <?php
+                    // Get/set current jobs.
+                    if ($_GET['tagnumber'] && arrFilter($sqlArr) === 0) {
+                      $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+                      if (arrFilter($db->get()) === 0 ) {
+                        $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
+                          IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted',
+                          IF (remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
+                          FROM remote 
+                          INNER JOIN static_job_names 
+                          ON remote.job_queued = static_job_names.job 
+                          WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
+                        if (arrFilter($db->get()) === 0) {
+                          foreach ($db->get() as $key => $value1) {
+                            echo "<option value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
+                          }
+                          unset($value1);
+                        }
+                        echo "<option value=''>--Select Job Below--</option>" . PHP_EOL;
+                        $db->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 AND NOT job IN (SELECT IF (remote.job_queued IS NULL, '', remote.job_queued) FROM remote WHERE remote.tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
+                        foreach ($db->get() as $key => $value2) {
+                          echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
+                        }
+                        unset($value2);
+                        unset($value);
+                      }
+                    } else {
+                      echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " missing info :((</option>";
+                    }
+                    ?>
+                  </select>
+                  <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Queue Job</button></div>
+                </form>
+              </div>
+            </div>
+            <div class='column'>
+              <div id='live_image'></div>
+            </div>
           </div>
         </div>
+          
 
         <div class='location-form'>
           <form enctype="multipart/form-data" method="POST">

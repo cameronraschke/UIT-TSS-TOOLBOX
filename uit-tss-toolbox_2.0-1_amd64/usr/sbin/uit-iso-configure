@@ -193,6 +193,8 @@ chrony
 netcat-traditional
 iperf3
 fbgrab
+php-gd
+ffmpeg
 EOF
 
 mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root/
