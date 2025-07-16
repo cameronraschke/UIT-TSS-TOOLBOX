@@ -473,7 +473,7 @@ function footer {
 	lines=$(tput lines)
 	tput cup $(( lines - 4 )) 0
 	tput el
-	printf '%s%s%s%s\n' "Tag: ${tagNum}, Serial: ${systemSerial}, Location: \"${sqlLocation}\", Time:" $(date "+%m/%d/%y") $(date "+%r") "${RESET}"
+	printf '%s%s %s%s\n' "Tag: ${tagNum}, Serial: ${systemSerial}, Location: \"${sqlLocation}\", Time:" $(date "+%m/%d/%y") $(date "+%r") "${RESET}"
 	tput cup $(( lines - 3 )) 0
 	tput el 
 	printf '%s\n' "Battery: ${GREEN}${batCharge}%${RESET}, BIOS: ${biosUpdated}${RESET}, OS: ${BLUE}${sqlOS}${RESET}"

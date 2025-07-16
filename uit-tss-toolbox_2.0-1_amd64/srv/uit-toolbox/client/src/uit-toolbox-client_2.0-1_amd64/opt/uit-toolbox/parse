@@ -248,7 +248,7 @@ if ($arr[0] == "live_images") {
 
   if ($arr[2] == "screenshot") {
     $fileName = '/tmp/screenshot.png';
-    $fd = fopen($fileName, 't');
+    $fd = fopen($fileName, 'c+');
     fwrite($fd, base64_decode($value));
     $imageObject = imagecreatefromstring(fread($fd, filesize($fileName)));
     fclose($fd);
