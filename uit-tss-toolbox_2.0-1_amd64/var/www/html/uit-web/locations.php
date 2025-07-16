@@ -175,7 +175,6 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     
     ?>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
   </head>
   <body>
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
@@ -981,6 +980,7 @@ unset($value1);
         </tbody>
       </table>
     </div>
+    <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
     <script>
       function getCursorPos(myElement) {
         let startPosition = myElement.selectionStart;
@@ -1233,6 +1233,5 @@ unset($value1);
     <div class="uit-footer">
         <img src="/images/uh-footer.svg">
     </div>
-
   </body>
 </html>

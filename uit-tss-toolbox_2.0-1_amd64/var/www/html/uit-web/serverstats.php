@@ -16,7 +16,6 @@ $db = new db();
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
         <title>Daily Reports - UIT Client Mgmt</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-        <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
     </head>
     <body>
       <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
@@ -109,7 +108,7 @@ if (arrFilter($db->get()) === 0) {
             </tbody>
         </table>
         </div>
-
+<script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
   <script>
     <?php
     $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");

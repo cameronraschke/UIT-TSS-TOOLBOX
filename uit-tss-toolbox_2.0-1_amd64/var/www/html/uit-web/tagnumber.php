@@ -215,7 +215,6 @@ unset($_POST);
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <title><?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " - UIT Client Mgmt"; ?></title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
   </head>
   <!--<body onload="fetchHTML()">-->
   <body>
@@ -874,7 +873,7 @@ unset($value1);
 </tbody>
 </table>
 </div>
-
+<script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
 <script>
 if ( window.history.replaceState ) {
 window.history.replaceState( null, null, window.location.href );

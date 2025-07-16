@@ -84,7 +84,6 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <title><?php echo "Images - " . htmlspecialchars($_GET['tagnumber']) . " - UIT Client Mgmt"; ?></title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
   </head>
   <body>
 
@@ -168,7 +167,7 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
         }
         ?>
 </div>
-
+<script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
 <script>
   <?php
   $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");

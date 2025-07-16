@@ -151,8 +151,7 @@ function logout() {
   window.location.href = "/logout.php";
 };
 
-var authChannel = new BroadcastChannel('auth');
-
+const authChannel = new BroadcastChannel('auth');
 authChannel.onmessage = function(event) {
   console.log(event);
   if (event.data.cmd === 'logout') {
@@ -160,10 +159,13 @@ authChannel.onmessage = function(event) {
   }
 };
 
-var button = document.querySelector('#logout');
-
+const button = document.querySelector('#logout');
 button.addEventListener('click', e => {
+  console.log('logout');
   authChannel.postMessage({cmd: 'logout'});
   logout();
 });
 
+function test() { 
+  console.log('test');
+}
