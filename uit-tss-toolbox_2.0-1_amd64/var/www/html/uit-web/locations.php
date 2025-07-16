@@ -175,7 +175,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     
     ?>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <script src="/js/include.js"></script>
+    <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
   </head>
   <body>
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>

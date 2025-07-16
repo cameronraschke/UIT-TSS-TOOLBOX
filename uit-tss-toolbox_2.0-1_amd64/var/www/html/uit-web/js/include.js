@@ -11,19 +11,18 @@ function newLocationWindow(location, tagnumber, department = undefined, domain =
       openedWindow = window.location.assign("/locations.php?ref=1&location=" + location + "&tagnumber=" + tagnumber);
     }
   }
+};
 
-}
+// function closeLocationWindow() {
+//   openedWindow.close();
+// }
 
-function closeLocationWindow() {
-  openedWindow.close();
-}
-
-openedWindow.addEventListener('DOMContentLoaded', () => {
-    const closeButton = openedWindow.document.getElementById('closeButton');
-    closeButton.addEventListener('click', () => {
-        window.close();
-    });
-});
+// openedWindow.addEventListener('DOMContentLoaded', () => {
+//     const closeButton = openedWindow.document.getElementById('closeButton');
+//     closeButton.addEventListener('click', () => {
+//         window.close();
+//     });
+// });
 
 function openImage(imageData) {
   const byteCharacters = atob(imageData);
@@ -145,23 +144,26 @@ async function fetchSSE (type, tag = undefined) {
       sse.close();
     };
   });
-}
+};
 
 
 function logout() {
   window.location.href = "/logout.php";
-}
+};
 
-const authChannel = new BroadcastChannel('auth');
+var authChannel = new BroadcastChannel('auth');
 
-const button = document.querySelector('#logout');
+authChannel.onmessage = function(event) {
+  console.log(event);
+  if (event.data.cmd === 'logout') {
+    logout();
+  }
+};
+
+var button = document.querySelector('#logout');
+
 button.addEventListener('click', e => {
   authChannel.postMessage({cmd: 'logout'});
   logout();
 });
 
-authChannel.onmessage = function(e) {
-  if (e.data.cmd === 'logout') {
-    logout();
-  }
-};

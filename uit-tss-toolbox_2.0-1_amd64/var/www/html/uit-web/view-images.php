@@ -51,7 +51,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
 if (isset($_GET["uuid"]) && $_GET["view"] == "1") {
   $db->Pselect("SELECT uuid, mime_type, image FROM client_images WHERE uuid = :uuid", array(':uuid' => $_GET["uuid"]));
   foreach ($db->get() as $key => $value) {
-    echo "<html><head><script src='/js/include.js'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
+    echo "<html><head><script src='/js/include.js?" . echo filemtime('js/include.js') . "'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
   }
   unset($value);
   exit();
@@ -84,7 +84,7 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <title><?php echo "Images - " . htmlspecialchars($_GET['tagnumber']) . " - UIT Client Mgmt"; ?></title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <script src="/js/include.js"></script>
+    <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
   </head>
   <body>
 
