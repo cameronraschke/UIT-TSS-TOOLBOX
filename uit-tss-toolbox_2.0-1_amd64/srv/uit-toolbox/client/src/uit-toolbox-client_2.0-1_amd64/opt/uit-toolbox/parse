@@ -236,4 +236,18 @@ if ($arr[0] == "client_health") {
     $db->updateClientHealth($tagNum, $key, $value);
 }
 
+if ($arr[0] == "live_images") {
+    $tagNum = $arr[1];
+    $key = $arr[2];
+    $value = $arr[3];
+
+    $db->Pselect("SELECT tagnumber FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $tagNum));
+    if (strFilter($db->get() === 1)) {
+        $db->insertLiveImages($tagNum);
+    }
+
+    $db->updateLiveImage($tagNum, $key, $value);
+    $db->updateLiveImage($tagNum, "time", $time);
+}
+
 ?>

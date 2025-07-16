@@ -99,7 +99,7 @@ for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
     fi
 done
 
-#fbgrab
+echo "live_images|screenshot|${tagNum}|$(fbgrab - )" | /opt/uit-toolbox/parse
 
 # Sleep before next loop
 sleep 5
