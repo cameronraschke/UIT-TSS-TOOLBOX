@@ -38,7 +38,7 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
   echo "</head>
   <body>
   <div style='width: fit-content; margin-left: auto; margin-right: auto;'>
-    <img id='live_image' style='position: relative; cursor: pointer; max-width: 90%; max-height: 80vh;' onclick=\"openImage(document.getElementById('live_image').getAttribute('src').substring(document.getElementById('live_image').getAttribute('src').indexOf(',') + 1));\" src='' />
+    <img id='live_image' style='position: relative; cursor: pointer; max-width: 90%; max-height: 75vh;' onclick=\"openImage(document.getElementById('live_image').getAttribute('src').substring(document.getElementById('live_image').getAttribute('src').indexOf(',') + 1));\" src='' />
   </div>
   <script src='/js/include.js?" . filemtime('js/include.js') . "'></script>
   <script>

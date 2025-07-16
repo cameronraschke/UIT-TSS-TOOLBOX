@@ -137,12 +137,16 @@ async function fetchSSE (type, tag = undefined) {
     }
 
     sse.addEventListener("server_time", (event) => { 
-      const ret = JSON.parse(event.data);
-      resolve(ret);
+      if (event.data !== undefined) {
+        const ret = JSON.parse(event.data);
+        resolve(ret);
+      }
     });
     sse.addEventListener("live_image", (event) => { 
-      const ret = JSON.parse(event.data);
-      resolve(ret);
+      if (event.data !== undefined) {
+        const ret = JSON.parse(event.data);
+        resolve(ret);
+      }
     });
     sse.onerror = (error) => {
       reject(error);
