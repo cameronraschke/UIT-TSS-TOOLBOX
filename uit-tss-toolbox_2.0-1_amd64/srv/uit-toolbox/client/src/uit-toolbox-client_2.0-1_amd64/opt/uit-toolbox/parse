@@ -246,8 +246,8 @@ if ($arr[0] == "live_images") {
         $db->insertLiveImages($tagNum);
     }
 
-    $db->updateLiveImage($tagNum, $key, $value);
-    $db->updateLiveImage($tagNum, "time", $time);
+    $db->updateLiveImages($tagNum, $key, $value);
+    $db->updateLiveImages($tagNum, "time", $time);
 }
 
 ?>
