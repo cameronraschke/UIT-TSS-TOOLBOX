@@ -192,6 +192,7 @@ bc
 chrony
 netcat-traditional
 iperf3
+fbgrab
 EOF
 
 mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root/

@@ -1,5 +1,6 @@
 #!/bin/bash
 while true; do
+SECONDS=0
 serial=$(dmidecode --string system-serial-number)
 tagNum=$(echo "SELECT tagnumber AS 'result' FROM locations WHERE system_serial = '${serial}' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /opt/uit-toolbox/parse
@@ -98,6 +99,8 @@ for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
     fi
 done
 
+#fbgrab
+
 # Sleep before next loop
 sleep 5
 
@@ -107,7 +110,7 @@ if [[ -z $elapsed ]]; then
     elapsed=0
 fi
 
-elapsed=$(( elapsed + 5 ))
+elapsed=$(( elapsed + SECONDS ))
 echo "${elapsed}" > /root/uptime
 echo "remote|${tagNum}|uptime|${elapsed}" | /opt/uit-toolbox/parse
 

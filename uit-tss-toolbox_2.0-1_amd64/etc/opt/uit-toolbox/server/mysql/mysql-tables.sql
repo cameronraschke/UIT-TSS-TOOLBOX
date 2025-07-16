@@ -462,6 +462,12 @@ CREATE TABLE IF NOT EXISTS client_images (
     primary_image BOOLEAN DEFAULT NULL
 );
 
+CREATE TABLE IF NOT EXISTS live_images (
+    tagnumber VARCHAR(6) NOT NULL PRIMARY KEY,
+    time DATETIME(3) DEFAULT NULL,
+    screenshot MEDIUMBLOB DEFAULT NULL
+);
+
 DROP TABLE IF EXISTS static_departments;
 CREATE TABLE IF NOT EXISTS static_departments (
   department VARCHAR(128) NOT NULL PRIMARY KEY,
