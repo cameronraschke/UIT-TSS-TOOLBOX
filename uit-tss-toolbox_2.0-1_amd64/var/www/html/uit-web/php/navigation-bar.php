@@ -76,6 +76,10 @@
       echo "<h3 class='header-title'><img class='icon' src='/images/new-tab.svg'><a href='/documentation/pages.php?page=serverstats' target='_blank'>Documentation</a></h3>";
     }
 
+    if ($_SERVER['PHP_SELF'] == "/view-images.php") {
+      echo "<h1 class='header-title'>View Client Images</h1>";
+    }
+
     // DOCUMENTATION
     if ($_SERVER['REQUEST_URI'] == "/documentation/pages.php?page=supported-emojis") {
       echo "<h1 class='header-title'>Supported Emojis</h1>";

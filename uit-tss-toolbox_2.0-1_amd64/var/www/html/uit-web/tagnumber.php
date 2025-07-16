@@ -362,7 +362,7 @@ $sqlArr = $db->get();
               </div>
             </div>
             <div class='column'>
-              <div id='live_image'></div>
+              <div id='live_image' style='width: fit-content;'></div>
             </div>
           </div>
         </div>
@@ -887,7 +887,6 @@ window.history.replaceState( null, null, window.location.href );
 
 async function parseSSE() { 
   const jobQueue = await fetchSSE("job_queue", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
-  const liveImage = await fetchSSE("live_image", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
     newHTML = '';
     Object.entries(jobQueue).forEach(([key, value]) => {
       // BIOS and kernel updated (check mark)
@@ -916,10 +915,11 @@ async function parseSSE() {
       document.getElementById('remote_status').innerHTML = newHTML;
     });
 
+    const liveImage = await fetchSSE("live_image", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
     newHTML = '';
     Object.entries(liveImage).forEach(([key, value]) => {
-    newHTML = "<img src='data:image/jpeg;base64," + $liveImage["screenshot"] + "'>";
-    document.getElementById('live-image').innerHTML = newHTML;
+    newHTML = "<img style='max-width: 100%; cursor: pointer;' onclick=\"window.open('/view-images.php?live_image=1&tagnumber=<?php echo htmlspecialchars($_GET["tagnumber"]); ?>', '_blank')\" src='data:image/jpeg;base64," + liveImage["screenshot"] + "'>";
+    document.getElementById('live_image').innerHTML = newHTML;
     });
   };
 

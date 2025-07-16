@@ -140,6 +140,10 @@ async function fetchSSE (type, tag = undefined) {
       const ret = JSON.parse(event.data);
       resolve(ret);
     });
+    sse.addEventListener("live_image", (event) => { 
+      const ret = JSON.parse(event.data);
+      resolve(ret);
+    });
     sse.onerror = (error) => {
       reject(error);
       sse.close();

@@ -29,7 +29,7 @@ if ($_GET["type"] == "server_time") {
 }
 
 
-if ($_GET["type"] == "job_queue") { 
+if ($_GET["type"] == "job_queue" && isset($_GET["tagnumber"])) { 
   $db->Pselect("SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, remote.status AS 'remote_status', DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'remote_time_formatted' FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
   foreach ($db->get() as $key => $value) {
     $event = "server_time";
@@ -39,7 +39,7 @@ if ($_GET["type"] == "job_queue") {
 }
 
 if ($_GET["type"] == "live_image" && isset($_GET["tagnumber"])) {
-  $db->Pselect("SELECT time, screenshot FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"])) {
+  $db->Pselect("SELECT time, screenshot FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
   foreach ($db->get() as $key => $value) {
     $event = "live_image";
     $data = json_encode($value);

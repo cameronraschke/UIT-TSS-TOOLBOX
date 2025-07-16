@@ -468,9 +468,12 @@ function footer {
 	fi
 	tput reset
 	lines=$(tput lines)
-	tput cup $(( lines - 3 )) 0
+	tput cup $(( lines - 4 )) 0
 	tput el
-	printf '%s\n' "Tag: ${tagNum}, Serial: ${systemSerial}, BIOS: ${biosUpdated}, Location: \"${sqlLocation}\", Battery: ${batCharge}%${RESET}"
+	printf '%s%s%s\n' "Tag: ${tagNum}, Serial: ${systemSerial}, Location: \"${sqlLocation}\", "  "Time:" $(date "+%m/%d/%y %H:%M:%S") "${RESET}"
+	tput cup $(( lines - 3 )) 0
+	tput el 
+	printf '%s\n' "Battery: ${batCharge}, "BIOS: ${biosUpdated}"
 	tput cup $(( lines - 2 )) 0
 	tput el
 	printf '%s\n' "${DIM}UIT-Toolbox Client by ${RESET}Cameron Raschke${DIM} (caraschke@uh.edu). ${RESET}${RED}Go coogs!!${RESET}"

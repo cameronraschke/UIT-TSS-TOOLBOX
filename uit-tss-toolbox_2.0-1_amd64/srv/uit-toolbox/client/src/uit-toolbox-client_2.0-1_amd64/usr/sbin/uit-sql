@@ -102,7 +102,7 @@ done
 printf '%s%s' "live_images|${tagNum}|screenshot|" $(fbgrab - | base64) | /opt/uit-toolbox/parse
 
 # Sleep before next loop
-sleep 5
+sleep 3
 
 elapsed=0
 elapsed=$(cat /root/uptime)

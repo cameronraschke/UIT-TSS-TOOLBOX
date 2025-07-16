@@ -18,37 +18,58 @@ if ($_SESSION['authorized'] != "yes") {
   exit();
 }
 
+$db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
+if (arrFilter($db->get()) === 0) {
+  foreach ($db->get() as $key => $value) {
+    $tagStr .= $value["tagnumber"] . "|";
+  }
+}
+unset($value);
+
 if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tagnumber"]) && strFilter($_GET["tagnumber"]) === 0) {
-  "<!DOCTYPE html>
+  echo "<!DOCTYPE html>
   <head>
   <meta charset='UTF-8'>
   <link rel='stylesheet' type='text/css' href='/css/main.css' />
   <title>" . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>
   <link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
-  </head>
+  ";
+  include('/var/www/html/uit-web/php/navigation-bar.php');
+  echo "</head>
   <body>
-  <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
-  <div class='grid-container' style='width: 100%;'>
-  <div class='grid-box'>
-  <div style='display: table; clear: both; width: 100%;'>
-  <div id='live-image'><img src=''></div>
+  <div style='width: fit-content; margin-left: auto; margin-right: auto;'>
+    <img id='live_image' style='position: relative; cursor: pointer; max-width: 90%; max-height: 80vh;' onclick=\"openImage(document.getElementById('live_image').getAttribute('src').substring(document.getElementById('live_image').getAttribute('src').indexOf(',') + 1));\" src='' />
   </div>
-  </div>
+  <script src='/js/include.js?" . filemtime('js/include.js') . "'></script>
   <script>
-  async function parseSSE() { 
-    const liveImage = await fetchSSE('live_image', " . htmlspecialchars($_GET["tagnumber"]) . ");
+  async function parseSSE() {
+    const liveImage = await fetchSSE('live_image'," . htmlspecialchars($_GET["tagnumber"]). ");
     newHTML = '';
     Object.entries(liveImage).forEach(([key, value]) => {
-      newHTML = \"<img src='data:image/jpeg;base64," + $liveImage["screenshot"] + "'>\";
-      document.getElementById('live-image').innerHTML = newHTML;
+    newSRC = \"data:image/jpeg;base64,\" + liveImage['screenshot'];
+    document.getElementById('live_image').src = newSRC;
     });
-  }
-
+    }
   parseSSE();
   setInterval(parseSSE, 3000);
+
+  document.getElementById('dropdown-search').style.display = \"none\";
+  document.getElementById('dropdown-search').innerHTML = '';
+  autoFillTags('" . substr($tagStr, 0, -1) . "');
+  </script>
+
+  <div class=\"uit-footer\">
+  <img src=\"/images/uh-footer.svg\">
+  </div>
+
+  <script>
+  if ( window.history.replaceState ) {
+  window.history.replaceState( null, null, window.location.href );
+  }
   </script>
   </body>
   </html>";
+  exit();
 }
 
 if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
@@ -84,7 +105,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
 if (isset($_GET["uuid"]) && $_GET["view"] == "1") {
   $db->Pselect("SELECT uuid, mime_type, image FROM client_images WHERE uuid = :uuid", array(':uuid' => $_GET["uuid"]));
   foreach ($db->get() as $key => $value) {
-    echo "<html><head><script src='/js/include.js?" . echo filemtime('js/include.js') . "'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
+    echo "<html><head><script src='/js/include.js?" . filemtime('js/include.js') . "'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
   }
   unset($value);
   exit();
@@ -121,13 +142,7 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
   <body>
 
   <div class='menubar'>
-  <p><span style='float: left;'><a href='index.php'>Return Home</a></span></p>
-  <p><span style='float: right;'>Logged in as <b><?php echo htmlspecialchars($login_user); ?></b>.</span></p>
-  <br>
-  <p><span style='float: right;'>Not <b><?php echo htmlspecialchars($login_user); ?></b>? <a href='logout.php'>Click Here to Logout</a></span></p>
-  </div>
-
-  <div class='pagetitle'><h1>Images for <?php echo htmlspecialchars($_GET['tagnumber']); ?></h1></div>
+  <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
 
 <div class='grid-container' style='width: 100%;'>
@@ -202,15 +217,7 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
 </div>
 <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
 <script>
-  <?php
-  $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
-  if (arrFilter($db->get()) === 0) {
-    foreach ($db->get() as $key => $value) {
-      $tagStr .= $value["tagnumber"] . "|";
-    }
-  }
-  unset($value);
-  ?>
+
 
 document.getElementById('dropdown-search').style.display = "none";
 document.getElementById('dropdown-search').innerHTML = "";
