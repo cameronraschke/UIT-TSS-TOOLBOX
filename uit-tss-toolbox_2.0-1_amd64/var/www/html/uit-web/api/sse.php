@@ -38,6 +38,15 @@ if ($_GET["type"] == "job_queue") {
   unset($value);
 }
 
+if ($_GET["type"] == "live_image" && isset($_GET["tagnumber"])) {
+  $db->Pselect("SELECT time, screenshot FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"])) {
+  foreach ($db->get() as $key => $value) {
+    $event = "live_image";
+    $data = json_encode($value);
+  }
+  unset($value);
+}
+
 
 echo "event: " . $event . "\n";
 echo "data: " . $data;

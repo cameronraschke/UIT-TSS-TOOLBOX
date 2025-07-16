@@ -246,10 +246,11 @@ if ($arr[0] == "live_images") {
         $db->insertLiveImages($tagNum);
     }
 
-  if ($arr[3] == "screenshot") {
-    $fd = fopen('/tmp/screenshot.png', 'c');
+  if ($arr[2] == "screenshot") {
+    $fileName = '/tmp/screenshot.png'
+    $fd = fopen($fileName, 't');
     fwrite($fd, base64_decode($value));
-    $imageObject = imagecreatefromstring(fread($fd));
+    $imageObject = imagecreatefromstring(fread($fd, filesize($fileName)));
     fclose($fd);
     if ($imageObject !== false) {
       ob_start();

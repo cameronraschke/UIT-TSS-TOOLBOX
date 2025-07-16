@@ -18,6 +18,39 @@ if ($_SESSION['authorized'] != "yes") {
   exit();
 }
 
+if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tagnumber"]) && strFilter($_GET["tagnumber"]) === 0) {
+  "<!DOCTYPE html>
+  <head>
+  <meta charset='UTF-8'>
+  <link rel='stylesheet' type='text/css' href='/css/main.css' />
+  <title>" . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>
+  <link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
+  </head>
+  <body>
+  <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
+  <div class='grid-container' style='width: 100%;'>
+  <div class='grid-box'>
+  <div style='display: table; clear: both; width: 100%;'>
+  <div id='live-image'><img src=''></div>
+  </div>
+  </div>
+  <script>
+  async function parseSSE() { 
+    const liveImage = await fetchSSE('live_image', " . htmlspecialchars($_GET["tagnumber"]) . ");
+    newHTML = '';
+    Object.entries(liveImage).forEach(([key, value]) => {
+      newHTML = \"<img src='data:image/jpeg;base64," + $liveImage["screenshot"] + "'>\";
+      document.getElementById('live-image').innerHTML = newHTML;
+    });
+  }
+
+  parseSSE();
+  setInterval(parseSSE, 3000);
+  </script>
+  </body>
+  </html>";
+}
+
 if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
   $db->deleteImage($_POST["delete-image-uuid"], $_POST["delete-image-time"], $_POST["delete-image-tagnumber"]);
 }

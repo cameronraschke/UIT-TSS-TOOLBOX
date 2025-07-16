@@ -886,23 +886,24 @@ window.history.replaceState( null, null, window.location.href );
 
 
 async function parseSSE() { 
-  const response = await fetchSSE("job_queue", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
+  const jobQueue = await fetchSSE("job_queue", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
+  const liveImage = await fetchSSE("live_image", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
     newHTML = '';
-    Object.entries(response).forEach(([key, value]) => {
+    Object.entries(jobQueue).forEach(([key, value]) => {
       // BIOS and kernel updated (check mark)
-      if (response["present_bool"] === 1 && (response["kernel_updated"] === 1 && response["bios_updated"] === 1)) {
+      if (jobQueue["present_bool"] === 1 && (jobQueue["kernel_updated"] === 1 && jobQueue["bios_updated"] === 1)) {
         newHTML = "Online, no errors <span>&#10004;&#65039;</span>";
       // BIOS and kernel out of date (x)
-      } else if (response["present_bool"] === 1 && (response["kernel_updated"] !== 1 && response["bios_updated"] !== 1)) {
+      } else if (jobQueue["present_bool"] === 1 && (jobQueue["kernel_updated"] !== 1 && jobQueue["bios_updated"] !== 1)) {
         newHTML = "Online, kernel and BIOS out of date <span>&#10060;</span>";
       // BIOS out of date, kernel updated (warning sign)
-      } else if (response["present_bool"] === 1 && (response["kernel_updated"] === 1 && response["bios_updated"] !== 1)) {
+      } else if (jobQueue["present_bool"] === 1 && (jobQueue["kernel_updated"] === 1 && jobQueue["bios_updated"] !== 1)) {
         newHTML = "Online, please update BIOS <span>&#9888;&#65039;</span>";
       // BIOS updated, kernel out of date (x)
-      } else if (response["present_bool"] === 1 && (response["kernel_updated"] !== 1 && response["bios_updated"] === 1)) {
+      } else if (jobQueue["present_bool"] === 1 && (jobQueue["kernel_updated"] !== 1 && jobQueue["bios_updated"] === 1)) {
         newHTML = "Online, kernel out of date <span>&#10060;</span>)";
       // Offline (x)
-      } else if (response["present_bool"] !== 1) {
+      } else if (jobQueue["present_bool"] !== 1) {
         newHTML = "Offline <span>&#9940;</span>";
       } else {
         newHTML = "Unknown <span>&#9940;&#65039;</span>";
@@ -911,8 +912,14 @@ async function parseSSE() {
       document.getElementById('bios_kernel_updated').innerHTML = newHTML;
 
       newHTML = '';
-      newHTML = '<b>"' + response["remote_status"] + '"</b> at ' + response["remote_time_formatted"];
+      newHTML = '<b>"' + jobQueue["remote_status"] + '"</b> at ' + jobQueue["remote_time_formatted"];
       document.getElementById('remote_status').innerHTML = newHTML;
+    });
+
+    newHTML = '';
+    Object.entries(liveImage).forEach(([key, value]) => {
+    newHTML = "<img src='data:image/jpeg;base64," + $liveImage["screenshot"] + "'>";
+    document.getElementById('live-image').innerHTML = newHTML;
     });
   };
 
