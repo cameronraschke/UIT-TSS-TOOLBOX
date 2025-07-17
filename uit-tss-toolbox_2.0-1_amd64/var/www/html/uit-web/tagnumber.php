@@ -106,7 +106,7 @@ if (isset($_FILES) && strFilter($_FILES) === 0) {
           $imageObject = imagecreatefromstring($rawFileData);
           if ($imageObject !== false) {
             $imageResolution = imagesx($imageObject) . "x" . imagesy($imageObject);
-            
+
             imageinterlace($imageObject, true);
 
             //Main jpeg
@@ -504,7 +504,7 @@ $sqlArr = $db->get();
         <?php
         $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, IF (mime_type LIKE 'video%', image, thumbnail) AS 'thumbnail', note, primary_image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
-          echo "<div class='page-content'><a style='color: black;' href='/view-images.php?tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All Images</b>]</a></div>";
+          echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All Images</b>]</a></div>";
           echo "<div class='grid-container' style='width: 100%;'>";
           foreach ($db->get() as $key => $image) {
               $db->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0", array(':tagnumber' => $_GET["tagnumber"]));

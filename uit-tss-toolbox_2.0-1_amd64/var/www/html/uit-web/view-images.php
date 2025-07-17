@@ -18,60 +18,6 @@ if ($_SESSION['authorized'] != "yes") {
   exit();
 }
 
-$db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
-if (arrFilter($db->get()) === 0) {
-  foreach ($db->get() as $key => $value) {
-    $tagStr .= $value["tagnumber"] . "|";
-  }
-}
-unset($value);
-
-if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tagnumber"]) && strFilter($_GET["tagnumber"]) === 0) {
-  echo "<!DOCTYPE html>
-  <head>
-  <meta charset='UTF-8'>
-  <link rel='stylesheet' type='text/css' href='/css/main.css' />
-  <title>" . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>
-  <link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
-  ";
-  include('/var/www/html/uit-web/php/navigation-bar.php');
-  echo "</head>
-  <body>
-  <div style='width: fit-content; margin-left: auto; margin-right: auto;'>
-    <img id='live_image' style='position: relative; cursor: pointer; max-width: 90%; max-height: 75vh;' onclick=\"openImage(document.getElementById('live_image').getAttribute('src').substring(document.getElementById('live_image').getAttribute('src').indexOf(',') + 1));\" src='' />
-  </div>
-  <script src='/js/include.js?" . filemtime('js/include.js') . "'></script>
-  <script>
-  async function parseSSE() {
-    const liveImage = await fetchSSE('live_image'," . htmlspecialchars($_GET["tagnumber"]). ");
-    newHTML = '';
-    Object.entries(liveImage).forEach(([key, value]) => {
-    newSRC = \"data:image/jpeg;base64,\" + liveImage['screenshot'];
-    document.getElementById('live_image').src = newSRC;
-    });
-    }
-  parseSSE();
-  setInterval(parseSSE, 3000);
-
-  document.getElementById('dropdown-search').style.display = \"none\";
-  document.getElementById('dropdown-search').innerHTML = '';
-  autoFillTags('" . substr($tagStr, 0, -1) . "');
-  </script>
-
-  <div class=\"uit-footer\">
-  <img src=\"/images/uh-footer.svg\">
-  </div>
-
-  <script>
-  if ( window.history.replaceState ) {
-  window.history.replaceState( null, null, window.location.href );
-  }
-  </script>
-  </body>
-  </html>";
-  exit();
-}
-
 if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
   $db->deleteImage($_POST["delete-image-uuid"], $_POST["delete-image-time"], $_POST["delete-image-tagnumber"]);
 }
@@ -131,109 +77,148 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
   unset($value);
   exit();
 }
+
+$db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
+if (arrFilter($db->get()) === 0) {
+  foreach ($db->get() as $key => $value) {
+    $tagStr .= $value["tagnumber"] . "|";
+  }
+}
+unset($value);
 ?>
 
-<html>
+<!DOCTYPE html>
   <head>
-    <meta charset='UTF-8'>
+  <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
-    <title><?php echo "Images - " . htmlspecialchars($_GET['tagnumber']) . " - UIT Client Mgmt"; ?></title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Images - <?php echo htmlspecialchars($_GET["tagnumber"]); ?> - UIT Client Mgmt</title>
+    <link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
   </head>
   <body>
 
-  <div class='menubar'>
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
+<?php
+if (isset($_GET["view-all"]) && $_GET["view-all"] == "1" && isset($_GET["tagnumber"]) && strFilter($_GET["tagnumber"]) === 0) {
+  echo "<div class='grid-container' style='width: 100%;'>"
+  $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, mime_type, image, note, resolution, primary_image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber ORDER BY primary_image DESC, time DESC", array(':tagnumber' => $_GET["tagnumber"]));
+  if (strFilter($db->get()) === 0) {
+    foreach ($db->get() as $key => $image) {
+      $db->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0", array(':tagnumber' => $_GET["tagnumber"]));
+      $totalRows = $db->get_rows();
+      echo "<div class='grid-box'>";
+        echo "<div style='display: table; clear: both; width: 100%;'>";
+        //Delete image form
+        echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: left;'>";
+        echo "<form method='post'>";
+        echo "<input type='hidden' name='delete-image' value='1'>";
+        echo "<input type='hidden' name='delete-image-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
+        echo "<input type='hidden' name='delete-image-time' value='" . htmlspecialchars($image["time"]) . "'>";
+        echo "<input type='hidden' name='delete-image-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
+        echo "<div style='position: relative; top: 0; left: 0;'>";
+        echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='delete'><img class='icon' src='/images/trash.svg'>[<b style='color: #C8102E;'>delete</b>]</button></form></div></div>";
 
-<div class='grid-container' style='width: 100%;'>
-        <?php
-        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, mime_type, image, note, resolution, primary_image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber ORDER BY primary_image DESC, time DESC", array(':tagnumber' => $_GET["tagnumber"]));
-        if (strFilter($db->get()) === 0) {
-          foreach ($db->get() as $key => $image) {
-            $db->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0", array(':tagnumber' => $_GET["tagnumber"]));
-            $totalRows = $db->get_rows();
-            echo "<div class='grid-box'>";
-              echo "<div style='display: table; clear: both; width: 100%;'>";
-              //Delete image form
-              echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: left;'>";
-              echo "<form method='post'>";
-              echo "<input type='hidden' name='delete-image' value='1'>";
-              echo "<input type='hidden' name='delete-image-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
-              echo "<input type='hidden' name='delete-image-time' value='" . htmlspecialchars($image["time"]) . "'>";
-              echo "<input type='hidden' name='delete-image-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
-              echo "<div style='position: relative; top: 0; left: 0;'>";
-              echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='delete'><img class='icon' src='/images/trash.svg'>[<b style='color: #C8102E;'>delete</b>]</button></form></div></div>";
-
-              
-              //Rotate image form
-              if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
-                echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
-                echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
-                echo "<div style='margin: 0 0 1em 0;'><form method='post'>";
-                echo "<input type='hidden' name='rotate-image' value='1'>";
-                echo "<input type='hidden' name='rotate-image-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
-                echo "<input type='hidden' name='rotate-image-time' value='" . htmlspecialchars($image["time"]) . "'>";
-                echo "<input type='hidden' name='rotate-image-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
-                echo "<div style='position: relative; top: 0; right: 0;'>";
-                echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='rotate'><img class='icon' src='/images/rotate.svg'>[<b style='color: #C8102E;'>rotate</b>]</button></form></div></div>";
-              }
-              if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
-                echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
-                echo "<div style='position: relative; top: 0; right: 0;'>";
-                echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
-              }
-              
-              if (strFilter($image["primary_image"]) === 1) {
-                echo "<div><form method='post'>";
-                echo "<input type='hidden' name='image-primary-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
-                echo "<input type='hidden' name='image-primary-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
-                echo "<input type='hidden' name='image-primary' value='1'>";
-                echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()'>[<b style='color: #C8102E;'>set primary</b>]</button>";
-                echo "</form></div>";
-              }
-
-              echo "</div></div>";
-
-            echo "<div><p>(" . htmlspecialchars($image["row_nums"]) . "/" . htmlspecialchars($totalRows) . ") Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
-            echo "<p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . htmlspecialchars($image["filesize"]) . " MB" . ")</p>";
-            if (strFilter($image["note"]) === 0) {
-                echo "<p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p>";
-            }
-
-            echo "<div style='padding: 1em 1px 1px 1px;'>";
-            if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
-              echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . $image["image"] . "'></img>";
-            } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
-              echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
-            }
-            echo "</div>";   
-            echo "</div>";            
-            echo "</div>";
-          }
-          unset($image);
-          echo "</div>";
+        
+        //Rotate image form
+        if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
+          echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
+          echo "<div style='margin: 0 0 1em 0;'><a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
+          echo "<div style='margin: 0 0 1em 0;'><form method='post'>";
+          echo "<input type='hidden' name='rotate-image' value='1'>";
+          echo "<input type='hidden' name='rotate-image-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
+          echo "<input type='hidden' name='rotate-image-time' value='" . htmlspecialchars($image["time"]) . "'>";
+          echo "<input type='hidden' name='rotate-image-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
+          echo "<div style='position: relative; top: 0; right: 0;'>";
+          echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='rotate'><img class='icon' src='/images/rotate.svg'>[<b style='color: #C8102E;'>rotate</b>]</button></form></div></div>";
         }
-        ?>
-</div>
-<script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
-<script>
+        if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
+          echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
+          echo "<div style='position: relative; top: 0; right: 0;'>";
+          echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
+        }
+        
+        if (strFilter($image["primary_image"]) === 1) {
+          echo "<div><form method='post'>";
+          echo "<input type='hidden' name='image-primary-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
+          echo "<input type='hidden' name='image-primary-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
+          echo "<input type='hidden' name='image-primary' value='1'>";
+          echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()'>[<b style='color: #C8102E;'>set primary</b>]</button>";
+          echo "</form></div>";
+        }
 
+        echo "</div></div>";
 
-document.getElementById('dropdown-search').style.display = "none";
-document.getElementById('dropdown-search').innerHTML = "";
-autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
-</script>
+      echo "<div><p>(" . htmlspecialchars($image["row_nums"]) . "/" . htmlspecialchars($totalRows) . ") Upload Timestamp: " . htmlspecialchars($image["time_formatted"]) . "</p>";
+      echo "<p>File Info: \"" . htmlspecialchars($image["filename"]) . "\" (" . htmlspecialchars($image["resolution"]) . ", " . htmlspecialchars($image["filesize"]) . " MB" . ")</p>";
+      if (strFilter($image["note"]) === 0) {
+          echo "<p><b>Note: </b> " . htmlspecialchars($image["note"]) . "</p>";
+      }
+
+      echo "<div style='padding: 1em 1px 1px 1px;'>";
+      if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
+        echo "<img style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"openImage('" . $image["image"] . "')\" src='data:image/jpeg;base64," . $image["image"] . "'></img>";
+      } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
+        echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["image"] . "' /></video>";
+      }
+      echo "</div>";   
+      echo "</div>";            
+      echo "</div>";
+    }
+    unset($image);
+    echo "</div>";
+  }
+}
+
+if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tagnumber"]) && strFilter($_GET["tagnumber"]) === 0) {
+  echo "<div style='width: fit-content; margin-left: auto; margin-right: auto;'>
+    <img id='live_image' style='position: relative; cursor: pointer; max-width: 90%; max-height: 75vh;' onclick=\"openImage(document.getElementById('live_image').getAttribute('src').substring(document.getElementById('live_image').getAttribute('src').indexOf(',') + 1));\" src='' />
+  </div>"
+}
+?>
+
 
 <div class="uit-footer">
 <img src="/images/uh-footer.svg">
 </div>
 
+<script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
 <script>
-if ( window.history.replaceState ) {
-window.history.replaceState( null, null, window.location.href );
-}
+  document.getElementById('dropdown-search').style.display = "none";
+  document.getElementById('dropdown-search').innerHTML = "";
+  autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
 </script>
 
-</body>
-</html>
+<script src='/js/include.js?<?php echo filemtime('js/include.js');?>'></script>
+<script>
+  async function parseSSE() {
+    try {
+      const liveImage = await fetchSSE('live_image', <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
+    } catch (error) {
+
+    }
+    newHTML = '';
+    Object.entries(liveImage).forEach(([key, value]) => {
+    newSRC = "data:image/jpeg;base64," + liveImage['screenshot'];
+    document.getElementById('live_image').src = newSRC;
+    });
+    }
+  parseSSE();
+  setInterval(parseSSE, 3000);
+
+  document.getElementById('dropdown-search').style.display = 'none';
+  document.getElementById('dropdown-search').innerHTML = '';
+  autoFillTags('<?php substr($tagStr, 0, -1)?>');
+  </script>
+
+  <div class="uit-footer">
+  <img src="/images/uh-footer.svg">
+  </div>
+
+  <script>
+  if ( window.history.replaceState ) {
+  window.history.replaceState( null, null, window.location.href );
+  }
+  </script>
+
+  </body>
+  </html>

@@ -77,7 +77,7 @@
     }
 
     if ($_SERVER['PHP_SELF'] == "/view-images.php") {
-      echo "<h1 class='header-title'>View Client Images</h1>";
+      echo "<h1 class='header-title'>View Client Images -" . $_GET["tagnumber"] . "</h1>";
     }
 
     // DOCUMENTATION
