@@ -81,7 +81,7 @@ if (isset($_GET["uuid"]) && $_GET["download"] == "1") {
 $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
 if (arrFilter($db->get()) === 0) {
   foreach ($db->get() as $key => $value) {
-    $tagStr .= $value["tagnumber"] . "|";
+    $tagStr .= htmlspecialchars($value["tagnumber"]) . "|";
   }
 }
 unset($value);
@@ -91,7 +91,13 @@ unset($value);
   <head>
   <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
-    <title>Images - <?php echo htmlspecialchars($_GET["tagnumber"]); ?> - UIT Client Mgmt</title>
+    <?php
+      if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" {
+        echo "<title>Live View - " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>";
+      } else {
+        echo "<title>Images - " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>";
+      }
+    ?>
     <link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
   </head>
   <body>
@@ -100,7 +106,7 @@ unset($value);
 
 <?php
 if (isset($_GET["view-all"]) && $_GET["view-all"] == "1" && isset($_GET["tagnumber"]) && strFilter($_GET["tagnumber"]) === 0) {
-  echo "<div class='grid-container' style='width: 100%;'>"
+  echo "<div class='grid-container' style='width: 100%;'>";
   $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, mime_type, image, note, resolution, primary_image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber ORDER BY primary_image DESC, time DESC", array(':tagnumber' => $_GET["tagnumber"]));
   if (strFilter($db->get()) === 0) {
     foreach ($db->get() as $key => $image) {
@@ -172,7 +178,7 @@ if (isset($_GET["view-all"]) && $_GET["view-all"] == "1" && isset($_GET["tagnumb
 if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tagnumber"]) && strFilter($_GET["tagnumber"]) === 0) {
   echo "<div style='width: fit-content; margin-left: auto; margin-right: auto;'>
     <img id='live_image' style='position: relative; cursor: pointer; max-width: 90%; max-height: 75vh;' onclick=\"openImage(document.getElementById('live_image').getAttribute('src').substring(document.getElementById('live_image').getAttribute('src').indexOf(',') + 1));\" src='' />
-  </div>"
+  </div>";
 }
 ?>
 
@@ -193,26 +199,27 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
   async function parseSSE() {
     try {
       const liveImage = await fetchSSE('live_image', <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
+        newHTML = '';
+        Object.entries(liveImage).forEach(([key, value]) => {
+        newSRC = "data:image/jpeg;base64," + liveImage['screenshot'];
+        document.getElementById('live_image').src = newSRC;
+      });
     } catch (error) {
+      console.log(error);
+    }
+  };
 
+  <?php 
+    if ($_GET["live_image"] == "1") {
+      echo "parseSSE();";
+      echo "setInterval(parseSSE, 3000);";
     }
-    newHTML = '';
-    Object.entries(liveImage).forEach(([key, value]) => {
-    newSRC = "data:image/jpeg;base64," + liveImage['screenshot'];
-    document.getElementById('live_image').src = newSRC;
-    });
-    }
-  parseSSE();
-  setInterval(parseSSE, 3000);
+  ?>
 
   document.getElementById('dropdown-search').style.display = 'none';
   document.getElementById('dropdown-search').innerHTML = '';
   autoFillTags('<?php substr($tagStr, 0, -1)?>');
   </script>
-
-  <div class="uit-footer">
-  <img src="/images/uh-footer.svg">
-  </div>
 
   <script>
   if ( window.history.replaceState ) {
