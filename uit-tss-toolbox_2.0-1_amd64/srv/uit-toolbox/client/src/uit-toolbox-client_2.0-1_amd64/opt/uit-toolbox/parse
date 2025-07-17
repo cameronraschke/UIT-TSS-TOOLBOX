@@ -254,7 +254,7 @@ if ($arr[0] == "live_images") {
     fclose($fd);
     if ($imageObject !== false) {
       ob_start();
-      imagejpeg($imageObject, NULL, 30);
+      imagejpeg($imageObject, NULL, 100);
       $imageBuffer = ob_get_clean();
       $imageFileConverted = base64_encode($imageBuffer);
       $value = $imageFileConverted;
