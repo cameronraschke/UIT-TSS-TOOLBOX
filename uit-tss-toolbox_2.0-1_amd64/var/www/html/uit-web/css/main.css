@@ -325,7 +325,7 @@ textarea {
 
 .column {
 	float: left;
-	width: 45%;
+	width: 50%;
 }
 
 .dense-column {
@@ -381,15 +381,21 @@ textarea {
 }
 
 .grid-container {
-	display: grid; /* Enables CSS Grid */
-	grid-template-columns: repeat(2, 1fr); /* Creates two equal-width columns */
-	grid-gap: 10px; /* Adds a 10px gap between grid items */
+	display: grid;
+	grid-template-columns: 1fr 1fr; /* Creates two equal-width columns */
+	gap: 0.5em 0.5em;
+	min-height: 0;
+	min-width: 0;
 }
 
 .grid-box {
+	max-width: 95%;
+	max-height: 100%;
 	background-color:rgb(233, 233, 233);
-	padding: 20px;
+	padding: 1em;
 	text-align: center;
+	overflow: hidden;
+	min-width: 0;
 }
 
 .navigation-bar {

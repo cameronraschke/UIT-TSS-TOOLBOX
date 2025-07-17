@@ -207,7 +207,7 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
         document.getElementById('live_image').src = newSRC;
 
         newHTML = '';
-        newHTML = "Time: " + liveImage["time_formatted"];
+        newHTML = "Screenshot Time: " + liveImage["time_formatted"];
         document.getElementById('live_image_time').innerHTML = newHTML;
       });
     } catch (error) {

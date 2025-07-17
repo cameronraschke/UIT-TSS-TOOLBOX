@@ -309,7 +309,7 @@ $sqlArr = $db->get();
       <div class='column'>
         <div class='location-form'>
           <div class='row'>
-            <div class='column'>
+            <div class='column' style='border-right: 1px solid black;'>
               <div name='curJob' id='curJob'>
                 <p>Real-time Job Status: </p>
                 <?php
@@ -365,9 +365,9 @@ $sqlArr = $db->get();
                 </form>
               </div>
             </div>
-            <div class='column' style='border-left: 1px solid black; width: 45%; height: 100%;'>
+            <div class='column' style='width: 50%; height: 100%;'>
               <div><p id='live_image_time'></p></div>
-              <div><img id='live_image' style='position: relative; cursor: pointer; max-width: 100%; max-height: 100%;' onclick="window.open('/view-images.php?live_image=1&tagnumber=<?php echo htmlspecialchars($_GET['tagnumber']); ?>', '_blank')" src='' /></div>
+              <div><img id='live_image' style='position: relative; cursor: pointer; max-width: 100%; max-height: 100%;' onclick="window.open('/view-images.php?live_image=1&tagnumber=<?php echo htmlspecialchars($_GET['tagnumber']); ?>', '_blank')" src='' loading='lazy'/></div>
             </div>
           </div>
         </div>
@@ -506,7 +506,7 @@ $sqlArr = $db->get();
         $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, IF (mime_type LIKE 'video%', image, thumbnail) AS 'thumbnail', note, primary_image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($db->get()) === 0) {
           echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All Images</b>]</a></div>";
-          echo "<div class='grid-container' style='width: 100%;'>";
+          echo "<div class='grid-container'>";
           foreach ($db->get() as $key => $image) {
               $db->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0", array(':tagnumber' => $_GET["tagnumber"]));
               $totalRows = $db->get_rows();
@@ -561,7 +561,7 @@ $sqlArr = $db->get();
               }
               echo "<div style='padding: 1em 1px 1px 1px;'>";
               if (preg_match('/^image\/.*/', $image["mime_type"]) === 1) {
-                echo "<img id='" . htmlspecialchars($image["uuid"]) . "' style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"window.open('/view-images.php?view=1&tagnumber=" . $image["tagnumber"] . "&uuid=" . htmlspecialchars($image["uuid"]) . "', '_blank');\" src='data:image/jpeg;base64," . $image["thumbnail"] . "' loading='lazy'></img>";
+                echo "<img id='" . htmlspecialchars($image["uuid"]) . "' style='max-height:100%; max-width:100%; cursor: pointer;' onclick=\"window.open('/view-images.php?view=1&tagnumber=" . $image["tagnumber"] . "&uuid=" . htmlspecialchars($image["uuid"]) . "', '_blank');\" src='data:image/jpeg;base64," . $image["thumbnail"] . "' loading='lazy'/>";
               } elseif (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<video preload='metadata' style='max-height:100%; max-width:100%;' controls><source type='video/mp4' src='data:video/mp4;base64," . $image["thumbnail"] . "' /></video>";
               }
@@ -936,11 +936,15 @@ async function parseSSE() {
           document.getElementById('live_image').src = newSRC;
 
           newHTML = '';
-          newHTML = "Time: " + liveImage["time_formatted"];
+          newHTML = "Screenshot Time: " + liveImage["time_formatted"];
           document.getElementById('live_image_time').innerHTML = newHTML;
 
         });
   } catch (error) {
+    newSRC = 'https://i.pinimg.com/originals/30/0c/af/300caff45dddad3fa83e8fe6fcd390a2.gif';
+    document.getElementById('live_image').src = newSRC;
+    newHTML = "No Screenshot in DB :(" ;
+    document.getElementById('live_image_time').innerHTML = newHTML;
   }
 };
 
