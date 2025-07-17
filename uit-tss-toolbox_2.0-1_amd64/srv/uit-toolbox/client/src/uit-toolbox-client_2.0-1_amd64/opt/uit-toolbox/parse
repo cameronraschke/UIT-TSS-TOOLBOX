@@ -239,7 +239,7 @@ if ($arr[0] == "client_health") {
 if ($arr[0] == "live_images") {
     $tagNum = $arr[1];
     $key = $arr[2];
-    $value = $arr[3];
+    $fileName = $arr[3];
 
     $db->Pselect("SELECT tagnumber FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $tagNum));
     if (strFilter($db->get()) === 1) {
@@ -247,10 +247,9 @@ if ($arr[0] == "live_images") {
     }
 
   if ($arr[2] == "screenshot") {
-    $fileName = '/tmp/screenshot.png';
-    $fd = fopen($fileName, 'c+');
-    fwrite($fd, base64_decode($value));
-    $imageObject = imagecreatefromstring(fread($fd, filesize($fileName)));
+    $fd = fopen($fileName, 'r');
+    $rawImageData = fread($fd, filesize($fileName));
+    $imageObject = imagecreatefromstring($rawImageData);
     imageinterlace($imageObject, true);
     fclose($fd);
     if ($imageObject !== false) {
@@ -264,7 +263,7 @@ if ($arr[0] == "live_images") {
     }
   }
 
-    $db->updateLiveImages($tagNum, $key, $value);
+    $db->updateLiveImages($tagNum, "screenshot", $imageFileConverted);
     $db->updateLiveImages($tagNum, "time", $time);
 }
 
