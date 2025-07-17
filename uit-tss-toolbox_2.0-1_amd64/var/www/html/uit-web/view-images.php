@@ -38,7 +38,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
   foreach ($db->get() as $key => $value) {
     $rotateImageData = base64_decode($value["image"]);
     $rotateImageObject = imagecreatefromstring($rotateImageData);
-    imageinterlace($rotateImageData, true);
+    imageinterlace($rotateImageObject, true);
     $rotatedImage = imagerotate($rotateImageObject, -90, 0);
     ob_start();
     imagejpeg($rotatedImage, NULL, 100);
@@ -92,7 +92,7 @@ unset($value);
   <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <?php
-      if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" {
+      if (isset($_GET["live_image"]) && $_GET["live_image"] == "1") {
         echo "<title>Live View - " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>";
       } else {
         echo "<title>Images - " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>";
@@ -148,7 +148,7 @@ if (isset($_GET["view-all"]) && $_GET["view-all"] == "1" && isset($_GET["tagnumb
           echo "<input type='hidden' name='image-primary-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
           echo "<input type='hidden' name='image-primary-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
           echo "<input type='hidden' name='image-primary' value='1'>";
-          echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()'>[<b style='color: #C8102E;'>set primary</b>]</button>";
+          echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()'><img class='icon' src='/images/pin.svg'></img>[<b style='color: #C8102E;'>pin</b>]</button>";
           echo "</form></div>";
         }
 

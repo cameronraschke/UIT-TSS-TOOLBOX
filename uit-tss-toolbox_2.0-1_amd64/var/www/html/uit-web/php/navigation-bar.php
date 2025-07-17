@@ -77,7 +77,7 @@
     }
 
     if ($_SERVER['PHP_SELF'] == "/view-images.php") {
-      if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" {
+      if (isset($_GET["live_image"]) && $_GET["live_image"] == "1") {
         echo "<h1 class='header-title'>Live View - " . htmlspecialchars($_GET["tagnumber"]) . "</h1>";
       } else {
         echo "<h1 class='header-title'>View Client Images - " . htmlspecialchars($_GET["tagnumber"]) . "</h1>";
