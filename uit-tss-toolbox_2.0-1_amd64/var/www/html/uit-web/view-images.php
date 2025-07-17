@@ -150,6 +150,8 @@ if (isset($_GET["view-all"]) && $_GET["view-all"] == "1" && isset($_GET["tagnumb
           echo "<input type='hidden' name='image-primary' value='1'>";
           echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()'><img class='icon' src='/images/pin.svg'></img>[<b style='color: #C8102E;'>pin</b>]</button>";
           echo "</form></div>";
+        } else {
+          echo "<div><p>[<u><b>pinned</b></u>]</p></div>";
         }
 
         echo "</div></div>";
@@ -194,7 +196,6 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
   autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
 </script>
 
-<script src='/js/include.js?<?php echo filemtime('js/include.js');?>'></script>
 <script>
   async function parseSSE() {
     try {
@@ -216,9 +217,6 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
     }
   ?>
 
-  document.getElementById('dropdown-search').style.display = 'none';
-  document.getElementById('dropdown-search').innerHTML = '';
-  autoFillTags('<?php substr($tagStr, 0, -1)?>');
   </script>
 
   <script>

@@ -545,8 +545,10 @@ $sqlArr = $db->get();
                 echo "<input type='hidden' name='image-primary-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
                 echo "<input type='hidden' name='image-primary-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
                 echo "<input type='hidden' name='image-primary' value='1'>";
-                echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>pin</b>]</button>";
+                echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()'><img class='icon' src='/images/pin.svg'></img>[<b style='color: #C8102E;'>pin</b>]</button>";
                 echo "</form></div>";
+              } else {
+                echo "<div><p>[<u><b>pinned</b></u>]</p></div>";
               }
 
               echo "</div></div>";

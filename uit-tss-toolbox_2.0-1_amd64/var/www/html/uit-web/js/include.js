@@ -1,5 +1,3 @@
-let openedWindow;
-
 function newLocationWindow(location, tagnumber, department = undefined, domain = undefined) {
   //openedWindow = window.open("/locations.php?location=" + location + "&tagnumber=" + tagnumber);
   if (location && tagnumber) {
