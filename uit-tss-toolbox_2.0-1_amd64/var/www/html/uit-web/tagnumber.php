@@ -325,7 +325,7 @@ $sqlArr = $db->get();
                 }
                 ?>
               </div>
-              <div style='padding-left: 0;'>
+              <div>
                 <form name="job_queued_form" method="post">
                   <div style='padding-left: 0;'><label for='tagnumber'>Enter a job to queue: </label></div>
                   <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
@@ -365,8 +365,9 @@ $sqlArr = $db->get();
                 </form>
               </div>
             </div>
-            <div class='column'>
-              <div id='live_image' style='width: fit-content;'></div>
+            <div class='column' style='border-left: 1px solid black; width: 45%; height: 100%;'>
+              <div><p id='live_image_time'></p></div>
+              <div><img id='live_image' style='position: relative; cursor: pointer; max-width: 100%; max-height: 100%;' onclick="window.open('/view-images.php?live_image=1&tagnumber=<?php echo htmlspecialchars($_GET['tagnumber']); ?>', '_blank')" src='' /></div>
             </div>
           </div>
         </div>
@@ -929,15 +930,19 @@ async function parseSSE() {
   try {
     const liveImage = await fetchSSE("live_image", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
     newHTML = '';
-    Object.entries(liveImage).forEach(([key, value]) => {
-    newHTML = "<img style='max-width: 100%; cursor: pointer;' onclick=\"window.open('/view-images.php?live_image=1&tagnumber=<?php echo htmlspecialchars($_GET["tagnumber"]); ?>', '_blank')\" src='data:image/jpeg;base64," + liveImage["screenshot"] + "'>";
-    document.getElementById('live_image').innerHTML = newHTML;
-    });
+        Object.entries(liveImage).forEach(([key, value]) => {
+          newSRC = '';
+          newSRC = "data:image/jpeg;base64," + liveImage['screenshot'];
+          document.getElementById('live_image').src = newSRC;
 
+          newHTML = '';
+          newHTML = "Time: " + liveImage["time_formatted"];
+          document.getElementById('live_image_time').innerHTML = newHTML;
+
+        });
   } catch (error) {
   }
-
-  };
+};
 
 parseSSE();
 setInterval(parseSSE, 3000);

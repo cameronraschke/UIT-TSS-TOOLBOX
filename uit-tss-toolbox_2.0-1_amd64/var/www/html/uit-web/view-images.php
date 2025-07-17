@@ -179,7 +179,8 @@ if (isset($_GET["view-all"]) && $_GET["view-all"] == "1" && isset($_GET["tagnumb
 
 if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tagnumber"]) && strFilter($_GET["tagnumber"]) === 0) {
   echo "<div style='width: fit-content; margin-left: auto; margin-right: auto;'>
-    <img id='live_image' style='position: relative; cursor: pointer; max-width: 90%; max-height: 75vh;' onclick=\"openImage(document.getElementById('live_image').getAttribute('src').substring(document.getElementById('live_image').getAttribute('src').indexOf(',') + 1));\" src='' />
+    <div><p id='live_image_time'></p></div>
+    <div><img id='live_image' style='position: relative; cursor: pointer; max-width: 90%; max-height: 75vh;' onclick=\"openImage(document.getElementById('live_image').getAttribute('src').substring(document.getElementById('live_image').getAttribute('src').indexOf(',') + 1));\" src='' /></div>
   </div>";
 }
 ?>
@@ -200,10 +201,14 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
   async function parseSSE() {
     try {
       const liveImage = await fetchSSE('live_image', <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
-        newHTML = '';
+        newSRC = '';
         Object.entries(liveImage).forEach(([key, value]) => {
         newSRC = "data:image/jpeg;base64," + liveImage['screenshot'];
         document.getElementById('live_image').src = newSRC;
+
+        newHTML = '';
+        newHTML = "Time: " + liveImage["time_formatted"];
+        document.getElementById('live_image_time').innerHTML = newHTML;
       });
     } catch (error) {
       console.log(error);

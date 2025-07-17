@@ -170,7 +170,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     if (strFilter($_GET["tagnumber"]) === 0) {
       echo "<title>Update Client " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>";
     } else {
-      echo "<title>Client Data - UIT Client Mgmt</title>";
+      echo "<title>Locations - UIT Client Mgmt</title>";
     }
     
     ?>
