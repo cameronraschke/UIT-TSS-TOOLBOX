@@ -251,6 +251,7 @@ if ($arr[0] == "live_images") {
     $fd = fopen($fileName, 'c+');
     fwrite($fd, base64_decode($value));
     $imageObject = imagecreatefromstring(fread($fd, filesize($fileName)));
+    imageinterlace($imageObject, true);
     fclose($fd);
     if ($imageObject !== false) {
       ob_start();

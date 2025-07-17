@@ -52,6 +52,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
     //Rotate original
     $rotateImageData = base64_decode($value["image"]);
     $rotateImageObject = imagecreatefromstring($rotateImageData);
+    imageinterlace($rotateImageObject, true);
     $rotatedImage = imagerotate($rotateImageObject, -90, 0);
     ob_start();
     imagejpeg($rotatedImage, NULL, 100);
@@ -66,6 +67,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
       //Rotate thumbnail
       $rotateThumbnailData = base64_decode($value["image"]);
       $rotateThumbnailObject = imagecreatefromstring($rotateThumbnailData);
+      imageinterlace($rotateThumbnailObject, true);
       ob_start();
       imagejpeg($rotateThumbnailObject, NULL, 30);
       $rotateThumbnailEncoded = base64_encode(ob_get_clean());
@@ -104,6 +106,8 @@ if (isset($_FILES) && strFilter($_FILES) === 0) {
           $imageObject = imagecreatefromstring($rawFileData);
           if ($imageObject !== false) {
             $imageResolution = imagesx($imageObject) . "x" . imagesy($imageObject);
+            
+            imageinterlace($imageObject, true);
 
             //Main jpeg
             ob_start();

@@ -92,6 +92,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
   foreach ($db->get() as $key => $value) {
     $rotateImageData = base64_decode($value["image"]);
     $rotateImageObject = imagecreatefromstring($rotateImageData);
+    imageinterlace($rotateImageData, true);
     $rotatedImage = imagerotate($rotateImageObject, -90, 0);
     ob_start();
     imagejpeg($rotatedImage, NULL, 100);
