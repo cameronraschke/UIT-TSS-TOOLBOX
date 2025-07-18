@@ -32,7 +32,7 @@ find /srv/nfs/ -type d -exec chmod 755 {} \;
 /usr/bin/chown nobody:nogroup /srv/nfs/uit-toolbox/images -R
 
 /usr/bin/chown root:uit /etc/opt/uit-toolbox -R
-find /etc/opt/uit-toolbox -type d -exec chmod 750 {} \;
+find /etc/opt/uit-toolbox -type d -exec chmod 770 {} \;
 find /etc/opt/uit-toolbox -type f -exec chmod 660 {} \;
 
 mkdir /var/www/html/uit-web/transcode
