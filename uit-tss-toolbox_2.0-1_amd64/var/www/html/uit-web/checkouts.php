@@ -9,10 +9,10 @@ if ($_SESSION['authorized'] != "yes") {
 $db = new db();
 
 $sql = "SELECT * FROM (SELECT checkouts.time, checkouts.tagnumber, checkouts.customer_name, checkouts.customer_psid, checkouts.checkout_date, checkouts.return_date, checkouts.checkout_bool, checkouts.note,
-    ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' 
+    ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums 
     FROM checkouts) t1
-    WHERE (t1.checkout_date IS NOT NULL OR t1.return_date) IS NOT NULL 
-        AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = 1 ORDER BY t1.customer_name ASC, t1.checkout_date DESC, t1.tagnumber DESC";
+    WHERE (t1.checkout_date IS NOT NULL OR t1.return_date IS NOT NULL)
+        AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = TRUE ORDER BY t1.customer_name ASC, t1.checkout_date DESC, t1.tagnumber DESC";
 
 if (isset($sqlArr)) {
     $db->Pselect($sql, $sqlArr);

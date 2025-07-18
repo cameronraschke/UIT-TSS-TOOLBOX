@@ -10,6 +10,7 @@ if (!isset($_GET["type"])) {
 // }
 
 $db = new db();
+$dbPSQL = new dbPSQL();
 
 if (isset($_GET["tagnumber"])) {
   $db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
@@ -39,8 +40,8 @@ if ($_GET["type"] == "job_queue" && isset($_GET["tagnumber"])) {
 }
 
 if ($_GET["type"] == "live_image" && isset($_GET["tagnumber"])) {
-  $db->Pselect("SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', screenshot FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-  foreach ($db->get() as $key => $value) {
+  $dbPSQL->Pselect("SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS') AS time_formatted, screenshot FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+  foreach ($dbPSQL->get() as $key => $value) {
     $event = "live_image";
     $data = json_encode($value);
   }

@@ -17,8 +17,10 @@ if ($_SESSION['authorized'] != "yes") {
 }
 
 $db = new db();
-$db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-if (strFilter($db->get()) === 1) {
+$dbPSQL = new dbPSQL();
+
+$dbPSQL->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+if (strFilter($dbPSQL->get()) === 1) {
   exit();
 }
 
@@ -32,23 +34,23 @@ curl_close($ch);
 <?php
 //POST data
 if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
-  $db->deleteImage($_POST["delete-image-uuid"], $_POST["delete-image-time"], $_POST["delete-image-tagnumber"]);
+  $dbPSQL->deleteImage($_POST["delete-image-uuid"], $_POST["delete-image-time"], $_POST["delete-image-tagnumber"]);
 }
 
 if (isset($_POST["image-primary"]) && $_POST["image-primary"] == "1" && strFilter($_POST["image-primary-uuid"]) === 0 && strFilter($_POST["image-primary-tagnumber"]) === 0) {
-  $db->Pselect("SELECT uuid FROM client_images WHERE primary_image = 1 AND tagnumber = :tagnumber", array(':tagnumber' => $_POST["image-primary-tagnumber"]));
-  if (strFilter($db->get()) === 0) {
-    foreach ($db->get() as $key => $value) {
-      $db->updateImage("primary_image", "0", $value["uuid"]);
+  $dbPSQL->Pselect("SELECT uuid FROM client_images WHERE primary_image = 1 AND tagnumber = :tagnumber", array(':tagnumber' => $_POST["image-primary-tagnumber"]));
+  if (strFilter($dbPSQL->get()) === 0) {
+    foreach ($dbPSQL->get() as $key => $value) {
+      $dbPSQL->updateImage("primary_image", "0", $value["uuid"]);
     }
   }
-  $db->updateImage("primary_image", "1", trim($_POST["image-primary-uuid"]));
+  $dbPSQL->updateImage("primary_image", "1", trim($_POST["image-primary-uuid"]));
   unset($value);
 }
 
 if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
-  $db->Pselect("SELECT image FROM client_images WHERE uuid = :uuid AND time = :time AND tagnumber = :tagnumber", array(':uuid' => $_POST["rotate-image-uuid"], ':time' => $_POST["rotate-image-time"], ':tagnumber' => $_POST["rotate-image-tagnumber"]));
-  foreach ($db->get() as $key => $value) {
+  $dbPSQL->Pselect("SELECT image FROM client_images WHERE uuid = :uuid AND time = :time AND tagnumber = :tagnumber", array(':uuid' => $_POST["rotate-image-uuid"], ':time' => $_POST["rotate-image-time"], ':tagnumber' => $_POST["rotate-image-tagnumber"]));
+  foreach ($dbPSQL->get() as $key => $value) {
     //Rotate original
     $rotateImageData = base64_decode($value["image"]);
     $rotateImageObject = imagecreatefromstring($rotateImageData);
@@ -62,8 +64,8 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
     unset($value);
   }
 
-    $db->Pselect("SELECT image FROM client_images WHERE uuid = :uuid AND time = :time AND tagnumber = :tagnumber", array(':uuid' => $_POST["rotate-image-uuid"], ':time' => $_POST["rotate-image-time"], ':tagnumber' => $_POST["rotate-image-tagnumber"]));
-    foreach ($db->get() as $key => $value) {
+    $dbPSQL->Pselect("SELECT image FROM client_images WHERE uuid = :uuid AND time = :time AND tagnumber = :tagnumber", array(':uuid' => $_POST["rotate-image-uuid"], ':time' => $_POST["rotate-image-time"], ':tagnumber' => $_POST["rotate-image-tagnumber"]));
+    foreach ($dbPSQL->get() as $key => $value) {
       //Rotate thumbnail
       $rotateThumbnailData = base64_decode($value["image"]);
       $rotateThumbnailObject = imagecreatefromstring($rotateThumbnailData);
@@ -93,8 +95,8 @@ if (isset($_FILES) && strFilter($_FILES) === 0) {
       //Get file hash
       $imageHash = md5($rawFileData);
       //Check if hash already in DB
-      $db->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash AND tagnumber = :tagnumber", array(':md5_hash' => $imageHash, ':tagnumber' => $_GET["tagnumber"]));
-      if (strFilter($db->get()) === 1) {
+      $dbPSQL->Pselect("SELECT uuid FROM client_images WHERE md5_hash = :md5_hash AND tagnumber = :tagnumber", array(':md5_hash' => $imageHash, ':tagnumber' => $_GET["tagnumber"]));
+      if (strFilter($dbPSQL->get()) === 1) {
         unset($imageUUID);
         $imageUUID = uniqid("image-", true);
         //Convert all images to jpeg
@@ -503,13 +505,13 @@ $sqlArr = $db->get();
 
       <div class='column'>
         <?php
-        $db->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, IF (mime_type LIKE 'video%', image, thumbnail) AS 'thumbnail', note, primary_image, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0 ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
-        if (strFilter($db->get()) === 0) {
+        $dbPSQL->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, (CASE WHEN mime_type LIKE 'video%' THEN image ELSE thumbnail END) AS thumbnail, note, primary_image, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS') AS time_formatted, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber AND hidden = FALSE ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
+        if (strFilter($dbPSQL->get()) === 0) {
           echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All Images</b>]</a></div>";
           echo "<div class='grid-container'>";
-          foreach ($db->get() as $key => $image) {
-              $db->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM client_images WHERE tagnumber = :tagnumber AND hidden = 0", array(':tagnumber' => $_GET["tagnumber"]));
-              $totalRows = $db->get_rows();
+          foreach ($dbPSQL->get() as $key => $image) {
+              $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber AND hidden = FALSE", array(':tagnumber' => $_GET["tagnumber"]));
+              $totalRows = $dbPSQL->get_rows();
               echo "<div class='grid-box'>";
               echo "<div style='display: table; clear: both; width: 100%;'>";
               //Delete image form
@@ -775,7 +777,7 @@ $sqlArr = $db->get();
 </thead>
 <tbody>
 <?php
-$db->Pselect("SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', customer_name, checkout_date, return_date, note FROM checkouts WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
+$db->Pselect("SELECT time, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS') AS time_formatted, customer_name, checkout_date, return_date, note FROM checkouts WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
 if (arrFilter($db->get()) === 0) {
 foreach ($db->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;

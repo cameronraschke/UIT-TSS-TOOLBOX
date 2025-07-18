@@ -10,7 +10,8 @@ foreach ($db->get() as $tablesKey => $tablesValue) {
 
 $db->AssocSelect("SELECT * FROM " . $tablesValue["Tables_in_laptopDB"]);
 $dbPSQL->select("DELETE FROM " . $tablesValue["Tables_in_laptopDB"]);
-if (preg_match('/archive.*/', $tablesValue["Tables_in_laptopDB"]) === 0) {
+$migratedTablesArr = array('notes', 'client_images');
+if (preg_match('/archive.*/', $tablesValue["Tables_in_laptopDB"]) === 0 && !in_array($tablesValue["Tables_in_laptopDB"], $migratedTablesArr)) {
 foreach ($db->get() as $key => $value) {
         $arrKeys = array_keys($value);
         $arrKeysStr = implode(',', $arrKeys);
