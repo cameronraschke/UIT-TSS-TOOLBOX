@@ -6,7 +6,7 @@ if ($_SESSION['authorized'] != "yes") {
   die();
 }
 
-$db = new db();
+$db = new dbPSQL();
 
 $sql = "SELECT * FROM (SELECT checkouts.time, checkouts.tagnumber, checkouts.customer_name, checkouts.customer_psid, checkouts.checkout_date, checkouts.return_date, checkouts.checkout_bool, checkouts.note,
     ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums 
