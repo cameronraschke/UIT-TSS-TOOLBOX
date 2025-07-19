@@ -338,7 +338,7 @@ INSERT INTO static_tags (
 CREATE TABLE IF NOT EXISTS client_images (
     uuid VARCHAR(64) UNIQUE NOT NULL,
     time TIMESTAMP(3) NOT NULL,
-    tagnumber VARCHAR(6) NOT NULL, 
+    tagnumber INTEGER NOT NULL, 
     filename VARCHAR(64) DEFAULT NULL,
     filesize DECIMAL(5,2) DEFAULT NULL,
     image TEXT DEFAULT NULL,
@@ -348,12 +348,12 @@ CREATE TABLE IF NOT EXISTS client_images (
     exif_timestamp TIMESTAMP(3) DEFAULT NULL,
     resolution VARCHAR(24) DEFAULT NULL,
     note VARCHAR(256) DEFAULT NULL,
-    hidden BOOLEAN DEFAULT NULL,
+    hidden BOOLEAN DEFAULT FALSE,
     primary_image BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS live_images (
-    tagnumber VARCHAR(6) UNIQUE NOT NULL,
+    tagnumber INTEGER UNIQUE NOT NULL,
     time TIMESTAMP(3) DEFAULT NULL,
     screenshot TEXT DEFAULT NULL
 );
@@ -470,10 +470,10 @@ INSERT INTO static_notes (note, note_readable, sort_order) VALUES
 
 CREATE TABLE IF NOT EXISTS checkouts (
     time TIMESTAMP(3) UNIQUE NOT NULL,
-    tagnumber VARCHAR(6) DEFAULT NULL,
+    tagnumber INTEGER DEFAULT NULL,
     customer_name VARCHAR(48) DEFAULT NULL,
     customer_psid VARCHAR(24) DEFAULT NULL,
-    checkout_bool BOOLEAN DEFAULT NULL,
+    checkout_bool BOOLEAN DEFAULT FALSE,
     checkout_date DATE DEFAULT NULL,
     return_date DATE DEFAULT NULL,
     checkout_group VARCHAR(48) DEFAULT NULL,

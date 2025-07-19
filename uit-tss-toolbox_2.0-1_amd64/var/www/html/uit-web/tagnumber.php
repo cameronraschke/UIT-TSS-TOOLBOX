@@ -414,6 +414,7 @@ $sqlArr = $db->get();
                     }
                     ?>
                     <?php
+                    // CHANGE TYPE LATER //
                     if ($value["checkout_bool"] === 1) {
                       echo "<p><b>[CHECKOUT]</b> - Checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
                     }
@@ -510,7 +511,7 @@ $sqlArr = $db->get();
           echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All Images</b>]</a></div>";
           echo "<div class='grid-container'>";
           foreach ($dbPSQL->get() as $key => $image) {
-              $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = tagnumber AND hidden = FALSE OR hidden IS NULL", array(':tagnumber' => $_GET["tagnumber"]));
+              $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = tagnumber AND hidden = FALSE", array(':tagnumber' => $_GET["tagnumber"]));
               $totalRows = $dbPSQL->get_rows();
               echo "<div class='grid-box'>";
               echo "<div style='display: table; clear: both; width: 100%;'>";

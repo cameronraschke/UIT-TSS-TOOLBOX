@@ -120,9 +120,9 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     $checkoutDateDT = $postDate2->format('Y-m-d');
     
     if ($date >= $returnDateDT && strFilter($_POST["return_date"]) === 0) {
-      $db->updateCheckout("checkout_bool", 0, $time);
+      $db->updateCheckout("checkout_bool", FALSE, $time);
     } else {
-      $db->updateCheckout("checkout_bool", 1, $time);
+      $db->updateCheckout("checkout_bool", TRUE, $time);
     }
 
     $db->updateCheckout("checkout_date", $checkoutDate, $time);
@@ -425,7 +425,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
             </div>
             <div class='row'>
               <div class='column'>";
-                  $dbPSQL->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkouts WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_GET["tagnumber"]));
+                  $dbPSQL->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkouts WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = TRUE AND t1.row_count = 1", array(':tagnumber' => $_GET["tagnumber"]));
                   if (strFilter($dbPSQL->get()) === 0) {
                     foreach ($dbPSQL->get() as $key => $value1) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
@@ -590,9 +590,9 @@ if (strFilter($_GET["system_model"]) === 0) {
 // }
 
 if ($_GET["checkout"] == "0") {
-  $sql .= "AND t2.checkout_bool IS NULL ";
+  $sql .= "AND t2.checkout_bool = FALSE ";
 } elseif ($_GET["checkout"] == "1") {
-  $sql .= "AND t2.checkout_bool = 1 ";
+  $sql .= "AND t2.checkout_bool = TRUE ";
 }
 
 // Broken filter
@@ -936,6 +936,7 @@ foreach ($tableArr as $key => $value1) {
     echo "" . PHP_EOL;
   }
 
+  // CHANGE TYPE LATER //
   if ($value1["checkout_bool"] === 1) {
     echo "<img style='width: auto; height: 1.5em;' src='/images/checkout.svg'>";
   }

@@ -10,6 +10,8 @@ fclose($fd);
 $arr = explode('|', $input);
 
 $db = new db();
+$dbPSQL = new dbPSQL();
+
 
 if ($arr[0] == "init") {
     $uuid = $arr[1];
@@ -241,9 +243,9 @@ if ($arr[0] == "live_images") {
     $key = $arr[2];
     $fileName = $arr[3];
 
-    $db->Pselect("SELECT tagnumber FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $tagNum));
-    if (strFilter($db->get()) === 1) {
-        $db->insertLiveImages($tagNum);
+    $dbPSQL->Pselect("SELECT tagnumber FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $tagNum));
+    if (strFilter($dbPSQL->get()) === 1) {
+        $dbPSQL->insertLiveImages($tagNum);
     }
 
   if ($arr[2] == "screenshot") {
@@ -263,8 +265,8 @@ if ($arr[0] == "live_images") {
     }
   }
 
-    $db->updateLiveImages($tagNum, "screenshot", $imageFileConverted);
-    $db->updateLiveImages($tagNum, "time", $time);
+    $dbPSQL->updateLiveImages($tagNum, "screenshot", $imageFileConverted);
+    $dbPSQL->updateLiveImages($tagNum, "time", $time);
 }
 
 ?>
