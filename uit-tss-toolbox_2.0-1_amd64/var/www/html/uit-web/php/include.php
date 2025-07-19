@@ -123,7 +123,7 @@ class scriptTimer {
 }
 
 class PostgreSQLConn {
-    private static $user = "cameron";
+    private static $user = "uitweb";
     private static $pass = "WEB_SVC_PASSWD";
     private static $host = "localhost";
     private static $dbName = "uitdb";
