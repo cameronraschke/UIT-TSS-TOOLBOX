@@ -178,6 +178,7 @@ sshfs
 php
 php-cli
 php-mysql
+php-pgsql
 httpfs2
 nfs-common
 smartmontools
