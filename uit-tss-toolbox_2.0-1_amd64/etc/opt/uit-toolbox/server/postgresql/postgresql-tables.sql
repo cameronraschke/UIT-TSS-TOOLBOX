@@ -17,7 +17,7 @@ CREATE TABLE serverstats (
 
 DROP TABLE IF EXISTS clientstats;
 CREATE TABLE clientstats (
-    tagnumber VARCHAR(8) UNIQUE NOT NULL,
+    tagnumber INTEGER UNIQUE NOT NULL,
     system_serial VARCHAR(24) DEFAULT NULL,
     system_model VARCHAR(64) DEFAULT NULL,
     last_job_time TIMESTAMP DEFAULT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE clientstats (
 
 CREATE TABLE IF NOT EXISTS jobstats (
     uuid VARCHAR(64) UNIQUE NOT NULL,
-    tagnumber VARCHAR(8) DEFAULT NULL,
+    tagnumber INTEGER DEFAULT NULL,
     etheraddress VARCHAR(17) DEFAULT NULL,
     date DATE DEFAULT NULL,
     time TIMESTAMP(3) DEFAULT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
 
 CREATE TABLE IF NOT EXISTS locations (
     time TIMESTAMP(3) UNIQUE NOT NULL,
-    tagnumber VARCHAR(8) DEFAULT NULL,
+    tagnumber INTEGER DEFAULT NULL,
     system_serial VARCHAR(24) DEFAULT NULL,
     location VARCHAR(128) DEFAULT NULL,
     status BOOLEAN DEFAULT NULL,
@@ -223,7 +223,7 @@ CREATE TABLE IF NOT EXISTS client_health (
 
 
 CREATE TABLE IF NOT EXISTS remote (
-    tagnumber VARCHAR(8) UNIQUE NOT NULL,
+    tagnumber INTEGER UNIQUE NOT NULL,
     job_queued VARCHAR(24) DEFAULT NULL,
     job_queued_position SMALLINT DEFAULT NULL,
     job_active BOOLEAN DEFAULT NULL,
@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS logins (
 
 
 CREATE TABLE IF NOT EXISTS system_data (
-    tagnumber VARCHAR(8) UNIQUE NOT NULL,
+    tagnumber INTEGER UNIQUE NOT NULL,
     etheraddress VARCHAR(17) DEFAULT NULL,
     wifi_mac VARCHAR(17) DEFAULT NULL,
     system_manufacturer VARCHAR(24) DEFAULT NULL,
@@ -275,7 +275,7 @@ CREATE TABLE IF NOT EXISTS system_data (
 
 DROP TABLE IF EXISTS bitlocker;
 CREATE TABLE IF NOT EXISTS bitlocker (
-    tagnumber VARCHAR(8) UNIQUE NOT NULL,
+    tagnumber INTEGER UNIQUE NOT NULL,
     identifier VARCHAR(128) NOT NULL,
     recovery_key VARCHAR(128) NOT NULL
 );
@@ -349,7 +349,7 @@ CREATE TABLE IF NOT EXISTS client_images (
     resolution VARCHAR(24) DEFAULT NULL,
     note VARCHAR(256) DEFAULT NULL,
     hidden BOOLEAN DEFAULT NULL,
-    primary_image BOOLEAN DEFAULT NULL
+    primary_image BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS live_images (

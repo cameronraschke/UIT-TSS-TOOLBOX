@@ -127,7 +127,6 @@ class PostgreSQLConn {
     private static $pass = "WEB_SVC_PASSWD";
     private static $host = "localhost";
     private static $dbName = "uitdb";
-    private static $charset = "utf8mb4";
     private static $options = array(PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => true, PDO::ERRMODE_EXCEPTION => true);
     public function dbObj() {
         return new PDO("pgsql:host=" . self::$host . ";port=5432;dbname=" . self::$dbName . ";", self::$user, self::$pass, self::$options);
@@ -667,7 +666,10 @@ class db {
         $sql = "UPDATE client_images SET $key = :value WHERE uuid = :uuid";
         $stmt = $this->pdo->prepare($sql);
 
-        if (strFilter($value) === 0) {
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR); 
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (strFilter($value) === 0) {
           $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         } else {
@@ -764,11 +766,11 @@ class dbPSQL {
 
     //ORDER OF THESE ENTRIES MATTER
     $acceptableTables = array();
-    $stmt = $this->pdo->prepare("SHOW TABLES");
+    $stmt = $this->pdo->prepare("SELECT * FROM pg_catalog.pg_tables WHERE schemaname='public'");
     $stmt->execute();
     $tableArr = $stmt->fetchAll();
     foreach ($tableArr as $key => $value) {
-      array_push($acceptableTables, $value["Tables_in_laptopDB"]);
+      array_push($acceptableTables, $value["tablename"]);
     }
     unset($tableArr);
     unset($value);
@@ -780,11 +782,11 @@ class dbPSQL {
 
     //ORDER OF THESE ENTRIES MATTER
     $acceptableCols = array();
-    $stmt = $this->pdo->prepare("DESCRIBE " . $table);
+    $stmt = $this->pdo->prepare("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '" . $table . "'");
     $stmt->execute();
     $colsArr = $stmt->fetchAll();
     foreach ($colsArr as $key => $value) {
-      array_push($acceptableCols, $value["Field"]);
+      array_push($acceptableCols, $value["column_name"]);
     }
     unset($colsArr);
     unset($value);

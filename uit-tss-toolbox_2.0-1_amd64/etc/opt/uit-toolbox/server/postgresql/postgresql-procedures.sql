@@ -205,80 +205,80 @@ $$;
 
 
 
--- Select info about a tag
-CREATE OR REPLACE PROCEDURE selectTag(tag VARCHAR(8))
-LANGUAGE SQL
-BEGIN ATOMIC
-SELECT t1.time,
-    t1.tagnumber,
-    t1.system_serial,
-    t1.bios_version,
-    t2.system_model,
-    t1.cpu_usage,
-    t1.network_usage,
-    t1.battery_health,
-    t1.disk_power_on_hours,
-    t1.ram_serial,
-    t1.host_connected
-    FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = tag ORDER BY t1.time DESC LIMIT 5;
+-- -- Select info about a tag
+-- CREATE OR REPLACE PROCEDURE selectTag(tag VARCHAR(8))
+-- LANGUAGE SQL
+-- BEGIN ATOMIC
+-- SELECT t1.time,
+--     t1.tagnumber,
+--     t1.system_serial,
+--     t1.bios_version,
+--     t2.system_model,
+--     t1.cpu_usage,
+--     t1.network_usage,
+--     t1.battery_health,
+--     t1.disk_power_on_hours,
+--     t1.ram_serial,
+--     t1.host_connected
+--     FROM jobstats t1 INNER JOIN system_data t2 ON t1.tagnumber = t2.tagnumber WHERE t1.tagnumber = tag ORDER BY t1.time DESC LIMIT 5;
 
-SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
-END;
-
-
-
--- Select DISK info about a tag
-CREATE OR REPLACE PROCEDURE selectTagDisk(tag VARCHAR(8))
-LANGUAGE SQL
-BEGIN ATOMIC
-SELECT time, 
-    disk_model, 
-    disk_serial, 
-    disk_type, 
-    disk_writes, 
-    disk_reads, 
-    disk_power_on_hours 
-    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
-END;
+-- SELECT * FROM locations WHERE tagnumber = tag ORDER BY time DESC LIMIT 7;
+-- END;
 
 
--- Select job info about a tag
-CREATE OR REPLACE PROCEDURE selectTagJob(tag VARCHAR(8))
-LANGUAGE SQL
-BEGIN ATOMIC
-SELECT time, 
-    tagnumber, 
-    erase_completed, 
-    clone_completed, 
-    clone_master,
-    host_connected
-    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
-    END;
+
+-- -- Select DISK info about a tag
+-- CREATE OR REPLACE PROCEDURE selectTagDisk(tag VARCHAR(8))
+-- LANGUAGE SQL
+-- BEGIN ATOMIC
+-- SELECT time, 
+--     disk_model, 
+--     disk_serial, 
+--     disk_type, 
+--     disk_writes, 
+--     disk_reads, 
+--     disk_power_on_hours 
+--     FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
+-- END;
 
 
--- Select battery info about a tag
-CREATE OR REPLACE PROCEDURE selectTagBattery(tag VARCHAR(8))
-LANGUAGE SQL
-BEGIN ATOMIC
-SELECT time, 
-    tagnumber, 
-    battery_model, 
-    battery_serial, 
-    battery_capacity, 
-    battery_charge_cycles,
-    battery_health,
-    battery_manufacturedate 
-    FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
-    END;
+-- -- Select job info about a tag
+-- CREATE OR REPLACE PROCEDURE selectTagJob(tag VARCHAR(8))
+-- LANGUAGE SQL
+-- BEGIN ATOMIC
+-- SELECT time, 
+--     tagnumber, 
+--     erase_completed, 
+--     clone_completed, 
+--     clone_master,
+--     host_connected
+--     FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
+--     END;
+
+
+-- -- Select battery info about a tag
+-- CREATE OR REPLACE PROCEDURE selectTagBattery(tag VARCHAR(8))
+-- LANGUAGE SQL
+-- BEGIN ATOMIC
+-- SELECT time, 
+--     tagnumber, 
+--     battery_model, 
+--     battery_serial, 
+--     battery_capacity, 
+--     battery_charge_cycles,
+--     battery_health,
+--     battery_manufacturedate 
+--     FROM jobstats WHERE tagnumber = tag ORDER BY time DESC LIMIT 20;
+--     END;
 
 
 -- Select remote table data
 CREATE OR REPLACE PROCEDURE selectRemote()
 LANGUAGE SQL
 BEGIN ATOMIC
-    SELECT CAST(remote.tagnumber AS VARCHAR) AS "Tag", 
-        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS') AS "Last Heard", locationFormatting(t3.location) AS "Location", 
-        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS') AS "Last Job Time", 
+    SELECT remote.tagnumber AS "Tag", 
+        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS "Last Heard", locationFormatting(t3.location) AS "Location", 
+        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS "Last Job Time", 
         remote.job_queued AS "Pending Job", remote.status AS "Status",
         CONCAT((CASE WHEN remote.kernel_updated = TRUE THEN 'Yes' ELSE 'No' END), '/', ( CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END)) AS "Kernel/BIOS Updated", client_health.os_name AS "OS Name", 
         CONCAT(remote.battery_charge, '% (', remote.battery_status, ')') AS "Battery Status", 
@@ -304,9 +304,9 @@ BEGIN ATOMIC
 CREATE OR REPLACE PROCEDURE selectRemoteMissing()
 LANGUAGE SQL
 BEGIN ATOMIC
-    SELECT CAST(remote.tagnumber AS VARCHAR) AS "Tag", 
-        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS') AS "Last Heard", locationFormatting(t3.location) AS "Location", 
-        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS') AS "Last Job Time", 
+    SELECT remote.tagnumber AS "Tag", 
+        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS "Last Heard", locationFormatting(t3.location) AS "Location", 
+        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS "Last Job Time", 
         remote.job_queued AS "Pending Job", remote.status AS "Status",
         (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS "BIOS Updated", client_health.os_name AS "OS Name", 
         CONCAT(remote.battery_charge, '% (', remote.battery_status, ')') AS "Battery Status", 
@@ -481,10 +481,10 @@ END;
 
 
 
-CREATE OR REPLACE PROCEDURE selectNullTagnumbers()
-LANGUAGE SQL
-BEGIN ATOMIC
+-- CREATE OR REPLACE PROCEDURE selectNullTagnumbers()
+-- LANGUAGE SQL
+-- BEGIN ATOMIC
 
-select etheraddress, count(etheraddress) AS "count" from jobstats where tagnumber is null group by etheraddress order by count asc;
+-- select etheraddress, count(etheraddress) AS "count" from jobstats where tagnumber is null group by etheraddress order by count asc;
 
-END;
+-- END;

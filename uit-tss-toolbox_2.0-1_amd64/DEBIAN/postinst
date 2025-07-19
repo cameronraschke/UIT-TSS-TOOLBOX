@@ -115,6 +115,11 @@ mysql --database='laptopDB' --execute="ALTER USER 'cameron'@'localhost' IDENTIFI
 mysql --database='laptopDB' --execute="ALTER USER 'uitclient'@'10.0.0.0/255.255.0.0' IDENTIFIED BY '${CLIENT_PASSWD}';"
 mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIED BY '${WEB_SVC_PASSWD}';"
 
+# PostgreSQL Users
+sudo -u postgres psql --command="ALTER USER cameron WITH PASSWORD '${DB_ADMIN_PASSWD}';"
+sudo -u postgres psql --command="ALTER USER uitclient WITH PASSWORD '${CLIENT_PASSWD}';"
+sudo -u postgres psql --command="ALTER USER uitweb WITH PASSWORD '${WEB_SVC_PASSWD}';"
+
 
 # Client-side Bash Scripts
 sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/usr/sbin/uit-toolbox-client

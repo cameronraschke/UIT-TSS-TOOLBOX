@@ -14,6 +14,7 @@ if ($_SESSION['authorized'] != "yes") {
 }
 
 $db = new db();
+$dbPSQL = new dbPSQL();
 
 if ($_GET["refresh"] == "1") {
   $ch = curl_init();
@@ -424,9 +425,9 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
             </div>
             <div class='row'>
               <div class='column'>";
-                  $db->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkouts WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_GET["tagnumber"]));
-                  if (strFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key => $value1) {
+                  $dbPSQL->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkouts WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = 1 AND t1.row_count = 1", array(':tagnumber' => $_GET["tagnumber"]));
+                  if (strFilter($dbPSQL->get()) === 0) {
+                    foreach ($dbPSQL->get() as $key => $value1) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
                       //echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value1["checkout_date"]) . "' min='2020-01-01' /></div>";
                       echo "<input type='date' id='checkout_date' name='checkout_date' value='" . $value1["checkout_date"] . "' min='2020-01-01' /></div>";
@@ -443,8 +444,8 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
                       echo "</div>";
                     }
                   } else {
-                    $db->select("SELECT DATE_FORMAT(NOW(), '%Y-%m-%d') AS 'cur_date', DATE_FORMAT(NOW() + INTERVAL 1 WEEK, '%Y-%m-%d') AS 'next_date'");
-                    foreach ($db->get() as $key => $value2) {
+                    $dbPSQL->select("SELECT TO_CHAR(NOW(), 'YYYY-MM-DD HH24:MI:SS') AS cur_date, TO_CHAR(NOW() + INTERVAL '1 WEEK', 'YYYY-MM-DD HH24:MI:SS') AS next_date");
+                    foreach ($dbPSQL->get() as $key => $value2) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
                       //echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value2["cur_date"]) . "' min='2020-01-01' /></div>";
                       echo "<input type='date' id='checkout_date' name='checkout_date' value='' min='2020-01-01' /></div>";
@@ -460,6 +461,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
                       echo "</div>";        
                     }
                     unset($value1);
+                    unset($value2);
                   }
         echo "</div>";
 

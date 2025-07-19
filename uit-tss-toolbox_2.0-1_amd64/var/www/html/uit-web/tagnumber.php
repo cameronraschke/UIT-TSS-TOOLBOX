@@ -19,8 +19,8 @@ if ($_SESSION['authorized'] != "yes") {
 $db = new db();
 $dbPSQL = new dbPSQL();
 
-$dbPSQL->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-if (strFilter($dbPSQL->get()) === 1) {
+$db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+if (strFilter($db->get()) === 1) {
   exit();
 }
 
@@ -38,13 +38,13 @@ if (isset($_POST["delete-image"]) && $_POST["delete-image"] == "1") {
 }
 
 if (isset($_POST["image-primary"]) && $_POST["image-primary"] == "1" && strFilter($_POST["image-primary-uuid"]) === 0 && strFilter($_POST["image-primary-tagnumber"]) === 0) {
-  $dbPSQL->Pselect("SELECT uuid FROM client_images WHERE primary_image = 1 AND tagnumber = :tagnumber", array(':tagnumber' => $_POST["image-primary-tagnumber"]));
+  $dbPSQL->Pselect("SELECT uuid FROM client_images WHERE primary_image = TRUE AND tagnumber = :tagnumber", array(':tagnumber' => $_POST["image-primary-tagnumber"]));
   if (strFilter($dbPSQL->get()) === 0) {
     foreach ($dbPSQL->get() as $key => $value) {
-      $dbPSQL->updateImage("primary_image", "0", $value["uuid"]);
+      $dbPSQL->updateImage("primary_image", false, $value["uuid"]);
     }
   }
-  $dbPSQL->updateImage("primary_image", "1", trim($_POST["image-primary-uuid"]));
+  $dbPSQL->updateImage("primary_image", true, trim($_POST["image-primary-uuid"]));
   unset($value);
 }
 
@@ -60,7 +60,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
     imagejpeg($rotatedImage, NULL, 100);
     $rotateImageEncoded = base64_encode(ob_get_clean());
     imagedestroy($rotateImageObject);
-    $db->updateImage("image", $rotateImageEncoded, $_POST["rotate-image-uuid"]);
+    $dbPSQL->updateImage("image", $rotateImageEncoded, $_POST["rotate-image-uuid"]);
     unset($value);
   }
 
@@ -75,7 +75,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
       $rotateThumbnailEncoded = base64_encode(ob_get_clean());
       imagedestroy($rotateThumbnailObject);
 
-      $db->updateImage("thumbnail", $rotateThumbnailEncoded, $_POST["rotate-image-uuid"]);
+      $dbPSQL->updateImage("thumbnail", $rotateThumbnailEncoded, $_POST["rotate-image-uuid"]);
       unset($value);
     }
   unset($value);
@@ -143,18 +143,18 @@ if (isset($_FILES) && strFilter($_FILES) === 0) {
           //$imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
         }
 
-          $db->insertImage($imageUUID, $time, $_GET["tagnumber"]);
-          $db->updateImage("image", $imageFileConverted, $imageUUID);
-          $db->updateImage("thumbnail", $imageFileCompressed, $imageUUID);
-          $db->updateImage("md5_hash", $imageHash, $imageUUID);
-          $db->updateImage("filename", $_FILES["userfile"]["name"][$key], $imageUUID);
-          $db->updateImage("filesize", round($_FILES["userfile"]["size"][$key] / 1000000, 3), $imageUUID);
-          $db->updateImage("note", $_POST["image-note"], $imageUUID);
-          $db->updateImage("mime_type", $mimeType, $imageUUID);
-          //$db->updateImage("hidden", "0", $_POST["delete-image"]);
+          $dbPSQL->insertImage($imageUUID, $time, $_GET["tagnumber"]);
+          $dbPSQL->updateImage("image", $imageFileConverted, $imageUUID);
+          $dbPSQL->updateImage("thumbnail", $imageFileCompressed, $imageUUID);
+          $dbPSQL->updateImage("md5_hash", $imageHash, $imageUUID);
+          $dbPSQL->updateImage("filename", $_FILES["userfile"]["name"][$key], $imageUUID);
+          $dbPSQL->updateImage("filesize", round($_FILES["userfile"]["size"][$key] / 1000000, 3), $imageUUID);
+          $dbPSQL->updateImage("note", $_POST["image-note"], $imageUUID);
+          $dbPSQL->updateImage("mime_type", $mimeType, $imageUUID);
+          //$dbPSQL->updateImage("hidden", "0", $_POST["delete-image"]);
           if (preg_match('/^image.*/', $uploadFileMimeType) === 1) {
-            //$db->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
-            $db->updateImage("resolution", $imageResolution, $imageUUID);
+            //$dbPSQL->updateImage("exif_timestamp", date("Y-m-d H:i:s.v", $exifArr["DateTimeOriginal"]), $imageUUID);
+            $dbPSQL->updateImage("resolution", $imageResolution, $imageUUID);
           }
           unset($imageObject);
           unset($imageFileConverted);
@@ -505,12 +505,12 @@ $sqlArr = $db->get();
 
       <div class='column'>
         <?php
-        $dbPSQL->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, (CASE WHEN mime_type LIKE 'video%' THEN image ELSE thumbnail END) AS thumbnail, note, primary_image, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS') AS time_formatted, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber AND hidden = FALSE ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
+        $dbPSQL->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, (CASE WHEN mime_type LIKE 'video%' THEN image ELSE thumbnail END) AS thumbnail, note, primary_image, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($dbPSQL->get()) === 0) {
           echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All Images</b>]</a></div>";
           echo "<div class='grid-container'>";
           foreach ($dbPSQL->get() as $key => $image) {
-              $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber AND hidden = FALSE", array(':tagnumber' => $_GET["tagnumber"]));
+              $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = tagnumber AND hidden = FALSE OR hidden IS NULL", array(':tagnumber' => $_GET["tagnumber"]));
               $totalRows = $dbPSQL->get_rows();
               echo "<div class='grid-box'>";
               echo "<div style='display: table; clear: both; width: 100%;'>";
@@ -543,7 +543,8 @@ $sqlArr = $db->get();
                 echo "<a style='color: black;' href='/view-images.php?download=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "&uuid=" . $image["uuid"] . "' target='_blank'><img class='icon' src='/images/download.svg'></img>[<b style='color: #C8102E;'>download</b>]</a></div>";
               }
 
-              if (strFilter($image["primary_image"]) === 1) {
+
+              if ($image["primary_image"] === false) {
                 echo "<div><form method='post'>";
                 echo "<input type='hidden' name='image-primary-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
                 echo "<input type='hidden' name='image-primary-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
@@ -777,9 +778,9 @@ $sqlArr = $db->get();
 </thead>
 <tbody>
 <?php
-$db->Pselect("SELECT time, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS') AS time_formatted, customer_name, checkout_date, return_date, note FROM checkouts WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
-if (arrFilter($db->get()) === 0) {
-foreach ($db->get() as $key => $value1) {
+$dbPSQL->Pselect("SELECT time, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, customer_name, checkout_date, return_date, note FROM checkouts WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
+if (arrFilter($dbPSQL->get()) === 0) {
+foreach ($dbPSQL->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['time_formatted']) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['customer_name']) . "</td>" . PHP_EOL;
