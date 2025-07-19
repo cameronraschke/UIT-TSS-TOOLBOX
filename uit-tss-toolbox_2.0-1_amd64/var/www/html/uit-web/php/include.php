@@ -1263,7 +1263,10 @@ class dbPSQL {
         $sql = "UPDATE client_images SET $key = :value WHERE uuid = :uuid";
         $stmt = $this->pdo->prepare($sql);
 
-        if (strFilter($value) === 0) {
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR); 
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (strFilter($value) === 0) {
           $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         } else {
