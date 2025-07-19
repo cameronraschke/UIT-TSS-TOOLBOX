@@ -341,8 +341,8 @@ CREATE TABLE IF NOT EXISTS client_images (
     tagnumber VARCHAR(6) NOT NULL, 
     filename VARCHAR(64) DEFAULT NULL,
     filesize DECIMAL(5,2) DEFAULT NULL,
-    image BYTEA DEFAULT NULL,
-    thumbnail BYTEA DEFAULT NULL,
+    image TEXT DEFAULT NULL,
+    thumbnail TEXT DEFAULT NULL,
     md5_hash VARCHAR(32) DEFAULT NULL,
     mime_type VARCHAR(24) DEFAULT NULL,
     exif_timestamp TIMESTAMP(3) DEFAULT NULL,
@@ -355,7 +355,7 @@ CREATE TABLE IF NOT EXISTS client_images (
 CREATE TABLE IF NOT EXISTS live_images (
     tagnumber VARCHAR(6) UNIQUE NOT NULL,
     time TIMESTAMP(3) DEFAULT NULL,
-    screenshot BYTEA DEFAULT NULL
+    screenshot TEXT DEFAULT NULL
 );
 
 DROP TABLE IF EXISTS static_departments;
@@ -447,10 +447,10 @@ VALUES
 
 CREATE TABLE IF NOT EXISTS notes (
     time TIMESTAMP(3) UNIQUE NOT NULL,
-    todo BYTEA DEFAULT NULL,
-    projects BYTEA DEFAULT NULL,
-    misc BYTEA DEFAULT NULL,
-    bugs BYTEA DEFAULT NULL
+    todo TEXT DEFAULT NULL,
+    projects TEXT DEFAULT NULL,
+    misc TEXT DEFAULT NULL,
+    bugs TEXT DEFAULT NULL
 );
 
 DROP TABLE IF EXISTS static_notes;
