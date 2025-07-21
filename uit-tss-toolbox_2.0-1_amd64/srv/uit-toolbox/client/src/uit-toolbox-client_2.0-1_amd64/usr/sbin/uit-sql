@@ -2,7 +2,7 @@
 while true; do
 SECONDS=0
 serial=$(dmidecode --string system-serial-number)
-tagNum=$(echo "SELECT tagnumber AS 'result' FROM locations WHERE system_serial = '${serial}' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+tagNum=$(echo "SELECT tagnumber AS result FROM locations WHERE system_serial = '${serial}' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 echo "remote|${tagNum}|present|$(date '+%Y-%m-%d %H:%M:%S')" | /opt/uit-toolbox/parse
 
 for i in $(find /sys/class/hwmon/ -mindepth 1); do
@@ -80,11 +80,11 @@ done
 
 
 # Check if cancel job has been sent
-if [[ $(echo "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select) == "cancel" ]]; then
+if [[ $(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select) == "cancel" ]]; then
     echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
     echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
     echo "remote|${tagNum}|status|fail - Job cancelled :(" | /opt/uit-toolbox/parse
-    UUID=$(echo "SELECT uuid AS 'result' FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = 1 ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+    UUID=$(echo "SELECT uuid AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = TRUE ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
     echo "general|erase_completed||${UUID}" | /opt/uit-toolbox/parse
     echo "general|clone_completed||${UUID}" | /opt/uit-toolbox/parse
     pkill --terminal tty1
@@ -94,7 +94,7 @@ fi
 #Network link speed
 for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
     netSpeed=$(cat /sys/class/net/${i}/speed 2>/dev/null)
-    if [[ $netSpeed != $(echo "SELECT network_speed AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select) ]]; then
+    if [[ $netSpeed != $(echo "SELECT network_speed AS result FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select) ]]; then
         echo "remote|${tagNum}|network_speed|$netSpeed" | /opt/uit-toolbox/parse
     fi
 done

@@ -60,7 +60,7 @@ systemctl daemon-reload &>/dev/null
 /usr/bin/chronyc add server 10.0.0.1 iburst
 /usr/bin/chronyc makestep
 
-while [[ $(printf '%s' "SELECT CONCAT(CURDATE(), ' ', CURTIME()) AS 'result'" | /opt/uit-toolbox/select) != $(date '+%Y-%m-%d %H:%M:%S') ]]; do
+while [[ $(printf '%s' "SELECT TO_CHAR(NOW(), 'YYYY-MM-DD HH24:MI:ss') AS result" | /opt/uit-toolbox/select) != $(date '+%Y-%m-%d %H:%M:%S') ]]; do
 	sleep 0.01
 done
 printf '%s\n' "${GREEN}Done.${RESET}"
@@ -97,12 +97,12 @@ ipAddr=$(ip addr | grep -C 2 'state UP' | grep 'inet' | grep -oP '10.0.0.[0-9]{1
 
 
 function remote {
-	job_queued=$(printf '%s' "SELECT job_queued AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
-	job_queued_override=$(printf '%s' "SELECT job_queued AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
-	job_queued_formatted=$(printf '%s' "SELECT (CASE WHEN job_queued = 'data collection' THEN 'data collection' WHEN job_queued = 'update' THEN 'update' WHEN job_queued = 'findmy' THEN 'playing a sound' WHEN (job_queued = 'hpEraseAndClone' OR job_queued = 'generic-erase+clone') THEN 'disk erase & clone' WHEN (job_queued = 'hpCloneOnly' OR job_queued = 'generic-clone') THEN 'disk clone' WHEN job_queued = 'nvmeErase' THEN 'disk erase' WHEN job_queued = 'nvmeVerify' THEN 'disk verify' WHEN job_queued = 'shutdown' THEN 'shutdown' WHEN job_queued = 'clean-shutdown' THEN 'shutdown' ELSE job_queued END) AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select) 
-	job_queued_position=$(printf '%s' "SELECT result FROM (SELECT tagnumber, job_active, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_queued IS NOT NULL AND job_active IS NULL) t1 WHERE t1.tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
-	job_active=$(printf '%s' "SELECT job_active AS 'result' FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
-	job_available=$(printf '%s' "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active IS NOT NULL" | /opt/uit-toolbox/select)
+	job_queued=$(printf '%s' "SELECT job_queued AS result FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
+	job_queued_override=$(printf '%s' "SELECT job_queued AS result FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
+	job_queued_formatted=$(printf '%s' "SELECT (CASE WHEN job_queued = 'data collection' THEN 'data collection' WHEN job_queued = 'update' THEN 'update' WHEN job_queued = 'findmy' THEN 'playing a sound' WHEN (job_queued = 'hpEraseAndClone' OR job_queued = 'generic-erase+clone') THEN 'disk erase & clone' WHEN (job_queued = 'hpCloneOnly' OR job_queued = 'generic-clone') THEN 'disk clone' WHEN job_queued = 'nvmeErase' THEN 'disk erase' WHEN job_queued = 'nvmeVerify' THEN 'disk verify' WHEN job_queued = 'shutdown' THEN 'shutdown' WHEN job_queued = 'clean-shutdown' THEN 'shutdown' ELSE job_queued END) AS result FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select) 
+	job_queued_position=$(printf '%s' "SELECT result FROM (SELECT tagnumber, job_active, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS result FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_queued IS NOT NULL AND job_active IS NULL) t1 WHERE t1.tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
+	job_active=$(printf '%s' "SELECT job_active AS result FROM remote WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
+	job_available=$(printf '%s' "SELECT COUNT(tagnumber) AS result FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active IS NOT NULL" | /opt/uit-toolbox/select)
 }
 
 
@@ -398,9 +398,9 @@ function enterTag {
 	tput reset
 	printf '\n'
 
-	tagNum=$(printf '%s' "SELECT tagnumber AS 'result' FROM locations WHERE system_serial = '$systemSerial' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+	tagNum=$(printf '%s' "SELECT tagnumber AS result FROM locations WHERE system_serial = '${systemSerial}' AND tagnumber IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 	if [[ $tagNum != "NULL" ]]; then
-		sqlDepartment=$(printf '%s' "SELECT department AS 'result' FROM locations WHERE system_serial = '${systemSerial}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+		sqlDepartment=$(printf '%s' "SELECT department AS result FROM locations WHERE system_serial = '${systemSerial}' AND department IS NOT NULL ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 		UUID=""
 		UUID=$(printf '%s' "${sqlDepartment}-"; cat /proc/sys/kernel/random/uuid)
 
@@ -445,7 +445,7 @@ function jobinfo {
 
 
 function footer {
-	biosUpdatedSQL=$(printf '%s' "SELECT bios_version AS 'result' FROM static_bios_stats WHERE system_model = '${tOneProductName}'" | /opt/uit-toolbox/select 2>/dev/null)
+	biosUpdatedSQL=$(printf '%s' "SELECT bios_version AS result FROM static_bios_stats WHERE system_model = '${tOneProductName}'" | /opt/uit-toolbox/select 2>/dev/null)
 	if [[ $biosUpdatedSQL == "NULL" ]]; then
 		biosUpdated="$(dmidecode --string bios-version)"
 	elif [[ $biosUpdatedSQL == $(dmidecode --string bios-version) ]]; then
@@ -453,7 +453,7 @@ function footer {
 	elif [[ $biosUpdatedSQL != $(dmidecode --string bios-version) ]]; then
 		biosUpdated="${RED}Needs Update${RESET}"
 	fi
-	sqlLocation=$(printf '%s' "SELECT location AS 'result' FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select 2>/dev/null)
+	sqlLocation=$(printf '%s' "SELECT location AS result FROM locations WHERE tagnumber = '${tagNum}' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select 2>/dev/null)
 
 	if [[ -d /sys/class/power_supply/BAT0 ]]; then
     batCharge=0
@@ -467,7 +467,7 @@ function footer {
 		batCharge="0"
 	fi
 
-	sqlOS=$(printf '%s' "SELECT os_name AS 'result' FROM client_health WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select 2>/dev/null)
+	sqlOS=$(printf '%s' "SELECT os_name AS result FROM client_health WHERE tagnumber = '${tagNum}'" | /opt/uit-toolbox/select 2>/dev/null)
 	batCharge=${GREEN}${batCharge}${RESET}
 	tput reset
 	lines=$(tput lines)
@@ -1592,14 +1592,14 @@ function terminate {
 	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 
 
-	imgUpdate=$(printf '%s' "SELECT time AS 'result' FROM jobstats WHERE clone_master = '1' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+	imgUpdate=$(printf '%s' "SELECT time AS result FROM jobstats WHERE clone_master = TRUE ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
 	imgUpdate=${imgUpdate::10}
 
-	cloneNumToday=$(printf '%s' "SELECT COUNT(tagnumber) AS 'result' FROM jobstats WHERE clone_completed = '1' AND time > '${DATE} 00:00:00.000'" | /opt/uit-toolbox/select)
+	cloneNumToday=$(printf '%s' "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = TRUE AND time > '${DATE} 00:00:00.000'" | /opt/uit-toolbox/select)
 
-	eraseNumToday=$(printf '%s' "SELECT COUNT(tagnumber) AS 'result' FROM jobstats WHERE erase_completed = '1' AND time > '${DATE} 00:00:00.000'" | /opt/uit-toolbox/select)
+	eraseNumToday=$(printf '%s' "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE erase_completed = TRUE AND time > '${DATE} 00:00:00.000'" | /opt/uit-toolbox/select)
 
-	clientCloneTotal=$(printf '%s' "SELECT COUNT(tagnumber) AS 'result' FROM jobstats WHERE clone_completed = '1' AND tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
+	clientCloneTotal=$(printf '%s' "SELECT COUNT(tagnumber) AS result FROM jobstats WHERE clone_completed = TRUE AND tagnumber = '${tagNum}'" | /opt/uit-toolbox/select)
 
 	jobsToday=$(( cloneNumToday + eraseNumToday ))
 
@@ -1719,7 +1719,7 @@ function autodetectClient {
 		printf '\n'
 		printf '\n'
 
-		sql=$(printf '%s' "SELECT tagnumber AS 'result' FROM remote WHERE tagnumber = '${tagNum}' AND status NOT like 'fail%'" | /opt/uit-toolbox/select)
+		sql=$(printf '%s' "SELECT tagnumber AS result FROM remote WHERE tagnumber = '${tagNum}' AND status NOT like 'fail%'" | /opt/uit-toolbox/select)
 		if [[ $sql == $tagNum ]]; then
 			printf '%s' "remote|${tagNum}|status|Waiting for job" | /opt/uit-toolbox/parse
 		fi
@@ -1745,7 +1745,7 @@ function autodetectClient {
 					break
 				fi
 				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
-					okay_to_go=$(printf '%s' "SELECT COUNT(tagnumber) AS 'result' FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active = 1" | /opt/uit-toolbox/select)
+					okay_to_go=$(printf '%s' "SELECT COUNT(tagnumber) AS result FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active = TRUE" | /opt/uit-toolbox/select)
 					if [[ $okay_to_go == "NULL" ]]; then
 						printf '%s' "remote|${tagNum}|job_active|1" | /opt/uit-toolbox/parse
 						break
