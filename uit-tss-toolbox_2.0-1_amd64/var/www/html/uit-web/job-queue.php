@@ -145,7 +145,7 @@ unset($_POST);
         client_health.os_name AS os_installed_formatted, client_health.os_installed, 
         client_health.bios_updated, (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, 
         remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
-        CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS uptime, 
+        TO_CHAR(TO_TIMESTAMP(EXTRACT(EPOCH FROM (NOW()::timestamp - remote.present::timestamp)::interval)), 'DD\"d\" HH24:MI:SS') AS uptime, 
         CONCAT(remote.cpu_temp, '°C') AS cpu_temp, CONCAT(remote.disk_temp, '°C') AS disk_temp, 
         CONCAT(remote.watts_now, ' watts') AS watts_now, remote.job_active
       FROM remote 

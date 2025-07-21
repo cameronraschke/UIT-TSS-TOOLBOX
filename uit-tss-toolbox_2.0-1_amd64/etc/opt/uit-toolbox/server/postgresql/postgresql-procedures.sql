@@ -273,11 +273,25 @@ $$;
 
 
 -- Select remote table data
-CREATE OR REPLACE PROCEDURE selectRemote()
-LANGUAGE SQL
+CREATE OR REPLACE FUNCTION selectRemote()
+RETURNS TABLE (
+  "Tag" INTEGER,
+  "Last Heard" TIMESTAMP,
+  "Location" VARCHAR,
+  "Last Job Time" TIMESTAMP,
+  "Pending Job" VARCHAR,
+  "Status" VARCHAR,
+  "Kernel/BIOS Updated" VARCHAR,
+  "OS Name" VARCHAR,
+  "Battery Status" VARCHAR,
+  
+
+)
+LANGUAGE plpgsql
+$$
 BEGIN ATOMIC
-    SELECT remote.tagnumber AS "Tag", 
-        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS "Last Heard", locationFormatting(t3.location) AS "Location", 
+    RETURN QUERY SELECT remote.tagnumber , 
+        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM'), locationFormatting(t3.location) AS "Location", 
         TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS "Last Job Time", 
         remote.job_queued AS "Pending Job", remote.status AS "Status",
         CONCAT((CASE WHEN remote.kernel_updated = TRUE THEN 'Yes' ELSE 'No' END), '/', ( CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END)) AS "Kernel/BIOS Updated", client_health.os_name AS "OS Name", 
@@ -297,7 +311,8 @@ BEGIN ATOMIC
         (CASE WHEN remote.status LIKE 'fail%' THEN 1 ELSE 0 END) DESC, job_queued IS NULL ASC, job_active DESC, queue_position ASC,
         (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 ELSE NULL END) DESC, 
         (CASE WHEN status = 'Waiting for job' THEN 1 ELSE 0 END) ASC, (CASE WHEN client_health.os_installed = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN remote.kernel_updated = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN client_health.bios_updated = TRUE THEN 1 ELSE 0 END) DESC, remote.last_job_time DESC;
-    END;
+    END
+    $$;
 
 
 -- Select missing remote table data

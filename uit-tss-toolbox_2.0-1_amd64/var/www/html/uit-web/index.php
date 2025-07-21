@@ -6,14 +6,11 @@ if ($_SESSION['authorized'] != "yes") {
   die();
 }
 
-$db = new db();
+$dbPSQL = new dbPSQL();
 
 if (isset($_POST["note"]) && isset($_GET["note-type"])) {
-  $db->insertToDo($time);
-  $db->Pselect("SELECT COMPRESS(:note) AS note_compressed", array(':note' => $_POST["note"]));
-  foreach ($db->get() as $key => $value) {
-    $db->updateToDo($_GET["note-type"], $value["note_compressed"], $time);
-  }
+  $dbPSQL->insertToDo($time);
+  $dbPSQL->updateToDo($_GET["note-type"], $_POST["note"], $time);
   unset($_POST);
   unset($value);
 }
@@ -40,23 +37,23 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
       <select name='note-type' id='note-type' onchange='this.form.submit()'>
         <?php
           if (strFilter($_GET["note-type"]) === 0) {
-            $db->Pselect("SELECT note, note_readable FROM static_notes WHERE note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
-            foreach ($db->get() as $key => $value1) {
+            $dbPSQL->Pselect("SELECT note, note_readable FROM static_notes WHERE note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
+            foreach ($dbPSQL->get() as $key => $value1) {
               if (strFilter($value1["note"]) === 0) {
-                $sql = "SELECT time, DATE_FORMAT(time, '%m/%d/%y, %r') AS timeFormatted, CAST(IF (UNCOMPRESSED_LENGTH(" . $value1["note"] . ") < 67108864 AND UNCOMPRESS(" . $value1["note"] . ") IS NOT NULL, UNCOMPRESS(" . $value1["note"] . "), " . $value1["note"] . ") AS CHAR) AS note FROM notes WHERE " . $value1["note"] . " IS NOT NULL ORDER BY time DESC LIMIT 1";
+                $sql = "SELECT time, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS timeFormatted, " . $value1["note"] . " AS note FROM notes WHERE " . $value1["note"] . " IS NOT NULL ORDER BY time DESC LIMIT 1";
               } else {
                 $sql = "SELECT NULL AS time, NULL AS timeFormatted, NULL AS note"; 
               }
                 echo "<option value='" . htmlspecialchars($value1["note"]) . "'>Editing: " . htmlspecialchars($value1["note_readable"]) . "</option>";
-              $db->Pselect("SELECT note, note_readable FROM static_notes WHERE NOT note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
-              foreach ($db->get() as $key => $value2) {
+              $dbPSQL->Pselect("SELECT note, note_readable FROM static_notes WHERE NOT note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
+              foreach ($dbPSQL->get() as $key => $value2) {
                 echo "<option value='" . htmlspecialchars($value2["note"]) . "'>" . htmlspecialchars($value2["note_readable"]) . "</option>";
               }
               unset($value2);
             }
             unset($value1);
-            $db->select($sql);
-            foreach ($db->get() as $key => $value1) {
+            $dbPSQL->select($sql);
+            foreach ($dbPSQL->get() as $key => $value1) {
               $note = $value1["note"];
               $noteTime = $value1["timeFormatted"];
             }
@@ -64,8 +61,8 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             unset($value1);
           } else {
             echo "<option value=''>--Select Notes to Edit--</option>";
-            $db->select("SELECT note, note_readable FROM static_notes ORDER BY sort_order ASC");
-            foreach ($db->get() as $key => $value1) {
+            $dbPSQL->select("SELECT note, note_readable FROM static_notes ORDER BY sort_order ASC");
+            foreach ($dbPSQL->get() as $key => $value1) {
                 echo "<option value='" . htmlspecialchars($value1["note"]) . "'>" . htmlspecialchars($value1["note_readable"]) . "</option>";
             }
           }
@@ -109,9 +106,9 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
     <div class='column'>
       <div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 5% 1%;'>
         <?php
-        $db->select("SELECT COUNT(tagnumber) AS count FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = 1");
-        if (arrFilter($db->get()) === 0) {
-          foreach ($db->get() as $key => $value) {
+        $dbPSQL->select("SELECT COUNT(tagnumber) AS count FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
+        if (arrFilter($dbPSQL->get()) === 0) {
+          foreach ($dbPSQL->get() as $key => $value) {
             echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"]) . "</h3>";
           }
         } else {
@@ -239,8 +236,8 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             <?php 
             unset($jsConst);
             //newStr = newStr.replaceAll(/\:\\ /g, "😕 ");
-            $db->select("SELECT keyword, regex, replacement, text_bool, case_sensitive_bool FROM static_emojis");
-            foreach ($db->get() as $key => $value) {
+            $dbPSQL->select("SELECT keyword, regex, replacement, text_bool, case_sensitive_bool FROM static_emojis");
+            foreach ($dbPSQL->get() as $key => $value) {
               if ($value["case_sensitive_bool"] === 1) {
                 echo "newStr = newStr.replaceAll(/" .  $value["regex"] . " /gi, '" . $value["replacement"] . " ');" . PHP_EOL;
               } else {
@@ -320,18 +317,18 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             function jobTimes() {
                 var data = google.visualization.arrayToDataTable([ ['Date', 'Clone Time', 'Erase Time'],
                 <?php
-                $db->select("SELECT t1.dateByMonth, t1.avg_clone_time, t2.avg_erase_time FROM 
-                (SELECT date, DATE_FORMAT(date, '%Y-%m') AS dateByMonth, avg_clone_time, 
-                    ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY date DESC) AS avg_clone_time_rows
+                $dbPSQL->select("SELECT t1.dateByMonth, t1.avg_clone_time, t2.avg_erase_time FROM 
+                (SELECT date, TO_CHAR(date, 'YYYY-MM') AS dateByMonth, avg_clone_time, 
+                    ROW_NUMBER() OVER (PARTITION BY TO_CHAR(date, 'YYYY-MM') ORDER BY date DESC) AS avg_clone_time_rows
                 FROM serverstats ORDER BY dateByMonth ASC) t1 
                 INNER JOIN 
-                (SELECT date, DATE_FORMAT(date, '%Y-%m') AS dateByMonth, avg_erase_time, 
-                    ROW_NUMBER() OVER (PARTITION BY DATE_FORMAT(date, '%Y-%m') ORDER BY date DESC) AS avg_erase_time_rows
+                (SELECT date, TO_CHAR(date, 'YYYY-MM') AS dateByMonth, avg_erase_time, 
+                    ROW_NUMBER() OVER (PARTITION BY TO_CHAR(date, 'YYYY-MM') ORDER BY date DESC) AS avg_erase_time_rows
                 FROM serverstats ORDER BY dateByMonth ASC) t2 
                 ON t1.dateByMonth = t2.dateByMonth 
-                WHERE t1.avg_clone_time_rows = 1 AND t2.avg_erase_time_rows = 1 AND t1.date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)");
-                if (arrFilter($db->get()) === 0)
-                    foreach ($db->get() as $key => $value) {
+                WHERE t1.avg_clone_time_rows = 1 AND t2.avg_erase_time_rows = 1 AND t1.date >= (NOW()::timestamp - INTERVAL '6 MONTH')");
+                if (arrFilter($dbPSQL->get()) === 0)
+                    foreach ($dbPSQL->get() as $key => $value) {
                         echo "['" . htmlspecialchars($value["dateByMonth"]) . "', " . htmlspecialchars($value["avg_clone_time"]) . ", " . htmlspecialchars($value["avg_erase_time"]) . "], ";
                     }
                 ?>
@@ -349,13 +346,13 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             function numberImaged() {
                 var data = google.visualization.arrayToDataTable([ ['OS Status', 'Client Count'],
                 <?php
-                $db->select("SELECT 
-                    (SELECT COUNT(client_health.tagnumber) FROM client_health INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = 1 AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber WHERE client_health.os_installed = 1)
+                $dbPSQL->select("SELECT 
+                    (SELECT COUNT(client_health.tagnumber) FROM client_health INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = TRUE AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber WHERE client_health.os_installed = TRUE)
                         AS os_installed,
-                    (SELECT COUNT(client_health.tagnumber) FROM client_health INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = 1 AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber WHERE client_health.os_installed IS NULL)
+                    (SELECT COUNT(client_health.tagnumber) FROM client_health INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = TRUE AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber WHERE client_health.os_installed = FALSE)
                         AS os_not_installed");
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value) {
+                    if (arrFilter($dbPSQL->get()) === 0) {
+                        foreach ($dbPSQL->get() as $key => $value) {
                             echo "['OS Installed'," . htmlspecialchars($value["os_installed"]) . "], ";
                             echo "['OS NOT Installed'," . htmlspecialchars($value["os_not_installed"]) . "], ";
                         }
@@ -376,18 +373,18 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             function numberJoinedDomain() {
                 var data = google.visualization.arrayToDataTable([ ['Joined to AD', 'Not Joined to AD'],
                 <?php
-                $db->select("SELECT 
+                $dbPSQL->select("SELECT 
                     (SELECT COUNT(locations.tagnumber) FROM locations INNER JOIN (SELECT MAX(time) AS time 
                     FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
                         INNER JOIN (SELECT MAX(time) AS time FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
-                        WHERE locations.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NOT NULL)
+                        WHERE locations.department = 'techComm' AND locations.status = FALSE AND locations.domain IS NOT NULL)
                         AS domain_joined,
                     (SELECT COUNT(locations.tagnumber) FROM locations INNER JOIN (SELECT MAX(time) AS time FROM locations GROUP BY tagnumber) t1 ON locations.time = t1.time
                         INNER JOIN (SELECT MAX(time) AS time FROM locations GROUP BY tagnumber) t2 ON locations.time = t2.time
-                        WHERE locations.department = 'techComm' AND locations.status IS NULL AND locations.domain IS NULL)
+                        WHERE locations.department = 'techComm' AND locations.status = FALSE AND locations.domain IS NULL)
                         AS domain_not_joined");
-                    if (arrFilter($db->get()) === 0) {
-                        foreach ($db->get() as $key => $value) {
+                    if (arrFilter($dbPSQL->get()) === 0) {
+                        foreach ($dbPSQL->get() as $key => $value) {
                             echo "['Joined to AD Domain'," . htmlspecialchars($value["domain_joined"]) . "], ";
                             echo "['Not Joined to AD Domain'," . htmlspecialchars($value["domain_not_joined"]) . "], ";
                         }
@@ -409,21 +406,19 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             function biosUpdated() {
                 var data = google.visualization.arrayToDataTable([ ['OS Status', 'Client Count'],
                 <?php
-                $db->select("SELECT 
-                    (SELECT COUNT(client_health.bios_updated) 
-                    FROM client_health 
-                    INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = 1 AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber
-                        WHERE client_health.bios_updated = 1) AS bios_updated, 
-                    (SELECT SUM(IF(client_health.bios_updated IS NULL, 1, 0)) 
-                    FROM client_health 
-                    INNER JOIN (SELECT locations.tagnumber, locations.department FROM locations LEFT JOIN static_departments ON static_departments.department = locations.department WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber) AND static_departments.department_bool = 1 AND locations.department = 'techComm') t1 ON client_health.tagnumber = t1.tagnumber
-                        WHERE bios_updated IS NULL) AS bios_not_updated");
-                    if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key => $value) {
+                $dbPSQL->select("SELECT COUNT(tagnumber) AS bios_updated FROM client_health WHERE bios_updated = TRUE");
+                    if (arrFilter($dbPSQL->get()) === 0) {
+                    foreach ($dbPSQL->get() as $key => $value) {
                         echo "['BIOS Updated'," . htmlspecialchars($value["bios_updated"]) . "], ";
-                        echo "['BIOS out of Date'," . htmlspecialchars($value["bios_not_updated"]) . "], ";
                     }
                 }
+                $dbPSQL->select("SELECT COUNT(tagnumber) AS bios_not_updated FROM client_health WHERE bios_updated = FALSE");
+                    if (arrFilter($dbPSQL->get()) === 0) {
+                    foreach ($dbPSQL->get() as $key => $value) {
+                        echo "['BIOS out of Date'," . htmlspecialchars($value["bios_not_updated"]) . "] ";
+                    }
+                }
+
                 ?>
                 ]);
 
@@ -456,16 +451,22 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             }
     </script>
 
-  <script>
-    <?php
-    $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
-    if (arrFilter($db->get()) === 0) {
-      foreach ($db->get() as $key => $value) {
-        $tagStr .= htmlspecialchars($value["tagnumber"]) . "|";
-      }
+<script>
+  <?php
+  $dbPSQL->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
+  if (arrFilter($dbPSQL->get()) === 0) {
+    foreach ($dbPSQL->get() as $key => $value) {
+      $tagStr .= htmlspecialchars($value["tagnumber"]) . "|";
     }
-    unset($value);
-    ?>
+  }
+  unset($value);
+  ?>
+  document.getElementById('dropdown-search').style.display = "none";
+  document.getElementById('dropdown-search').innerHTML = "";
+  autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
+</script>
+
+  <script>
 
 async function parseSSE() { 
   const response = await fetchSSE("server_time", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
@@ -478,11 +479,6 @@ async function parseSSE() {
 
 parseSSE();
 setInterval(parseSSE, 3000);
-
-
-    document.getElementById('dropdown-search').style.display = "none";
-    document.getElementById('dropdown-search').innerHTML = "";
-    autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
   </script>
 
     </body>
