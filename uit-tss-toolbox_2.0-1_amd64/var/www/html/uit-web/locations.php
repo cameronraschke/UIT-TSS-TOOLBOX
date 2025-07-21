@@ -34,11 +34,11 @@ if ($_GET["redirect"] == "1") {
 }
 
 if (isset($_GET["tagnumber"]) && $_GET["tagnumber"] == "") {
-  $db->select("SELECT (MAX(tagnumber) + 1) AS 'tagnumber' FROM locations WHERE tagnumber like '999%'");
-  foreach ($db->get() as $key => $value) {
+  $dbPSQL->select("SELECT (MAX(tagnumber) + 1) AS tagnumber FROM locations WHERE CAST(tagnumber AS VARCHAR) LIKE '999%'");
+  foreach ($dbPSQL->get() as $key => $value) {
     $placeholderTag = $value["tagnumber"];
-    $db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $placeholderTag));
-    foreach ($db->get() as $key => $value1) {
+    $dbPSQL->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $placeholderTag));
+    foreach ($dbPSQL->get() as $key => $value1) {
       if (strFilter($value1["tagnumber"]) === 1) {
         header("Location: /locations.php");
         exit();
@@ -59,60 +59,60 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
   $tagNum = trim($_POST["tagnumber"]);
   $serial = trim($_POST['serial']);
   $location = trim($_POST['location']);
-  $status = $_POST["status"];
-  $diskRemoved = $_POST['disk_removed'];
-  $department = $_POST['department'];
-  $note = $_POST['note'];
-  $domain = $_POST["domain"];
+  $status = boolval($_POST["status"]) ? true : false;
+  $diskRemoved = boolval($_POST['disk_removed']) ? true : false;
+  $department = trim($_POST['department']);
+  $note = trim($_POST['note']);
+  $domain = trim($_POST["domain"]);
   $checkoutDate = $_POST["checkout_date"];
   $returnDate = $_POST["return_date"];
   $customerName = trim($_POST["customer_name"]);
-  $customerPSID = trim($_POST["customer_psid"]);
+  //$customerPSID = trim($_POST["customer_psid"]);
   $systemModel = trim($_POST["model"]);
   $systemManufacturer = trim($_POST["system_manufacturer"]);
 
 
   // Insert & update system_data
-  $db->Pselect("SELECT tagnumber FROM system_data WHERE tagnumber = :tag", array(':tag' => $tagNum));
-  if (strFilter($db->get()) === 0) {
-    foreach ($db->get() as $key => $value1) {
+  $dbPSQL->Pselect("SELECT tagnumber FROM system_data WHERE tagnumber = :tag", array(':tag' => $tagNum));
+  if (strFilter($dbPSQL->get()) === 0) {
+    foreach ($dbPSQL->get() as $key => $value1) {
       if (strFilter($value1["tagnumber"]) === 0) {
-        $db->updateSystemData($tagNum, "system_manufacturer", $systemManufacturer);
-        $db->updateSystemData($tagNum, "system_model", $systemModel);
-        $db->updateSystemData($tagNum, "time", $time);
+        $dbPSQL->updateSystemData($tagNum, "system_manufacturer", $systemManufacturer);
+        $dbPSQL->updateSystemData($tagNum, "system_model", $systemModel);
+        $dbPSQL->updateSystemData($tagNum, "time", $time);
       } else {
-        $db->insertSystemData($tagNum);
-        $db->updateSystemData($tagNum, "system_manufacturer", $systemManufacturer);
-        $db->updateSystemData($tagNum, "system_model", $systemModel);
-        $db->updateSystemData($tagNum, "time", $time);
+        $dbPSQL->insertSystemData($tagNum);
+        $dbPSQL->updateSystemData($tagNum, "system_manufacturer", $systemManufacturer);
+        $dbPSQL->updateSystemData($tagNum, "system_model", $systemModel);
+        $dbPSQL->updateSystemData($tagNum, "time", $time);
       }
     }
   } else {
-    $db->insertSystemData($tagNum);
-    $db->updateSystemData($tagNum, "system_manufacturer", $systemManufacturer);
-    $db->updateSystemData($tagNum, "system_model", $systemModel);
-    $db->updateSystemData($tagNum, "time", $time);
+    $dbPSQL->insertSystemData($tagNum);
+    $dbPSQL->updateSystemData($tagNum, "system_manufacturer", $systemManufacturer);
+    $dbPSQL->updateSystemData($tagNum, "system_model", $systemModel);
+    $dbPSQL->updateSystemData($tagNum, "time", $time);
   }
 
   unset($value1);
   
   //Insert location data
-  $db->insertLocation($time);
-  $db->updateLocation("tagnumber", $tagNum, $time);
-  $db->updateLocation("system_serial", $serial, $time);
-  $db->updateLocation("location", $location, $time);
-  $db->updateLocation("status", $status, $time);
-  $db->updateLocation("disk_removed", $diskRemoved, $time);
-  $db->updateLocation("note", $note, $time);
-  $db->updateLocation("domain", $domain, $time);
-  $db->updateLocation("department", $department, $time);
+  $dbPSQL->insertLocation($time);
+  $dbPSQL->updateLocation("tagnumber", $tagNum, $time);
+  $dbPSQL->updateLocation("system_serial", $serial, $time);
+  $dbPSQL->updateLocation("location", $location, $time);
+  $dbPSQL->updateLocation("status", $status, $time);
+  $dbPSQL->updateLocation("disk_removed", $diskRemoved, $time);
+  $dbPSQL->updateLocation("note", $note, $time);
+  $dbPSQL->updateLocation("domain", $domain, $time);
+  $dbPSQL->updateLocation("department", $department, $time);
 
   //Insert checkout data
   if (strFilter($_POST["return_date"]) === 0 || strFilter($_POST["checkout_date"]) === 0) {
-    $db->insertCheckout($time);
-    $db->updateCheckout("tagnumber", $tagNum, $time);
-    $db->updateCheckout("customer_name", $customerName, $time);
-    $db->updateCheckout("customer_psid", $customerPSID, $time);
+    $dbPSQL->insertCheckout($time);
+    $dbPSQL->updateCheckout("tagnumber", $tagNum, $time);
+    $dbPSQL->updateCheckout("customer_name", $customerName, $time);
+    //$dbPSQL->updateCheckout("customer_psid", $customerPSID, $time);
 
     $postDate1 = new \DateTimeImmutable($_POST["return_date"]);
     $postDate2 = new \DateTimeImmutable($_POST["checkout_date"]);
@@ -120,33 +120,33 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     $checkoutDateDT = $postDate2->format('Y-m-d');
     
     if ($date >= $returnDateDT && strFilter($_POST["return_date"]) === 0) {
-      $db->updateCheckout("checkout_bool", FALSE, $time);
+      $dbPSQL->updateCheckout("checkout_bool", false, $time);
     } else {
-      $db->updateCheckout("checkout_bool", TRUE, $time);
+      $dbPSQL->updateCheckout("checkout_bool", true, $time);
     }
 
-    $db->updateCheckout("checkout_date", $checkoutDate, $time);
-    $db->updateCheckout("return_date", $returnDate, $time);
-    $db->updateCheckout("note", $note, $time);
+    $dbPSQL->updateCheckout("checkout_date", $checkoutDate, $time);
+    $dbPSQL->updateCheckout("return_date", $returnDate, $time);
+    $dbPSQL->updateCheckout("note", $note, $time);
   }
   unset($value1);
 
   //Printing
-  if ($_POST["print"] == "1") {
+  if ($_POST["print"] == "TRUE") {
     $tagNum = escapeshellcmd($_POST["tagnumber"]);
     $customerName = escapeshellcmd($_POST["customer_name"]);
     $checkoutDate = escapeshellcmd($_POST["checkout_date"]);
-    $customerPSID = escapeshellcmd($_POST["customer_psid"]);
+    //$customerPSID = escapeshellcmd($_POST["customer_psid"]);
     $returnDate = escapeshellcmd($_POST["return_date"]);
 
-    $db->Pselect("SELECT DATE_FORMAT(:checkoutDate, '%b %D, %Y') AS 'checkout_date'", array(':checkoutDate' => $checkoutDate));
-    foreach ($db->get() as $key => $value1) {
+    $dbPSQL->Pselect("SELECT TO_CHAR(:checkoutDate, 'MM/DD/YY') AS checkout_date", array(':checkoutDate' => $checkoutDate));
+    foreach ($dbPSQL->get() as $key => $value1) {
       $checkoutDate = $value1["checkout_date"];
     }
     unset($value1);
 
-    $db->Pselect("SELECT DATE_FORMAT(:returnDate, '%b %D, %Y') AS 'return_date'", array(':returnDate' => $returnDate));
-    foreach ($db->get() as $key => $value1) {
+    $dbPSQL->Pselect("SELECT TO_CHAR(:returnDate, 'MM/DD/YY') AS return_date", array(':returnDate' => $returnDate));
+    foreach ($dbPSQL->get() as $key => $value1) {
       $returnDate = $value1["return_date"];
     }
     unset($value1);
@@ -186,19 +186,18 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
       //If tagnumber is POSTed, show data in the location form.
       if (isset($_GET["tagnumber"])) {
         unset($formSql);
-        $formSql = "SELECT TRIM(locations.tagnumber) AS 'tagnumber', TRIM(locations.system_serial) AS 'system_serial', TRIM(system_data.system_model) AS 'system_model', 
-          TRIM(system_data.system_manufacturer) AS 'system_manufacturer', 
-          IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted', 
-          DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', 
-          locations.department, locations.disk_removed, locations.status, TRIM(t3.note) AS 'most_recent_note', t5.department_readable, 
-          DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', locations.domain, locations.status, IF (t3.time = locations.time, 1, 0) AS 'placeholder_bool'
+        $formSql = "SELECT locations.tagnumber, TRIM(locations.system_serial) AS system_serial, TRIM(system_data.system_model) AS system_model, 
+          TRIM(system_data.system_manufacturer) AS system_manufacturer, locationFormatting(locations.location) AS location_formatted, 
+          TO_CHAR(locations.time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, 
+          locations.department, locations.disk_removed, locations.status, TRIM(t3.note) AS most_recent_note, t5.department_readable, 
+          TO_CHAR(t3.time, 'MM/DD/YY HH12:MI:SS AM') AS note_time_formatted, locations.domain, locations.status, (CASE WHEN t3.time = locations.time THEN TRUE ELSE FALSE END) AS placeholder_bool
           FROM locations 
           LEFT JOIN jobstats ON jobstats.tagnumber = locations.tagnumber 
-          INNER JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations) t1 
+          INNER JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS row_count FROM locations) t1 
             ON t1.time = locations.time 
-          LEFT JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM jobstats) t2 
+          LEFT JOIN (SELECT time, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS row_count FROM jobstats) t2 
             ON t2.time = jobstats.time 
-          LEFT JOIN (SELECT tagnumber, time, note, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM locations WHERE note IS NOT NULL) t3 
+          LEFT JOIN (SELECT tagnumber, time, note, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS row_count FROM locations WHERE note IS NOT NULL) t3 
             ON t3.tagnumber = locations.tagnumber
           LEFT JOIN (SELECT department, department_readable FROM static_departments) t5
             ON locations.department = t5.department
@@ -207,12 +206,12 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
             AND locations.tagnumber = :tagnumberLoc";
         
         unset($formArr);
-        $db->Pselect($formSql, array(':tagnumberLoc' => $_GET["tagnumber"]));
-        if ($db->get() === "NULL") {
+        $dbPSQL->Pselect($formSql, array(':tagnumberLoc' => $_GET["tagnumber"]));
+        if ($dbPSQL->get() === "NULL") {
           $formArr = array( array( "system_serial" => "NULL", "location" => "NULL", "time_formatted" => "NULL") );
           $tagDataExists = 0;
         } else {
-          $formArr = $db->get();
+          $formArr = $dbPSQL->get();
           $tagDataExists = 1;
         }
 
@@ -269,15 +268,15 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
           if ($tagDataExists === 1) {
             if (strFilter($value["department"]) === 0) {
               echo "<option value='" . htmlspecialchars($value["department"]) . "'>Current dept.: " . htmlspecialchars($value["department_readable"]) . "</option>" . PHP_EOL;
-              $db->Pselect("SELECT department, department_readable 
+              $dbPSQL->Pselect("SELECT department, department_readable 
                 FROM static_departments WHERE NOT department = :department ORDER BY department_readable ASC", array(':department' => $value["department"]));
-              foreach ($db->get() as $key => $value1) {
+              foreach ($dbPSQL->get() as $key => $value1) {
                 echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
               }
             } else {
               echo "<option value=''>--Please Select--</option>";
-              $db->select("SELECT department, department_readable FROM static_departments ORDER BY department_readable ASC");
-              foreach ($db->get() as $key => $value1) {
+              $dbPSQL->select("SELECT department, department_readable FROM static_departments ORDER BY department_readable ASC");
+              foreach ($dbPSQL->get() as $key => $value1) {
                 echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
               }
               unset($value1);
@@ -285,8 +284,8 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
             unset($value1);
           } else {
             echo "<option value=''>--Please Select--</option>";
-            $db->select("SELECT department, department_readable FROM static_departments ORDER BY department_readable ASC");
-            foreach ($db->get() as $key => $value1) {
+            $dbPSQL->select("SELECT department, department_readable FROM static_departments ORDER BY department_readable ASC");
+            foreach ($dbPSQL->get() as $key => $value1) {
               echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . "</option>";
             }
             unset($value1);
@@ -321,18 +320,18 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
 					echo "<select name='domain' id='domain'>" . PHP_EOL;
 					if ($tagDataExists === 1) {
 						if (strFilter($value["domain"]) === 0) {
-							$db->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains INNER JOIN (SELECT domain FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1) t1 ON static_domains.domain = t1.domain ORDER BY domain ASC", array(':tagnumber' => $value["tagnumber"]));
-							foreach ($db->get() as $key => $value1) {	
+							$dbPSQL->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains INNER JOIN (SELECT domain FROM locations WHERE tagnumber = :tagnumber ORDER BY time DESC LIMIT 1) t1 ON static_domains.domain = t1.domain ORDER BY domain ASC", array(':tagnumber' => $value["tagnumber"]));
+							foreach ($dbPSQL->get() as $key => $value1) {	
 								echo "<option value='" . htmlspecialchars($value1["domain"]) . "'>" . htmlspecialchars($value1["domain_readable"]) . "</option>";
 							}
-							$db->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains WHERE NOT domain = :domain ORDER BY domain ASC", array(':domain' => $value["domain"]));
-							foreach ($db->get() as $key => $value2) {
+							$dbPSQL->Pselect("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains WHERE NOT domain = :domain ORDER BY domain ASC", array(':domain' => $value["domain"]));
+							foreach ($dbPSQL->get() as $key => $value2) {
 								echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
 							}	
 						} else {
 							echo "<option value=''>--Select Domain--</option>";
-							$db->select("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains ORDER BY domain ASC");
-							foreach ($db->get() as $key => $value2) {
+							$dbPSQL->select("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains ORDER BY domain ASC");
+							foreach ($dbPSQL->get() as $key => $value2) {
 								echo "<option value='" . htmlspecialchars($value2["domain"]) . "'>" . htmlspecialchars($value2["domain_readable"]) . "</option>";
 							}
 						}
@@ -341,8 +340,8 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
 						echo "<option value=''>No domain</option>";
 					} else {
 						echo "<option value=''>--Select Domain--</option>";
-						$db->select("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains ORDER BY domain ASC");
-						foreach ($db->get() as $key => $value1) {
+						$dbPSQL->select("SELECT static_domains.domain, static_domains.domain_readable FROM static_domains ORDER BY domain ASC");
+						foreach ($dbPSQL->get() as $key => $value1) {
 							echo "<option value='" . htmlspecialchars($value1["domain"]) . "'>" . htmlspecialchars($value1["domain_readable"]) . "</option>";
 						}
 						unset($value1);
@@ -396,10 +395,10 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
           if (strFilter($value["most_recent_note"]) === 0 && $value["locations_status"] === 1) {
             echo "<div><label for='note'>Note (Last Entry: " . trim(htmlspecialchars($value["note_time_formatted"])) . ")</label></div>" . PHP_EOL;
             echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
-          } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] === 1)  {
+          } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] === TRUE)  {
             echo "<div><label for='note'>Note (Last Entry: " . trim(htmlspecialchars($value["note_time_formatted"])) . ")</label></div>" . PHP_EOL;
             echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
-          } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] !== 1) {
+          } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] !== TRUE) {
             echo "<div><label for='note'>Note (Last Entry: " . trim(htmlspecialchars($value["note_time_formatted"])) . ")</label></div>" . PHP_EOL;
             echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
           } else {
@@ -425,7 +424,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
             </div>
             <div class='row'>
               <div class='column'>";
-                  $dbPSQL->Pselect("SELECT * FROM (SELECT TRIM(customer_name) AS 'customer_name', TRIM(customer_psid) AS 'customer_psid', checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count' FROM checkouts WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = TRUE AND t1.row_count = 1", array(':tagnumber' => $_GET["tagnumber"]));
+                  $dbPSQL->Pselect("SELECT customer_name, checkout_date, return_date, checkout_bool, row_count FROM (SELECT TRIM(customer_name) AS customer_name, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_count FROM checkouts WHERE tagnumber = :tagnumber) t1 WHERE t1.checkout_bool = TRUE AND t1.row_count = 1", array(':tagnumber' => $_GET["tagnumber"]));
                   if (strFilter($dbPSQL->get()) === 0) {
                     foreach ($dbPSQL->get() as $key => $value1) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
@@ -444,7 +443,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
                       echo "</div>";
                     }
                   } else {
-                    $dbPSQL->select("SELECT TO_CHAR(NOW(), 'YYYY-MM-DD HH24:MI:SS') AS cur_date, TO_CHAR(NOW() + INTERVAL '1 WEEK', 'YYYY-MM-DD HH24:MI:SS') AS next_date");
+                    $dbPSQL->select("SELECT TO_CHAR(NOW(), 'YYYY-MM-DD') AS cur_date, TO_CHAR(NOW() + INTERVAL '1 WEEK', 'YYYY-MM-DD') AS next_date");
                     foreach ($dbPSQL->get() as $key => $value2) {
                       echo "<div><div><label for='checkout_date'>Checkout date: </label></div>";
                       //echo "<input type='date' id='checkout_date' name='checkout_date' value='" . htmlspecialchars($value2["cur_date"]) . "' min='2020-01-01' /></div>";
@@ -514,20 +513,20 @@ $sqlArr = array();
 $rowCount = 0;
 $onlineRowCount = 0;
 $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, system_data.system_model, 
-  IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(locations.location) AS 'location_formatted',
-  static_departments.department_readable AS 'department_formatted', locations.department,
-  IF ((locations.status = 0 OR locations.status IS NULL), 'Yes', 'Broken') AS 'status_formatted', locations.status AS 'locations_status', 
-  client_health.os_name AS 'os_installed_formatted', client_health.os_installed, client_health.os_name, 
-  IF (client_health.bios_updated = 1, 'Yes', 'No') AS 'bios_updated_formatted', client_health.bios_updated,
-  IF (remote.kernel_updated = 1, 'Yes', 'No') AS 'kernel_updated_formatted', remote.kernel_updated,
-  locations.note AS 'note', DATE_FORMAT(locations.time, '%m/%d/%y, %r') AS 'time_formatted', locations.domain, t2.checkout_bool, t2.checkout_date, t2.return_date
+  locationFormatting(locations.location) AS location_formatted,
+  static_departments.department_readable AS department_formatted, locations.department,
+  (CASE WHEN (locations.status = FALSE) THEN 'Yes' ELSE 'Broken' END) AS status_formatted, locations.status AS locations_status, 
+  client_health.os_name AS os_installed_formatted, client_health.os_installed, client_health.os_name, 
+  (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, client_health.bios_updated,
+  (CASE WHEN remote.kernel_updated = TRUE THEN 'Yes' ELSE 'No' END) AS kernel_updated_formatted, remote.kernel_updated,
+  locations.note AS note, TO_CHAR(locations.time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, locations.domain, t2.checkout_bool, t2.checkout_date, t2.return_date
   FROM locations
     LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
     LEFT JOIN static_departments ON locations.department = static_departments.department
     LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
     LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
-    LEFT JOIN (SELECT * FROM (SELECT time, tagnumber, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) s2 WHERE s2.row_nums = 1) t2 ON locations.tagnumber = t2.tagnumber
-    LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
+    LEFT JOIN (SELECT * FROM (SELECT time, tagnumber, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts) s2 WHERE s2.row_nums = 1) t2 ON locations.tagnumber = t2.tagnumber
+    LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = TRUE AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
       ON locations.tagnumber = t1.tagnumber
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
   WHERE locations.tagnumber IS NOT NULL 
@@ -538,7 +537,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
 
 // Location filter
 if (strFilter($_GET["location"]) === 0) {
-  if ($_GET["location-bool"] == "1") {
+  if ($_GET["location-bool"] == "0") {
     $sql .= "AND NOT locations.location = :location ";
     $sqlArr[":location"] = $_GET["location"];
   } else {
@@ -549,7 +548,7 @@ if (strFilter($_GET["location"]) === 0) {
 
 // department filter
 if (strFilter($_GET["department"]) === 0) {
-  if ($_GET["department-bool"] == "1") {
+  if ($_GET["department-bool"] == "0") {
     $sql .= "AND (NOT locations.department = :department OR locations.department IS NULL) ";
     $sqlArr[":department"] = $_GET["department"];
   } else {
@@ -560,7 +559,7 @@ if (strFilter($_GET["department"]) === 0) {
 
 // domain filter
 if (strFilter($_GET["domain"]) === 0) {
-  if ($_GET["domain-bool"] == "1") {
+  if ($_GET["domain-bool"] == "0") {
     $sql .= "AND (NOT locations.domain = :domain OR locations.domain IS NULL) ";
     $sqlArr[":domain"] = $_GET["domain"];
   } else {
@@ -571,7 +570,7 @@ if (strFilter($_GET["domain"]) === 0) {
 
 // System model filter
 if (strFilter($_GET["system_model"]) === 0) {
-  if ($_GET["system_model-bool"] == "1") {
+  if ($_GET["system_model-bool"] == "0") {
     $sql .= "AND NOT system_data.system_model = :systemmodel ";
     $sqlArr[":systemmodel"] = $_GET["system_model"];
   } else {
@@ -597,23 +596,23 @@ if ($_GET["checkout"] == "0") {
 
 // Broken filter
 if ($_GET["broken"] == "0") {
-  $sql .= "AND (locations.status IS NULL OR locations.status = 0) ";
+  $sql .= "AND (locations.status IS NULL OR locations.status = FALSE) ";
 } elseif ($_GET["broken"] == "1") {
-  $sql .= "AND (locations.status = 1 OR locations.status IS NOT NULL) ";
+  $sql .= "AND (locations.status = TRUE OR locations.status IS NOT NULL) ";
 }
 
 // Disk removed filter
 if ($_GET["disk_removed"] == "0") {
-  $sql .= "AND (locations.disk_removed IS NULL OR locations.disk_removed = 0) ";
+  $sql .= "AND (locations.disk_removed IS NULL OR locations.disk_removed = FALSE) ";
 } elseif ($_GET["disk_removed"] == "1") {
-  $sql .= "AND (locations.disk_removed = 1 OR locations.disk_removed IS NOT NULL) ";
+  $sql .= "AND (locations.disk_removed = TRUE OR locations.disk_removed IS NOT NULL) ";
 }
 
 // OS Installed filter
 if ($_GET["os_installed"] == "0") {
-  $sql .= "AND (client_health.os_installed IS NULL OR client_health.os_installed = 0) ";
+  $sql .= "AND (client_health.os_installed IS NULL OR client_health.os_installed = FALSE) ";
 } elseif ($_GET["os_installed"] == "1") {
-  $sql .= "AND (client_health.os_installed = 1 OR client_health.os_installed IS NOT NULL) ";
+  $sql .= "AND (client_health.os_installed = TRUE OR client_health.os_installed IS NOT NULL) ";
 }
 
 // Order by modifiers
@@ -662,17 +661,17 @@ if (isset($_GET["order_by"])) {
 
 // Do the query
 if (isset($sqlArr)) {
-  $db->Pselect($sql, $sqlArr);
+  $dbPSQL->Pselect($sql, $sqlArr);
 } else {
-  $db->select($sql);
+  $dbPSQL->select($sql);
 }
 
 // Put results of query into a PHP array
-if (arrFilter($db->get()) === 0) {
-  $tableArr = $db->get();
-  foreach ($db->get() as $key => $value) {
-    $rowCount = count($db->get());
-    $onlineRowCount = $value["present_bool"] + $onlineRowCount;
+if (arrFilter($dbPSQL->get()) === 0) {
+  $tableArr = $dbPSQL->get();
+  foreach ($dbPSQL->get() as $key => $value) {
+    $rowCount = $dbPSQL->get_rows();
+    $onlineRowCount = boolval($value["present_bool"]) + $onlineRowCount;
   }
 }
 ?>
@@ -686,15 +685,15 @@ if (arrFilter($db->get()) === 0) {
 
           <div>
             <label for="location-filter">
-              <input type="checkbox" id="location-bool" name="location-bool" value="1"> NOT
+              <input type="checkbox" id="location-bool" name="location-bool" value="0"> NOT
             </label>
             <select name="location" id="location-filter">
               <option value="">--Filter By Location--</option>
               <?php
-              $db->select("SELECT COUNT(location) AS location_rows, IF (locations.location = 'checkout', 'check out', locations.location) AS 'location', locationFormatting(location) AS 'location_formatted' FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY locations.location ORDER BY locations.location ASC");
-              if (arrFilter($db->get()) === 0) {
-                foreach ($db->get() as $key => $value1) {
-                  echo "<option value='" . htmlspecialchars($value1["location"]) . "'>" . htmlspecialchars($value1["location_formatted"]) . " (" . htmlspecialchars($value1["location_rows"]) . ")" . "</option>" . PHP_EOL;
+              $dbPSQL->select("SELECT COUNT(location) AS location_rows, locationFormatting(location) AS location_formatted FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE tagnumber IS NOT NULL GROUP BY tagnumber) GROUP BY locations.location ORDER BY locations.location ASC");
+              if (arrFilter($dbPSQL->get()) === 0) {
+                foreach ($dbPSQL->get() as $key => $value1) {
+                  echo "<option value='" . htmlspecialchars($value1["location_formatted"]) . "'>" . htmlspecialchars($value1["location_formatted"]) . " (" . htmlspecialchars($value1["location_rows"]) . ")" . "</option>" . PHP_EOL;
                 }
               }
               unset($value1);
@@ -704,17 +703,17 @@ if (arrFilter($db->get()) === 0) {
 
           <div>
             <label for="department">
-              <input type="checkbox" id="department-bool" name="department-bool" value="1"> NOT
+              <input type="checkbox" id="department-bool" name="department-bool" value="0"> NOT
             </label>
             <select id="department" name="department">
             <option value=''>--Filter By Department--</option>
               <?php
-              $db->select("SELECT department, department_readable, owner, department_bool FROM static_departments ORDER BY department_readable ASC");
-              if (arrFilter($db->get()) === 0) {
-                foreach ($db->get() as $key => $value1) {
-                  $db->Pselect("SELECT COUNT(tagnumber) AS 'department_rows' FROM locations WHERE department = :department AND time IN (SELECT MAX(time) FROM locations WHERE department IS NOT NULL GROUP BY tagnumber)", array(':department' => $value1["department"]));
-                  if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key => $value2) {
+              $dbPSQL->select("SELECT department, department_readable, owner, department_bool FROM static_departments ORDER BY department_readable ASC");
+              if (arrFilter($dbPSQL->get()) === 0) {
+                foreach ($dbPSQL->get() as $key => $value1) {
+                  $dbPSQL->Pselect("SELECT COUNT(tagnumber) AS department_rows FROM locations WHERE department = :department AND time IN (SELECT MAX(time) FROM locations WHERE department IS NOT NULL GROUP BY tagnumber)", array(':department' => $value1["department"]));
+                  if (arrFilter($dbPSQL->get()) === 0) {
+                    foreach ($dbPSQL->get() as $key => $value2) {
                       echo "<option value='" . htmlspecialchars($value1["department"]) . "'>" . htmlspecialchars($value1["department_readable"]) . " (" . $value2["department_rows"] . ")</option>" . PHP_EOL;
                     }
                   }
@@ -729,17 +728,17 @@ if (arrFilter($db->get()) === 0) {
 
 					<div>
             <label for="domain">
-              <input type="checkbox" id="domain-bool" name="domain-bool" value="1"> NOT
+              <input type="checkbox" id="domain-bool" name="domain-bool" value="0"> NOT
             </label>
             <select id="domain" name="domain">
             <option value=''>--Filter By AD Domain--</option>
               <?php
-              $db->select("SELECT domain, domain_readable FROM static_domains ORDER BY domain ASC");
-              if (arrFilter($db->get()) === 0) {
-                foreach ($db->get() as $key => $value1) {
-                  $db->Pselect("SELECT COUNT(tagnumber) AS 'domain_rows' FROM locations WHERE domain = :domain AND time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)", array(':domain' => $value1["domain"]));
-                  if (arrFilter($db->get()) === 0) {
-                    foreach ($db->get() as $key => $value2) {
+              $dbPSQL->select("SELECT domain, domain_readable FROM static_domains ORDER BY domain ASC");
+              if (arrFilter($dbPSQL->get()) === 0) {
+                foreach ($dbPSQL->get() as $key => $value1) {
+                  $dbPSQL->Pselect("SELECT COUNT(tagnumber) AS domain_rows FROM locations WHERE domain = :domain AND time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)", array(':domain' => $value1["domain"]));
+                  if (arrFilter($dbPSQL->get()) === 0) {
+                    foreach ($dbPSQL->get() as $key => $value2) {
                       echo "<option value='" . htmlspecialchars($value1["domain"]) . "'>" . htmlspecialchars($value1["domain_readable"]) . " (" . $value2["domain_rows"] . ")</option>" . PHP_EOL;
                     }
                   }
@@ -753,20 +752,20 @@ if (arrFilter($db->get()) === 0) {
 
           <div>
             <label for="system_model">
-              <input type="checkbox" id="system_model-bool" name="system_model-bool" value="1"> NOT
+              <input type="checkbox" id="system_model-bool" name="system_model-bool" value="0"> NOT
             </label>
             <select id="system_model" name="system_model">
               <option value=''>--Filter By Model--</option>
               <?php
-              $db->select("SELECT t1.system_model, t1.system_manufacturer, IF(t1.system_manufacturer IS NOT NULL, CONCAT('(', t1.system_manufacturer, ')'), NULL) AS 'system_manufacturer_formatted', 
-                 t3.row_nums AS 'system_model_rows'
-                  FROM (select time, system_manufacturer, system_model, ROW_NUMBER() OVER (PARTITION BY system_model ORDER BY time DESC) as 'row_nums' from system_data) t1 
-                  LEFT JOIN (SELECT system_model, MAX(row_nums) AS 'row_nums' FROM (SELECT system_model, ROW_NUMBER() OVER (PARTITION BY system_model ORDER BY time ASC) AS 'row_nums' FROM system_data) s3 GROUP BY system_model) t3
+              $dbPSQL->select("SELECT t1.system_model, t1.system_manufacturer, (CASE WHEN t1.system_manufacturer IS NOT NULL THEN CONCAT('(', t1.system_manufacturer, ')') ELSE NULL END) AS system_manufacturer_formatted, 
+                 t3.row_nums AS system_model_rows
+                  FROM (select time, system_manufacturer, system_model, ROW_NUMBER() OVER (PARTITION BY system_model ORDER BY time DESC) AS row_nums from system_data) t1 
+                  LEFT JOIN (SELECT system_model, MAX(row_nums) AS row_nums FROM (SELECT system_model, ROW_NUMBER() OVER (PARTITION BY system_model ORDER BY time ASC) AS row_nums FROM system_data) s3 GROUP BY system_model) t3
                     ON t1.system_model = t3.system_model
-                  where t1.row_nums = 1 AND t1.system_model IS NOT NULL AND t3.system_model IS NOT NULL
+                  WHERE t1.row_nums = 1 AND t1.system_model IS NOT NULL AND t3.system_model IS NOT NULL
                   ORDER BY t1.system_manufacturer ASC, t1.system_model ASC");
-              if (arrFilter($db->get()) === 0) {
-                foreach ($db->get() as $key => $value1) {
+              if (arrFilter($dbPSQL->get()) === 0) {
+                foreach ($dbPSQL->get() as $key => $value1) {
                   echo "<option value='" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["system_manufacturer_formatted"]) . " " . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value1["system_model_rows"] . ")" . "</option>" . PHP_EOL;
                 }
               }
@@ -799,11 +798,11 @@ if (arrFilter($db->get()) === 0) {
             <!-- <p>Device Lost?</p>
             <div class="column">
               <label for="lost_yes">Yes</label>
-              <input type="radio" id="lost_yes" name="lost" value="1">
+              <input type="radio" id="lost_yes" name="lost" value="TRUE">
             </div>
             <div class="column">
               <label for="lost_no">No</label>
-              <input type="radio" id="lost_no" name="lost" value="0">
+              <input type="radio" id="lost_no" name="lost" value="FALSE">
             </div> -->
             <p>Checked Out?</p>
             <div class="column">
@@ -863,7 +862,7 @@ if (arrFilter($db->get()) === 0) {
 
         <div class='filtering-form'>
             <?php
-              if ($_GET["checkout"] == "1") { echo "<div><h3>Click <a href='/checkouts.php' target='_blank'>here</a> for a checkout overview.</h3></div>"; }
+              if ($_GET["checkout"] == "0" || $_GET["checkout"] == "1") { echo "<div><h3>Click <a href='/checkouts.php' target='_blank'>here</a> for a checkout overview.</h3></div>"; }
             ?>
             <?php echo "<div>Results: <b>" . $rowCount . "</b></div>" . PHP_EOL; ?>
         </div>
@@ -1004,9 +1003,9 @@ unset($value1);
       // Autofill tag numbers
           var availableTagnumbers = [
           <?php
-          $db->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
-          if (arrFilter($db->get()) === 0) {
-            foreach ($db->get() as $key => $value) {
+          $dbPSQL->select("SELECT tagnumber FROM locations GROUP BY tagnumber");
+          if (arrFilter($dbPSQL->get()) === 0) {
+            foreach ($dbPSQL->get() as $key => $value) {
               echo "'" . $value["tagnumber"] . "',";
             }
           }
@@ -1049,11 +1048,11 @@ unset($value1);
         var availableLocations = [
           <?php
             $sql =<<<'EOD'
-              SELECT MAX(t1.time) AS 'time', t1.location, MAX(t1.row_nums) AS 'row_nums' FROM (SELECT time, locationFormatting(REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"')) AS 'location', ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'row_nums' FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)) t1 GROUP BY t1.location ORDER BY LENGTH(t1.location),  row_nums DESC;
+              SELECT MAX(t1.time) AS time, t1.location, MAX(t1.row_nums) AS row_nums FROM (SELECT time, locationFormatting(REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"')) AS location, ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS row_nums FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)) t1 GROUP BY t1.location ORDER BY LENGTH(t1.location), row_nums DESC;
             EOD;
-          $db->select($sql);
-          if (arrFilter($db->get()) === 0) {
-            foreach ($db->get() as $key => $value) {
+          $dbPSQL->select($sql);
+          if (arrFilter($dbPSQL->get()) === 0) {
+            foreach ($dbPSQL->get() as $key => $value) {
               echo "'" . $value["location"] . "',";
             }
           }
@@ -1219,9 +1218,9 @@ unset($value1);
 
   <script>
     <?php
-    $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
-    if (arrFilter($db->get()) === 0) {
-      foreach ($db->get() as $key => $value) {
+    $dbPSQL->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
+    if (arrFilter($dbPSQL->get()) === 0) {
+      foreach ($dbPSQL->get() as $key => $value) {
         $tagStr .= htmlspecialchars($value["tagnumber"]) . "|";
       }
     }

@@ -323,7 +323,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                     <?php
                     // Get/set current jobs.
                     if ($_GET['tagnumber'] && strFilter($value["tagnumber"]) === 0) {
-                      $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+                      $dbPSQL->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
                       if (arrFilter($dbPSQL->get()) === 0 ) {
                         $dbPSQL->Pselect("SELECT (CASE WHEN remote.job_queued IS NOT NULL THEN remote.job_queued ELSE '' END) AS job_queued,
                           (CASE WHEN remote.job_queued IS NOT NULL THEN static_job_names.job_readable ELSE 'No Job' END) AS job_queued_formatted,
@@ -555,10 +555,10 @@ foreach ($dbPSQL->get() as $key => $value) {
             }
           unset($image);
         } else {
-          $db->Pselect("SELECT system_model FROM system_data WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-          if (arrFilter($db->get()) === 0) {
+          $dbPSQL->Pselect("SELECT system_model FROM system_data WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
+          if (arrFilter($dbPSQL->get()) === 0) {
             echo "<div class='laptop-images'>";
-            foreach ($db->get() as $key => $value) {
+            foreach ($dbPSQL->get() as $key => $value) {
               if ($value["system_model"] === "Aspire T3-710") {
                 echo "<img src='/images/aspireT3710.jpg'>" . PHP_EOL;
               } elseif ($value["system_model"] === "HP ProBook 450 G6") {
@@ -801,7 +801,7 @@ if (isset($_GET["full-job-log"]) && $_GET["full-job-log"] == "1") {
 }
 
 $dbPSQL->Pselect($jobLogSQL, array(':tagnumber' =>  $_GET['tagnumber']));
-if (arrFilter($db->get()) === 0) {
+if (arrFilter($dbPSQL->get()) === 0) {
 foreach ($dbPSQL->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['time_formatted']) . "</td>" . PHP_EOL;
@@ -836,19 +836,19 @@ unset($value1);
 </thead>
 <tbody>
 <?php
-$locLogSQL = "SELECT t1.time, DATE_FORMAT(t1.time, 'MM/DD/YY HH12:MI:SS AM') AS 'time_formatted', locationFormatting(t1.location) AS 'location_formatted', 
-  static_departments.department_readable, IF (t1.status = 1, 'No', 'Yes') AS 'status_formatted', IF (t1.disk_removed = 1, 'No', 'Yes') AS 'disk_removed_formatted',
+$locLogSQL = "SELECT t1.time, TO_CHAR(t1.time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, locationFormatting(t1.location) AS location_formatted, 
+  static_departments.department_readable, (CASE WHEN t1.status = TRUE THEN 'No' ELSE 'Yes' END) AS status_formatted, (CASE WHEN t1.disk_removed = TRUE THEN 'Yes' ELSE 'No' END) AS disk_removed_formatted,
   t1.note
   FROM (SELECT locations.time, locations.location, locations.department, locations.status, locations.disk_removed, locations.note, 
-    ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS 'row_nums' FROM locations WHERE locations.tagnumber = :tagnumber ORDER BY locations.time DESC) t1 
+    ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS row_nums FROM locations WHERE locations.tagnumber = :tagnumber ORDER BY locations.time DESC) t1 
   LEFT JOIN static_departments ON t1.department = static_departments.department ";
 if (!isset($_GET["full-loc-log"]) || $_GET["full-loc-log"] != "1") {
-  $locLogSQL .= "WHERE t1.row_nums <= 3 AND t1.time >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+  $locLogSQL .= "WHERE t1.row_nums <= 3 AND (NOW()::date - t1.time::date) <= 365 ";
 }
 
-$db->Pselect($locLogSQL, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
-if (arrFilter($db->get()) === 0) {
-foreach ($db->get() as $key => $value1) {
+$dbPSQL->Pselect($locLogSQL, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+if (arrFilter($dbPSQL->get()) === 0) {
+foreach ($dbPSQL->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
 //Time formatted
 echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
@@ -936,18 +936,17 @@ setInterval(parseSSE, 3000);
 
 <script>
   <?php
-  $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
-  if (arrFilter($db->get()) === 0) {
-    foreach ($db->get() as $key => $value) {
+  $dbPSQL->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
+  if (arrFilter($dbPSQL->get()) === 0) {
+    foreach ($dbPSQL->get() as $key => $value) {
       $tagStr .= htmlspecialchars($value["tagnumber"]) . "|";
     }
   }
   unset($value);
   ?>
-
-document.getElementById('dropdown-search').style.display = "none";
-document.getElementById('dropdown-search').innerHTML = "";
-autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
+  document.getElementById('dropdown-search').style.display = "none";
+  document.getElementById('dropdown-search').innerHTML = "";
+  autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
 </script>
 
 <div class="uit-footer">

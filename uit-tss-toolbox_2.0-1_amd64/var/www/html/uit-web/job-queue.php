@@ -19,7 +19,6 @@ if (strFilter($_POST['location']) === 0 && strFilter($_POST['location-action']) 
       ON locations.tagnumber = t2.tagnumber AND location = :location GROUP BY locations.tagnumber", array(':location' => htmlspecialchars_decode($_POST["location"])));
   if (arrFilter($dbPSQL->get()) === 0) {
     foreach ($dbPSQL->get() as $key => $value) {
-      $db->updateRemote(trim($value["tagnumber"]), "job_queued", $_POST['location-action']);
       $dbPSQL->updateRemote(trim($value["tagnumber"]), "job_queued", $_POST['location-action']);
     }
   }

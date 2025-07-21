@@ -855,6 +855,7 @@ class dbPSQL {
     return $this->rowCount;
   }
 
+
   // JOBSTATS table
   public function insertJob ($uuid) {
     if (strFilter($uuid) === 0) {
@@ -874,11 +875,13 @@ class dbPSQL {
         $sql = "UPDATE jobstats SET $key = :value WHERE uuid = :uuid";
         $stmt = $this->pdo->prepare($sql);
 
-        if (is_numeric($value) && numFilter($value) == 1) {
-          $value = "NULL";
-        }
-
-        if (strFilter($value) === 0) {
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR); 
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (is_numeric($value) && numFilter($value) === 1) {
+          $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        } elseif (strFilter($value) === 0) {
           $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         } else {
@@ -899,8 +902,7 @@ class dbPSQL {
     if (strFilter($tagNum) === 0) {
       $sql = "INSERT INTO clientstats (tagnumber) VALUES (:tagNum)";
       $stmt = $this->pdo->prepare($sql);
-
-      $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+      $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
 
       if (strFilter($stmt) === 0) {
         $stmt->execute();
@@ -914,16 +916,18 @@ class dbPSQL {
         $sql = "UPDATE clientstats SET $key = :value WHERE tagnumber = :tagnumber";
         $stmt = $this->pdo->prepare($sql);
 
-        if (is_numeric($value) && numFilter($value) == 1) {
-          $value = "NULL";
-        }
-
-        if (strFilter($value) === 0) {
-          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
-        } else {
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT); 
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (is_numeric($value) && numFilter($value) === 1) {
+          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT);
           $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+        } elseif (strFilter($value) === 0) {
+          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
         if (strFilter($stmt) === 0) {
@@ -939,7 +943,6 @@ class dbPSQL {
     if (strFilter($date) === 0) {
       $sql = "INSERT INTO serverstats (date) VALUES (:date)";
       $stmt = $this->pdo->prepare($sql);
-
       $stmt->bindParam(':date', $date, PDO::PARAM_STR);
 
       if (strFilter($stmt) === 0) {
@@ -954,16 +957,18 @@ class dbPSQL {
         $sql = "UPDATE serverstats SET $key = :value WHERE date = :date";
         $stmt = $this->pdo->prepare($sql);
 
-        if (is_numeric($value) && numFilter($value) === 1) {
-          $value = "NULL";
-        }
-
-        if (strFilter($value) === 0) {
-          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        if (is_bool($value) === true) {
           $stmt->bindParam(':date', $date, PDO::PARAM_STR);
-        } else {
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (is_numeric($value) && numFilter($value) === 1) {
+          $stmt->bindParam(':date', $date, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
+        } elseif (strFilter($value) === 0) {
           $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
         if (strFilter($stmt) === 0) {
@@ -994,12 +999,15 @@ class dbPSQL {
         $sql = "UPDATE locations SET $key = :value WHERE time = :time";
         $stmt = $this->pdo->prepare($sql);
 
-        if (strFilter($value) === 0) {
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR); 
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (strFilter($value) === 0) {
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         } else {
-          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
           $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
         if (strFilter($stmt) === 0) {
@@ -1017,7 +1025,7 @@ class dbPSQL {
       $stmt = $this->pdo->prepare($sql);
 
       if (strFilter($tagNum) === 0) {
-        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
       } else {
         exit();
       }
@@ -1034,11 +1042,14 @@ class dbPSQL {
         $sql = "UPDATE remote SET $key = :value WHERE tagnumber = :tagNum";
         $stmt = $this->pdo->prepare($sql);
 
-        if (strFilter($value) === 0) {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (strFilter($value) === 0) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
           $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         } else {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
           $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
@@ -1057,7 +1068,7 @@ class dbPSQL {
       $stmt = $this->pdo->prepare($sql);
 
       if (strFilter($tagNum) === 0) {
-        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
       } else {
         exit();
       }
@@ -1074,16 +1085,19 @@ class dbPSQL {
         $sql = "UPDATE system_data SET $key = :value WHERE tagnumber = :tagNum";
         $stmt = $this->pdo->prepare($sql);
 
-        if (is_numeric($value) && numFilter($value) == 1) {
-          $value = "NULL";
-        }
 
-        if (strFilter($value) == 0) {
-          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-        } else {
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (is_numeric($value) && numFilter($value) === 1) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
           $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        } elseif (strFilter($value) == 0) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
+          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
+        } else {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
         if (strFilter($stmt) == 0) {
@@ -1097,10 +1111,10 @@ class dbPSQL {
         $stmt = $this->pdo->prepare($sql);
 
         if (strFilter($time) == 0) {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
           $stmt->bindParam(':clienttime', $time, PDO::PARAM_STR);
         } else {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
           $stmt->bindParam(':clienttime', $time, PDO::PARAM_NULL);
         }
 
@@ -1111,24 +1125,6 @@ class dbPSQL {
     }
   }
 
-
-  //BIOS table
-  public function insertBIOS ($tagNum) {
-    if (strFilter($tagNum) === 0) {
-      $sql = "INSERT INTO bios_stats (tagnumber) VALUES (:tagNum)";
-      $stmt = $this->pdo->prepare($sql);
-
-      if (strFilter($tagNum) === 0) {
-        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
-      } else {
-        exit();
-      }
-
-      if (strFilter($stmt) === 0) {
-        $stmt->execute();
-      }
-    }
-  }
 
   // TODO/NOTES table
   public function insertToDo ($time) {
@@ -1149,13 +1145,16 @@ class dbPSQL {
       if ($this->check_tables_cols("notes", $key) === 0) {
         $sql = "UPDATE notes SET $key = :value WHERE time = :time";
         $stmt = $this->pdo->prepare($sql);
-
-        if (strFilter($value) === 0) {
+        
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (strFilter($value) === 0) {
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         } else {
-          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
           $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
         if (strFilter($stmt) === 0) {
@@ -1164,6 +1163,7 @@ class dbPSQL {
       }
     }
   }
+
 
   // CHECKOUT table
   public function insertCheckout ($time) {
@@ -1185,12 +1185,15 @@ class dbPSQL {
         $sql = "UPDATE checkouts SET $key = :value WHERE time = :time";
         $stmt = $this->pdo->prepare($sql);
 
-        if (strFilter($value) === 0) {
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (strFilter($value) === 0) {
+          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-          $stmt->bindParam(':time', $time, PDO::PARAM_STR);
         } else {
-          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
           $stmt->bindParam(':time', $time, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
         if (strFilter($stmt) === 0) {
@@ -1200,6 +1203,7 @@ class dbPSQL {
     }
   }
 
+
   //CLIENT_HEALTH table
   public function insertClientHealth ($tagNum) {
     if (strFilter($tagNum) === 0) {
@@ -1207,7 +1211,7 @@ class dbPSQL {
       $stmt = $this->pdo->prepare($sql);
 
       if (strFilter($tagNum) === 0) {
-        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
       } else {
         exit();
       }
@@ -1223,12 +1227,15 @@ class dbPSQL {
       if ($this->check_tables_cols("client_health", $key) === 0) {
         $sql = "UPDATE client_health SET $key = :value WHERE tagnumber = :tagNum";
         $stmt = $this->pdo->prepare($sql);
-
-        if (strFilter($value) === 0) {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+        
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (strFilter($value) === 0) {
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
           $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         } else {
-          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_STR);
+          $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
           $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
@@ -1239,6 +1246,7 @@ class dbPSQL {
     }
   }
 
+
   //CLIENT_IMAGES table
   public function insertImage ($uuid, $time, $tagnumber) {
     if (strFilter($uuid) === 0 && strFilter($time) === 0 && strFilter($tagnumber) === 0) {
@@ -1247,7 +1255,7 @@ class dbPSQL {
 
       $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
       $stmt->bindParam(':time', $time, PDO::PARAM_STR);
-      $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+      $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT);
     } else {
       exit();
     }
@@ -1299,14 +1307,13 @@ class dbPSQL {
   }
 
 
-
   //LIVE_IMAGES table
   public function insertLiveImages ($tagnumber) {
     if (strFilter($tagnumber) === 0) {
       $sql = "INSERT INTO live_images (tagnumber) VALUES (:tagnumber)";
       $stmt = $this->pdo->prepare($sql);
 
-      $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+      $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT);
     } else {
       exit();
     }
@@ -1322,7 +1329,10 @@ class dbPSQL {
         $sql = "UPDATE live_images SET $key = :value WHERE tagnumber = :tagnumber";
         $stmt = $this->pdo->prepare($sql);
 
-        if (strFilter($value) === 0) {
+        if (is_bool($value) === true) {
+          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
+          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
+        } elseif (strFilter($value) === 0) {
           $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_STR);
           $stmt->bindParam(':value', $value, PDO::PARAM_STR);
         } else {
