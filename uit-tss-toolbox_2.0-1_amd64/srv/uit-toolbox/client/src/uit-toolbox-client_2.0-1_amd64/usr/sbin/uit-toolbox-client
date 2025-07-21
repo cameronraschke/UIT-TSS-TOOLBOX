@@ -851,6 +851,7 @@ function writeDisk_Shred {
 		return 0
 	fi
 	
+	i=0
 	while [[ $i -lt $writeSections ]]; do
 		i=$((i + 1))
 		tput cuu1
@@ -913,6 +914,7 @@ function vrfyDisk_Shred {
 		fi
 	fi
 	
+	i=0
 	while [[ $i -lt $vrfySections && $PROCFAIL == '0' ]]; do
 		i=$((i + 1))
 		tput cuu1
