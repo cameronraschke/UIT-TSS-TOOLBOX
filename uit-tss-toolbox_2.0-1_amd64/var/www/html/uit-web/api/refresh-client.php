@@ -15,7 +15,7 @@ unset($sql);
 $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_time, disk_temp, max_disk_temp, system_serial, bios_version, bios_updated, image_name_readable, os_installed,
    checkout_time, checkout_bool, image_time FROM 
     (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS client_health_tag, remote.tagnumber AS remote_tag, 
-    (CASE WHEN EXTRACT(EPOCH FROM NOW() - remote.present) < 30 THEN TRUE ELSE FALSE END) AS present_bool, t2.time AS last_job_time, remote.disk_temp, remote.max_disk_temp, 
+    (CASE WHEN ROUND((EXTRACT(EPOCH FROM (NOW()::timestamp - remote.present::timestamp))), 0) < 30 THEN TRUE ELSE FALSE END) AS present_bool, t2.time AS last_job_time, remote.disk_temp, remote.max_disk_temp, 
     (CASE 
       WHEN locations.disk_removed = TRUE THEN 'No OS'
       WHEN t2.clone_completed IS NULL AND t2.erase_completed = TRUE THEN 'No OS'
