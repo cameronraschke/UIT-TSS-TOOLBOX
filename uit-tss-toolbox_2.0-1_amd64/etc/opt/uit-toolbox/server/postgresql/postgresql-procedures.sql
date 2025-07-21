@@ -295,11 +295,10 @@ RETURNS TABLE (
   "Battery Status" VARCHAR,
   "Uptime" VARCHAR,
   "CPU Temp/Disk Temp/Watts" VARCHAR
-)
-LANGUAGE plpgsql
-$$
-BEGIN ATOMIC
-    RETURN QUERY SELECT remote.tagnumber , 
+) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT remote.tagnumber , 
         TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM'), locationFormatting(t3.location) AS "Location", 
         TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS "Last Job Time", 
         remote.job_queued AS "Pending Job", remote.status AS "Status",
@@ -320,8 +319,8 @@ BEGIN ATOMIC
         (CASE WHEN remote.status LIKE 'fail%' THEN 1 ELSE 0 END) DESC, job_queued IS NULL ASC, job_active DESC, queue_position ASC,
         (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 ELSE NULL END) DESC, 
         (CASE WHEN status = 'Waiting for job' THEN 1 ELSE 0 END) ASC, (CASE WHEN client_health.os_installed = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN remote.kernel_updated = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN client_health.bios_updated = TRUE THEN 1 ELSE 0 END) DESC, remote.last_job_time DESC;
-    END
-    $$;
+    END;
+    $$ LANGUAGE plpgsql;
 
 
 -- Select missing remote table data
