@@ -2,7 +2,6 @@
 require('/var/www/html/uit-web/header.php');
 require('/var/www/html/uit-web/php/include.php');
 
-$db = new db();
 $dbPSQL = new dbPSQL();
 
 if (strFilter($_GET["tagnumber"]) === 1) {

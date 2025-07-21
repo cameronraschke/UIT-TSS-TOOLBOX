@@ -5,16 +5,16 @@ if ($_GET["password"] !== "WEB_SVC_PASSWD") {
   exit();
 }
 
-$db = new db();
+$dbPSQL = new dbPSQL();
 
-$db->Pselect("SELECT t1.last_job_time,
+$dbPSQL->Pselect("SELECT t1.last_job_time,
 locations.tagnumber, locations.time, system_data.system_model,
 t1.system_serial
 FROM locations
 LEFT JOIN
-  (SELECT tagnumber, system_serial, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS 'row_count', IF(SUBSTRING(time, 12, 24) = '00:00:00.000', NULL, DATE_FORMAT(time, '%b %D, %Y at %r')) AS 'last_job_time'
+  (SELECT tagnumber, system_serial, ROW_NUMBER() OVER(PARTITION BY tagnumber ORDER BY time DESC) AS row_count, TO_CHAR(time, 'MM/DD/YY at HH12:MI:SS AM') AS last_job_time
     FROM jobstats
-    WHERE (erase_completed = 1 OR clone_completed = 1)
+    WHERE (erase_completed = TRUE OR clone_completed = TRUE)
   ) t1 ON t1.tagnumber = locations.tagnumber
 INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
   AND t1.row_count = 1
@@ -22,8 +22,8 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
   AND locations.tagnumber = :tagnumber
   ORDER BY locations.time DESC", array(':tagnumber' => $_GET["tagnumber"]));
 
-  if(arrFilter($db->get()) === 0) {
-    foreach ($db->get() as $key => $value) {
+  if(arrFilter($dbPSQL->get()) === 0) {
+    foreach ($dbPSQL->get() as $key => $value) {
       $tagnumber = $value["tagnumber"];
       $lastJobTime = $value["last_job_time"];
       $systemModel = $value["system_model"];

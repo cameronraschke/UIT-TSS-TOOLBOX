@@ -5,10 +5,10 @@ require('/var/www/html/uit-web/php/include.php');
 
 
 if (isset($_POST["username"]) && isset($_POST["password"])) {
-    $db = new db();
-	$db->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => md5($_POST["username"]), ':password' => md5($_POST["password"])));
-    if (arrFilter($db->get()) === 0 && count($db->get()) === 1) {
-        foreach ($db->get() as $key => $value) {
+    $dbPSQL = new dbPSQL();
+	$dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => md5($_POST["username"]), ':password' => md5($_POST["password"])));
+    if (arrFilter($dbPSQL->get()) === 0 && count($dbPSQL->get()) === 1) {
+        foreach ($dbPSQL->get() as $key => $value) {
             //setcookie ('authorized', 'yes', time() + (10800), "/");
             my_session_regenerate_id();
             $_SESSION['login_user'] = $value["name"];

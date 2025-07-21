@@ -6,7 +6,6 @@ if ($_SESSION['authorized'] != "yes") {
   die();
 }
 
-$db = new db();
 $dbPSQL = new dbPSQL();
 
 // Job by location form

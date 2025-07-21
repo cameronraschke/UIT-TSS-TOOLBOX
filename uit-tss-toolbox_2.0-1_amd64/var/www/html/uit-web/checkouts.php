@@ -6,7 +6,7 @@ if ($_SESSION['authorized'] != "yes") {
   die();
 }
 
-$db = new dbPSQL();
+$dbPSQL = new dbPSQL();
 
 $sql = "SELECT * FROM (SELECT checkouts.time, checkouts.tagnumber, checkouts.customer_name, checkouts.customer_psid, checkouts.checkout_date, checkouts.return_date, checkouts.checkout_bool, checkouts.note,
     ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums 
@@ -15,12 +15,12 @@ $sql = "SELECT * FROM (SELECT checkouts.time, checkouts.tagnumber, checkouts.cus
         AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = TRUE ORDER BY t1.customer_name ASC, t1.checkout_date DESC, t1.tagnumber DESC";
 
 if (isset($sqlArr)) {
-    $db->Pselect($sql, $sqlArr);
+    $dbPSQL->Pselect($sql, $sqlArr);
 } else {
-    $db->select($sql);
+    $dbPSQL->select($sql);
 }
 unset($sql);
-$rowCount = count($db->get());
+$rowCount = count($dbPSQL->get());
 ?>
 
 <!DOCTYPE html>
@@ -68,8 +68,8 @@ unset($sql);
 //         AND NOT (t1.row_nums IS NULL AND t2.row_nums IS NULL) ORDER BY checkouts.customer_name, checkouts.tagnumber DESC, checkouts.time DESC";
 
 
-if (arrFilter($db->get()) === 0) {
-  foreach ($db->get() as $key => $value) {
+if (arrFilter($dbPSQL->get()) === 0) {
+  foreach ($dbPSQL->get() as $key => $value) {
     echo "<tr>";
     //tagnumber
     echo "<td>";
@@ -171,9 +171,9 @@ if (arrFilter($db->get()) === 0) {
 
   <script>
     <?php
-    $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
-    if (arrFilter($db->get()) === 0) {
-      foreach ($db->get() as $key => $value) {
+    $dbPSQL->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
+    if (arrFilter($dbPSQL->get()) === 0) {
+      foreach ($dbPSQL->get() as $key => $value) {
         $tagStr .= htmlspecialchars($value["tagnumber"]) . "|";
       }
     }

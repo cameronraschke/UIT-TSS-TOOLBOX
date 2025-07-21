@@ -16,7 +16,6 @@ if ($_SESSION['authorized'] != "yes") {
   exit();
 }
 
-$db = new db();
 $dbPSQL = new dbPSQL();
 
 $dbPSQL->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));

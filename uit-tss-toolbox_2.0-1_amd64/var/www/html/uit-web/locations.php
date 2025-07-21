@@ -13,7 +13,6 @@ if ($_SESSION['authorized'] != "yes") {
   die();
 }
 
-$db = new db();
 $dbPSQL = new dbPSQL();
 
 if ($_GET["refresh"] == "1") {
@@ -377,7 +376,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
           echo "<div class='column'>
             <div><label for='disk_removed'>Disk removed?</label></div>
               <select name='disk_removed' id='disk_removed'>" . PHP_EOL;
-                if ($value["disk_removed"] === 1) {
+                if ($value["disk_removed"] === true) {
                   echo "<option id='disk_removed-true' value='1'>Yes</option>" . PHP_EOL;
                   echo "<option id='disk_removed-false' value='0'>No</option>" . PHP_EOL;
                 } else {
@@ -603,9 +602,9 @@ if ($_GET["broken"] == "0") {
 
 // Disk removed filter
 if ($_GET["disk_removed"] == "0") {
-  $sql .= "AND (locations.disk_removed IS NULL OR locations.disk_removed = FALSE) ";
+  $sql .= "AND locations.disk_removed = FALSE ";
 } elseif ($_GET["disk_removed"] == "1") {
-  $sql .= "AND (locations.disk_removed = TRUE OR locations.disk_removed IS NOT NULL) ";
+  $sql .= "AND locations.disk_removed = TRUE ";
 }
 
 // OS Installed filter

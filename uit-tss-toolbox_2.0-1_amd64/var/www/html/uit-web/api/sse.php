@@ -9,12 +9,11 @@ if (!isset($_GET["type"])) {
 //   exit();
 // }
 
-$db = new db();
 $dbPSQL = new dbPSQL();
 
 if (isset($_GET["tagnumber"])) {
-  $db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
-  if (strFilter($db->get()) === 1) {
+  $dbPSQL->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
+  if (strFilter($dbPSQL->get()) === 1) {
     exit();
   }
 }
@@ -31,8 +30,8 @@ if ($_GET["type"] == "server_time") {
 
 
 if ($_GET["type"] == "job_queue" && isset($_GET["tagnumber"])) { 
-  $db->Pselect("SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, remote.status AS 'remote_status', DATE_FORMAT(remote.present, '%m/%d/%y, %r') AS 'remote_time_formatted' FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
-  foreach ($db->get() as $key => $value) {
+  $dbPSQL->Pselect("SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
+  foreach ($dbPSQL->get() as $key => $value) {
     $event = "server_time";
     $data = json_encode($value);
   }
@@ -41,7 +40,7 @@ if ($_GET["type"] == "job_queue" && isset($_GET["tagnumber"])) {
 
 if ($_GET["type"] == "live_image" && isset($_GET["tagnumber"])) {
   $dbPSQL->Pselect("SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-  //$db->Pselect("SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', screenshot FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+  //$dbPSQL->Pselect("SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', screenshot FROM live_images WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
   foreach ($dbPSQL->get() as $key => $value) {
     $event = "live_image";
     $data = json_encode($value);
