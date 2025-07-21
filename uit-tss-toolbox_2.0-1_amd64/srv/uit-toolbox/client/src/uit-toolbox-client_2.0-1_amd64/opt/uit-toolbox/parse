@@ -207,7 +207,7 @@ if ($arr[0] == "remote") {
     }
 
     if ($key == "cpu_temp") {
-        $value = round(bcdiv("$value", 1000, 2), 0);
+        $value = round(bcdiv($value, 1000, 2), 0);
     }
 
     if ($key == "disk_temp" || $key == "max_disk_temp") {
@@ -223,7 +223,7 @@ if ($arr[0] == "remote") {
         $second = $arr[4];
         $secWatts = $second / 1e6;
 
-        $value = $secWatts - $firstWatts;
+        $value = round(($secWatts - $firstWatts), 0);
     }
 
     $dbPSQL->updateRemote($tagNum, $key, $value);

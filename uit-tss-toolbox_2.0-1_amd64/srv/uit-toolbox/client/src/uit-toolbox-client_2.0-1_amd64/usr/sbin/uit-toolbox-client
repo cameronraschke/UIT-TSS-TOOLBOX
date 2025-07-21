@@ -378,8 +378,13 @@ fi
 		printf '%s' "general|boot_time|${bootTime}|${UUID}" | /opt/uit-toolbox/parse
 
 	###CPU Info
-	cpuTemp=$(cat /sys/class/thermal/thermal_zone2/temp 2>/dev/null)
+	for i in $(find /sys/class/hwmon/ -mindepth 1); do
+    type=$(cat ${i}/name)
+    if [[ $type == "coretemp" ]]; then
+        cpuTemp=$(cat ${i}/temp1_input)
 		printf '%s' "general|cpu_temp|${cpuTemp}|${UUID}" | /opt/uit-toolbox/parse
+        fi
+	done
 
 	printf '%s' "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
 	printf '%s' "system-stats|network|${UUID}" | /opt/uit-toolbox/parse.
