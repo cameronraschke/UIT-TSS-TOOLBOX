@@ -489,7 +489,7 @@ foreach ($dbPSQL->get() as $key => $value) {
           echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All Images</b>]</a></div>";
           echo "<div class='grid-container'>";
           foreach ($dbPSQL->get() as $key => $image) {
-              $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = tagnumber AND hidden = FALSE", array(':tagnumber' => $_GET["tagnumber"]));
+              $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber AND hidden = FALSE", array(':tagnumber' => $_GET["tagnumber"]));
               $totalRows = $dbPSQL->get_rows();
               echo "<div class='grid-box'>";
               echo "<div style='display: table; clear: both; width: 100%;'>";
@@ -880,13 +880,13 @@ async function parseSSE() {
       if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] === true && jobQueue["bios_updated"] === true)) {
         newHTML = "Online, no errors <span>&#10004;&#65039;</span>";
       // BIOS and kernel out of date (x)
-      } else if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] !== 1 && jobQueue["bios_updated"] !== 1)) {
+      } else if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] !== true && jobQueue["bios_updated"] !== true)) {
         newHTML = "Online, kernel and BIOS out of date <span>&#10060;</span>";
       // BIOS out of date, kernel updated (warning sign)
-      } else if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] === true && jobQueue["bios_updated"] !== 1)) {
+      } else if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] === true && jobQueue["bios_updated"] !== true)) {
         newHTML = "Online, please update BIOS <span>&#9888;&#65039;</span>";
       // BIOS updated, kernel out of date (x)
-      } else if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] !== 1 && jobQueue["bios_updated"] === true)) {
+      } else if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] !== true && jobQueue["bios_updated"] === true)) {
         newHTML = "Online, kernel out of date <span>&#10060;</span>)";
       // Offline (x)
       } else if (jobQueue["present_bool"] !== true) {

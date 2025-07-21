@@ -179,23 +179,32 @@
 -- );
 -- END;
 
-
--- SQL permissions and user creation
-CREATE OR REPLACE PROCEDURE sqlPermissions()
+-- SQL user creation
+CREATE OR REPLACE PROCEDURE sqlCreateUsers()
 LANGUAGE SQL
 AS $$
 
 CREATE USER cameron WITH SUPERUSER CREATEDB CREATEROLE PASSWORD 'UHouston!';
+
+CREATE USER uitclient PASSWORD 'UHouston!';
+
+CREATE USER uitweb PASSWORD 'UHouston!';
+
+$$;
+
+-- SQL permissions
+CREATE OR REPLACE PROCEDURE sqlPermissions()
+LANGUAGE SQL
+AS $$
+
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cameron WITH GRANT OPTION;
 GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA public TO cameron;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO cameron;
 
-CREATE USER uitclient PASSWORD 'UHouston!';
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO uitclient;
 GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA public TO uitclient;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO uitclient;
 
-CREATE USER uitweb PASSWORD 'UHouston!';
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO uitweb;
 GRANT DELETE ON client_images TO uitweb;
 GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA public TO uitweb;
@@ -284,8 +293,8 @@ RETURNS TABLE (
   "Kernel/BIOS Updated" VARCHAR,
   "OS Name" VARCHAR,
   "Battery Status" VARCHAR,
-  
-
+  "Uptime" VARCHAR,
+  "CPU Temp/Disk Temp/Watts" VARCHAR
 )
 LANGUAGE plpgsql
 $$
@@ -296,7 +305,7 @@ BEGIN ATOMIC
         remote.job_queued AS "Pending Job", remote.status AS "Status",
         CONCAT((CASE WHEN remote.kernel_updated = TRUE THEN 'Yes' ELSE 'No' END), '/', ( CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END)) AS "Kernel/BIOS Updated", client_health.os_name AS "OS Name", 
         CONCAT(remote.battery_charge, '% (', remote.battery_status, ')') AS "Battery Status", 
-        CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS "Uptime", 
+        TO_CHAR(NOW() - TO_TIMESTAMP(EXTRACT(EPOCH FROM NOW()) - (EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM (NOW() - (remote.uptime || ' second')::interval)))), 'DDD\"d\" HH24:MI:SS') as "Uptime", 
         CONCAT(remote.cpu_temp, '°C', '/' , remote.disk_temp, '°C', '/', remote.watts_now, ' Watts') AS "CPU Temp/Disk Temp/Watts"
       FROM remote 
       LEFT JOIN (SELECT s1.time, s1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS "row_nums" FROM locations) s1 WHERE s1.row_nums = 1) t1

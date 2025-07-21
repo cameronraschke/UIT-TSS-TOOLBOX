@@ -61,9 +61,11 @@ find /srv/uit-toolbox/ -type d -not -path "*/iso*" -exec chmod 755 {} \;
 find /srv/uit-toolbox/ -type f -not -path "*/iso/*" -exec chmod 664 {} \;
 echo -e "\n" >> /etc/cron.d/uit-cron
 
-# Update mysql tables & procedures
-mysql laptopDB < /etc/opt/uit-toolbox/server/mysql/mysql-procedures.sql
-mysql laptopDB < /etc/opt/uit-toolbox/server/mysql/mysql-tables.sql
+# Update tables & procedures
+sudo -u postgres psql uitdb < /etc/opt/uit-toolbox/server/postgresql/postgresql-procedures.sql
+sudo -u postgres psql uitdb < /etc/opt/uit-toolbox/server/postgresql/postgresql-tables.sql
+
+sudo -u postgres psql --command="CALL sqlPermissions();" uitdb
 
 # Insert include.php with modifications for the clients.
 cat /var/www/html/uit-web/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
@@ -73,15 +75,11 @@ sed --in-place 's/WEB_SVC_PASSWD/CLIENT_PASSWD/g' /srv/uit-toolbox/client/src/ui
 # Set passwords for various services
 echo "Updating Passwords..."
 
-# MySQL Admin Password
-echo "  --MySQL Admin Password"
-if [[ -f /home/cameron/.my.cnf ]]; then 
-    DB_ADMIN_PASSWD=$(cat /home/cameron/.my.cnf | grep '^password=' | sed 's/password=//g' | head -n1)
-else
+# PSQL Admin Password
+echo "  --PSQL Admin Password"
  DB_ADMIN_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g')
-fi
 
-# MySQL Client Password
+# PSQL Client Password
 echo "  --Client Password"
 CLIENT_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^CLIENT_PASSWD=' | sed 's/CLIENT_PASSWD=//g')
 
@@ -91,12 +89,12 @@ WEB_SVC_PASSWD=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g'
 
 # All Users for the Website
 echo "  --Web User Username and Password"
-mysql --database='laptopDB' --execute="DELETE FROM logins;"
+sudo -u postgres psql --command="DELETE FROM logins;" uitdb
 WEB_USER_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^WEB_USER_PASSWD=' | sed 's/WEB_USER_PASSWD=//g')
 for i in $(cat /home/cameron/.uit-passwd | grep '^WEB_USERS=' | sed 's/WEB_USERS=//g'); do
-        mysql --database='laptopDB' --execute="INSERT INTO logins (username, name, password) VALUES (${i},MD5('${WEB_USER_PASSWD}'));"
+        sudo -u postgres psql --command="INSERT INTO logins (username, name, password) VALUES (${i},MD5('${WEB_USER_PASSWD}'));" uitdb
 done
-mysql --database='laptopDB' --execute="UPDATE logins SET username = MD5(username);"
+sudo -u postgres psql --command="UPDATE logins SET username = MD5(username);" uitdb
 
 # Webmaster Email
 echo "  --Webmaster Email"
@@ -110,10 +108,6 @@ WEBMASTER_NAME=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_NAME=' | sed '
 echo "  --Server IP Address"
 IP_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^IP_ADDRESS=' | sed 's/IP_ADDRESS=//g')
 
-# MySQL Users
-mysql --database='laptopDB' --execute="ALTER USER 'cameron'@'localhost' IDENTIFIED BY '${DB_ADMIN_PASSWD}';"
-mysql --database='laptopDB' --execute="ALTER USER 'uitclient'@'10.0.0.0/255.255.0.0' IDENTIFIED BY '${CLIENT_PASSWD}';"
-mysql --database='laptopDB' --execute="ALTER USER 'uitweb'@'localhost' IDENTIFIED BY '${WEB_SVC_PASSWD}';"
 
 # PostgreSQL Users
 sudo -u postgres psql --command="ALTER USER cameron WITH PASSWORD '${DB_ADMIN_PASSWD}';"
