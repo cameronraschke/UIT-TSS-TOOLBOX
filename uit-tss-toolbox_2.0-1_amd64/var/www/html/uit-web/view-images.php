@@ -26,10 +26,10 @@ if (isset($_POST["image-primary"]) && $_POST["image-primary"] == "1" && strFilte
   $dbPSQL->Pselect("SELECT uuid FROM client_images WHERE primary_image = 1 AND tagnumber = :tagnumber", array(':tagnumber' => $_POST["image-primary-tagnumber"]));
   if (strFilter($dbPSQL->get()) === 0) {
     foreach ($dbPSQL->get() as $key => $value) {
-      $dbPSQL->updateImage("primary_image", "0", $value["uuid"]);
+      $dbPSQL->updateImage("primary_image", false, $value["uuid"]);
     }
   }
-  $dbPSQL->updateImage("primary_image", "1", trim($_POST["image-primary-uuid"]));
+  $dbPSQL->updateImage("primary_image", true, trim($_POST["image-primary-uuid"]));
   unset($value);
 }
 

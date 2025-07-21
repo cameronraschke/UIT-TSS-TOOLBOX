@@ -179,9 +179,9 @@ if (strFilter($_POST) === 0) {
     $serial = trim($_POST["serial"]);
     $department = $_POST['department'];
     $location = trim($_POST['location']);
-    $status = $_POST["status"];
+    $status = boolval($_POST["status"]);
     $note = $_POST['note'];
-    $diskRemoved = $_POST['disk_removed'];
+    $diskRemoved = boolval($_POST['disk_removed']);
     $domain = $_POST["domain"];
 
     //Insert location data

@@ -95,7 +95,7 @@ if ($arr[0] == "location") {
     $dbPSQL->updateLocation("tagnumber", $tagNum, $time);
     $dbPSQL->updateLocation("system_serial", $serial, $time);
     $dbPSQL->updateLocation("location", $location, $time);
-    $dbPSQL->updateLocation("status", $status, $time);
+    $dbPSQL->updateLocation("status", boolval($status), $time);
     $dbPSQL->updateLocation("note", $note, $time);
 
 }

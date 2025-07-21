@@ -25,8 +25,8 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
     (CASE 
       WHEN locations.disk_removed = TRUE THEN FALSE
       WHEN t4.checkout_bool = TRUE THEN TRUE
-      WHEN t2.erase_completed = TRUE AND t2.clone_completed IS NULL THEN FALSE
-      WHEN t2.erase_completed IS NULL AND t2.clone_completed = TRUE THEN TRUE
+      WHEN t2.erase_completed = TRUE AND t2.clone_completed = FALSE THEN FALSE
+      WHEN t2.erase_completed = FALSE AND t2.clone_completed = TRUE THEN TRUE
       WHEN t2.erase_completed = TRUE AND t2.clone_completed = TRUE THEN TRUE 
       ELSE TRUE
     END) AS os_installed,
@@ -76,19 +76,19 @@ foreach ($dbPSQL->get() as $key => $value) {
 
   $dbPSQL->updateClientHealth($value["tagnumber"], "system_serial",  $value["system_serial"]);
   $dbPSQL->updateClientHealth($value["tagnumber"], "bios_version",  $value["bios_version"]);
-  $dbPSQL->updateClientHealth($value["tagnumber"], "bios_updated",  $value["bios_updated"]);
+  $dbPSQL->updateClientHealth($value["tagnumber"], "bios_updated",  boolval($value["bios_updated"]));
   $dbPSQL->updateClientHealth($value["tagnumber"], "os_name", $value["image_name_readable"]);
-  $dbPSQL->updateClientHealth($value["tagnumber"], "os_installed", $value["os_installed"]);
+  $dbPSQL->updateClientHealth($value["tagnumber"], "os_installed", boolval($value["os_installed"]));
   $dbPSQL->updateClientHealth($value["tagnumber"], "time", $time);
 
-  $dbPSQL->updateCheckout("checkout_bool", $value["checkout_bool"], $value["checkout_time"]);
+  $dbPSQL->updateCheckout("checkout_bool", boolval($value["checkout_bool"]), $value["checkout_time"]);
 
   if (strFilter($value["remote_tag"]) === 1) {
     $dbPSQL->insertRemote($value["tagnumber"]);
   }
 
   // Update presence
-  $dbPSQL->updateRemote($value["tagnumber"], "present_bool", $value["present_bool"]);
+  $dbPSQL->updateRemote($value["tagnumber"], "present_bool", boolval($value["present_bool"]));
 
   // Update Last Job Time
   $dbPSQL->updateRemote($value["tagnumber"], "last_job_time", $value["last_job_time"]);
