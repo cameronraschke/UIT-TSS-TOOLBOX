@@ -37,7 +37,7 @@ if ($arr[0] == "init") {
     $dbPSQL->updateJob("date", $date, $uuid);
 
     function queryTime($queryTime) {
-        $db = new dbPSQL();
+        $dbPSQL = new dbPSQL();
         $time = updateTimeValue();
         $dbPSQL->Pselect("SELECT COUNT(time) AS count FROM jobstats WHERE time = :time", array(':time' => $queryTime));
         foreach ($dbPSQL->get() as $key => $value) {
