@@ -1,6 +1,6 @@
 #!/bin/bash
 
 DTIME=$(date '+%F-%H%M%S')
-mysqldump --databases laptopDB > /opt/uit-toolbox/sql-backups/laptopDB-${DTIME}.sql
+sudo -u postgres pg_dump uitdb > /opt/uit-toolbox/sql-backups/pg_backup-$(date '+%F-%H%M%S').sql
 
-rsync -a --delete /srv/nfs/uit-toolbox/images/ /opt/uit-toolbox/image-backups/
+#rsync -a --delete /srv/nfs/uit-toolbox/images/ /opt/uit-toolbox/image-backups/

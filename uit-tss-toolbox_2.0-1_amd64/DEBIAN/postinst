@@ -27,13 +27,15 @@ if [[ ! -d /srv/nfs/uit-toolbox/images ]]; then
     mkdir -p /srv/nfs/uit-toolbox/images
 fi
 find /srv/nfs/ -type d -exec chmod 755 {} \;
-#find /srv/nfs/uit-toolbox/images -type d -exec chmod 755 {} \;
-#find /srv/nfs/uit-toolbox/images -type f -exec chmod 664 {} \;
 /usr/bin/chown nobody:nogroup /srv/nfs/uit-toolbox/images -R
 
 /usr/bin/chown root:uit /etc/opt/uit-toolbox -R
 find /etc/opt/uit-toolbox -type d -exec chmod 770 {} \;
 find /etc/opt/uit-toolbox -type f -exec chmod 660 {} \;
+
+/usr/bin/chown root:uit /opt/uit-toolbox/sql-backups -R
+find /opt/uit-toolbox/sql-backups -type d -exec chmod 770 {} \;
+find /opt/uit-toolbox/sql-backups -type f -exec chmod 660 {} \;
 
 mkdir /var/www/html/uit-web/transcode
 /usr/bin/chown www-data:uit /var/www/html/uit-web -R
