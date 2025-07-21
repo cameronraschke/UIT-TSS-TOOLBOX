@@ -285,27 +285,27 @@ $$;
 CREATE OR REPLACE FUNCTION selectRemote()
 RETURNS TABLE (
   "Tag" INTEGER,
-  "Last Heard" TIMESTAMP,
+  "Last Heard" TEXT,
   "Location" VARCHAR,
-  "Last Job Time" TIMESTAMP,
+  "Last Job Time" TEXT,
   "Pending Job" VARCHAR,
   "Status" VARCHAR,
-  "Kernel/BIOS Updated" VARCHAR,
+  "Kernel/BIOS Updated" TEXT,
   "OS Name" VARCHAR,
-  "Battery Status" VARCHAR,
-  "Uptime" VARCHAR,
-  "CPU Temp/Disk Temp/Watts" VARCHAR
+  "Battery Status" TEXT,
+  "Uptime" TEXT,
+  "CPU Temp/Disk Temp/Watts" TEXT
 ) AS $$
 BEGIN
     RETURN QUERY 
-    SELECT remote.tagnumber , 
-        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM'), locationFormatting(t3.location) AS "Location", 
-        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS "Last Job Time", 
+    SELECT remote.tagnumber, 
+        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM'), locationFormatting(t3.location), 
+        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM'), 
         remote.job_queued AS "Pending Job", remote.status AS "Status",
-        CONCAT((CASE WHEN remote.kernel_updated = TRUE THEN 'Yes' ELSE 'No' END), '/', ( CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END)) AS "Kernel/BIOS Updated", client_health.os_name AS "OS Name", 
-        CONCAT(remote.battery_charge, '% (', remote.battery_status, ')') AS "Battery Status", 
-        TO_CHAR(NOW() - TO_TIMESTAMP(EXTRACT(EPOCH FROM NOW()) - (EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM (NOW() - (remote.uptime || ' second')::interval)))), 'DDD\"d\" HH24:MI:SS') as "Uptime", 
-        CONCAT(remote.cpu_temp, '°C', '/' , remote.disk_temp, '°C', '/', remote.watts_now, ' Watts') AS "CPU Temp/Disk Temp/Watts"
+        CONCAT((CASE WHEN remote.kernel_updated = TRUE THEN 'Yes' ELSE 'No' END), '/', (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END)), client_health.os_name, 
+        CONCAT(remote.battery_charge, '% (', remote.battery_status, ')'), 
+        TO_CHAR(NOW() - TO_TIMESTAMP(EXTRACT(EPOCH FROM NOW()) - (EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM (NOW() - (remote.uptime || ' second')::interval)))), 'DDD"d," HH24"h" MI"m" SS"s"'), 
+        CONCAT(remote.cpu_temp, '°C', '/' , remote.disk_temp, '°C', '/', remote.watts_now, ' Watts')
       FROM remote 
       LEFT JOIN (SELECT s1.time, s1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS "row_nums" FROM locations) s1 WHERE s1.row_nums = 1) t1
         ON remote.tagnumber = t1.tagnumber
@@ -319,22 +319,35 @@ BEGIN
         (CASE WHEN remote.status LIKE 'fail%' THEN 1 ELSE 0 END) DESC, job_queued IS NULL ASC, job_active DESC, queue_position ASC,
         (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 ELSE NULL END) DESC, 
         (CASE WHEN status = 'Waiting for job' THEN 1 ELSE 0 END) ASC, (CASE WHEN client_health.os_installed = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN remote.kernel_updated = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN client_health.bios_updated = TRUE THEN 1 ELSE 0 END) DESC, remote.last_job_time DESC;
-    END;
+    END
     $$ LANGUAGE plpgsql;
 
 
 -- Select missing remote table data
-CREATE OR REPLACE PROCEDURE selectRemoteMissing()
-LANGUAGE SQL
-BEGIN ATOMIC
-    SELECT remote.tagnumber AS "Tag", 
-        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS "Last Heard", locationFormatting(t3.location) AS "Location", 
-        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS "Last Job Time", 
+CREATE OR REPLACE FUNCTION selectRemoteMissing()
+RETURNS TABLE (
+  "Tag" INTEGER,
+  "Last Heard" TEXT,
+  "Location" VARCHAR,
+  "Last Job Time" TEXT,
+  "Pending Job" VARCHAR,
+  "Status" VARCHAR,
+  "Kernel/BIOS Updated" TEXT,
+  "OS Name" VARCHAR,
+  "Battery Status" TEXT,
+  "Uptime" TEXT,
+  "CPU Temp/Disk Temp/Watts" TEXT
+) AS $$
+BEGIN
+  RETURN QUERY 
+    SELECT remote.tagnumber, 
+        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM'), locationFormatting(t3.location), 
+        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM'), 
         remote.job_queued AS "Pending Job", remote.status AS "Status",
-        (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS "BIOS Updated", client_health.os_name AS "OS Name", 
-        CONCAT(remote.battery_charge, '% (', remote.battery_status, ')') AS "Battery Status", 
-        CONCAT(FLOOR(remote.uptime / 3600 / 24), 'd ' , FLOOR(MOD(remote.uptime, 3600 * 24) / 3600), 'h ' , FLOOR(MOD(remote.uptime, 3600) / 60), 'm ' , FLOOR(MOD(remote.uptime, 60)), 's') AS "Uptime", 
-        CONCAT(remote.cpu_temp, '°C', '/' , remote.disk_temp, '°C', '/', remote.watts_now, ' Watts') AS "CPU Temp/Disk Temp/Watts"
+        CONCAT((CASE WHEN remote.kernel_updated = TRUE THEN 'Yes' ELSE 'No' END), '/', (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END)), client_health.os_name, 
+        CONCAT(remote.battery_charge, '% (', remote.battery_status, ')'), 
+        TO_CHAR(NOW() - TO_TIMESTAMP(EXTRACT(EPOCH FROM NOW()) - (EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM (NOW() - (remote.uptime || ' second')::interval)))), 'DDD"d," HH24"h" MI"m" SS"s"'), 
+        CONCAT(remote.cpu_temp, '°C', '/' , remote.disk_temp, '°C', '/', remote.watts_now, ' Watts')
       FROM remote 
       LEFT JOIN (SELECT s1.time, s1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS "row_nums" FROM locations) s1 WHERE s1.row_nums = 1) t1
         ON remote.tagnumber = t1.tagnumber
@@ -343,29 +356,36 @@ BEGIN ATOMIC
         ON t3.tagnumber = remote.tagnumber
       LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS "queue_position" FROM remote WHERE job_queued IS NOT NULL) s2) t2
         ON remote.tagnumber = t2.tagnumber
-      WHERE remote.present_bool = FALSE OR remote.present_bool IS NULL
-      ORDER BY remote.present DESC
-      LIMIT 10;
-    END;
+      WHERE remote.present_bool = FALSE AND remote.present IS NOT NULL
+      ORDER BY remote.present DESC;
+    END
+  $$ LANGUAGE plpgsql;
 
 
 -- Select remote table stats
-CREATE OR REPLACE PROCEDURE selectRemoteStats()
-LANGUAGE SQL
-BEGIN ATOMIC
-SELECT 
-    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool = '1') AS "Present Laptops",
-    CONCAT(ROUND(AVG(remote.battery_charge), 0), '%') AS "Avg. Battery Charge",
-    CONCAT(ROUND(AVG(remote.cpu_temp), 1), '°C') AS "Avg. CPU Temp",
-    CONCAT(ROUND(AVG(remote.disk_temp), 1), '°C') AS "Avg. Disk Temp",
-    CONCAT(ROUND(AVG(remote.watts_now), 1), ' Watts') AS "Avg. Actual Power Draw",
-    CONCAT(ROUND(SUM(remote.watts_now), 0), ' Watts') AS "Actual Power Draw",
-    CONCAT(ROUND(SUM((CASE WHEN remote.battery_status NOT IN ('Discharging') AND remote.present_bool = TRUE THEN 55 ELSE 0 END)), 0), ' Cur. Watts', '/' , ROUND(SUM((CASE WHEN remote.present_bool = TRUE THEN 55 ELSE 0 END)), 0), ' Watts') AS "Power Draw from Wall",
-    COUNT(client_health.os_installed) AS "OS Installed Sum"
+CREATE OR REPLACE FUNCTION selectRemoteStats()
+RETURNS TABLE (
+  "Present Clients" BIGINT,
+  "Avg. Battery Charge" TEXT,
+  "Avg. CPU Temp" TEXT,
+  "Avg. Disk Temp" TEXT,
+  "Avg. Power Draw" TEXT,
+  "OS's Installed" BIGINT
+) AS $$
+BEGIN
+  RETURN QUERY 
+    SELECT 
+    (SELECT COUNT(remote.tagnumber) FROM remote WHERE remote.present_bool = TRUE),
+    CONCAT(ROUND(AVG(remote.battery_charge), 0), '%'),
+    CONCAT(ROUND(AVG(remote.cpu_temp), 1), '°C'),
+    CONCAT(ROUND(AVG(remote.disk_temp), 1), '°C'),
+    CONCAT(ROUND(AVG(remote.watts_now), 1), ' Watts'),
+    COUNT(client_health.os_installed)
     FROM remote 
     LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber 
     WHERE remote.present_bool = TRUE;
-    END;
+    END
+    $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE PROCEDURE selectLocationAutocomplete()
