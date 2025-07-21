@@ -19,8 +19,8 @@ if ($_SESSION['authorized'] != "yes") {
 $db = new db();
 $dbPSQL = new dbPSQL();
 
-$db->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-if (strFilter($db->get()) === 1) {
+$dbPSQL->Pselect("SELECT tagnumber FROM locations WHERE tagnumber = :tagnumber LIMIT 1", array(':tagnumber' => $_GET["tagnumber"]));
+if (strFilter($dbPSQL->get()) === 1) {
   exit();
 }
 
@@ -168,7 +168,7 @@ if (isset($_FILES) && strFilter($_FILES) === 0) {
 
 if (isset($_POST["job_queued_tagnumber"])) {
   if (strFilter($_POST["job_queued"]) === 0) {
-    $db->updateRemote($_POST["job_queued_tagnumber"], "job_queued", $_POST["job_queued"]);
+    $dbPSQL->updateRemote($_POST["job_queued_tagnumber"], "job_queued", $_POST["job_queued"]);
   }
   unset($_POST["job_queued_form"]);
 }
@@ -185,23 +185,16 @@ if (strFilter($_POST) === 0) {
     $diskRemoved = $_POST['disk_removed'];
     $domain = $_POST["domain"];
 
-    //Insert jobstats data
-    //$db->insertJob($uuid);
-    //$db->updateJob("tagnumber", $tagNum, $uuid);
-    //$db->updateJob("system_serial", $serial, $uuid);
-    //$db->updateJob ("date", $date, $uuid);
-    //$db->updateJob ("time", $time, $uuid);
-
     //Insert location data
-    $db->insertLocation($time);
-    $db->updateLocation("tagnumber", $tagNum, $time);
-    $db->updateLocation("system_serial", $serial, $time);
-    $db->updateLocation("location", $location, $time);
-    $db->updateLocation("status", $status, $time);
-    $db->updateLocation("disk_removed", $diskRemoved, $time);
-    $db->updateLocation("note", $note, $time);
-    $db->updateLocation("domain", $domain, $time);
-    $db->updateLocation("department", $department, $time);
+    $dbPSQL->insertLocation($time);
+    $dbPSQL->updateLocation("tagnumber", $tagNum, $time);
+    $dbPSQL->updateLocation("system_serial", $serial, $time);
+    $dbPSQL->updateLocation("location", $location, $time);
+    $dbPSQL->updateLocation("status", $status, $time);
+    $dbPSQL->updateLocation("disk_removed", $diskRemoved, $time);
+    $dbPSQL->updateLocation("note", $note, $time);
+    $dbPSQL->updateLocation("domain", $domain, $time);
+    $dbPSQL->updateLocation("department", $department, $time);
 
 
     unset($_POST);
@@ -236,76 +229,74 @@ unset($_POST);
 <?php
 // Get most client data - main sql query
 unset($sql);
-$sql = "SELECT DATE_FORMAT(t10.time, '%m/%d/%y, %r') AS 'location_time_formatted',
-IF (t3.time = t10.time, 1, 0) AS 'placeholder_bool',
-jobstats.time AS 'jobstatsTime', locations.tagnumber, locations.system_serial, locations.department, 
-locationFormatting(locations.location) AS 'location', 
-IF(locations.status = 1, 'Broken', 'Yes') AS 'status_formatted', locations.status AS 'locations_status', t2.department_readable, t3.note AS 'most_recent_note',
-locations.note, DATE_FORMAT(t3.time, '%m/%d/%y, %r') AS 'note_time_formatted', 
-IF(locations.disk_removed = 1, 'Yes', 'No') AS 'disk_removed_formatted', locations.disk_removed,
+$sql = "SELECT TO_CHAR(t10.time, 'MM/DD/YY HH12:MI:SS AM') AS location_time_formatted,
+(CASE WHEN t3.time = t10.time THEN 1 ELSE 0 END) AS placeholder_bool,
+jobstats.time AS jobstatsTime, locations.tagnumber, locations.system_serial, locations.department, 
+locationFormatting(locations.location) AS location, 
+(CASE WHEN locations.status = TRUE THEN 'Broken' ELSE 'Yes' END) AS status_formatted, locations.status AS locations_status, t2.department_readable, t3.note AS most_recent_note,
+locations.note, TO_CHAR(t3.time, 'MM/DD/YY HH12:MI:SS AM') AS note_time_formatted, 
+(CASE WHEN locations.disk_removed = TRUE THEN 'Yes' ELSE 'No' END) AS disk_removed_formatted, locations.disk_removed,
 jobstats.etheraddress, system_data.wifi_mac, 
 system_data.chassis_type, 
 (CASE
 WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NOT NULL THEN CONCAT(system_data.system_manufacturer, ' - ', system_data.system_model)
 WHEN system_data.system_manufacturer IS NULL AND system_data.system_model IS NOT NULL THEN system_data.system_model
 WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NULL THEN system_data.system_manufacturer
-END) AS 'system_model_formatted',
-system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS 'cpu_maxspeed', IF(system_data.cpu_threads > system_data.cpu_cores, CONCAT(system_data.cpu_cores, ' cores/', system_data.cpu_threads, ' threads (Multithreaded)'), CONCAT(system_data.cpu_cores, ' cores (Not Multithreaded)')) AS 'multithreaded', 
+END) AS system_model_formatted,
+system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS cpu_maxspeed, (CASE WHEN system_data.cpu_threads > system_data.cpu_cores THEN CONCAT(system_data.cpu_cores, ' cores/', system_data.cpu_threads, ' threads (Multithreaded)') ELSE CONCAT(system_data.cpu_cores, ' cores (Not Multithreaded)') END) AS multithreaded, 
 (CASE 
 WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NOT NULL THEN CONCAT(t8.ram_capacity, ' GB (', t8.ram_speed, ' MHz)')
 WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NULL THEN CONCAT(t8.ram_capacity, ' GB')
-END) AS 'ram_capacity_formatted',
-t4.disk_model, CONCAT(t4.disk_size, 'GB') AS 'disk_size', t4.disk_type, t4.disk_serial, 
+END) AS ram_capacity_formatted,
+t4.disk_model, CONCAT(t4.disk_size, 'GB') AS disk_size, t4.disk_type, t4.disk_serial, 
 t5.identifier, t5.recovery_key, 
-CONCAT(clientstats.battery_health, '%') AS 'battery_health', CONCAT(clientstats.disk_health, '%') AS 'disk_health', 
-CONCAT(clientstats.erase_avgtime, ' mins') AS 'erase_avgtime', CONCAT(clientstats.clone_avgtime, ' mins') AS 'clone_avgtime',
-clientstats.all_jobs, CONCAT(remote.network_speed, ' mbps') AS 'network_speed', client_health.bios_updated, 
-IF (client_health.bios_updated = 1, CONCAT('Updated ', '(', client_health.bios_version, ')'), CONCAT('Out of date ', '(', client_health.bios_version, ')')) AS 'bios_updated_formatted', 
+CONCAT(clientstats.battery_health, '%') AS battery_health, CONCAT(clientstats.disk_health, '%') AS disk_health, 
+CONCAT(clientstats.erase_avgtime, ' mins') AS erase_avgtime, CONCAT(clientstats.clone_avgtime, ' mins') AS clone_avgtime,
+clientstats.all_jobs, CONCAT(remote.network_speed, ' mbps') AS network_speed, client_health.bios_updated, 
+(CASE WHEN client_health.bios_updated = TRUE THEN CONCAT('Updated ', '(', client_health.bios_version, ')') ELSE CONCAT('Out of date ', '(', client_health.bios_version, ')') END) AS bios_updated_formatted, 
 (CASE
 WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_writes, ' TBW/', t4.disk_reads, 'TBR')
 WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NULL THEN CONCAT(t4.disk_writes, ' TBW')
 WHEN t4.disk_reads IS NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_reads, ' TBW')
-END) AS 'disk_tbw_formatted',
-CONCAT(t4.disk_writes, ' TBW') AS 'disk_writes', CONCAT(t4.disk_reads, ' TBR') AS 'disk_reads', CONCAT(t4.disk_power_on_hours, ' hrs') AS 'disk_power_on_hours',
-t4.disk_power_cycles, t4.disk_errors, locations.domain, IF (locations.domain IS NOT NULL, static_domains.domain_readable, 'Not Joined') AS 'domain_readable',
-IF (client_health.os_installed = 1, CONCAT(client_health.os_name, ' (Imaged on ', DATE_FORMAT(t6.time, '%m/%d/%y, %r'), ')'), client_health.os_name) AS 'os_installed_formatted',
+END) AS disk_tbw_formatted,
+CONCAT(t4.disk_writes, ' TBW') AS disk_writes, CONCAT(t4.disk_reads, ' TBR') AS disk_reads, CONCAT(t4.disk_power_on_hours, ' hrs') AS disk_power_on_hours,
+t4.disk_power_cycles, t4.disk_errors, locations.domain, (CASE WHEN locations.domain IS NOT NULL THEN static_domains.domain_readable ELSE 'Not Joined' END) AS domain_readable,
+(CASE WHEN client_health.os_installed = TRUE THEN CONCAT(client_health.os_name, ' (Imaged on ', TO_CHAR(t6.time, 'MM/DD/YY HH12:MI:SS AM'), ')') ELSE client_health.os_name END) AS os_installed_formatted,
 checkouts.customer_name, checkouts.checkout_date, checkouts.checkout_bool, client_health.tpm_version
 FROM locations
 LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
 LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
-LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS 'time' FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND (host_connected = 1 or (uuid LIKE 'techComm-%' AND etheraddress IS NOT NULL)) GROUP BY tagnumber))
+LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS time FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND (host_connected = TRUE OR (uuid LIKE 'techComm-%' AND etheraddress IS NOT NULL)) GROUP BY tagnumber))
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
 LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
 LEFT JOIN (SELECT department, department_readable FROM static_departments) t2
 ON locations.department = t2.department
 LEFT JOIN (SELECT tagnumber, time, note FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE note IS NOT NULL GROUP BY tagnumber)) t3
 ON locations.tagnumber = t3.tagnumber
-LEFT JOIN (SELECT tagnumber, disk_model, disk_serial, disk_size, disk_type, disk_writes, disk_reads, disk_power_on_hours, disk_power_cycles, IF(disk_errors IS NOT NULL, disk_errors, 0) AS 'disk_errors' FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE disk_type IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t4 
+LEFT JOIN (SELECT tagnumber, disk_model, disk_serial, disk_size, disk_type, disk_writes, disk_reads, disk_power_on_hours, disk_power_cycles, (CASE WHEN disk_errors IS NOT NULL THEN disk_errors ELSE 0 END) AS disk_errors FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE disk_type IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t4 
 ON locations.tagnumber = t4.tagnumber
 LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5 
 ON locations.tagnumber = t5.tagnumber
-LEFT JOIN (SELECT time, tagnumber, clone_image, row_nums FROM (SELECT time, tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = 1 AND clone_image IS NOT NULL) s6 WHERE s6.row_nums = 1) t6
+LEFT JOIN (SELECT time, tagnumber, clone_image, row_nums FROM (SELECT time, tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = TRUE AND clone_image IS NOT NULL) s6 WHERE s6.row_nums = 1) t6
 ON locations.tagnumber = t6.tagnumber
 LEFT JOIN static_image_names ON t6.clone_image = static_image_names.image_name
 LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
 ON locations.tagnumber = t8.tagnumber
-INNER JOIN (SELECT MAX(time) AS 'time' FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
+INNER JOIN (SELECT MAX(time) AS time FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
 ON locations.time = t10.time
 LEFT JOIN static_domains ON locations.domain = static_domains.domain
-LEFT JOIN checkouts ON locations.tagnumber = checkouts.tagnumber AND checkouts.time IN (SELECT s11.time FROM (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS 'row_nums' FROM checkouts) s11 WHERE s11.row_nums = 1)
+LEFT JOIN checkouts ON locations.tagnumber = checkouts.tagnumber AND checkouts.time IN (SELECT s11.time FROM (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts) s11 WHERE s11.row_nums = 1)
 WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
 AND locations.tagnumber = :tagnumber";
 
-$sqlArr = array();
-$db->Pselect($sql, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
-if (arrFilter($db->get()) === 0) {
-$sqlArr = $db->get();
-}
+$dbPSQL->Pselect($sql, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
+if (arrFilter($dbPSQL->get()) === 0) {
+foreach ($dbPSQL->get() as $key => $value) {
 ?>
 
 
 
-    <?php echo "<div class='page-content'><h3>Update Queued Job and Location Data - <u>" . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u></h3></div>"; ?>
+    <?php echo "<div class='page-content'><h3>Update Queued Job and Location Data - <u>" . htmlspecialchars($_GET["tagnumber"]) . "</u></h3></div>"; ?>
 
     <div class='row'>
       <div class='column'>
@@ -315,12 +306,9 @@ $sqlArr = $db->get();
               <div name='curJob' id='curJob'>
                 <p>Real-time Job Status: </p>
                 <?php
-                if (arrFilter($sqlArr) === 0) {
-                  foreach ($sqlArr as $key => $value) {
-                    echo "<p id='bios_kernel_updated'></p>";
-
-                    echo "<p id='remote_status'></p>";
-                  }
+                if (strFilter($value["tagnumber"]) === 0) {
+                  echo "<p id='bios_kernel_updated'></p>";
+                  echo "<p id='remote_status'></p>";
                 } else {
                   echo "<p>Missing required info. Please plug into laptop server to gather information.
                   To update the location, please update it from the <a href='/locations.php'>locations page</a></p>";
@@ -334,29 +322,28 @@ $sqlArr = $db->get();
                   <div style='padding-left: 0;'><select name="job_queued">
                     <?php
                     // Get/set current jobs.
-                    if ($_GET['tagnumber'] && arrFilter($sqlArr) === 0) {
+                    if ($_GET['tagnumber'] && strFilter($value["tagnumber"]) === 0) {
                       $db->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-                      if (arrFilter($db->get()) === 0 ) {
-                        $db->Pselect("SELECT IF (remote.job_queued IS NOT NULL, remote.job_queued, '') AS 'job_queued',
-                          IF (remote.job_queued IS NOT NULL, static_job_names.job_readable, 'No Job') AS 'job_queued_formatted',
-                          IF (remote.job_active = 1, 'In Progress: ', 'Queued: ') AS 'job_status_formatted'
+                      if (arrFilter($dbPSQL->get()) === 0 ) {
+                        $dbPSQL->Pselect("SELECT (CASE WHEN remote.job_queued IS NOT NULL THEN remote.job_queued ELSE '' END) AS job_queued,
+                          (CASE WHEN remote.job_queued IS NOT NULL THEN static_job_names.job_readable ELSE 'No Job' END) AS job_queued_formatted,
+                          (CASE WHEN remote.job_active = TRUE THEN 'In Progress: ' ELSE 'Queued: ' END) AS job_status_formatted
                           FROM remote 
                           INNER JOIN static_job_names 
                           ON remote.job_queued = static_job_names.job 
                           WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-                        if (arrFilter($db->get()) === 0) {
-                          foreach ($db->get() as $key => $value1) {
+                        if (arrFilter($dbPSQL->get()) === 0) {
+                          foreach ($dbPSQL->get() as $key => $value1) {
                             echo "<option value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
                           }
                           unset($value1);
                         }
                         echo "<option value=''>--Select Job Below--</option>" . PHP_EOL;
-                        $db->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = 1 AND NOT job IN (SELECT IF (remote.job_queued IS NULL, '', remote.job_queued) FROM remote WHERE remote.tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
-                        foreach ($db->get() as $key => $value2) {
+                        $dbPSQL->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = TRUE AND NOT job IN (SELECT (CASE WHEN remote.job_queued IS NULL THEN '' ELSE remote.job_queued END) FROM remote WHERE remote.tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
+                        foreach ($dbPSQL->get() as $key => $value2) {
                           echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
                         }
                         unset($value2);
-                        unset($value);
                       }
                     } else {
                       echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " missing info :((</option>";
@@ -397,14 +384,11 @@ $sqlArr = $db->get();
           <table width='100%;'>
             <thead>
               <tr>
-              <th>General Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></th>
+              <th>General Client Info - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></th>
               <th></th>
               </tr>
             </thead>
             <tbody>
-              <?php
-                foreach ($sqlArr as $key => $value) {
-              ?>
                 <tr>
                   <td>Current Location</td>
                   <td>
@@ -493,11 +477,6 @@ $sqlArr = $db->get();
                   <td>Network Link Speed</td>
                   <td><?php echo htmlspecialchars($value['network_speed']); ?></td>
                 </tr>
-                <?php
-                  //Close foreach
-                  }
-                  unset($value);
-              ?>
             </tbody>
           </table>
         </div>
@@ -655,10 +634,6 @@ $sqlArr = $db->get();
               </thead>
               <tbody>
                 <tr>
-                  <?php
-                  if (isset($_GET["tagnumber"]) && arrFilter($sqlArr) === 0) {
-                    foreach ($sqlArr as $key => $value) {
-                  ?>
                   <td>Disk Model</td>
                   <td><?php echo htmlspecialchars($value["disk_model"]); ?></td>
                 </tr>
@@ -760,7 +735,8 @@ $sqlArr = $db->get();
       </div>
   <?php
   // Close if & foreach statements for this row
-  }}
+  }
+}
   unset($value);
   ?>
 
@@ -813,20 +789,20 @@ unset($value1);
 </thead>
 <tbody>
 <?php
-$jobLogSQL = "SELECT DATE_FORMAT(time, '%m/%d/%y, %r') AS 'time_formatted', CONCAT(cpu_usage, '%') AS 'cpu_usage', CONCAT(network_usage, ' mbps') AS 'network_usage', 
-    IF (erase_completed = 1, 'Yes', 'No') AS 'erase_completed', erase_mode, SEC_TO_TIME(erase_time) AS 'erase_time', IF (clone_completed = 1, 'Yes', 'No') AS 'clone_completed',
-    SEC_TO_TIME(clone_time) AS 'clone_time', IF (clone_master = 1, '(Master Image)', '') AS 'clone_master_formatted', bios_version 
+$jobLogSQL = "SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, CONCAT(cpu_usage, '%') AS cpu_usage, CONCAT(network_usage, ' mbps') AS network_usage, 
+    (CASE WHEN erase_completed = TRUE THEN 'Yes' ELSE 'No' END) AS erase_completed, erase_mode, TO_CHAR((erase_time || ' second')::interval, 'HH24:MI:SS') AS erase_time, (CASE WHEN clone_completed = TRUE THEN 'Yes' ELSE 'No' END) AS clone_completed,
+    TO_CHAR((clone_time || ' second')::interval, 'HH24:MI:SS') AS clone_time, (CASE WHEN clone_master = TRUE THEN '(Master Image)' ELSE '' END) AS clone_master_formatted, bios_version 
   FROM jobstats 
-  WHERE tagnumber = :tagnumber AND (erase_completed = '1' OR clone_completed = '1') ";
+  WHERE tagnumber = :tagnumber AND (erase_completed = TRUE OR clone_completed = TRUE) ";
 if (isset($_GET["full-job-log"]) && $_GET["full-job-log"] == "1") {
   $jobLogSQL .= "ORDER BY time DESC ";
 } else {
-  $jobLogSQL .= "AND jobstats.time >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY time DESC LIMIT 10 ";
+  $jobLogSQL .= "AND (NOW()::date - jobstats.time::date) <= 365 ORDER BY time DESC LIMIT 10 ";
 }
 
-$db->Pselect($jobLogSQL, array(':tagnumber' =>  $_GET['tagnumber']));
+$dbPSQL->Pselect($jobLogSQL, array(':tagnumber' =>  $_GET['tagnumber']));
 if (arrFilter($db->get()) === 0) {
-foreach ($db->get() as $key => $value1) {
+foreach ($dbPSQL->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['time_formatted']) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['cpu_usage']) . "</td>" . PHP_EOL;
@@ -860,7 +836,7 @@ unset($value1);
 </thead>
 <tbody>
 <?php
-$locLogSQL = "SELECT t1.time, DATE_FORMAT(t1.time, '%m/%d/%y, %r') AS 'time_formatted', locationFormatting(t1.location) AS 'location_formatted', 
+$locLogSQL = "SELECT t1.time, DATE_FORMAT(t1.time, 'MM/DD/YY HH12:MI:SS AM') AS 'time_formatted', locationFormatting(t1.location) AS 'location_formatted', 
   static_departments.department_readable, IF (t1.status = 1, 'No', 'Yes') AS 'status_formatted', IF (t1.disk_removed = 1, 'No', 'Yes') AS 'disk_removed_formatted',
   t1.note
   FROM (SELECT locations.time, locations.location, locations.department, locations.status, locations.disk_removed, locations.note, 

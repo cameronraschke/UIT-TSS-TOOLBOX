@@ -66,15 +66,15 @@ CREATE TABLE IF NOT EXISTS jobstats (
     cpu_usage DECIMAL(6,2) DEFAULT NULL,
     network_usage DECIMAL(5,2) DEFAULT NULL,
     boot_time DECIMAL(5,2) DEFAULT NULL,
-    erase_completed BOOLEAN DEFAULT NULL,
+    erase_completed BOOLEAN DEFAULT FALSE,
     erase_mode VARCHAR(24) DEFAULT NULL,
     erase_diskpercent SMALLINT DEFAULT NULL,
     erase_time SMALLINT DEFAULT NULL,
-    clone_completed BOOLEAN DEFAULT NULL,
+    clone_completed BOOLEAN DEFAULT FALSE,
     clone_image VARCHAR(36) DEFAULT NULL,
-    clone_master BOOLEAN DEFAULT NULL,
+    clone_master BOOLEAN DEFAULT FALSE,
     clone_time SMALLINT DEFAULT NULL,
-    host_connected BOOLEAN DEFAULT NULL
+    host_connected BOOLEAN DEFAULT FALSE
 );
 
 
@@ -211,7 +211,7 @@ INSERT INTO static_bios_stats
 
 
 CREATE TABLE IF NOT EXISTS client_health (
-    tagnumber VARCHAR(6) UNIQUE NOT NULL,
+    tagnumber INTEGER UNIQUE NOT NULL,
     system_serial VARCHAR(24) DEFAULT NULL,
     tpm_version VARCHAR(24) DEFAULT NULL,
     bios_version VARCHAR(24) DEFAULT NULL,
@@ -226,12 +226,12 @@ CREATE TABLE IF NOT EXISTS remote (
     tagnumber INTEGER UNIQUE NOT NULL,
     job_queued VARCHAR(24) DEFAULT NULL,
     job_queued_position SMALLINT DEFAULT NULL,
-    job_active BOOLEAN DEFAULT NULL,
+    job_active BOOLEAN DEFAULT FALSE,
     clone_mode VARCHAR(24) DEFAULT NULL,
     erase_mode VARCHAR(24) DEFAULT NULL,
     last_job_time TIMESTAMP(3) DEFAULT NULL,
     present TIMESTAMP DEFAULT NULL,
-    present_bool BOOLEAN DEFAULT NULL,
+    present_bool BOOLEAN DEFAULT FALSE,
     status VARCHAR(128) DEFAULT NULL,
     kernel_updated BOOLEAN DEFAULT NULL,
     battery_charge SMALLINT DEFAULT NULL,
