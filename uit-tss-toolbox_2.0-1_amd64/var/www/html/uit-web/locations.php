@@ -1047,7 +1047,7 @@ unset($value1);
         var availableLocations = [
           <?php
             $sql =<<<'EOD'
-              SELECT MAX(t1.time) AS time, t1.location, MAX(t1.row_nums) AS row_nums FROM (SELECT time, locationFormatting(REPLACE(REPLACE(REPLACE(location, '\\', '\\\\'), '''', '\\'''), '\"','\\"')) AS location, ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS row_nums FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)) t1 GROUP BY t1.location ORDER BY LENGTH(t1.location), row_nums DESC;
+              SELECT MAX(t1.time) AS time, t1.location, MAX(t1.row_nums) AS row_nums FROM (SELECT time, locationFormatting(REPLACE(REPLACE(REPLACE(location, '\', '\\'), '''', '\'''), '\"','\"')) AS location, ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS row_nums FROM locations WHERE time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)) t1 GROUP BY t1.location ORDER BY LENGTH(t1.location), row_nums DESC;
             EOD;
           $dbPSQL->select($sql);
           if (arrFilter($dbPSQL->get()) === 0) {
