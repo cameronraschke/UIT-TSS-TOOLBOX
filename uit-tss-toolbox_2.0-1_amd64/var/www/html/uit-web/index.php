@@ -238,7 +238,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             //newStr = newStr.replaceAll(/\:\\ /g, "😕 ");
             $dbPSQL->select("SELECT keyword, regex, replacement, text_bool, case_sensitive_bool FROM static_emojis");
             foreach ($dbPSQL->get() as $key => $value) {
-              if ($value["case_sensitive_bool"] === 1) {
+              if ($value["case_sensitive_bool"] === true) {
                 echo "newStr = newStr.replaceAll(/" .  $value["regex"] . " /gi, '" . $value["replacement"] . " ');" . PHP_EOL;
               } else {
                 echo "newStr = newStr.replaceAll(/" .  $value["regex"] . " /g, '" . $value["replacement"] . " ');" . PHP_EOL;
