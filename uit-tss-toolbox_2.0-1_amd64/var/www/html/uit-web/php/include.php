@@ -750,7 +750,9 @@ class dbPSQL {
   private $rowCount;
 
   public function __construct() {
-    $this->dbPSQL = new PostgreSQLConn();
+    if (!isset($this->dbPSQL) || is_null($this->dbPSQL)) {
+      $this->dbPSQL = new PostgreSQLConn();
+    }
     $this->pdo = $this->dbPSQL->dbObj();
     $this->sql = "";
     $this->arr = array();
@@ -887,47 +889,6 @@ class dbPSQL {
         } else {
           $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
           $stmt->bindParam('value', $value, PDO::PARAM_NULL);
-        }
-
-        if (strFilter($stmt) === 0) {
-          $stmt->execute();
-        }
-      }
-    }
-  }
-
-
-  // CLIENTSTATS table
-  public function insertCS ($tagNum) {
-    if (strFilter($tagNum) === 0) {
-      $sql = "INSERT INTO clientstats (tagnumber) VALUES (:tagNum)";
-      $stmt = $this->pdo->prepare($sql);
-      $stmt->bindParam(':tagNum', $tagNum, PDO::PARAM_INT);
-
-      if (strFilter($stmt) === 0) {
-        $stmt->execute();
-      }
-    }
-  }
-
-  public function updateCS ($key, $value, $tagnumber) {
-    if (strFilter($key) === 0 && strFilter($tagnumber) === 0) {
-      if ($this->check_tables_cols("clientstats", $key) === 0) {
-        $sql = "UPDATE clientstats SET $key = :value WHERE tagnumber = :tagnumber";
-        $stmt = $this->pdo->prepare($sql);
-
-        if (is_bool($value) === true) {
-          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT); 
-          $stmt->bindParam(':value', $value, PDO::PARAM_BOOL);
-        } elseif (is_numeric($value) && numFilter($value) === 1) {
-          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT);
-          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
-        } elseif (strFilter($value) === 0) {
-          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT);
-          $stmt->bindParam(':value', $value, PDO::PARAM_STR);
-        } else {
-          $stmt->bindParam(':tagnumber', $tagnumber, PDO::PARAM_INT);
-          $stmt->bindParam(':value', $value, PDO::PARAM_NULL);
         }
 
         if (strFilter($stmt) === 0) {

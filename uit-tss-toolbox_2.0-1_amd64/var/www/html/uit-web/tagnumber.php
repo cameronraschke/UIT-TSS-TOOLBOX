@@ -235,7 +235,12 @@ locationFormatting(locations.location) AS location,
 (CASE WHEN locations.status = TRUE THEN 'Broken' ELSE 'Yes' END) AS status_formatted, locations.status AS locations_status, t2.department_readable, t3.note AS most_recent_note,
 locations.note, TO_CHAR(t3.time, 'MM/DD/YY HH12:MI:SS AM') AS note_time_formatted, 
 (CASE WHEN locations.disk_removed = TRUE THEN 'Yes' ELSE 'No' END) AS disk_removed_formatted, locations.disk_removed,
-jobstats.etheraddress, system_data.wifi_mac, 
+(CASE 
+  WHEN jobstats.etheraddress IS NOT NULL AND system_data.system_model NOT IN ('Latitude 7400', 'Latitude 5289') THEN jobstats.etheraddress 
+  WHEN jobstats.etheraddress IS NOT NULL AND system_data.system_model IN ('Latitude 7400', 'Latitude 5289') THEN 'No ethernet NIC' 
+  ELSE 'Unknown' 
+  END) AS etheraddress_formatted, 
+(CASE WHEN system_data.wifi_mac IS NOT NULL THEN system_data.wifi_mac ELSE 'Unknown' END) AS wifi_mac_formatted, 
 system_data.chassis_type, 
 (CASE
 WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NOT NULL THEN CONCAT(system_data.system_manufacturer, ' - ', system_data.system_model)
@@ -249,21 +254,21 @@ WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NULL THEN CONCAT(t8.ram_cap
 END) AS ram_capacity_formatted,
 t4.disk_model, CONCAT(t4.disk_size, 'GB') AS disk_size, t4.disk_type, t4.disk_serial, 
 t5.identifier, t5.recovery_key, 
-CONCAT(clientstats.battery_health, '%') AS battery_health, CONCAT(clientstats.disk_health, '%') AS disk_health, 
-CONCAT(clientstats.erase_avgtime, ' mins') AS erase_avgtime, CONCAT(clientstats.clone_avgtime, ' mins') AS clone_avgtime,
-clientstats.all_jobs, CONCAT(remote.network_speed, ' mbps') AS network_speed, client_health.bios_updated, 
-(CASE WHEN client_health.bios_updated = TRUE THEN CONCAT('Updated ', '(', client_health.bios_version, ')') ELSE CONCAT('Out of date ', '(', client_health.bios_version, ')') END) AS bios_updated_formatted, 
+(CASE WHEN client_health.battery_health IS NOT NULL THEN CONCAT(client_health.battery_health, '%') ELSE NULL END) AS battery_health_formatted, (CASE WHEN client_health.disk_health IS NOT NULL THEN CONCAT(client_health.disk_health, '%') ELSE NULL END) AS disk_health, 
+CONCAT(client_health.avg_erase_time, ' mins') AS avg_erase_time, CONCAT(client_health.avg_clone_time, ' mins') AS avg_clone_time,
+client_health.all_jobs, (CASE WHEN remote.network_speed IS NOT NULL THEN CONCAT(remote.network_speed, ' mbps') ELSE NULL END) AS network_speed_formatted, client_health.bios_updated, 
+(CASE WHEN client_health.bios_updated = TRUE THEN CONCAT('Updated ', '(', client_health.bios_version, ')') WHEN client_health.bios_updated = FALSE THEN CONCAT('Out of date ', '(', client_health.bios_version, ')') ELSE 'Unknown BIOS Version' END) AS bios_updated_formatted, 
 (CASE
 WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_writes, ' TBW/', t4.disk_reads, 'TBR')
 WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NULL THEN CONCAT(t4.disk_writes, ' TBW')
 WHEN t4.disk_reads IS NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_reads, ' TBW')
+ELSE NULL
 END) AS disk_tbw_formatted,
 CONCAT(t4.disk_writes, ' TBW') AS disk_writes, CONCAT(t4.disk_reads, ' TBR') AS disk_reads, CONCAT(t4.disk_power_on_hours, ' hrs') AS disk_power_on_hours,
 t4.disk_power_cycles, t4.disk_errors, locations.domain, (CASE WHEN locations.domain IS NOT NULL THEN static_domains.domain_readable ELSE 'Not Joined' END) AS domain_readable,
 (CASE WHEN client_health.os_installed = TRUE THEN CONCAT(client_health.os_name, ' (Imaged on ', TO_CHAR(t6.time, 'MM/DD/YY HH12:MI:SS AM'), ')') ELSE client_health.os_name END) AS os_installed_formatted,
 checkouts.customer_name, checkouts.checkout_date, checkouts.checkout_bool, client_health.tpm_version
 FROM locations
-LEFT JOIN clientstats ON locations.tagnumber = clientstats.tagnumber
 LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
 LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS time FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND (host_connected = TRUE OR (uuid LIKE 'techComm-%' AND etheraddress IS NOT NULL)) GROUP BY tagnumber))
 LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
@@ -431,22 +436,8 @@ foreach ($dbPSQL->get() as $key => $value) {
                   <td>
                     <?php
                     // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
-                    if ($value["system_model"] !== "Latitude 7400" && $value["system_model"] !== "Latitude 5289") {
-                      if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-                        echo "<table><tr><td>" . htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)</td></tr><tr><td>" . htmlspecialchars($value["etheraddress"]) . " (Ethernet)</td></tr></table>" . PHP_EOL;
-                      } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
-                        echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
-                      } elseif (strFilter($value["wifi_mac"]) === 1 && strFilter($value["etheraddress"]) === 0) {
-                        echo htmlspecialchars($value["etheraddress"]) . " (Ethernet)";
-                      }
-                    } elseif ($value["system_model"] === "Latitude 7400" || $value["system_model"] === "Latitude 5289") {
-                      if (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 0) {
-                        echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
-                      } elseif (strFilter($value["wifi_mac"]) === 0 && strFilter($value["etheraddress"]) === 1) {
-                        echo htmlspecialchars($value["wifi_mac"]) . " (Wi-Fi)";
-                      }
-                    }
-                  ?>
+                        echo "<table><tr><td>" . htmlspecialchars($value["wifi_mac_formatted"]) . " (Wi-Fi)</td></tr><tr><td>" . htmlspecialchars($value["etheraddress_formatted"]) . " (Ethernet)</td></tr></table>";
+                    ?>
                   </td>
                 </tr>
                 <tr>
@@ -474,7 +465,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                 </tr>
                 <tr>
                   <td>Network Link Speed</td>
-                  <td><?php echo htmlspecialchars($value['network_speed']); ?></td>
+                  <td><?php echo htmlspecialchars($value['network_speed_formatted']); ?></td>
                 </tr>
             </tbody>
           </table>
@@ -696,15 +687,15 @@ foreach ($dbPSQL->get() as $key => $value) {
                 </tr>
                 <tr>
                   <td>Erase Avg. Time</td>
-                  <td><?php echo htmlspecialchars($value['erase_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['avg_erase_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
                 </tr>
                 <tr>
                   <td>Clone Avg. Time</td>
-                  <td><?php echo htmlspecialchars($value['clone_avgtime'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['avg_clone_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
                 </tr>
                 <tr>
                   <td>Battery Health</td>
-                  <td><?php echo htmlspecialchars($value['battery_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['battery_health_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
                 </tr>
                 <tr>
                   <td>Disk TBW/TBR</td>

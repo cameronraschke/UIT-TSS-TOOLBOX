@@ -15,22 +15,6 @@ CREATE TABLE serverstats (
 );
 
 
-DROP TABLE IF EXISTS clientstats;
-CREATE TABLE clientstats (
-    tagnumber INTEGER UNIQUE NOT NULL,
-    system_serial VARCHAR(24) DEFAULT NULL,
-    system_model VARCHAR(64) DEFAULT NULL,
-    last_job_time TIMESTAMP DEFAULT NULL,
-    battery_health SMALLINT DEFAULT NULL,
-    disk_health DECIMAL(5,2) DEFAULT NULL,
-    disk_type VARCHAR(8) DEFAULT NULL,
-    bios_updated BOOLEAN DEFAULT NULL,
-    erase_avgtime SMALLINT DEFAULT NULL,
-    clone_avgtime SMALLINT DEFAULT NULL,
-    all_jobs SMALLINT DEFAULT NULL
-);
-
-
 CREATE TABLE IF NOT EXISTS jobstats (
     uuid VARCHAR(64) UNIQUE NOT NULL,
     tagnumber INTEGER DEFAULT NULL,
@@ -218,9 +202,14 @@ CREATE TABLE IF NOT EXISTS client_health (
     bios_updated BOOLEAN DEFAULT NULL,
     os_name VARCHAR(24) DEFAULT NULL,
     os_installed BOOLEAN DEFAULT NULL,
+    disk_type VARHCAR(3) DEFAULT NULL, 
+    disk_health NUMERIC(6,3) DEFAULT NULL, 
+    battery_health NUMERIC(6,3) DEFAULT NULL, 
+    avg_erase_time SMALLINT DEFAULT NULL, 
+    avg_clone_time SMALLINT DEFAULT NULL, 
+    all_jobs SMALLINT DEFAULT NULL,
     time TIMESTAMP(3) DEFAULT NULL
 );
-
 
 CREATE TABLE IF NOT EXISTS remote (
     tagnumber INTEGER UNIQUE NOT NULL,
