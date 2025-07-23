@@ -243,11 +243,21 @@ locations.note, TO_CHAR(t3.time, 'MM/DD/YY HH12:MI:SS AM') AS note_time_formatte
 (CASE WHEN system_data.wifi_mac IS NOT NULL THEN system_data.wifi_mac ELSE 'Unknown' END) AS wifi_mac_formatted, 
 system_data.chassis_type, 
 (CASE
-WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NOT NULL THEN CONCAT(system_data.system_manufacturer, ' - ', system_data.system_model)
-WHEN system_data.system_manufacturer IS NULL AND system_data.system_model IS NOT NULL THEN system_data.system_model
-WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NULL THEN system_data.system_manufacturer
-END) AS system_model_formatted,
-system_data.cpu_model, system_data.cpu_cores, CONCAT(ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') AS cpu_maxspeed, (CASE WHEN system_data.cpu_threads > system_data.cpu_cores THEN CONCAT(system_data.cpu_cores, ' cores/', system_data.cpu_threads, ' threads (Multithreaded)') ELSE CONCAT(system_data.cpu_cores, ' cores (Not Multithreaded)') END) AS multithreaded, 
+  WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NOT NULL THEN CONCAT(system_data.system_manufacturer, ' - ', system_data.system_model)
+  WHEN system_data.system_manufacturer IS NULL AND system_data.system_model IS NOT NULL THEN system_data.system_model
+  WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NULL THEN system_data.system_manufacturer
+  ELSE NULL
+  END) AS system_model_formatted,
+system_data.cpu_model,
+(CASE 
+  WHEN system_data.cpu_maxspeed IS NOT NULL THEN CONCAT('Max ', ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') 
+  ELSE NULL 
+  END) AS cpu_maxspeed, 
+(CASE 
+  WHEN system_data.cpu_threads > system_data.cpu_cores THEN CONCAT(system_data.cpu_cores, ' cores/', system_data.cpu_threads, ' threads (Multithreaded)') 
+  WHEN system_data.cpu_threads = system_data.cpu_cores THEN CONCAT(system_data.cpu_cores, ' cores (Not Multithreaded)')
+  ELSE NULL
+  END) AS multithreaded, 
 (CASE 
 WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NOT NULL THEN CONCAT(t8.ram_capacity, ' GB (', t8.ram_speed, ' MHz)')
 WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NULL THEN CONCAT(t8.ram_capacity, ' GB')
@@ -255,9 +265,26 @@ END) AS ram_capacity_formatted,
 t4.disk_model, CONCAT(t4.disk_size, 'GB') AS disk_size, t4.disk_type, t4.disk_serial, 
 t5.identifier, t5.recovery_key, 
 (CASE WHEN client_health.battery_health IS NOT NULL THEN CONCAT(client_health.battery_health, '%') ELSE NULL END) AS battery_health_formatted, (CASE WHEN client_health.disk_health IS NOT NULL THEN CONCAT(client_health.disk_health, '%') ELSE NULL END) AS disk_health, 
-CONCAT(client_health.avg_erase_time, ' mins') AS avg_erase_time, CONCAT(client_health.avg_clone_time, ' mins') AS avg_clone_time,
-client_health.all_jobs, (CASE WHEN remote.network_speed IS NOT NULL THEN CONCAT(remote.network_speed, ' mbps') ELSE NULL END) AS network_speed_formatted, client_health.bios_updated, 
-(CASE WHEN client_health.bios_updated = TRUE THEN CONCAT('Updated ', '(', client_health.bios_version, ')') WHEN client_health.bios_updated = FALSE THEN CONCAT('Out of date ', '(', client_health.bios_version, ')') ELSE 'Unknown BIOS Version' END) AS bios_updated_formatted, 
+(CASE 
+  WHEN client_health.avg_erase_time IS NOT NULL THEN CONCAT(client_health.avg_erase_time, ' mins')
+  ELSE NULL 
+  END) AS avg_erase_time, 
+(CASE 
+  WHEN client_health.avg_clone_time IS NOT NULL THEN CONCAT(client_health.avg_clone_time, ' mins')
+  ELSE NULL
+  END) AS avg_clone_time,
+client_health.all_jobs, 
+(CASE 
+  WHEN remote.network_speed IS NOT NULL 
+  THEN CONCAT(remote.network_speed, ' mbps') 
+  ELSE NULL 
+  END) AS network_speed_formatted, 
+client_health.bios_updated, 
+(CASE 
+  WHEN client_health.bios_updated = TRUE AND client_health.bios_version IS NOT NULL THEN CONCAT('Updated ', '(', client_health.bios_version, ')') 
+  WHEN client_health.bios_updated = FALSE AND client_health.bios_version IS NOT NULL THEN CONCAT('Out of date ', '(', client_health.bios_version, ')') 
+  ELSE 'Unknown BIOS Version' 
+  END) AS bios_updated_formatted, 
 (CASE
 WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_writes, ' TBW/', t4.disk_reads, 'TBR')
 WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NULL THEN CONCAT(t4.disk_writes, ' TBW')
@@ -659,7 +686,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                 </tr>
                 <tr>
                   <td>CPU Cores</td>
-                  <td><?php echo htmlspecialchars($value["multithreaded"]); ?></td>
+                  <td><?php echo htmlspecialchars($value["multithreaded"]) . " (" . htmlspecialchars($value["cpu_maxspeed"]) . ")"; ?></td>
                 </tr>
                 <tr>
                   <td>RAM Capacity</td>

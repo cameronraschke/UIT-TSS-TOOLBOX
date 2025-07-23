@@ -56,8 +56,8 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
       WHEN t4.checkout_date IS NOT NULL AND t4.checkout_date <= DATE(NOW()) AND (t4.return_date IS NULL OR DATE(NOW()) < t4.return_date) THEN TRUE
       WHEN t4.checkout_date IS NOT NULL AND t4.checkout_date <= DATE(NOW()) AND (t4.return_date IS NULL OR DATE(NOW()) >= t4.return_date) THEN FALSE
       ELSE FALSE
-    END) AS checkout_bool, 
-    (eraseCompletedTable.count + cloneCompletedTable.count) AS all_jobs, 
+      END) AS checkout_bool, 
+    t5.all_jobs, 
     ROW_NUMBER() OVER (PARTITION BY locations.tagnumber ORDER BY locations.time DESC) AS row_nums
     FROM locations
     LEFT JOIN jobstats ON locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT time FROM (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE jobstats.time IS NOT NULL) s1 WHERE s1.row_nums = 1)
@@ -76,11 +76,9 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
       ON locations.tagnumber = t3.tagnumber
     LEFT JOIN (SELECT tagnumber, time, checkout_bool, checkout_date, return_date FROM (SELECT tagnumber, time, checkout_bool, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts) s4 WHERE s4.row_nums = 1) t4
       ON locations.tagnumber = t4.tagnumber
-    LEFT JOIN (SELECT tagnumber, CAST(COUNT(erase_completed) AS SMALLINT) AS count FROM jobstats WHERE erase_completed = TRUE GROUP BY tagnumber) eraseCompletedTable 
-      ON locations.tagnumber = eraseCompletedTable.tagnumber
-    LEFT JOIN (SELECT tagnumber, CAST(COUNT(clone_completed) AS SMALLINT) AS count FROM jobstats WHERE clone_completed = TRUE GROUP BY tagnumber) cloneCompletedTable 
-      ON locations.tagnumber = cloneCompletedTable.tagnumber
-    WHERE locations.tagnumber IS NOT NULL AND locations.department NOT IN ('property')
+    LEFT JOIN (SELECT tagnumber, SUM((CASE WHEN erase_completed = TRUE THEN 1 ELSE 0 END) + (CASE WHEN clone_completed = TRUE THEN 1 ELSE 0 END)) AS all_jobs FROM jobstats WHERE (erase_completed = TRUE OR clone_completed = TRUE) GROUP BY tagnumber) t5
+      ON locations.tagnumber = t5.tagnumber
+    WHERE locations.tagnumber IS NOT NULL AND locations.time IS NOT NULL AND locations.department NOT IN ('property')
     ) table1
     WHERE table1.row_nums = 1
     ";
