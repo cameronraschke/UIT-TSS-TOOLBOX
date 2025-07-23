@@ -207,6 +207,7 @@ CREATE TABLE IF NOT EXISTS client_health (
     battery_health NUMERIC(6,3) DEFAULT NULL, 
     avg_erase_time SMALLINT DEFAULT NULL, 
     avg_clone_time SMALLINT DEFAULT NULL, 
+    last_imaged_time TIMESTAMP(3) DEFAULT NULL,
     all_jobs SMALLINT DEFAULT NULL,
     time TIMESTAMP(3) DEFAULT NULL
 );

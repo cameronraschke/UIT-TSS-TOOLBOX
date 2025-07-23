@@ -14,7 +14,7 @@ if (strFilter($_GET["tagnumber"]) === 1) {
 
 unset($sql);
 $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_time, disk_temp, max_disk_temp, system_serial, bios_version, bios_updated, CAST(image_name_readable AS VARCHAR(36)) AS image_name_readable, os_installed,
-   checkout_time, checkout_bool, image_time, disk_type, disk_health, battery_health, avg_erase_time, avg_clone_time, all_jobs FROM 
+   checkout_time, checkout_bool, image_time, disk_type, disk_health, battery_health, avg_erase_time, avg_clone_time, all_jobs, last_imaged_time FROM 
     (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS client_health_tag, remote.tagnumber AS remote_tag,  
     static_disk_stats.disk_type, t3.avg_erase_time, t3.avg_clone_time, 
     (CASE WHEN ROUND((EXTRACT(EPOCH FROM (NOW()::timestamp - remote.present::timestamp))), 0) < 30 THEN TRUE ELSE FALSE END) AS present_bool, t2.time AS last_job_time, remote.disk_temp, remote.max_disk_temp, 
@@ -47,6 +47,7 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
       WHEN t2.erase_completed = TRUE AND t2.clone_completed = TRUE THEN TRUE 
       ELSE TRUE
     END) AS os_installed,
+    t2.time AS last_imaged_time,
     t1.time AS image_time,
     (CASE WHEN jobstats.bios_version = static_bios_stats.bios_version THEN TRUE ELSE FALSE END) AS bios_updated,
     jobstats.bios_version, 
@@ -108,6 +109,7 @@ foreach ($dbPSQL->get() as $key => $value) {
   $dbPSQL->updateClientHealth($value["tagnumber"], "battery_health", $value["battery_health"]);
   $dbPSQL->updateClientHealth($value["tagnumber"], "avg_erase_time", $value["avg_erase_time"]);
   $dbPSQL->updateClientHealth($value["tagnumber"], "avg_clone_time", $value["avg_clone_time"]);
+  $dbPSQL->updateClientHealth($value["tagnumber"], "last_imaged_time", $value["last_imaged_time"]);
   $dbPSQL->updateClientHealth($value["tagnumber"], "all_jobs", $value["all_jobs"]);
   $dbPSQL->updateClientHealth($value["tagnumber"], "time", $time);
 

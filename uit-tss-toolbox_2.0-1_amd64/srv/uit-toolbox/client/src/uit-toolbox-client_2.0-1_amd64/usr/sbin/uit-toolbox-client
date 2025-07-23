@@ -428,7 +428,7 @@ function enterTag {
 
 
 
-function jobinfo {
+function jobInfo {
 	if [[ $ACTION != "" ]]; then
 		printf '%s\n' "The selected mode is ${BOLD}${ACTION}${RESET}"
 	fi
@@ -1753,7 +1753,7 @@ function autodetectClient {
 				fi
 				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
 					okay_to_go=$(printf '%s' "SELECT COUNT(tagnumber) AS result FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active = TRUE" | /opt/uit-toolbox/select)
-					if [[ $okay_to_go == "NULL" ]]; then
+					if [[ $okay_to_go == "NULL" || $okay_to_go == "0" ]]; then
 						printf '%s' "remote|${tagNum}|job_active|1" | /opt/uit-toolbox/parse
 						break
 					fi

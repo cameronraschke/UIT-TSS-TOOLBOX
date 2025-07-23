@@ -196,7 +196,7 @@ unset($_POST);
             <td id='lastJobTime'><?php echo $value["last_job_time_formatted"]; ?></td>
             <td id='presentLocation'><b><a href='locations.php?location=<?php echo htmlspecialchars($value["location_formatted"]); ?>' target='_blank'><?php echo htmlspecialchars($value["location_formatted"]); ?></a></b></td>
             <td id='presentStatus'><?php echo htmlspecialchars($value["status"]); ?></td>
-            <td id='osInstalled'><?php echo htmlspecialchars($value["os_installed_formatted"]); if ($value["os_installed"] === 1 && strFilter($value["domain"]) === 0) { echo "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>"; }?>
+            <td id='osInstalled'><?php echo htmlspecialchars($value["os_installed_formatted"]); if ($value["os_installed"] === true && strFilter($value["domain"]) === 0) { echo "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>"; }?>
             </td>
             <td><?php echo htmlspecialchars($value["battery_charge_formatted"]); ?></td>
             <td id='uptime'><?php echo htmlspecialchars($value["uptime"]); ?></td>
