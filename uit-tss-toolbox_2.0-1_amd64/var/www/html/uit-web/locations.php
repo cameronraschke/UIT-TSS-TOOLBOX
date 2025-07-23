@@ -610,7 +610,7 @@ if ($_GET["disk_removed"] == "0") {
 
 // OS Installed filter
 if ($_GET["os_installed"] == "0") {
-  $sql .= "AND client_health.os_installed IS NOT NULL "
+  $sql .= "AND client_health.os_installed IS NOT NULL ";
   $sql .= "AND client_health.os_installed = FALSE ";
 } elseif ($_GET["os_installed"] == "1") {
   $sql .= "AND client_health.os_installed = TRUE ";
