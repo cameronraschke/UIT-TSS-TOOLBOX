@@ -250,9 +250,9 @@ system_data.chassis_type,
   END) AS system_model_formatted,
 system_data.cpu_model,
 (CASE 
-  WHEN system_data.cpu_maxspeed IS NOT NULL THEN CONCAT('Max ', ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz') 
+  WHEN system_data.cpu_maxspeed IS NOT NULL THEN CONCAT('(Max ', ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz)') 
   ELSE NULL 
-  END) AS cpu_maxspeed, 
+  END) AS cpu_maxspeed_formatted, 
 (CASE 
   WHEN system_data.cpu_threads > system_data.cpu_cores THEN CONCAT(system_data.cpu_cores, ' cores/', system_data.cpu_threads, ' threads (Multithreaded)') 
   WHEN system_data.cpu_threads = system_data.cpu_cores THEN CONCAT(system_data.cpu_cores, ' cores (Not Multithreaded)')
@@ -686,7 +686,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                 </tr>
                 <tr>
                   <td>CPU Cores</td>
-                  <td><?php echo htmlspecialchars($value["multithreaded"]) . " (" . htmlspecialchars($value["cpu_maxspeed"]) . ")"; ?></td>
+                  <td><?php echo htmlspecialchars($value["multithreaded"]) . " " . htmlspecialchars($value["cpu_maxspeed_formatted"]); ?></td>
                 </tr>
                 <tr>
                   <td>RAM Capacity</td>
