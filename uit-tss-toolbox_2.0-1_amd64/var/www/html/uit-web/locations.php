@@ -798,10 +798,10 @@ if (arrFilter($dbPSQL->get()) === 0) {
             <select id="customer_checkout_name" name="customer_checkout_name">
               <option value=''>--Filter By Customer Name (Checkouts)--</option>
               <?php
-              $dbPSQL->select("SELECT customer_name FROM checkouts WHERE customer_name IS NOT NULL GROUP BY customer_name ORDER BY customer_name ASC");
+              $dbPSQL->select("SELECT customer_name FROM checkouts WHERE customer_name IS NOT NULL AND checkout_bool = TRUE GROUP BY customer_name ORDER BY customer_name ASC");
               if (arrFilter($dbPSQL->get()) === 0) {
                 foreach ($dbPSQL->get() as $key => $value1) {
-                  $dbPSQL->Pselect("SELECT COUNT(tagnumber) FROM (SELECT tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts where checkout_bool = TRUE AND customer_name = :customerName) t1 WHERE t1.row_nums = 1", array(':customerName' => $value1["customer_name"]));
+                  $dbPSQL->Pselect("SELECT COUNT(tagnumber) FROM (SELECT tagnumber, customer_name, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts) t1 WHERE t1.row_nums = 1 AND t1.customer_name = :customerName AND t1.checkout_bool = TRUE", array(':customerName' => $value1["customer_name"]));
                   foreach ($dbPSQL->get() as $key => $value2) {
                     echo "<option value='" . htmlspecialchars($value1["customer_name"]) . "'>" . htmlspecialchars(strtoupper($value1["customer_name"])) . " (" . $value2["count"] . ")" . "</option>" . PHP_EOL;
                   }
