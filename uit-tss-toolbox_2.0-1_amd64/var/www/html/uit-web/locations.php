@@ -525,7 +525,7 @@ $sql="SELECT locations.tagnumber, remote.present_bool, locations.system_serial, 
     LEFT JOIN static_departments ON locations.department = static_departments.department
     LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
     LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
-    LEFT JOIN (SELECT * FROM (SELECT time, tagnumber, checkout_date, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts WHERE time IS NOT NULL) s2 WHERE s2.row_nums = 1) t2 ON locations.tagnumber = t2.tagnumber
+    LEFT JOIN (SELECT time, tagnumber, checkout_date, customer_name, return_date, checkout_bool, row_nums FROM (SELECT time, tagnumber, checkout_date, customer_name, return_date, checkout_bool, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts WHERE time IS NOT NULL) s2 WHERE s2.row_nums = 1) t2 ON locations.tagnumber = t2.tagnumber
     LEFT JOIN (SELECT tagnumber, clone_image, row_nums FROM (SELECT tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND time IS NOT NULL AND clone_completed = TRUE AND clone_image IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
       ON locations.tagnumber = t1.tagnumber
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
@@ -579,6 +579,16 @@ if (strFilter($_GET["system_model"]) === 0) {
   }
 }
 
+if (strFilter($_GET["customer_checkout_name"]) === 0) {
+  if ($_GET["checkouts-bool"] == "0") {
+    $sql .= "AND t2.checkout_bool = TRUE AND NOT t2.customer_name = :customercheckoutname ";
+    $sqlArr[":customercheckoutname"] = $_GET["customer_checkout_name"];
+  } else {
+    $sql .= "AND t2.checkout_bool = TRUE AND t2.customer_name = :customercheckoutname ";
+    $sqlArr[":customercheckoutname"] = $_GET["customer_checkout_name"];
+  }
+}
+
 // // Lost filter
 // if ($_GET["lost"] == "0") {
 //   $sql .= "AND NOT (locations.time <= NOW() - INTERVAL 3 MONTH
@@ -596,9 +606,10 @@ if ($_GET["checkout"] == "0") {
 
 // Broken filter
 if ($_GET["broken"] == "0") {
-  $sql .= "AND (locations.status IS NULL OR locations.status = FALSE) ";
+  $sql .= "AND locations.status IS NOT NULL ";
+  $sql .= "AND locations.status = FALSE ";
 } elseif ($_GET["broken"] == "1") {
-  $sql .= "AND (locations.status = TRUE OR locations.status IS NOT NULL) ";
+  $sql .= "AND locations.status = TRUE ";
 }
 
 // Disk removed filter
@@ -608,11 +619,16 @@ if ($_GET["disk_removed"] == "0") {
   $sql .= "AND locations.disk_removed = TRUE ";
 }
 
+if ($_GET["order_by"] == "os_asc" || $_GET["order_by"] == "os_desc") {
+    $sql .= "AND client_health.os_installed IS NOT NULL AND client_health.last_imaged_time IS NOT NULL ";
+}
+
 // OS Installed filter
 if ($_GET["os_installed"] == "0") {
   $sql .= "AND client_health.os_installed IS NOT NULL ";
   $sql .= "AND client_health.os_installed = FALSE ";
 } elseif ($_GET["os_installed"] == "1") {
+  $sql .= "AND client_health.os_installed IS NOT NULL AND client_health.last_imaged_time IS NOT NULL ";
   $sql .= "AND client_health.os_installed = TRUE ";
 }
 
@@ -632,10 +648,10 @@ if (isset($_GET["order_by"])) {
     $sql .= "locations.time ASC, ";
   }
   if($_GET["order_by"] == "os_desc") {
-    $sql .= "client_health.last_imaged_time DESC, client_health.os_name ASC, ";
+    $sql .= "(CASE WHEN client_health.os_installed = TRUE THEN 10 WHEN client_health.os_installed IS FALSE THEN 5 WHEN client_health.os_installed IS NULL THEN 1 ELSE 1 END) DESC, client_health.last_imaged_time DESC, client_health.os_name ASC, ";
   }
   if($_GET["order_by"] == "os_asc") {
-    $sql .= "client_health.last_imaged_time DESC, client_health.os_name ASC, ";
+    $sql .= "(CASE WHEN client_health.os_installed = TRUE THEN 10 WHEN client_health.os_installed IS FALSE THEN 5 WHEN client_health.os_installed IS NULL THEN 1 ELSE 1 END) ASC, client_health.last_imaged_time DESC, client_health.os_name ASC, ";
   }
   if($_GET["order_by"] == "bios_desc") {
     $sql .= "client_health.bios_updated DESC, ";
@@ -771,6 +787,28 @@ if (arrFilter($dbPSQL->get()) === 0) {
                 }
               }
               unset($value1);
+              ?>
+            </select>
+          </div>
+
+          <div>
+            <label for="checkouts">
+              <input type="checkbox" id="checkouts-bool" name="checkouts-bool" value="0"> NOT
+            </label>
+            <select id="customer_checkout_name" name="customer_checkout_name">
+              <option value=''>--Filter By Customer Name (Checkouts)--</option>
+              <?php
+              $dbPSQL->select("SELECT customer_name FROM checkouts WHERE customer_name IS NOT NULL GROUP BY customer_name ORDER BY customer_name ASC");
+              if (arrFilter($dbPSQL->get()) === 0) {
+                foreach ($dbPSQL->get() as $key => $value1) {
+                  $dbPSQL->Pselect("SELECT COUNT(tagnumber) FROM (SELECT tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts where checkout_bool = TRUE AND customer_name = :customerName) t1 WHERE t1.row_nums = 1", array(':customerName' => $value1["customer_name"]));
+                  foreach ($dbPSQL->get() as $key => $value2) {
+                    echo "<option value='" . htmlspecialchars($value1["customer_name"]) . "'>" . htmlspecialchars(strtoupper($value1["customer_name"])) . " (" . $value2["count"] . ")" . "</option>" . PHP_EOL;
+                  }
+                }
+              }
+              unset($value1);
+              unset($value2);
               ?>
             </select>
           </div>
