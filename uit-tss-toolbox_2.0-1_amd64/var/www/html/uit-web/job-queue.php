@@ -213,6 +213,18 @@ unset($_POST);
       </table>
     </div>
 
+    <script>
+      const cpuTemps = document.querySelectorAll('.presentCPUTemp');
+      cpuTemps.forEach(function(item) {
+        parseCPUTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
+      });
+
+      const diskTemps = document.querySelectorAll('.presentDiskTemp');
+      diskTemps.forEach(function(item) {
+        parseDiskTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
+      });
+    </script>
+
     <div class='pagetitle'>
       <h3>Offline Clients</h3>
     </div>

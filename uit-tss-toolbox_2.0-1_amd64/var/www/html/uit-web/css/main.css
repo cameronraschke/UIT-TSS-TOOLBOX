@@ -21,7 +21,7 @@ table {
 }
 
 button {
-	cursor:pointer;
+	cursor: pointer;
 	font-size: 1em;
 }
 
@@ -244,11 +244,11 @@ textarea {
 	padding: 0.5em 0.5em 0.5em 0.5em;
 }
 .location-form div {
+	max-height: fit-content;
 	padding: 0.5em 0.5em 0.5em 0.5em;
 }
 .location-form input[type=text] {
 	padding: 0.5em 0.5em 0.5em 0.5em;
-	border: 1px solid gray;
 }
 .location-form input[type=text]:focus {
 	border: 1px solid black;
@@ -400,34 +400,28 @@ textarea {
 }
 
 .navigation-bar {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr 2fr 2fr 1fr;
 	background-color: #C8102E;
 	border-bottom: 2px solid #888B8D;
+	gap: 0.5em 0.5em;
+	min-height: 0;
+	min-width: 0;
 }
 
-.navigation-bar ul {
-	top: 0;
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-}
-
-.navigation-bar li {
-	float: left;
-}
-
-.navigation-bar li a {
+.navigation-bar a {
   	vertical-align: middle;
+	white-space: nowrap;
   	line-height: 3.5em;
-	float: left;
 	text-align: center;
 	cursor: pointer;
   	padding: 0.5em 1em 0.5em 1em;
 	color: white;
     text-decoration: none;
+	height: 100%;
 }
 
-.navigation-bar li a:hover {
+.navigation-bar a:hover {
 	background-color:rgb(170, 170, 170);
 }
 

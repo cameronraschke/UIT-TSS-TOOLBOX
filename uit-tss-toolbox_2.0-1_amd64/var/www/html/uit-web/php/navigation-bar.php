@@ -1,41 +1,40 @@
-<div class='navigation-bar'>
-<ul>
+<div class='navigation-bar' style='position: sticky; top: 0; z-index: 20; min-height: 7.8vh; '>
 <?php 
   // Index
-  echo "<li><a href='/index.php'>Home</a></li>";
+  echo "<a href='/index.php'>Home</a>";
 
   // Job Queue
   if ($_SERVER['PHP_SELF'] == "/job-queue.php") {
-    echo "<li class='active-navigation-bar'><a href='/job-queue.php'>Job Queue</a></li>";
+    echo "<a href='/job-queue.php'>Job Queue</a>";
   } else {
-    echo "<li><a href='/job-queue.php'>Job Queue</a></li>";
+    echo "<a href='/job-queue.php'>Job Queue</a>";
   }
 
   // Locations
   if ($_SERVER['PHP_SELF'] == "/locations.php") {
-    echo "<li class='active-navigation-bar'><a href='/locations.php'>Locations</a></li>";
+    echo "<a href='/locations.php'>Locations</a>";
   } else {
-    echo "<li><a href='/locations.php'>Locations</a></li>";
+    echo "<a href='/locations.php'>Locations</a>";
   }
 
   // Checkouts
   if ($_SERVER['PHP_SELF'] == "/checkouts.php") {
-    echo "<li class='active-navigation-bar'><a href='/checkouts.php'>Checkouts</a></li>";
+    echo "<a href='/checkouts.php'>Checkouts</a>";
   } else {
-    echo "<li><a href='/checkouts.php'>Checkouts</a></li>";
+    echo "<a href='/checkouts.php'>Checkouts</a>";
   }
 
   // Reports
   if ($_SERVER['PHP_SELF'] == "/serverstats.php") {
-    echo "<li class='active-navigation-bar'><a href='/serverstats.php'>Reports</a></li>";
+    echo "<a href='/serverstats.php'>Reports</a>";
   } else {
-    echo "<li><a href='/serverstats.php'>Reports</a></li>";
+    echo "<a href='/serverstats.php'>Reports</a>";
   }
-  
-  echo "<li style='float: right; margin-right: 4em;'><a id='logout' href='#'>Logout</a></li>";
-  echo "<div class='location-form' style='float: right; width: 20em; margin: 0.5em 3em 0.5em 3em;'><form method='GET' action='/tagnumber.php'><input type='text' id='tagnumber-search' name='tagnumber' style='width: 80%;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button style='border: none;'><img class='icon' src='/images/search.svg'></button></form><div id='dropdown-search' style='position: absolute; width: 19em;' class='dropdown-search'></div></div>";
+
+  echo "<div></div>";
+  echo "<div class='location-form' style='max-height: fit-content;'><form method='GET' action='/tagnumber.php'><input type='text' id='tagnumber-search' name='tagnumber' style='width: 85%; height: 100%; margin: 0 0 0 0;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button style='border: 1px solid grey; background-color: rgba(241, 241, 241, 1); width: 15%;'><img class='icon' src='/images/search.svg'></button></form><div id='dropdown-search' style='position: absolute; max-width: 10vw;' class='dropdown-search'></div></div>";
+  echo "<a id='logout' style='margin-left: 2vw; margin-right: 2vw;' href='#'>Logout</a>";
 ?>
-</ul>
 </div>
 
 <div class='menubar'>
