@@ -52,7 +52,7 @@ if (isset($_POST["rotate-image"]) && $_POST["rotate-image"] == "1") {
 if (isset($_GET["uuid"]) && $_GET["view"] == "1") {
   $dbPSQL->Pselect("SELECT uuid, mime_type, image FROM client_images WHERE uuid = :uuid", array(':uuid' => $_GET["uuid"]));
   foreach ($dbPSQL->get() as $key => $value) {
-    echo "<html><head><script src='/js/include.js?" . filemtime('js/include.js') . "'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
+    echo "<html><head><script src='/js/init.js?" . filemtime('js/init.js') . "'></script><script src='/js/include.js?" . filemtime('js/include.js') . "'></script></head><body><script>openImage('" . $value["image"] . "')</script></body></html>";
   }
   unset($value);
   exit();

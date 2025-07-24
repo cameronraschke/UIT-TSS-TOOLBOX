@@ -22,6 +22,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
   <meta charset='UTF-8'>
   <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   <link rel='stylesheet' type='text/css' href='/css/main.css' />
+  <script src="/js/init.js?<?php echo filemtime('js/init.js'); ?>"></script>
   <title>Home - UIT Client Management</title>
 </head>
 <body onload="fetchHTML();charCount();">

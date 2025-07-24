@@ -30,6 +30,7 @@ $rowCount = count($dbPSQL->get());
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
         <title>Checkout History - UIT Client Mgmt</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <script src="/js/init.js?<?php echo filemtime('js/init.js'); ?>"></script>
     </head>
     <body>
         <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>

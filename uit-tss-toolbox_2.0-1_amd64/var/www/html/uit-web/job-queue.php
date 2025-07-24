@@ -32,6 +32,7 @@ unset($_POST);
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <title>Job Queue - UIT Client Mgmt</title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <script src="/js/init.js?<?php echo filemtime('js/init.js'); ?>"></script>
   </head>
   <body onload="fetchHTML()">
     <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
@@ -118,8 +119,8 @@ unset($_POST);
     </div>
       <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 0% 1%;">
 
-      <table id="myTable" width="100%">
-        <thead>
+      <table width="100%">
+        <thead id="onlineTableHeader">
         <tr>
         <th>Tag Number</th>
         <th>Last Job Time</th>
@@ -133,7 +134,7 @@ unset($_POST);
         <th>Power Usage <?php echo htmlspecialchars($value1["power_usage_formatted"]); ?></th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id="onlineTableBody">
           <?php } 
           unset($value1);?>
         <?php
@@ -146,7 +147,7 @@ unset($_POST);
         client_health.bios_updated, (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, 
         remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
         TO_CHAR(NOW() - TO_TIMESTAMP(EXTRACT(EPOCH FROM NOW()) - (EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM (NOW() - (remote.uptime || ' second')::interval)))), 'DDD\"d,\" HH24\"h\" MI\"m\" SS\"s\"') as uptime, 
-        CONCAT(remote.cpu_temp, '°C') AS cpu_temp, CONCAT(remote.disk_temp, '°C') AS disk_temp, 
+        remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, CONCAT(remote.disk_temp, '°C') AS disk_temp, 
         CONCAT(remote.watts_now, ' watts') AS watts_now, remote.job_active
       FROM remote 
       LEFT JOIN (SELECT s1.time, s1.tagnumber, s1.domain FROM (SELECT time, tagnumber, domain, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1) t1
@@ -169,10 +170,10 @@ unset($_POST);
           <tr>
             <?php
             // Keep this td completely in PHP to avoid weird spacing issues.
-            echo "<td>";
+            echo "<td id='tagnumber-" . htmlspecialchars($value["tagnumber"]) . "'>";
             if (strFilter($value["status"]) === 1) {
               echo "<b>New Entry: </b>";
-            } else if (strFilter($value["status"]) === true) {
+            } else if (strFilter($value["status"]) === 0) {
               if (($value["status"] !== "Waiting for job" || strFilter($value["job_queued"]) === 0) && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
                 echo "<b>In Progress: </b>";
               }
@@ -200,17 +201,26 @@ unset($_POST);
             </td>
             <td><?php echo htmlspecialchars($value["battery_charge_formatted"]); ?></td>
             <td id='uptime'><?php echo htmlspecialchars($value["uptime"]); ?></td>
-            <td id='presentCPUTemp'><?php echo htmlspecialchars($value["cpu_temp"]); ?></td>
-            <td id='presentDiskTemp'><?php echo htmlspecialchars($value["disk_temp"]); ?></td>
+            <td class='presentCPUTemp' id='presentCPUTemp-<?php echo htmlspecialchars($value["tagnumber"]); ?>'><?php echo htmlspecialchars($value["cpu_temp_formatted"]); ?></td>
+            <td class='presentDiskTemp' id='presentDiskTemp-<?php echo htmlspecialchars($value["tagnumber"]); ?>'><?php echo htmlspecialchars($value["disk_temp"]); ?></td>
             <td><?php echo htmlspecialchars($value["watts_now"]); ?></td>
           </tr>
           <?php 
-          //Close Loop
+          //Close Loop 
           } }
           ?>
         </tbody>
       </table>
     </div>
+
+    <script>
+      setInterval(() => {
+      const listItems = document.querySelectorAll('.presentCPUTemp');
+      listItems.forEach(function(item) {
+          parseCPUTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
+      });
+    }, 500);
+    </script>
 
     <div class='pagetitle'>
       <h3>Offline Clients</h3>
@@ -233,7 +243,7 @@ unset($_POST);
       <?php
       unset($value);
       // Clients not present
-      $dbPSQL->select("SELECT tagnumber, TO_CHAR(present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, status, CONCAT(battery_charge, '%') AS battery_charge, battery_status, CONCAT(cpu_temp, '°C') AS cpu_temp,  CONCAT(disk_temp, '°C') AS disk_temp, CONCAT(watts_now, ' Watts') AS watts_now FROM remote WHERE present_bool IS FALSE AND present IS NOT NULL ORDER BY present DESC, tagnumber DESC");
+      $dbPSQL->select("SELECT tagnumber, TO_CHAR(present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, status, CONCAT(battery_charge, '%') AS battery_charge, battery_status, cpu_temp, CONCAT(cpu_temp, '°C') AS cpu_temp_formatted,  CONCAT(disk_temp, '°C') AS disk_temp, CONCAT(watts_now, ' Watts') AS watts_now FROM remote WHERE present_bool IS FALSE AND present IS NOT NULL ORDER BY present DESC, tagnumber DESC");
       if (arrFilter($dbPSQL->get()) === 0) {
       foreach ($dbPSQL->get() as $key => $value) {
       echo "<tr>". PHP_EOL;
@@ -261,7 +271,7 @@ unset($_POST);
       } else {
       echo "<td></td>";
       }
-      echo "<td>" . htmlspecialchars($value["cpu_temp"]) . "</td>" . PHP_EOL;
+      echo "<td>" . htmlspecialchars($value["cpu_temp_formatted"]) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value["disk_temp"]) . "</td>" . PHP_EOL;
       echo "<td> " . htmlspecialchars($value["watts_now"]) . "</td>" . PHP_EOL;
       echo "</tr>";
@@ -271,12 +281,13 @@ unset($_POST);
       echo "</table>";
     echo "</div>";
     ?>
-    <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
     <script>
     if ( window.history.replaceState ) {
-    window.history.replaceState( null, null, window.location.href );
+      window.history.replaceState( null, null, window.location.href );
     }
     </script>
+
+    <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
 
     <script>
     var i = 0;
@@ -297,8 +308,10 @@ unset($_POST);
     const remoteStats = doc.getElementById('remoteStats').innerHTML
     document.getElementById("remoteStats").innerHTML = remoteStats
     //Update client table
-    const myTable = doc.getElementById('myTable').innerHTML
-    document.getElementById("myTable").innerHTML = myTable
+    const onlineTableHeader = doc.getElementById('onlineTableHeader').innerHTML
+    document.getElementById("onlineTableHeader").innerHTML = onlineTableHeader
+    const onlineTableBody = doc.getElementById('onlineTableBody').innerHTML
+    document.getElementById("onlineTableBody").innerHTML = onlineTableBody
     //Runing jobs overview
     const runningJobs = doc.getElementById('runningJobs').innerHTML
     document.getElementById("runningJobs").innerHTML = runningJobs
@@ -308,8 +321,8 @@ unset($_POST);
     });
     fetchHTML();
     }, 3000)}
-    </script>
 
+</script>
 
   <script>
     <?php

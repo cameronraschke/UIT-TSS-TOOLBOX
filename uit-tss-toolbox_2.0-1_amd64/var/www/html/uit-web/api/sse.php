@@ -48,6 +48,15 @@ if ($_GET["type"] == "live_image" && isset($_GET["tagnumber"])) {
   unset($value);
 }
 
+if ($_GET["type"] == "cpu_temp" && isset($_GET["tagnumber"])) {
+  $dbPSQL->select("SELECT '90' AS max_cpu_temp");
+  foreach ($dbPSQL->get() as $key => $value) {
+    $event = "cpu_temp";
+    $data = json_encode($value);
+  }
+  unset($value);
+}
+
 
 echo "event: " . $event . "\n";
 echo "data: " . $data;

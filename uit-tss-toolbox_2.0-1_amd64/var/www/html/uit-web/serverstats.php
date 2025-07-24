@@ -16,6 +16,7 @@ $db = new db();
         <link rel='stylesheet' type='text/css' href='/css/main.css' />
         <title>Daily Reports - UIT Client Mgmt</title>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <script src="/js/init.js?<?php echo filemtime('js/init.js'); ?>"></script>
     </head>
     <body>
       <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>

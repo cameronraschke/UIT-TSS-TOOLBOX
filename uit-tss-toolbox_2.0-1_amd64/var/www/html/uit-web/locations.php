@@ -175,6 +175,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     
     ?>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <script src="/js/init.js?<?php echo filemtime('js/init.js'); ?>"></script>
   </head>
   <body>
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
@@ -913,10 +914,10 @@ if (arrFilter($dbPSQL->get()) === 0) {
 
 <?php
 if (count($_GET) > 1) {
-    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> queried clients are online.</h3></div>";
+    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount) . "/" . htmlspecialchars($rowCount) . "</u> queried clients are online.</h3></div>";
 } else if (count($_GET) === 1) {
   if (strFilter($_GET["location"]) === 0) {
-    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "/" . htmlspecialchars($rowCount, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
+    echo "<div class='page-content'><h3><u>" . htmlspecialchars($onlineRowCount) . "/" . htmlspecialchars($rowCount) . "</u> clients are online from location '" . htmlspecialchars($_GET["location"]) . "'.</h3></div>";
   }
 }
 ?>
@@ -959,16 +960,16 @@ foreach ($tableArr as $key => $value1) {
   echo "<td>" . PHP_EOL;
   echo "<b><a href='" . addUrlVar(addUrlVar($_SERVER["REQUEST_URI"], "edit", "1"), "tagnumber", htmlspecialchars($value1["tagnumber"])) . "'>" . htmlspecialchars($value1["tagnumber"]) . "</a></b>";
   // kernel and bios up to date (check mark)
-  if ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] === 1)) {
+  if ($value1["present_bool"] === true && ($value1["kernel_updated"] === true && $value1["bios_updated"] === true)) {
     echo " <span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>" . PHP_EOL;
   // BIOS out of date, kernel not updated (x)
-  } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] !== 1)) {
+  } elseif ($value1["present_bool"] === true && ($value1["kernel_updated"] !== true && $value1["bios_updated"] !== true)) {
     echo " <span>&#10060;</span>" . PHP_EOL;
   //BIOS out of date, kernel updated (warning sign)
-  } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] === 1 && $value1["bios_updated"] !== 1)) {
+  } elseif ($value1["present_bool"] === true && ($value1["kernel_updated"] === true && $value1["bios_updated"] !== true)) {
     echo " <span>&#9888;&#65039;</span>" . PHP_EOL;
   //BIOS updated, kernel out of date (x)
-  } elseif ($value1["present_bool"] === 1 && ($value1["kernel_updated"] !== 1 && $value1["bios_updated"] === 1)) {
+  } elseif ($value1["present_bool"] === true && ($value1["kernel_updated"] !== true && $value1["bios_updated"] === true)) {
     echo " <span>&#10060;</span>" . PHP_EOL;
   } else {
     echo "" . PHP_EOL;
@@ -996,7 +997,7 @@ foreach ($tableArr as $key => $value1) {
   echo "<td>" . htmlspecialchars($value1['status_formatted']) . "</td>" . PHP_EOL;
 
   // Os installed
-	if ($value1["os_installed"] === 1 && strFilter($value1["domain"]) === 0) {
+	if ($value1["os_installed"] === true && strFilter($value1["domain"]) === 0) {
 		echo "<td>" . htmlspecialchars($value1['os_installed_formatted']) . "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>" . "</td>" . PHP_EOL;
 	} else {
 		echo "<td>" . htmlspecialchars($value1['os_installed_formatted']) . "</td>" . PHP_EOL;

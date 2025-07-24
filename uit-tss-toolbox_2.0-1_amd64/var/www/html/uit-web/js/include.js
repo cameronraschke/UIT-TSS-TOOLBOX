@@ -110,50 +110,6 @@ document.querySelector('body').addEventListener('click', () => {
 };
 
 
-async function fetchData(url) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return(data);
-  } catch (error) {
-    console.error(error.message);
-  }
-};
-
-
-async function fetchSSE (type, tag = undefined) {
-  return new Promise((resolve, reject) => {
-
-    if (tag === undefined) {
-      var sse = new EventSource("/api/sse.php?type=" + type);
-    } else {
-      var sse = new EventSource("/api/sse.php?type=" + type + "&tagnumber=" + tag);
-    }
-
-    sse.addEventListener("server_time", (event) => { 
-      if (event.data !== undefined) {
-        const ret = JSON.parse(event.data);
-        resolve(ret);
-      }
-    });
-    sse.addEventListener("live_image", (event) => { 
-      if (event.data !== undefined) {
-        const ret = JSON.parse(event.data);
-        resolve(ret);
-      }
-    });
-    sse.onerror = (error) => {
-      reject(error);
-      sse.close();
-    };
-  });
-};
-
-
 function logout() {
   window.location.href = "/logout.php";
 };
@@ -175,4 +131,4 @@ button.addEventListener('click', e => {
 
 function test() { 
   console.log('test');
-}
+};
