@@ -504,7 +504,9 @@ foreach ($dbPSQL->get() as $key => $value) {
       <div class='column'>
         <?php
         $dbPSQL->Pselect("SELECT COUNT(tagnumber) AS count FROM client_images WHERE hidden = FALSE AND tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-        $totalImages = $dbPSQL->nested_get()["count"];
+        if (isset($dbPSQL->nested_get()["count"])) {
+          $totalImages = $dbPSQL->nested_get()["count"];
+        }
         $dbPSQL->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, (CASE WHEN mime_type LIKE 'video%' THEN image ELSE thumbnail END) AS thumbnail, note, primary_image, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($dbPSQL->get()) === 0) {
           echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All " . htmlspecialchars($totalImages)  . " Images</b>]</a></div>";
@@ -578,52 +580,52 @@ foreach ($dbPSQL->get() as $key => $value) {
           $dbPSQL->Pselect("SELECT system_model FROM system_data WHERE tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
           if (arrFilter($dbPSQL->get()) === 0) {
             echo "<div class='laptop-images'>";
-            foreach ($dbPSQL->get() as $key => $value) {
-              if ($value["system_model"] === "Aspire T3-710") {
+            foreach ($dbPSQL->get() as $key => $image) {
+              if ($image["system_model"] === "Aspire T3-710") {
                 echo "<img src='/images/aspireT3710.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "HP ProBook 450 G6") {
+              } elseif ($image["system_model"] === "HP ProBook 450 G6") {
                 echo "<img src='/images/hpProBook450G6.avif'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 3500") {
+              } elseif ($image["system_model"] === "Latitude 3500") {
                 echo "<img src='/images/Latitude3500.avif'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 3560") {
+              } elseif ($image["system_model"] === "Latitude 3560") {
                 echo "<img src='/images/Latitude3560.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 3590") {
+              } elseif ($image["system_model"] === "Latitude 3590") {
                 echo "<img src='/images/latitude3590.jpeg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 5289") {
+              } elseif ($image["system_model"] === "Latitude 5289") {
                 echo "<img src='/images/latitude5289.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 5480") {
+              } elseif ($image["system_model"] === "Latitude 5480") {
                 echo "<img src='/images/latitude5480.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 5590") {
+              } elseif ($image["system_model"] === "Latitude 5590") {
                 echo "<img src='/images/latitude5590.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 7400") {
+              } elseif ($image["system_model"] === "Latitude 7400") {
                 echo "<img src='/images/latitude7400.avif'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 7430") {
+              } elseif ($image["system_model"] === "Latitude 7430") {
                 echo "<img src='/images/latitude7430.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 7480") {
+              } elseif ($image["system_model"] === "Latitude 7480") {
                 echo "<img src='/images/latitude7480.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude 7490") {
+              } elseif ($image["system_model"] === "Latitude 7490") {
                 echo "<img src='/images/latitude7490.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude E6430") {
+              } elseif ($image["system_model"] === "Latitude E6430") {
                 echo "<img src='/images/latitudeE6430.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Latitude E7470") {
+              } elseif ($image["system_model"] === "Latitude E7470") {
                 echo "<img src='/images/latitudeE7470.webp'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "OptiPlex 7000") {
+              } elseif ($image["system_model"] === "OptiPlex 7000") {
                 echo "<img src='/images/optiplex7000.avif'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "OptiPlex 7460 AIO") {
+              } elseif ($image["system_model"] === "OptiPlex 7460 AIO") {
                 echo "<img src='/images/optiplex7460AIO.avif'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "OptiPlex 780") {
+              } elseif ($image["system_model"] === "OptiPlex 780") {
                 echo "<img src='/images/optiplex780.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "OptiPlex 790") {
+              } elseif ($image["system_model"] === "OptiPlex 790") {
                 echo "<img src='/images/optiplex790.avif'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "OptiPlex 9010 AIO") {
+              } elseif ($image["system_model"] === "OptiPlex 9010 AIO") {
                 echo "<img src='/images/optiplex9010AIO.webp'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Surface Book") {
+              } elseif ($image["system_model"] === "Surface Book") {
                 echo "<img src='/images/surfaceBook.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Surface Pro") {
+              } elseif ($image["system_model"] === "Surface Pro") {
                 echo "<img src='/images/surfacePro.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "Surface Pro 4") {
+              } elseif ($image["system_model"] === "Surface Pro 4") {
                 echo "<img src='/images/surfacePro4.jpg'>" . PHP_EOL;
-              } elseif ($value["system_model"] === "XPS 15 9560") {
+              } elseif ($image["system_model"] === "XPS 15 9560") {
                 echo "<img src='/images/xps15-9560.jpg'>" . PHP_EOL;
               }
             }

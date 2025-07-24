@@ -16,7 +16,7 @@ unset($sql);
 $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_time, disk_temp, max_disk_temp, system_serial, bios_version, bios_updated, CAST(image_name_readable AS VARCHAR(36)) AS image_name_readable, os_installed,
    checkout_time, checkout_bool, image_time, disk_type, disk_health, battery_health, avg_erase_time, avg_clone_time, all_jobs, last_imaged_time FROM 
     (SELECT locations.tagnumber, locations.system_serial, client_health.tagnumber AS client_health_tag, remote.tagnumber AS remote_tag,  
-    static_disk_stats.disk_type, t3.avg_erase_time, t3.avg_clone_time, 
+    static_disk_stats.disk_type, eraseTable.avg_erase_time, cloneTable.avg_clone_time, 
     (CASE WHEN ROUND((EXTRACT(EPOCH FROM (NOW()::timestamp - remote.present::timestamp))), 0) < 30 THEN TRUE ELSE FALSE END) AS present_bool, t2.time AS last_job_time, remote.disk_temp, remote.max_disk_temp, 
     (CASE 
       WHEN locations.disk_removed = TRUE THEN 'No OS'
@@ -73,8 +73,10 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
     LEFT JOIN (SELECT time, tagnumber, erase_completed, clone_completed FROM (SELECT time, tagnumber, erase_completed, clone_completed, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND (erase_completed = TRUE OR clone_completed = TRUE) AND jobstats.time IS NOT NULL) s2 WHERE s2.row_nums = 1) t2
       ON locations.tagnumber = t2.tagnumber
-    LEFT JOIN (SELECT tagnumber, CAST(ROUND(AVG(erase_time / 60), 0) AS SMALLINT) AS avg_erase_time, CAST(ROUND(AVG(clone_time / 60), 0) AS SMALLINT) AS avg_clone_time FROM (SELECT tagnumber, clone_time, erase_time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE (erase_completed = TRUE OR clone_completed = TRUE) AND jobstats.time IS NOT NULL) s3 WHERE s3.row_nums <= 3 GROUP BY s3.tagnumber) t3
-      ON locations.tagnumber = t3.tagnumber
+    LEFT JOIN (SELECT tagnumber, CAST(ROUND(AVG(erase_time / 60), 0) AS SMALLINT) AS avg_erase_time FROM (SELECT tagnumber, erase_time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE erase_completed = TRUE AND jobstats.time IS NOT NULL) s3 WHERE s3.row_nums <= 3 GROUP BY s3.tagnumber) eraseTable
+      ON locations.tagnumber = eraseTable.tagnumber
+    LEFT JOIN (SELECT tagnumber, CAST(ROUND(AVG(clone_time / 60), 0) AS SMALLINT) AS avg_clone_time FROM (SELECT tagnumber, clone_time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE clone_completed = TRUE AND jobstats.time IS NOT NULL) s3 WHERE s3.row_nums <= 3 GROUP BY s3.tagnumber) cloneTable
+      ON locations.tagnumber = cloneTable.tagnumber
     LEFT JOIN (SELECT tagnumber, time, checkout_bool, checkout_date, return_date FROM (SELECT tagnumber, time, checkout_bool, checkout_date, return_date, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts) s4 WHERE s4.row_nums = 1) t4
       ON locations.tagnumber = t4.tagnumber
     LEFT JOIN (SELECT tagnumber, SUM((CASE WHEN erase_completed = TRUE THEN 1 ELSE 0 END) + (CASE WHEN clone_completed = TRUE THEN 1 ELSE 0 END)) AS all_jobs FROM jobstats WHERE (erase_completed = TRUE OR clone_completed = TRUE) GROUP BY tagnumber) t5
