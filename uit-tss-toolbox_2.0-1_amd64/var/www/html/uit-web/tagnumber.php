@@ -399,7 +399,7 @@ foreach ($dbPSQL->get() as $key => $value) {
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
             <div><input name="userfile[]" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" multiple /></div>
-            <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' autocorrect='off' spellcheck='false' placeholder="Add Image Description..."></div>
+            <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' placeholder="Add Image Description..."></div>
             <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image(s)</button></div>
           </form>
             <?php 
@@ -863,6 +863,8 @@ $locLogSQL = "SELECT t1.time, TO_CHAR(t1.time, 'MM/DD/YY HH12:MI:SS AM') AS time
 if (!isset($_GET["full-loc-log"]) || $_GET["full-loc-log"] != "1") {
   $locLogSQL .= "WHERE t1.row_nums <= 3 AND (NOW()::date - t1.time::date) <= 365 ";
 }
+
+$locLogSQL .= "ORDER BY t1.time DESC ";
 
 $dbPSQL->Pselect($locLogSQL, array(':tagnumber' => htmlspecialchars_decode($_GET["tagnumber"])));
 if (arrFilter($dbPSQL->get()) === 0) {
