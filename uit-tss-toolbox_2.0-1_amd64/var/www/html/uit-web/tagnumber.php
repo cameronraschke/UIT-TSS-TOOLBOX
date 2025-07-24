@@ -172,39 +172,10 @@ if (isset($_POST["job_queued_tagnumber"])) {
   unset($_POST["job_queued_form"]);
 }
 
-if (strFilter($_POST) === 0) {
-  if (strFilter($_POST['department']) === 0 && strFilter($_GET["tagnumber"]) === 0 && strFilter($_POST["serial"]) === 0) {
-    $uuid = uniqid("location-", true);
-    $tagNum = trim($_GET["tagnumber"]);
-    $serial = trim($_POST["serial"]);
-    $department = $_POST['department'];
-    $location = trim($_POST['location']);
-    $status = boolval($_POST["status"]);
-    $note = $_POST['note'];
-    $diskRemoved = boolval($_POST['disk_removed']);
-    $domain = $_POST["domain"];
-
-    //Insert location data
-    $dbPSQL->insertLocation($time);
-    $dbPSQL->updateLocation("tagnumber", $tagNum, $time);
-    $dbPSQL->updateLocation("system_serial", $serial, $time);
-    $dbPSQL->updateLocation("location", $location, $time);
-    $dbPSQL->updateLocation("status", $status, $time);
-    $dbPSQL->updateLocation("disk_removed", $diskRemoved, $time);
-    $dbPSQL->updateLocation("note", $note, $time);
-    $dbPSQL->updateLocation("domain", $domain, $time);
-    $dbPSQL->updateLocation("department", $department, $time);
-
-
-    unset($_POST);
-    header("Location: " . $_SERVER['REQUEST_URI']);
-  } else {
-    if (strFilter($_POST["job_queued"]) === 1 || strFilter($_POST["job_queued_tagnumber"]) === 1) {
-      $formErr = "<div style='color: red;'><b>Missing required data, please go to <a href='/locations.php'>here</a> to update the client</b></div>";
-    }
-  }
+if ($_POST) {
+  header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
+  unset($_POST);
 }
-unset($_POST);
 ?>
 
 <!DOCTYPE html>

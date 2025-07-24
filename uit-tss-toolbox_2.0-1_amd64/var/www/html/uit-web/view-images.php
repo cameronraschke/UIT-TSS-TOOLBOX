@@ -99,6 +99,7 @@ unset($value);
       }
     ?>
     <link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
+    <script src="/js/init.js?<?php echo filemtime('js/init.js'); ?>"></script>
   </head>
   <body>
 
@@ -216,18 +217,12 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
   };
 
   <?php 
-    if ($_GET["live_image"] == "1") {
+    if (isset($_GET["live_image"]) && $_GET["live_image"] == "1") {
       echo "parseSSE();";
       echo "setInterval(parseSSE, 3000);";
     }
   ?>
 
-  </script>
-
-  <script>
-  if ( window.history.replaceState ) {
-  window.history.replaceState( null, null, window.location.href );
-  }
   </script>
 
   </body>
