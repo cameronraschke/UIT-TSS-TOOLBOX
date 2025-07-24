@@ -213,15 +213,6 @@ unset($_POST);
       </table>
     </div>
 
-    <script>
-      setInterval(() => {
-      const listItems = document.querySelectorAll('.presentCPUTemp');
-      listItems.forEach(function(item) {
-          parseCPUTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
-      });
-    }, 500);
-    </script>
-
     <div class='pagetitle'>
       <h3>Offline Clients</h3>
     </div>
@@ -293,6 +284,7 @@ unset($_POST);
     var i = 0;
     function fetchHTML() {
     const var1 = setTimeout(function() {
+
     fetch('/job-queue.php')
     .then((response) => {
     return response.text();
@@ -312,6 +304,17 @@ unset($_POST);
     document.getElementById("onlineTableHeader").innerHTML = onlineTableHeader
     const onlineTableBody = doc.getElementById('onlineTableBody').innerHTML
     document.getElementById("onlineTableBody").innerHTML = onlineTableBody
+
+    const cpuTemps = document.querySelectorAll('.presentCPUTemp');
+    cpuTemps.forEach(function(item) {
+      parseCPUTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
+    });
+
+    const diskTemps = document.querySelectorAll('.presentDiskTemp');
+    diskTemps.forEach(function(item) {
+      parseDiskTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
+    });
+
     //Runing jobs overview
     const runningJobs = doc.getElementById('runningJobs').innerHTML
     document.getElementById("runningJobs").innerHTML = runningJobs

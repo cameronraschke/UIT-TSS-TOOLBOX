@@ -116,8 +116,13 @@ function diskData {
 	for i in $(lsblk -o NAME --nodeps --noheadings --exclude 1,2,7,11); do
 		if [[ $(cat /sys/block/${i}/removable) == 0 ]]; then
 			DISK="$i"
+			if [[ -f /root/smartctl-data ]]; then
+				rm /root/smartctl-data
+			fi
+			smartctl -t short -a /dev/${i} > /root/smartctl-data
 			printf '%s' "general|disk|${DISK}|${UUID}" | /opt/uit-toolbox/parse
 		fi
+
 
 		if [[ $DISK =~ $NVME_REGEX ]]; then
 		diskModel=$(cat /root/smartctl-data | grep '^Model Number: ' | sed 's/Model Number: *//g')

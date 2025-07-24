@@ -40,6 +40,12 @@ async function fetchData(url) {
           resolve(ret);
         }
       });
+      sse.addEventListener("disk_temp", (event) => { 
+        if (event.data !== undefined) {
+          const ret = JSON.parse(event.data);
+          resolve(ret);
+        }
+      });
       sse.onerror = (error) => {
         reject(error);
         sse.close();
@@ -66,6 +72,32 @@ async function fetchData(url) {
             cpuWarning.style.backgroundColor = '#f5aa50';
           } else if (currentTemp >= maxTemp) {
             cpuWarning.style.backgroundColor = '#f55050';
+          }
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function parseDiskTemp (tagnumber, currentTemp) {
+    try {
+      const diskTemps = await fetchSSE("disk_temp", tagnumber);
+      var tagnumber = tagnumber;
+      Object.entries(diskTemps).forEach(([key, value]) => {
+        maxTemp = diskTemps["max_disk_temp"];
+        lowWarning = maxTemp - (maxTemp * 0.10);
+        mediumWarning = maxTemp - (maxTemp * 0.05);
+  
+        var diskWarning = document.getElementById("presentDiskTemp-" + tagnumber);
+  
+        if (diskWarning) {
+          if (currentTemp > lowWarning && currentTemp < mediumWarning) {
+            diskWarning.style.backgroundColor = '#ffe6a0';
+          } else if (currentTemp > mediumWarning && currentTemp < maxTemp) {
+            diskWarning.style.backgroundColor = '#f5aa50';
+          } else if (currentTemp >= maxTemp) {
+            diskWarning.style.backgroundColor = '#f55050';
           }
         }
       });

@@ -57,6 +57,20 @@ if ($_GET["type"] == "cpu_temp" && isset($_GET["tagnumber"])) {
   unset($value);
 }
 
+if ($_GET["type"] == "disk_temp" && isset($_GET["tagnumber"])) {
+  $dbPSQL->Pselect("SELECT static_disk_stats.max_temp AS max_disk_temp FROM jobstats 
+    LEFT JOIN static_disk_stats ON jobstats.disk_model = static_disk_stats.disk_model 
+      AND jobstats.time IN (SELECT time FROM (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE time IS NOT NULL AND tagnumber IS NOT NULL) s1 WHERE s1.row_nums = 1)
+    WHERE jobstats.disk_model IS NOT NULL 
+      AND static_disk_stats.disk_model IS NOT NULL 
+      AND jobstats.tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+  foreach ($dbPSQL->get() as $key => $value) {
+    $event = "disk_temp";
+    $data = json_encode($value);
+  }
+  unset($value);
+}
+
 
 echo "event: " . $event . "\n";
 echo "data: " . $data;
