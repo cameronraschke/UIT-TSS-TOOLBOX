@@ -504,9 +504,7 @@ foreach ($dbPSQL->get() as $key => $value) {
       <div class='column'>
         <?php
         $dbPSQL->Pselect("SELECT COUNT(tagnumber) AS count FROM client_images WHERE hidden = FALSE AND tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-        if (isset($dbPSQL->nested_get()["count"])) {
-          $totalImages = $dbPSQL->nested_get()["count"];
-        }
+        $totalImages = $dbPSQL->nested_get()["count"];
         $dbPSQL->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, (CASE WHEN mime_type LIKE 'video%' THEN image ELSE thumbnail END) AS thumbnail, note, primary_image, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($dbPSQL->get()) === 0) {
           echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All " . htmlspecialchars($totalImages)  . " Images</b>]</a></div>";
