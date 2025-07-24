@@ -503,13 +503,15 @@ foreach ($dbPSQL->get() as $key => $value) {
 
       <div class='column'>
         <?php
-          $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber AND hidden = FALSE", array(':tagnumber' => $_GET["tagnumber"]));
-          $totalRows = $dbPSQL->get_rows();
-          echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All " . htmlspecialchars($totalRows) . " Images</b>]</a></div>";
-          echo "<div class='grid-container'>";
+        $dbPSQL->Pselect("SELECT COUNT(tagnumber) AS count FROM client_images WHERE hidden = FALSE AND tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
+        $totalImages = $dbPSQL->nested_get()["count"];
         $dbPSQL->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, (CASE WHEN mime_type LIKE 'video%' THEN image ELSE thumbnail END) AS thumbnail, note, primary_image, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($dbPSQL->get()) === 0) {
+          echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All " . htmlspecialchars($totalImages)  . " Images</b>]</a></div>";
+          echo "<div class='grid-container'>";
           foreach ($dbPSQL->get() as $key => $image) {
+              $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber AND hidden = FALSE", array(':tagnumber' => $_GET["tagnumber"]));
+              $totalRows = $dbPSQL->get_rows();
               echo "<div class='grid-box'>";
               echo "<div style='display: table; clear: both; width: 100%;'>";
               //Delete image form
@@ -711,39 +713,39 @@ foreach ($dbPSQL->get() as $key => $value) {
               <tbody>
                 <tr>
                   <td>Total Jobs</td>
-                  <td><?php echo htmlspecialchars($value['all_jobs'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['all_jobs']); ?></td>
                 </tr>
                 <tr>
                   <td>Erase Avg. Time</td>
-                  <td><?php echo htmlspecialchars($value['avg_erase_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['avg_erase_time']); ?></td>
                 </tr>
                 <tr>
                   <td>Clone Avg. Time</td>
-                  <td><?php echo htmlspecialchars($value['avg_clone_time'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['avg_clone_time']); ?></td>
                 </tr>
                 <tr>
                   <td>Battery Health</td>
-                  <td><?php echo htmlspecialchars($value['battery_health_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['battery_health_formatted']); ?></td>
                 </tr>
                 <tr>
                   <td>Disk TBW/TBR</td>
-                  <td><?php echo htmlspecialchars($value['disk_tbw_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['disk_tbw_formatted']); ?></td>
                 </tr>
                 <tr>
                   <td>Disk Power on Hours</td>
-                  <td><?php echo htmlspecialchars($value['disk_power_on_hours'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['disk_power_on_hours']); ?></td>
                 </tr>
                 <tr>
                   <td>Disk Power Cycles</td>
-                  <td><?php echo htmlspecialchars($value['disk_power_cycles'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['disk_power_cycles']); ?></td>
                 </tr>
                 <tr>
                   <td>Disk Errors</td>
-                  <td><?php echo htmlspecialchars($value['disk_errors'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['disk_errors']); ?></td>
                 </tr>
                 <tr>
                   <td>Disk Health</td>
-                  <td><?php echo htmlspecialchars($value['disk_health'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?></td>
+                  <td><?php echo htmlspecialchars($value['disk_health']); ?></td>
 
                 </tr>
               </tbody>
