@@ -100,7 +100,7 @@ unset($_POST);
     <div class='row'>
       <div id="runningJobs" style='max-height: 20%; width: auto; margin: 1% 1% 1% 1%;'>
         <?php
-        $dbPSQL->select("SELECT COUNT(tagnumber) AS count FROM remote WHERE job_queued IS NOT NULL AND NOT status = NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
+        $dbPSQL->select("SELECT COUNT(tagnumber) AS count FROM remote WHERE job_queued IS NOT NULL AND status IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
         if (arrFilter($dbPSQL->get()) === 0) {
           foreach ($dbPSQL->get() as $ley => $value) {
             echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"]) . "</h3>";
