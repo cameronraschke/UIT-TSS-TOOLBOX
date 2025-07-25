@@ -266,8 +266,8 @@ END) AS disk_tbw_formatted,
 CONCAT(t4.disk_writes, ' TBW') AS disk_writes, CONCAT(t4.disk_reads, ' TBR') AS disk_reads, CONCAT(t4.disk_power_on_hours, ' hrs') AS disk_power_on_hours,
 t4.disk_power_cycles, t4.disk_errors, locations.domain, (CASE WHEN locations.domain IS NOT NULL THEN static_domains.domain_readable ELSE 'Not Joined' END) AS domain_readable,
 (CASE 
-  WHEN client_health.os_installed = TRUE AND client_health.os_name IS NOT NULL THEN CONCAT(client_health.os_name, ' (Imaged on ', TO_CHAR(t6.time, 'MM/DD/YY HH12:MI:SS AM'), ')') 
-  WHEN client_health.os_installed = TRUE AND client_health.os_name IS NULL THEN client_health.os_name 
+  WHEN client_health.os_installed = TRUE AND client_health.os_name IS NOT NULL AND NOT client_health.os_name = 'Unknown OS' THEN CONCAT(client_health.os_name, ' (Imaged on ', TO_CHAR(t6.time, 'MM/DD/YY HH12:MI:SS AM'), ')') 
+  WHEN client_health.os_installed = TRUE AND NOT client_health.os_name = 'Unknown OS' THEN client_health.os_name 
   ELSE client_health.os_name 
   END) AS os_installed_formatted,
 checkouts.customer_name, checkouts.checkout_date, checkouts.checkout_bool, client_health.tpm_version
