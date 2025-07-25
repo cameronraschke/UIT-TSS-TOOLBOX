@@ -125,7 +125,7 @@ VALUES
     ('TOSHIBA THNSNK256GVN8 M.2 2280 256GB', 256, 388, 545, 1500000, 150, NULL, 0, 70, 'm.2', 'nvme', FALSE, NULL, NULL, NULL, NULL),
     ('PC SN740 NVMe WD 512GB', 512, '4000','5000','1750000','300',NULL,'0','85','m.2','nvme', FALSE,NULL,'3000', NULL, NULL),
     ('SK hynix SC308 SATA 256GB', 256, 130,540,1500000,75,NULL,0,70,'m.2','ssd', FALSE,NULL,NULL, NULL, NULL),
-    ('ST500LM000-1EJ162', NULL 100, 100, NULL, 125, 125, 0, 60, 'sata', 'hdd', TRUE, 5400, 25000, NULL, NULL),
+    ('ST500LM000-1EJ162', NULL, 100, 100, NULL, 125, 125, 0, 60, 'sata', 'hdd', TRUE, 5400, 25000, NULL, NULL),
     ('ST500DM002-1SB10A', NULL, 100, 100, NULL, 125, 125, 0, 60, 'sata', 'hdd', TRUE, 5400, 25000, NULL, NULL),
     ('SanDisk SSD PLUS 1000GB', 1000, 350, 535, 26280, 100, NULL, NULL, NULL, 'sata', 'ssd', FALSE, NULL, NULL, NULL, NULL),
     ('WDC WD5000LPLX-75ZNTT1', NULL, NULL, NULL, 43800, 125, 125, 0, 60, 'sata', 'hdd', TRUE, 7200, NULL, NULL, NULL),
@@ -393,7 +393,7 @@ INSERT INTO
 VALUES 
     ('update', 'Update', 20, TRUE),
     ('findmy', 'Play Sound', 30, TRUE),
-    ('hpEraseAndClone', 'Erase and Clone', 40, TRUE),
+    ('hpEraseAndClone', 'Erase and Clone', 40, FALSE),
     ('generic-erase+clone', 'Erase and Clone (manual)', 41, FALSE),
     ('hpCloneOnly', 'Clone Only', 50, TRUE),
     ('generic-clone', 'Clone Only (manual)', 51, FALSE),

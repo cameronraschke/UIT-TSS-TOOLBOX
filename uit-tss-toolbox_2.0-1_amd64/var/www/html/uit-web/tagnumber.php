@@ -736,7 +736,7 @@ foreach ($dbPSQL->get() as $key => $value) {
   ?>
 
 
-<div class='pagetitle'><h3>Checkout Log - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
+<div class='pagetitle'><h3>Checkout Log <i><a href='<?php if ($_GET["full-checkout-log"] == "1") { echo removeUrlVar($_SERVER["REQUEST_URI"], "full-checkout-log"); } else { echo addUrlVar($_SERVER["REQUEST_URI"], "full-checkout-log", "1"); } ?>'> <?php if ($_GET["full-checkout-log"] == "1") { echo "(Collapse Log View)"; } else { echo "(Expand Log View)"; } ?></a></i> - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
 <div name='checkoutLog' id='checkoutLog' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
 <table width="100%">
 <thead>
@@ -750,7 +750,16 @@ foreach ($dbPSQL->get() as $key => $value) {
 </thead>
 <tbody>
 <?php
-$dbPSQL->Pselect("SELECT time, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, customer_name, checkout_date, return_date, note FROM checkouts WHERE tagnumber = :tag ORDER BY time DESC", array(':tag' => $_GET["tagnumber"]));
+$checkoutLogSql = "SELECT time, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, customer_name, checkout_date, return_date, note FROM checkouts WHERE tagnumber = :tag ";
+
+if (isset($_GET["full-checkout-log"]) || $_GET["full_checkout_log"] == "1") {
+    $checkoutLogSql .= "ORDER BY time DESC ";
+} else {
+    $checkoutLogSql .= "AND (NOW()::date - time::date) <= 365 ORDER BY time DESC LIMIT 10 ";
+}
+
+
+$dbPSQL->Pselect($checkoutLogSql, array(':tag' => $_GET["tagnumber"]));
 if (arrFilter($dbPSQL->get()) === 0) {
 foreach ($dbPSQL->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
