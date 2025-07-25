@@ -252,7 +252,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
             <div class='column'>";
           // Location data
           if ($tagDataExists === 1) {
-            echo "<div><label for='location'>Location* (Last Updated: " . htmlspecialchars($value["time_formatted"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . ")</label></div>" . PHP_EOL;
+            echo "<div><label for='location'>Location* (Last Updated: " . htmlspecialchars($value["time_formatted"]) . ")</label></div>" . PHP_EOL;
             echo "<input type='text' id='location' name='location' value='" . htmlspecialchars($value["location_formatted"]) . "' autofocus autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter location...' required>" . PHP_EOL;
           } else {
             echo "<div><label for='location'>Location*</label></div>" . PHP_EOL;
@@ -394,13 +394,13 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
           echo "<div class='row'>";
           if (strFilter($value["most_recent_note"]) === 0 && $value["locations_status"] === 1) {
             echo "<div><label for='note'>Note (Last Entry: " . trim(htmlspecialchars($value["note_time_formatted"])) . ")</label></div>" . PHP_EOL;
-            echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
+            echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"]) .  "</textarea>" . PHP_EOL;
           } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] === TRUE)  {
             echo "<div><label for='note'>Note (Last Entry: " . trim(htmlspecialchars($value["note_time_formatted"])) . ")</label></div>" . PHP_EOL;
-            echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) .  "</textarea>" . PHP_EOL;
+            echo "<textarea id='note' name='note' style='width: 70%;'>" . htmlspecialchars($value["most_recent_note"]) .  "</textarea>" . PHP_EOL;
           } elseif (strFilter($value["most_recent_note"]) === 0 && strFilter($value["locations_status"]) === 1 && $value["placeholder_bool"] !== TRUE) {
             echo "<div><label for='note'>Note (Last Entry: " . trim(htmlspecialchars($value["note_time_formatted"])) . ")</label></div>" . PHP_EOL;
-            echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["most_recent_note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'></textarea>" . PHP_EOL;
+            echo "<textarea id='note' name='note' style='width: 70%;' placeholder='" . htmlspecialchars($value["most_recent_note"]) . "'></textarea>" . PHP_EOL;
           } else {
             echo "<div><label for='note'>Note</label></div>" . PHP_EOL;
             echo "<textarea id='note' name='note' style='width: 70%;' placeholder='Enter Note...'></textarea>" . PHP_EOL;
@@ -784,7 +784,7 @@ if (arrFilter($dbPSQL->get()) === 0) {
                   ORDER BY t1.system_manufacturer ASC, t1.system_model ASC");
               if (arrFilter($dbPSQL->get()) === 0) {
                 foreach ($dbPSQL->get() as $key => $value1) {
-                  echo "<option value='" . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value1["system_manufacturer_formatted"]) . " " . htmlspecialchars($value1["system_model"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " (" . $value1["system_model_rows"] . ")" . "</option>" . PHP_EOL;
+                  echo "<option value='" . htmlspecialchars($value1["system_model"]) . "'>" . htmlspecialchars($value1["system_manufacturer_formatted"]) . " " . htmlspecialchars($value1["system_model"]) . " (" . $value1["system_model_rows"] . ")" . "</option>" . PHP_EOL;
                 }
               }
               unset($value1);

@@ -74,42 +74,42 @@ if (arrFilter($dbPSQL->get()) === 0) {
     echo "<tr>";
     //tagnumber
     echo "<td>";
-        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
+        echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "'>" . htmlspecialchars($value["tagnumber"]) . "</a></b>" . PHP_EOL;
     echo "</td>" . PHP_EOL;
 
 
     //customer name
     echo "<td>";
     if (strFilter($value["customer_name"]) === 0) {
-        echo htmlspecialchars($value["customer_name"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+        echo htmlspecialchars($value["customer_name"]);
     }
     echo "</td>" . PHP_EOL;
 
     // //customer psid
     // echo "<td>";
     // if (strFilter($value["customer_psid"]) === 0) {
-    //     echo htmlspecialchars($value["customer_psid"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+    //     echo htmlspecialchars($value["customer_psid"]);
     // }
     // echo "</td>" . PHP_EOL;
 
     //checkout_date
     echo "<td>";
     if (strFilter($value["checkout_date"]) === 0) {
-        echo htmlspecialchars($value["checkout_date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+        echo htmlspecialchars($value["checkout_date"]);
     }
     echo "</td>" . PHP_EOL;
 
     //return_date
     echo "<td>";
     if (strFilter($value["return_date"]) === 0) {
-        echo htmlspecialchars($value["return_date"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+        echo htmlspecialchars($value["return_date"]);
     }
     echo "</td>" . PHP_EOL;
 
     //note
     echo "<td>";
     if (strFilter($value["note"]) === 0) {
-        echo htmlspecialchars($value["note"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE);
+        echo htmlspecialchars($value["note"]);
     }
     echo "</td>" . PHP_EOL;
 

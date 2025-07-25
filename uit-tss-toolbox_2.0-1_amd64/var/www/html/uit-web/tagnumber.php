@@ -182,7 +182,7 @@ if ($_POST) {
   <head>
     <meta charset='UTF-8'>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
-    <title><?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " - UIT Client Mgmt"; ?></title>
+    <title><?php echo htmlspecialchars($_GET['tagnumber']) . " - UIT Client Mgmt"; ?></title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <script src="/js/init.js?<?php echo filemtime('js/init.js'); ?>"></script>
   </head>
@@ -192,7 +192,7 @@ if ($_POST) {
 
   <div class='row'>
     <div class='column'>
-  <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE); ?>)</h1></div>
+  <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber']); ?>)</h1></div>
 </div>
 </div>
 
@@ -353,7 +353,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                         unset($value2);
                       }
                     } else {
-                      echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . " missing info :((</option>";
+                      echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"]) . " missing info :((</option>";
                     }
                     ?>
                   </select>
@@ -857,12 +857,12 @@ if (arrFilter($dbPSQL->get()) === 0) {
 foreach ($dbPSQL->get() as $key => $value1) {
 echo "<tr>" . PHP_EOL;
 //Time formatted
-echo "<td>" . htmlspecialchars($value1['time_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['time_formatted']) . "</td>" . PHP_EOL;
 echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location_formatted"]) . "'>" . htmlspecialchars($value1["location_formatted"]) . "</a></b></td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['department_readable'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['status_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['disk_removed_formatted'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
-echo "<td>" . htmlspecialchars($value1['note'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['department_readable']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['status_formatted']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['disk_removed_formatted']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['note']) . "</td>" . PHP_EOL;
 echo "</tr>" . PHP_EOL;
 }
 }

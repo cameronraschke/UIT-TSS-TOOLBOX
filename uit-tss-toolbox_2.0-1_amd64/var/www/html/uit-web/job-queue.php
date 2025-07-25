@@ -251,7 +251,7 @@ unset($_POST);
       foreach ($dbPSQL->get() as $key => $value) {
       echo "<tr>". PHP_EOL;
       echo "<td>" . PHP_EOL;
-      echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8", FALSE) . "</a></b>" . PHP_EOL;
+      echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b>" . PHP_EOL;
       echo "</td>";
       echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
       $dbPSQL->Pselect("SELECT locationFormatting(location) AS location_formatted FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
