@@ -401,6 +401,8 @@ function checkNetwork {
 		if [[ $? == 0 ]]; then
 			break
 		fi
+		dhclient -r
+		dhclient
 	done
 }
 
