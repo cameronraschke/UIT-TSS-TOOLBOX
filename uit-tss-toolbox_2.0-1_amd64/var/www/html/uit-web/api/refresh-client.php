@@ -81,7 +81,7 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
       ON locations.tagnumber = t4.tagnumber
     LEFT JOIN (SELECT tagnumber, SUM((CASE WHEN erase_completed = TRUE THEN 1 ELSE 0 END) + (CASE WHEN clone_completed = TRUE THEN 1 ELSE 0 END)) AS all_jobs FROM jobstats WHERE (erase_completed = TRUE OR clone_completed = TRUE) GROUP BY tagnumber) t5
       ON locations.tagnumber = t5.tagnumber
-    WHERE locations.tagnumber IS NOT NULL AND locations.time IS NOT NULL AND locations.department NOT IN ('property')
+    WHERE locations.tagnumber IS NOT NULL AND locations.time IS NOT NULL AND (locations.department NOT IN ('property') OR locations.department IS NULL)
     ) table1
     WHERE table1.row_nums = 1
     ";

@@ -423,7 +423,7 @@ function enterTag {
 		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
 		printf '\n'
 
-		UUID=$(printf '%s' -n "newEntry-"; cat /proc/sys/kernel/random/uuid)
+		UUID=$(printf '%s' "newEntry-"; cat /proc/sys/kernel/random/uuid)
 
 		printf '%s' "init|${UUID}|${tagNum}|${systemSerial}|${etherAddr}|${wifiMac}|$(cat /sys/class/tpm/tpm0/tpm_version_major)" | /opt/uit-toolbox/parse
 		printf '%s' "location|custom|${tagNum}|${systemSerial}|new entry|0|" | /opt/uit-toolbox/parse
