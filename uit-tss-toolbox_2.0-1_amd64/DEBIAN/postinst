@@ -1,8 +1,8 @@
 #!/bin/bash
-
 if [[ ! -d /srv/uit-toolbox/client/src/ ]]; then
     mkdir -p /srv/uit-toolbox/client/src/
 fi
+
 
 if [[ ! -d /srv/uit-toolbox/client/pkg/ ]]; then
     mkdir -p /srv/uit-toolbox/client/pkg/
@@ -61,9 +61,10 @@ checkNullConfigVals
 
 for i in ${!configArr[@]}; do
 
-  for file in $(find /usr/sbin/ -name 'uit-*'; find /var/www/html/uit-web \( -path "/var/www/html/uit-web/transcode" -o  -path "/var/www/html/uit-web/images" \) -prune -o -type f -print; find /etc/dnsmasq.d/uit-dhcp.conf; find /srv/uit-toolbox/client/src/; find /root/uit-ssl/uit-web.cfg); do
+  for file in $(find /usr/sbin/ -type f -name 'uit-*'; find /var/www/html/uit-web \( -path "/var/www/html/uit-web/transcode" -o  -path "/var/www/html/uit-web/images" \) -prune -o -type f -print; find /etc/dnsmasq.d/uit-dhcp.conf -type f ; find /srv/uit-toolbox/client/src/ -type f; find /root/uit-ssl/uit-web.cfg -type f); do
     if [[ -f $file ]]; then
-      sed --in-place "s/${i}/${configArr[$i]}/g" ${file}
+      sanitizedValue=${configArr[$i]//\//\\/}
+      sed --in-place "s/${i}/${sanitizedValue}/g" ${file}
       else
       echo "File ${file} does not exist. Exiting..."
       exit 1
