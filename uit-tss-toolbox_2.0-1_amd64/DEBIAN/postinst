@@ -1,14 +1,92 @@
 #!/bin/bash
-#https://www.svgrepo.com/download/479073/open-in-new-window-button-1.svg
-#https://www.svgrepo.com/svg/488905/download-2
-#https://www.svgrepo.com/download/513652/file-download.svg
-#https://www.svgrepo.com/svg/486234/download-backup
-# https://www.svgrepo.com/svg/486653/download
-# https://www.svgrepo.com/svg/459040/download
-# https://www.svgrepo.com/svg/450812/download-to
-# https://www.svgrepo.com/svg/459040/download
-# https://www.svgrepo.com/svg/449060/download
 
+# File replacements
+# Insert include.php with modifications for the clients.
+cat /var/www/html/uit-web/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
+sed --in-place 's/WEB_SVC_PASSWD/DB_CLIENT_PASSWD/g' /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
+
+
+unset configArr
+declare -A configArr
+
+configArr[DB_ADMIN_PASSWD]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[DB_CLIENT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[WEB_USER_DEFAULT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WEB_USER_DEFAULT_PASSWD=' | sed 's/WEB_USER_DEFAULT_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[WEBMASTER_NAME]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WEBMASTER_NAME=' | sed 's/WEBMASTER_NAME=//g')
+configArr[WEBMASTER_EMAIL]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g' | sed 's/[[:space:]]//g')
+configArr[WEB_USERS]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WEB_USERS=' | sed 's/WEB_USERS=//g')
+configArr[WAN_IF]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WAN_IF=' | sed 's/WAN_IF=//g' | sed 's/[[:space:]]//g')
+configArr[WAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WAN_IP_ADDRESS=' | sed 's/WAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
+configArr[LAN_IF]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^LAN_IF=' | sed 's/LAN_IF=//g' | sed 's/[[:space:]]//g')
+configArr[LAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^LAN_IP_ADDRESS=' | sed 's/LAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
+configArr[WAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WAN_ALLOWED_IP=' | sed 's/WAN_ALLOWED_IP=//g')
+configArr[LAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^LAN_ALLOWED_IP=' | sed 's/LAN_ALLOWED_IP=//g')
+configArr[PRINTER_IP]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^PRINTER_IP=' | sed 's/PRINTER_IP=//g' | sed 's/[[:space:]]//g')
+configArr[WEB_SVC_PASSWD]=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}' | sed 's/[[:space:]]//g')
+
+function checkNullConfigVals() {
+for checkVal in ${!configArr[@]}; do
+  if [[ -z ${configArr[$checkVal]} ]]; then
+    echo "[Error] Missing/NULL parameter ${checkVal} in /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf"
+    echo ""
+    read -p "Value for ${checkVal} is missing. Continue? [y/N] " userInput
+    if [[ -z $userInput || $userInput == "n" || $userInput == "N" ]]; then
+      echo "Exiting..."
+      exit 1
+      elif [[ $userInput == "y" || $userInput == "Y" ]]; then
+        :
+      else checkNullConfigVals
+    fi
+  fi
+done
+}
+checkNullConfigVals
+
+for i in ${!configArr[@]}; do
+
+  for file in $(find /usr/sbin/ -name 'uit-*'; find /var/www/html/uit-web \( -path "/var/www/html/uit-web/transcode" -o  -path "/var/www/html/uit-web/images" \) -prune -o -type f -print; find /etc/dnsmasq.d/uit-dhcp.conf; find /srv/uit-toolbox/client/src; find /root/uit-ssl/uit-web.cfg); do
+    if [[ -f $file ]]; then
+      sed --in-place "s/${i}/${configArr[$i]}/g" ${file}
+      else
+      echo "File ${file} does not exist. Exiting..."
+      exit 1
+    fi
+  done
+
+
+done
+
+  # Update SQL tables & procedures
+  echo "Updating SQL tables..."
+  sudo -u postgres psql uitdb < /etc/opt/uit-toolbox/server/postgresql/postgresql-procedures.sql
+  sudo -u postgres psql uitdb < /etc/opt/uit-toolbox/server/postgresql/postgresql-tables.sql
+
+  sudo -u postgres psql --command="CALL sqlPermissions();" uitdb
+
+  # Set passwords for various services
+  echo "Updating SQL Passwords..."
+  # PSQL
+  echo "  --PSQL Passwords"
+  # PostgreSQL Users
+  sudo -u postgres psql --command="ALTER USER cameron WITH PASSWORD '${configArr[DB_ADMIN_PASSWD]}';"
+  sudo -u postgres psql --command="ALTER USER uitclient WITH PASSWORD '${configArr[DB_CLIENT_PASSWD]}';"
+  sudo -u postgres psql --command="ALTER USER uitweb WITH PASSWORD '${configArr[WEB_SVC_PASSWD]}';"
+
+
+  echo "  --Website Passwords"
+  sudo -u postgres psql --command="DELETE FROM logins;" uitdb
+  for webUser in ${configArr[WEB_USERS]}; do
+          sudo -u postgres psql --command="INSERT INTO logins (username, name, password) VALUES (${webUser},MD5('${configArr[WEB_USER_DEFAULT_PASSWD]}'));" uitdb
+  done
+  sudo -u postgres psql --command="UPDATE logins SET username = MD5(username);" uitdb
+
+
+# Update SQL Permissions
+echo "Updating PSQL Permissions..."
+sudo -u postgres psql --command="CALL sqlPermissions();" uitdb
+
+
+# File permissions
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
 
@@ -16,12 +94,9 @@
 /usr/bin/chmod 700 /root/uit-ssl/update-certs
 /usr/bin/chown root:root /root/uit-ssl -R
 
-sed --in-place "s/WAN_IF/$(cat /home/cameron/.uit-passwd | grep '^WAN_IF=' | sed 's/WAN_IF=//g')/g" /usr/sbin/uit-firewall
-sed --in-place "s/WAN_IP/$(cat /home/cameron/.uit-passwd | grep '^WAN_IP=' | sed 's/WAN_IP=//g' | sed 's/\//\\\//g')/g" /usr/sbin/uit-firewall
-sed --in-place "s/LAN_IF/$(cat /home/cameron/.uit-passwd | grep '^LAN_IF=' | sed 's/LAN_IF=//g')/g" /usr/sbin/uit-firewall
-sed --in-place "s/LAN_IP/$(cat /home/cameron/.uit-passwd | grep '^LAN_IP=' | sed 's/LAN_IP=//g' | sed 's/\//\\\//g')/g" /usr/sbin/uit-firewall
-sed --in-place "s/PRINTER_IP/$(cat /home/cameron/.uit-passwd | grep '^PRINTER_IP=' | sed 's/PRINTER_IP=//g' | sed 's/\//\\\//g')/g" /usr/sbin/uit-firewall
-sed --in-place "s/LAN_IF/$(cat /home/cameron/.uit-passwd | grep '^LAN_IF=' | sed 's/LAN_IF=//g')/g" /etc/dnsmasq.d/uit-dhcp.conf
+/usr/bin/chown root:root /etc/opt/uit-toolbox/server/uit-conf.d/ -R
+/usr/bin/chmod 700 /etc/opt/uit-toolbox/server/uit-conf.d/ -R
+
 
 if [[ ! -d /srv/nfs/uit-toolbox/images ]]; then
     mkdir -p /srv/nfs/uit-toolbox/images
@@ -37,14 +112,16 @@ find /etc/opt/uit-toolbox -type f -exec chmod 660 {} \;
 find /opt/uit-toolbox/sql-backups -type d -exec chmod 770 {} \;
 find /opt/uit-toolbox/sql-backups -type f -exec chmod 660 {} \;
 
-mkdir /var/www/html/uit-web/transcode
+if [[ ! -d /var/www/html/uit-web/transcode ]]; then
+  mkdir /var/www/html/uit-web/transcode
+fi
 /usr/bin/chown www-data:uit /var/www/html/uit-web -R
 find /var/www/html/uit-web -type d -exec chmod 775 {} \;
 find /var/www/html/uit-web -type f -exec chmod 664 {} \;
-chown www-data:uit /var/www/html/uit-web/bash/uit-print-pdf
-chmod 770 /var/www/html/uit-web/bash/uit-print-pdf
-chown www-data:uit /var/www/html/uit-web/bash/convert-to-mp4
-chmod 770 /var/www/html/uit-web/bash/convert-to-mp4
+chown www-data:uit /var/www/html/uit-web/bash/uit-print-pdf.sh
+chmod 770 /var/www/html/uit-web/bash/uit-print-pdf.sh
+chown www-data:uit /var/www/html/uit-web/bash/convert-to-mp4.sh
+chmod 770 /var/www/html/uit-web/bash/convert-to-mp4.sh
 
 if [[ ! -d /srv/uit-toolbox/client/src/ ]]; then
     mkdir /srv/uit-toolbox/client/src/
@@ -62,89 +139,6 @@ fi
 find /srv/uit-toolbox/ -type d -not -path "*/iso*" -exec chmod 755 {} \;
 find /srv/uit-toolbox/ -type f -not -path "*/iso/*" -exec chmod 664 {} \;
 echo -e "\n" >> /etc/cron.d/uit-cron
-
-# Update tables & procedures
-sudo -u postgres psql uitdb < /etc/opt/uit-toolbox/server/postgresql/postgresql-procedures.sql
-sudo -u postgres psql uitdb < /etc/opt/uit-toolbox/server/postgresql/postgresql-tables.sql
-
-sudo -u postgres psql --command="CALL sqlPermissions();" uitdb
-
-# Insert include.php with modifications for the clients.
-cat /var/www/html/uit-web/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
-sed --in-place 's/WEB_SVC_PASSWD/CLIENT_PASSWD/g' /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
-
-
-# Set passwords for various services
-echo "Updating Passwords..."
-
-# PSQL Admin Password
-echo "  --PSQL Admin Password"
- DB_ADMIN_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g')
-
-# PSQL Client Password
-echo "  --Client Password"
-CLIENT_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^CLIENT_PASSWD=' | sed 's/CLIENT_PASSWD=//g')
-
-# Website PHP Scripts
-echo "  --Web Service Password"
-WEB_SVC_PASSWD=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}')
-
-# All Users for the Website
-echo "  --Web User Username and Password"
-sudo -u postgres psql --command="DELETE FROM logins;" uitdb
-WEB_USER_PASSWD=$(cat /home/cameron/.uit-passwd | grep '^WEB_USER_PASSWD=' | sed 's/WEB_USER_PASSWD=//g')
-for i in $(cat /home/cameron/.uit-passwd | grep '^WEB_USERS=' | sed 's/WEB_USERS=//g'); do
-        sudo -u postgres psql --command="INSERT INTO logins (username, name, password) VALUES (${i},MD5('${WEB_USER_PASSWD}'));" uitdb
-done
-sudo -u postgres psql --command="UPDATE logins SET username = MD5(username);" uitdb
-
-# Webmaster Email
-echo "  --Webmaster Email"
-WEBMASTER_EMAIL=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g')
-
-# Webmaster Name
-echo "  --Webmaster Name"
-WEBMASTER_NAME=$(cat /home/cameron/.uit-passwd | grep '^WEBMASTER_NAME=' | sed 's/WEBMASTER_NAME=//g')
-
-# IP Address of the Server
-echo "  --Server IP Address"
-IP_ADDRESS=$(cat /home/cameron/.uit-passwd | grep '^IP_ADDRESS=' | sed 's/IP_ADDRESS=//g')
-
-
-# PostgreSQL Users
-sudo -u postgres psql --command="ALTER USER cameron WITH PASSWORD '${DB_ADMIN_PASSWD}';"
-sudo -u postgres psql --command="ALTER USER uitclient WITH PASSWORD '${CLIENT_PASSWD}';"
-sudo -u postgres psql --command="ALTER USER uitweb WITH PASSWORD '${WEB_SVC_PASSWD}';"
-
-
-# Client-side Bash Scripts
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/usr/sbin/uit-toolbox-client
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/api-client.php
-
-# Web PHP Scripts
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/locations.php
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/api/endpoint.php
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/bash/uit-print-pdf
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/bash/convert-to-mp4
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/php/include.php
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/api/print-page.php
-sed --in-place "s/WEB_SVC_PASSWD/${WEB_SVC_PASSWD}/g" /var/www/html/uit-web/tagnumber.php
-
-# This is the client password because clients don't know web password
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/uit-web/api/refresh-client.php
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/uit-web/tagnumber.php
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /var/www/html/uit-web/locations.php
-sed --in-place "s/CLIENT_PASSWD/${CLIENT_PASSWD}/g" /usr/sbin/uit-sql-refresh
-
-# Webmaster Name and Email
-sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /var/www/html/uit-web/php/navigation-bar.php
-sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /var/www/html/uit-web/php/navigation-bar.php
-
-# Webmaster IP Address, Name, and Email for SSL Cert
-sed --in-place "s/WEBMASTER_EMAIL/${WEBMASTER_EMAIL}/g" /root/uit-ssl/uit-web.cfg
-sed --in-place "s/IP_ADDRESS/${IP_ADDRESS}/g" /root/uit-ssl/uit-web.cfg
-sed --in-place "s/WEBMASTER_NAME/${WEBMASTER_NAME}/g" /root/uit-ssl/uit-web.cfg
 
 
 # Build client .deb package
@@ -168,10 +162,11 @@ rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/uit-web/images/
 
 rsync -Pav --delete /home/cameron/google-charts /var/www/html/uit-web/
 
-if [[ -f /srv/uit-toolbox/client/certs ]]; then
-    rm /srv/uit-toolbox/client/certs
+if [[ -d /srv/uit-toolbox/client/certs ]]; then
+    rm /srv/uit-toolbox/client/certs/*
+  else
+    mkdir -p /srv/uit-toolbox/client/certs/
 fi
 
-mkdir -p /srv/uit-toolbox/client/certs/
 cp /etc/ssl/certs/ca.crt /srv/uit-toolbox/client/certs/ca.crt
 cp /etc/ssl/certs/uit-web.crt /srv/uit-toolbox/client/certs/uit-web.crt

@@ -137,9 +137,9 @@ if (isset($_FILES) && strFilter($_FILES) === 0) {
           $file = fopen("/var/www/html/uit-web/transcode/" . $transcodeFile, 'c');
           fwrite($file, $rawFileData);
           fclose($file);
-          $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "normal-quality");
+          $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4.sh" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "normal-quality");
           $mimeType = mime_content_type('/var/www/html/uit-web/transcode/' . $transcodeFile);
-          //$imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
+          //$imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4.sh" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
         }
 
           $dbPSQL->insertImage($imageUUID, $time, $_GET["tagnumber"]);

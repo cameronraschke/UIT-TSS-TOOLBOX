@@ -150,7 +150,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     }
     unset($value1);
 
-    System("bash /var/www/html/uit-web/bash/uit-print-pdf" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
+    System("bash /var/www/html/uit-web/bash/uit-print-pdf.sh" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
   }
 
   unset($_POST);
