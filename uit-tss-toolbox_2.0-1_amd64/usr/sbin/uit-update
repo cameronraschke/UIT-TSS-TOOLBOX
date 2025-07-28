@@ -5,12 +5,6 @@ if [[ "$EUID" > 0 ]]; then
   exit 1
 fi
 
-if [[ ! -f /home/cameron/.uit-passwd ]]; then
-  echo "/home/cameron/.uit-passwd is missing. Exiting..."
-  echo "Make sure all variables in .uit-password are set."
-  exit 1
-fi
-
 read -p "Download from GitHub? [Y/n]: " gitBool
 
 if [[ -z $gitBool || $gitBool == "y" || $gitBool == "Y" ]]; then
@@ -19,10 +13,10 @@ if [[ -z $gitBool || $gitBool == "y" || $gitBool == "Y" ]]; then
 fi
 
 if [[ -d /tmp/uit-toolbox/uit-tss-toolbox_2.0-1_amd64 ]]; then
-  dpkg --purge uit-toolbox
+  apt --purge uit-toolbox
 fi
 
 chmod 755 /tmp/uit-toolbox/uit-tss-toolbox_2.0-1_amd64/DEBIAN/postinst
 dpkg-deb --build /tmp/uit-toolbox/uit-tss-toolbox_2.0-1_amd64/ /tmp/uit-toolbox/uit-tss-toolbox_2.0-1_amd64.deb
-dpkg --install /tmp/uit-toolbox/uit-tss-toolbox_2.0-1_amd64.deb
+apt --install /tmp/uit-toolbox/uit-tss-toolbox_2.0-1_amd64.deb
 
