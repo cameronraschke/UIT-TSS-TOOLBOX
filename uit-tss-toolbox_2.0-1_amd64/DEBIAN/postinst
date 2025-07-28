@@ -1,5 +1,22 @@
 #!/bin/bash
 
+if [[ ! -d /srv/uit-toolbox/client/src/ ]]; then
+    mkdir -p /srv/uit-toolbox/client/src/
+fi
+
+if [[ ! -d /srv/uit-toolbox/client/pkg/ ]]; then
+    mkdir -p /srv/uit-toolbox/client/pkg/
+fi
+
+if [[ ! -d /srv/uit-toolbox/client/iso/ ]]; then
+    mkdir -p /srv/uit-toolbox/client/iso/
+fi
+
+if [[ ! -d /srv/nfs/uit-toolbox/images ]]; then
+    mkdir -p /srv/nfs/uit-toolbox/images
+fi
+
+
 # File replacements
 # Insert include.php with modifications for the clients.
 cat /var/www/html/uit-web/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
@@ -44,7 +61,7 @@ checkNullConfigVals
 
 for i in ${!configArr[@]}; do
 
-  for file in $(find /usr/sbin/ -name 'uit-*'; find /var/www/html/uit-web \( -path "/var/www/html/uit-web/transcode" -o  -path "/var/www/html/uit-web/images" \) -prune -o -type f -print; find /etc/dnsmasq.d/uit-dhcp.conf; find /srv/uit-toolbox/client/src; find /root/uit-ssl/uit-web.cfg); do
+  for file in $(find /usr/sbin/ -name 'uit-*'; find /var/www/html/uit-web \( -path "/var/www/html/uit-web/transcode" -o  -path "/var/www/html/uit-web/images" \) -prune -o -type f -print; find /etc/dnsmasq.d/uit-dhcp.conf; find /srv/uit-toolbox/client/src/; find /root/uit-ssl/uit-web.cfg); do
     if [[ -f $file ]]; then
       sed --in-place "s/${i}/${configArr[$i]}/g" ${file}
       else
@@ -98,9 +115,6 @@ sudo -u postgres psql --command="CALL sqlPermissions();" uitdb
 /usr/bin/chmod 700 /etc/opt/uit-toolbox/server/uit-conf.d/ -R
 
 
-if [[ ! -d /srv/nfs/uit-toolbox/images ]]; then
-    mkdir -p /srv/nfs/uit-toolbox/images
-fi
 find /srv/nfs/ -type d -exec chmod 755 {} \;
 /usr/bin/chown nobody:nogroup /srv/nfs/uit-toolbox/images -R
 
@@ -122,16 +136,6 @@ chown www-data:uit /var/www/html/uit-web/bash/uit-print-pdf.sh
 chmod 770 /var/www/html/uit-web/bash/uit-print-pdf.sh
 chown www-data:uit /var/www/html/uit-web/bash/convert-to-mp4.sh
 chmod 770 /var/www/html/uit-web/bash/convert-to-mp4.sh
-
-if [[ ! -d /srv/uit-toolbox/client/src/ ]]; then
-    mkdir /srv/uit-toolbox/client/src/
-fi
-if [[ ! -d /srv/uit-toolbox/client/pkg/ ]]; then
-    mkdir /srv/uit-toolbox/client/pkg/
-fi
-if [[ ! -d /srv/uit-toolbox/client/iso/ ]]; then
-    mkdir /srv/uit-toolbox/client/iso/
-fi
 
 /usr/bin/chown root:uit /srv/uit-toolbox/client/src -R
 /usr/bin/chown root:uit /srv/uit-toolbox/client/pkg -R
