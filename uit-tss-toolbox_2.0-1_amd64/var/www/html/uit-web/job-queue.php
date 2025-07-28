@@ -236,17 +236,29 @@ unset($_POST);
       <th>Last Heard</th>
       <th>Last Location</th>
       <th>Last Known Status</th>
+      <th>OS Installed</th>
       <th>Battery Charge</th>
       <th>CPU Temp</th>
       <th>Disk Temp</th>
-      <th>Actual Power Draw</th>
+      <th>Power Draw</th>
       </tr>
       </thead>
 
       <?php
       unset($value);
       // Clients not present
-      $dbPSQL->select("SELECT tagnumber, TO_CHAR(present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, status, CONCAT(battery_charge, '%') AS battery_charge, battery_status, cpu_temp, CONCAT(cpu_temp, '°C') AS cpu_temp_formatted,  CONCAT(disk_temp, '°C') AS disk_temp, CONCAT(watts_now, ' Watts') AS watts_now FROM remote WHERE present_bool IS FALSE AND present IS NOT NULL ORDER BY present DESC, tagnumber DESC");
+      $dbPSQL->select("SELECT remote.tagnumber, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, 
+          remote.status, CONCAT(remote.battery_charge, '%') AS battery_charge, 
+          remote.battery_status, remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, 
+          CONCAT(remote.disk_temp, '°C') AS disk_temp, CONCAT(remote.watts_now, ' Watts') AS watts_now,
+          client_health.os_name AS os_installed_formatted, client_health.os_installed, 
+          (CASE WHEN locations.domain IS NOT NULL THEN TRUE ELSE FALSE END) AS domain_joined
+        FROM remote 
+        LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
+        LEFT JOIN locations ON remote.tagnumber = locations.tagnumber AND locations.time IN (SELECT time FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1)
+        WHERE remote.present_bool IS FALSE 
+          AND remote.present IS NOT NULL 
+        ORDER BY remote.present DESC, remote.tagnumber DESC");
       if (arrFilter($dbPSQL->get()) === 0) {
       foreach ($dbPSQL->get() as $key => $value) {
       echo "<tr>". PHP_EOL;
@@ -263,8 +275,14 @@ unset($_POST);
         }
       }
       unset($value1);
+      ?>
 
-      echo "<td>" . htmlspecialchars($value["status"]) . "</td>" . PHP_EOL;
+
+      <td><?php echo htmlspecialchars($value["status"]); ?></td>
+
+      <td><?php echo htmlspecialchars($value["os_installed_formatted"]); if ($value["os_installed"] === true && $value["domain_joined"] === true) { echo "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>"; }?>
+
+      <?php
       if (strFilter($value["battery_charge"]) === 0) {
       echo "<td>" . htmlspecialchars($value["battery_charge"]);
       if (strFilter($value["battery_status"]) === 0) {
@@ -274,6 +292,10 @@ unset($_POST);
       } else {
       echo "<td></td>";
       }
+      ?>
+      
+
+      <?php
       echo "<td>" . htmlspecialchars($value["cpu_temp_formatted"]) . "</td>" . PHP_EOL;
       echo "<td>" . htmlspecialchars($value["disk_temp"]) . "</td>" . PHP_EOL;
       echo "<td> " . htmlspecialchars($value["watts_now"]) . "</td>" . PHP_EOL;

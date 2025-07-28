@@ -27,101 +27,102 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
 </head>
 <body onload="fetchHTML();charCount();">
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
-  <div class='pagetitle'><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
-  <div class='pagetitle'><h2 id='server_time'></h2></div>
+  <div class='index-grid-container'>
 
-  <div class='row'>
-  <div class='column'>
-
-  <div class='location-form' style='height: auto;'>
-    <form method='get'>
-      <select name='note-type' id='note-type' onchange='this.form.submit()'>
-        <?php
-          if (strFilter($_GET["note-type"]) === 0) {
-            $dbPSQL->Pselect("SELECT note, note_readable FROM static_notes WHERE note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
-            foreach ($dbPSQL->get() as $key => $value1) {
+    <div class='index-grid-box'>
+      <div><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
+      <div><h2 id='server_time'></h2></div>
+      <div>
+        <div>
+          <form method='get'>
+            <select name='note-type' id='note-type' onchange='this.form.submit()'>
+              <?php
+              if (strFilter($_GET["note-type"]) === 0) {
+              $dbPSQL->Pselect("SELECT note, note_readable FROM static_notes WHERE note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
+              foreach ($dbPSQL->get() as $key => $value1) {
               if (strFilter($value1["note"]) === 0) {
-                $sql = "SELECT time, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS timeFormatted, " . $value1["note"] . " AS note FROM notes WHERE " . $value1["note"] . " IS NOT NULL ORDER BY time DESC LIMIT 1";
+              $sql = "SELECT time, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS timeFormatted, " . $value1["note"] . " AS note FROM notes WHERE " . $value1["note"] . " IS NOT NULL ORDER BY time DESC LIMIT 1";
               } else {
-                $sql = "SELECT NULL AS time, NULL AS timeFormatted, NULL AS note"; 
+              $sql = "SELECT NULL AS time, NULL AS timeFormatted, NULL AS note"; 
               }
-                echo "<option value='" . htmlspecialchars($value1["note"]) . "'>Editing: " . htmlspecialchars($value1["note_readable"]) . "</option>";
+
+              echo "<option value='" . htmlspecialchars($value1["note"]) . "'>Editing: " . htmlspecialchars($value1["note_readable"]) . "</option>";
               $dbPSQL->Pselect("SELECT note, note_readable FROM static_notes WHERE NOT note = :curNote ORDER BY sort_order ASC", array(':curNote' => $_GET["note-type"]));
               foreach ($dbPSQL->get() as $key => $value2) {
-                echo "<option value='" . htmlspecialchars($value2["note"]) . "'>" . htmlspecialchars($value2["note_readable"]) . "</option>";
+              echo "<option value='" . htmlspecialchars($value2["note"]) . "'>" . htmlspecialchars($value2["note_readable"]) . "</option>";
               }
               unset($value2);
-            }
-            unset($value1);
-            $dbPSQL->select($sql);
-            foreach ($dbPSQL->get() as $key => $value1) {
+              }
+              unset($value1);
+              $dbPSQL->select($sql);
+              foreach ($dbPSQL->get() as $key => $value1) {
               $note = $value1["note"];
               $noteTime = $value1["timeFormatted"];
-            }
-            unset($sql);
-            unset($value1);
-          } else {
-            echo "<option value=''>--Select Notes to Edit--</option>";
-            $dbPSQL->select("SELECT note, note_readable FROM static_notes ORDER BY sort_order ASC");
-            foreach ($dbPSQL->get() as $key => $value1) {
-                echo "<option value='" . htmlspecialchars($value1["note"]) . "'>" . htmlspecialchars($value1["note_readable"]) . "</option>";
-            }
-          }
-        ?>
-      </select>
-    </form>
+              }
+              unset($sql);
+              unset($value1);
+              } else {
+              echo "<option value=''>--Select Notes to Edit--</option>";
+              $dbPSQL->select("SELECT note, note_readable FROM static_notes ORDER BY sort_order ASC");
+              foreach ($dbPSQL->get() as $key => $value1) {
+              echo "<option value='" . htmlspecialchars($value1["note"]) . "'>" . htmlspecialchars($value1["note_readable"]) . "</option>";
+              }
+              }
+              ?>
+            </select>
+          </form>
+        </div>
 
-        <div class='location-form' style='height: 100%;'>
+        <div>
           <form method="post">
-
-            <label for='note'>To-Do List (Last Updated: <?php echo htmlspecialchars($noteTime); ?>)</label>
-            <p id='charLen' name='charLen'>Charater count: 0</p>
-            <div class="tooltip">?
-              <span class="tooltiptext">
-              <?php echo htmlspecialchars("Press ** before and after a word to create a heading. Ex) **Bugs** "); ?> <br><br>
-              <?php echo htmlspecialchars("Press * to create a bulleted item."); ?> <br><br>
-              <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
-              <p>Enter <a href='/documentation/pages.php?page=supported-emojis' target='_blank'>supported emoticons</a>, key words preceeded by a colon, or emojis from your keyboard to get an emoji: </p> <br><br>
-              <?php echo htmlspecialchars(":check :x :cancel :waiting :pin :warning :alert"); ?> <br>
-              <?php echo htmlspecialchars(":like :dislike :star :info :heart :fire :shrug :clap :celebrate :hmm :mindblown "); ?> <br>
-              <?php echo htmlspecialchars(":clock :bug :arrow :poop"); ?><br>
-              --------
-              <br>
-              <?php echo htmlspecialchars(" :) :P :( :| ;( :< :O"); ?>
-              </span>
+            <div>
+              <label for='note'>To-Do List (Last Updated: <?php echo htmlspecialchars($noteTime); ?>)</label>
+              <p id='charLen' name='charLen'>Charater count: 0</p>
+              <div class="tooltip">?
+                <span class="tooltiptext">
+                  <?php echo htmlspecialchars("Press ** before and after a word to create a heading. Ex) **Bugs** "); ?> <br><br>
+                  <?php echo htmlspecialchars("Press * to create a bulleted item."); ?> <br><br>
+                  <?php echo htmlspecialchars("Keep pressing '>' to indent up to four times."); ?> <br><br>
+                  <p>Enter <a href='/documentation/pages.php?page=supported-emojis' target='_blank'>supported emoticons</a>, key words preceeded by a colon, or emojis from your keyboard to get an emoji: </p> <br><br>
+                  <?php echo htmlspecialchars(":check :x :cancel :waiting :pin :warning :alert"); ?> <br>
+                  <?php echo htmlspecialchars(":like :dislike :star :info :heart :fire :shrug :clap :celebrate :hmm :mindblown "); ?> <br>
+                  <?php echo htmlspecialchars(":clock :bug :arrow :poop"); ?><br>
+                  --------
+                  <br>
+                  <?php echo htmlspecialchars(" :) :P :( :| ;( :< :O"); ?>
+                </span>
+              </div>
             </div>
             <div name="unsaved-changes" id="unsaved-changes" style="color: #C8102E;"></div>
-            <div><textarea id='note' name='note' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed();replaceEmoji();" autocorrect="false" spellcheck="false" style='width: 100%; height: 30em; white-space: pre-wrap; overflow: auto;' contenteditable="true"><?php echo htmlspecialchars($note); ?></textarea></div>
-              <div style='overflow:hidden'>
-                  <div name='edit-button' id='edit-button'></div>
-                  <div name='cancel-button' id='cancel-button'></div>
-              </div>
+            <div><textarea id='note' name='note' onkeyup='replaceAsterisk();replaceEmoji();replaceHeaders();' onchange onpropertychange onkeyuponpaste oninput="input_changed();replaceEmoji();" autocorrect="false" spellcheck="false" contenteditable="true"><?php echo htmlspecialchars($note); ?></textarea></div>
+            <div name='edit-button' id='edit-button'></div>
+            <div name='cancel-button' id='cancel-button'></div>
+            </div>
           </form>
         </div>
       </div>
 
-      <div id="jobTimes" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
-    </div>
+    <div class='index-grid-box'>
+      <div id="jobTimes"></div>
 
-
-    <div class='column'>
-      <div id="runningJobs" style='height: 10%; width: 99%; padding: 2% 1% 5% 1%; margin: 2% 1% 5% 1%;'>
-        <?php
-        $dbPSQL->select("SELECT COUNT(tagnumber) AS count FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
-        if (arrFilter($dbPSQL->get()) === 0) {
-          foreach ($dbPSQL->get() as $key => $value) {
-            echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"]) . "</h3>";
-          }
-        } else {
-          echo "<h3><b>Queued Jobs: </b>None</h3>";
-        }
-        ?>
+      <div>
+        <div id="runningJobs">
+          <?php
+            $dbPSQL->select("SELECT (CASE WHEN COUNT(tagnumber) >= 1 THEN CAST(COUNT(tagnumber) AS VARCHAR(3)) ELSE 'None' END) AS count FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
+          ?>
+          <h3><b>Queued Jobs: </b><?php echo htmlspecialchars($dbPSQL->nested_get()["count"]); ?></h3>
         </div>
-      <div id="numberImaged" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
-      <div id="numberJoinedDomain" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
-      <div id="biosUpdated" style='height: auto; width: 99%; margin: 2% 1% 2% 1%;'></div>
+        <div id="numberImaged"></div>
+        <div id="numberJoinedDomain"></div>
+        <div id="biosUpdated"></div>
+      </div>
     </div>
   </div>
+
+  <div class="uit-footer">
+    <img src="/images/uh-footer.svg">
+  </div>
+
 
   <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
   
