@@ -83,15 +83,15 @@ document.querySelector('body').addEventListener('click', () => {
 
     if (allMatches.length > 0 && inputText.length > 0) {
       document.getElementById('dropdown-search').style.display = "inline-block";
-      dropdownHTML = "<ul>";
+      dropdownHTML = "<div>";
       allMatches.slice(0,6).forEach(element => {
         if (allMatches[0] == element) {
-          dropdownHTML += "<li class='dropdown-search' style='float: none;'><a class='dropdown-search' style='float: none; color: black; background-color:rgb(170, 170, 170);' href='/tagnumber.php?tagnumber=" + element + "'>" + element + "</a>" + "</li>";
+          dropdownHTML += "<div><a style='color: black;' href='/tagnumber.php?tagnumber=" + element + "'>" + element + "</a>" + "</div>";
         } else {
-          dropdownHTML += "<li class='dropdown-search' style='float: none;'><a class='dropdown-search' style='float: none; color: black;' href='/tagnumber.php?tagnumber=" + element + "'>" + element + "</a>" + "</li>";
+          dropdownHTML += "<div><a style='color: black;' href='/tagnumber.php?tagnumber=" + element + "'>" + element + "</a>" + "</div>";
         }
       });
-      dropdownHTML += "</ul>";
+      dropdownHTML += "</div>";
       document.getElementById('dropdown-search').innerHTML = dropdownHTML;
     } else {
       document.getElementById('dropdown-search').style.display = "none";

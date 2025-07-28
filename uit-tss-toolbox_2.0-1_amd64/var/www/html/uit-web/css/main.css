@@ -491,28 +491,70 @@ label {
 
 .navigation-bar {
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr 1fr 1fr 2fr 2fr 1fr;
+	position: sticky;
+	z-index: 10;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 2fr 1fr;
+	grid-template-rows: 10vh;
 	background-color: #C8102E;
 	border-bottom: 2px solid #888B8D;
-	gap: 0.5em 0.5em;
+	gap: 0.5vw 0.5vw;
 	min-height: 0;
 	min-width: 0;
 	align-content: center;
 	text-align: center;
 	font-size: 2vh;
+	height: 100%;
+	margin: 0;
 }
 
 .navigation-bar a {
+	display: grid;
   	vertical-align: middle;
 	align-content: center;
 	text-align: center;
 	white-space: nowrap;
-  	line-height: 3.5em;
+  	line-height: 3vh;
 	cursor: pointer;
   	padding: 0.5em 1em 0.5em 1em;
 	color: white;
     text-decoration: none;
+	width: 100%;
+	max-width: 100%;
 	height: 100%;
+	max-height: 100%;
+	margin: auto auto auto auto;
+}
+
+.navigation-bar button {
+	border: 1px solid grey; 
+	background-color: rgba(241, 241, 241, 1); 
+	width: max-content;
+	height: auto;
+	max-height: auto;
+}
+
+.navigation-bar div {
+	display: grid;
+	height: 100%;
+	width: 100%;
+	vertical-align: middle;
+}
+
+.navigation-bar form {
+	background-color: rgb(233, 233, 233);
+	width: 100%;
+	height: 100%;
+	margin: auto auto auto auto;
+}
+
+.navigation-bar input[type=text] {
+	width: max-content;
+	margin: auto auto auto auto;
+}
+
+.navigation-bar button {
+	width: max-content;
+	margin: auto auto auto auto;
 }
 
 .navigation-bar a:hover {
@@ -522,6 +564,31 @@ label {
 .active-navigation-bar {
 	background-color:rgba(233, 233, 233, 0.699);
 }
+
+
+.dropdown-search {
+	display: inline-block;
+	font-weight: bold;
+	color: black;
+	background-color:rgb(233, 233, 233);
+	position: relative;
+	z-index: 10;
+	width: 100%;
+	height: 10vh;
+}
+
+.dropdown-search div a {
+	width: 100%;
+	height: 100%;
+	float: none;
+	color: black;
+}
+
+.dropdown-search div {
+	padding: 0.5em 0 0.5em 0;
+}
+
+
 
 .scroll-to-top {
 	position: sticky;
@@ -554,27 +621,3 @@ label {
 	font-weight: bold;
 }
 
-.dropdown-search {
-	display: inline-block;
-	font-weight: bold;
-	color: black;
-	background-color:rgb(233, 233, 233);
-	position: relative;
-	margin-right: 5vw;
-	z-index: 10;
-	float: none;
-	width: 100%;
-}
-
-.dropdown-search div ul li a {
-	width: 100%;
-	height:100%;
-	float: none;
-	color: black;
-}
-
-.dropdown-search ul {
-	margin: 0;
-	padding: 0;
-	border: 2px solid black;
-}

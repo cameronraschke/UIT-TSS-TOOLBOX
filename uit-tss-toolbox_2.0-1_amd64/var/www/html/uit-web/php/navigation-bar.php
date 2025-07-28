@@ -1,41 +1,56 @@
-<div class='navigation-bar' style='position: sticky; top: 0; z-index: 20; min-height: 7.8vh; '>
+<div class='navigation-bar'>
 <?php 
   // Index
-  echo "<a href='/index.php'>Home</a>";
+  echo "<div><a href='/index.php'>Home</a></div>";
 
   // Job Queue
+  echo "<div>";
   if ($_SERVER['PHP_SELF'] == "/job-queue.php") {
     echo "<a href='/job-queue.php'>Job Queue</a>";
   } else {
     echo "<a href='/job-queue.php'>Job Queue</a>";
   }
+  echo "</div>";
 
   // Locations
+  echo "<div>";
   if ($_SERVER['PHP_SELF'] == "/locations.php") {
     echo "<a href='/locations.php'>Locations</a>";
   } else {
     echo "<a href='/locations.php'>Locations</a>";
   }
+  echo "</div>";
 
   // Checkouts
+  echo "<div>";
   if ($_SERVER['PHP_SELF'] == "/checkouts.php") {
     echo "<a href='/checkouts.php'>Checkouts</a>";
   } else {
     echo "<a href='/checkouts.php'>Checkouts</a>";
   }
+  echo "</div>";
 
   // Reports
+  echo "<div>";
   if ($_SERVER['PHP_SELF'] == "/serverstats.php") {
     echo "<a href='/serverstats.php'>Reports</a>";
   } else {
     echo "<a href='/serverstats.php'>Reports</a>";
   }
+  echo "</div>";
 
-  echo "<div></div>";
-  echo "<div class='location-form' style='max-height: fit-content;'><form method='GET' action='/tagnumber.php'><input type='text' id='tagnumber-search' name='tagnumber' style='width: 70%; height: 100%; margin: 0 0 0 0;' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button style='border: 1px solid grey; background-color: rgba(241, 241, 241, 1); width: 15%;'><img class='icon' src='/images/search.svg'></button></form></div><div id='dropdown-search' style='position: absolute; width:10vw;' class='dropdown-search'></div>";
-  echo "<a id='logout' style='margin-left: 2vw; margin-right: 2vw;' href='#'>Logout</a>";
+  //echo "<div><form method='GET' action='/tagnumber.php'><input type='text' id='tagnumber-search' name='tagnumber' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button><img class='icon' src='/images/search.svg'></button></form><div id='dropdown-search' class='dropdown-search'></div></div>";
+  //echo "<div><a id='logout' style='margin-left: 2vw; margin-right: 2vw;' href='#'>Logout</a></div>";
+
 ?>
+  
+  <div></div>
+  <div><form method='GET' action='/tagnumber.php'><input type='text' id='tagnumber-search' name='tagnumber' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button><img class='icon' src='/images/search.svg'></button></form><div id='dropdown-search' class='dropdown-search'></div></div>
+  <div style='margin-left: 2vw; margin-right: 2vw;'><a id='logout' href='#'>Logout</a></div>
+
 </div>
+
+
 
 <div class='menubar'>
   <?php
