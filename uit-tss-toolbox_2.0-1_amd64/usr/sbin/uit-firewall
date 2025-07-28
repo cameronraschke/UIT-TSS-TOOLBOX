@@ -1,8 +1,8 @@
 #!/bin/bash
 wanif='WAN_IF'
-wan='WAN_IP'
+wan='WAN_ALLOWED_IP'
 lanif='LAN_IF'
-lan='LAN_IP'
+lan='LAN_ALLOWED_IP'
 printer='PRINTER_IP'
 
 # Disable IP forwarding and IPv6

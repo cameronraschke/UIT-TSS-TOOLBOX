@@ -3,7 +3,7 @@ require('/var/www/html/uit-web/php/include.php');
 
 $dbPSQL = new dbPSQL();
 
-if ($_GET["password"] !== "CLIENT_PASSWD") {
+if ($_GET["password"] !== "DB_CLIENT_PASSWD") {
   exit();
 }
 
