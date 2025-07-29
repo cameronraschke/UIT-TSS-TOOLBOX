@@ -419,6 +419,7 @@ label {
 .tooltip .tooltiptext {
 	visibility: hidden;
 	width: 20em;
+	max-width: 20em;
 	background-color: black;
 	color: #fff;
 	text-align: center;
