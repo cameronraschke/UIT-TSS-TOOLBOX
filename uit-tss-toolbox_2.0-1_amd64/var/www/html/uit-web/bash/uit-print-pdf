@@ -8,8 +8,7 @@ password="$1"
 tagnumber="$2"
 customer_name="$3"
 checkout_date="$4"
-customer_psid="$5"
-return_date="$6"
+return_date="$5"
 
 wkhtmltopdf --quiet \
     --page-size Letter \
