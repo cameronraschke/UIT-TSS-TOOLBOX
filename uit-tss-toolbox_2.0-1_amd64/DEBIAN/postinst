@@ -165,8 +165,6 @@ fi
 
 rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/uit-web/images/
 
-rsync -Pav --delete /home/cameron/google-charts /var/www/html/uit-web/
-
 if [[ -d /srv/uit-toolbox/client/certs ]]; then
     rm /srv/uit-toolbox/client/certs/*
   else
