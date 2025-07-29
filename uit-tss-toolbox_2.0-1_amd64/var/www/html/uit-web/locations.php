@@ -132,7 +132,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
 
   //Printing
   if ($_POST["print"] == "1") {
-    $tagNum = ($_POST["tagnumber"]);
+    $tagNum = $_POST["tagnumber"];
     $customerName = escapeshellarg(htmlspecialchars($_POST["customer_name"]));
     $checkoutDate = escapeshellarg(htmlspecialchars($_POST["checkout_date"]));
     $returnDate = escapeshellarg(htmlspecialchars($_POST["return_date"]));
@@ -149,7 +149,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     }
     unset($value1);
 
-    System("bash /var/www/html/uit-web/bash/uit-print-pdf" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $tagNum . " " . $customerName . " " . $checkoutDate . " " . $returnDate;
+    System("bash /var/www/html/uit-web/bash/uit-print-pdf" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $tagNum . " " . $customerName . " " . $checkoutDate . " " . $returnDate);
   }
 
   unset($_POST);
