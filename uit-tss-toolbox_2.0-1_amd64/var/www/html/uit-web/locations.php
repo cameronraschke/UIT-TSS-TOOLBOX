@@ -904,7 +904,7 @@ if (arrFilter($dbPSQL->get()) === 0) {
             <?php
               if ($_GET["checkout"] == "0" || $_GET["checkout"] == "1") { echo "<div><h3>Click <a href='/checkouts.php' target='_blank'>here</a> for a checkout overview.</h3></div>"; }
             ?>
-            <?php echo "<div>Results: <b>" . $rowCount . "</b></div>" . PHP_EOL; ?>
+            <?php echo "<div><p>Results: <b>" . $rowCount . "</b></p></div>" . PHP_EOL; ?>
         </div>
       </form>
     </div>
@@ -932,7 +932,7 @@ if (count($_GET) > 1) {
         echo "<button onclick=\"window.location.href = '" . addUrlVar($_SERVER["REQUEST_URI"], "refresh", "1") . "';\">Refresh Clients</button>"; 
       ?>
     </div>
-    <div class='styled-table'>
+    <div>
       <table id="myTable">
         <thead>
           <tr>

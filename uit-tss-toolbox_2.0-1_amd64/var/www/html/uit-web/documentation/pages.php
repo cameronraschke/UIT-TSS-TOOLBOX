@@ -51,7 +51,7 @@ $db = new db();
           echo"
           <div class='row'>
             <div class='column'>
-              <div class='styled-table' style='margin: 4% 1% 1% 7%;'>
+              <div style='margin: 4% 1% 1% 7%;'>
                 <table>
                   <thead>
                     <tr>

@@ -38,12 +38,12 @@ $rowCount = count($dbPSQL->get());
         <div class='pagetitle'><h1>Checkout History</h1></div>
         <div class='pagetitle'><h2>These clients are currently checked out.</h2></div>
 
-        <div class='pagetitle'>Clients checked out: <?php echo $rowCount; ?></div>
+        <div class='pagetitle'><p>Clients checked out: <?php echo htmlspecialchars($rowCount); ?></p></div>
         <div class='styled-form2'>
             <input type="text" id="myInput" onkeyup="myFunction()" autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder="Search tag number...">
             <input type="text" id="myInputName" onkeyup="myFunctionName()" autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder="Search customer name...">
         </div>
-        <div class='styled-table'>
+        <div>
             <table id='myTable' style='min-width: 50%;'>
                 <thead>
                 <tr>

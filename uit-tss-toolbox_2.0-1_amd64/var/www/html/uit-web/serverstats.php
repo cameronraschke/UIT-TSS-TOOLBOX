@@ -21,7 +21,7 @@ $db = new db();
     <body>
       <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
-        <div class='styled-table'>
+        <div>
             <table>
                 <thead>
                 <tr>

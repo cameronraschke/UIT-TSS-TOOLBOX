@@ -118,6 +118,6 @@
 
 <?php 
 if ($_SERVER['PHP_SELF'] != "/index.php") {
-  echo "<div class='scroll-to-top'><button onclick='scrollToTop();'><img class='scroll-icon' src='/images/scroll-to-top.svg'></button></div>";
+  echo "<div class='scroll-to-top'><button onclick='scrollToTop();'><img src='/images/scroll-to-top.svg'></button></div>";
 }
 ?>

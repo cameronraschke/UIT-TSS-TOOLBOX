@@ -86,7 +86,7 @@ unset($_POST);
               ?>
             </select>
 
-            <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Queue Job</button>
+            <button style='' type="submit">Queue Job</button>
           </form>
 
         </div>
@@ -98,7 +98,7 @@ unset($_POST);
 
 
     <div class='row'>
-      <div id="runningJobs" style='max-height: 20%; width: auto; margin: 1% 1% 1% 1%;'>
+      <div id="runningJobs">
         <?php
         $dbPSQL->select("SELECT COUNT(tagnumber) AS count FROM remote WHERE job_queued IS NOT NULL AND status IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
         if (arrFilter($dbPSQL->get()) === 0) {
@@ -117,7 +117,7 @@ unset($_POST);
         ?>
       <h3>Online Clients <?php echo htmlspecialchars($value1["tagnumber_count"]); ?></h3>
     </div>
-      <div class='styled-table' style="width: auto; overflow:auto; margin: 1% 1% 0% 1%;">
+      <div>
 
       <table width="100%">
         <thead id="onlineTableHeader">
@@ -228,7 +228,7 @@ unset($_POST);
     <div class='pagetitle'>
       <h3>Offline Clients</h3>
     </div>
-    <div class='styled-table' style="width: auto; max-height: 70%; overflow:auto; margin: 1% 1% 0% 1%;">
+    <div>
       <table id="myTable1" width="100%">
       <thead>
       <tr>
@@ -280,7 +280,7 @@ unset($_POST);
 
       <td><?php echo htmlspecialchars($value["status"]); ?></td>
 
-      <td><?php echo htmlspecialchars($value["os_installed_formatted"]); if ($value["os_installed"] === true && $value["domain_joined"] === true) { echo "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>"; }?>
+      <td><?php echo htmlspecialchars($value["os_installed_formatted"]); if ($value["os_installed"] === true && $value["domain_joined"] === true) { echo "<img class='icon' src='/images/azure-ad-logo.png'>"; }?>
 
       <?php
       if (strFilter($value["battery_charge"]) === 0) {

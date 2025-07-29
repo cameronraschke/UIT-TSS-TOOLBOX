@@ -357,13 +357,13 @@ foreach ($dbPSQL->get() as $key => $value) {
                     }
                     ?>
                   </select>
-                  <button style='background-color:rgba(0, 179, 136, 0.30);' type="submit">Queue Job</button></div>
+                  <button type="submit">Queue Job</button></div>
                 </form>
               </div>
             </div>
             <div class='column' style='width: 50%; height: 100%;'>
               <div><p id='live_image_time'></p></div>
-              <div><img id='live_image' style='position: relative; cursor: pointer; max-width: 100%; max-height: 100%;' onclick="window.open('/view-images.php?live_image=1&tagnumber=<?php echo htmlspecialchars($_GET['tagnumber']); ?>', '_blank')" src='' loading='lazy'/></div>
+              <div><img id='live_image' class='live-image' onclick="window.open('/view-images.php?live_image=1&tagnumber=<?php echo htmlspecialchars($_GET['tagnumber']); ?>', '_blank')" src='' loading='lazy'/></div>
             </div>
           </div>
         </div>
@@ -375,19 +375,19 @@ foreach ($dbPSQL->get() as $key => $value) {
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
             <div><input name="userfile[]" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" multiple /></div>
             <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' placeholder="Add Image Description..."></div>
-            <div><button style="background-color:rgba(0, 179, 136, 0.30);" type="submit">Upload Image(s)</button></div>
+            <div><button type="submit">Upload Image(s)</button></div>
           </form>
             <?php 
             if ($imageUploadError[0] === 1) {
-              echo "<div><p style='color: red;'><b>Error: File already uploaded - \"" . htmlspecialchars($imageUploadError[1]) . "\"</b></p></div>";
+              echo "<div><p class='error'>Error: File already uploaded - \"" . htmlspecialchars($imageUploadError[1]) . "\"</p></div>";
             } elseif ($imageUploadError[0] == 2) {
-              echo "<div><p style='color: red;'><b>Error: Incorrect file format - \"" . htmlspecialchars($imageUploadError[1]) . "\"</b></p></div>";
+              echo "<div><p class='error'>Error: Incorrect file format - \"" . htmlspecialchars($imageUploadError[1]) . "\"</p></div>";
             }
             ?>
         </div>
 
         <div class='pagetitle'><h3></u></h3></div>
-        <div name='updateDiv1' id='updateDiv1' class='styled-table' style='width: auto; height: auto; overflow:auto; margin: 1% 1% 3% 2%;'>
+        <div name='updateDiv1' id='updateDiv1' style='width: auto; height: auto; overflow:auto; margin: 1% 1% 3% 2%;'>
           <table width='100%;'>
             <thead>
               <tr>
@@ -397,16 +397,16 @@ foreach ($dbPSQL->get() as $key => $value) {
             </thead>
             <tbody>
                 <tr>
-                  <td>Current Location</td>
+                  <td><p>Current Location</p></td>
                   <td>
                     <?php
-                    if ($value["locations_status"] === 1) {
-                      echo "<p><b style='color: #C8102E'>[REPORTED BROKEN]</b> on " . htmlspecialchars($value["location_time_formatted"]) . "</b></p>";
+                    if ($value["locations_status"] === true) {
+                      echo "<span style='white-space:nowrap;'><p class='error'>[REPORTED BROKEN]</p><p><b> on " . htmlspecialchars($value["location_time_formatted"]) . "</b></p></span>";
                     }
                     ?>
                     <?php
                     // CHANGE TYPE LATER //
-                    if ($value["checkout_bool"] === 1) {
+                    if ($value["checkout_bool"] === true) {
                       echo "<p><b>[CHECKOUT]</b> - Checked out to <b>" . htmlspecialchars($value["customer_name"]) . "</b> on <b>" . htmlspecialchars($value["checkout_date"]) . "</b></p>";
                     }
                     ?>
@@ -419,56 +419,56 @@ foreach ($dbPSQL->get() as $key => $value) {
                   </td>
                 </tr>
                 <tr>
-                  <td>Department</td>
+                  <td><p>Department</p></td>
                   <td>
                     <p>"<?php echo trim(htmlspecialchars($value["department_readable"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "<?php echo trim(htmlspecialchars($value["department"])); ?>");'><img class='icon' src='/images/new-tab.svg'></img><i>(Click to Update Department)</i></a></p>
                   </td>
                 </tr>
                 <tr>
-                  <td>AD Domain</td>
+                  <td><p>AD Domain</p></td>
                   <td>
                     <p>"<?php echo trim(htmlspecialchars($value["domain_readable"])); ?>"</p><p><a style='cursor: pointer;' onclick='newLocationWindow("<?php echo trim(htmlspecialchars($value["location"])); ?>", "<?php echo trim(htmlspecialchars($value["tagnumber"])); ?>", "", "<?php echo trim(htmlspecialchars($value["domain"])); ?>");'><img class='icon' src='/images/new-tab.svg'></img><i>(Click to Update Domain)</i></a></p>
                   </td>
                 </tr>
                 <tr>
-                  <td>System Serial</td>
-                  <td><?php echo htmlspecialchars($value['system_serial'])?></td>
+                  <td><p>System Serial</p></td>
+                  <td><p><?php echo htmlspecialchars($value['system_serial'])?></p></td>
                 </tr>
                 <tr>
-                  <td>MAC Address</td>
+                  <td><p>MAC Address</p></td>
                   <td>
                     <?php
                     // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
-                        echo "<table><tr><td>" . htmlspecialchars($value["wifi_mac_formatted"]) . " (Wi-Fi)</td></tr><tr><td>" . htmlspecialchars($value["etheraddress_formatted"]) . " (Ethernet)</td></tr></table>";
+                        echo "<table><tr><td><p>" . htmlspecialchars($value["wifi_mac_formatted"]) . " (Wi-Fi)</p></td></tr><tr><td><p>" . htmlspecialchars($value["etheraddress_formatted"]) . " (Ethernet)</p></td></tr></table>";
                     ?>
                   </td>
                 </tr>
                 <tr>
-                  <td>System Model</td>
-                  <td><?php echo htmlspecialchars($value["system_model_formatted"]); ?></td>
+                  <td><p>System Model</p></td>
+                  <td><p><?php echo htmlspecialchars($value["system_model_formatted"]); ?></p></td>
                 </tr>
                 <tr>
-                  <td>TPM Version</td>
-                  <td><?php echo htmlspecialchars($value["tpm_version"]); ?></td>
+                  <td><p>TPM Version</p></td>
+                  <td><p><?php echo htmlspecialchars($value["tpm_version"]); ?></p></td>
                 </tr>
                 <tr>
-                  <td>OS Version</td>
-                  <td><?php echo htmlspecialchars($value["os_installed_formatted"]); ?></td>
+                  <td><p>OS Version<p></td>
+                  <td><p><?php echo htmlspecialchars($value["os_installed_formatted"]); ?></p></td>
                 </tr>
                 <tr>
-                  <td>Bitlocker Identifier</td>
-                  <td><?php echo htmlspecialchars($value["identifier"]); ?></td>
+                  <td><p>Bitlocker Identifier</p></td>
+                  <td><p><?php echo htmlspecialchars($value["identifier"]); ?></p></td>
                 </tr>
                 <tr>
-                  <td>Bitlocker Recovery Key</td>
-                  <td><?php echo htmlspecialchars($value["recovery_key"]); ?></td>
+                  <td><p>Bitlocker Recovery Key</p></td>
+                  <td><p><?php echo htmlspecialchars($value["recovery_key"]); ?></p></td>
                 <tr>
-                  <td>BIOS Version</td>
-                  <td><?php echo htmlspecialchars($value["bios_updated_formatted"]); ?></td>
+                  <td><p>BIOS Version</p></td>
+                  <td><p><?php echo htmlspecialchars($value["bios_updated_formatted"]); ?></p></td>
                 </tr>
                 <tr>
-                  <td>Network Link Speed</td>
-                  <td><?php echo htmlspecialchars($value['network_speed_formatted']); ?></td>
+                  <td><p>Network Link Speed</p></td>
+                  <td><p><?php echo htmlspecialchars($value['network_speed_formatted']); ?></p></td>
                 </tr>
             </tbody>
           </table>
@@ -497,7 +497,7 @@ foreach ($dbPSQL->get() as $key => $value) {
               echo "<input type='hidden' name='delete-image-time' value='" . htmlspecialchars($image["time"]) . "'>";
               echo "<input type='hidden' name='delete-image-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
               echo "<div style='position: relative; top: 0; left: 0;'>";
-              echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='delete'><img class='icon' src='/images/trash.svg'>[<b style='color: #C8102E;'>delete</b>]</button></form></div></div>";
+              echo "<button type='submit' class='transparent-button' onclick='this.form.submit()' value='delete'><img class='icon' src='/images/trash.svg'>[<b style='color: #C8102E;'>delete</b>]</button></form></div></div>";
 
               
               //Rotate image form
@@ -510,7 +510,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                 echo "<input type='hidden' name='rotate-image-time' value='" . htmlspecialchars($image["time"]) . "'>";
                 echo "<input type='hidden' name='rotate-image-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
                 echo "<div style='position: relative; top: 0; right: 0;'>";
-                echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()' value='rotate'><img class='icon' src='/images/rotate.svg'>[<b style='color: #C8102E;'>rotate</b>]</button></form></div></div>";
+                echo "<button type='submit' class='transparent-button' onclick='this.form.submit()' value='rotate'><img class='icon' src='/images/rotate.svg'>[<b style='color: #C8102E;'>rotate</b>]</button></form></div></div>";
               }
               if (preg_match('/^video\/.*/', $image["mime_type"]) === 1) {
                 echo "<div style='margin: 0 0 1em 0; padding: 0; width: fit-content; float: right;'>";
@@ -524,7 +524,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                 echo "<input type='hidden' name='image-primary-uuid' value='" . htmlspecialchars($image["uuid"]) . "'>";
                 echo "<input type='hidden' name='image-primary-tagnumber' value='" . htmlspecialchars($image["tagnumber"]) . "'>";
                 echo "<input type='hidden' name='image-primary' value='1'>";
-                echo "<button type=submit style='font-size: 1em; background-color: transparent; text-decoration: underline; border: none; margin: 0; padding: 0; cursor: pointer;' onclick='this.form.submit()'><img class='icon' src='/images/pin.svg'></img>[<b style='color: #C8102E;'>pin</b>]</button>";
+                echo "<button type='submit' class='transparent-button' onclick='this.form.submit()'><img class='icon' src='/images/pin.svg'></img>[<b style='color: #C8102E;'>pin</b>]</button>";
                 echo "</form></div>";
               } else {
                 echo "<div><p>[<u><b>pinned</b></u>]</p></div>";
@@ -619,7 +619,7 @@ foreach ($dbPSQL->get() as $key => $value) {
 
       <div class='row' style='margin: 1% 0% 0% 1%;'>
         <div class='column'>
-          <div class='styled-table' style='height: auto; overflow:auto;'>
+          <div style='height: auto; overflow:auto;'>
             <table width='100%'>
               <thead>
                 <tr>
@@ -649,7 +649,7 @@ foreach ($dbPSQL->get() as $key => $value) {
             </table>
           </div>
 
-          <div class='styled-table' style='height: auto; overflow:auto;'>
+          <div style='height: auto; overflow:auto;'>
             <table width='100%'>
               <thead>
                 <tr>
@@ -677,7 +677,7 @@ foreach ($dbPSQL->get() as $key => $value) {
         </div>
 
         <div class='column'>
-          <div class='styled-table' style='width: auto; overflow:auto; margin: 1% 1% 5% 2%;'>
+          <div style='width: auto; overflow:auto; margin: 1% 1% 5% 2%;'>
             <table width='100%'>
               <thead>
                 <tr>
@@ -737,7 +737,7 @@ foreach ($dbPSQL->get() as $key => $value) {
 
 
 <div class='pagetitle'><h3>Checkout Log <i><a href='<?php if ($_GET["full-checkout-log"] == "1") { echo removeUrlVar($_SERVER["REQUEST_URI"], "full-checkout-log"); } else { echo addUrlVar($_SERVER["REQUEST_URI"], "full-checkout-log", "1"); } ?>'> <?php if ($_GET["full-checkout-log"] == "1") { echo "(Collapse Log View)"; } else { echo "(Expand Log View)"; } ?></a></i> - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-<div name='checkoutLog' id='checkoutLog' class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
+<div name='checkoutLog' id='checkoutLog' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
 <table width="100%">
 <thead>
 <tr>
@@ -778,7 +778,7 @@ unset($value1);
 </div>
 
 <div class='pagetitle'><h3>Job Log <i><a href='<?php if ($_GET["full-job-log"] == "1") { echo removeUrlVar($_SERVER["REQUEST_URI"], "full-job-log"); } else { echo addUrlVar($_SERVER["REQUEST_URI"], "full-job-log", "1"); } ?>'> <?php if ($_GET["full-job-log"] == "1") { echo "(Collapse Log View)"; } else { echo "(Expand Log View)"; } ?></a></i> - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-<div class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
+<div style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
 <table width="100%">
 <thead>
 <tr>
@@ -825,7 +825,7 @@ unset($value1);
 </div>
 
 <div class='pagetitle'><h3>Location Log <i><a href='<?php if ($_GET["full-loc-log"] == "1") { echo removeUrlVar($_SERVER["REQUEST_URI"], "full-loc-log"); } else { echo addUrlVar($_SERVER["REQUEST_URI"], "full-loc-log", "1"); } ?>'> <?php if ($_GET["full-loc-log"] == "1") { echo "(Collapse Log View)"; } else { echo "(Expand Log View)"; } ?></a></i> - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></u></h3></div>
-<div class='styled-table' style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
+<div style="width: auto; max-height: 40%; overflow:auto; margin: 1% 1% 5% 1%;">
 <table width="100%">
 <thead>
 <tr>

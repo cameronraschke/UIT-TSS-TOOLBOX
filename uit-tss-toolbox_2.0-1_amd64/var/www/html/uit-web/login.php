@@ -55,7 +55,7 @@ unset($_POST);
             <div><input type="password" name="password" id="password" autocomplete="current-password" required></div>
           </div>
           <?php if (isset($err)) { echo "<div><h3>Invalid credentials, try again. </h3></div>"; } ?>
-          <input type="submit" value="Login"></input>
+          <div style='display: flex;'><input type="submit" value="Login"></input></div>
         </form>
       </div>
     </div>
