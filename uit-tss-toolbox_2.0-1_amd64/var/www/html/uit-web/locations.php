@@ -133,10 +133,9 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
   //Printing
   if ($_POST["print"] == "1") {
     $tagNum = ($_POST["tagnumber"]);
-    $customerName = ($_POST["customer_name"]);
-    $checkoutDate = ($_POST["checkout_date"]);
-    //$customerPSID = escapeshellcmd($_POST["customer_psid"]);
-    $returnDate = ($_POST["return_date"]);
+    $customerName = escapeshellarg(htmlspecialchars($_POST["customer_name"]));
+    $checkoutDate = escapeshellarg(htmlspecialchars($_POST["checkout_date"]));
+    $returnDate = escapeshellarg(htmlspecialchars($_POST["return_date"]));
 
     $dbPSQL->Pselect("SELECT TO_CHAR(:checkoutDate, 'MM/DD/YY') AS checkout_date", array(':checkoutDate' => $checkoutDate));
     foreach ($dbPSQL->get() as $key => $value1) {
@@ -150,7 +149,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     }
     unset($value1);
 
-    System("bash /var/www/html/uit-web/bash/uit-print-pdf" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . escapeshellarg($tagNum) . " " . escapeshellarg($customerName) . " " . escapeshellarg($checkoutDate) . " " . escapeshellarg($customerPSID) . " " . escapeshellarg($returnDate));
+    System("bash /var/www/html/uit-web/bash/uit-print-pdf" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $tagNum . " " . $customerName . " " . $checkoutDate . " " . $returnDate;
   }
 
   unset($_POST);

@@ -33,7 +33,6 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
 
   $customerName = htmlspecialchars_decode($_GET["customer_name"]);
   $checkoutDate = htmlspecialchars_decode($_GET["checkout_date"]);
-  $customerPSID = htmlspecialchars_decode($_GET["customer_psid"]);
   $returnDate = htmlspecialchars_decode($_GET["return_date"]);
 ?>
 
