@@ -4,6 +4,7 @@
 	box-sizing: border-box;
     font-family: sans-serif;
 	max-width: 100%;
+	font-size: 1.1rem;
 }
 
 table {
@@ -52,22 +53,32 @@ td {
 
 button {
 	cursor: pointer;
-	font-size: 1.5rem;
-	padding: 0.5em;
-	margin: 0.5em;
+	padding: 0.5rem;
+	margin: 0.5rem;
 	width: max-content;
 }
 
-button [type=submit] {
-	background-color:rgba(0, 179, 136, 0.30);
-}
 
 input {
-	font-size: 1.5rem;
-	padding: 0.5em;
-	margin: 0.5em;
+	padding: 0.5rem;
+	margin: 0.5rem;
 	width: max-content;
 }
+
+input[type=file] {
+	cursor: pointer;
+	padding: 0.5rem;
+	margin: 0;
+	width: max-content;
+}
+
+input[type=file]::file-selector-button {
+	cursor: pointer;
+	padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+	margin-right: 0.5rem;
+	width: max-content;
+}
+
 
 span {
 	font-size: 1rem;
@@ -77,9 +88,6 @@ a {
 	color: #C8102E;
 }
 
-p {
-	font-size: 1.5rem;
-}
 
 div {
 	max-width: 100%;
@@ -87,13 +95,11 @@ div {
 }
 
 select {
-	font-size: 1.5rem;
 	padding: 0.5rem;
 	margin: 0.5rem;
 }
 
 textarea {
-	font-size: 1.5rem;
 	padding: 0.5rem;
 	margin: 0.5rem;
 	height: fit-content;
@@ -104,7 +110,6 @@ textarea {
 
 label {
 	margin: 1rem 0rem 0.5rem 0rem;
-	font-size: 1.5rem;
 }
 
 
@@ -329,11 +334,7 @@ rect {
 	padding: 0.5em 0.5em 0.5em 0.5em;
 	width: auto;
 }
-.location-form input[type=file]::file-selector-button {
-	padding: 0.5em 0.5em 0.5em 0.5em;
-	width: auto;
-	cursor: pointer;
-}
+
 .location-form select {
 	text-align: center;
 	width: auto;
@@ -351,10 +352,6 @@ rect {
 	padding: 0.5em 0.5em 0.5em 0.5em;
 }
 .location-form input[type=date] {
-	padding: 0.5em 0.5em 0.5em 0.5em;
-}
-.location-form button {
-	width: auto;
 	padding: 0.5em 0.5em 0.5em 0.5em;
 }
 
@@ -410,15 +407,6 @@ rect {
 	content: "";
 	display: table;
 	clear: both;
-}
-
-@media screen and (max-width: 60em) {
-	.column {
-	  width: 100%;
-  }
-  .dense-column {
-	  width: 100%;
-  }
 }
 
 
@@ -512,7 +500,6 @@ rect {
 .navigation-bar a {
 	display: grid;
 	font-weight: bold;
-	font-size: 1.3rem;
   	vertical-align: middle;
 	align-content: center;
 	text-align: center;
@@ -575,7 +562,6 @@ rect {
 
 .dropdown-search {
 	display: inline-block;
-	font-size: 1.3rem;
 	font-weight: bold;
 	color: black;
 	background-color:rgb(233, 233, 233);
@@ -651,4 +637,27 @@ rect {
 	font-size: 1.3rem;
 	font-weight: bold;
 	color: red;
+}
+
+.submit {
+	background-color:rgba(0, 179, 136, 0.30);
+	border: 0.1rem solid black;
+	border-radius: 5rem;
+}
+
+@media only screen and (max-width: 1100px)  {
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+    	font-family: sans-serif;
+		max-width: 100%;
+		font-size: 1rem;
+	}
+	.column {
+		width: 100%;
+	}
+  	.dense-column {
+		width: 100%;
+	}
 }

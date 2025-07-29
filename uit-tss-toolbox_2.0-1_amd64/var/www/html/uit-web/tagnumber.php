@@ -357,7 +357,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                     }
                     ?>
                   </select>
-                  <button type="submit">Queue Job</button></div>
+                  <button class='submit' type="submit">Queue Job</button></div>
                 </form>
               </div>
             </div>
@@ -375,7 +375,7 @@ foreach ($dbPSQL->get() as $key => $value) {
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
             <div><input name="userfile[]" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" multiple /></div>
             <div><input name="image-note" type="text" autocapitalize='sentences' autocomplete='off' placeholder="Add Image Description..."></div>
-            <div><button type="submit">Upload Image(s)</button></div>
+            <div><button class='submit' type="submit">Upload Image(s)</button></div>
           </form>
             <?php 
             if ($imageUploadError[0] === 1) {
@@ -482,7 +482,7 @@ foreach ($dbPSQL->get() as $key => $value) {
         $totalImages = $dbPSQL->nested_get()["count"];
         $dbPSQL->Pselect("SELECT uuid, time, tagnumber, filename, filesize, resolution, mime_type, (CASE WHEN mime_type LIKE 'video%' THEN image ELSE thumbnail END) AS thumbnail, note, primary_image, TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber ORDER BY primary_image DESC, time DESC LIMIT 6", array(':tagnumber' => $_GET["tagnumber"]));
         if (strFilter($dbPSQL->get()) === 0) {
-          echo "<div class='page-content'><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All " . htmlspecialchars($totalImages)  . " Images</b>]</a></div>";
+          echo "<div class='page-content'><p><a style='color: black;' href='/view-images.php?view-all=1&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "' target='_blank'>[<b style='color: #C8102E;'>View All " . htmlspecialchars($totalImages)  . " Images</b>]</a></p></div>";
           echo "<div class='grid-container'>";
           foreach ($dbPSQL->get() as $key => $image) {
               $dbPSQL->Pselect("SELECT ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM client_images WHERE tagnumber = :tagnumber AND hidden = FALSE", array(':tagnumber' => $_GET["tagnumber"]));
