@@ -832,6 +832,7 @@ unset($value1);
 <th>Timestamp</th>
 <th>Location</th>
 <th>Department</th>
+<th>AD Domain</th>
 <th>Functional</th>
 <th>Disk Removed</th>
 <th>Note</th>
@@ -841,11 +842,12 @@ unset($value1);
 <tbody>
 <?php
 $locLogSQL = "SELECT t1.time, TO_CHAR(t1.time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, locationFormatting(t1.location) AS location_formatted, 
-  static_departments.department_readable, (CASE WHEN t1.status = TRUE THEN 'No' ELSE 'Yes' END) AS status_formatted, (CASE WHEN t1.disk_removed = TRUE THEN 'Yes' ELSE 'No' END) AS disk_removed_formatted,
+  static_departments.department_readable, static_domains.domain_readable, (CASE WHEN t1.status = TRUE THEN 'No' ELSE 'Yes' END) AS status_formatted, (CASE WHEN t1.disk_removed = TRUE THEN 'Yes' ELSE 'No' END) AS disk_removed_formatted,
   t1.note
-  FROM (SELECT locations.time, locations.location, locations.department, locations.status, locations.disk_removed, locations.note, 
+  FROM (SELECT locations.time, locations.location, locations.department, locations.domain, locations.status, locations.disk_removed, locations.note, 
     ROW_NUMBER() OVER (PARTITION BY location ORDER BY time DESC) AS row_nums FROM locations WHERE locations.tagnumber = :tagnumber ORDER BY locations.time DESC) t1 
-  LEFT JOIN static_departments ON t1.department = static_departments.department ";
+  LEFT JOIN static_departments ON t1.department = static_departments.department
+  LEFT JOIN static_domains ON t1.domain = static_domains.domain ";
 if (!isset($_GET["full-loc-log"]) || $_GET["full-loc-log"] != "1") {
   $locLogSQL .= "WHERE t1.row_nums <= 3 AND (NOW()::date - t1.time::date) <= 365 ";
 }
@@ -860,6 +862,7 @@ echo "<tr>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['time_formatted']) . "</td>" . PHP_EOL;
 echo "<td><b><a href='locations.php?location=" . htmlspecialchars($value1["location_formatted"]) . "'>" . htmlspecialchars($value1["location_formatted"]) . "</a></b></td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['department_readable']) . "</td>" . PHP_EOL;
+echo "<td>" . htmlspecialchars($value1['domain_readable']) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['status_formatted']) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['disk_removed_formatted']) . "</td>" . PHP_EOL;
 echo "<td>" . htmlspecialchars($value1['note']) . "</td>" . PHP_EOL;
