@@ -29,7 +29,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
   <div class='index-grid-container'>
 
-    <div class='index-grid-box' style='grid-template-columns: 1fr; grid-template-rows: 0.1fr 0.1fr 1fr;'>
+    <div class='index-grid-box'>
       <div><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
       <div><h2 id='server_time'></h2></div>
       <div>
@@ -102,7 +102,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
         </div>
       </div>
 
-    <div class='index-grid-box' style='grid-template-columns: 1fr; grid-template-rows: 0.1fr 1fr 1fr 1fr 1fr;'>
+    <div class='index-grid-box'>
       <div id="runningJobs">
         <?php
           $dbPSQL->select("SELECT (CASE WHEN COUNT(tagnumber) >= 1 THEN CAST(COUNT(tagnumber) AS VARCHAR(3)) ELSE 'None' END) AS count FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
