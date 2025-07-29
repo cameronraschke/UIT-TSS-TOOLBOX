@@ -1,7 +1,7 @@
 <?php
 include("/var/www/html/uit-web/php/include.php");
 
-if ($_GET["password"] !== "WEB_SVC_PASSWD") {
+if ($_POST["password"] !== "WEB_SVC_PASSWD") {
   exit();
 }
 
@@ -20,7 +20,7 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
   AND t1.row_count = 1
   AND locations.time IN (SELECT MAX(time) FROM locations GROUP BY tagnumber)
   AND locations.tagnumber = :tagnumber
-  ORDER BY locations.time DESC", array(':tagnumber' => $_GET["tagnumber"]));
+  ORDER BY locations.time DESC", array(':tagnumber' => $_POST["tagnumber"]));
 
   if(arrFilter($dbPSQL->get()) === 0) {
     foreach ($dbPSQL->get() as $key => $value) {
@@ -31,9 +31,9 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
     }
   }
 
-  $customerName = htmlspecialchars_decode($_GET["customer_name"]);
-  $checkoutDate = htmlspecialchars_decode($_GET["checkout_date"]);
-  $returnDate = htmlspecialchars_decode($_GET["return_date"]);
+  $customerName = htmlspecialchars_decode($_POST["customer_name"]);
+  $checkoutDate = htmlspecialchars_decode($_POST["checkout_date"]);
+  $returnDate = htmlspecialchars_decode($_POST["return_date"]);
 ?>
 
 <html>

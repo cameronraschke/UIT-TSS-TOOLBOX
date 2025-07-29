@@ -10,6 +10,13 @@ customer_name=$3
 checkout_date=$4
 return_date=$5
 
-wkhtmltopdf --quiet \
-    --page-size Letter \
-    "https://localhost:1411/api/print-page.php?password=${password}&tagnumber=${tagnumber}&customer_name=${customer_name}&checkout_date=${checkout_date}&return_date=${return_date}" - | lp -o page-ranges=1
+response=$(curl --silent -X POST \
+    --data-urlencode "password=${password}" \
+    --data-urlencode "tagnumber=${tagnumber}" \
+    --data-urlencode "customer_name=${customer_name}" \
+    --data-urlencode "checkout_date=${checkout_date}" \
+    --data-urlencode "return_date=${return_date}" \
+    'https://localhost:1411/api/print-page.php')
+
+
+printf '%s' $response | wkhtmltopdf --quiet --page-size Letter - - | lp -o page-ranges=1
