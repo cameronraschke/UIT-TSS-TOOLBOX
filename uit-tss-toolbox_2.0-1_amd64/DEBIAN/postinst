@@ -133,10 +133,10 @@ fi
 /usr/bin/chown www-data:uit /var/www/html/uit-web -R
 find /var/www/html/uit-web -type d -exec chmod 775 {} \;
 find /var/www/html/uit-web -type f -exec chmod 664 {} \;
-chown www-data:uit /var/www/html/uit-web/bash/uit-print-pdf.sh
-chmod 770 /var/www/html/uit-web/bash/uit-print-pdf.sh
-chown www-data:uit /var/www/html/uit-web/bash/convert-to-mp4.sh
-chmod 770 /var/www/html/uit-web/bash/convert-to-mp4.sh
+chown www-data:uit /var/www/html/uit-web/bash/uit-print-pdf
+chmod 770 /var/www/html/uit-web/bash/uit-print-pdf
+chown www-data:uit /var/www/html/uit-web/bash/convert-to-mp4
+chmod 770 /var/www/html/uit-web/bash/convert-to-mp4
 
 /usr/bin/chown root:uit /srv/uit-toolbox/client/src -R
 /usr/bin/chown root:uit /srv/uit-toolbox/client/pkg -R
