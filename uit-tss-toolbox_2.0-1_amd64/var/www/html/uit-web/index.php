@@ -29,7 +29,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
   <div class='index-grid-container'>
 
-    <div class='index-grid-box'>
+    <div class='index-grid-box' style='grid-template-columns: 1fr; grid-template-rows: 0.1fr 0.1fr 1fr;'>
       <div><h2>Welcome, <?php echo $login_user; ?>.</h2></div>
       <div><h2 id='server_time'></h2></div>
       <div>
@@ -102,20 +102,17 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
         </div>
       </div>
 
-    <div class='index-grid-box'>
-      <div id="jobTimes"></div>
-
-      <div>
-        <div id="runningJobs">
-          <?php
-            $dbPSQL->select("SELECT (CASE WHEN COUNT(tagnumber) >= 1 THEN CAST(COUNT(tagnumber) AS VARCHAR(3)) ELSE 'None' END) AS count FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
-          ?>
-          <h3><b>Queued Jobs: </b><?php echo htmlspecialchars($dbPSQL->nested_get()["count"]); ?></h3>
-        </div>
-        <div id="numberImaged"></div>
-        <div id="numberJoinedDomain"></div>
-        <div id="biosUpdated"></div>
+    <div class='index-grid-box' style='grid-template-columns: 1fr; grid-template-rows: 0.1fr 1fr 1fr 1fr 1fr;'>
+      <div id="runningJobs">
+        <?php
+          $dbPSQL->select("SELECT (CASE WHEN COUNT(tagnumber) >= 1 THEN CAST(COUNT(tagnumber) AS VARCHAR(3)) ELSE 'None' END) AS count FROM remote WHERE job_queued IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
+        ?>
+        <h3><b>Queued Jobs: </b><?php echo htmlspecialchars($dbPSQL->nested_get()["count"]); ?></h3>
       </div>
+      <div id="jobTimes"></div>
+      <div id="numberImaged"></div>
+      <div id="numberJoinedDomain"></div>
+      <div id="biosUpdated"></div>
     </div>
   </div>
 
@@ -135,7 +132,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
   //let note = params.get("note-type");
 
   // Check if the "get" parameter exists
-  if (params.has('note-type')) {
+  if (params.has('note-type') && document.getElementById('note')) {
     var myElement = document.getElementById('note');
     document.getElementById("note").readOnly = false;
     document.getElementById('edit-button').innerHTML = "<button style='background-color:rgba(0, 179, 136, 0.30);' type='submit'>Update Checklist</button>";
@@ -161,6 +158,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             document.getElementById('unsaved-changes').innerHTML = "Unsaved Changes... ";
         }
         function charCount() {
+          if (params.has('note-type') && document.getElementById('note')) {
             myElement.focus();
             var len = myElement.value.length;
 
@@ -173,15 +171,19 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
             document.getElementById('charLen').innerHTML = "Character count: " + len;
 
             return(len);
+          }
         }
         function setCursorPos(pos) {
+          if (params.has('note-type') && document.getElementById('note')) {
             myElement.focus();
             myElement.setSelectionRange(pos, pos);
             
             //console.log("Changing position of the cursor to (" + pos + "/" + myElement.value.length + ")");
             return(pos);
+          }
         }
         function getCursorPos() {
+          if (params.has('note-type') && document.getElementById('note')) {
                 let startPosition = myElement.selectionStart;
                 let endPosition = myElement.selectionEnd;
 
@@ -194,9 +196,11 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                     //console.log("Selected text from ("+ startPosition +" to "+ endPosition + " of " + myElement.value.length + ")");
                 //}
                 return(startPosition);
+          }
         }
 
         function replaceHeaders() {
+          if (params.has('note-type') && document.getElementById('note')) {
             let str = myElement.value;
             let origPos = getCursorPos();
             let newStr = str;
@@ -225,9 +229,11 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 setCursorPos(offset);
             }
             return(offset);
+          }
         }
 
         function replaceEmoji() {
+          if (params.has('note-type') && document.getElementById('note')) {
             let str = myElement.value;
             let origPos = getCursorPos();
             let newStr = str;
@@ -271,9 +277,11 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 }
             }
             return(offset);
+          }
         }
 
         function replaceAsterisk() {
+          if (params.has('note-type') && document.getElementById('note')) {
             let str = myElement.value;
             let newStr = str;
             let pos = 0;
@@ -307,6 +315,7 @@ if (isset($_POST["note"]) && isset($_GET["note-type"])) {
                 }
                 setCursorPos(endOfLine);
             }
+          }
         }
 
         </script>

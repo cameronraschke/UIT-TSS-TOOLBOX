@@ -43,12 +43,15 @@
   //echo "<div><a id='logout' style='margin-left: 2vw; margin-right: 2vw;' href='#'>Logout</a></div>";
 
 ?>
+
+    <div><a id='logout' href='#'>Logout</a></div>
   
-  <div></div>
-  <div><form method='GET' action='/tagnumber.php'><input type='text' id='tagnumber-search' name='tagnumber' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button><img class='icon' src='/images/search.svg'></button></form><div id='dropdown-search' class='dropdown-search'></div></div>
-  <div style='margin-left: 2vw; margin-right: 2vw;'><a id='logout' href='#'>Logout</a></div>
+
+    <div id='tagnumber-search-spacer'></div>
+    <div id='tagnumber-search-div'><form method='GET' action='/tagnumber.php'><div style='display: flex; justify-content: center; align-items: center;'><input type='text' id='tagnumber-search' name='tagnumber' autocapitalize='none' autocomplete='off' autocorrect='off' spellcheck='false' placeholder='Enter Tag Number...'><button><img class='icon' src='/images/search.svg'></button></div></form><div id='dropdown-search' class='dropdown-search'></div></div>
 
 </div>
+
 
 
 
