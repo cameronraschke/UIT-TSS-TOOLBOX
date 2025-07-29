@@ -103,7 +103,7 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
   </head>
   <body>
     <div class="uh-logo">
-      <img src="/images/uh-logo.png">
+      <img src="https://localhost:1411/images/uh-logo.png">
     </div>
     <div class="page-content">
       <h1><b>University Information Technology (UIT) - Laptop Checkout Program</b></h1>
