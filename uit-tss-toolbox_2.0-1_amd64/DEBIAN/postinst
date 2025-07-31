@@ -127,6 +127,10 @@ find /etc/opt/uit-toolbox -type f -exec chmod 660 {} \;
 find /opt/uit-toolbox/sql-backups -type d -exec chmod 770 {} \;
 find /opt/uit-toolbox/sql-backups -type f -exec chmod 660 {} \;
 
+/usr/bin/chown root:uit /opt/uit-toolbox/api -R
+find /opt/uit-toolbox/api -type d -exec chmod 770 {} \;
+find /opt/uit-toolbox/api -type f -exec chmod 660 {} \;
+
 if [[ ! -d /var/www/html/uit-web/transcode ]]; then
   mkdir /var/www/html/uit-web/transcode
 fi
