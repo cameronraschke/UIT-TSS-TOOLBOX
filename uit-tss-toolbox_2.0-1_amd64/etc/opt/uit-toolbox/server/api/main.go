@@ -10,33 +10,29 @@ import (
   "log"
   "time"
   "encoding/json"
-  // "strconv"
-  // "strings"
-  // "database/sql"
 
   "github.com/jackc/pgx/v5"
 )
 
-//type 
-
 
 var serverTime = time.Now()
 
-
 var conn *pgx.Conn
 
-func db_query() {
-  dbConnString := "postgres://cameron:bruh@127.0.0.1:5432/uitdb?sslmode=disable"
+
+func db_query() (string, error) {
+  dbConnString := "postgres://cameron:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
   conn, err := pgx.Connect(context.Background(), dbConnString)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
     os.Exit(1)
   }
 
-  rows, err := conn.Query(context.Background(), "SELECT tagnumber, system_serial, time from (SELECT tagnumber, system_serial, time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums <= 1")
+  rows, err := conn.Query(context.Background(), "SELECT tagnumber, system_serial, time FROM (SELECT tagnumber, system_serial, time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1")
     if err != nil {
-      log.Fatal("Query error: %v\n", err)
+      log.Print("Query error: %v\n", err)
     }
+  defer rows.Close()
 
     var results []map[string]interface{}
     columnNames := make([]string, len(rows.FieldDescriptions()))
@@ -47,7 +43,7 @@ func db_query() {
     for rows.Next() {
       values, err := rows.Values()
       if err != nil {
-        log.Fatalf("Error scanning values: %v\n", err)
+        log.Printf("Error scanning values: %v\n", err)
       }
   
       rowMap := make(map[string]interface{})
@@ -57,42 +53,29 @@ func db_query() {
       results = append(results, rowMap)
     }
 
-    // sqlData := make(map[string]string)
-    // for rows.Next() {
-    //   var result string
-    //   err = rows.Scan(&result)
-    //   if err != nil {
-    //     fmt.Printf("error: %v\n", err)
-    //   }
-    //   sqlData["tagnumber"] = result
-    // }
-      
-    // for key, value := range sqlData {
-    //   log.Print(key)
-    //   log.Print(value)
-    // }
-
     jsonData, err := json.Marshal(results)
     if err != nil {
-        log.Fatal(err)
+        log.Print(err)
     }
 
-    fmt.Println(string(jsonData) + "\n")
+    return string(jsonData), err
 }
 
 func main() {
-  db_query()
 
 	apiHandler := func(w http.ResponseWriter, req *http.Request) {
-		io.WriteString(w, "Hello, world!\n")
-    // Flush()
+    output, err := db_query()
+    if err != nil {
+      log.Print("Function returned error")
+    }
+		io.WriteString(w, output)
 	}
 
 	http.HandleFunc("/api", apiHandler)
 	log.Print("Server time: " + serverTime.Format("01-02-2006 15:04:05"))
 	log.Print("Starting web server on https://localhost:8080")
 	httpServerErr := http.ListenAndServeTLS("127.0.0.1:8080", "/etc/ssl/certs/uit-web.crt", "/etc/ssl/private/uit-web.key", nil)
-	log.Fatal(httpServerErr)
+	log.Print(httpServerErr)
 	if (httpServerErr != nil) {
 		log.Printf("Listening on https://localhost:8080")
 	}
