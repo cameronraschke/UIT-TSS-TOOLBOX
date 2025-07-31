@@ -360,7 +360,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
           echo "<div class='column'>
           <div><label for='status'>Functional</label></div>
           <select name='status' id='status'>";
-          if ($value["status"] === 1) {
+          if ($value["status"] === true) {
             echo "
             <option id='status-broken' style='rgba(200, 16, 47, 0.31);' value='1'>No, Broken</option>
             <option id='status-working' style='rgba(0, 179, 137, 0.31);' value='0'>Yes</option>";
