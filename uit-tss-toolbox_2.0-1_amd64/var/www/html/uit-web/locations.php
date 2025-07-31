@@ -167,7 +167,7 @@ if (isset($_POST["tagnumber"]) && isset($_POST['serial']) && isset($_POST["locat
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <?php
     if (strFilter($_GET["tagnumber"]) === 0) {
-      echo "<title>Update Client " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>";
+      echo "<title>Update " . htmlspecialchars($_GET["tagnumber"]) . " - UIT Client Mgmt</title>";
     } else {
       echo "<title>Locations - UIT Client Mgmt</title>";
     }
