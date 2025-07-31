@@ -58,7 +58,7 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
   log.Print(sqlCode)
 
   // Connect to DB
-  dbConnString := "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
+  dbConnString := "postgres://uitweb:3096e3109239ec86654ac3ff17892dbb@127.0.0.1:5432/uitdb?sslmode=disable"
   conn, err := pgx.Connect(context.Background(), dbConnString)
   if err != nil  {
     fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
