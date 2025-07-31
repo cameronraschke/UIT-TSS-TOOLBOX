@@ -21,7 +21,7 @@ var conn *pgx.Conn
 
 
 func db_query() (string, error) {
-  dbConnString := "postgres://cameron:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
+  dbConnString := "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
   conn, err := pgx.Connect(context.Background(), dbConnString)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
