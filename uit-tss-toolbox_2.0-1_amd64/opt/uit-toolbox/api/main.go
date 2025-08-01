@@ -3,7 +3,7 @@ package main
 
 import (
   "context"
-  "fmt"
+  // "fmt"
   "os"
   "io"
   "net/http"
@@ -19,15 +19,15 @@ import (
 
 var conn *pgx.Conn
 
-func urlToSql(requestURL string) (string, string, error) {
-    var sql string
+func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial string, err error) {
     var path string
-    var tagnumber string
+    var parsedURL *url.URL
     var queries url.Values
 
-    parsedURL, err := url.Parse(requestURL)
+    parsedURL, err = url.Parse(requestURL)
     if err != nil {
       log.Print("Cannot parse URL: " + requestURL)
+      panic("Cannot parse URL")
     }
 
     path = parsedURL.Path
@@ -36,45 +36,68 @@ func urlToSql(requestURL string) (string, string, error) {
     queries, _ = url.ParseQuery(RawQuery)
 
     tagnumber = queries.Get("tagnumber")
+    systemSerial = queries.Get("system_serial")
 
-    if path == "/api/remote" && queries.Get("type") == "live_image"  {
-      sql = "SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot FROM live_images WHERE tagnumber = $1"
+    if path == "/api/remote" && queries.Get("type") == "live_image" {
+      if len(queries.Get("tagnumber")) == 6 {
+        sql = `SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot 
+              FROM live_images 
+              WHERE tagnumber = $1`
+      } else {
+        return "", "", "", errors.New("Bad URL request (tagnumber needs to be 6 digits)")
+      }
+    } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
+      sql = `SELECT job_queued, tagnumber, present_bool 
+              FROM remote 
+              WHERE present_bool = FALSE`
+    } else if len(queries.Get("type")) <= 0{
+      return "", "", "", errors.New("Bad URL request (empty 'type' key in URL)")
     } else {
-      return "", "", errors.New("Bad URL request")
+      return "", "", "", errors.New("Bad URL request (unknown error)")
     }
 
-      return sql, tagnumber, nil
+    return sql, tagnumber, systemSerial, nil
 }
 
 func apiFunction (w http.ResponseWriter, req *http.Request) {
-  // requestURL := string(req.URL.Scheme + req.URL.Host + req.URL.Path + req.URL.RawQuery)
-  requestURL := req.URL.RequestURI()
-  log.Print("[" + time.Now().Format("01-02-2006 15:04:05") + "] " + "Request to " + requestURL)
-  sqlCode, tagnumner, err := urlToSql(requestURL)
-  if err != nil {
-    log.Print("Cannot parse URL: ")
-  }
+  var request string
+  var sqlCode string
+  var tagnumber string
+  var systemSerial string
+  var rows pgx.Rows
+  var err error
 
-  log.Print(sqlCode)
+  request = req.URL.RequestURI()
+
+  sqlCode, tagnumber, systemSerial, err = urlToSql(request)
+  if err != nil {
+
+    log.Print("Cannot parse URL: ", err)
+    panic("Cannot parse URL")
+  }
 
   // Connect to DB
-  dbConnString := "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
+  const dbConnString = "postgres://uitweb:3096e3109239ec86654ac3ff17892dbb@127.0.0.1:5432/uitdb?sslmode=disable"
   conn, err := pgx.Connect(context.Background(), dbConnString)
   if err != nil  {
-    fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+    log.Fatal("Unable to connect to database: \n", err)
     os.Exit(1)
   }
-  //   if ($_GET["type"] == "job_queue" && isset($_GET["tagnumber"])) { 
-  //   $dbPSQL->Pselect("SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars($_GET["tagnumber"])));
-  //   foreach ($dbPSQL->get() as $key => $value) {
-  //     $event = "server_time";
-  //     $data = json_encode($value);
-  //   }
-  //   unset($value);
-  // }
-  rows, err := conn.Query(context.Background(), sqlCode, tagnumner)
+
+
+  if len(tagnumber) > 0 && len(systemSerial) == 0 {
+    rows, err = conn.Query(context.Background(), sqlCode, tagnumber)
+  } else if len(tagnumber) == 0 && len(systemSerial) > 0 {
+    rows, err = conn.Query(context.Background(), sqlCode, systemSerial)
+  } else if len(tagnumber) == 0 && len(systemSerial) == 0 {
+    rows, err = conn.Query(context.Background(), sqlCode)
+  } else {
+    log.Print("Query error: ", err)
+    panic("Query error")
+  }
     if err != nil {
-      log.Print("Query error: %v\n", err)
+      log.Print("Query error: ", err)
+      panic("Query error")
     }
   defer rows.Close()
 
@@ -87,7 +110,8 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
     for rows.Next() {
       values, err := rows.Values()
       if err != nil {
-        log.Printf("Error scanning values: %v\n", err)
+        log.Print("Error scanning values from SQL rows: ", err)
+        panic("Error scanning values from SQL rows")
       }
   
       rowMap := make(map[string]interface{})
@@ -99,7 +123,8 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
     jsonData, err := json.Marshal(results)
     if err != nil {
-        log.Print(err)
+      log.Print("Cannot marshal json: ", err)
+      panic("Cannot marshal json")
     }
 
     w.Header().Set("Content-Type", "application/json")
@@ -108,6 +133,13 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
 
 func main() {
+  // Recover from panics
+  defer func() {
+    if pan := recover(); pan != nil {
+        log.Println("Recovered. Error:\n", pan)
+    }
+  }()
+
   // Check if connection is valid
 
 
