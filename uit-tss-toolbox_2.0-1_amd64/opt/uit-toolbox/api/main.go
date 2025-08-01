@@ -12,12 +12,16 @@ import (
   "encoding/json"
   "net/url"
   "errors"
+  "database/sql"
 
-  "github.com/jackc/pgx/v5"
+  _ "github.com/jackc/pgx/v5"
 )
 
 
-var conn *pgx.Conn
+var (
+	ctx context.Context
+	// db  *sql.DB
+)
 
 func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial string, err error) {
     var path string
@@ -64,7 +68,7 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
   var sqlCode string
   var tagnumber string
   var systemSerial string
-  var rows pgx.Rows
+  var rows *sql.Rows
   var err error
 
   request = req.URL.RequestURI()
@@ -78,19 +82,21 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
   // Connect to DB
   const dbConnString = "postgres://uitweb:3096e3109239ec86654ac3ff17892dbb@127.0.0.1:5432/uitdb?sslmode=disable"
-  conn, err := pgx.Connect(context.Background(), dbConnString)
+  db, err := sql.Open("pgx", dbConnString)
+  // conn, err := pgx.Connect(context.Background(), dbConnString)
   if err != nil  {
     log.Fatal("Unable to connect to database: \n", err)
     os.Exit(1)
   }
+  defer db.Close()
 
 
   if len(tagnumber) > 0 && len(systemSerial) == 0 {
-    rows, err = conn.Query(context.Background(), sqlCode, tagnumber)
+    rows, err = db.QueryContext(ctx, sqlCode, tagnumber)
   } else if len(tagnumber) == 0 && len(systemSerial) > 0 {
-    rows, err = conn.Query(context.Background(), sqlCode, systemSerial)
+    rows, err = db.QueryContext(ctx, sqlCode, systemSerial)
   } else if len(tagnumber) == 0 && len(systemSerial) == 0 {
-    rows, err = conn.Query(context.Background(), sqlCode)
+    rows, err = db.QueryContext(ctx, sqlCode)
   } else {
     log.Print("Query error: ", err)
     panic("Query error")
@@ -101,22 +107,30 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
     }
   defer rows.Close()
 
+
     var results []map[string]interface{}
-    columnNames := make([]string, len(rows.FieldDescriptions()))
-    for i, fd := range rows.FieldDescriptions() {
-      columnNames[i] = fd.Name
+
+    cols, err := rows.Columns()
+      if err != nil {
+        panic("No columns")
+      }
+    columnNames := make([]string, len(cols))
+    for i, fd := range cols {
+      append(columnNames[i], fd)
     }
 
+    rowVals := make([]string, 0)
     for rows.Next() {
-      values, err := rows.Values()
-      if err != nil {
+      var name string
+      if err := rows.Scan(&name); err != nil {
         log.Print("Error scanning values from SQL rows: ", err)
         panic("Error scanning values from SQL rows")
       }
-  
+      rowValues = append(rowValues, name)
+
       rowMap := make(map[string]interface{})
       for i, colName := range columnNames {
-        rowMap[colName] = values[i]
+        rowMap[colName] = rowValues[i]
       }
       results = append(results, rowMap)
     }
