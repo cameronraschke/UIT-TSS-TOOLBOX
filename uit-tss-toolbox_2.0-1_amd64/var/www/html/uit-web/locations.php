@@ -975,7 +975,7 @@ foreach ($tableArr as $key => $value1) {
   }
 
   // CHANGE TYPE LATER //
-  if ($value1["checkout_bool"] === 1) {
+  if ($value1["checkout_bool"] === true) {
     echo "<img style='width: auto; height: 1.5em;' src='/images/checkout.svg'>";
   }
   echo "</td>" . PHP_EOL;
