@@ -1,5 +1,5 @@
 server {
-        listen 10.0.0.1:80 default_server;
+        listen LAN_IP_ADDRESS:80 default_server;
 
         root /srv/uit-toolbox/;
 
