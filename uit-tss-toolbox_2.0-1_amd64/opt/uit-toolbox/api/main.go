@@ -1,4 +1,4 @@
-//Don't forget - $ go mod init tidy; go mod init hello; go get github.com/jackc/pgx/v5; 
+//Don't forget - $ go mod tidy; 
 package main
 
 import (
@@ -14,7 +14,7 @@ import (
   "errors"
   "database/sql"
 
-  _ "github.com/jackc/pgx/v5"
+  _ "github.com/jackc/pgx/v5/stdlib"
 )
 
 
@@ -27,6 +27,8 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
     var path string
     var parsedURL *url.URL
     var queries url.Values
+
+    log.Print("Parsing: ", requestURL)
 
     parsedURL, err = url.Parse(requestURL)
     if err != nil {
@@ -54,12 +56,15 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
       sql = `SELECT job_queued, tagnumber, present_bool 
               FROM remote 
               WHERE present_bool = FALSE`
+    } else if path == "/api/test" && queries.Get("type") == "test" {
+      sql = `SELECT * FROM locations`
     } else if len(queries.Get("type")) <= 0{
       return "", "", "", errors.New("Bad URL request (empty 'type' key in URL)")
     } else {
       return "", "", "", errors.New("Bad URL request (unknown error)")
     }
 
+    log.Print("Returning", sql, tagnumber, systemSerial)
     return sql, tagnumber, systemSerial, nil
 }
 
@@ -72,25 +77,33 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
   var err error
 
   request = req.URL.RequestURI()
+  log.Print("Request: ", request)
 
   sqlCode, tagnumber, systemSerial, err = urlToSql(request)
   if err != nil {
-
     log.Print("Cannot parse URL: ", err)
     panic("Cannot parse URL")
   }
+  log.Print("SQL Returned: ", sqlCode)
 
   // Connect to DB
-  const dbConnString = "postgres://uitweb:3096e3109239ec86654ac3ff17892dbb@127.0.0.1:5432/uitdb?sslmode=disable"
+  log.Print("Connecting to DB")
+  const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
   db, err := sql.Open("pgx", dbConnString)
   // conn, err := pgx.Connect(context.Background(), dbConnString)
   if err != nil  {
     log.Fatal("Unable to connect to database: \n", err)
+    db.Close()
     os.Exit(1)
   }
   defer db.Close()
 
+  log.Print("Creating context")
+  ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+  defer cancel()
 
+
+  log.Print("Checking validity of query")
   if len(tagnumber) > 0 && len(systemSerial) == 0 {
     rows, err = db.QueryContext(ctx, sqlCode, tagnumber)
   } else if len(tagnumber) == 0 && len(systemSerial) > 0 {
@@ -107,19 +120,23 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
     }
   defer rows.Close()
 
+    log.Print("Creating map")
+    var sqlResults []map[string]interface{}
 
-    var results []map[string]interface{}
-
-    cols, err := rows.Columns()
+    log.Print("Getting DB columns")
+    columnNames, err := rows.Columns()
       if err != nil {
         panic("No columns")
       }
-    columnNames := make([]string, len(cols))
-    for i, fd := range cols {
-      append(columnNames[i], fd)
-    }
+    // columnNames := make([]string, len(cols))
+    // for i, col := range cols {
+    //   var col string
+    //   log.Print("index: ", i, ", val: ", col)
+    //   append(columnNames, cols[i])
+    // }
 
-    rowVals := make([]string, 0)
+    log.Print("Getting DB rows")
+    rowValues := make([]string, 0)
     for rows.Next() {
       var name string
       if err := rows.Scan(&name); err != nil {
@@ -132,10 +149,10 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       for i, colName := range columnNames {
         rowMap[colName] = rowValues[i]
       }
-      results = append(results, rowMap)
+      sqlResults = append(sqlResults, rowMap)
     }
 
-    jsonData, err := json.Marshal(results)
+    jsonData, err := json.Marshal(sqlResults)
     if err != nil {
       log.Print("Cannot marshal json: ", err)
       panic("Cannot marshal json")
