@@ -65,7 +65,7 @@ checkNullConfigVals
 
 for i in ${!configArr[@]}; do
 
-  for file in $(find /usr/sbin/ -type f -name 'uit-*'; find /var/www/html/uit-web \( -path "/var/www/html/uit-web/transcode" -o  -path "/var/www/html/uit-web/images" \) -prune -o -type f -print; find /etc/dnsmasq.d/uit-dhcp.conf -type f ; find /srv/uit-toolbox/client/src/ -type f; find /etc/opt/uit-toolbox/server/conf.d/uit-web.cfg -type f; find /opt/uit-toolbox/api -type f -name *.go; find /etc/nginx/sites-enabled/ -type f -name *.conf; find /etc/chrony/conf.d/ -type f -name *.conf; find /etc/dnsmasq.d/ -type f -name *.conf); do
+  for file in $(find /usr/sbin/ -type f -name 'uit-*'; find /var/www/html/uit-web \( -path "/var/www/html/uit-web/transcode" -o  -path "/var/www/html/uit-web/images" \) -prune -o -type f -print; find /etc/dnsmasq.d/uit-dhcp.conf -type f ; find /srv/uit-toolbox/client/src/ -type f; find /etc/opt/uit-toolbox/server/conf.d/uit-web.cfg -type f; find /opt/uit-toolbox/api -type f -name *.go; find /etc/nginx/sites-enabled/ -type f; find /etc/chrony/conf.d/ -type f -name *.conf; find /etc/dnsmasq.d/ -type f -name *.conf); do
     if [[ -f $file ]]; then
       sanitizedValue=${configArr[$i]//\//\\/}
       sed --in-place "s/${i}/${sanitizedValue}/g" ${file}
