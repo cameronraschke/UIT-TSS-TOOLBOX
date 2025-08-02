@@ -65,7 +65,7 @@ checkNullConfigVals
 
 for i in ${!configArr[@]}; do
 
-  for file in $(find /usr/sbin/ -type f -name 'uit-*'; find /var/www/html/uit-web \( -path "/var/www/html/uit-web/transcode" -o  -path "/var/www/html/uit-web/images" \) -prune -o -type f -print; find /etc/dnsmasq.d/uit-dhcp.conf -type f ; find /srv/uit-toolbox/client/src/ -type f; find /root/uit-ssl/uit-web.cfg -type f; find /opt/uit-toolbox/api -type f -name *.go); do
+  for file in $(find /usr/sbin/ -type f -name 'uit-*'; find /var/www/html/uit-web \( -path "/var/www/html/uit-web/transcode" -o  -path "/var/www/html/uit-web/images" \) -prune -o -type f -print; find /etc/dnsmasq.d/uit-dhcp.conf -type f ; find /srv/uit-toolbox/client/src/ -type f; find /etc/opt/uit-toolbox/server/conf.d/uit-web.cfg -type f; find /opt/uit-toolbox/api -type f -name *.go); do
     if [[ -f $file ]]; then
       sanitizedValue=${configArr[$i]//\//\\/}
       sed --in-place "s/${i}/${sanitizedValue}/g" ${file}
@@ -120,9 +120,9 @@ fi
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
 
-/usr/bin/chmod 700 /root/uit-ssl
-/usr/bin/chmod 700 /root/uit-ssl/update-certs
-/usr/bin/chown root:root /root/uit-ssl -R
+/usr/bin/chmod 700 /etc/opt/uit-toolbox/server/conf.d
+/usr/bin/chmod 700 /etc/opt/uit-toolbox/server/conf.d/update-certs
+/usr/bin/chown root:root /etc/opt/uit-toolbox/server/conf.d -R
 
 /usr/bin/chown root:root /etc/opt/uit-toolbox/server/conf.d/ -R
 /usr/bin/chmod 700 /etc/opt/uit-toolbox/server/conf.d/ -R
@@ -189,11 +189,14 @@ if [[ -d /srv/uit-toolbox/client/certs ]]; then
     mkdir -p /srv/uit-toolbox/client/certs/
 fi
 
-if [[ ! -f /etc/ssl/certs/uit-ca.crt ]]; then
+if [[ ! -f /usr/local/share/ca-certificates/uit-ca.crt ]]; then
     uit-update-certs --update-ca
-  elif [[ ! -f /etc/ssl/certs/uit-web.crt ]]; then
+  elif [[ ! -f /usr/local/share/ca-certificates/uit-web.crt ]]; then
     uit-update-certs
 fi
 
-cp /etc/ssl/certs/uit-ca.crt /srv/uit-toolbox/client/certs/uit-ca.crt
-cp /etc/ssl/certs/uit-web.crt /srv/uit-toolbox/client/certs/uit-web.crt
+cp /usr/local/share/ca-certificates/uit-ca.crt /srv/uit-toolbox/client/certs/uit-ca.crt
+cp /usr/local/share/ca-certificates/uit-web.crt /srv/uit-toolbox/client/certs/uit-web.crt
+
+# Restart Nginx to reload certs
+systemctl restart nginx

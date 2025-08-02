@@ -20,11 +20,9 @@ fi
 # Always creates new cert from CA
 certtool --generate-privkey --outfile /usr/local/share/ca-certificates/uit-web.key
 certtool --generate-request --load-privkey /usr/local/share/ca-certificates/uit-web.key --template /etc/opt/uit-toolbox/server/conf.d/uit-web.cfg --outfile /etc/opt/uit-toolbox/server/conf.d/uit-web.crq
-certtool --generate-certificate --load-request /etc/opt/uit-toolbox/server/conf.d/uit-web.crq --template /etc/opt/uit-toolbox/server/conf.d/uit-web.cfg --load-ca-certificate /etc/ssl/certs/uit-ca.crt --load-ca-privkey /etc/ssl/private/uit-ca.key --outfile /usr/local/share/ca-certificates/uit-web.crt
+certtool --generate-certificate --load-request /etc/opt/uit-toolbox/server/conf.d/uit-web.crq --template /etc/opt/uit-toolbox/server/conf.d/uit-web.cfg --load-ca-certificate /usr/share/local/ca-certificates/uit-ca.crt --load-ca-privkey /etc/ssl/private/uit-ca.key --outfile /usr/local/share/ca-certificates/uit-web.crt
 update-ca-certificates
 chmod 640 /etc/ssl/private/uit-web.key
 chown root:www-data /etc/ssl/private/uit-web.key
 
-certtool --certificate-info --infile /etc/ssl/certs/uit-web.crt
-
-systemctl restart nginx
+certtool --certificate-info --infile /usr/share/local/ca-certificates/uit-web.crt
