@@ -30,25 +30,25 @@ sed --in-place 's/WEB_SVC_PASSWD/DB_CLIENT_PASSWD/g' /srv/uit-toolbox/client/src
 unset configArr
 declare -A configArr
 
-configArr[DB_ADMIN_PASSWD]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g' | sed 's/[[:space:]]//g')
-configArr[DB_CLIENT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g' | sed 's/[[:space:]]//g')
-configArr[WEB_USER_DEFAULT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WEB_USER_DEFAULT_PASSWD=' | sed 's/WEB_USER_DEFAULT_PASSWD=//g' | sed 's/[[:space:]]//g')
-configArr[WEBMASTER_NAME]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WEBMASTER_NAME=' | sed 's/WEBMASTER_NAME=//g')
-configArr[WEBMASTER_EMAIL]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g' | sed 's/[[:space:]]//g')
-configArr[WEB_USERS]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WEB_USERS=' | sed 's/WEB_USERS=//g')
-configArr[WAN_IF]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WAN_IF=' | sed 's/WAN_IF=//g' | sed 's/[[:space:]]//g')
-configArr[WAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WAN_IP_ADDRESS=' | sed 's/WAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
-configArr[LAN_IF]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^LAN_IF=' | sed 's/LAN_IF=//g' | sed 's/[[:space:]]//g')
-configArr[LAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^LAN_IP_ADDRESS=' | sed 's/LAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
-configArr[WAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^WAN_ALLOWED_IP=' | sed 's/WAN_ALLOWED_IP=//g')
-configArr[LAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^LAN_ALLOWED_IP=' | sed 's/LAN_ALLOWED_IP=//g')
-configArr[PRINTER_IP]=$(cat /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf | grep '^PRINTER_IP=' | sed 's/PRINTER_IP=//g' | sed 's/[[:space:]]//g')
+configArr[DB_ADMIN_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[DB_CLIENT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[WEB_USER_DEFAULT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WEB_USER_DEFAULT_PASSWD=' | sed 's/WEB_USER_DEFAULT_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[WEBMASTER_NAME]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WEBMASTER_NAME=' | sed 's/WEBMASTER_NAME=//g')
+configArr[WEBMASTER_EMAIL]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g' | sed 's/[[:space:]]//g')
+configArr[WEB_USERS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WEB_USERS=' | sed 's/WEB_USERS=//g')
+configArr[WAN_IF]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WAN_IF=' | sed 's/WAN_IF=//g' | sed 's/[[:space:]]//g')
+configArr[WAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WAN_IP_ADDRESS=' | sed 's/WAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
+configArr[LAN_IF]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^LAN_IF=' | sed 's/LAN_IF=//g' | sed 's/[[:space:]]//g')
+configArr[LAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^LAN_IP_ADDRESS=' | sed 's/LAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
+configArr[WAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WAN_ALLOWED_IP=' | sed 's/WAN_ALLOWED_IP=//g')
+configArr[LAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^LAN_ALLOWED_IP=' | sed 's/LAN_ALLOWED_IP=//g')
+configArr[PRINTER_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^PRINTER_IP=' | sed 's/PRINTER_IP=//g' | sed 's/[[:space:]]//g')
 configArr[WEB_SVC_PASSWD]=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}' | sed 's/[[:space:]]//g')
 
 function checkNullConfigVals() {
 for checkVal in ${!configArr[@]}; do
   if [[ -z ${configArr[$checkVal]} ]]; then
-    echo "[Error] Missing/NULL parameter ${checkVal} in /etc/opt/uit-toolbox/server/uit-conf.d/uit.conf"
+    echo "[Error] Missing/NULL parameter ${checkVal} in /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf"
     echo ""
     read -p "Value for ${checkVal} is missing. Continue? [y/N] " userInput
     if [[ -z $userInput || $userInput == "n" || $userInput == "N" ]]; then
@@ -114,7 +114,7 @@ sudo -u postgres psql --command="CALL sqlPermissions();" uitdb
 # File permissions
 if [[ $(groups cameron | grep 'uit'; echo $?) == "1" ]]; then
   groupadd uit
-  usermod --append --groups uit
+  usermod --append --groups uit cameron
 fi
 
 /usr/bin/chmod 750 /usr/sbin/uit-*
@@ -124,8 +124,8 @@ fi
 /usr/bin/chmod 700 /root/uit-ssl/update-certs
 /usr/bin/chown root:root /root/uit-ssl -R
 
-/usr/bin/chown root:root /etc/opt/uit-toolbox/server/uit-conf.d/ -R
-/usr/bin/chmod 700 /etc/opt/uit-toolbox/server/uit-conf.d/ -R
+/usr/bin/chown root:root /etc/opt/uit-toolbox/server/conf.d/ -R
+/usr/bin/chmod 700 /etc/opt/uit-toolbox/server/conf.d/ -R
 
 
 find /srv/nfs/ -type d -exec chmod 755 {} \;
@@ -179,7 +179,9 @@ if [[ ! -f  /var/www/html/uit-web/images/uh-logo.png ]]; then
     wget 'http://www.sa.uh.edu/brand/_img/uh-wide-full-color-rgb.png' --output-document=/var/www/html/uit-web/images/uh-logo.png
 fi
 
-rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/uit-web/images/
+if [[ -d /home/cameron/laptop-picture ]]; then
+  rsync -Pav --delete /home/cameron/laptop-pictures/ /var/www/html/uit-web/images/
+fi
 
 if [[ -d /srv/uit-toolbox/client/certs ]]; then
     rm /srv/uit-toolbox/client/certs/*
@@ -187,5 +189,11 @@ if [[ -d /srv/uit-toolbox/client/certs ]]; then
     mkdir -p /srv/uit-toolbox/client/certs/
 fi
 
-cp /etc/ssl/certs/ca.crt /srv/uit-toolbox/client/certs/ca.crt
+if [[ ! -f /etc/ssl/certs/uit-ca.crt ]]; then
+    uit-update-certs --update-ca
+  elif [[ ! -f /etc/ssl/certs/uit-web.crt ]]; then
+    uit-update-certs
+fi
+
+cp /etc/ssl/certs/uit-ca.crt /srv/uit-toolbox/client/certs/uit-ca.crt
 cp /etc/ssl/certs/uit-web.crt /srv/uit-toolbox/client/certs/uit-web.crt

@@ -2,7 +2,7 @@
 
 if [[ "$EUID" > 0 ]]; then 
   echo "Please run as root. Exiting..."
-  exit 1
+  exit 0
 fi
 
 read -p "Download from GitHub? [Y/n]: " gitBool

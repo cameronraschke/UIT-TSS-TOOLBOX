@@ -1,6 +1,6 @@
 #!/bin/bash
 
-curl 'http://mickey.uit/client/certs/ca.crt' --output /usr/local/share/ca-certificates/ca.crt &>/dev/null
+curl 'http://mickey.uit/client/certs/uit-ca.crt' --output /usr/local/share/ca-certificates/uit-ca.crt &>/dev/null
 curl 'http://mickey.uit/client/certs/uit-web.crt' --output /usr/local/share/ca-certificates/uit-web.crt &>/dev/null
 update-ca-certificates
 
