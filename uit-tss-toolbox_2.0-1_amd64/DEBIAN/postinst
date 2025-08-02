@@ -112,7 +112,7 @@ sudo -u postgres psql --command="CALL sqlPermissions();" uitdb
 
 
 # File permissions
-if [[ $(groups cameron | grep 'uit'; echo $?) == "1" ]];
+if [[ $(groups cameron | grep 'uit'; echo $?) == "1" ]]; then
   groupadd uit
   usermod --append --groups uit
 fi
