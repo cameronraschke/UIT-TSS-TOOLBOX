@@ -1,5 +1,5 @@
 Package: uit-toolbox
-#Pre-Depends: chrony, cups-client, cups, debian-archive-keyring, dnsmasq, dosfstools, efibootmgr, git, gnutls-bin, gzip, iftop, iotop, iperf3, lpr, mysql-server, nfs-kernel-server, nginx, php-bcmath, php-cli, php-curl, php-fpm, php-mysql, php, php-gd, php-pgsql, pv, rsync, smartmontools, sysstat, wkhtmltopdf, ffmpeg
+#Pre-Depends: chrony, cups-client, cups, debian-archive-keyring, dnsmasq, dosfstools, efibootmgr, git, gnutls-bin, gzip, iftop, iotop, iperf3, lpr, mysql-server, nfs-kernel-server, nginx, php-bcmath, php-cli, php-curl, php-fpm, php-mysql, php, php-gd, php-pgsql, pv, rsync, smartmontools, sysstat, wkhtmltopdf, ffmpeg, golang
 Version: 2.0-1
 Section: Utilities
 Priority: optional

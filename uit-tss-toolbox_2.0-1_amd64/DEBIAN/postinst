@@ -16,6 +16,10 @@ if [[ ! -d /srv/nfs/uit-toolbox/images ]]; then
     mkdir -p /srv/nfs/uit-toolbox/images
 fi
 
+if [[ ! -d /opt/uit-toolbox/sql-backups ]]; then
+  mkdir -p /opt/uit-toolbox/sql-backups
+fi
+
 
 # File replacements
 # Insert include.php with modifications for the clients.
@@ -75,10 +79,13 @@ for i in ${!configArr[@]}; do
 done
 
   # Update SQL tables & procedures
-  echo "Updating SQL tables..."
-  sudo -u postgres psql uitdb < /etc/opt/uit-toolbox/server/postgresql/postgresql-procedures.sql
+  echo "Updating SQL tables & procedures..."
   sudo -u postgres psql uitdb < /etc/opt/uit-toolbox/server/postgresql/postgresql-tables.sql
+  sudo -u postgres psql uitdb < /etc/opt/uit-toolbox/server/postgresql/postgresql-procedures.sql
 
+  ## Uncomment on first-time setup
+  #sudo -u postgres psql --command="CREATE DATABASE uitdb;"
+  #sudo -u postgres psql --command="CALL sqlCreateUsers();" uitdb
   sudo -u postgres psql --command="CALL sqlPermissions();" uitdb
 
   # Set passwords for various services
@@ -105,6 +112,11 @@ sudo -u postgres psql --command="CALL sqlPermissions();" uitdb
 
 
 # File permissions
+if [[ $(groups cameron | grep 'uit'; echo $?) == "1" ]];
+  groupadd uit
+  usermod --append --groups uit
+fi
+
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
 

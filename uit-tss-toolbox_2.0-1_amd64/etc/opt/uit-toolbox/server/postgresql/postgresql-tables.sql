@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS client_health (
     bios_updated BOOLEAN DEFAULT NULL,
     os_name VARCHAR(24) DEFAULT NULL,
     os_installed BOOLEAN DEFAULT NULL,
-    disk_type VARHCAR(3) DEFAULT NULL, 
+    disk_type VARCHAR(3) DEFAULT NULL, 
     disk_health NUMERIC(6,3) DEFAULT NULL, 
     battery_health NUMERIC(6,3) DEFAULT NULL, 
     avg_erase_time SMALLINT DEFAULT NULL, 
