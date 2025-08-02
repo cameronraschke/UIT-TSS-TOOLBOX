@@ -120,8 +120,7 @@ fi
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*
 
-/usr/bin/chmod 700 /etc/opt/uit-toolbox/server/conf.d
-/usr/bin/chmod 700 /etc/opt/uit-toolbox/server/conf.d/update-certs
+/usr/bin/chmod 750 /etc/opt/uit-toolbox/server/conf.d
 /usr/bin/chown root:root /etc/opt/uit-toolbox/server/conf.d -R
 
 /usr/bin/chown root:root /etc/opt/uit-toolbox/server/conf.d/ -R

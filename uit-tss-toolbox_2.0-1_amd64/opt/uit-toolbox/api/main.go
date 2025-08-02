@@ -164,7 +164,7 @@ func main() {
 	log.Print("Server time: " + time.Now().Format("01-02-2006 15:04:05"))
 	log.Print("Starting web server on https://localhost:8080")
 
-	log.Fatal(http.ListenAndServeTLS("127.0.0.1:8080", "/etc/ssl/certs/uit-web.crt", "/etc/ssl/private/uit-web.key", mux))
+	log.Fatal(http.ListenAndServeTLS("127.0.0.1:8080", "/usr/local/share/ca-certificates/uit-web.crt", "/usr/local/share/ca-certificates/uit-web.key", mux))
 
 	log.Printf("Listening on https://localhost:8080")
 }

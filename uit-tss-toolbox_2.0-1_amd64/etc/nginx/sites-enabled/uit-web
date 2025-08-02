@@ -1,8 +1,8 @@
 server {
         listen 0.0.0.0:1411 ssl;
 
-        ssl_certificate /etc/ssl/certs/uit-web.crt;
-        ssl_certificate_key /etc/ssl/private/uit-web.key;
+        ssl_certificate /usr/local/share/ca-certificates/uit-web.crt;
+        ssl_certificate_key /usr/local/share/ca-certificates/uit-web.key;
 
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_ciphers HIGH:!aNULL:!MD5;
