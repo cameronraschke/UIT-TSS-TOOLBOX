@@ -1,11 +1,11 @@
-//Don't forget - $ go mod tidy; 
+//Don't forget - $ go mod init main; go mod tidy; 
 package main
 
 import (
   "context"
   // "fmt"
   "os"
-  "io"
+  // "io"
   "net/http"
   "log"
   "time"
@@ -14,16 +14,11 @@ import (
   "errors"
   "database/sql"
 
+  _ "net/http/pprof"
   _ "github.com/jackc/pgx/v5/stdlib"
 )
 
-// Query types:
-// 1: Live image query
-// 2: Remote present query
-// 3: Test query
-// 4: Tag lookup query
-// 5: Job queue for client
-// 0: Error query type
+// Structs for JSON responses
 type LiveImage struct {
   TimeFormatted   *string    `json:"time_formatted"`
   Screenshot      *string    `json:"screenshot"`
@@ -52,12 +47,11 @@ type TagLookup struct {
 }
 
 
-
-
 var (
-	ctx context.Context
-	db  *sql.DB
+	dbCTX context.Context
+	webCTX context.Context
   queryType uint8
+  db *sql.DB
 )
 
 func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial string, err error) {
@@ -108,7 +102,7 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
     } else if path == "/api/remote" && queries.Get("type") == "tag_lookup" && len(queries.Get("system_serial")) >= 1 {
       sql = `SELECT tagnumber FROM locations WHERE system_serial = $1 ORDER BY time DESC LIMIT 1`
       queryType = 4
-    } else if path == "/api/remote" && queries.Get("type") == "job_queue" && len(queries.Get("tagnumber") == 6 {
+    } else if path == "/api/remote" && queries.Get("type") == "job_queue" && len(queries.Get("tagnumber")) == 6 {
       sql = `SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
               remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted 
               FROM remote 
@@ -126,15 +120,51 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
 }
 
 
-func apiFunction (w http.ResponseWriter, req *http.Request) {
+
+func apiFunction (w http.ResponseWriter, req *http.Request) {  
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  defer cancel()
+
   var results any // Results will be of type []LiveImage, []RemotePresent, or []Locations
+  var uniqueIteratedValues []string
   var request string
   var sqlCode string
   var tagnumber string
   var systemSerial string
-  var jsonData []byte
   var rows *sql.Rows
   var err error
+
+  // Check if request method is valid
+  if req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete && req.Method != http.MethodOptions {
+    log.Print("Invalid request method: ", req.Method)
+    http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+    return
+  }
+
+  // Check if Content-Type is valid
+  if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
+    log.Print("Invalid Content-Type: ", req.Header.Get("Content-Type"))
+    // http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
+    // return
+  }
+
+  // Check if request content length exceeds 32 MB
+  if req.ContentLength > 32 << 20 { // 32 MB limit
+    log.Print("Request content length exceeds limit: ", req.ContentLength)
+    http.Error(w, "Request content length exceeds limit", http.StatusRequestEntityTooLarge)
+    return
+  }
+
+  // Validate request method and headers
+  if req.Method == http.MethodOptions {
+    w.Header().Set("Content-Type", "application/json")
+    w.Header().Set("Access-Control-Allow-Origin", "*") // Allow CORS for all origins
+    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS") // Allow GET and POST methods
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // Allow specific headers
+    w.Header().Set("Access-Control-Allow-Origin", "*") // Allow CORS for all origins
+    w.WriteHeader(http.StatusOK) // Set the response status to 200 OK
+  }
+
 
   request = req.URL.RequestURI()
   log.Print("Request: ", request)
@@ -144,28 +174,52 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
     log.Print("Cannot parse URL: ", err)
     panic("Cannot parse URL")
   }
-  // log.Print("SQL Returned: ", sqlCode)
 
-  // Connect to DB
-  // log.Print("Connecting to DB")
-  const dbConnString = "postgres://uitweb:UIT_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
-  db, err := sql.Open("pgx", dbConnString)
-  if err != nil  {
-    db.Close()
-    log.Fatal("Unable to connect to database: \n", err)
-    os.Exit(1)
+  
+  // If method is POST, read the form data
+  if req.Method == http.MethodPost {
+    err := req.ParseMultipartForm(32 << 20)
+    if err != nil {
+      log.Print("Cannot create request reader")
+      http.Error(w, "Failed to parse form", http.StatusInternalServerError)
+      return
+    }
+
+    if req.Form != nil && len(req.Form) > 0 {
+      for key, values := range req.Form {
+        log.Print("Request form: ", req.Form)
+        switch key {
+          case "tagnumber":
+            for _, value := range values {
+              if len(value) != 6 {
+                log.Print("Bad tagnumber length: ", value)
+                panic("Bad tagnumber length")
+              }
+              log.Print("Request form value: ", value)
+              uniqueIteratedValues = append(uniqueIteratedValues, value)
+            }
+
+          case "system_serial":
+            for _, value := range values {
+              if len(value) < 1 {
+                log.Print("Bad system serial length: ", value)
+                panic("Bad system serial length")
+              }
+              log.Print("Request form value: ", value)
+              uniqueIteratedValues = append(uniqueIteratedValues, value)
+            }
+
+          default:
+            log.Printf("Unknown form key: %s with values: %v", key, values)
+            panic("Unknown form key")
+        }
+      }
+    } else {
+      log.Print("No form values found in request")
+      http.Error(w, "No form values found in request", http.StatusBadRequest)
+      return
+    }
   }
-  defer db.Close()
-
-  // log.Print("Creating context")
-  ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second) // Set a timeout for the context
-  if err != nil {
-    log.Print("Error creating context: ", err)
-    panic("Error creating context")
-  }
-  // Ensure the context is cancelled to avoid memory leaks
-  defer cancel()
-
 
   switch queryType {
     case 1: // Live image query
@@ -174,7 +228,7 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
         panic("Bad tagnumber length")
       }
       log.Print("Executing live image query for tagnumber: ", tagnumber)
-      rows, err = db.QueryContext(ctx, sqlCode, tagnumber)
+      rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
       if err != nil {
         log.Print("Error querying screenshot: ", err)
         panic("Error querying screenshot")
@@ -187,6 +241,14 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       liveImages = make([]LiveImage, 0) // Ensure liveImages is initialized
       for rows.Next() {
         var result LiveImage
+        if dbCTX.Err() != nil {
+          log.Print("Context error: ", dbCTX.Err())
+          return
+        }
+        if err = rows.Err(); err != nil {
+          log.Print("Context error: ", dbCTX.Err())
+          return
+        }
         err = rows.Scan(
           &result.TimeFormatted, 
           &result.Screenshot,
@@ -201,7 +263,7 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
     case 2: // Remote present query
       log.Print("Executing remote query")
-      rows, err = db.QueryContext(ctx, sqlCode)
+      rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
         log.Print("Error querying remote: ", err)
         panic("Error querying remote")
@@ -213,6 +275,14 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       remotePresent = make([]RemotePresent, 0) // Ensure remotePresent is initialized
       for rows.Next() {
         var result RemotePresent
+        if dbCTX.Err() != nil {
+          log.Print("Context error: ", dbCTX.Err())
+          return
+        }
+        if err = rows.Err(); err != nil {
+          log.Print("Context error: ", dbCTX.Err())
+          return
+        }
         err = rows.Scan(
           &result.JobQueued, 
           &result.Tagnumber, 
@@ -225,11 +295,6 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
         remotePresent = append(remotePresent, result)
       }
 
-      if err = rows.Err(); err != nil {
-        log.Print("Error with rows: ", err)
-        panic("Error with rows")
-      }
-
       if err != nil {
         log.Print("Error querying locations: ", err)
         panic("Error querying locations")
@@ -238,7 +303,7 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
     case 3: // Test query
       log.Print("Executing test query")
-      rows, err = db.QueryContext(ctx, sqlCode)
+      rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
         log.Print("Error querying locations: ", err)
         panic("Error querying locations")
@@ -250,6 +315,14 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       locations = make([]Locations, 0) // Ensure Locations is initialized
       for rows.Next() {
         var result Locations
+        if dbCTX.Err() != nil {
+          log.Print("Context error: ", dbCTX.Err())
+          return
+        }
+        if err = rows.Err(); err != nil {
+          log.Print("Context error: ", dbCTX.Err())
+          return
+        }
         err = rows.Scan(
           &result.Time,
           &result.Tagnumber,
@@ -281,7 +354,7 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
     case 4: 
       log.Print("Executing tag lookup query for system serial: ", systemSerial)
-      rows, err = db.QueryContext(ctx, sqlCode, systemSerial)
+      rows, err = db.QueryContext(dbCTX, sqlCode, systemSerial)
       if err != nil {
         log.Print("Error querying tag lookup: ", err)
         panic("Error querying tag lookup")
@@ -293,6 +366,14 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       tagLookup = make([]TagLookup, 0) // Ensure tagLookup is initialized
       for rows.Next() {
         var result TagLookup
+        if dbCTX.Err() != nil {
+          log.Print("Context error: ", dbCTX.Err())
+          return
+        }
+        if err = rows.Err(); err != nil {
+          log.Print("Context error: ", dbCTX.Err())
+          return
+        }
         err = rows.Scan(
           &result.Tagnumber,
         )
@@ -305,22 +386,24 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
       results = tagLookup // Assign results to tagLookup
 
-    case: 5
-
+    case 5:
+      log.Print("Executing job queue query for tagnumber: ", tagnumber)
     default:
       log.Print("Unknown query type")
       panic("Unknown query type")
   }
 
-  jsonData, err = json.Marshal(results)
+
+  jsonEncoder := json.NewEncoder(w)
+  jsonEncoder.Encode(results)
   if err != nil {
-    log.Print("Cannot marshal json: ", err)
-    panic("Cannot marshal json")
+    log.Print("Cannot create json data: ", err)
+    panic("Cannot create json data")
   }
 
-  w.Header().Set("Content-Type", "application/json")
-  io.WriteString(w, string(jsonData))
+  return
 }
+
 
 
 func main() {
@@ -331,7 +414,45 @@ func main() {
     }
   }()
 
-  // Check if connection is valid
+  go func() {
+	  log.Println(http.ListenAndServe("localhost:6060", nil))
+  }()
+
+  // Connect to the database
+  log.Print("Connecting to database...")
+  // Use the pgx driver for PostgreSQL
+  const dbConnString = "postgres://uitweb:aac994babe9636f8f7ce63054801d8b2@127.0.0.1:5432/uitdb?sslmode=disable"
+  conn, err := sql.Open("pgx", dbConnString)
+  if err != nil  {
+    log.Fatal("Unable to connect to database: \n", err)
+    os.Exit(1)
+  }
+  defer conn.Close()
+  log.Print("Connected to database successfully")
+  // // Check if the database connection is valid
+  if err = conn.Ping(); err != nil {
+    log.Fatal("Cannot ping database: \n", err)
+    os.Exit(1)
+  }
+
+  db = conn // Assign the database connection to the global variable
+  log.Print("Database connection is valid")
+
+  webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  defer cancel()
+
+  // Check if the web context is valid
+  if webCTX.Err() != nil {
+    log.Print("Web context error: ", webCTX.Err())
+    panic("Web context error")
+  }
+
+
+  // // Check if connection is valid
+  // if http.ConnState.String() != "StateActive" {
+  //   log.Print("Connection is not active")
+  //   panic("Connection is not active")
+  // }
 
 
   // Route to correct function
@@ -341,7 +462,18 @@ func main() {
 	log.Print("Server time: " + time.Now().Format("01-02-2006 15:04:05"))
 	log.Print("Starting web server on https://localhost:8080")
 
-	log.Fatal(http.ListenAndServeTLS("127.0.0.1:8080", "/usr/local/share/ca-certificates/uit-web.crt", "/usr/local/share/ca-certificates/uit-web.key", mux))
+    httpServer := http.Server{
+		Addr: "127.0.0.1:8080",
+    Handler: mux,
+    ReadTimeout: time.Duration(10) * time.Second,
+    WriteTimeout: time.Duration(10) * time.Second,
+    IdleTimeout: time.Duration(120) * time.Second,
+    MaxHeaderBytes: 32 << 20,
+    ErrorLog: log.New(os.Stderr, "ERROR: ", log.LstdFlags),
+	}
+
+	log.Fatal(httpServer.ListenAndServeTLS("/usr/local/share/ca-certificates/uit-web.crt", "/usr/local/share/ca-certificates/uit-web.key"))
+  defer httpServer.Close()
 
 	log.Printf("Listening on https://localhost:8080")
 }
