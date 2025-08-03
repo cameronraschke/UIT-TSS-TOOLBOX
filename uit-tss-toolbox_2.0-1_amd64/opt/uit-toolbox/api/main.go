@@ -18,9 +18,22 @@ import (
 )
 
 
+type queryLocations struct {
+  Time            *time.Time  `json:"time"`
+  Tagnumber       *int32      `json:"tagnumber"`
+  System_serial   *string     `json:"system_serial"`
+  Location        *string     `json:"location"`
+  Status          *bool       `json:"status"`
+  Disk_removed    *bool       `json:"disk_removed"`
+  Department      *string     `json:"department"`
+  Domain          *string     `json:"domain"`
+  Note            *string     `json:"note"`
+}
+
 var (
 	ctx context.Context
 	// db  *sql.DB
+  queryType uint8
 )
 
 func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial string, err error) {
@@ -49,18 +62,24 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
         sql = `SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot 
               FROM live_images 
               WHERE tagnumber = $1`
+        queryType = 1 // First query type
       } else {
         return "", "", "", errors.New("Bad URL request (tagnumber needs to be 6 digits)")
+        queryType = 0 // Error query type
       }
     } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
       sql = `SELECT job_queued, tagnumber, present_bool 
               FROM remote 
               WHERE present_bool = FALSE`
+      queryType = 2
     } else if path == "/api/test" && queries.Get("type") == "test" {
-      sql = `SELECT * FROM locations`
+      sql = `SELECT * FROM locations LIMIT 50`
+      queryType = 3
     } else if len(queries.Get("type")) <= 0{
+      queryType = 0
       return "", "", "", errors.New("Bad URL request (empty 'type' key in URL)")
     } else {
+      queryType = 0
       return "", "", "", errors.New("Bad URL request (unknown error)")
     }
 
@@ -88,12 +107,11 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
   // Connect to DB
   log.Print("Connecting to DB")
-  const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
+  const dbConnString = "postgres://uitweb:448d0e373a0949e9546bdd4238ef9fd0@127.0.0.1:5432/uitdb?sslmode=disable"
   db, err := sql.Open("pgx", dbConnString)
-  // conn, err := pgx.Connect(context.Background(), dbConnString)
   if err != nil  {
-    log.Fatal("Unable to connect to database: \n", err)
     db.Close()
+    log.Fatal("Unable to connect to database: \n", err)
     os.Exit(1)
   }
   defer db.Close()
@@ -120,43 +138,27 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
     }
   defer rows.Close()
 
-    log.Print("Creating map")
-    var sqlResults []map[string]interface{}
+  log.Print("Creating map")
 
-    log.Print("Getting DB columns")
-    columnNames, err := rows.Columns()
-      if err != nil {
-        panic("No columns")
-      }
-    // columnNames := make([]string, len(cols))
-    // for i, col := range cols {
-    //   var col string
-    //   log.Print("index: ", i, ", val: ", col)
-    //   append(columnNames, cols[i])
-    // }
 
-    log.Print("Getting DB rows")
-    rowValues := make([]string, 0)
-    for rows.Next() {
-      var name string
-      if err := rows.Scan(&name); err != nil {
-        log.Print("Error scanning values from SQL rows: ", err)
-        panic("Error scanning values from SQL rows")
-      }
-      rowValues = append(rowValues, name)
-
-      rowMap := make(map[string]interface{})
-      for i, colName := range columnNames {
-        rowMap[colName] = rowValues[i]
-      }
-      sqlResults = append(sqlResults, rowMap)
-    }
-
-    jsonData, err := json.Marshal(sqlResults)
+  var sqlResults []queryLocations
+  for rows.Next() {
+    var q queryLocations
+    err = rows.Scan(&q.Time, &q.Tagnumber, &q.System_serial, &q.Location, &q.Status, &q.Disk_removed, &q.Department, &q.Domain, &q.Note)
     if err != nil {
-      log.Print("Cannot marshal json: ", err)
-      panic("Cannot marshal json")
+      log.Print("Error scanning values from SQL rows: ", err)
+      panic("Error scanning values from SQL rows")
     }
+    sqlResults = append(sqlResults, q)
+  }
+
+  jsonData, err := json.Marshal(sqlResults)
+  if err != nil {
+    log.Print("Cannot marshal json: ", err)
+    panic("Cannot marshal json")
+  }
+
+
 
     w.Header().Set("Content-Type", "application/json")
     io.WriteString(w, string(jsonData))
