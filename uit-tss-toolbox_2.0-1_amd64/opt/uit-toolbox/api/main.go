@@ -1,11 +1,11 @@
-//Don't forget - $ go mod init main; go mod tidy; 
+// Don't forget - $ go mod init main; go mod tidy; 
 package main
 
 import (
   "context"
   // "fmt"
   "os"
-  // "io"
+  "io"
   "net/http"
   "log"
   "time"
@@ -54,7 +54,7 @@ var (
   db *sql.DB
 )
 
-func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial string, err error) {
+func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSerial string, sqlTime string, err error) {
     var path string
     var parsedURL *url.URL
     var queries url.Values
@@ -72,6 +72,7 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
 
     tagnumber = queries.Get("tagnumber")
     systemSerial = queries.Get("system_serial")
+    sqlTime = queries.Get("time")
 
     // Query type determination
     // Query types:
@@ -88,7 +89,7 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
               WHERE tagnumber = $1`
         queryType = 1 // First query type
       } else {
-        return "", "", "", errors.New("Bad URL request (tagnumber needs to be 6 digits)")
+        return "", "", "", "", errors.New("Bad URL request (tagnumber needs to be 6 digits)")
         queryType = 0 // Error query type
       }
     } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
@@ -108,30 +109,74 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
               FROM remote 
               LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = $1`
       queryType = 5
-    } else if len(queries.Get("type")) <= 0{
+    } else if len(queries.Get("type")) <= 0 {
       queryType = 0
-      return "", "", "", errors.New("Bad URL request (empty 'type' key in URL)")
+      return "", "", "", "", errors.New("Bad URL request (empty 'type' key in URL)")
     } else {
       queryType = 0
-      return "", "", "", errors.New("Bad URL request (unknown error)")
+      return "", "", "", "", errors.New("Bad URL request (unknown error)")
     }
 
-    return sql, tagnumber, systemSerial, nil
+    return sql, tagnumber, systemSerial, sqlTime, nil
 }
 
+// func postRequestToSQL (req http.Request) (sql string, []tagnumber, []systemSerial, []sqlTime time.Time, err error) {
+//   var uniqueIteratedValues []string
+//   // If method is POST, read the form data
+//   if req.Method == http.MethodPost {
+//     err := req.ParseMultipartForm(32 << 20)
+//     if err != nil {
+//       log.Print("Failed to parse form: ", err)
+//       http.Error(w, "Failed to parse form", http.StatusInternalServerError)
+//       return "", "", "", "", nil
+//     }
+
+//     if req.Form != nil && len(req.Form) > 0 {
+//       for key, values := range req.Form {
+//         switch key {
+//           case "tagnumber":
+//             for _, value := range values {
+//               if len(value) != 6 {
+//                 log.Print("Bad tag number length: ", value)
+//                 http.Error(w, "Bad tag numebr length", http.StatusBadRequest)
+//                 return "", "", "", "", nil
+//               }
+//               tagnumber = append(tagnumber, value)
+//             }
+
+//           case "system_serial":
+//             for _, value := range values {
+//               if len(value) < 1 {
+//                 log.Print("Bad system serial length: ", value)
+//                 http.Error(w, "Bad system serial length", http.StatusBadRequest)
+//                 return "", "", "", "", nil
+//               }
+//               systemSerial = append(systemSerial, value)
+//             }
+
+//           default:
+//             log.Printf("Unknown form key: %s with values: %v", key, values)
+//             http.Error(w, "Unknown form key", http.StatusBadRequest)
+//             return "", "", "", "", nil
+//         }
+//       }
+//     } else {
+//       log.Print("No form values found in request")
+//       http.Error(w, "No form values found in request", http.StatusBadRequest)
+//       return "", "", "", "", nil
+//     }
+//   }
+  
+//   return sql, tagnumber, systemSerial, time, nil
+// }
 
 
-func apiFunction (w http.ResponseWriter, req *http.Request) {  
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
-  defer cancel()
 
-  var results any // Results will be of type []LiveImage, []RemotePresent, or []Locations
-  var uniqueIteratedValues []string
+func apiFunction (w http.ResponseWriter, req *http.Request) {
   var request string
   var sqlCode string
   var tagnumber string
   var systemSerial string
-  var rows *sql.Rows
   var err error
 
   // Check if request method is valid
@@ -162,64 +207,93 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
     w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS") // Allow GET and POST methods
     w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // Allow specific headers
     w.Header().Set("Access-Control-Allow-Origin", "*") // Allow CORS for all origins
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // Allow specific headers
+    w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate") // Disable caching
+    w.Header().Set("Pragma", "no-cache") // Disable caching
+    w.Header().Set("Expires", "0") // Disable caching
+
     w.WriteHeader(http.StatusOK) // Set the response status to 200 OK
   }
 
-
-  request = req.URL.RequestURI()
-  log.Print("Request: ", request)
-
-  sqlCode, tagnumber, systemSerial, err = urlToSql(request)
-  if err != nil {
-    log.Print("Cannot parse URL: ", err)
-    panic("Cannot parse URL")
-  }
-
-  
-  // If method is POST, read the form data
-  if req.Method == http.MethodPost {
-    err := req.ParseMultipartForm(32 << 20)
-    if err != nil {
-      log.Print("Cannot create request reader")
-      http.Error(w, "Failed to parse form", http.StatusInternalServerError)
-      return
-    }
-
-    if req.Form != nil && len(req.Form) > 0 {
-      for key, values := range req.Form {
-        log.Print("Request form: ", req.Form)
-        switch key {
-          case "tagnumber":
-            for _, value := range values {
-              if len(value) != 6 {
-                log.Print("Bad tagnumber length: ", value)
-                panic("Bad tagnumber length")
-              }
-              log.Print("Request form value: ", value)
-              uniqueIteratedValues = append(uniqueIteratedValues, value)
-            }
-
-          case "system_serial":
-            for _, value := range values {
-              if len(value) < 1 {
-                log.Print("Bad system serial length: ", value)
-                panic("Bad system serial length")
-              }
-              log.Print("Request form value: ", value)
-              uniqueIteratedValues = append(uniqueIteratedValues, value)
-            }
-
-          default:
-            log.Printf("Unknown form key: %s with values: %v", key, values)
-            panic("Unknown form key")
+  // Process the request based on the method
+    switch req.Method {
+      case http.MethodGet:
+        request = req.URL.RequestURI()
+        log.Print("Request: ", request)
+        sqlCode, tagnumber, systemSerial, _, err = getRequestToSQL(request)
+        if err != nil {
+          log.Print("Cannot parse URL: ", err)
+          http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+          return
         }
-      }
-    } else {
-      log.Print("No form values found in request")
-      http.Error(w, "No form values found in request", http.StatusBadRequest)
-      return
-    }
+      // case http.MethodPost:
+      //   log.Print("POST request received")
+      //   sqlCode, tagnumber, systemSerial, sqlTime, err = postRequestToSQL(req)
+      //   if err != nil {
+      //     log.Print("Cannot parse URL: ", err)
+      //     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+      //     return
+      //   }
+      // case http.MethodPut:
+      //   log.Print("PUT request received")
+      //   sqlCode, tagnumber, systemSerial, sqlTime, err = requestToSQL(request)
+      //   if err != nil {
+      //     log.Print("Cannot parse URL: ", err)
+      //     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+      //     return
+      //   }
+      // case http.MethodPatch:
+      //   log.Print("PATCH request received")
+      //   sqlCode, tagnumber, systemSerial, sqlTime, err = requestToSQL(request)
+      //   if err != nil {
+      //     log.Print("Cannot parse URL: ", err)
+      //     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+      //     return
+      //   }
+      // case http.MethodDelete:
+      //   log.Print("DELETE request received")
+      //   sqlCode, tagnumber, systemSerial, sqlTime, err = requestToSQL(request)
+      //   if err != nil {
+      //     log.Print("Cannot parse URL: ", err)
+      //     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+      //     return
+      //   }
+      default:
+        log.Print("Unknown request method: ", req.Method)
+        http.Error(w, "Unknown request method", http.StatusMethodNotAllowed)
+        return
   }
+
+  jsonData, err := queryResults(sqlCode, tagnumber, systemSerial)
+  if err != nil {
+    log.Print("Error querying results: ", err)
+    http.Error(w, "Error querying results", http.StatusInternalServerError)
+    return
+  }
+
+  if _, err := io.WriteString(w, jsonData); err != nil {
+		log.Fatal(err)
+	}
+
+  // if len(rawData) < 1 {
+  //   log.Print("No results found for query: ", sqlCode)
+  //   http.Error(w, "No results found", http.StatusNotFound)
+  //   return
+  // }
+  // jsonEncoder := json.NewEncoder(w)
+  // jsonEncoder.Encode(rawData)
+  return
+}
+
+func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonData string, err error) {
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  defer cancel()
+
+  var results any // Results will be of type []LiveImage, []RemotePresent, or []Locations
+  // var sqlTime string
+  var rows *sql.Rows
+  var rawData []byte
+
 
   switch queryType {
     case 1: // Live image query
@@ -227,14 +301,13 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
         log.Print("Bad tagnumber length: ", tagnumber)
         panic("Bad tagnumber length")
       }
-      log.Print("Executing live image query for tagnumber: ", tagnumber)
+      //log.Print("Executing live image query for tagnumber: ", tagnumber)
       rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
       if err != nil {
         log.Print("Error querying screenshot: ", err)
         panic("Error querying screenshot")
       }
       defer rows.Close()
-      log.Print("Query executed successfully")
 
 
       var liveImages []LiveImage
@@ -262,14 +335,14 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       results = liveImages // Assign results to liveImages
 
     case 2: // Remote present query
-      log.Print("Executing remote query")
+      //log.Print("Executing remote query")
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
         log.Print("Error querying remote: ", err)
         panic("Error querying remote")
       }
       defer rows.Close()
-      log.Print("Query executed successfully")
+      //log.Print("Query executed successfully")
 
       var remotePresent []RemotePresent // Initialize remotePresent slice
       remotePresent = make([]RemotePresent, 0) // Ensure remotePresent is initialized
@@ -302,14 +375,14 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       results = remotePresent // Assign results to remotePresent
 
     case 3: // Test query
-      log.Print("Executing test query")
+      //log.Print("Executing test query")
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
         log.Print("Error querying locations: ", err)
         panic("Error querying locations")
       }
       defer rows.Close()
-      log.Print("Query executed successfully")
+      //log.Print("Query executed successfully")
       
       var locations []Locations // Initialize Locations slice
       locations = make([]Locations, 0) // Ensure Locations is initialized
@@ -353,14 +426,14 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       results = locations // Assign results to Locations
 
     case 4: 
-      log.Print("Executing tag lookup query for system serial: ", systemSerial)
+      //log.Print("Executing tag lookup query for system serial: ", systemSerial)
       rows, err = db.QueryContext(dbCTX, sqlCode, systemSerial)
       if err != nil {
         log.Print("Error querying tag lookup: ", err)
         panic("Error querying tag lookup")
       }
       defer rows.Close()
-      log.Print("Query executed successfully")
+      //log.Print("Query executed successfully")
 
       var tagLookup []TagLookup // Initialize tagLookup slice
       tagLookup = make([]TagLookup, 0) // Ensure tagLookup is initialized
@@ -387,21 +460,28 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       results = tagLookup // Assign results to tagLookup
 
     case 5:
-      log.Print("Executing job queue query for tagnumber: ", tagnumber)
+      //log.Print("Executing job queue query for tagnumber: ", tagnumber)
     default:
       log.Print("Unknown query type")
       panic("Unknown query type")
   }
 
 
-  jsonEncoder := json.NewEncoder(w)
-  jsonEncoder.Encode(results)
+  rawData, err = json.Marshal(results)
+  jsonData = string(rawData)
   if err != nil {
-    log.Print("Cannot create json data: ", err)
-    panic("Cannot create json data")
+    log.Print("Error creating JSON data: ", err)
+    err = errors.New("Error creating JSON data (empty)")
+    return
   }
 
-  return
+  if len(jsonData) < 1 {
+    log.Print("Error creating JSON data: ", err)
+    err = errors.New("Error creating JSON data (empty)")
+    return
+  }
+
+  return jsonData, nil
 }
 
 
