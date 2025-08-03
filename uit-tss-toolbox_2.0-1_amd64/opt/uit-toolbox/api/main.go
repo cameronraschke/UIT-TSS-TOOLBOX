@@ -22,6 +22,7 @@ import (
 // 2: Remote present query
 // 3: Test query
 // 4: Tag lookup query
+// 5: Job queue for client
 // 0: Error query type
 type LiveImage struct {
   TimeFormatted   *string    `json:"time_formatted"`
@@ -84,6 +85,7 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
     // 2: Remote present query
     // 3: Test query (locations)
     // 4: Tag lookup query
+    // 5: Job queue for client
     // 0: Error query type
     if path == "/api/remote" && queries.Get("type") == "live_image" {
       if len(queries.Get("tagnumber")) == 6 {
@@ -106,6 +108,12 @@ func urlToSql(requestURL string) (sql string, tagnumber string, systemSerial str
     } else if path == "/api/remote" && queries.Get("type") == "tag_lookup" && len(queries.Get("system_serial")) >= 1 {
       sql = `SELECT tagnumber FROM locations WHERE system_serial = $1 ORDER BY time DESC LIMIT 1`
       queryType = 4
+    } else if path == "/api/remote" && queries.Get("type") == "job_queue" && len(queries.Get("tagnumber") == 6 {
+      sql = `SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
+              remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted 
+              FROM remote 
+              LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = $1`
+      queryType = 5
     } else if len(queries.Get("type")) <= 0{
       queryType = 0
       return "", "", "", errors.New("Bad URL request (empty 'type' key in URL)")
@@ -140,7 +148,7 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
   // Connect to DB
   // log.Print("Connecting to DB")
-  const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
+  const dbConnString = "postgres://uitweb:UIT_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
   db, err := sql.Open("pgx", dbConnString)
   if err != nil  {
     db.Close()
@@ -296,6 +304,8 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
       }
 
       results = tagLookup // Assign results to tagLookup
+
+    case: 5
 
     default:
       log.Print("Unknown query type")
