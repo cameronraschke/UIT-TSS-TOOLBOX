@@ -50,7 +50,7 @@ type TagLookup struct {
 var (
 	dbCTX context.Context
 	webCTX context.Context
-  queryType uint8
+  eventType string
   db *sql.DB
 )
 
@@ -87,33 +87,33 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
         sql = `SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot 
               FROM live_images 
               WHERE tagnumber = $1`
-        queryType = 1 // First query type
+        eventType = "live_image" // First query type
       } else {
         return "", "", "", "", errors.New("Bad URL request (tagnumber needs to be 6 digits)")
-        queryType = 0 // Error query type
+        eventType = "err" // Error query type
       }
     } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
       sql = `SELECT job_queued, tagnumber, present_bool 
               FROM remote 
               WHERE present_bool = FALSE`
-      queryType = 2
+      eventType = "remote_present"
     } else if path == "/api/test" && queries.Get("type") == "test" {
       sql = `SELECT * FROM locations ORDER BY time DESC LIMIT 100`
-      queryType = 3
+      eventType = "test"
     } else if path == "/api/remote" && queries.Get("type") == "tag_lookup" && len(queries.Get("system_serial")) >= 1 {
       sql = `SELECT tagnumber FROM locations WHERE system_serial = $1 ORDER BY time DESC LIMIT 1`
-      queryType = 4
+      eventType = "tag_lookup"
     } else if path == "/api/remote" && queries.Get("type") == "job_queue" && len(queries.Get("tagnumber")) == 6 {
       sql = `SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
               remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted 
               FROM remote 
               LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = $1`
-      queryType = 5
+      eventType = "job_queue"
     } else if len(queries.Get("type")) <= 0 {
-      queryType = 0
+      eventType = "err"
       return "", "", "", "", errors.New("Bad URL request (empty 'type' key in URL)")
     } else {
-      queryType = 0
+      eventType = "err"
       return "", "", "", "", errors.New("Bad URL request (unknown error)")
     }
 
@@ -178,6 +178,18 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
   var tagnumber string
   var systemSerial string
   var err error
+  var parsedURL *url.URL
+  var queries url.Values
+
+  parsedURL, err = url.Parse(req.URL.RequestURI())
+  if err != nil {
+    log.Print("Cannot parse URL: " + req.URL.RequestURI())
+    panic("Cannot parse URL")
+  }
+
+  RawQuery := parsedURL.RawQuery
+  queries, _ = url.ParseQuery(RawQuery)
+
 
   // Check if request method is valid
   if req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete && req.Method != http.MethodOptions {
@@ -202,16 +214,20 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
   // Validate request method and headers
   if req.Method == http.MethodOptions {
-    w.Header().Set("Content-Type", "application/json")
-    w.Header().Set("Access-Control-Allow-Origin", "*") // Allow CORS for all origins
-    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS") // Allow GET and POST methods
-    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // Allow specific headers
-    w.Header().Set("Access-Control-Allow-Origin", "*") // Allow CORS for all origins
-    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // Allow specific headers
-    w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate") // Disable caching
-    w.Header().Set("Pragma", "no-cache") // Disable caching
-    w.Header().Set("Expires", "0") // Disable caching
+    if queries.Get("sse") == "true" {
+      w.Header().Set("Content-Type", "text/event-stream")
+    } else {
+      w.Header().Set("Content-Type", "application/json")
+    }
 
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+    w.Header().Set("Pragma", "no-cache")
+    w.Header().Set("Expires", "0")
+    w.Header().Set("Connection", "keep-alive")
+    w.Header().Set("X-Accel-Buffering", "no")
     w.WriteHeader(http.StatusOK) // Set the response status to 200 OK
   }
 
@@ -271,9 +287,27 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
     return
   }
 
-  if _, err := io.WriteString(w, jsonData); err != nil {
-		log.Fatal(err)
-	}
+
+    if queries.Get("sse") == "true" {
+      eventString := "event: " + eventType + "\n"
+      jsonString := "data: " + jsonData + "\n\n"
+
+      if _, err := io.WriteString(w, eventString); err != nil {
+        log.Print("Cannot write output to client: ", err)
+        http.Error(w, "Cannot write output to client", http.StatusInternalServerError)
+      }
+      if _, err := io.WriteString(w, jsonString); err != nil {
+        log.Print("Cannot write output to client: ", err)
+        http.Error(w, "Cannot write output to client", http.StatusInternalServerError)
+      }
+    } else {
+      if _, err := io.WriteString(w, jsonData); err != nil {
+        log.Print("Cannot write output to client: ", err)
+        http.Error(w, "Cannot write output to client", http.StatusInternalServerError)
+      }
+    }
+
+
 
   // if len(rawData) < 1 {
   //   log.Print("No results found for query: ", sqlCode)
@@ -295,8 +329,8 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
   var rawData []byte
 
 
-  switch queryType {
-    case 1: // Live image query
+  switch eventType {
+    case "live_image": // Live image query
       if len(tagnumber) != 6 {
         log.Print("Bad tagnumber length: ", tagnumber)
         panic("Bad tagnumber length")
@@ -334,7 +368,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       }
       results = liveImages // Assign results to liveImages
 
-    case 2: // Remote present query
+    case "remote_present": // Remote present query
       //log.Print("Executing remote query")
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
@@ -374,7 +408,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       }
       results = remotePresent // Assign results to remotePresent
 
-    case 3: // Test query
+    case "test": // Test query
       //log.Print("Executing test query")
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
@@ -425,7 +459,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       }
       results = locations // Assign results to Locations
 
-    case 4: 
+    case "tag_lookup":
       //log.Print("Executing tag lookup query for system serial: ", systemSerial)
       rows, err = db.QueryContext(dbCTX, sqlCode, systemSerial)
       if err != nil {
@@ -459,11 +493,14 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
 
       results = tagLookup // Assign results to tagLookup
 
-    case 5:
-      //log.Print("Executing job queue query for tagnumber: ", tagnumber)
+    case "err":
+      log.Print("Bad query type")
+      err = errors.New("Bad query type")
+      return "", err
     default:
       log.Print("Unknown query type")
-      panic("Unknown query type")
+      err = errors.New("Unknown query type")
+      return "", err
   }
 
 
