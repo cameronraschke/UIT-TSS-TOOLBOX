@@ -332,14 +332,12 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
   switch eventType {
     case "live_image": // Live image query
       if len(tagnumber) != 6 {
-        log.Print("Bad tagnumber length: ", tagnumber)
-        panic("Bad tagnumber length")
+        return "", errors.New("Bad tagnumber length (needs to be 6 digits)")
       }
       //log.Print("Executing live image query for tagnumber: ", tagnumber)
       rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
       if err != nil {
-        log.Print("Error querying screenshot: ", err)
-        panic("Error querying screenshot")
+        return "", errors.New("Error querying live image")
       }
       defer rows.Close()
 
@@ -350,19 +348,17 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
         var result LiveImage
         if dbCTX.Err() != nil {
           log.Print("Context error: ", dbCTX.Err())
-          return
+          return "", errors.New("Context error: " + dbCTX.Err().Error())
         }
         if err = rows.Err(); err != nil {
-          log.Print("Context error: ", dbCTX.Err())
-          return
+          return "", errors.New("Row error: " + err.Error())
         }
         err = rows.Scan(
           &result.TimeFormatted, 
           &result.Screenshot,
         )
         if err != nil {
-          log.Print("Error scanning row: ", err)
-          panic("Error scanning row")
+          return "", errors.New("Error scanning row")
         }
         liveImages = append(liveImages, result)
       }
@@ -372,8 +368,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       //log.Print("Executing remote query")
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
-        log.Print("Error querying remote: ", err)
-        panic("Error querying remote")
+        return "", errors.New("Error querying present clients")
       }
       defer rows.Close()
       //log.Print("Query executed successfully")
@@ -384,11 +379,10 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
         var result RemotePresent
         if dbCTX.Err() != nil {
           log.Print("Context error: ", dbCTX.Err())
-          return
+          return "", errors.New("Context error: " + dbCTX.Err().Error())
         }
         if err = rows.Err(); err != nil {
-          log.Print("Context error: ", dbCTX.Err())
-          return
+          return "", errors.New("Context error: ")
         }
         err = rows.Scan(
           &result.JobQueued, 
@@ -396,15 +390,13 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
           &result.PresentBool,
         )
         if err != nil {
-          log.Print("Error scanning row: ", err)
-          panic("Error scanning row")
+          return "", errors.New("Error scanning row")
         }
         remotePresent = append(remotePresent, result)
       }
 
       if err != nil {
-        log.Print("Error querying locations: ", err)
-        panic("Error querying locations")
+        return "", errors.New("Error querying present clients")
       }
       results = remotePresent // Assign results to remotePresent
 
@@ -412,8 +404,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       //log.Print("Executing test query")
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
-        log.Print("Error querying locations: ", err)
-        panic("Error querying locations")
+        return "", errors.New("Error querying locations")
       }
       defer rows.Close()
       //log.Print("Query executed successfully")
@@ -424,11 +415,11 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
         var result Locations
         if dbCTX.Err() != nil {
           log.Print("Context error: ", dbCTX.Err())
-          return
+          return "", errors.New("Context error: " + dbCTX.Err().Error())
         }
         if err = rows.Err(); err != nil {
           log.Print("Context error: ", dbCTX.Err())
-          return
+          return "", errors.New("Error with rows: " + err.Error())
         }
         err = rows.Scan(
           &result.Time,
@@ -442,20 +433,17 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
           &result.Note,
         )
         if err != nil {
-          log.Print("Error scanning row: ", err)
-          panic("Error scanning row")
+          return "", errors.New("Error scanning row: " + err.Error())
         }
         locations = append(locations, result) // Append result to locations
       }
 
       if err = rows.Err(); err != nil {
-        log.Print("Error with rows: ", err)
-        panic("Error with rows")
+        return "", errors.New("Error with rows: " + err.Error())
       }
 
       if err != nil {
-        log.Print("Error querying locations: ", err)
-        panic("Error querying locations")
+        return "", errors.New("Error querying locations")
       }
       results = locations // Assign results to Locations
 
@@ -463,8 +451,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       //log.Print("Executing tag lookup query for system serial: ", systemSerial)
       rows, err = db.QueryContext(dbCTX, sqlCode, systemSerial)
       if err != nil {
-        log.Print("Error querying tag lookup: ", err)
-        panic("Error querying tag lookup")
+        return "", errors.New("Error querying tag lookup")
       }
       defer rows.Close()
       //log.Print("Query executed successfully")
@@ -474,19 +461,16 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       for rows.Next() {
         var result TagLookup
         if dbCTX.Err() != nil {
-          log.Print("Context error: ", dbCTX.Err())
-          return
+          return "", errors.New("Context error: " + dbCTX.Err().Error())
         }
         if err = rows.Err(); err != nil {
-          log.Print("Context error: ", dbCTX.Err())
-          return
+          return "", errors.New("Error with rows: " + err.Error())  
         }
         err = rows.Scan(
           &result.Tagnumber,
         )
         if err != nil {
-          log.Print("Error scanning row: ", err)
-          panic("Error scanning row")
+          return "", errors.New("Error scanning row: " + err.Error())
         }
         tagLookup = append(tagLookup, result)
       }
@@ -494,28 +478,20 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       results = tagLookup // Assign results to tagLookup
 
     case "err":
-      log.Print("Bad query type")
-      err = errors.New("Bad query type")
-      return "", err
+      return "", errors.New("Query type is not valid (error query type)")
     default:
-      log.Print("Unknown query type")
-      err = errors.New("Unknown query type")
-      return "", err
+      return "", errors.New("Unknown query type: " + eventType)
   }
 
 
   rawData, err = json.Marshal(results)
   jsonData = string(rawData)
   if err != nil {
-    log.Print("Error creating JSON data: ", err)
-    err = errors.New("Error creating JSON data (empty)")
-    return
+    return "", errors.New("Error creating JSON data: " + err.Error())
   }
 
   if len(jsonData) < 1 {
-    log.Print("Error creating JSON data: ", err)
-    err = errors.New("Error creating JSON data (empty)")
-    return
+    return "", errors.New("No results found for query: " + sqlCode)
   }
 
   return jsonData, nil
