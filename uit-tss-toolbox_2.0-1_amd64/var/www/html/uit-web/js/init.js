@@ -1,9 +1,19 @@
 async function fetchData(url) {
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+    'Bearer': 'your_token_here', // Replace with your actual token if needed
+    'Authorization': 'Bearer your_token_here' // Replace with your actual token if needed
+  });
+  const requestOptions = {
+    method: 'GET',
+    headers: headers
+  };
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, requestOptions);
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
-      }
+      }   
   
       const data = await response.json();
       return(data);

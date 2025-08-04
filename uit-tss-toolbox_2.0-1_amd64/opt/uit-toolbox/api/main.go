@@ -3,13 +3,15 @@ package main
 
 import (
   "context"
-  // "fmt"
+  "fmt"
   "os"
   "io"
   "net/http"
   "log"
   "time"
   "encoding/json"
+  "strings"
+  "crypto/md5"
   "net/url"
   "errors"
   "database/sql"
@@ -46,12 +48,27 @@ type TagLookup struct {
   Tagnumber *string `json:"tagnumber"`
 }
 
+type Auth struct {
+	Token string `json:"token"`
+}
+
+type User struct {
+	Username     string `json:"username"`
+	PasswordHash string `json:"-"`
+}
+
+type StoredAuth struct {
+  Expires time.Time
+  Hash    string
+}
+
 
 var (
 	dbCTX context.Context
 	webCTX context.Context
   eventType string
   db *sql.DB
+  authMap map[time.Time]string
 )
 
 func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSerial string, sqlTime string, err error) {
@@ -62,7 +79,7 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
     parsedURL, err = url.Parse(requestURL)
     if err != nil {
       log.Print("Cannot parse URL: " + requestURL)
-      panic("Cannot parse URL")
+      return "", "", "", "", errors.New("Cannot parse URL: " + requestURL)
     }
 
     path = parsedURL.Path
@@ -165,7 +182,7 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
 
 
 
-func apiFunction (w http.ResponseWriter, req *http.Request) {
+func apiFunction (writer http.ResponseWriter, req *http.Request) {
   var request string
   var sqlCode string
   var tagnumber string
@@ -173,62 +190,30 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
   var err error
   var parsedURL *url.URL
   var queries url.Values
+  var w http.ResponseWriter
+
+
+  w, err = apiMiddleWare(writer, req)
+  if err != nil {
+    log.Print("API middleware error: ", err)
+    return
+  }
 
   parsedURL, err = url.Parse(req.URL.RequestURI())
   if err != nil {
     log.Print("Cannot parse URL: " + req.URL.RequestURI())
-    panic("Cannot parse URL")
+    http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+    return
   }
+
 
   RawQuery := parsedURL.RawQuery
   queries, _ = url.ParseQuery(RawQuery)
-
-
-  // Check if request method is valid
-  if req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete && req.Method != http.MethodOptions {
-    log.Print("Invalid request method: ", req.Method)
-    http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-    return
-  }
-
-  // Check if Content-Type is valid
-  if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
-    log.Print("Invalid Content-Type: ", req.Header.Get("Content-Type"))
-    // http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
-    // return
-  }
-
-  // Check if request content length exceeds 32 MB
-  if req.ContentLength > 32 << 20 { // 32 MB limit
-    log.Print("Request content length exceeds limit: ", req.ContentLength)
-    http.Error(w, "Request content length exceeds limit", http.StatusRequestEntityTooLarge)
-    return
-  }
-
-  // Validate request method and headers
-  if req.Method == http.MethodOptions {
-    if queries.Get("sse") == "true" {
-      w.Header().Set("Content-Type", "text/event-stream")
-    } else {
-      w.Header().Set("Content-Type", "application/json")
-    }
-
-    w.Header().Set("Access-Control-Allow-Origin", "*")
-    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-    w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-    w.Header().Set("Pragma", "no-cache")
-    w.Header().Set("Expires", "0")
-    w.Header().Set("Connection", "keep-alive")
-    w.Header().Set("X-Accel-Buffering", "no")
-    w.WriteHeader(http.StatusOK) // Set the response status to 200 OK
-  }
 
   // Process the request based on the method
     switch req.Method {
       case http.MethodGet:
         request = req.URL.RequestURI()
-        log.Print("Request: ", request)
         sqlCode, tagnumber, systemSerial, _, err = getRequestToSQL(request)
         if err != nil {
           log.Print("Cannot parse URL: ", err)
@@ -273,12 +258,16 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
         return
   }
 
+
   jsonData, err := queryResults(sqlCode, tagnumber, systemSerial)
   if err != nil {
     log.Print("Error querying results: ", err)
     http.Error(w, "Error querying results", http.StatusInternalServerError)
     return
   }
+
+  
+
 
 
     if queries.Get("sse") == "true" {
@@ -312,15 +301,14 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
   return
 }
 
-func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonData string, err error) {
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
-  defer cancel()
-
+func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDataStr string, err error) {
   var results any // Results will be of type []LiveImage, []RemotePresent, or []Locations
   // var sqlTime string
   var rows *sql.Rows
   var jsonData []byte
-  var jsonDataStr string
+
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  defer cancel()
 
   // Check if the database connection is valid
   if db == nil {
@@ -331,6 +319,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
     log.Print("Context error: ", dbCTX.Err()) 
     return "", errors.New("Context error: " + dbCTX.Err().Error())
   }
+
 
   switch eventType {
     case "live_image": // Live image query
@@ -487,6 +476,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
   }
 
 
+
   jsonData, err = json.Marshal(results)
   if err != nil {
     return "", errors.New("Error creating JSON data: " + err.Error())
@@ -495,16 +485,222 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
     return "", errors.New("No results found for query: " + sqlCode)
   }
 
+
   // Convert jsonData to string
-    if len(jsonData) > 0 {
-  jsonDataStr = string(jsonData)
+  if len(jsonData) > 0 {
+    jsonDataStr = string(jsonData)
   } else {
     return "", errors.New("No results found for query: " + sqlCode)
   }
 
 
+  return jsonDataStr, nil
+}
 
-  return jsonData, nil
+
+func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.ResponseWriter, err error) {  
+  log.Print("Received request: ", req.Method, " ", req.URL.RequestURI())
+  var parsedURL *url.URL
+  var queries url.Values
+  var matches int32
+
+
+  // Check for the Authorization header
+  authHeader := req.Header.Get("Authorization")
+  if authHeader == "" {
+    log.Print("Authorization header is missing")
+    http.Error(w, "Unauthorized", http.StatusUnauthorized)
+    return nil, errors.New("Authorization header is missing")
+  }
+
+  // Check if the Authorization header starts with "Bearer "
+  if !strings.HasPrefix(authHeader, "Bearer ") {
+    http.Error(w, "Unauthorized", http.StatusUnauthorized)
+    return nil, errors.New("Authorization header must start with 'Bearer '")
+  }
+
+  // Extract the token from the Authorization header
+  token := strings.TrimPrefix(authHeader, "Bearer ")
+
+  // Check if the token is empty
+  if token == "" {
+    http.Error(w, "Unauthorized", http.StatusUnauthorized)
+    return nil, errors.New("Authorization token is empty")
+  }
+
+  for key, value := range authMap {
+    log.Print(key)
+    if time.Now().Sub(key).Seconds() > 10 {
+      delete(authMap, key)
+      http.Error(w, "Auth session expired", http.StatusUnauthorized)
+      return nil, errors.New("Auth session expired")
+    }
+    if value == token {
+      matches = matches + 1
+    }
+    if matches == 0 {
+      http.Error(w, "Auth session expired", http.StatusUnauthorized)
+      return nil, errors.New("Auth session expired")
+    }
+  }
+
+    // Check if request method is valid
+  if req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete && req.Method != http.MethodOptions {
+    log.Print("Invalid request method: ", req.Method)
+    http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+    return nil, errors.New("Invalid request method: " + req.Method)
+  }
+
+  // Check if Content-Type is valid
+  if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
+    log.Print("Invalid Content-Type: ", req.Header.Get("Content-Type"))
+    // http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
+    // return nil, errors.New("Invalid Content-Type: " + req.Header.Get("Content-Type"))
+  }
+
+  // Check if request content length exceeds 32 MB
+  if req.ContentLength > 32 << 20 { // 32 MB limit
+    log.Print("Request content length exceeds limit: ", req.ContentLength)
+    http.Error(w, "Request content length exceeds limit", http.StatusRequestEntityTooLarge)
+    return nil, errors.New("Request content length exceeds limit: " + fmt.Sprint(req.ContentLength))
+  }
+
+
+  parsedURL, err = url.Parse(req.URL.RequestURI())
+  if err != nil {
+    log.Print("Cannot parse URL: " + req.URL.RequestURI())
+    http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+    return nil, errors.New("Cannot parse URL: " + req.URL.RequestURI())
+  }
+
+  RawQuery := parsedURL.RawQuery
+  queries, _ = url.ParseQuery(RawQuery)
+  // Validate request method and headers
+  if req.Method == http.MethodOptions {
+    if queries.Get("sse") == "true" {
+      w.Header().Set("Content-Type", "text/event-stream")
+    } else {
+      w.Header().Set("Content-Type", "application/json")
+    }
+
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+    w.Header().Set("Pragma", "no-cache")
+    w.Header().Set("Expires", "0")
+    // w.Header().Set("Connection", "keep-alive")
+    w.Header().Set("X-Accel-Buffering", "no")
+    w.WriteHeader(http.StatusOK) // Set the response status to 200 OK
+  }
+
+  return w, nil
+}
+
+
+func apiAuth (w http.ResponseWriter, req *http.Request) {
+
+    // var user User
+    var err error
+    var authHeader string
+    var token string
+    var rows *sql.Rows
+    var dbToken string
+    var hashedToken [16]byte
+    var response Auth
+    var jsonResponse []byte
+
+  if req.Method == http.MethodGet {
+    w, err = apiMiddleWare(w, req)
+    if err != nil {
+      log.Print("API middleware error: ", err)
+      return
+    }
+
+    dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+    defer cancel()
+
+
+    // err = json.NewDecoder(req.Body).Decode(&user)
+    // if err != nil {
+    //   log.Print("Error decoding JSON: ", err)
+    //   http.Error(w, "Bad Request", http.StatusBadRequest)
+    //   return
+    // }
+    // if user.Username == "" || user.PasswordHash == "" {
+    //   log.Print("Username or password is empty")
+    //   http.Error(w, "Bad Request", http.StatusBadRequest)
+    //   return
+    // }
+
+    authHeader = req.Header.Get("Authorization")
+    token = strings.TrimPrefix(authHeader, "Bearer ")
+
+    // Check if DB connection is valid
+    if db == nil {
+      log.Print("Database connection is not valid")
+      http.Error(w, "Database connection is not valid", http.StatusInternalServerError)
+      return
+    }
+    if dbCTX.Err() != nil {
+      log.Print("Context error: ", dbCTX.Err()) 
+      http.Error(w, "Context error", http.StatusInternalServerError)
+      return
+    }
+
+    // Check if the token exists in the database
+    sqlCode := `SELECT MD5(CONCAT(username, password)) as tokens FROM logins WHERE MD5(CONCAT(username, password)) = $1`
+    rows, err = db.QueryContext(dbCTX, sqlCode, token)
+    if err != nil {
+      log.Print("Error querying database: ", err)
+      http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+      return
+    }
+
+    for rows.Next() {
+      err = rows.Scan(&token)
+      if err != nil {
+        log.Print("Error scanning token: ", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+      }
+      if dbCTX.Err() != nil {
+        log.Print("Context error: ", dbCTX.Err())
+        http.Error(w, "Context error", http.StatusInternalServerError)
+        return
+      }
+      if err = rows.Scan(&dbToken); err != nil {
+        log.Print("Error scanning token: ", err)
+        http.Error(w, "Error scanning token", http.StatusInternalServerError)
+        return
+      }
+      if dbToken == "" {
+        log.Print("Unauthorized access attempt with token: ", token)
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+      }
+      if dbToken != token {
+        log.Print("Invalid token: ", token)
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+      }
+    }
+    defer rows.Close()
+
+    hashedToken = md5.Sum([]byte(token))
+
+    authMap[time.Now().Add(time.Second * 30)] = fmt.Sprintf("%x", hashedToken)
+
+    response = Auth{Token: fmt.Sprintf("%x", hashedToken)}
+    jsonResponse, err = json.Marshal(response)
+    if err != nil {
+      log.Print("Error creating JSON response: ", err)
+      http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+      return
+    }
+    w.Write(jsonResponse)
+    return
+  }
 }
 
 
@@ -524,31 +720,40 @@ func main() {
   // Connect to the database
   log.Print("Connecting to database...")
   // Use the pgx driver for PostgreSQL
-  const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
+  const dbConnString = "postgres://uitweb:e74b46c7110638cca432b8df4caea414@127.0.0.1:5432/uitdb?sslmode=disable"
   conn, err := sql.Open("pgx", dbConnString)
   if err != nil  {
     log.Fatal("Unable to connect to database: \n", err)
     os.Exit(1)
   }
   defer conn.Close()
-  log.Print("Connected to database successfully")
-  // // Check if the database connection is valid
+  // Check if the database connection is valid
   if err = conn.Ping(); err != nil {
     log.Fatal("Cannot ping database: \n", err)
     os.Exit(1)
   }
 
+  log.Print("Connected to database successfully")
   db = conn // Assign the database connection to the global variable
-  log.Print("Database connection is valid")
 
   webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
+
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  defer cancel()
+
 
   // Check if the web context is valid
   if webCTX.Err() != nil {
     log.Print("Web context error: ", webCTX.Err())
     panic("Web context error")
   }
+
+  if dbCTX.Err() != nil {
+    log.Print("DB context error: ", dbCTX.Err())
+    panic("DB context error")
+  }
+
 
 
   // // Check if connection is valid
@@ -557,16 +762,19 @@ func main() {
   //   panic("Connection is not active")
   // }
 
+  authMap = make(map[time.Time]string, 10)
 
   // Route to correct function
   mux := http.NewServeMux()
+  mux.HandleFunc("/auth/", apiAuth)
   mux.HandleFunc("/api/", apiFunction)
 
+
 	log.Print("Server time: " + time.Now().Format("01-02-2006 15:04:05"))
-	log.Print("Starting web server on https://localhost:8080")
+	log.Print("Starting web server on https://*:31411")
 
     httpServer := http.Server{
-		Addr: "127.0.0.1:8080",
+		Addr: ":31411",
     Handler: mux,
     ReadTimeout: time.Duration(10) * time.Second,
     WriteTimeout: time.Duration(10) * time.Second,
@@ -578,5 +786,5 @@ func main() {
 	log.Fatal(httpServer.ListenAndServeTLS("/usr/local/share/ca-certificates/uit-web.crt", "/usr/local/share/ca-certificates/uit-web.key"))
   defer httpServer.Close()
 
-	log.Printf("Listening on https://localhost:8080")
+	log.Printf("Listening on https://*:31411")
 }
