@@ -75,13 +75,6 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
     sqlTime = queries.Get("time")
 
     // Query type determination
-    // Query types:
-    // 1: Live image query
-    // 2: Remote present query
-    // 3: Test query (locations)
-    // 4: Tag lookup query
-    // 5: Job queue for client
-    // 0: Error query type
     if path == "/api/remote" && queries.Get("type") == "live_image" {
       if len(queries.Get("tagnumber")) == 6 {
         sql = `SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot 
@@ -309,13 +302,13 @@ func apiFunction (w http.ResponseWriter, req *http.Request) {
 
 
 
-  // if len(rawData) < 1 {
+  // if len(jsonData) < 1 {
   //   log.Print("No results found for query: ", sqlCode)
   //   http.Error(w, "No results found", http.StatusNotFound)
   //   return
   // }
   // jsonEncoder := json.NewEncoder(w)
-  // jsonEncoder.Encode(rawData)
+  // jsonEncoder.Encode(jsonData)
   return
 }
 
@@ -326,8 +319,18 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
   var results any // Results will be of type []LiveImage, []RemotePresent, or []Locations
   // var sqlTime string
   var rows *sql.Rows
-  var rawData []byte
+  var jsonData []byte
+  var jsonDataStr string
 
+  // Check if the database connection is valid
+  if db == nil {
+    log.Print("Database connection is not valid")
+    return "", errors.New("Database connection is not valid")
+  }
+  if dbCTX.Err() != nil {
+    log.Print("Context error: ", dbCTX.Err()) 
+    return "", errors.New("Context error: " + dbCTX.Err().Error())
+  }
 
   switch eventType {
     case "live_image": // Live image query
@@ -484,15 +487,22 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
   }
 
 
-  rawData, err = json.Marshal(results)
-  jsonData = string(rawData)
+  jsonData, err = json.Marshal(results)
   if err != nil {
     return "", errors.New("Error creating JSON data: " + err.Error())
-  }
-
+  }  
   if len(jsonData) < 1 {
     return "", errors.New("No results found for query: " + sqlCode)
   }
+
+  // Convert jsonData to string
+    if len(jsonData) > 0 {
+  jsonDataStr = string(jsonData)
+  } else {
+    return "", errors.New("No results found for query: " + sqlCode)
+  }
+
+
 
   return jsonData, nil
 }
@@ -514,7 +524,7 @@ func main() {
   // Connect to the database
   log.Print("Connecting to database...")
   // Use the pgx driver for PostgreSQL
-  const dbConnString = "postgres://uitweb:aac994babe9636f8f7ce63054801d8b2@127.0.0.1:5432/uitdb?sslmode=disable"
+  const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
   conn, err := sql.Open("pgx", dbConnString)
   if err != nil  {
     log.Fatal("Unable to connect to database: \n", err)
