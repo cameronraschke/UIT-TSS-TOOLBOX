@@ -201,8 +201,8 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
 
   err = apiAuth(w, req)
   if err != nil {
-    log.Print(err)
-    http.Error(w, "Auth Error: ", http.StatusUnauthorized)
+    log.Print("Auth Error: ", err)
+    http.Error(w, "Auth Error", http.StatusUnauthorized)
     return
   }
 
@@ -212,7 +212,6 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
     return
   }
-
 
   RawQuery := parsedURL.RawQuery
   queries, _ = url.ParseQuery(RawQuery)
@@ -506,7 +505,6 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
 
 
 func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.ResponseWriter, err error) {  
-  log.Print("Received request: ", req.Method, " ", req.URL.RequestURI())
   var parsedURL *url.URL
   var queries url.Values
   var token string
@@ -599,6 +597,8 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
   var jsonResponse []byte
   var matches int32
 
+  log.Print("Received request: ", req.Method, " ", req.URL.RequestURI())
+
   if req.Method == http.MethodGet {
     w, err = apiMiddleWare(w, req)
     if err != nil {
@@ -649,13 +649,12 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
 
     // Check if DB connection is valid
     if db == nil {
-      log.Print("Database connection is not valid")
-      http.Error(w, "Database connection is not valid", http.StatusInternalServerError)
-      return errors.New("Auth Error")
+      http.Error(w, "Internal server error", http.StatusInternalServerError)
+      return errors.New("DB Connection broken")
     }
     if dbCTX.Err() != nil {
       log.Print("Context error: ", dbCTX.Err()) 
-      http.Error(w, "Context error", http.StatusInternalServerError)
+      http.Error(w, "Internal server error", http.StatusInternalServerError)
       return errors.New("Auth Error")
     }
 
@@ -663,9 +662,9 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
     sqlCode := `SELECT MD5(CONCAT(username, password)) as tokens FROM logins WHERE MD5(CONCAT(username, password)) = $1`
     rows, err = db.QueryContext(dbCTX, sqlCode, token)
     if err != nil {
-      log.Print("Error querying database: ", err)
-      http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-      return errors.New("Auth Error")
+      log.Print("Cannot query database: ", err)
+      http.Error(w, "Internal server error", http.StatusInternalServerError)
+      return errors.New("Cannot query database")
     }
 
     for rows.Next() {
@@ -673,18 +672,18 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
 
       if err = rows.Scan(&dbToken); err != nil {
         log.Print("Error scanning token: ", err)
-        http.Error(w, "Error scanning token", http.StatusInternalServerError)
-        return errors.New("Auth Error")
+        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        return errors.New("Error scanning token")
       }
       if dbCTX.Err() != nil {
         log.Print("Context error: ", dbCTX.Err())
-        http.Error(w, "Context error", http.StatusInternalServerError)
-        return errors.New("Auth Error")
+        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        return errors.New("Context error")
       }
       if dbToken == "" {
-        log.Print("Unauthorized access attempt with token: ", token)
+        log.Print("Empty Token")
         http.Error(w, "Unauthorized", http.StatusUnauthorized)
-        return errors.New("Auth Error")
+        return errors.New("Empty Token")
       }
 
       if string(dbToken) == token {
@@ -696,9 +695,9 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
         response = Auth{Token: hashedTokenStr}
         jsonResponse, err = json.Marshal(response)
         if err != nil {
-          log.Print("Error creating JSON response: ", err)
+          log.Print("Cannot create JSON: ", err)
           http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-          return errors.New("Auth Error")
+          return errors.New("Cannot create JSON")
         }
         w.Write(jsonResponse)
         return nil
@@ -706,12 +705,13 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
       } else {
         log.Print("Invalid token: ", token)
         http.Error(w, "Forbidden", http.StatusForbidden)
-        return errors.New("Auth Error")
+        return errors.New("Invalid token")
       }
     }
     defer rows.Close()
   }
-  return errors.New("Auth Error")
+
+  return errors.New("Unknown Auth Error")
 }
 
 
