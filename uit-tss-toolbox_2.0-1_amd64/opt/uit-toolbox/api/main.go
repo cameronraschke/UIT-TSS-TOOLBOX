@@ -587,7 +587,6 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
   var authHeader string
   var token string
   var rows *sql.Rows
-  var dbToken string
   var hashedToken [16]byte
   var hashedTokenStr string
   var response Auth
@@ -619,13 +618,17 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
 
     authHeader = req.Header.Get("Authorization")
     token = strings.TrimPrefix(authHeader, "Bearer ")
-    log.Print(token)
+    log.Print("TOKEN FROM CLIENT: ", token)
 
     // Check if auth is in auth map
     for key, value := range authMap {
-      if time.Now().Sub(value).Seconds() > 600 {
+      timeDiff := value.Sub(time.Now())
+
+      log.Print("Key: ", key, " Value: ", value)
+      log.Print(timeDiff.Seconds())
+      if time.Now().Sub(value).Seconds() > 10 {
         delete(authMap, key)
-        http.Error(w, "Auth session expired", http.StatusUnauthorized)
+        // http.Error(w, "Auth session expired", http.StatusUnauthorized)
       }
       var match int32
       if key == token {
@@ -633,7 +636,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
         matches = match
       }
       if matches == 0 {
-        http.Error(w, "No auth matches", http.StatusUnauthorized)
+        // http.Error(w, "No auth matches", http.StatusUnauthorized)
       }
     }
 
@@ -659,6 +662,9 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
     }
 
     for rows.Next() {
+      var dbToken string
+      log.Print("SQL INPUT TOKEN: ", token)
+
       if err = rows.Scan(&dbToken); err != nil {
         log.Print("Error scanning token: ", err)
         http.Error(w, "Error scanning token", http.StatusInternalServerError)
@@ -674,9 +680,23 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
         http.Error(w, "Unauthorized", http.StatusUnauthorized)
         return
       }
-      log.Print(token)
-      log.Print(string(dbToken))
-      if string(dbToken) != token {
+      log.Print("DB TOKEN: ", dbToken)
+      if string(dbToken) == token {
+        hashedToken = md5.Sum([]byte(token))
+        hashedTokenStr = fmt.Sprintf("%x", hashedToken)
+
+        authMap[hashedTokenStr] = time.Now().Add(time.Second * 10)
+
+        response = Auth{Token: hashedTokenStr}
+        jsonResponse, err = json.Marshal(response)
+        if err != nil {
+          log.Print("Error creating JSON response: ", err)
+          http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+          return
+        }
+        w.Write(jsonResponse)
+        return
+      } else {
         log.Print("Invalid token: ", token)
         http.Error(w, "Forbidden", http.StatusForbidden)
         return
@@ -684,20 +704,6 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
     }
     defer rows.Close()
 
-    hashedToken = md5.Sum([]byte(token))
-    hashedTokenStr = fmt.Sprintf("%x", hashedToken)
-
-    authMap[hashedTokenStr] = time.Now().Add(time.Second * 10)
-
-    response = Auth{Token: hashedTokenStr}
-    jsonResponse, err = json.Marshal(response)
-    if err != nil {
-      log.Print("Error creating JSON response: ", err)
-      http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-      return
-    }
-    w.Write(jsonResponse)
-    return
   }
 }
 
