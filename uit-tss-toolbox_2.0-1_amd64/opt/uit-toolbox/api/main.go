@@ -199,6 +199,13 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
     return
   }
 
+  err = apiAuth(w, req)
+  if err != nil {
+    log.Print(err)
+    http.Error(w, "Auth Error: ", http.StatusUnauthorized)
+    return
+  }
+
   parsedURL, err = url.Parse(req.URL.RequestURI())
   if err != nil {
     log.Print("Cannot parse URL: " + req.URL.RequestURI())
@@ -582,8 +589,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
 }
 
 
-func apiAuth (w http.ResponseWriter, req *http.Request) {
-  var err error
+func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
   var authHeader string
   var token string
   var rows *sql.Rows
@@ -597,7 +603,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
     w, err = apiMiddleWare(w, req)
     if err != nil {
       log.Print("API middleware error: ", err)
-      return
+      return errors.New("API middleware error: ")
     }
 
     dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
@@ -618,15 +624,14 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
 
     authHeader = req.Header.Get("Authorization")
     token = strings.TrimPrefix(authHeader, "Bearer ")
-    log.Print("TOKEN FROM CLIENT: ", token)
 
     // Check if auth is in auth map
     for key, value := range authMap {
+      // timeDiff := time.Now().Sub(value)
       timeDiff := value.Sub(time.Now())
 
-      log.Print("Key: ", key, " Value: ", value)
-      log.Print(timeDiff.Seconds())
-      if time.Now().Sub(value).Seconds() > 10 {
+      // Set second timeout below. Will countdown from timeout seconds.
+      if timeDiff.Seconds() < 0 {
         delete(authMap, key)
         // http.Error(w, "Auth session expired", http.StatusUnauthorized)
       }
@@ -637,6 +642,8 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
       }
       if matches == 0 {
         // http.Error(w, "No auth matches", http.StatusUnauthorized)
+      } else if matches >= 1 {
+        return nil
       }
     }
 
@@ -644,12 +651,12 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
     if db == nil {
       log.Print("Database connection is not valid")
       http.Error(w, "Database connection is not valid", http.StatusInternalServerError)
-      return
+      return errors.New("Auth Error")
     }
     if dbCTX.Err() != nil {
       log.Print("Context error: ", dbCTX.Err()) 
       http.Error(w, "Context error", http.StatusInternalServerError)
-      return
+      return errors.New("Auth Error")
     }
 
     // Check if the token exists in the database
@@ -658,29 +665,28 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
     if err != nil {
       log.Print("Error querying database: ", err)
       http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-      return
+      return errors.New("Auth Error")
     }
 
     for rows.Next() {
       var dbToken string
-      log.Print("SQL INPUT TOKEN: ", token)
 
       if err = rows.Scan(&dbToken); err != nil {
         log.Print("Error scanning token: ", err)
         http.Error(w, "Error scanning token", http.StatusInternalServerError)
-        return
+        return errors.New("Auth Error")
       }
       if dbCTX.Err() != nil {
         log.Print("Context error: ", dbCTX.Err())
         http.Error(w, "Context error", http.StatusInternalServerError)
-        return
+        return errors.New("Auth Error")
       }
       if dbToken == "" {
         log.Print("Unauthorized access attempt with token: ", token)
         http.Error(w, "Unauthorized", http.StatusUnauthorized)
-        return
+        return errors.New("Auth Error")
       }
-      log.Print("DB TOKEN: ", dbToken)
+
       if string(dbToken) == token {
         hashedToken = md5.Sum([]byte(token))
         hashedTokenStr = fmt.Sprintf("%x", hashedToken)
@@ -692,19 +698,20 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
         if err != nil {
           log.Print("Error creating JSON response: ", err)
           http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-          return
+          return errors.New("Auth Error")
         }
         w.Write(jsonResponse)
-        return
+        return nil
+        
       } else {
         log.Print("Invalid token: ", token)
         http.Error(w, "Forbidden", http.StatusForbidden)
-        return
+        return errors.New("Auth Error")
       }
     }
     defer rows.Close()
-
   }
+  return errors.New("Auth Error")
 }
 
 
@@ -724,7 +731,7 @@ func main() {
   // Connect to the database
   log.Print("Connecting to database...")
   // Use the pgx driver for PostgreSQL
-  const dbConnString = "postgres://uitweb:e74b46c7110638cca432b8df4caea414@127.0.0.1:5432/uitdb?sslmode=disable"
+  const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
   conn, err := sql.Open("pgx", dbConnString)
   if err != nil  {
     log.Fatal("Unable to connect to database: \n", err)
@@ -770,7 +777,6 @@ func main() {
 
   // Route to correct function
   mux := http.NewServeMux()
-  mux.HandleFunc("/auth/", apiAuth)
   mux.HandleFunc("/api/", apiFunction)
 
 
