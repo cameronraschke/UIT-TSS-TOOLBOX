@@ -68,7 +68,7 @@ var (
 	webCTX context.Context
   eventType string
   db *sql.DB
-  authMap map[time.Time]string
+  authMap map[string]time.Time
 )
 
 func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSerial string, sqlTime string, err error) {
@@ -502,7 +502,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
   log.Print("Received request: ", req.Method, " ", req.URL.RequestURI())
   var parsedURL *url.URL
   var queries url.Values
-  var matches int32
+  var token string
 
 
   // Check for the Authorization header
@@ -520,7 +520,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
   }
 
   // Extract the token from the Authorization header
-  token := strings.TrimPrefix(authHeader, "Bearer ")
+  token = strings.TrimPrefix(authHeader, "Bearer ")
 
   // Check if the token is empty
   if token == "" {
@@ -528,23 +528,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
     return nil, errors.New("Authorization token is empty")
   }
 
-  for key, value := range authMap {
-    log.Print(key)
-    if time.Now().Sub(key).Seconds() > 10 {
-      delete(authMap, key)
-      http.Error(w, "Auth session expired", http.StatusUnauthorized)
-      return nil, errors.New("Auth session expired")
-    }
-    if value == token {
-      matches = matches + 1
-    }
-    if matches == 0 {
-      http.Error(w, "Auth session expired", http.StatusUnauthorized)
-      return nil, errors.New("Auth session expired")
-    }
-  }
-
-    // Check if request method is valid
+  // Check if request method is valid
   if req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete && req.Method != http.MethodOptions {
     log.Print("Invalid request method: ", req.Method)
     http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -599,16 +583,16 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
 
 
 func apiAuth (w http.ResponseWriter, req *http.Request) {
-
-    // var user User
-    var err error
-    var authHeader string
-    var token string
-    var rows *sql.Rows
-    var dbToken string
-    var hashedToken [16]byte
-    var response Auth
-    var jsonResponse []byte
+  var err error
+  var authHeader string
+  var token string
+  var rows *sql.Rows
+  var dbToken string
+  var hashedToken [16]byte
+  var hashedTokenStr string
+  var response Auth
+  var jsonResponse []byte
+  var matches int32
 
   if req.Method == http.MethodGet {
     w, err = apiMiddleWare(w, req)
@@ -635,6 +619,23 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
 
     authHeader = req.Header.Get("Authorization")
     token = strings.TrimPrefix(authHeader, "Bearer ")
+    log.Print(token)
+
+    // Check if auth is in auth map
+    for key, value := range authMap {
+      if time.Now().Sub(value).Seconds() > 600 {
+        delete(authMap, key)
+        http.Error(w, "Auth session expired", http.StatusUnauthorized)
+      }
+      var match int32
+      if key == token {
+        match = match + 1
+        matches = match
+      }
+      if matches == 0 {
+        http.Error(w, "No auth matches", http.StatusUnauthorized)
+      }
+    }
 
     // Check if DB connection is valid
     if db == nil {
@@ -658,10 +659,9 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
     }
 
     for rows.Next() {
-      err = rows.Scan(&token)
-      if err != nil {
+      if err = rows.Scan(&dbToken); err != nil {
         log.Print("Error scanning token: ", err)
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        http.Error(w, "Error scanning token", http.StatusInternalServerError)
         return
       }
       if dbCTX.Err() != nil {
@@ -669,17 +669,14 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
         http.Error(w, "Context error", http.StatusInternalServerError)
         return
       }
-      if err = rows.Scan(&dbToken); err != nil {
-        log.Print("Error scanning token: ", err)
-        http.Error(w, "Error scanning token", http.StatusInternalServerError)
-        return
-      }
       if dbToken == "" {
         log.Print("Unauthorized access attempt with token: ", token)
         http.Error(w, "Unauthorized", http.StatusUnauthorized)
         return
       }
-      if dbToken != token {
+      log.Print(token)
+      log.Print(string(dbToken))
+      if string(dbToken) != token {
         log.Print("Invalid token: ", token)
         http.Error(w, "Forbidden", http.StatusForbidden)
         return
@@ -688,10 +685,11 @@ func apiAuth (w http.ResponseWriter, req *http.Request) {
     defer rows.Close()
 
     hashedToken = md5.Sum([]byte(token))
+    hashedTokenStr = fmt.Sprintf("%x", hashedToken)
 
-    authMap[time.Now().Add(time.Second * 30)] = fmt.Sprintf("%x", hashedToken)
+    authMap[hashedTokenStr] = time.Now().Add(time.Second * 10)
 
-    response = Auth{Token: fmt.Sprintf("%x", hashedToken)}
+    response = Auth{Token: hashedTokenStr}
     jsonResponse, err = json.Marshal(response)
     if err != nil {
       log.Print("Error creating JSON response: ", err)
@@ -762,7 +760,7 @@ func main() {
   //   panic("Connection is not active")
   // }
 
-  authMap = make(map[time.Time]string, 10)
+  authMap = make(map[string]time.Time, 10)
 
   // Route to correct function
   mux := http.NewServeMux()
