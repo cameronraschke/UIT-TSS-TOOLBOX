@@ -28,9 +28,28 @@ type LiveImage struct {
 }
 
 type RemotePresent struct {
-  JobQueued      *string  `json:"job_queued"`
   Tagnumber      *string  `json:"tagnumber"`
+  Failstatus     *int32   `json:"failstatus`
+  Domain         *string  `json:"domain"`
+  time_formatted
+  location_formatted
+  last_job_time_formatted
+  JobQueued      *string  `json:"job_queued"`
+  status
+  queue_position
   PresentBool    *bool    `json:"present_bool"`
+  os_installed_formatted
+  os_installed
+  bios_updated
+  bios_updated_formatted
+  kernel_updated
+  battery_charge_formatted
+  uptime
+  cpu_temp
+  cpu_temp_formatted
+  disk_temp
+  watts_now
+  job_active
 }
 
 type Locations struct {
@@ -115,9 +134,31 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
             WHERE tagnumber = $1`
       eventType = "live_image"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
-      sql = `SELECT job_queued, tagnumber, present_bool 
-              FROM remote 
-              WHERE present_bool = FALSE`
+      sql = `SELECT remote.tagnumber, 
+        (CASE WHEN remote.status LIKE 'fail%' THEN 1 ELSE 0 END) AS failstatus, t1.domain, 
+        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, locationFormatting(t3.location) AS location_formatted, 
+        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS last_job_time_formatted, 
+        remote.job_queued, remote.status, t2.queue_position, remote.present_bool, 
+        client_health.os_name AS os_installed_formatted, client_health.os_installed, 
+        client_health.bios_updated, (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, 
+        remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
+        TO_CHAR(NOW() - TO_TIMESTAMP(EXTRACT(EPOCH FROM NOW()) - (EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM (NOW() - (remote.uptime || ' second')::interval)))), 'DDD\"d,\" HH24\"h\" MI\"m\" SS\"s\"') as uptime, 
+        remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, CONCAT(remote.disk_temp, '°C') AS disk_temp, 
+        CONCAT(remote.watts_now, ' watts') AS watts_now, remote.job_active
+      FROM remote 
+      LEFT JOIN (SELECT s1.time, s1.tagnumber, s1.domain FROM (SELECT time, tagnumber, domain, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1) t1
+        ON remote.tagnumber = t1.tagnumber
+      LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
+      LEFT JOIN (SELECT tagnumber, location, row_nums FROM (SELECT tagnumber, location, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s3 WHERE s3.row_nums = 1) t3
+        ON t3.tagnumber = remote.tagnumber
+      LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS queue_position FROM remote WHERE job_queued IS NOT NULL) s2) t2
+        ON remote.tagnumber = t2.tagnumber
+      WHERE remote.present_bool = TRUE
+      ORDER BY
+      failstatus DESC,
+      (CASE WHEN remote.status LIKE 'fail%' THEN 1 ELSE 0 END) DESC, job_queued IS NULL ASC, (CASE WHEN job_active = TRUE THEN 10 ELSE 5 END) DESC, queue_position ASC,
+        (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 END) DESC, 
+        (CASE WHEN status = 'Waiting for job' THEN 1 ELSE 0 END) ASC, (CASE WHEN client_health.os_installed = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN remote.kernel_updated = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN client_health.bios_updated = TRUE THEN 1 ELSE 0 END) DESC, remote.last_job_time DESC`
       eventType = "remote_present"
     } else if path == "/api/test" && queries.Get("type") == "test" {
       sql = `SELECT 'test'`
