@@ -28,28 +28,28 @@ type LiveImage struct {
 }
 
 type RemotePresent struct {
-  Tagnumber      *string  `json:"tagnumber"`
-  Failstatus     *int32   `json:"failstatus`
-  Domain         *string  `json:"domain"`
-  time_formatted
-  location_formatted
-  last_job_time_formatted
-  JobQueued      *string  `json:"job_queued"`
-  status
-  queue_position
-  PresentBool    *bool    `json:"present_bool"`
-  os_installed_formatted
-  os_installed
-  bios_updated
-  bios_updated_formatted
-  kernel_updated
-  battery_charge_formatted
-  uptime
-  cpu_temp
-  cpu_temp_formatted
-  disk_temp
-  watts_now
-  job_active
+  Tagnumber                   *string           `json:"tagnumber"`
+  Failstatus                  *int32            `json:"failstatus"`
+  Domain                      *string           `json:"domain"`
+  TimeFormatted               *string           `json:"time_formatted"`
+  LocationFormatted           *string           `json:"location_formatted"`
+  LastJobTimeFormatted        *string           `json:"last_job_time_formatted"`
+  JobQueued                   *string           `json:"job_queued"`
+  Status                      *string           `json:"status"`
+  QueuePosition               *int32            `json:"queue_position"`
+  PresentBool                 *bool             `json:"present_bool"`
+  OsInstalledFormatted        *string           `json:"os_installed_formatted"`
+  OsInstalled                 *bool             `json:"os_installed"`
+  BiosUpdated                 *bool             `json:"bios_updated"`
+  BiosUpdatedFormatted        *string           `json:"bios_updated_formatted"`
+  KernelUpdated               *bool             `json:"kernel_updated"`
+  BatteryChargeFormatted      *string           `json:"battery_charge_formatted"`
+  Uptime                      *string           `json:"uptime"`
+  CpuTemp                     *int32            `json:"cpu_temp"`
+  CpuTempFormatted            *string           `json:"cpu_temp_formatted"`
+  DiskTemp                    *string           `json:"disk_temp"`
+  WattsNow                    *string           `json:"watts_now"`
+  JobActive                   *bool             `json:"job_active"`
 }
 
 type Locations struct {
@@ -142,7 +142,7 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
         client_health.os_name AS os_installed_formatted, client_health.os_installed, 
         client_health.bios_updated, (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, 
         remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
-        TO_CHAR(NOW() - TO_TIMESTAMP(EXTRACT(EPOCH FROM NOW()) - (EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM (NOW() - (remote.uptime || ' second')::interval)))), 'DDD\"d,\" HH24\"h\" MI\"m\" SS\"s\"') as uptime, 
+        AGE(NOW()::timestamp(0), remote.present::timestamp(0)) AS uptime, 
         remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, CONCAT(remote.disk_temp, '°C') AS disk_temp, 
         CONCAT(remote.watts_now, ' watts') AS watts_now, remote.job_active
       FROM remote 
@@ -377,7 +377,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
 }
 
 func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDataStr string, err error) {
-  var results any // Results will be of type []LiveImage, []RemotePresent, or []Locations
+  var results any
   // var sqlTime string
   var rows *sql.Rows
   var jsonData []byte
@@ -435,13 +435,14 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       //log.Print("Executing remote query")
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
-        return "", errors.New("Error querying present clients")
+        log.Print(err)
+        return "", errors.New("Error querying present clients (main query)")
       }
       defer rows.Close()
       //log.Print("Query executed successfully")
 
-      var remotePresent []RemotePresent // Initialize remotePresent slice
-      remotePresent = make([]RemotePresent, 0) // Ensure remotePresent is initialized
+      var remotePresent []RemotePresent
+      remotePresent = make([]RemotePresent, 0)
       for rows.Next() {
         var result RemotePresent
         if dbCTX.Err() != nil {
@@ -452,18 +453,39 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
           return "", errors.New("Context error: ")
         }
         err = rows.Scan(
-          &result.JobQueued, 
-          &result.Tagnumber, 
+          &result.Tagnumber,
+          &result.Failstatus,
+          &result.Domain,
+          &result.TimeFormatted,
+          &result.LocationFormatted,
+          &result.LastJobTimeFormatted,
+          &result.JobQueued,
+          &result.Status,
+          &result.QueuePosition,
           &result.PresentBool,
+          &result.OsInstalledFormatted,
+          &result.OsInstalled,
+          &result.BiosUpdated,
+          &result.BiosUpdatedFormatted,
+          &result.KernelUpdated,
+          &result.BatteryChargeFormatted,
+          &result.Uptime,
+          &result.CpuTemp,
+          &result.CpuTempFormatted,
+          &result.DiskTemp,
+          &result.WattsNow,
+          &result.JobActive,
         )
+        
         if err != nil {
+          log.Print("Error scanning row: ", err)
           return "", errors.New("Error scanning row")
         }
         remotePresent = append(remotePresent, result)
       }
 
       if err != nil {
-        return "", errors.New("Error querying present clients")
+        return "", errors.New("Error querying present clients (main query)")
       }
       results = remotePresent // Assign results to remotePresent
 
@@ -874,7 +896,7 @@ func main() {
   // Connect to the database
   log.Print("Connecting to database...")
   // Use the pgx driver for PostgreSQL
-  const dbConnString = "postgres://uitweb:ec5cbd49138edffaab1cd8aca10a1249@127.0.0.1:5432/uitdb?sslmode=disable"
+  const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
   conn, err := sql.Open("pgx", dbConnString)
   if err != nil  {
     log.Fatal("Unable to connect to database: \n", err)
