@@ -27,9 +27,9 @@ type LiveImage struct {
 }
 
 type RemotePresent struct {
-  JobQueued      *string   `json:"job_queued"`
-  Tagnumber      *string `json:"tagnumber"`
-  PresentBool    *bool   `json:"present_bool"`
+  JobQueued      *string  `json:"job_queued"`
+  Tagnumber      *string  `json:"tagnumber"`
+  PresentBool    *bool    `json:"present_bool"`
 }
 
 type Locations struct {
@@ -42,6 +42,14 @@ type Locations struct {
   Department      *string     `json:"department"`
   Domain          *string     `json:"domain"`
   Note            *string     `json:"note"`
+}
+
+type JobQueue struct {
+  PresentBool     *bool   `json:"present_bool"`
+  KernelUpdated   *bool   `json:"kernel_updated"`
+  BiosUpdated     *bool   `json:"bios_updated"`
+  RemoteStatus    *string   `json:"remote_status"`
+  RemoteTimeFormatted *string `json:"remote_time_formatted"`
 }
 
 type TagLookup struct {
@@ -191,6 +199,9 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
   var parsedURL *url.URL
   var queries url.Values
   var w http.ResponseWriter
+  var response Auth
+  var BearerToken string
+  var jsonResponse []byte
 
 
   w, err = apiMiddleWare(writer, req)
@@ -199,12 +210,25 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
     return
   }
 
-  err = apiAuth(w, req)
+  BearerToken, err = apiAuth(w, req)
   if err != nil {
     log.Print("Auth Error: ", err)
     http.Error(w, "Auth Error", http.StatusUnauthorized)
     return
   }
+
+  if BearerToken != "" && req.URL.Path == "/api/auth/" {
+    response = Auth{Token: BearerToken}
+    jsonResponse, err = json.Marshal(response)
+    if err != nil {
+      log.Print("Cannot create JSON: ", err)
+      http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+      return
+    }
+    w.Write(jsonResponse)
+    return
+  }
+
 
   parsedURL, err = url.Parse(req.URL.RequestURI())
   if err != nil {
@@ -475,6 +499,39 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
 
       results = tagLookup // Assign results to tagLookup
 
+    case "job_queue":
+      rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
+      if err != nil {
+        return "", errors.New("Error querying tag lookup")
+      }
+      defer rows.Close()
+
+      var jobQueue []JobQueue
+      jobQueue = make([]JobQueue, 0)
+      for rows.Next() {
+        var result JobQueue
+        if dbCTX.Err() != nil {
+          return "", errors.New("Context error: " + dbCTX.Err().Error())
+        }
+        if err = rows.Err(); err != nil {
+          return "", errors.New("Error with rows: " + err.Error())  
+        }
+        err = rows.Scan(
+          &result.PresentBool,
+          &result.KernelUpdated,
+          &result.BiosUpdated,
+          &result.RemoteStatus,
+          &result.RemoteTimeFormatted,
+        )
+        if err != nil {
+          return "", errors.New("Error scanning row: " + err.Error())
+        }
+        jobQueue = append(jobQueue, result)
+      }
+
+      results = jobQueue
+
+
     case "err":
       return "", errors.New("Query type is not valid (error query type)")
     default:
@@ -587,15 +644,14 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
 }
 
 
-func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
+func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err error) {
   var authHeader string
   var token string
   var rows *sql.Rows
   var hashedToken [16]byte
   var hashedTokenStr string
-  var response Auth
-  var jsonResponse []byte
   var matches int32
+  var TTLDuration time.Duration
 
   log.Print("Received request: ", req.Method, " ", req.URL.RequestURI())
 
@@ -603,7 +659,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
     w, err = apiMiddleWare(w, req)
     if err != nil {
       log.Print("API middleware error: ", err)
-      return errors.New("API middleware error: ")
+      return "", errors.New("API middleware error: ")
     }
 
     dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
@@ -625,37 +681,40 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
     authHeader = req.Header.Get("Authorization")
     token = strings.TrimPrefix(authHeader, "Bearer ")
 
-    // Check if auth is in auth map
+    var timeDiff time.Duration
+    // Check if token is in authMap
     for key, value := range authMap {
-      // timeDiff := time.Now().Sub(value)
-      timeDiff := value.Sub(time.Now())
+      timeDiff = value.Sub(time.Now())
 
       // Set second timeout below. Will countdown from timeout seconds.
       if timeDiff.Seconds() < 0 {
         delete(authMap, key)
-        // http.Error(w, "Auth session expired", http.StatusUnauthorized)
+        log.Print("Auth session expired: ", key, " (TTL: ", timeDiff, ")")
       }
+    }
+
+    for key, _ := range authMap {
       var match int32
       if key == token {
         match++
         matches = match
       }
-      if matches == 0 {
-        // http.Error(w, "No auth matches", http.StatusUnauthorized)
-      } else if matches >= 1 {
-        return nil
+
+      if matches >= 1 {
+        log.Print("Auth Cached: ", key, " (TTL: ", timeDiff, ")")
+        return key, nil
       }
     }
 
     // Check if DB connection is valid
     if db == nil {
       http.Error(w, "Internal server error", http.StatusInternalServerError)
-      return errors.New("DB Connection broken")
+      return "", errors.New("DB Connection broken")
     }
     if dbCTX.Err() != nil {
       log.Print("Context error: ", dbCTX.Err()) 
       http.Error(w, "Internal server error", http.StatusInternalServerError)
-      return errors.New("Auth Error")
+      return "", errors.New("Auth Error")
     }
 
     // Check if the token exists in the database
@@ -664,7 +723,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
     if err != nil {
       log.Print("Cannot query database: ", err)
       http.Error(w, "Internal server error", http.StatusInternalServerError)
-      return errors.New("Cannot query database")
+      return "", errors.New("Cannot query database")
     }
     defer rows.Close()
 
@@ -676,50 +735,42 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
       if err = rows.Scan(&dbToken); err != nil {
         log.Print("Error scanning token: ", err)
         http.Error(w, "Internal server error", http.StatusInternalServerError)
-        return errors.New("Error scanning token")
+        return "", errors.New("Error scanning token")
       }
       if dbCTX.Err() != nil {
         log.Print("Context error: ", dbCTX.Err())
         http.Error(w, "Internal server error", http.StatusInternalServerError)
-        return errors.New("Context error")
+        return "", errors.New("Context error")
       }
       if dbToken == "" {
         log.Print("Empty Token")
         http.Error(w, "Unauthorized", http.StatusUnauthorized)
-        return errors.New("Empty Token")
+        return "", errors.New("Empty Token")
       }
 
-      if string(dbToken) == token {
+      if dbToken == token {
         hashedToken = md5.Sum([]byte(token))
         hashedTokenStr = fmt.Sprintf("%x", hashedToken)
 
-        authMap[hashedTokenStr] = time.Now().Add(time.Second * 10)
-
-        response = Auth{Token: hashedTokenStr}
-        jsonResponse, err = json.Marshal(response)
-        if err != nil {
-          log.Print("Cannot create JSON: ", err)
-          http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-          return errors.New("Cannot create JSON")
-        }
-        w.Write(jsonResponse)
-        return nil
+        TTLDuration = time.Second * 10
+        authMap[hashedTokenStr] = time.Now().Add(TTLDuration)
+        return hashedTokenStr, nil
         
       } else {
         log.Print("Invalid token: ", token)
         http.Error(w, "Forbidden", http.StatusForbidden)
-        return errors.New("Invalid token")
+        return "", errors.New("Invalid token")
       }
     }
 
     if rowCount == 0 {
       log.Print("Invalid token: ", token)
       http.Error(w, "Forbidden", http.StatusForbidden)
-      return errors.New("Invalid token")
+      return "", errors.New("Invalid token")
     }
   }
 
-  return errors.New("Unknown Auth Error")
+  return "", errors.New("Unknown Auth Error")
 }
 
 
