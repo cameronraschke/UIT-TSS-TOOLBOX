@@ -213,7 +213,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
   BearerToken, err = apiAuth(w, req)
   if err != nil {
     log.Print("Auth Error: ", err)
-    http.Error(w, "Auth Error", http.StatusUnauthorized)
+    http.Error(w, fmt.Errorf("Auth error: %w", err).Error(), http.StatusUnauthorized)
     return
   }
 
@@ -770,6 +770,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
     }
   }
 
+  http.Error(w, "Forbidden", http.StatusForbidden)
   return "", errors.New("Unknown Auth Error")
 }
 
