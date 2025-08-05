@@ -11,7 +11,8 @@ import (
   "time"
   "encoding/json"
   "strings"
-  "crypto/md5"
+	// "crypto/sha256"
+  "crypto/rand"
   "net/url"
   "errors"
   "database/sql"
@@ -204,7 +205,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
   var jsonResponse []byte
 
 
-  w, err = apiMiddleWare(writer, req)
+  w, _, err = apiMiddleWare(writer, req)
   if err != nil {
     log.Print("API middleware error: ", err)
     return
@@ -561,54 +562,62 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
 }
 
 
-func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.ResponseWriter, err error) {  
+func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.ResponseWriter, clientToken string, err error) {  
   var parsedURL *url.URL
   var queries url.Values
+  var bearerToken string
+  var basicToken string
   var token string
 
-
-  // Check for the Authorization header
-  authHeader := req.Header.Get("Authorization")
-  if authHeader == "" {
-    log.Print("Authorization header is missing")
-    http.Error(w, "Unauthorized", http.StatusUnauthorized)
-    return nil, errors.New("Authorization header is missing")
+  headerCount := 0
+  for _, value := range req.Header["Authorization"] {
+    headerCount++
+    if strings.HasPrefix(value, "Bearer ") {
+      // bearerToken = strings.TrimPrefix(value, "Bearer ")
+      log.Print("BEARER TOKEN: ", bearerToken)
+    } else if strings.HasPrefix(value, "Basic ") {
+      basicToken = strings.TrimPrefix(value, "Basic ")
+      // log.Print("BASIC TOKEN: ", basicToken)
+    }
   }
 
-  // Check if the Authorization header starts with "Bearer "
-  if !strings.HasPrefix(authHeader, "Bearer ") {
+  if headerCount == 0 {
     http.Error(w, "Unauthorized", http.StatusUnauthorized)
-    return nil, errors.New("Authorization header must start with 'Bearer '")
+    return nil, "", errors.New("Authorization header missing")
   }
 
   // Extract the token from the Authorization header
-  token = strings.TrimPrefix(authHeader, "Bearer ")
+  if bearerToken != "" {
+    token = bearerToken
+  } else if basicToken != "" {
+    token = basicToken
+  }
 
   // Check if the token is empty
   if token == "" {
     http.Error(w, "Unauthorized", http.StatusUnauthorized)
-    return nil, errors.New("Authorization token is empty")
+    return nil, "", errors.New("Authorization token is empty")
   }
 
   // Check if request method is valid
   if req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete && req.Method != http.MethodOptions {
     log.Print("Invalid request method: ", req.Method)
     http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-    return nil, errors.New("Invalid request method: " + req.Method)
+    return nil, "", errors.New("Invalid request method: " + req.Method)
   }
 
   // Check if Content-Type is valid
   if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
     log.Print("Invalid Content-Type: ", req.Header.Get("Content-Type"))
     // http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
-    // return nil, errors.New("Invalid Content-Type: " + req.Header.Get("Content-Type"))
+    // return nil, "", errors.New("Invalid Content-Type: " + req.Header.Get("Content-Type"))
   }
 
   // Check if request content length exceeds 32 MB
   if req.ContentLength > 32 << 20 { // 32 MB limit
     log.Print("Request content length exceeds limit: ", req.ContentLength)
     http.Error(w, "Request content length exceeds limit", http.StatusRequestEntityTooLarge)
-    return nil, errors.New("Request content length exceeds limit: " + fmt.Sprint(req.ContentLength))
+    return nil, "", errors.New("Request content length exceeds limit: " + fmt.Sprint(req.ContentLength))
   }
 
 
@@ -616,7 +625,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
   if err != nil {
     log.Print("Cannot parse URL: " + req.URL.RequestURI())
     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
-    return nil, errors.New("Cannot parse URL: " + req.URL.RequestURI())
+    return nil, "", errors.New("Cannot parse URL: " + req.URL.RequestURI())
   }
 
   RawQuery := parsedURL.RawQuery
@@ -640,23 +649,21 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
     w.WriteHeader(http.StatusOK) // Set the response status to 200 OK
   }
 
-  return w, nil
+  return w, token, nil
 }
 
 
 func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err error) {
-  var authHeader string
   var token string
   var rows *sql.Rows
-  var hashedToken [16]byte
-  var hashedTokenStr string
   var matches int32
   var TTLDuration time.Duration
+  var timeDiff time.Duration
 
   log.Print("Received request: ", req.Method, " ", req.URL.RequestURI())
 
   if req.Method == http.MethodGet {
-    w, err = apiMiddleWare(w, req)
+    w, token, err = apiMiddleWare(w, req)
     if err != nil {
       log.Print("API middleware error: ", err)
       return "", errors.New("API middleware error: ")
@@ -678,10 +685,6 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
     //   return
     // }
 
-    authHeader = req.Header.Get("Authorization")
-    token = strings.TrimPrefix(authHeader, "Bearer ")
-
-    var timeDiff time.Duration
     // Check if token is in authMap
     for key, value := range authMap {
       timeDiff = value.Sub(time.Now())
@@ -718,7 +721,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
     }
 
     // Check if the token exists in the database
-    sqlCode := `SELECT MD5(CONCAT(username, password)) as tokens FROM logins WHERE MD5(CONCAT(username, password)) = $1`
+    sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as tokens FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
     rows, err = db.QueryContext(dbCTX, sqlCode, token)
     if err != nil {
       log.Print("Cannot query database: ", err)
@@ -749,13 +752,21 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
       }
 
       if dbToken == token {
-        hashedToken = md5.Sum([]byte(token))
-        hashedTokenStr = fmt.Sprintf("%x", hashedToken)
+        // hash := sha256.New()
+        // hash.Write([]byte(dbToken))
+        // hashedTokenStr := fmt.Sprintf("%x", hash.Sum(nil))
+        hash := make([]byte, 32)
+        _, err = rand.Read(hash)
+        if err != nil {
+          http.Error(w, "Internal server error", http.StatusInternalServerError)
+          return "", errors.New("Can't create token")
+        }
+        hashedTokenStr := fmt.Sprintf("%x", hash)
 
         TTLDuration = time.Second * 10
         authMap[hashedTokenStr] = time.Now().Add(TTLDuration)
         return hashedTokenStr, nil
-        
+
       } else {
         log.Print("Invalid token: ", token)
         http.Error(w, "Forbidden", http.StatusForbidden)

@@ -6,7 +6,7 @@ require('/var/www/html/uit-web/php/include.php');
 
 if (isset($_POST["username"]) && isset($_POST["password"])) {
 $dbPSQL = new dbPSQL();
-$dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => md5($_POST["username"]), ':password' => md5($_POST["password"])));
+$dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => hash('sha256', $_POST["username"]), ':password' => hash('sha256', $_POST["password"]));
 if (arrFilter($dbPSQL->get()) === 0 && count($dbPSQL->get()) === 1) {
 foreach ($dbPSQL->get() as $key => $value) {
 //setcookie ('authorized', 'yes', time() + (10800), "/");

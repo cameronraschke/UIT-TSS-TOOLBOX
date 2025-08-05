@@ -101,9 +101,9 @@ done
   echo "  --Website Passwords"
   sudo -u postgres psql --command="DELETE FROM logins;" uitdb
   for webUser in ${configArr[WEB_USERS]}; do
-          sudo -u postgres psql --command="INSERT INTO logins (username, name, password) VALUES (${webUser},MD5('${configArr[WEB_USER_DEFAULT_PASSWD]}'));" uitdb
+    sudo -u postgres psql --command="INSERT INTO logins (username, name, password) VALUES (${webUser},SHA256('${configArr[WEB_USER_DEFAULT_PASSWD]}'));" uitdb
   done
-  sudo -u postgres psql --command="UPDATE logins SET username = MD5(username);" uitdb
+  sudo -u postgres psql --command="UPDATE logins SET username = SHA256(username);" uitdb
 
 
 # Update SQL Permissions

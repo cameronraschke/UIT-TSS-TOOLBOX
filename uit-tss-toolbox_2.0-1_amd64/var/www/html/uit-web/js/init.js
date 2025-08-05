@@ -1,27 +1,56 @@
+async function getCreds() {
+  const form = document.querySelector("#loginForm"); // Select your form element
+
+  form.addEventListener("submit", (event) => {
+    //event.preventDefault();
+    const formData = new FormData(form);
+    const username = formData.get("username");
+    const password = formData.get("password");
+    const authStr = username + ':' + password
+    localStorage.setItem('authStr', authStr)
+  });
+
+    const basicAuth = localStorage.getItem('authStr')
+    const encoder = new TextEncoder();
+    const data = encoder.encode(basicAuth);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const authToken = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+
+    localStorage.setItem('basicToken', basicToken)
+    localStorage.setItem('authToken', authToken)
+
+}
+
 async function fetchData(url) {
+  const basicToken = localStorage.getItem('BasicToken');
+  const authToken = localStorage.getItem('AuthToken');
   const headers = new Headers({
     'Content-Type': 'application/json',
-    'Bearer': 'your_token_here', // Replace with your actual token if needed
-    'Authorization': 'Bearer your_token_here' // Replace with your actual token if needed
+    'Authorization': 'Basic ' + basicToken,
+    'Authorization': 'Bearer ' + authToken
   });
+
   const requestOptions = {
     method: 'GET',
     headers: headers
   };
 
-    try {
-      const response = await fetch(url, requestOptions);
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }   
-  
-      const data = await response.json();
-      return(data);
-    } catch (error) {
-      console.error(error.message);
-    }
-  };
-  
+  try {
+    const response = await fetch(url, requestOptions);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }   
+
+    const data = await response.json();
+    return(data);
+
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
   
   async function fetchSSE (type, tag = undefined) {
     return new Promise((resolve, reject) => {
