@@ -17,7 +17,6 @@ function getCreds() {
     event.preventDefault();
     const formData = new FormData(loginForm);
     const username = formData.get("username");
-    console.log(formData.get("username"));
     const password = formData.get("password");
 
     var authStr = await generateSHA256Hash(username) + ':' + await generateSHA256Hash(password);
@@ -51,18 +50,16 @@ async function checkToken() {
       headers: headers
     };
 
-    const response = await fetch('https://172.27.53.113:31411/api/test?type=test', requestOptions);
+    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/test?type=test', requestOptions);
     if (!response.ok) {
       return false;
     }
 
     var data = await response.json();
 
-    if (data.message != undefined) {
-      localStorage.setItem('bearerToken', data.message);
+    if (data != undefined) {
       return true
     } else {
-      console.log("Token expired");
       return false
     }
 
@@ -87,7 +84,7 @@ async function newToken() {
   };
 
   try {
-    const response = await fetch('https://172.27.53.113:31411/api/auth', requestOptions);
+    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth', requestOptions);
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }
@@ -107,6 +104,7 @@ async function newToken() {
 
 async function fetchData(url) {
   if (await checkToken() == false) {
+    console.log("Token expired")
     await newToken();
   }
   const bearerToken = localStorage.getItem('bearerToken');

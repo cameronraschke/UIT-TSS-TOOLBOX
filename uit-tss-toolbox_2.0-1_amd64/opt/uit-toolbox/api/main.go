@@ -614,7 +614,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
     w.Header().Set("Content-Type", "application/json")
   }
 
-  w.Header().Set("Access-Control-Allow-Origin", "https://172.27.53.113:1411")
+  w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
   w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
   w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
   w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")

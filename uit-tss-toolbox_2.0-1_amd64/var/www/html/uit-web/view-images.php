@@ -199,27 +199,36 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
 </script>
 
 <script>
-  async function parseSSE() {
-    try {
-      const liveImage = await fetchSSE('live_image', <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
-        newSRC = '';
-        Object.entries(liveImage).forEach(([key, value]) => {
-        newSRC = "data:image/jpeg;base64," + liveImage['screenshot'];
-        document.getElementById('live_image').src = newSRC;
-
+  async function apiCall() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tagnumber = urlParams.get('tagnumber');
+    var response = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + tagnumber);
+    var liveImage = response[0];
+    if (liveImage != undefined) {
+      // if (key == "screenshot") {
         newHTML = '';
-        newHTML = "Screenshot Time: " + liveImage["time_formatted"];
-        document.getElementById('live_image_time').innerHTML = newHTML;
-      });
-    } catch (error) {
-      console.log(error);
+        newSRC = '';
+        newSRC = "data:image/jpeg;base64," + liveImage.screenshot;
+        document.getElementById('live_image').src = newSRC;
+      //}
+
+      newHTML = '';
+      newHTML = "Screenshot Time: " + liveImage.time_formatted;
+      document.getElementById('live_image_time').innerHTML = newHTML;
+    } else {
+      console.log("No image returned");
     }
-  };
+  } catch (error) {
+    document.getElementById('live_image').src = '';
+    newHTML = "No Screenshot in DB :(" ;
+    document.getElementById('live_image_time').innerHTML = newHTML;
+  }  };
 
   <?php 
     if (isset($_GET["live_image"]) && $_GET["live_image"] == "1") {
-      echo "parseSSE();";
-      echo "setInterval(parseSSE, 3000);";
+      echo "apiCall();";
+      echo "setInterval(apiCall, 3000);";
     }
   ?>
 

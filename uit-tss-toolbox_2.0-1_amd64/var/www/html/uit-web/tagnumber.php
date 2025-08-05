@@ -919,7 +919,7 @@ async function parseSSE() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const tagnumber = urlParams.get('tagnumber');
-    var response = await fetchData('https://172.27.53.113:31411/api/remote?type=live_image&tagnumber=' + tagnumber);
+    var response = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + tagnumber);
     var liveImage = response[0];
     if (liveImage != undefined) {
       //if (key == "screenshot") {
@@ -936,7 +936,6 @@ async function parseSSE() {
       console.log("No image returned");
     }
   } catch (error) {
-    //newSRC = 'https://i.pinimg.com/originals/30/0c/af/300caff45dddad3fa83e8fe6fcd390a2.gif';
     document.getElementById('live_image').src = '';
     newHTML = "No Screenshot in DB :(" ;
     document.getElementById('live_image_time').innerHTML = newHTML;
