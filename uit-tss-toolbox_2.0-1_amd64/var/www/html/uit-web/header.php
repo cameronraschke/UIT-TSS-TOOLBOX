@@ -1,4 +1,5 @@
 <?php
+header("Access-Control-Allow-Origin: *");
 function my_session_start() {
 	if (session_status() != PHP_SESSION_ACTIVE) {
         session_start();

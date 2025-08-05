@@ -1,34 +1,84 @@
+async function generateSHA256Hash(text) {
+  const encoder = new TextEncoder(); // Encodes the string to a Uint8Array
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data); // Hashes the data
+  
+  // Convert the ArrayBuffer to a hexadecimal string
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  
+  return hash;
+}
+
 function getCreds() {
   const loginForm = document.querySelector("#loginForm");
 
-  loginForm.addEventListener("submit", (event) => {
+  loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(loginForm);
     const username = formData.get("username");
+    console.log(formData.get("username"));
     const password = formData.get("password");
-    const authStr = username + ':' + password;
+
+    var authStr = await generateSHA256Hash(username) + ':' + await generateSHA256Hash(password);
     localStorage.setItem('authStr', authStr);
 
     fetch('/login.php', {
       method: 'POST',
       body: formData
     });
+
+    window.location.href = "/index.php";
   });
 }
 
-async function getToken() {
-  const authStr = localStorage.getItem('authStr')
-  const encoder = new TextEncoder();
-  const data = encoder.encode(authStr);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const basicToken = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+async function checkToken() {
+  if (localStorage.getItem('bearerToken') == undefined) {
+    return false
+  }
+
+  try {
+    const bearerToken = localStorage.getItem('bearerToken');
+
+    const headers = new Headers({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Bearer ' + bearerToken
+    });
+
+    const requestOptions = {
+      method: 'GET',
+      headers: headers
+    };
+
+    const response = await fetch('https://172.27.53.113:31411/api/test?type=test', requestOptions);
+    if (!response.ok) {
+      return false;
+    }
+
+    var data = await response.json();
+
+    if (data.message != undefined) {
+      localStorage.setItem('bearerToken', data.message);
+      return true
+    } else {
+      console.log("Token expired");
+      return false
+    }
+
+  } catch (error) {
+    return false
+  }
+}
+
+async function newToken() {
+  const basicToken = await generateSHA256Hash(localStorage.getItem('authStr'));
 
   localStorage.setItem('basicToken', basicToken)
   
   const headers = new Headers({
     'Content-Type': 'application/x-www-form-urlencoded',
-    'Authorization': 'Basic ' + basicToken,
+    'Authorization': 'Basic ' + basicToken
   });
 
   const requestOptions = {
@@ -37,21 +87,18 @@ async function getToken() {
   };
 
   try {
-    const response = await fetch(url, requestOptions);
+    const response = await fetch('https://172.27.53.113:31411/api/auth', requestOptions);
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
-    }   
+    }
 
-    const data = await response.json();
-    jsonData = JSON.parse(data);
-    Object.entries(jsonData).forEach(([key, value]) => {
-      if (key == 'token') {
-        bearerToken = value;
-        localStorage.setItem('bearerToken', bearerToken);
-      } else {
+    var data = await response.json();
+
+    if (data.token != undefined) {
+        localStorage.setItem('bearerToken', data.token);
+    } else {
         console.error("No token returned");
-      }
-    });
+    }
 
   } catch (error) {
     console.error(error.message);
@@ -59,6 +106,9 @@ async function getToken() {
 }
 
 async function fetchData(url) {
+  if (await checkToken() == false) {
+    await newToken();
+  }
   const bearerToken = localStorage.getItem('bearerToken');
 
   const headers = new Headers({

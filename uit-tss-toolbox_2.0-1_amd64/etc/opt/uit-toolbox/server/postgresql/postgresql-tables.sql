@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS remote (
 
 DROP table IF EXISTS logins;
 CREATE TABLE IF NOT EXISTS logins (
-    username VARCHAR(64) UNIQUE NOT NULL,
+    username VARCHAR(128) UNIQUE NOT NULL,
     password VARCHAR(128) NOT NULL,
     name VARCHAR(36) NOT NULL
 );

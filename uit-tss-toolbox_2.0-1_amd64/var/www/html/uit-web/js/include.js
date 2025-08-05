@@ -111,6 +111,9 @@ document.querySelector('body').addEventListener('click', () => {
 
 
 function logout() {
+  localStorage.removeItem('bearerToken');
+  localStorage.removeItem('authStr');
+  localStorage.removeItem('basicToken');
   window.location.href = "/logout.php";
 };
 

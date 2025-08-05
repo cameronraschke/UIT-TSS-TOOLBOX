@@ -5,9 +5,6 @@ if (!isset($_GET["type"])) {
   exit();
 }
 
-// if ($_GET["password"] !== md5("WEB_SVC_PASSWD")) {
-//   exit();
-// }
 
 $dbPSQL = new dbPSQL();
 

@@ -38,6 +38,7 @@ unset($_POST);
     <link rel="stylesheet" type="text/css" href="css/main.css?<?php echo filemtime('css/main.css'); ?>" />
     <title>Login - UIT Client Mgmt</title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <script src="/js/init.js?<?php echo filemtime('js/init.js'); ?>"></script>
   </head>
   <body>
     <div class='login-form'>
@@ -67,6 +68,8 @@ unset($_POST);
       if ( window.history.replaceState ) {
         window.history.replaceState( null, null, window.location.href );
       }
+
+      getCreds()    
     </script>
   </body>
 </html>

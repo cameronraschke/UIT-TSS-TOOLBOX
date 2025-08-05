@@ -917,21 +917,27 @@ async function parseSSE() {
 
 
   try {
-    const liveImage = await fetchSSE("live_image", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
-    newHTML = '';
-        Object.entries(liveImage).forEach(([key, value]) => {
-          newSRC = '';
-          newSRC = "data:image/jpeg;base64," + liveImage['screenshot'];
-          document.getElementById('live_image').src = newSRC;
+    const urlParams = new URLSearchParams(window.location.search);
+    const tagnumber = urlParams.get('tagnumber');
+    var response = await fetchData('https://172.27.53.113:31411/api/remote?type=live_image&tagnumber=' + tagnumber);
+    var liveImage = response[0];
+    if (liveImage != undefined) {
+      //if (key == "screenshot") {
+        newHTML = '';
+        newSRC = '';
+        newSRC = "data:image/jpeg;base64," + liveImage.screenshot;
+        document.getElementById('live_image').src = newSRC;
+      //}
 
-          newHTML = '';
-          newHTML = "Screenshot Time: " + liveImage["time_formatted"];
-          document.getElementById('live_image_time').innerHTML = newHTML;
-
-        });
+      newHTML = '';
+      newHTML = "Screenshot Time: " + liveImage.time_formatted;
+      document.getElementById('live_image_time').innerHTML = newHTML;
+    } else {
+      console.log("No image returned");
+    }
   } catch (error) {
-    newSRC = 'https://i.pinimg.com/originals/30/0c/af/300caff45dddad3fa83e8fe6fcd390a2.gif';
-    document.getElementById('live_image').src = newSRC;
+    //newSRC = 'https://i.pinimg.com/originals/30/0c/af/300caff45dddad3fa83e8fe6fcd390a2.gif';
+    document.getElementById('live_image').src = '';
     newHTML = "No Screenshot in DB :(" ;
     document.getElementById('live_image_time').innerHTML = newHTML;
   }

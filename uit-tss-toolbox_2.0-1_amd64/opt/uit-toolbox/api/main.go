@@ -57,6 +57,10 @@ type TagLookup struct {
   Tagnumber *string `json:"tagnumber"`
 }
 
+type TestQuery struct {
+  Message   *string   `json:"message"`
+}
+
 type Auth struct {
 	Token string `json:"token"`
 }
@@ -69,6 +73,10 @@ type User struct {
 type StoredAuth struct {
   Expires time.Time
   Hash    string
+}
+
+type httpErrorCodes struct {
+  Message string `json:"message"`
 }
 
 
@@ -101,23 +109,18 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
     sqlTime = queries.Get("time")
 
     // Query type determination
-    if path == "/api/remote" && queries.Get("type") == "live_image" {
-      if len(queries.Get("tagnumber")) == 6 {
-        sql = `SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot 
-              FROM live_images 
-              WHERE tagnumber = $1`
-        eventType = "live_image" // First query type
-      } else {
-        return "", "", "", "", errors.New("Bad URL request (tagnumber needs to be 6 digits)")
-        eventType = "err" // Error query type
-      }
+    if path == "/api/remote" && queries.Get("type") == "live_image" && len(queries.Get("tagnumber")) == 6 {
+      sql = `SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot 
+            FROM live_images 
+            WHERE tagnumber = $1`
+      eventType = "live_image"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
       sql = `SELECT job_queued, tagnumber, present_bool 
               FROM remote 
               WHERE present_bool = FALSE`
       eventType = "remote_present"
     } else if path == "/api/test" && queries.Get("type") == "test" {
-      sql = `SELECT * FROM locations ORDER BY time DESC LIMIT 100`
+      sql = `SELECT 'test'`
       eventType = "test"
     } else if path == "/api/remote" && queries.Get("type") == "tag_lookup" && len(queries.Get("system_serial")) >= 1 {
       sql = `SELECT tagnumber FROM locations WHERE system_serial = $1 ORDER BY time DESC LIMIT 1`
@@ -218,7 +221,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
     return
   }
 
-  if BearerToken != "" && req.URL.Path == "/api/auth/" {
+  if BearerToken != "" && req.URL.Path == "/api/auth" {
     response = Auth{Token: BearerToken}
     jsonResponse, err = json.Marshal(response)
     if err != nil {
@@ -423,8 +426,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       }
       results = remotePresent // Assign results to remotePresent
 
-    case "test": // Test query
-      //log.Print("Executing test query")
+    case "locations": // Test query
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
         return "", errors.New("Error querying locations")
@@ -532,6 +534,33 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
 
       results = jobQueue
 
+    case "test":
+      rows, err = db.QueryContext(dbCTX, sqlCode)
+      if err != nil {
+        return "", errors.New("Error querying test query")
+      }
+      defer rows.Close()
+
+      var testQuery []TestQuery
+      testQuery = make([]TestQuery, 0)
+      for rows.Next() {
+        var result TestQuery
+        if dbCTX.Err() != nil {
+          return "", errors.New("Context error: " + dbCTX.Err().Error())
+        }
+        if err = rows.Err(); err != nil {
+          return "", errors.New("Error with rows: " + err.Error())  
+        }
+        err = rows.Scan(
+          &result.Message,
+        )
+        if err != nil {
+          return "", errors.New("Error scanning row: " + err.Error())
+        }
+        testQuery = append(testQuery, result)
+      }
+
+      results = testQuery
 
     case "err":
       return "", errors.New("Query type is not valid (error query type)")
@@ -569,15 +598,43 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
   var basicToken string
   var token string
 
+  parsedURL, err = url.Parse(req.URL.RequestURI())
+  if err != nil {
+    log.Print("Cannot parse URL: " + req.URL.RequestURI())
+    http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+    return nil, "", errors.New("Cannot parse URL: " + req.URL.RequestURI())
+  }
+
+  RawQuery := parsedURL.RawQuery
+  queries, _ = url.ParseQuery(RawQuery)
+  // Set headers
+  if queries.Get("sse") == "true" {
+    w.Header().Set("Content-Type", "text/event-stream")
+  } else {
+    w.Header().Set("Content-Type", "application/json")
+  }
+
+  w.Header().Set("Access-Control-Allow-Origin", "https://172.27.53.113:1411")
+  w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+  w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+  w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+  w.Header().Set("Pragma", "no-cache")
+  w.Header().Set("Expires", "0")
+  // w.Header().Set("Connection", "keep-alive")
+  w.Header().Set("X-Accel-Buffering", "no")
+  w.WriteHeader(http.StatusOK) // Set the response status to 200 OK
+
+
   headerCount := 0
   for _, value := range req.Header["Authorization"] {
     headerCount++
     if strings.HasPrefix(value, "Bearer ") {
-      // bearerToken = strings.TrimPrefix(value, "Bearer ")
-      log.Print("BEARER TOKEN: ", bearerToken)
+      bearerToken = strings.TrimPrefix(value, "Bearer ")
     } else if strings.HasPrefix(value, "Basic ") {
       basicToken = strings.TrimPrefix(value, "Basic ")
-      // log.Print("BASIC TOKEN: ", basicToken)
+    } else {
+      http.Error(w, "Unauthorized", http.StatusUnauthorized)
+      return nil, "", errors.New("Malformed authorization header")
     }
   }
 
@@ -618,35 +675,6 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
     log.Print("Request content length exceeds limit: ", req.ContentLength)
     http.Error(w, "Request content length exceeds limit", http.StatusRequestEntityTooLarge)
     return nil, "", errors.New("Request content length exceeds limit: " + fmt.Sprint(req.ContentLength))
-  }
-
-
-  parsedURL, err = url.Parse(req.URL.RequestURI())
-  if err != nil {
-    log.Print("Cannot parse URL: " + req.URL.RequestURI())
-    http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
-    return nil, "", errors.New("Cannot parse URL: " + req.URL.RequestURI())
-  }
-
-  RawQuery := parsedURL.RawQuery
-  queries, _ = url.ParseQuery(RawQuery)
-  // Validate request method and headers
-  if req.Method == http.MethodOptions {
-    if queries.Get("sse") == "true" {
-      w.Header().Set("Content-Type", "text/event-stream")
-    } else {
-      w.Header().Set("Content-Type", "application/json")
-    }
-
-    w.Header().Set("Access-Control-Allow-Origin", "*")
-    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-    w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-    w.Header().Set("Pragma", "no-cache")
-    w.Header().Set("Expires", "0")
-    // w.Header().Set("Connection", "keep-alive")
-    w.Header().Set("X-Accel-Buffering", "no")
-    w.WriteHeader(http.StatusOK) // Set the response status to 200 OK
   }
 
   return w, token, nil
@@ -768,20 +796,23 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
         return hashedTokenStr, nil
 
       } else {
-        log.Print("Invalid token: ", token)
-        http.Error(w, "Forbidden", http.StatusForbidden)
-        return "", errors.New("Invalid token")
+        log.Print("Token does not match: ", token)
+        jsonForbiddenErr, _ := json.Marshal(httpErrorCodes{Message: "Forbidden"})
+        http.Error(w, string(jsonForbiddenErr), http.StatusForbidden)
+        return "", errors.New("Token does not match")
       }
     }
 
     if rowCount == 0 {
       log.Print("Invalid token: ", token)
-      http.Error(w, "Forbidden", http.StatusForbidden)
+      jsonForbiddenErr, _ := json.Marshal(httpErrorCodes{Message: "Forbidden"})
+      http.Error(w, string(jsonForbiddenErr), http.StatusForbidden)
       return "", errors.New("Invalid token")
     }
   }
 
-  http.Error(w, "Forbidden", http.StatusForbidden)
+  jsonForbiddenErr, _ := json.Marshal(httpErrorCodes{Message: "Forbidden"})
+  http.Error(w, string(jsonForbiddenErr), http.StatusForbidden)
   return "", errors.New("Unknown Auth Error")
 }
 
@@ -802,7 +833,7 @@ func main() {
   // Connect to the database
   log.Print("Connecting to database...")
   // Use the pgx driver for PostgreSQL
-  const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
+  const dbConnString = "postgres://uitweb:ec5cbd49138edffaab1cd8aca10a1249@127.0.0.1:5432/uitdb?sslmode=disable"
   conn, err := sql.Open("pgx", dbConnString)
   if err != nil  {
     log.Fatal("Unable to connect to database: \n", err)
