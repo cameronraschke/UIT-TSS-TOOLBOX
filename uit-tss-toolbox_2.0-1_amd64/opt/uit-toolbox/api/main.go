@@ -637,7 +637,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
       }
       var match int32
       if key == token {
-        match = match + 1
+        match++
         matches = match
       }
       if matches == 0 {
@@ -666,9 +666,12 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
       http.Error(w, "Internal server error", http.StatusInternalServerError)
       return errors.New("Cannot query database")
     }
+    defer rows.Close()
 
+    rowCount := 0
     for rows.Next() {
       var dbToken string
+      rowCount++
 
       if err = rows.Scan(&dbToken); err != nil {
         log.Print("Error scanning token: ", err)
@@ -708,7 +711,12 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (err error) {
         return errors.New("Invalid token")
       }
     }
-    defer rows.Close()
+
+    if rowCount == 0 {
+      log.Print("Invalid token: ", token)
+      http.Error(w, "Forbidden", http.StatusForbidden)
+      return errors.New("Invalid token")
+    }
   }
 
   return errors.New("Unknown Auth Error")
