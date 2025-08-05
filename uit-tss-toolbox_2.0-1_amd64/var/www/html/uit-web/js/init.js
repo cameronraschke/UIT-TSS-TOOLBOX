@@ -1,35 +1,69 @@
-async function getCreds() {
-  const form = document.querySelector("#loginForm"); // Select your form element
+function getCreds() {
+  const loginForm = document.querySelector("#loginForm");
 
-  form.addEventListener("submit", (event) => {
-    //event.preventDefault();
-    const formData = new FormData(form);
+  loginForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const formData = new FormData(loginForm);
     const username = formData.get("username");
     const password = formData.get("password");
-    const authStr = username + ':' + password
-    localStorage.setItem('authStr', authStr)
+    const authStr = username + ':' + password;
+    localStorage.setItem('authStr', authStr);
+
+    fetch('/login.php', {
+      method: 'POST',
+      body: formData
+    });
+  });
+}
+
+async function getToken() {
+  const authStr = localStorage.getItem('authStr')
+  const encoder = new TextEncoder();
+  const data = encoder.encode(authStr);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const basicToken = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  localStorage.setItem('basicToken', basicToken)
+  
+  const headers = new Headers({
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': 'Basic ' + basicToken,
   });
 
-    const basicAuth = localStorage.getItem('authStr')
-    const encoder = new TextEncoder();
-    const data = encoder.encode(basicAuth);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const authToken = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const requestOptions = {
+    method: 'GET',
+    headers: headers
+  };
 
+  try {
+    const response = await fetch(url, requestOptions);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }   
 
-    localStorage.setItem('basicToken', basicToken)
-    localStorage.setItem('authToken', authToken)
+    const data = await response.json();
+    jsonData = JSON.parse(data);
+    Object.entries(jsonData).forEach(([key, value]) => {
+      if (key == 'token') {
+        bearerToken = value;
+        localStorage.setItem('bearerToken', bearerToken);
+      } else {
+        console.error("No token returned");
+      }
+    });
 
+  } catch (error) {
+    console.error(error.message);
+  }
 }
 
 async function fetchData(url) {
-  const basicToken = localStorage.getItem('BasicToken');
-  const authToken = localStorage.getItem('AuthToken');
+  const bearerToken = localStorage.getItem('bearerToken');
+
   const headers = new Headers({
     'Content-Type': 'application/json',
-    'Authorization': 'Basic ' + basicToken,
-    'Authorization': 'Bearer ' + authToken
+    'Authorization': 'Bearer ' + bearerToken
   });
 
   const requestOptions = {

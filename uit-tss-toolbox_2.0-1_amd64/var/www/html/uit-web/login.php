@@ -6,7 +6,7 @@ require('/var/www/html/uit-web/php/include.php');
 
 if (isset($_POST["username"]) && isset($_POST["password"])) {
 $dbPSQL = new dbPSQL();
-$dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => hash('sha256', $_POST["username"]), ':password' => hash('sha256', $_POST["password"]));
+$dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => hash('sha256', $_POST["username"]), ':password' => hash('sha256', $_POST["password"])));
 if (arrFilter($dbPSQL->get()) === 0 && count($dbPSQL->get()) === 1) {
 foreach ($dbPSQL->get() as $key => $value) {
 //setcookie ('authorized', 'yes', time() + (10800), "/");
@@ -45,7 +45,7 @@ unset($_POST);
         <h1>UIT Web Login</h1>
       </div>
       <div>
-        <form method="post">
+        <form method="POST" id="loginForm">
           <div>
             <div><label for="username">Username</label></div>
             <div><input type="text" name="username" id="username" autocapitalize='none' autocomplete='username' autocorrect='off' spellcheck='false' required autofocus></div>
