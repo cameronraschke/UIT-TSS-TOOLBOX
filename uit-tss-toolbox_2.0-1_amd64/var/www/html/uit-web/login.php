@@ -1,37 +1,36 @@
 <?php
-#login.php
-// require('/var/www/html/uit-web/php/include.php');
+require('/var/www/html/uit-web/php/include.php');
 
 
-// if (isset($_POST["username"]) && isset($_POST["password"])) {
-// $dbPSQL = new dbPSQL();
-// $dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => hash('sha256', $_POST["username"]), ':password' => hash('sha256', $_POST["password"])));
-// if (arrFilter($dbPSQL->get()) === 0 && count($dbPSQL->get()) === 1) {
-// foreach ($dbPSQL->get() as $key => $value) {
+if (isset($_POST["username"]) && isset($_POST["password"])) {
+$dbPSQL = new dbPSQL();
+$dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => hash('sha256', $_POST["username"]), ':password' => hash('sha256', $_POST["password"])));
+if (arrFilter($dbPSQL->get()) === 0 && count($dbPSQL->get()) === 1) {
+foreach ($dbPSQL->get() as $key => $value) {
 // //setcookie ('authorized', 'yes', time() + (10800), "/");
-// my_session_regenerate_id();
-// $_SESSION['login_user'] = $value["name"];
-// $_SESSION['authorized'] = "yes";
-// unset($_POST["username"]);
-// unset($_POST["password"]);
-// header("Location: /index.php");
-// }
-// } else {
+my_session_regenerate_id();
+$_SESSION['login_user'] = $value["name"];
+$_SESSION['authorized'] = "yes";
+unset($_POST["username"]);
+unset($_POST["password"]);
+header("Location: /index.php");
+}
+} else {
 // //setcookie ('authorized', 'no', time() - (3600), "/");
-// unset($_SESSION['login_user']);
-// unset($_POST["username"]);
-// unset($_POST["password"]);
-// $err = "Invalid credentials, try again.";
-// }
-// }
+unset($_SESSION['login_user']);
+unset($_POST["username"]);
+unset($_POST["password"]);
+$err = "Invalid credentials, try again.";
+}
+}
 
-// if ($_POST) {
-// header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
-// unset($_POST);
-// }
+if ($_POST) {
+header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
+unset($_POST);
+}
 ?>
 
-<html>
+<!DOCTYPE html>
   <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="css/main.css?<?php echo filemtime('css/main.css'); ?>" />
