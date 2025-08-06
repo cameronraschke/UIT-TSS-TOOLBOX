@@ -263,6 +263,19 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
   }
 
   if BearerToken != "" && req.URL.Path == "/api/auth" {
+    cookie := http.Cookie{
+      Name:     "authCookie",
+      // Value:    BearerToken,
+      Value:    "Yes",
+      Path:     "/",
+      MaxAge:   3600,
+      HttpOnly: true,
+      Secure:   true,
+      SameSite: http.SameSiteLaxMode,
+    }
+    http.SetCookie(w, &cookie)
+
+
     response = Auth{Token: BearerToken}
     jsonResponse, err = json.Marshal(response)
     if err != nil {
@@ -679,7 +692,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
 
   w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
   w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-  w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+  w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie")
   w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
   w.Header().Set("Pragma", "no-cache")
   w.Header().Set("Expires", "0")

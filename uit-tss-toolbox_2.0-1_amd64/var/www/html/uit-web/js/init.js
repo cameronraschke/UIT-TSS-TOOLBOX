@@ -11,21 +11,34 @@ async function generateSHA256Hash(text) {
 }
 
 function getCreds() {
+
+  document.cookie = "authCookie=";
+
   const loginForm = document.querySelector("#loginForm");
 
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(loginForm);
-    const username = formData.get("username");
-    const password = formData.get("password");
+    const formUser = formData.get("username");
+    const formPass = formData.get("password");
 
-    var authStr = await generateSHA256Hash(username) + ':' + await generateSHA256Hash(password);
+    const dataToSend = {
+      username: formUser,
+      password: formPass
+    };
+
+    var authStr = await generateSHA256Hash(formUser) + ':' + await generateSHA256Hash(formPass);
     localStorage.setItem('authStr', authStr);
 
-    fetch('/login.php', {
+    await fetch('/login.php', {
       method: 'POST',
-      body: formData
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(dataToSend)
     });
+
+    await newToken();
 
     window.location.href = "/index.php";
   });
@@ -50,7 +63,7 @@ async function checkToken() {
       headers: headers
     };
 
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/test?type=test', requestOptions);
+    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/cookie', requestOptions);
     if (!response.ok) {
       return false;
     }
@@ -93,6 +106,8 @@ async function newToken() {
 
     if (data.token != undefined) {
         localStorage.setItem('bearerToken', data.token);
+        document.cookie = "authCookie=" + data.token;
+        // document.cookie = "authCookie=Yes";
     } else {
         console.error("No token returned");
     }
@@ -116,6 +131,7 @@ async function fetchData(url) {
 
   const requestOptions = {
     method: 'GET',
+    credentials: 'include',
     headers: headers
   };
 

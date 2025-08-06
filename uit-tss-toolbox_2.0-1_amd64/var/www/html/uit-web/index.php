@@ -2,10 +2,6 @@
 require('/var/www/html/uit-web/header.php');
 require('/var/www/html/uit-web/php/include.php');
 
-if ($_SESSION['authorized'] != "yes") {
-  die();
-}
-
 $dbPSQL = new dbPSQL();
 
 if (isset($_POST["note"]) && isset($_GET["note-type"])) {
