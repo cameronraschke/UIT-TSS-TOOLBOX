@@ -146,179 +146,153 @@ async function updateRemotePresentTable() {
     remotePresentTable.setAttribute('id', 'remotePresentTable');
 
     tableHeader = document.createElement("thead");
-    tableData = "";
-    tableData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header');
-    console.log(tableData);
-    tableData.forEach (jsonHeaderRow => {
-      let tableRow = document.createElement("tr");
-      Object.entries(jsonHeaderRow).forEach(([key, value]) => {
+    tableHeaderData = "";
+    tableHeaderData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header');
+    Object.entries(tableHeaderData).forEach(([key, value]) => {
+      let tableHeaderRow = document.createElement("tr");
 
-        if (key === "tagnumber_count") {
-          let cell = document.createElement("th");
-          cell.innerText = "Tag Number123123 " + value;
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("th");
+      cell.innerText = "Tag Number " + value["tagnumber_count"];
+      tableHeaderRow.appendChild(cell);
 
-        if (key === "tagnumber_count") {
-          let cell = document.createElement("th");
-          cell.innerText = "Last Job Time";
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("th");
+      cell.innerText = "Last Job Time";
+      tableHeaderRow.appendChild(cell);
+      
+      var cell = document.createElement("th");
+      cell.innerText = "Location";
+      tableHeaderRow.appendChild(cell);
 
-        if (key === "tagnumber_count") {
-          let cell = document.createElement("th");
-          cell.innerText = "Location";
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("th");
+      cell.innerText = "Status";
+      tableHeaderRow.appendChild(cell);
 
-        if (key === "tagnumber_count") {
-          let cell = document.createElement("th");
-          cell.innerText = "Status";
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("th");
+      cell.innerText = "OS Installed " + value["os_installed_formatted"];
+      tableHeaderRow.appendChild(cell);
 
-        if (key === "os_installed_formatted") {
-          let cell = document.createElement("th");
-          cell.innerText = "OS Installed " + value;
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("th");
+      cell.innerText = "Battery Charge " + value["battery_charge_formatted"];
+      tableHeaderRow.appendChild(cell);
 
-        if (key === "battery_charge_formatted") {
-          let cell = document.createElement("th");
-          cell.innerText = "Battery Charge " + value;
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("th");
+      cell.innerText = "Uptime";
+      tableHeaderRow.appendChild(cell);
 
-        if (key === "battery_charge_formatted") {
-          let cell = document.createElement("th");
-          cell.innerText = "Uptime";
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("th");
+      cell.innerText = "CPU Temp " + value["cpu_temp_formatted"];
+      tableHeaderRow.appendChild(cell);
 
-        if (key === "cpu_temp_formatted") {
-          let cell = document.createElement("th");
-          cell.innerText = "CPU Temp " + value;
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("th");
+      cell.innerText = "Disk Temp " + value["disk_temp_formatted"];
+      tableHeaderRow.appendChild(cell);
 
-        if (key === "disk_temp_formatted") {
-          let cell = document.createElement("th");
-          cell.innerText = "Disk Temp " + value;
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("th");
+      cell.innerText = "Power Usage " + value["power_usage_formatted"];
+      tableHeaderRow.appendChild(cell);
 
-        if (key === "power_usage_formatted") {
-          let cell = document.createElement("th");
-          cell.innerText = "Power Usage " + value;
-          tableRow.appendChild(cell);
-        }
-
-      });
-
-        tableHeader.appendChild(tableRow);
+      tableHeader.appendChild(tableHeaderRow);
 
     });
 
 
 
     tableBody = document.createElement("tbody");
-    tableData = "";
-    tableData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present');
+    tableBodyData = "";
+    tableBodyData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present');
 
-    tableData.forEach (jsonBodyRow => {
-      let tableRow = document.createElement("tr");
-      Object.entries(jsonBodyRow).forEach(([key, value]) => {
-        if (key === "tagnumber") {
-          let tagnumber = "";
-          if (jsonBodyRow["status"] === undefined) {
-              tagnumber += "<b>New Entry: </b>";
-          } else if (jsonBodyRow["status"].length >= 1) {
-            if (jsonBodyRow["status"] !== "Waiting for job" || value["job_queued"] === true) {
-              tagnumber += "<b>In Progress: </b>";
-            }
-          } else {
-            tagnumber += "";
-          }
-      
-          tagnumber += "<b><a href='tagnumber.php?tagnumber=" + value + "' target='_blank'>" + value + "</a></b>";
+    Object.entries(tableBodyData).forEach(([key, value]) => {
+      console.log(value);
+      let tableBodyRow = document.createElement("tr");
 
-          let cell = document.createElement("td");
-          cell.innerHTML = tagnumber;
-          tableRow.appendChild(cell);
+      let tagnumber = "";
+      if (value["status"] === undefined) {
+          tagnumber += "<b>New Entry: </b>";
+      } else if (value["status"].length >= 1) {
+        if (value["status"] !== "Waiting for job" || value["job_queued"] === true) {
+          tagnumber += "<b>In Progress: </b>";
         }
+      } else {
+        tagnumber += "";
+      }
+  
+      tagnumber += "<b><a href='tagnumber.php?tagnumber=" + value["tagnumber"] + "' target='_blank'>" + value["tagnumber"] + "</a></b>";
 
-        if (key === "last_job_time_formatted") {
-          let cell = document.createElement("td");
-          cell.innerText = value;
-          tableRow.appendChild(cell);
-        }
+      var cell = document.createElement("td");
+      cell.innerHTML = tagnumber;
+      tableBodyRow.appendChild(cell);
+
+      var cell = document.createElement("td");
+      cell.innerText = value["last_job_time_formatted"];
+      tableBodyRow.appendChild(cell);
 
         if (key === "location_formatted") {
           let cell = document.createElement("td");
           cell.innerText = value;
-          tableRow.appendChild(cell);
+          tableBodyRow.appendChild(cell);
         }
 
         if (key === "status") {
           let cell = document.createElement("td");
           cell.innerText = value;
-          tableRow.appendChild(cell);
+          tableBodyRow.appendChild(cell);
         }
 
         if (key === "os_installed_formatted") {
           let cell = document.createElement("td");
           cell.innerText = value;
-          tableRow.appendChild(cell);
+          tableBodyRow.appendChild(cell);
         }
 
         if (key === "battery_charge_formatted") {
           let cell = document.createElement("td");
           cell.innerText = value;
-          tableRow.appendChild(cell);
+          tableBodyRow.appendChild(cell);
         }
 
         if (key === "uptime") {
           let cell = document.createElement("td");
           cell.innerText = value;
-          tableRow.appendChild(cell);
+          tableBodyRow.appendChild(cell);
         }
 
         if (key === "cpu_temp_formatted") {
+          console.log(jsonBodyRow["cpu_temp"]);
           maxTemp = 90;
           lowWarning = maxTemp - (maxTemp * 0.10);
           mediumWarning = maxTemp - (maxTemp * 0.05);
         
           let cell = document.createElement("td");
           cell.innerText = value;
-          if (value > lowWarning && value < mediumWarning) {
+          if (jsonBodyRow["cpu_temp"] > lowWarning && jsonBodyRow["cpu_temp"] < mediumWarning) {
             cell.style.backgroundColor = '#ffe6a0';
-          } else if (value > mediumWarning && value < maxTemp) {
+          } else if (jsonBodyRow["cpu_temp"] > mediumWarning && jsonBodyRow["cpu_temp"] < maxTemp) {
             cell.style.backgroundColor = '#f5aa50';
-          } else if (value >= maxTemp) {
+          } else if (jsonBodyRow["cpu_temp"] >= maxTemp) {
             cell.style.backgroundColor = '#f55050';
           }
 
-          tableRow.appendChild(cell);
+          tableBodyRow.appendChild(cell);
         }
 
         if (key === "disk_temp") {
           let cell = document.createElement("td");
           cell.innerText = value;
-          tableRow.appendChild(cell);
+          tableBodyRow.appendChild(cell);
         }
 
         if (key === "watts_now") {
           let cell = document.createElement("td");
           cell.innerText = value;
-          tableRow.appendChild(cell);
+          tableBodyRow.appendChild(cell);
         }
-      })
-      tableBody.appendChild(tableRow)
+
+        tableBody.appendChild(tableBodyRow)
 
     });
 
     remotePresentTable.appendChild(tableHeader);
-    remotePresentTable.appendChild(tableBody);
+    remotePresentTable.appendChild(tableBodyData);
     oldRemotePresentTable.replaceWith(remotePresentTable);
   } catch (error) {
     console.log(error);

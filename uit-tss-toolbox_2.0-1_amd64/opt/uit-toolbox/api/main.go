@@ -38,8 +38,8 @@ type RemotePresent struct {
   OsInstalledFormatted        *string           `json:"os_installed_formatted"`
   BatteryChargeFormatted      *string           `json:"battery_charge_formatted"`
   Uptime                      *string           `json:"uptime"`
-  CpuTempFormatted            *string           `json:"cpu_temp_formatted"`
   CpuTemp                     *int32            `json:"cpu_temp"`
+  CpuTempFormatted            *string           `json:"cpu_temp_formatted"`
   DiskTemp                    *string           `json:"disk_temp"`
   WattsNow                    *string           `json:"watts_now"`
   Failstatus                  *int32            `json:"failstatus"`
