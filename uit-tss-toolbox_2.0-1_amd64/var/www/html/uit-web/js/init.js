@@ -64,7 +64,7 @@ async function checkToken() {
       headers: headers
     };
 
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/cookie', requestOptions);
+    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth', requestOptions);
     if (!response.ok) {
       return false;
     }

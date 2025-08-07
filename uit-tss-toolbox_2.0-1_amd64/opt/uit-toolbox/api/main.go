@@ -105,6 +105,7 @@ var (
   eventType string
   db *sql.DB
   authMap map[string]time.Time
+  jsonForbiddenErr, _ = json.Marshal(httpErrorCodes{Message: "Forbidden"})
 )
 
 func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSerial string, sqlTime string, err error) {
@@ -174,10 +175,10 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
       eventType = "job_queue"
     } else if len(queries.Get("type")) <= 0 {
       eventType = "err"
-      return "", "", "", "", errors.New("Bad URL request (empty 'type' key in URL)")
+      return "", "", "", "", errors.New("Bad URL request (empty 'type' key in URL): " + requestURL)
     } else {
       eventType = "err"
-      return "", "", "", "", errors.New("Bad URL request (unknown error)")
+      return "", "", "", "", errors.New("Bad URL request (unknown error): " + requestURL)
     }
 
     return sql, tagnumber, systemSerial, sqlTime, nil
@@ -717,7 +718,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
 
   if headerCount == 0 {
     http.Error(w, "Unauthorized", http.StatusUnauthorized)
-    return nil, "", errors.New("Authorization header missing")
+    return nil, "", errors.New("Authorization header missing: " + req.URL.RequestURI())
   }
 
   // Extract the token from the Authorization header
@@ -874,7 +875,6 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
 
       } else {
         log.Print("Token does not match: ", token)
-        jsonForbiddenErr, _ := json.Marshal(httpErrorCodes{Message: "Forbidden"})
         http.Error(w, string(jsonForbiddenErr), http.StatusForbidden)
         return "", errors.New("Token does not match")
       }
@@ -882,13 +882,11 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
 
     if rowCount == 0 {
       log.Print("Invalid token: ", token)
-      jsonForbiddenErr, _ := json.Marshal(httpErrorCodes{Message: "Forbidden"})
       http.Error(w, string(jsonForbiddenErr), http.StatusForbidden)
       return "", errors.New("Invalid token")
     }
   }
 
-  jsonForbiddenErr, _ := json.Marshal(httpErrorCodes{Message: "Forbidden"})
   http.Error(w, string(jsonForbiddenErr), http.StatusForbidden)
   return "", errors.New("Unknown Auth Error")
 }
