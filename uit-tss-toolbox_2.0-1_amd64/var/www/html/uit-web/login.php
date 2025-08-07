@@ -1,34 +1,33 @@
 <?php
-#login.php
 require('/var/www/html/uit-web/header.php');
 require('/var/www/html/uit-web/php/include.php');
 
+$jsonData = json_decode(file_get_contents('php://input'), true); 
 
-if (isset($_POST["username"]) && isset($_POST["password"])) {
+
+if (isset($jsonData["username"]) && isset($jsonData["password"])) {
 $dbPSQL = new dbPSQL();
-$dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => hash('sha256', $_POST["username"]), ':password' => hash('sha256', $_POST["password"])));
+$dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => hash('sha256', $jsonData["username"]), ':password' => hash('sha256', $jsonData["password"])));
 if (arrFilter($dbPSQL->get()) === 0 && count($dbPSQL->get()) === 1) {
 foreach ($dbPSQL->get() as $key => $value) {
 //setcookie ('authorized', 'yes', time() + (10800), "/");
-my_session_regenerate_id();
+// my_session_regenerate_id();
 $_SESSION['login_user'] = $value["name"];
 $_SESSION['authorized'] = "yes";
-unset($_POST["username"]);
-unset($_POST["password"]);
+unset($_POST);
 header("Location: /index.php");
 }
 } else {
 //setcookie ('authorized', 'no', time() - (3600), "/");
 unset($_SESSION['login_user']);
-unset($_POST["username"]);
-unset($_POST["password"]);
+unset($_POST);
 $err = "Invalid credentials, try again.";
 }
 }
 
 if ($_POST) {
-header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
-unset($_POST);
+  header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
+  unset($_POST);
 }
 ?>
 

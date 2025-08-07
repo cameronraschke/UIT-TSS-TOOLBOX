@@ -22,21 +22,21 @@ function getCreds() {
     const formUser = formData.get("username");
     const formPass = formData.get("password");
 
-    // const dataToSend = {
-    //   username: formUser,
-    //   password: formPass
-    // };
+    const dataToSend = {
+      username: formUser,
+      password: formPass
+    };
 
     var authStr = await generateSHA256Hash(formUser) + ':' + await generateSHA256Hash(formPass);
     localStorage.setItem('authStr', authStr);
 
-    await fetch('/job-queue.php', {
+    await fetch('/login.php', {
       method: 'POST',
-      // headers: {
-      //   'Content-Type': 'application/json'
-      // },
-      // body: JSON.stringify(dataToSend)
-      body: loginForm
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(dataToSend)
+      // body: loginForm
     });
 
     await newToken();
