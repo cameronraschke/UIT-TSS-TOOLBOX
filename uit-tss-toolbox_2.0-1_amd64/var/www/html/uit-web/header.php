@@ -1,5 +1,4 @@
 <?php
-header("Access-Control-Allow-Origin: *");
 function my_session_start() {
 	if (session_status() != PHP_SESSION_ACTIVE) {
         session_start();
@@ -32,10 +31,10 @@ function my_session_regenerate_id() {
     // when session ID is not set due to unstable network.
     $new_session_id = session_create_id();
     $_SESSION['new_session_id'] = $new_session_id;
-    
+
     // Set destroy timestamp
     $_SESSION['destroyed'] = time();
-    
+
     // Write and close current session;
     session_commit();
 
@@ -43,7 +42,7 @@ function my_session_regenerate_id() {
     ini_set('session.use_strict_mode', 0);
     session_id($new_session_id);
     session_start();
-    
+
     // New session does not need them
     unset($_SESSION['destroyed']);
     unset($_SESSION['new_session_id']);
@@ -91,5 +90,4 @@ if (!empty($_SESSION['login_user'])) {
 		header("Location: /login.php");
 	}
 }
-
 ?>

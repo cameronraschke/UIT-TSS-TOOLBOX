@@ -1,4 +1,6 @@
 <?php
+#login.php
+require('/var/www/html/uit-web/header.php');
 require('/var/www/html/uit-web/php/include.php');
 
 
@@ -7,7 +9,7 @@ $dbPSQL = new dbPSQL();
 $dbPSQL->Pselect("SELECT name FROM logins WHERE username = :username AND password = :password", array(':username' => hash('sha256', $_POST["username"]), ':password' => hash('sha256', $_POST["password"])));
 if (arrFilter($dbPSQL->get()) === 0 && count($dbPSQL->get()) === 1) {
 foreach ($dbPSQL->get() as $key => $value) {
-// //setcookie ('authorized', 'yes', time() + (10800), "/");
+//setcookie ('authorized', 'yes', time() + (10800), "/");
 my_session_regenerate_id();
 $_SESSION['login_user'] = $value["name"];
 $_SESSION['authorized'] = "yes";
@@ -16,7 +18,7 @@ unset($_POST["password"]);
 header("Location: /index.php");
 }
 } else {
-// //setcookie ('authorized', 'no', time() - (3600), "/");
+//setcookie ('authorized', 'no', time() - (3600), "/");
 unset($_SESSION['login_user']);
 unset($_POST["username"]);
 unset($_POST["password"]);
@@ -63,11 +65,10 @@ unset($_POST);
       <img src="/images/uh-footer.svg">
     </div>
     <script>
+      getCreds();
       if ( window.history.replaceState ) {
         window.history.replaceState( null, null, window.location.href );
       }
-
-      getCreds()    
     </script>
   </body>
 </html>

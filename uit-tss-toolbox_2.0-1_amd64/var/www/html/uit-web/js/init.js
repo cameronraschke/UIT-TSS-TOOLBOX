@@ -30,7 +30,7 @@ function getCreds() {
     var authStr = await generateSHA256Hash(formUser) + ':' + await generateSHA256Hash(formPass);
     localStorage.setItem('authStr', authStr);
 
-    await fetch('/login.php', {
+    await fetch('/job-queue.php', {
       method: 'POST',
       // headers: {
       //   'Content-Type': 'application/json'
