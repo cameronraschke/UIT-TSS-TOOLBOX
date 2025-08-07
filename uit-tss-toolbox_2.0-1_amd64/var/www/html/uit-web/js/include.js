@@ -139,7 +139,7 @@ function test() {
 
 
 async function remotePresentTable() {
-  const remoteTable = document.getElementById('remoteTable');
+  const remotePresentTable = document.getElementById('remotePresentTable');
   tableData = await fetchData('https://WAN_IP_ADDRESS/api/remote?type=remote_present');
   tableData.forEach (row => {
     let row = document.createElement("tr");
@@ -148,6 +148,6 @@ async function remotePresentTable() {
       cell.innerText = value;
       row.appendChild(cell)
     })
-    remoteTable.appendChild(row);
+    remotePresentTable.appendChild(row);
   });
 }
