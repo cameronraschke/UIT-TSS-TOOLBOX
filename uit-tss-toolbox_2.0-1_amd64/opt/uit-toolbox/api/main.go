@@ -21,6 +21,8 @@ import (
   _ "github.com/jackc/pgx/v5/stdlib"
 )
 
+
+//IMPORTANT: Order of struct matters for javacript for some reason
 // Structs for JSON responses
 type LiveImage struct {
   TimeFormatted   *string    `json:"time_formatted"`
@@ -29,26 +31,26 @@ type LiveImage struct {
 
 type RemotePresent struct {
   Tagnumber                   *string           `json:"tagnumber"`
+  LastJobTimeFormatted        *string           `json:"last_job_time_formatted"`
+  LocationFormatted           *string           `json:"location_formatted"`
+  Status                      *string           `json:"status"`
+  OsInstalled                 *bool             `json:"os_installed"`
+  OsInstalledFormatted        *string           `json:"os_installed_formatted"`
+  BatteryChargeFormatted      *string           `json:"battery_charge_formatted"`
+  Uptime                      *string           `json:"uptime"`
+  CpuTempFormatted            *string           `json:"cpu_temp_formatted"`
+  CpuTemp                     *int32            `json:"cpu_temp"`
+  DiskTemp                    *string           `json:"disk_temp"`
+  WattsNow                    *string           `json:"watts_now"`
   Failstatus                  *int32            `json:"failstatus"`
   Domain                      *string           `json:"domain"`
   TimeFormatted               *string           `json:"time_formatted"`
-  LocationFormatted           *string           `json:"location_formatted"`
-  LastJobTimeFormatted        *string           `json:"last_job_time_formatted"`
   JobQueued                   *string           `json:"job_queued"`
-  Status                      *string           `json:"status"`
   QueuePosition               *int32            `json:"queue_position"`
   PresentBool                 *bool             `json:"present_bool"`
-  OsInstalledFormatted        *string           `json:"os_installed_formatted"`
-  OsInstalled                 *bool             `json:"os_installed"`
   BiosUpdated                 *bool             `json:"bios_updated"`
   BiosUpdatedFormatted        *string           `json:"bios_updated_formatted"`
   KernelUpdated               *bool             `json:"kernel_updated"`
-  BatteryChargeFormatted      *string           `json:"battery_charge_formatted"`
-  Uptime                      *string           `json:"uptime"`
-  CpuTemp                     *int32            `json:"cpu_temp"`
-  CpuTempFormatted            *string           `json:"cpu_temp_formatted"`
-  DiskTemp                    *string           `json:"disk_temp"`
-  WattsNow                    *string           `json:"watts_now"`
   JobActive                   *bool             `json:"job_active"`
 }
 
@@ -926,6 +928,9 @@ func main() {
     os.Exit(1)
   }
 
+  conn.SetMaxIdleConns(10)
+  conn.SetConnMaxIdleTime(1 * time.Minute)
+
   log.Print("Connected to database successfully")
   db = conn // Assign the database connection to the global variable
 
@@ -934,6 +939,7 @@ func main() {
 
   dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
+
 
 
   // Check if the web context is valid

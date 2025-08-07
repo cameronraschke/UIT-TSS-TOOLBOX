@@ -138,16 +138,67 @@ function test() {
 };
 
 
-async function remotePresentTable() {
-  const remotePresentTable = document.getElementById('remotePresentTable');
-  tableData = await fetchData('https://WAN_IP_ADDRESS/api/remote?type=remote_present');
-  tableData.forEach (row => {
-    let row = document.createElement("tr");
-    Object.values(row).forEach((value) => {
-      let cell = document.createElement("td");
-      cell.innerText = value;
-      row.appendChild(cell)
-    })
-    remotePresentTable.appendChild(row);
-  });
+async function updateRemotePresentTable() {
+
+  try {
+    const oldRemotePresentTable = document.getElementById('onlineTableBody');
+    const remotePresentTable = document.createElement("tbody");
+    remotePresentTable.setAttribute('id', 'onlineTableBody');
+    tableData = "";
+    tableData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present');
+
+    tableData.forEach (jsonRow => {
+      let tableRow = document.createElement("tr");
+      Object.entries(jsonRow).forEach(([key, value]) => {
+        if (key === "tagnumber") {
+          let tagnumber = "";
+          if (jsonRow["status"] === undefined) {
+              tagnumber += "<b>New Entry: </b>";
+          } else if (jsonRow["status"].length >= 1) {
+            if (jsonRow["status"] !== "Waiting for job" || value["job_queued"] === true) {
+              tagnumber += "<b>In Progress: </b>";
+            }
+          } else {
+            tagnumber += "";
+          }
+      
+          tagnumber += "<b><a href='tagnumber.php?tagnumber=" + value + "' target='_blank'>" + value + "</a></b>";
+
+          let cell = document.createElement("td");
+          cell.innerHTML = tagnumber;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "last_job_time_formatted") {
+          let cell = document.createElement("td");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "location_formatted") {
+          let cell = document.createElement("td");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "status") {
+          let cell = document.createElement("td");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "os_installed_formatted") {
+          let cell = document.createElement("td");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+
+        }
+      })
+
+      remotePresentTable.appendChild(tableRow);
+      oldRemotePresentTable.replaceWith(remotePresentTable);
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }

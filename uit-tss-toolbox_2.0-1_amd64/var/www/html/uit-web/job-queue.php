@@ -316,51 +316,11 @@ unset($_POST);
     <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
 
     <script>
-    var i = 0;
-    function fetchHTML() {
-    const var1 = setTimeout(function() {
-
-    fetch('/job-queue.php')
-    .then((response) => {
-    return response.text();
-    })
-    .then((html) => {
-    //document.body.innerHTML = html
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(html, "text/html")
-    //Update time at the top
-    const time = doc.getElementById('time').innerHTML
-    document.getElementById("time").innerHTML = time
-    //Update remote stats 
-    const remoteStats = doc.getElementById('remoteStats').innerHTML
-    document.getElementById("remoteStats").innerHTML = remoteStats
-    //Update client table
-    const onlineTableHeader = doc.getElementById('onlineTableHeader').innerHTML
-    document.getElementById("onlineTableHeader").innerHTML = onlineTableHeader
-    const onlineTableBody = doc.getElementById('onlineTableBody').innerHTML
-    document.getElementById("onlineTableBody").innerHTML = onlineTableBody
-
-    const cpuTemps = document.querySelectorAll('.presentCPUTemp');
-    cpuTemps.forEach(function(item) {
-      parseCPUTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
-    });
-
-    const diskTemps = document.querySelectorAll('.presentDiskTemp');
-    diskTemps.forEach(function(item) {
-      parseDiskTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
-    });
-
-    //Runing jobs overview
-    const runningJobs = doc.getElementById('runningJobs').innerHTML
-    document.getElementById("runningJobs").innerHTML = runningJobs
-    //myTable1
-    const myTable1 = doc.getElementById('myTable1').innerHTML
-    document.getElementById("myTable1").innerHTML = myTable1
-    });
-    // fetchHTML();
-    }, 3000)}
-
-</script>
+      setInterval(function() {
+        updateRemotePresentTable();
+      }, 3000);
+      updateRemotePresentTable();
+    </script>
 
   <script>
     <?php
