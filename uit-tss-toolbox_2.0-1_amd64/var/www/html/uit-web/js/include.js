@@ -148,50 +148,75 @@ async function updateRemotePresentTable() {
     tableHeader = document.createElement("thead");
     tableData = "";
     tableData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header');
+    console.log(tableData);
     tableData.forEach (jsonHeaderRow => {
       let tableRow = document.createElement("tr");
       Object.entries(jsonHeaderRow).forEach(([key, value]) => {
 
         if (key === "tagnumber_count") {
           let cell = document.createElement("th");
-          cell.innerText = value;
+          cell.innerText = "Tag Number123123 " + value;
           tableRow.appendChild(cell);
         }
 
-        if (key === "battery_charge_formatted") {
+        if (key === "tagnumber_count") {
           let cell = document.createElement("th");
-          cell.innerText = value;
+          cell.innerText = "Last Job Time";
           tableRow.appendChild(cell);
         }
 
-        if (key === "cpu_temp_formatted") {
+        if (key === "tagnumber_count") {
           let cell = document.createElement("th");
-          cell.innerText = value;
+          cell.innerText = "Location";
           tableRow.appendChild(cell);
         }
 
-        if (key === "disk_temp_formatted") {
+        if (key === "tagnumber_count") {
           let cell = document.createElement("th");
-          cell.innerText = value;
+          cell.innerText = "Status";
           tableRow.appendChild(cell);
         }
 
         if (key === "os_installed_formatted") {
           let cell = document.createElement("th");
-          cell.innerText = value;
+          cell.innerText = "OS Installed " + value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "battery_charge_formatted") {
+          let cell = document.createElement("th");
+          cell.innerText = "Battery Charge " + value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "battery_charge_formatted") {
+          let cell = document.createElement("th");
+          cell.innerText = "Uptime";
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "cpu_temp_formatted") {
+          let cell = document.createElement("th");
+          cell.innerText = "CPU Temp " + value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "disk_temp_formatted") {
+          let cell = document.createElement("th");
+          cell.innerText = "Disk Temp " + value;
           tableRow.appendChild(cell);
         }
 
         if (key === "power_usage_formatted") {
           let cell = document.createElement("th");
-          cell.innerText = value;
+          cell.innerText = "Power Usage " + value;
           tableRow.appendChild(cell);
         }
 
       });
 
         tableHeader.appendChild(tableRow);
-        
+
     });
 
 
@@ -200,15 +225,15 @@ async function updateRemotePresentTable() {
     tableData = "";
     tableData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present');
 
-    tableData.forEach (jsonRow => {
+    tableData.forEach (jsonBodyRow => {
       let tableRow = document.createElement("tr");
-      Object.entries(jsonRow).forEach(([key, value]) => {
+      Object.entries(jsonBodyRow).forEach(([key, value]) => {
         if (key === "tagnumber") {
           let tagnumber = "";
-          if (jsonRow["status"] === undefined) {
+          if (jsonBodyRow["status"] === undefined) {
               tagnumber += "<b>New Entry: </b>";
-          } else if (jsonRow["status"].length >= 1) {
-            if (jsonRow["status"] !== "Waiting for job" || value["job_queued"] === true) {
+          } else if (jsonBodyRow["status"].length >= 1) {
+            if (jsonBodyRow["status"] !== "Waiting for job" || value["job_queued"] === true) {
               tagnumber += "<b>In Progress: </b>";
             }
           } else {
@@ -259,9 +284,20 @@ async function updateRemotePresentTable() {
         }
 
         if (key === "cpu_temp_formatted") {
+          maxTemp = 90;
+          lowWarning = maxTemp - (maxTemp * 0.10);
+          mediumWarning = maxTemp - (maxTemp * 0.05);
+        
           let cell = document.createElement("td");
           cell.innerText = value;
-          cell.style.backgroundColor = 'black';
+          if (value > lowWarning && value < mediumWarning) {
+            cell.style.backgroundColor = '#ffe6a0';
+          } else if (value > mediumWarning && value < maxTemp) {
+            cell.style.backgroundColor = '#f5aa50';
+          } else if (value >= maxTemp) {
+            cell.style.backgroundColor = '#f55050';
+          }
+
           tableRow.appendChild(cell);
         }
 

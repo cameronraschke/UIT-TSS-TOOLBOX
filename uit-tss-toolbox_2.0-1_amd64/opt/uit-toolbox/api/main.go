@@ -56,10 +56,10 @@ type RemotePresent struct {
 
 type RemotePresentHeader struct {
   TagnumberCount            *string   `json:"tagnumber_count"`
+  OsInstalledFormatted      *string   `json:"os_installed_formatted"`
   BatteryChargeFormatted    *string   `json:"battery_charge_formatted"`
   CpuTempFormatted          *string   `json:"cpu_temp_formatted"`
   DiskTempFormatted         *string   `json:"disk_temp_formatted"`
-  OsInstalledFormatted      *string   `json:"os_installed_formatted"`
   PowerUsageFormatted       *string   `json:"power_usage_formatted"`
 }
 
@@ -535,7 +535,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       defer rows.Close()
 
       var remotePresentHeader []RemotePresentHeader
-      remotePresentHeader = make([]RemotePresentHeader, 1)
+      remotePresentHeader = make([]RemotePresentHeader, 0)
       for rows.Next() {
         var result RemotePresentHeader
         if dbCTX.Err() != nil {

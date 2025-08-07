@@ -112,10 +112,6 @@ unset($_POST);
     </div>
 
     <div id='remoteStats' class='pagetitle'>
-        <?php
-          $dbPSQL->select("SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS battery_charge_formatted, CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS cpu_temp_formatted, CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS disk_temp_formatted, CONCAT('(', COUNT(client_health.os_installed), ')') AS os_installed_formatted, CONCAT('(', SUM(remote.watts_now), ' ', 'watts', ')') AS power_usage_formatted FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.present_bool = TRUE");
-          foreach ($dbPSQL->get() as $key => $value1) {
-        ?>
       <h3>Online Clients <?php echo htmlspecialchars($value1["tagnumber_count"]); ?></h3>
     </div>
       <div>
@@ -127,89 +123,52 @@ unset($_POST);
         <th>Last Job Time</th>
         <th>Location</th>
         <th>Current Status</th>
-        <th>OS Installed <?php echo htmlspecialchars($value1["os_installed_formatted"]); ?></th>
-        <th>Battery Charge <?php echo htmlspecialchars($value1["battery_charge_formatted"]); ?></th>
+        <th>OS Installed</th>
+        <th>Battery Charge</th>
         <th>Uptime</th>
-        <th>CPU Temp <?php echo htmlspecialchars($value1["cpu_temp_formatted"]); ?></th>
-        <th>Disk Temp <?php echo htmlspecialchars($value1["disk_temp_formatted"]); ?></th>
-        <th>Power Usage <?php echo htmlspecialchars($value1["power_usage_formatted"]); ?></th>
+        <th>CPU Temp</th>
+        <th>Disk Temp</th>
+        <th>Power Usage></th>
         </tr>
         </thead>
         <tbody id="onlineTableBody">
-          <?php } 
-          unset($value1);?>
-        <?php
-      $dbPSQL->select("SELECT remote.tagnumber, 
-        (CASE WHEN remote.status LIKE 'fail%' THEN 1 ELSE 0 END) AS failstatus, t1.domain, 
-        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, locationFormatting(t3.location) AS location_formatted, 
-        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS last_job_time_formatted, 
-        remote.job_queued, remote.status, t2.queue_position, remote.present_bool, 
-        client_health.os_name AS os_installed_formatted, client_health.os_installed, 
-        client_health.bios_updated, (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, 
-        remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
-        TO_CHAR(NOW() - TO_TIMESTAMP(EXTRACT(EPOCH FROM NOW()) - (EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM (NOW() - (remote.uptime || ' second')::interval)))), 'DDD\"d,\" HH24\"h\" MI\"m\" SS\"s\"') as uptime, 
-        remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, CONCAT(remote.disk_temp, '°C') AS disk_temp, 
-        CONCAT(remote.watts_now, ' watts') AS watts_now, remote.job_active
-      FROM remote 
-      LEFT JOIN (SELECT s1.time, s1.tagnumber, s1.domain FROM (SELECT time, tagnumber, domain, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1) t1
-        ON remote.tagnumber = t1.tagnumber
-      LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
-      LEFT JOIN (SELECT tagnumber, location, row_nums FROM (SELECT tagnumber, location, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s3 WHERE s3.row_nums = 1) t3
-        ON t3.tagnumber = remote.tagnumber
-      LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS queue_position FROM remote WHERE job_queued IS NOT NULL) s2) t2
-        ON remote.tagnumber = t2.tagnumber
-      WHERE remote.present_bool = TRUE
-      ORDER BY
-      failstatus DESC,
-      (CASE WHEN remote.status LIKE 'fail%' THEN 1 ELSE 0 END) DESC, job_queued IS NULL ASC, (CASE WHEN job_active = TRUE THEN 10 ELSE 5 END) DESC, queue_position ASC,
-        (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 END) DESC, 
-        (CASE WHEN status = 'Waiting for job' THEN 1 ELSE 0 END) ASC, (CASE WHEN client_health.os_installed = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN remote.kernel_updated = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN client_health.bios_updated = TRUE THEN 1 ELSE 0 END) DESC, remote.last_job_time DESC");
-
-        if (arrFilter($dbPSQL->get()) === 0) {
-          foreach ($dbPSQL->get() as $key => $value) {
-        ?>
           <tr>
             <?php
-            // Keep this td completely in PHP to avoid weird spacing issues.
-            echo "<td id='tagnumber-" . htmlspecialchars($value["tagnumber"]) . "'>";
-            if (strFilter($value["status"]) === 1) {
-              echo "<b>New Entry: </b>";
-            } else if (strFilter($value["status"]) === 0) {
-              if (($value["status"] !== "Waiting for job" || strFilter($value["job_queued"]) === 0) && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
-                echo "<b>In Progress: </b>";
-              }
-            }
-            echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b>";
-            if ($value["present_bool"] === true && ($value["kernel_updated"] === true && $value["bios_updated"] === true)) {
-              echo "<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>";
-              // BIOS out of date, kernel not updated (x)
-            } elseif ($value["present_bool"] === true && ($value["kernel_updated"] !== true && $value["bios_updated"] !== true)) {
-              echo "<span>&#10060;</span>";
-              //BIOS out of date, kernel updated (warning sign)
-            } elseif ($value["present_bool"] === true && ($value["kernel_updated"] === true && $value["bios_updated"] !== true)) {
-              echo "<span>&#9888;&#65039;</span>";
-              //BIOS updated, kernel out of date (x)
-            } elseif ($value["present_bool"] === true && ($value["kernel_updated"] !== true && $value["bios_updated"] === true)) {
-              echo "<span>&#10060;</span>";
-            }
-            echo "</td>";
+            // // Keep this td completely in PHP to avoid weird spacing issues.
+            // echo "<td id='tagnumber-" . htmlspecialchars($value["tagnumber"]) . "'>";
+            // if (strFilter($value["status"]) === 1) {
+            //   echo "<b>New Entry: </b>";
+            // } else if (strFilter($value["status"]) === 0) {
+            //   if (($value["status"] !== "Waiting for job" || strFilter($value["job_queued"]) === 0) && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
+            //     echo "<b>In Progress: </b>";
+            //   }
+            // }
+            // echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b>";
+            // if ($value["present_bool"] === true && ($value["kernel_updated"] === true && $value["bios_updated"] === true)) {
+            //   echo "<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>";
+            //   // BIOS out of date, kernel not updated (x)
+            // } elseif ($value["present_bool"] === true && ($value["kernel_updated"] !== true && $value["bios_updated"] !== true)) {
+            //   echo "<span>&#10060;</span>";
+            //   //BIOS out of date, kernel updated (warning sign)
+            // } elseif ($value["present_bool"] === true && ($value["kernel_updated"] === true && $value["bios_updated"] !== true)) {
+            //   echo "<span>&#9888;&#65039;</span>";
+            //   //BIOS updated, kernel out of date (x)
+            // } elseif ($value["present_bool"] === true && ($value["kernel_updated"] !== true && $value["bios_updated"] === true)) {
+            //   echo "<span>&#10060;</span>";
+            // }
+            // echo "</td>";
             ?>
 
-            <td id='lastJobTime'><?php echo $value["last_job_time_formatted"]; ?></td>
-            <td id='presentLocation'><b><a href='locations.php?location=<?php echo htmlspecialchars($value["location_formatted"]); ?>' target='_blank'><?php echo htmlspecialchars($value["location_formatted"]); ?></a></b></td>
-            <td id='presentStatus'><?php echo htmlspecialchars($value["status"]); ?></td>
-            <td id='osInstalled'><?php echo htmlspecialchars($value["os_installed_formatted"]); if ($value["os_installed"] === true && strFilter($value["domain"]) === 0) { echo "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>"; }?>
-            </td>
-            <td><?php echo htmlspecialchars($value["battery_charge_formatted"]); ?></td>
-            <td id='uptime'><?php echo htmlspecialchars($value["uptime"]); ?></td>
-            <td class='presentCPUTemp' id='presentCPUTemp-<?php echo htmlspecialchars($value["tagnumber"]); ?>'><?php echo htmlspecialchars($value["cpu_temp_formatted"]); ?></td>
-            <td class='presentDiskTemp' id='presentDiskTemp-<?php echo htmlspecialchars($value["tagnumber"]); ?>'><?php echo htmlspecialchars($value["disk_temp"]); ?></td>
-            <td><?php echo htmlspecialchars($value["watts_now"]); ?></td>
-          </tr>
-          <?php 
-          //Close Loop 
-          } }
-          ?>
+            <!-- <td id='lastJobTime'></td>
+            <td id='presentLocation'><b><a href='locations.php?location=</a></b></td>
+            <td id='presentStatus'></td>
+            <td id='osInstalled'></td>
+            <td></td>
+            <td id='uptime'></td>
+            <td class='presentCPUTemp' id='presentCPUTemp'></td>
+            <td class='presentDiskTemp' id='presentDiskTemp-'></td>
+            <td></td>
+          </tr> -->
         </tbody>
       </table>
     </div>
