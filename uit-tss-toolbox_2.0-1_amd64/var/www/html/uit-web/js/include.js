@@ -292,7 +292,7 @@ async function updateRemotePresentTable() {
     });
 
     remotePresentTable.appendChild(tableHeader);
-    remotePresentTable.appendChild(tableBodyData);
+    remotePresentTable.appendChild(tableBody);
     oldRemotePresentTable.replaceWith(remotePresentTable);
   } catch (error) {
     console.log(error);
