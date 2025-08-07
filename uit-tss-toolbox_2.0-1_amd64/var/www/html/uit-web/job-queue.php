@@ -34,7 +34,8 @@ unset($_POST);
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <script src="/js/init.js?<?php echo filemtime('js/init.js'); ?>"></script>
   </head>
-  <body onload="fetchHTML()">
+  <!-- <body onload="fetchHTML()"> -->
+    <body>
     <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
     <div class='pagetitle' id='time'><h3>Page last updated: <?php $dbPSQL->select("SELECT TO_CHAR(NOW(), 'MM/DD/YY HH12:MI:SS AM') AS time_formatted"); echo $dbPSQL->nested_get()["time_formatted"]; ?></h3></div>
@@ -119,7 +120,7 @@ unset($_POST);
     </div>
       <div>
 
-      <table width="100%">
+      <table id='remotePresentTable' width="100%">
         <thead id="onlineTableHeader">
         <tr>
         <th>Tag Number</th>
@@ -356,7 +357,7 @@ unset($_POST);
     const myTable1 = doc.getElementById('myTable1').innerHTML
     document.getElementById("myTable1").innerHTML = myTable1
     });
-    fetchHTML();
+    // fetchHTML();
     }, 3000)}
 
 </script>

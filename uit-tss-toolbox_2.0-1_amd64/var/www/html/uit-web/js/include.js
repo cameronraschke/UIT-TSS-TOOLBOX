@@ -111,6 +111,7 @@ document.querySelector('body').addEventListener('click', () => {
 
 
 function logout() {
+  document.cookie = "authCookie=";
   localStorage.removeItem('bearerToken');
   localStorage.removeItem('authStr');
   localStorage.removeItem('basicToken');
@@ -135,3 +136,18 @@ button.addEventListener('click', e => {
 function test() { 
   console.log('test');
 };
+
+
+async function remotePresentTable() {
+  const remoteTable = document.getElementById('remoteTable');
+  tableData = await fetchData('https://WAN_IP_ADDRESS/api/remote?type=remote_present');
+  tableData.forEach (row => {
+    let row = document.createElement("tr");
+    Object.values(row).forEach((value) => {
+      let cell = document.createElement("td");
+      cell.innerText = value;
+      row.appendChild(cell)
+    })
+    remoteTable.appendChild(row);
+  });
+}

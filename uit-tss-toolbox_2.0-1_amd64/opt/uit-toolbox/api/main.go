@@ -105,8 +105,25 @@ var (
   eventType string
   db *sql.DB
   authMap map[string]time.Time
-  jsonForbiddenErr, _ = json.Marshal(httpErrorCodes{Message: "Forbidden"})
 )
+
+func formatHttpError (errorString string) (jsonErrStr string) {
+  var err error
+  var jsonStr httpErrorCodes
+  var jsonErr []byte
+
+  jsonStr = httpErrorCodes{Message: errorString}
+  jsonErr, err = json.Marshal(jsonStr)
+  if err != nil {
+    log.Print("Cannot parse JSON error: ", err)
+    return
+  }
+
+  jsonErrStr = string(jsonErr)
+
+  log.Print(errorString)
+  return string(jsonErrStr)
+}
 
 func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSerial string, sqlTime string, err error) {
     var path string
@@ -258,8 +275,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
 
   BearerToken, err = apiAuth(w, req)
   if err != nil {
-    log.Print("Auth Error: ", err)
-    http.Error(w, fmt.Errorf("Auth error: %w", err).Error(), http.StatusUnauthorized)
+    http.Error(w, formatHttpError(fmt.Errorf("Auth error: %w", err).Error()), http.StatusUnauthorized)
     return
   }
 
@@ -280,8 +296,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
     response = Auth{Token: BearerToken}
     jsonResponse, err = json.Marshal(response)
     if err != nil {
-      log.Print("Cannot create JSON: ", err)
-      http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+      http.Error(w, formatHttpError("Cannot format bearer token: " + fmt.Errorf("%w", err).Error()), http.StatusInternalServerError)
       return
     }
     w.Write(jsonResponse)
@@ -291,8 +306,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
 
   parsedURL, err = url.Parse(req.URL.RequestURI())
   if err != nil {
-    log.Print("Cannot parse URL: " + req.URL.RequestURI())
-    http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+    http.Error(w, formatHttpError("Cannot parse URL: " + req.URL.RequestURI()), http.StatusBadRequest)
     return
   }
 
@@ -305,8 +319,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
         request = req.URL.RequestURI()
         sqlCode, tagnumber, systemSerial, _, err = getRequestToSQL(request)
         if err != nil {
-          log.Print("Cannot parse URL: ", err)
-          http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+          http.Error(w, formatHttpError("Cannot parse URL: " + req.URL.RequestURI()), http.StatusBadRequest)
           return
         }
       // case http.MethodPost:
@@ -342,16 +355,14 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
       //     return
       //   }
       default:
-        log.Print("Unknown request method: ", req.Method)
-        http.Error(w, "Unknown request method", http.StatusMethodNotAllowed)
+        http.Error(w, formatHttpError("Method not allowed: " + req.Method), http.StatusMethodNotAllowed)
         return
   }
 
 
   jsonData, err := queryResults(sqlCode, tagnumber, systemSerial)
   if err != nil {
-    log.Print("Error querying results: ", err)
-    http.Error(w, "Error querying results", http.StatusInternalServerError)
+    http.Error(w, formatHttpError("Error querying results: " + fmt.Errorf("%w", err).Error()), http.StatusInternalServerError)
     return
   }
 
@@ -365,16 +376,16 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
 
       if _, err := io.WriteString(w, eventString); err != nil {
         log.Print("Cannot write output to client: ", err)
-        http.Error(w, "Cannot write output to client", http.StatusInternalServerError)
+        http.Error(w, formatHttpError("Cannot write result to http stream: " + fmt.Errorf("%w", err).Error()), http.StatusInternalServerError)
       }
       if _, err := io.WriteString(w, jsonString); err != nil {
         log.Print("Cannot write output to client: ", err)
-        http.Error(w, "Cannot write output to client", http.StatusInternalServerError)
+        http.Error(w, formatHttpError("Cannot write result to http stream: " + fmt.Errorf("%w", err).Error()), http.StatusInternalServerError)
       }
     } else {
       if _, err := io.WriteString(w, jsonData); err != nil {
         log.Print("Cannot write output to client: ", err)
-        http.Error(w, "Cannot write output to client", http.StatusInternalServerError)
+        http.Error(w, formatHttpError("Cannot write result to http stream: " + fmt.Errorf("%w", err).Error()), http.StatusInternalServerError)
       }
     }
 
@@ -678,7 +689,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
   parsedURL, err = url.Parse(req.URL.RequestURI())
   if err != nil {
     log.Print("Cannot parse URL: " + req.URL.RequestURI())
-    http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
+    http.Error(w, formatHttpError("Cannot parse URL: " + req.URL.RequestURI()), http.StatusInternalServerError)
     return nil, "", errors.New("Cannot parse URL: " + req.URL.RequestURI())
   }
 
@@ -711,13 +722,13 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
     } else if strings.HasPrefix(value, "Basic ") {
       basicToken = strings.TrimPrefix(value, "Basic ")
     } else {
-      http.Error(w, "Unauthorized", http.StatusUnauthorized)
+      http.Error(w, formatHttpError("Malformed authorization header"), http.StatusBadRequest)
       return nil, "", errors.New("Malformed authorization header")
     }
   }
 
   if headerCount == 0 {
-    http.Error(w, "Unauthorized", http.StatusUnauthorized)
+    http.Error(w, formatHttpError("Missing 'Authorization' header: " + req.URL.RequestURI()), http.StatusUnauthorized)
     return nil, "", errors.New("Authorization header missing: " + req.URL.RequestURI())
   }
 
@@ -730,28 +741,27 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
 
   // Check if the token is empty
   if token == "" {
-    http.Error(w, "Unauthorized", http.StatusUnauthorized)
-    return nil, "", errors.New("Authorization token is empty")
+    http.Error(w, formatHttpError("Empty Authorization header"), http.StatusUnauthorized)
+    return nil, "", errors.New("Empty Authorization header")
   }
 
   // Check if request method is valid
   if req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete && req.Method != http.MethodOptions {
     log.Print("Invalid request method: ", req.Method)
-    http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+    http.Error(w, formatHttpError("Invalid request method" + req.Method), http.StatusMethodNotAllowed)
     return nil, "", errors.New("Invalid request method: " + req.Method)
   }
 
   // Check if Content-Type is valid
   if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
     log.Print("Invalid Content-Type: ", req.Header.Get("Content-Type"))
-    // http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
-    // return nil, "", errors.New("Invalid Content-Type: " + req.Header.Get("Content-Type"))
+    http.Error(w, formatHttpError("Invalid content type: " + req.Header.Get("Content-Type")), http.StatusUnsupportedMediaType)
+    return nil, "", errors.New("Invalid Content-Type: " + req.Header.Get("Content-Type"))
   }
 
   // Check if request content length exceeds 32 MB
-  if req.ContentLength > 32 << 20 { // 32 MB limit
-    log.Print("Request content length exceeds limit: ", req.ContentLength)
-    http.Error(w, "Request content length exceeds limit", http.StatusRequestEntityTooLarge)
+  if req.ContentLength > 32 << 20 {
+    http.Error(w, formatHttpError("Request content length exceeds limit: " + fmt.Sprint(req.ContentLength)), http.StatusRequestEntityTooLarge)
     return nil, "", errors.New("Request content length exceeds limit: " + fmt.Sprint(req.ContentLength))
   }
 
@@ -771,8 +781,8 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
   if req.Method == http.MethodGet {
     w, token, err = apiMiddleWare(w, req)
     if err != nil {
-      log.Print("API middleware error: ", err)
-      return "", errors.New("API middleware error: ")
+      log.Print("API middleware error: ", err.Error())
+      return "", errors.New("API middleware error: " + err.Error())
     }
 
     dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
@@ -810,29 +820,29 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
       }
 
       if matches >= 1 {
-        log.Print("Auth Cached: ", key, " (TTL: ", timeDiff, ")")
+        // log.Print("Auth Cached: ", key, " (TTL: ", timeDiff, ")")
+        log.Print("Auth Cached: ", "(TTL: ", timeDiff, ")")
         return key, nil
       }
     }
 
     // Check if DB connection is valid
     if db == nil {
-      http.Error(w, "Internal server error", http.StatusInternalServerError)
-      return "", errors.New("DB Connection broken")
+      http.Error(w, formatHttpError("Connection to database failed"), http.StatusInternalServerError)
+      return "", errors.New("Connection to database failed")
     }
     if dbCTX.Err() != nil {
       log.Print("Context error: ", dbCTX.Err()) 
-      http.Error(w, "Internal server error", http.StatusInternalServerError)
-      return "", errors.New("Auth Error")
+      http.Error(w, formatHttpError("Context error interrupt"), http.StatusInternalServerError)
+      return "", errors.New("Context error: " + dbCTX.Err().Error())
     }
 
     // Check if the token exists in the database
     sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as tokens FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
     rows, err = db.QueryContext(dbCTX, sqlCode, token)
     if err != nil {
-      log.Print("Cannot query database: ", err)
-      http.Error(w, "Internal server error", http.StatusInternalServerError)
-      return "", errors.New("Cannot query database")
+      http.Error(w, formatHttpError("Cannot query database"), http.StatusInternalServerError)
+      return "", errors.New("Cannot query database: " + err.Error())
     }
     defer rows.Close()
 
@@ -842,18 +852,15 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
       rowCount++
 
       if err = rows.Scan(&dbToken); err != nil {
-        log.Print("Error scanning token: ", err)
         http.Error(w, "Internal server error", http.StatusInternalServerError)
-        return "", errors.New("Error scanning token")
+        return "", errors.New("Error scanning token: " + err.Error())
       }
       if dbCTX.Err() != nil {
-        log.Print("Context error: ", dbCTX.Err())
         http.Error(w, "Internal server error", http.StatusInternalServerError)
-        return "", errors.New("Context error")
+        return "", errors.New("Context error: " + dbCTX.Err().Error())
       }
       if dbToken == "" {
-        log.Print("Empty Token")
-        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        http.Error(w, formatHttpError("Empty token"), http.StatusUnauthorized)
         return "", errors.New("Empty Token")
       }
 
@@ -864,8 +871,8 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
         hash := make([]byte, 32)
         _, err = rand.Read(hash)
         if err != nil {
-          http.Error(w, "Internal server error", http.StatusInternalServerError)
-          return "", errors.New("Can't create token")
+          http.Error(w, formatHttpError("Cannot generate token"), http.StatusInternalServerError)
+          return "", errors.New("Cannot generate token: " + err.Error())
         }
         hashedTokenStr := fmt.Sprintf("%x", hash)
 
@@ -874,21 +881,19 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
         return hashedTokenStr, nil
 
       } else {
-        log.Print("Token does not match: ", token)
-        http.Error(w, string(jsonForbiddenErr), http.StatusForbidden)
-        return "", errors.New("Token does not match")
+        http.Error(w, formatHttpError("Incorrect credentials"), http.StatusForbidden)
+        return "", errors.New("Incorrect credentials")
       }
     }
 
     if rowCount == 0 {
-      log.Print("Invalid token: ", token)
-      http.Error(w, string(jsonForbiddenErr), http.StatusForbidden)
-      return "", errors.New("Invalid token")
+      http.Error(w, formatHttpError("Token does not exist"), http.StatusForbidden)
+      return "", errors.New("Token does not exist")
     }
   }
 
-  http.Error(w, string(jsonForbiddenErr), http.StatusForbidden)
-  return "", errors.New("Unknown Auth Error")
+  http.Error(w, formatHttpError("Invalid request method: " + req.Method), http.StatusMethodNotAllowed)
+  return "", errors.New("Invalid request method: " + req.Method)
 }
 
 

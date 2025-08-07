@@ -120,7 +120,6 @@ async function newToken() {
 
 async function fetchData(url) {
   if (await checkToken() == false) {
-    console.log("Token expired")
     await newToken();
   }
   const bearerToken = localStorage.getItem('bearerToken');
