@@ -54,6 +54,15 @@ type RemotePresent struct {
   JobActive                   *bool             `json:"job_active"`
 }
 
+type RemotePresentHeader struct {
+  TagnumberCount            *string   `json:"tagnumber_count"`
+  BatteryChargeFormatted    *string   `json:"battery_charge_formatted"`
+  CpuTempFormatted          *string   `json:"cpu_temp_formatted"`
+  DiskTempFormatted         *string   `json:"disk_temp_formatted"`
+  OsInstalledFormatted      *string   `json:"os_installed_formatted"`
+  PowerUsageFormatted       *string   `json:"power_usage_formatted"`
+}
+
 type Locations struct {
   Time            *time.Time  `json:"time"`
   Tagnumber       *int32      `json:"tagnumber"`
@@ -162,7 +171,7 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
         client_health.os_name AS os_installed_formatted, client_health.os_installed, 
         client_health.bios_updated, (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, 
         remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
-        AGE(NOW()::timestamp(0), remote.present::timestamp(0)) AS uptime, 
+        AGE(NOW(), NOW() - (remote.uptime * INTERVAL '1 second')) AS uptime, 
         remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, CONCAT(remote.disk_temp, '°C') AS disk_temp, 
         CONCAT(remote.watts_now, ' watts') AS watts_now, remote.job_active
       FROM remote 
@@ -180,6 +189,9 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
         (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 END) DESC, 
         (CASE WHEN status = 'Waiting for job' THEN 1 ELSE 0 END) ASC, (CASE WHEN client_health.os_installed = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN remote.kernel_updated = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN client_health.bios_updated = TRUE THEN 1 ELSE 0 END) DESC, remote.last_job_time DESC`
       eventType = "remote_present"
+    } else if path == "/api/remote" && queries.Get("type") == "remote_present_header" {
+      sql = `SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS battery_charge_formatted, CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS cpu_temp_formatted, CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS disk_temp_formatted, CONCAT('(', COUNT(client_health.os_installed), ')') AS os_installed_formatted, CONCAT('(', SUM(remote.watts_now), ' ', 'watts', ')') AS power_usage_formatted FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.present_bool = TRUE`
+      eventType = "remote_present_header"
     } else if path == "/api/test" && queries.Get("type") == "test" {
       sql = `SELECT 'test'`
       eventType = "test"
@@ -459,14 +471,12 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       results = liveImages // Assign results to liveImages
 
     case "remote_present": // Remote present query
-      //log.Print("Executing remote query")
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
         log.Print(err)
         return "", errors.New("Error querying present clients (main query)")
       }
       defer rows.Close()
-      //log.Print("Query executed successfully")
 
       var remotePresent []RemotePresent
       remotePresent = make([]RemotePresent, 0)
@@ -516,7 +526,48 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       }
       results = remotePresent // Assign results to remotePresent
 
-    case "locations": // Test query
+    case "remote_present_header": 
+      rows, err = db.QueryContext(dbCTX, sqlCode)
+      if err != nil {
+        log.Print(err)
+        return "", errors.New("Error querying present clients (main query)")
+      }
+      defer rows.Close()
+
+      var remotePresentHeader []RemotePresentHeader
+      remotePresentHeader = make([]RemotePresentHeader, 1)
+      for rows.Next() {
+        var result RemotePresentHeader
+        if dbCTX.Err() != nil {
+          log.Print("Context error: ", dbCTX.Err())
+          return "", errors.New("Context error: " + dbCTX.Err().Error())
+        }
+        if err = rows.Err(); err != nil {
+          return "", errors.New("Context error: ")
+        }
+        err = rows.Scan(
+          &result.TagnumberCount,
+          &result.BatteryChargeFormatted,
+          &result.CpuTempFormatted,
+          &result.DiskTempFormatted,
+          &result.OsInstalledFormatted,
+          &result.PowerUsageFormatted,
+        )
+        
+        if err != nil {
+          log.Print("Error scanning row: ", err)
+          return "", errors.New("Error scanning row")
+        }
+        remotePresentHeader = append(remotePresentHeader, result)
+      }
+
+      if err != nil {
+        return "", errors.New("Error querying present clients (main query)")
+      }
+      results = remotePresentHeader
+
+    
+    case "locations":
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
         return "", errors.New("Error querying locations")

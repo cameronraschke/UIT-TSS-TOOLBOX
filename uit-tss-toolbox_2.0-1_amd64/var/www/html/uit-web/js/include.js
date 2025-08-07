@@ -141,9 +141,62 @@ function test() {
 async function updateRemotePresentTable() {
 
   try {
-    const oldRemotePresentTable = document.getElementById('onlineTableBody');
-    const remotePresentTable = document.createElement("tbody");
-    remotePresentTable.setAttribute('id', 'onlineTableBody');
+    const oldRemotePresentTable = document.getElementById('remotePresentTable');
+    const remotePresentTable = document.createElement("table");
+    remotePresentTable.setAttribute('id', 'remotePresentTable');
+
+    tableHeader = document.createElement("thead");
+    tableData = "";
+    tableData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header');
+    tableData.forEach (jsonHeaderRow => {
+      let tableRow = document.createElement("tr");
+      Object.entries(jsonHeaderRow).forEach(([key, value]) => {
+
+        if (key === "tagnumber_count") {
+          let cell = document.createElement("th");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "battery_charge_formatted") {
+          let cell = document.createElement("th");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "cpu_temp_formatted") {
+          let cell = document.createElement("th");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "disk_temp_formatted") {
+          let cell = document.createElement("th");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "os_installed_formatted") {
+          let cell = document.createElement("th");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "power_usage_formatted") {
+          let cell = document.createElement("th");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+      });
+
+        tableHeader.appendChild(tableRow);
+        
+    });
+
+
+
+    tableBody = document.createElement("tbody");
     tableData = "";
     tableData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present');
 
@@ -191,13 +244,46 @@ async function updateRemotePresentTable() {
           let cell = document.createElement("td");
           cell.innerText = value;
           tableRow.appendChild(cell);
+        }
 
+        if (key === "battery_charge_formatted") {
+          let cell = document.createElement("td");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "uptime") {
+          let cell = document.createElement("td");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "cpu_temp_formatted") {
+          let cell = document.createElement("td");
+          cell.innerText = value;
+          cell.style.backgroundColor = 'black';
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "disk_temp") {
+          let cell = document.createElement("td");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
+        }
+
+        if (key === "watts_now") {
+          let cell = document.createElement("td");
+          cell.innerText = value;
+          tableRow.appendChild(cell);
         }
       })
+      tableBody.appendChild(tableRow)
 
-      remotePresentTable.appendChild(tableRow);
-      oldRemotePresentTable.replaceWith(remotePresentTable);
     });
+
+    remotePresentTable.appendChild(tableHeader);
+    remotePresentTable.appendChild(tableBody);
+    oldRemotePresentTable.replaceWith(remotePresentTable);
   } catch (error) {
     console.log(error);
   }
