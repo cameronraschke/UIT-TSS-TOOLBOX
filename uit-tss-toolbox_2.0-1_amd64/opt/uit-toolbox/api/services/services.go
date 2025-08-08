@@ -7,16 +7,16 @@ import (
   "encoding/json"
 )
 
-type JobQueueService struct {
+type MainService struct {
 	repo database.JobQueueRepository
 }
 
-func NewJobQueueService(repo database.JobQueueRepository) *JobQueueService {
-	return &JobQueueService{repo: repo}
+func NewMainService(repo database.JobQueueRepository) *MainService {
+	return &MainService{repo: repo}
 }
 
 
-func (s *JobQueueService) GetJobQueue(tagnumber int) ([]*database.JobQueue, string, error) {
+func (s *MainService) GetJobQueue(tagnumber int) ([]*database.JobQueue, string, error) {
   var jsonData []byte
   var jsonDataStr string
 
@@ -49,7 +49,7 @@ func (s *JobQueueService) GetJobQueue(tagnumber int) ([]*database.JobQueue, stri
 }
 
 
-func (s *JobQueueService) GetRemoteOnlineTableJson() ([]*database.JobQueue, string, error) {
+func (s *MainService) GetRemoteOnlineTableJson() ([]*database.RemoteOnlineTable, string, error) {
   var jsonData []byte
   var jsonDataStr string
 

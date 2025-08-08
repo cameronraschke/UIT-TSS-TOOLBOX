@@ -424,6 +424,8 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       results = liveImages // Assign results to liveImages
 
     case "remote_present":
+      dbRepo := database.NewDBRepository(sqlConn)
+      dbServices := services.NewMainService(dbRepo)
       var remoteTableJson string
       _, remoteTableJson, err = dbServices.GetRemoteOnlineTableJson()
       return remoteTableJson, nil
@@ -879,9 +881,6 @@ func main() {
 
   log.Print("Connected to database successfully")
   db = sqlConn
-
-  dbRepo := database.NewDBRepository(sqlConn)
-  dbServices := services.NewJobQueueService(dbRepo)
 
   webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
