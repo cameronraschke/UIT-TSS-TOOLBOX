@@ -18,6 +18,7 @@ import (
   "database/sql"
   "api/database"
   "api/services"
+  "sync"
 
   _ "net/http/pprof"
   _ "github.com/jackc/pgx/v5/stdlib"
@@ -93,7 +94,7 @@ var (
 	webCTX context.Context
   eventType string
   db *sql.DB
-  authMap map[string]time.Time
+  authMap sync.Map
 )
 
 func formatHttpError (errorString string) (jsonErrStr string) {
@@ -424,7 +425,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       results = liveImages // Assign results to liveImages
 
     case "remote_present":
-      dbRepo := database.NewDBRepository(sqlConn)
+      dbRepo := database.NewDBRepository(db)
       dbServices := services.NewMainService(dbRepo)
       var remoteTableJson string
       _, remoteTableJson, err = dbServices.GetRemoteOnlineTableJson()
@@ -744,29 +745,39 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
     dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
     defer cancel()
 
-    // Check if token is in authMap
-    for key, value := range authMap {
+    authMap.Range(func(k, v interface{}) bool { 
+      value := v.(time.Time)
+      key := k.(string)
       timeDiff = value.Sub(time.Now())
 
       // Set second timeout below. Will countdown from timeout seconds.
       if timeDiff.Seconds() < 0 {
-        delete(authMap, key)
+        authMap.Delete(key)
         log.Print("Auth session expired: ", key, " (TTL: ", timeDiff, ")")
       }
-    }
+      return true
+    })
 
-    for key, _ := range authMap {
+    authMap.Range(func(k, v interface{}) bool {
+      value := v.(time.Time)
+      key := k.(string)
       var match int32
+      if value.IsZero() {
+        authMap.Delete(key)
+        return false
+      }
       if key == token {
         match++
         matches = match
+        return false
       }
+      return true
 
-      if matches >= 1 {
-        // log.Print("Auth Cached: ", key, " (TTL: ", timeDiff, ")")
-        log.Print("Auth Cached: ", "(TTL: ", timeDiff, ")")
-        return key, nil
-      }
+    })
+
+    if matches >= 1 {
+      log.Print("Auth Cached: ", "(TTL: ", timeDiff, ")")
+      return token, nil
     }
 
     // Check if DB connection is valid
@@ -820,7 +831,8 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
         hashedTokenStr := fmt.Sprintf("%x", hash)
 
         TTLDuration = time.Second * 10
-        authMap[hashedTokenStr] = time.Now().Add(TTLDuration)
+        // authMap[hashedTokenStr] = time.Now().Add(TTLDuration)
+        authMap.Store(hashedTokenStr, time.Now().Add(TTLDuration))
         return hashedTokenStr, nil
 
       } else {
@@ -900,16 +912,6 @@ func main() {
     log.Print("DB context error: ", dbCTX.Err())
     panic("DB context error")
   }
-
-
-
-  // // Check if connection is valid
-  // if http.ConnState.String() != "StateActive" {
-  //   log.Print("Connection is not active")
-  //   panic("Connection is not active")
-  // }
-
-  authMap = make(map[string]time.Time, 10)
 
   // Route to correct function
   mux := http.NewServeMux()

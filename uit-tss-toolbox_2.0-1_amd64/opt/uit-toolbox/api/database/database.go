@@ -26,6 +26,7 @@ type RemoteOnlineTable struct {
   Screenshot                  *string           `json:"screenshot"`
   LastJobTimeFormatted        *string           `json:"last_job_time_formatted"`
   LocationFormatted           *string           `json:"location_formatted"`
+  LocationsStatus             *string           `json:"locations_status"`
   Status                      *string           `json:"status"`
   OsInstalled                 *bool             `json:"os_installed"`
   OsInstalledFormatted        *string           `json:"os_installed_formatted"`
@@ -49,7 +50,7 @@ type RemoteOnlineTable struct {
 }
 
 
-type JobQueueRepository interface {
+type DBInterface interface {
 	GetJobQueueByTagnumber(tagnumber int) ([]*JobQueue, error)
   GetRemoteOnlineTable() ([]*RemoteOnlineTable, error)
 }
@@ -117,7 +118,7 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, locationFormatting(t3.location) AS location_formatted, 
       TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS last_job_time_formatted, 
       remote.job_queued, remote.status, t2.queue_position, remote.present_bool, 
-      client_health.os_name AS os_installed_formatted, client_health.os_installed, 
+      client_health.os_name AS os_installed_formatted, client_health.os_installed, t1.locations_status, 
       client_health.bios_updated, (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, 
       remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
       AGE(NOW(), NOW() - (remote.uptime * INTERVAL '1 second')) AS uptime, 
@@ -125,7 +126,7 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       remote.disk_temp, CONCAT(remote.disk_temp, '°C') AS disk_temp_formatted, static_disk_stats.max_temp AS max_disk_temp, 
       CONCAT(remote.watts_now, ' watts') AS watts_now, remote.job_active
     FROM remote 
-    LEFT JOIN (SELECT s1.time, s1.tagnumber, s1.domain FROM (SELECT time, tagnumber, domain, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1) t1
+    LEFT JOIN (SELECT s1.time, s1.tagnumber, s1.domain, s1.status AS locations_status FROM (SELECT time, tagnumber, domain, status, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1) t1
       ON remote.tagnumber = t1.tagnumber
     LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
     LEFT JOIN (SELECT tagnumber, location, row_nums FROM (SELECT tagnumber, location, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s3 WHERE s3.row_nums = 1) t3
@@ -141,7 +142,7 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       remote.status LIKE 'fail%' DESC, job_queued IS NOT NULL DESC, job_active = TRUE DESC, queue_position ASC,
       (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 END) DESC, 
       status = 'Waiting for job' ASC, client_health.os_installed = TRUE DESC, 
-      remote.kernel_updated DESC, client_health.bios_updated = TRUE DESC, 
+      remote.kernel_updated DESC, locations.status = TRUE DESC, client_health.bios_updated = TRUE DESC, 
       remote.last_job_time DESC`
 
 
@@ -171,6 +172,7 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       &row.LocationFormatted,
       &row.LastJobTimeFormatted,
       &row.JobQueued,
+      &row.LocationsStatus,
       &row.Status,
       &row.QueuePosition,
       &row.PresentBool,

@@ -8,10 +8,10 @@ import (
 )
 
 type MainService struct {
-	repo database.JobQueueRepository
+	repo database.DBInterface
 }
 
-func NewMainService(repo database.JobQueueRepository) *MainService {
+func NewMainService(repo database.DBInterface) *MainService {
 	return &MainService{repo: repo}
 }
 
