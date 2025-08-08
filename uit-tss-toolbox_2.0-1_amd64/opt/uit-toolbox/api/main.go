@@ -26,7 +26,7 @@ import (
 type Env struct {
   db *sql.DB
   logger *log.Logger
-  htmlError *http.Error
+  // htmlError *http.Error
 }
 
 
@@ -35,33 +35,6 @@ type Env struct {
 type LiveImage struct {
   TimeFormatted   *string    `json:"time_formatted"`
   Screenshot      *string    `json:"screenshot"`
-}
-
-type RemotePresent struct {
-  Tagnumber                   *string           `json:"tagnumber"`
-  Screenshot                  *string           `json:"screenshot"`
-  LastJobTimeFormatted        *string           `json:"last_job_time_formatted"`
-  LocationFormatted           *string           `json:"location_formatted"`
-  Status                      *string           `json:"status"`
-  OsInstalled                 *bool             `json:"os_installed"`
-  OsInstalledFormatted        *string           `json:"os_installed_formatted"`
-  BatteryChargeFormatted      *string           `json:"battery_charge_formatted"`
-  Uptime                      *string           `json:"uptime"`
-  CpuTemp                     *int32            `json:"cpu_temp"`
-  CpuTempFormatted            *string           `json:"cpu_temp_formatted"`
-  DiskTemp                    *int32            `json:"disk_temp"`
-  DiskTempFormatted           *string           `json:"disk_temp_formatted"`
-  MaxDiskTemp                 *int32            `json:"max_disk_temp"`
-  WattsNow                    *string           `json:"watts_now"`
-  Domain                      *string           `json:"domain"`
-  TimeFormatted               *string           `json:"time_formatted"`
-  JobQueued                   *string           `json:"job_queued"`
-  QueuePosition               *int32            `json:"queue_position"`
-  PresentBool                 *bool             `json:"present_bool"`
-  BiosUpdated                 *bool             `json:"bios_updated"`
-  BiosUpdatedFormatted        *string           `json:"bios_updated_formatted"`
-  KernelUpdated               *bool             `json:"kernel_updated"`
-  JobActive                   *bool             `json:"job_active"`
 }
 
 type RemotePresentHeader struct {
@@ -103,11 +76,6 @@ type TestQuery struct {
 
 type Auth struct {
 	Token string `json:"token"`
-}
-
-type User struct {
-	Username     string `json:"username"`
-	PasswordHash string `json:"-"`
 }
 
 type StoredAuth struct {
@@ -173,36 +141,6 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
             WHERE tagnumber = $1`
       eventType = "live_image"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
-      sql = `SELECT remote.tagnumber, live_images.screenshot, t1.domain, 
-        TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, locationFormatting(t3.location) AS location_formatted, 
-        TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS last_job_time_formatted, 
-        remote.job_queued, remote.status, t2.queue_position, remote.present_bool, 
-        client_health.os_name AS os_installed_formatted, client_health.os_installed, 
-        client_health.bios_updated, (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, 
-        remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
-        AGE(NOW(), NOW() - (remote.uptime * INTERVAL '1 second')) AS uptime, 
-        remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, 
-        remote.disk_temp, CONCAT(remote.disk_temp, '°C') AS disk_temp_formatted, static_disk_stats.max_temp AS max_disk_temp, 
-        CONCAT(remote.watts_now, ' watts') AS watts_now, remote.job_active
-      FROM remote 
-      LEFT JOIN (SELECT s1.time, s1.tagnumber, s1.domain FROM (SELECT time, tagnumber, domain, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1) t1
-        ON remote.tagnumber = t1.tagnumber
-      LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
-      LEFT JOIN (SELECT tagnumber, location, row_nums FROM (SELECT tagnumber, location, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s3 WHERE s3.row_nums = 1) t3
-        ON t3.tagnumber = remote.tagnumber
-      LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS queue_position FROM remote WHERE job_queued IS NOT NULL) s2) t2
-        ON remote.tagnumber = t2.tagnumber
-      LEFT JOIN (SELECT s4.tagnumber, s4.disk_model FROM (SELECT tagnumber, disk_model, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND disk_model IS NOT NULL) s4 WHERE s4.row_nums = 1) t4
-        ON remote.tagnumber = t4.tagnumber
-      LEFT JOIN static_disk_stats ON static_disk_stats.disk_model = t4.disk_model
-      LEFT JOIN live_images ON remote.tagnumber = live_images.tagnumber
-      WHERE remote.present_bool = TRUE
-      ORDER BY
-        remote.status LIKE 'fail%' DESC, job_queued IS NOT NULL DESC, job_active = TRUE DESC, queue_position ASC,
-        (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 END) DESC, 
-        status = 'Waiting for job' ASC, client_health.os_installed = TRUE DESC, 
-        remote.kernel_updated DESC, client_health.bios_updated = TRUE DESC, 
-        remote.last_job_time DESC`
       eventType = "remote_present"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present_header" {
       sql = `SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS battery_charge_formatted, CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS cpu_temp_formatted, CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS disk_temp_formatted, CONCAT('(', COUNT(client_health.os_installed), ')') AS os_installed_formatted, CONCAT('(', SUM(remote.watts_now), ' ', 'watts', ')') AS power_usage_formatted FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.present_bool = TRUE`
@@ -485,64 +423,10 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       }
       results = liveImages // Assign results to liveImages
 
-    case "remote_present": // Remote present query
-      rows, err = db.QueryContext(dbCTX, sqlCode)
-      if err != nil {
-        log.Print(err)
-        return "", errors.New("Error querying present clients (main query)")
-      }
-      defer rows.Close()
-
-      var remotePresent []RemotePresent
-      remotePresent = make([]RemotePresent, 0)
-      for rows.Next() {
-        var result RemotePresent
-        if dbCTX.Err() != nil {
-          log.Print("Context error: ", dbCTX.Err())
-          return "", errors.New("Context error: " + dbCTX.Err().Error())
-        }
-        if err = rows.Err(); err != nil {
-          return "", errors.New("Context error: ")
-        }
-        err = rows.Scan(
-          &result.Tagnumber,
-          &result.Screenshot,
-          &result.Domain,
-          &result.TimeFormatted,
-          &result.LocationFormatted,
-          &result.LastJobTimeFormatted,
-          &result.JobQueued,
-          &result.Status,
-          &result.QueuePosition,
-          &result.PresentBool,
-          &result.OsInstalledFormatted,
-          &result.OsInstalled,
-          &result.BiosUpdated,
-          &result.BiosUpdatedFormatted,
-          &result.KernelUpdated,
-          &result.BatteryChargeFormatted,
-          &result.Uptime,
-          &result.CpuTemp,
-          &result.CpuTempFormatted,
-          &result.DiskTemp,
-          &result.DiskTempFormatted,
-          &result.MaxDiskTemp,
-          &result.WattsNow,
-          &result.JobActive,
-        )
-        
-        if err != nil {
-          log.Print("Error scanning row: ", err)
-          return "", errors.New("Error scanning row")
-        }
-        remotePresent = append(remotePresent, result)
-      }
-
-      if err != nil {
-        return "", errors.New("Error querying present clients (main query)")
-      }
-      results = remotePresent // Assign results to remotePresent
-
+    case "remote_present":
+      var remoteTableJson string
+      _, remoteTableJson, err = dbServices.GetRemoteOnlineTableJson()
+      return remoteTableJson, nil
     case "remote_present_header": 
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
@@ -858,19 +742,6 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
     dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
     defer cancel()
 
-
-    // err = json.NewDecoder(req.Body).Decode(&user)
-    // if err != nil {
-    //   log.Print("Error decoding JSON: ", err)
-    //   http.Error(w, "Bad Request", http.StatusBadRequest)
-    //   return
-    // }
-    // if user.Username == "" || user.PasswordHash == "" {
-    //   log.Print("Username or password is empty")
-    //   http.Error(w, "Bad Request", http.StatusBadRequest)
-    //   return
-    // }
-
     // Check if token is in authMap
     for key, value := range authMap {
       timeDiff = value.Sub(time.Now())
@@ -1009,16 +880,8 @@ func main() {
   log.Print("Connected to database successfully")
   db = sqlConn
 
-  userRepo := database.NewPostgresJobQueueRepository(sqlConn)
-  userService := services.NewJobQueueService(userRepo)
-
-  queuedJob, err := userService.GetJobQueue(626033)
-	if err != nil {
-		log.Printf("Error getting user: %v", err)
-	} else {
-		fmt.Printf("User: ID=%d\n", queuedJob.Tagnumber)
-	}
-
+  dbRepo := database.NewPostgresJobQueueRepository(sqlConn)
+  dbServices := services.NewJobQueueService(dbRepo)
 
   webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
