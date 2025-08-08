@@ -26,7 +26,7 @@ type RemoteOnlineTable struct {
   Screenshot                  *string           `json:"screenshot"`
   LastJobTimeFormatted        *string           `json:"last_job_time_formatted"`
   LocationFormatted           *string           `json:"location_formatted"`
-  LocationsStatus             *string           `json:"locations_status"`
+  LocationsStatus             *bool             `json:"locations_status"`
   Status                      *string           `json:"status"`
   OsInstalled                 *bool             `json:"os_installed"`
   OsInstalledFormatted        *string           `json:"os_installed_formatted"`
@@ -142,7 +142,7 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       remote.status LIKE 'fail%' DESC, job_queued IS NOT NULL DESC, job_active = TRUE DESC, queue_position ASC,
       (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 END) DESC, 
       status = 'Waiting for job' ASC, client_health.os_installed = TRUE DESC, 
-      remote.kernel_updated DESC, locations.status = TRUE DESC, client_health.bios_updated = TRUE DESC, 
+      remote.kernel_updated DESC, t1.locations_status = TRUE DESC, client_health.bios_updated = TRUE DESC, 
       remote.last_job_time DESC`
 
 
@@ -191,9 +191,10 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       &row.WattsNow,
       &row.JobActive,
     )
-    if err != nil {
-      return nil, errors.New("Error scanning row: " + err.Error())
-    }
+    // Fix this
+    // if err != nil && err != sql.ErrNoRows {
+    //   return nil, errors.New("Error scanning row: " + err.Error())
+    // }
 
     results = append(results, row)
   }

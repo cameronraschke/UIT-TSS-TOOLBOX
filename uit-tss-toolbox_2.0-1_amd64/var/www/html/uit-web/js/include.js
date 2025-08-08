@@ -223,7 +223,7 @@ async function updateRemotePresentTable() {
 
       tagnumber += "<b><a href='tagnumber.php?tagnumber=" + value["tagnumber"] + "' target='_blank'>" + value["tagnumber"] + "</a></b>";
 
-      if (value["locations_status"] === false) {
+      // if (value["locations_status"] === false) {
         if (value["kernel_updated"] === true && value["bios_updated"] === true) {
           tagnumber += "<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>";
         } else if (value["kernel_updated"] === true && value["bios_updated"] !== true) {
@@ -231,9 +231,9 @@ async function updateRemotePresentTable() {
         } else if (value["kernel_updated"] !== true) {
           tagnumber += "<span>&#10060;</span>";
         }
-      } else {
-        tagnumber += "<span>🛠️</span>";
-      }
+      // } else {
+      //   tagnumber += "<span>🛠️</span>";
+      // }
       var cell = document.createElement("td");
       cell.innerHTML = tagnumber;
       tableBodyRow.appendChild(cell);

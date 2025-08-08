@@ -477,7 +477,6 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
         return "", errors.New("Error querying locations")
       }
       defer rows.Close()
-      //log.Print("Query executed successfully")
       
       var locations []Locations // Initialize Locations slice
       locations = make([]Locations, 0) // Ensure Locations is initialized
@@ -518,13 +517,11 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       results = locations // Assign results to Locations
 
     case "tag_lookup":
-      //log.Print("Executing tag lookup query for system serial: ", systemSerial)
       rows, err = db.QueryContext(dbCTX, sqlCode, systemSerial)
       if err != nil {
         return "", errors.New("Error querying tag lookup")
       }
       defer rows.Close()
-      //log.Print("Query executed successfully")
 
       var tagLookup []TagLookup // Initialize tagLookup slice
       tagLookup = make([]TagLookup, 0) // Ensure tagLookup is initialized
