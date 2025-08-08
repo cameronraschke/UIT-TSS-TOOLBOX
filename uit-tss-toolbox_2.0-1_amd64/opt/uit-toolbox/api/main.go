@@ -880,7 +880,7 @@ func main() {
   log.Print("Connected to database successfully")
   db = sqlConn
 
-  dbRepo := database.NewPostgresJobQueueRepository(sqlConn)
+  dbRepo := database.NewDBRepository(sqlConn)
   dbServices := services.NewJobQueueService(dbRepo)
 
   webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 

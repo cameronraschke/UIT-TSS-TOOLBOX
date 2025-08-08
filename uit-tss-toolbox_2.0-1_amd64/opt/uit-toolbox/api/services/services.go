@@ -58,7 +58,7 @@ func (s *JobQueueService) GetRemoteOnlineTableJson() ([]*database.JobQueue, stri
 		return nil, "", fmt.Errorf("failed to get row: %w", err)
 	}
 	if results == nil {
-		return nil, "", fmt.Errorf("No results found for: ", tagnumber)
+		return nil, "", fmt.Errorf("No results found for online table")
 	}
 
 	jsonData, err = json.Marshal(results)

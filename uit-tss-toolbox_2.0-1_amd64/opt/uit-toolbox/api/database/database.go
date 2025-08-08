@@ -50,19 +50,19 @@ type RemoteOnlineTable struct {
 
 
 type JobQueueRepository interface {
-	GetJobQueueByTagnumber(id int) ([]*JobQueue, error)
-  GetRemoteOnlineTable() ([]*RemoteOnlineTable)
+	GetJobQueueByTagnumber(tagnumber int) ([]*JobQueue, error)
+  GetRemoteOnlineTable() ([]*RemoteOnlineTable, error)
 }
 
-type PostgresJobQueueRepository struct {
+type DBRepository struct {
 	db *sql.DB
 }
 
-func NewPostgresJobQueueRepository(db *sql.DB) *PostgresJobQueueRepository {
-	return &PostgresJobQueueRepository{db: db}
+func NewDBRepository(db *sql.DB) *DBRepository {
+	return &DBRepository{db: db}
 }
 
-func (r *PostgresJobQueueRepository) GetJobQueueByTagnumber(tagnumber int) ([]*JobQueue, error) {
+func (r *DBRepository) GetJobQueueByTagnumber(tagnumber int) ([]*JobQueue, error) {
   var sqlCode string
   var rows *sql.Rows
   var err error
@@ -77,7 +77,7 @@ func (r *PostgresJobQueueRepository) GetJobQueueByTagnumber(tagnumber int) ([]*J
 
   rows, err = r.db.QueryContext(dbCTX, sqlCode, tagnumber)
   if err != nil {
-    return nil, errors.New("Error querying tag lookup")
+    return nil, errors.New("Context error while querying job queue: " + err.Error())
   }
   defer rows.Close()
 
@@ -108,7 +108,7 @@ func (r *PostgresJobQueueRepository) GetJobQueueByTagnumber(tagnumber int) ([]*J
 }
 
 
-func (r *PostgresJobQueueRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
+func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
   var sqlCode string
   var rows *sql.Rows
   var err error
@@ -150,7 +150,7 @@ func (r *PostgresJobQueueRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTabl
 
   rows, err = r.db.QueryContext(dbCTX, sqlCode)
   if err != nil {
-    return nil, errors.New("Error querying online remote table: ", err.Error())
+    return nil, errors.New("Error querying online remote table: " + err.Error())
   }
   defer rows.Close()
 
