@@ -21,6 +21,12 @@ import (
   _ "github.com/jackc/pgx/v5/stdlib"
 )
 
+type Env struct {
+  db *sql.DB
+  logger *log.Logger
+  htmlError *http.Error
+}
+
 
 //IMPORTANT: Order of struct matters for javacript for some reason
 // Structs for JSON responses
@@ -959,6 +965,17 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
 }
 
 
+func GetInfoHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+    if err := json.NewEncoder(w).Encode(db.Stats()); err != nil {
+        http.Error(w, "Error encoding response", http.StatusInternalServerError)
+        return
+    }
+}
+
+func (env *Env) httpError(w. http.ResponseWriter, r *http.Request) {
+
+}
 
 func main() {
   // Recover from panics
@@ -992,7 +1009,18 @@ func main() {
   sqlConn.SetConnMaxIdleTime(1 * time.Minute)
 
   log.Print("Connected to database successfully")
-  db = sqlConn // Assign the database connection to the global variable
+  db = sqlConn
+  env := &Env{db: sqlConn}
+
+  userRepo := database.NewPostgresJobQueueRepository(sqlConn)
+  userService := service.NewJobQueueService(userRepo)
+
+  queuedJob, err := userService.GetUser(1)
+	if err != nil {
+		log.Printf("Error getting user: %v", err)
+	} else {
+		fmt.Printf("User: ID=%d\n", result.tagnumber)
+	}
 
   webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
@@ -1026,6 +1054,7 @@ func main() {
   // Route to correct function
   mux := http.NewServeMux()
   mux.HandleFunc("/api/", apiFunction)
+  mux.HandleFunc("/dbstats/", GetInfoHandler)
 
 
 	log.Print("Server time: " + time.Now().Format("01-02-2006 15:04:05"))
