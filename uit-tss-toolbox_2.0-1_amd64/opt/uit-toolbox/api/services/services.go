@@ -1,8 +1,8 @@
-package service
+package services
 
 import (
 	"fmt"
-	"/opt/uit-toolbox/api/database.go"
+	"api/database"
 )
 
 type JobQueueService struct {
@@ -14,8 +14,8 @@ func NewJobQueueService(repo database.JobQueueRepository) *JobQueueService {
 }
 
 
-func (s *JobQueueService) GetUser(id int) (*database.JobQueue, error) {
-	user, err := s.repo.GetUserByID(id)
+func (s *JobQueueService) GetJobQueue(id int) (*database.JobQueue, error) {
+	user, err := s.repo.GetJobQueueByTagnumber(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}

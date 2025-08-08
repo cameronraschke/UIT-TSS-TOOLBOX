@@ -16,8 +16,8 @@ import (
   "net/url"
   "errors"
   "database/sql"
-  "/opt/uit-toolbox/api/database.go"
-  "/opt/uit-toolbox/api/service.go"
+  "api/database"
+  "api/services"
 
   _ "net/http/pprof"
   _ "github.com/jackc/pgx/v5/stdlib"
@@ -975,10 +975,6 @@ func GetInfoHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func (env *Env) httpError(w. http.ResponseWriter, r *http.Request) {
-
-}
-
 func main() {
   // Recover from panics
   defer func() {
@@ -1012,17 +1008,17 @@ func main() {
 
   log.Print("Connected to database successfully")
   db = sqlConn
-  env := &Env{db: sqlConn}
 
   userRepo := database.NewPostgresJobQueueRepository(sqlConn)
-  userService := service.NewJobQueueService(userRepo)
+  userService := services.NewJobQueueService(userRepo)
 
-  queuedJob, err := userService.GetUser(1)
+  queuedJob, err := userService.GetJobQueue(626033)
 	if err != nil {
 		log.Printf("Error getting user: %v", err)
 	} else {
-		fmt.Printf("User: ID=%d\n", result.tagnumber)
+		fmt.Printf("User: ID=%d\n", queuedJob.Tagnumber)
 	}
+
 
   webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()

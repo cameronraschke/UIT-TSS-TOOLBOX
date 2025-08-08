@@ -2,7 +2,15 @@ package database
 
 import (
 "database/sql"
+"context"
+"time"
+"errors"
+
 _ "github.com/jackc/pgx/v5/stdlib"
+)
+
+var (
+	dbCTX context.Context
 )
 
 type JobQueue struct {
@@ -14,7 +22,7 @@ type JobQueue struct {
 }
 
 type JobQueueRepository interface {
-	GetUserByID(id int) (*JobQueue, error)
+	GetJobQueueByTagnumber(id int) (*JobQueue, error)
 	// Add other methods like CreateUser, UpdateUser, DeleteUser, etc.
 }
 
@@ -26,7 +34,14 @@ func NewPostgresJobQueueRepository(db *sql.DB) *PostgresJobQueueRepository {
 	return &PostgresJobQueueRepository{db: db}
 }
 
-func (r *PostgresJobQueueRepository) GetUserByID(id int) (*User, error) {
+func (r *PostgresJobQueueRepository) GetJobQueueByTagnumber(id int) (*JobQueue, error) {
+
+  var sqlCode string
+  var rows *sql.Rows
+  var err error
+  var tagnumber int32
+
+
   dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
 
@@ -37,7 +52,7 @@ func (r *PostgresJobQueueRepository) GetUserByID(id int) (*User, error) {
 
   rows, err = r.db.QueryContext(dbCTX, sqlCode, tagnumber)
   if err != nil {
-  return "", errors.New("Error querying tag lookup")
+  return nil, errors.New("Error querying tag lookup")
   }
   defer rows.Close()
   result := &JobQueue{}
