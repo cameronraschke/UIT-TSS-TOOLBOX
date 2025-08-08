@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"./database.go"
+	"/opt/uit-toolbox/api/database.go"
 )
 
 type JobQueueService struct {

@@ -16,6 +16,8 @@ import (
   "net/url"
   "errors"
   "database/sql"
+  "/opt/uit-toolbox/api/database.go"
+  "/opt/uit-toolbox/api/service.go"
 
   _ "net/http/pprof"
   _ "github.com/jackc/pgx/v5/stdlib"
