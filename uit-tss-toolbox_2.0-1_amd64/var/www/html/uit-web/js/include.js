@@ -144,7 +144,10 @@ async function updateRemotePresentTable() {
     const oldRemotePresentTable = document.getElementById('remotePresentTable');
     const remotePresentTable = document.createElement("table");
     remotePresentTable.setAttribute('id', 'remotePresentTable');
+    remotePresentTable.style.alignContent = 'left';
 
+    var tableHeader
+    var tableHeaderData
     tableHeader = document.createElement("thead");
     tableHeaderData = "";
     tableHeaderData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header');
@@ -152,7 +155,11 @@ async function updateRemotePresentTable() {
       let tableHeaderRow = document.createElement("tr");
 
       var cell = document.createElement("th");
-      cell.innerText = "Tag Number " + value["tagnumber_count"];
+      cell.innerText = "Online Clients " + value["tagnumber_count"];
+      tableHeaderRow.appendChild(cell);
+
+      var cell = document.createElement("th");
+      cell.innerText = "Live View";
       tableHeaderRow.appendChild(cell);
 
       var cell = document.createElement("th");
@@ -192,19 +199,19 @@ async function updateRemotePresentTable() {
       tableHeaderRow.appendChild(cell);
 
       tableHeader.appendChild(tableHeaderRow);
-
     });
 
 
 
+    var tableBody
+    var tableBodyData
     tableBody = document.createElement("tbody");
-    tableBodyData = "";
     tableBodyData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present');
 
     Object.entries(tableBodyData).forEach(([key, value]) => {
-      console.log(value);
       let tableBodyRow = document.createElement("tr");
 
+      // Tag Number
       let tagnumber = "";
       if (value["status"] === undefined) {
           tagnumber += "<b>New Entry: </b>";
@@ -212,82 +219,95 @@ async function updateRemotePresentTable() {
         if (value["status"] !== "Waiting for job" || value["job_queued"] === true) {
           tagnumber += "<b>In Progress: </b>";
         }
-      } else {
-        tagnumber += "";
       }
-  
+
       tagnumber += "<b><a href='tagnumber.php?tagnumber=" + value["tagnumber"] + "' target='_blank'>" + value["tagnumber"] + "</a></b>";
 
+      if (value["kernel_updated"] === true && value["bios_updated"] === true) {
+        tagnumber += "<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>";
+      } else if (value["kernel_updated"] === true && value["bios_updated"] !== true) {
+        tagnumber += "<span>&#9888;&#65039;</span>";
+      } else if (value["kernel_updated"] !== true) {
+        tagnumber += "<span>&#10060;</span>";
+      }
       var cell = document.createElement("td");
       cell.innerHTML = tagnumber;
+      tableBodyRow.appendChild(cell);
+
+
+      var cell = document.createElement("td");
+      cell.innerHTML = "<a target='_blank' href='/view-images.php?live_image=1&tagnumber=" + value["tagnumber"] + "'><img style='max-height: 5em;' src='data:image/jpeg;base64," + value["screenshot"] + "'></a>"
       tableBodyRow.appendChild(cell);
 
       var cell = document.createElement("td");
       cell.innerText = value["last_job_time_formatted"];
       tableBodyRow.appendChild(cell);
 
-        if (key === "location_formatted") {
-          let cell = document.createElement("td");
-          cell.innerText = value;
-          tableBodyRow.appendChild(cell);
-        }
+      var cell = document.createElement("td");
+      cell.innerText = value["location_formatted"];
+      tableBodyRow.appendChild(cell);
 
-        if (key === "status") {
-          let cell = document.createElement("td");
-          cell.innerText = value;
-          tableBodyRow.appendChild(cell);
-        }
+      var cell = document.createElement("td");
+      cell.innerText = value["status"];
+      tableBodyRow.appendChild(cell);
 
-        if (key === "os_installed_formatted") {
-          let cell = document.createElement("td");
-          cell.innerText = value;
-          tableBodyRow.appendChild(cell);
-        }
+      var cell = document.createElement("td");
+      cell.innerText = value["os_installed_formatted"];
+      tableBodyRow.appendChild(cell);
 
-        if (key === "battery_charge_formatted") {
-          let cell = document.createElement("td");
-          cell.innerText = value;
-          tableBodyRow.appendChild(cell);
-        }
+      var cell = document.createElement("td");
+      cell.innerText = value["battery_charge_formatted"];
+      tableBodyRow.appendChild(cell);
 
-        if (key === "uptime") {
-          let cell = document.createElement("td");
-          cell.innerText = value;
-          tableBodyRow.appendChild(cell);
-        }
+      var cell = document.createElement("td");
+      cell.innerText = value["uptime"];
+      tableBodyRow.appendChild(cell);
 
-        if (key === "cpu_temp_formatted") {
-          console.log(jsonBodyRow["cpu_temp"]);
-          maxTemp = 90;
-          lowWarning = maxTemp - (maxTemp * 0.10);
-          mediumWarning = maxTemp - (maxTemp * 0.05);
-        
-          let cell = document.createElement("td");
-          cell.innerText = value;
-          if (jsonBodyRow["cpu_temp"] > lowWarning && jsonBodyRow["cpu_temp"] < mediumWarning) {
-            cell.style.backgroundColor = '#ffe6a0';
-          } else if (jsonBodyRow["cpu_temp"] > mediumWarning && jsonBodyRow["cpu_temp"] < maxTemp) {
-            cell.style.backgroundColor = '#f5aa50';
-          } else if (jsonBodyRow["cpu_temp"] >= maxTemp) {
-            cell.style.backgroundColor = '#f55050';
-          }
 
-          tableBodyRow.appendChild(cell);
-        }
+      // Cpu temp
+      var maxTemp
+      var lowWarning
+      var mediumWarning
+      maxTemp = 90;
+      lowWarning = maxTemp - (maxTemp * 0.10);
+      mediumWarning = maxTemp - (maxTemp * 0.05);
+    
+      var cell = document.createElement("td");
+      cell.innerText = value["cpu_temp_formatted"];
+      if (value["cpu_temp"] > lowWarning && value["cpu_temp"] < mediumWarning) {
+        cell.style.backgroundColor = '#ffe6a0';
+      } else if (value["cpu_temp"] > mediumWarning && value["cpu_temp"] < maxTemp) {
+        cell.style.backgroundColor = '#f5aa50';
+      } else if (value["cpu_temp"] >= maxTemp) {
+        cell.style.backgroundColor = '#f55050';
+      }
+      tableBodyRow.appendChild(cell);
 
-        if (key === "disk_temp") {
-          let cell = document.createElement("td");
-          cell.innerText = value;
-          tableBodyRow.appendChild(cell);
-        }
 
-        if (key === "watts_now") {
-          let cell = document.createElement("td");
-          cell.innerText = value;
-          tableBodyRow.appendChild(cell);
-        }
+      // Disk temp
+      var maxTemp
+      var lowWarning
+      var mediumWarning
+      maxTemp = value["max_disk_temp"];
+      lowWarning = maxTemp - (maxTemp * 0.10);
+      mediumWarning = maxTemp - (maxTemp * 0.05);
+      var cell = document.createElement("td");
+      cell.innerText = value["disk_temp_formatted"];
+      if (value["disk_temp"] > lowWarning && value["disk_temp"] < mediumWarning) {
+        cell.style.backgroundColor = '#ffe6a0';
+      } else if (value["disk_temp"] > mediumWarning && value["disk_temp"] < maxTemp) {
+        cell.style.backgroundColor = '#f5aa50';
+      } else if (value["disk_temp"] >= maxTemp) {
+        cell.style.backgroundColor = '#f55050';
+      }
+      tableBodyRow.appendChild(cell);
 
-        tableBody.appendChild(tableBodyRow)
+      // Current watts
+      var cell = document.createElement("td");
+      cell.innerText = value["watts_now"];
+      tableBodyRow.appendChild(cell);
+
+      tableBody.appendChild(tableBodyRow)
 
     });
 

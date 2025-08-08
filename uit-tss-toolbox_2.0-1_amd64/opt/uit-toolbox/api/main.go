@@ -31,6 +31,7 @@ type LiveImage struct {
 
 type RemotePresent struct {
   Tagnumber                   *string           `json:"tagnumber"`
+  Screenshot                  *string           `json:"screenshot"`
   LastJobTimeFormatted        *string           `json:"last_job_time_formatted"`
   LocationFormatted           *string           `json:"location_formatted"`
   Status                      *string           `json:"status"`
@@ -40,9 +41,10 @@ type RemotePresent struct {
   Uptime                      *string           `json:"uptime"`
   CpuTemp                     *int32            `json:"cpu_temp"`
   CpuTempFormatted            *string           `json:"cpu_temp_formatted"`
-  DiskTemp                    *string           `json:"disk_temp"`
+  DiskTemp                    *int32            `json:"disk_temp"`
+  DiskTempFormatted           *string           `json:"disk_temp_formatted"`
+  MaxDiskTemp                 *int32            `json:"max_disk_temp"`
   WattsNow                    *string           `json:"watts_now"`
-  Failstatus                  *int32            `json:"failstatus"`
   Domain                      *string           `json:"domain"`
   TimeFormatted               *string           `json:"time_formatted"`
   JobQueued                   *string           `json:"job_queued"`
@@ -163,8 +165,7 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
             WHERE tagnumber = $1`
       eventType = "live_image"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
-      sql = `SELECT remote.tagnumber, 
-        (CASE WHEN remote.status LIKE 'fail%' THEN 1 ELSE 0 END) AS failstatus, t1.domain, 
+      sql = `SELECT remote.tagnumber, live_images.screenshot, t1.domain, 
         TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, locationFormatting(t3.location) AS location_formatted, 
         TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS last_job_time_formatted, 
         remote.job_queued, remote.status, t2.queue_position, remote.present_bool, 
@@ -172,7 +173,8 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
         client_health.bios_updated, (CASE WHEN client_health.bios_updated = TRUE THEN 'Yes' ELSE 'No' END) AS bios_updated_formatted, 
         remote.kernel_updated, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
         AGE(NOW(), NOW() - (remote.uptime * INTERVAL '1 second')) AS uptime, 
-        remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, CONCAT(remote.disk_temp, '°C') AS disk_temp, 
+        remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, 
+        remote.disk_temp, CONCAT(remote.disk_temp, '°C') AS disk_temp_formatted, static_disk_stats.max_temp AS max_disk_temp, 
         CONCAT(remote.watts_now, ' watts') AS watts_now, remote.job_active
       FROM remote 
       LEFT JOIN (SELECT s1.time, s1.tagnumber, s1.domain FROM (SELECT time, tagnumber, domain, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1) t1
@@ -182,12 +184,17 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
         ON t3.tagnumber = remote.tagnumber
       LEFT JOIN (SELECT tagnumber, queue_position FROM (SELECT tagnumber, ROW_NUMBER() OVER (ORDER BY tagnumber ASC) AS queue_position FROM remote WHERE job_queued IS NOT NULL) s2) t2
         ON remote.tagnumber = t2.tagnumber
+      LEFT JOIN (SELECT s4.tagnumber, s4.disk_model FROM (SELECT tagnumber, disk_model, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND disk_model IS NOT NULL) s4 WHERE s4.row_nums = 1) t4
+        ON remote.tagnumber = t4.tagnumber
+      LEFT JOIN static_disk_stats ON static_disk_stats.disk_model = t4.disk_model
+      LEFT JOIN live_images ON remote.tagnumber = live_images.tagnumber
       WHERE remote.present_bool = TRUE
       ORDER BY
-      failstatus DESC,
-      (CASE WHEN remote.status LIKE 'fail%' THEN 1 ELSE 0 END) DESC, job_queued IS NULL ASC, (CASE WHEN job_active = TRUE THEN 10 ELSE 5 END) DESC, queue_position ASC,
+        remote.status LIKE 'fail%' DESC, job_queued IS NOT NULL DESC, job_active = TRUE DESC, queue_position ASC,
         (CASE WHEN job_queued = 'data collection' THEN 20 WHEN job_queued = 'update' THEN 15 WHEN job_queued = 'nvmeVerify' THEN 14 WHEN job_queued =  'nvmeErase' THEN 12 WHEN job_queued =  'hpCloneOnly' THEN 11 WHEN job_queued = 'hpEraseAndClone' THEN 10 WHEN job_queued = 'findmy' THEN 8 WHEN job_queued = 'shutdown' THEN 7 WHEN job_queued = 'fail-test' THEN 5 END) DESC, 
-        (CASE WHEN status = 'Waiting for job' THEN 1 ELSE 0 END) ASC, (CASE WHEN client_health.os_installed = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN remote.kernel_updated = TRUE THEN 1 ELSE 0 END) DESC, (CASE WHEN client_health.bios_updated = TRUE THEN 1 ELSE 0 END) DESC, remote.last_job_time DESC`
+        status = 'Waiting for job' ASC, client_health.os_installed = TRUE DESC, 
+        remote.kernel_updated DESC, client_health.bios_updated = TRUE DESC, 
+        remote.last_job_time DESC`
       eventType = "remote_present"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present_header" {
       sql = `SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS battery_charge_formatted, CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS cpu_temp_formatted, CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS disk_temp_formatted, CONCAT('(', COUNT(client_health.os_installed), ')') AS os_installed_formatted, CONCAT('(', SUM(remote.watts_now), ' ', 'watts', ')') AS power_usage_formatted FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.present_bool = TRUE`
@@ -491,7 +498,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
         }
         err = rows.Scan(
           &result.Tagnumber,
-          &result.Failstatus,
+          &result.Screenshot,
           &result.Domain,
           &result.TimeFormatted,
           &result.LocationFormatted,
@@ -510,6 +517,8 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
           &result.CpuTemp,
           &result.CpuTempFormatted,
           &result.DiskTemp,
+          &result.DiskTempFormatted,
+          &result.MaxDiskTemp,
           &result.WattsNow,
           &result.JobActive,
         )
@@ -963,27 +972,27 @@ func main() {
 	  log.Println(http.ListenAndServe("localhost:6060", nil))
   }()
 
-  // Connect to the database
+  // Connect to db with pgx
   log.Print("Connecting to database...")
-  // Use the pgx driver for PostgreSQL
   const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
-  conn, err := sql.Open("pgx", dbConnString)
+  sqlConn, err := sql.Open("pgx", dbConnString)
   if err != nil  {
     log.Fatal("Unable to connect to database: \n", err)
     os.Exit(1)
   }
-  defer conn.Close()
+  defer sqlConn.Close()
   // Check if the database connection is valid
-  if err = conn.Ping(); err != nil {
+  if err = sqlConn.Ping(); err != nil {
     log.Fatal("Cannot ping database: \n", err)
     os.Exit(1)
   }
 
-  conn.SetMaxIdleConns(10)
-  conn.SetConnMaxIdleTime(1 * time.Minute)
+  sqlConn.SetMaxOpenConns(30)
+  sqlConn.SetMaxIdleConns(10)
+  sqlConn.SetConnMaxIdleTime(1 * time.Minute)
 
   log.Print("Connected to database successfully")
-  db = conn // Assign the database connection to the global variable
+  db = sqlConn // Assign the database connection to the global variable
 
   webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
