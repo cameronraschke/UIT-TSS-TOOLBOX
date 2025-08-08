@@ -394,7 +394,6 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       if len(tagnumber) != 6 {
         return "", errors.New("Bad tagnumber length (needs to be 6 digits)")
       }
-      //log.Print("Executing live image query for tagnumber: ", tagnumber)
       rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
       if err != nil {
         return "", errors.New("Error querying live image")
