@@ -172,12 +172,12 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       &row.LocationFormatted,
       &row.LastJobTimeFormatted,
       &row.JobQueued,
-      &row.LocationsStatus,
       &row.Status,
       &row.QueuePosition,
       &row.PresentBool,
       &row.OsInstalledFormatted,
       &row.OsInstalled,
+      &row.LocationsStatus,
       &row.BiosUpdated,
       &row.BiosUpdatedFormatted,
       &row.KernelUpdated,
@@ -191,10 +191,9 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       &row.WattsNow,
       &row.JobActive,
     )
-    // Fix this
-    // if err != nil && err != sql.ErrNoRows {
-    //   return nil, errors.New("Error scanning row: " + err.Error())
-    // }
+    if err != nil && err != sql.ErrNoRows {
+      return nil, errors.New("Error scanning row: " + err.Error())
+    }
 
     results = append(results, row)
   }
