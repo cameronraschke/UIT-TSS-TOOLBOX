@@ -26,13 +26,6 @@ import (
   _ "github.com/jackc/pgx/v5/stdlib"
 )
 
-type Env struct {
-  db *sql.DB
-  logger *log.Logger
-  // htmlError *http.Error
-}
-
-
 //IMPORTANT: Order of struct matters for javacript for some reason
 // Structs for JSON responses
 type LiveImage struct {
@@ -97,6 +90,7 @@ var (
   eventType string
   db *sql.DB
   authMap sync.Map
+  Log = logger.LoggerFactory("console")
 )
 
 func formatHttpError (errorString string) (jsonErrStr string) {
@@ -859,29 +853,31 @@ func GetInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+  Log.Info("Starting...")
+
   // Recover from panics
   defer func() {
     if pan := recover(); pan != nil {
-        log.Println("Recovered. Error:\n", pan)
+        log.Print("Recovered. Error:\n", pan)
     }
   }()
 
   go func() {
-	  log.Println(http.ListenAndServe("localhost:6060", nil))
+	  log.Print(http.ListenAndServe("localhost:6060", nil))
   }()
 
   // Connect to db with pgx
-  log.Print("Connecting to database...")
+  Log.Info("Connecting to database...")
   const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
   sqlConn, err := sql.Open("pgx", dbConnString)
   if err != nil  {
-    log.Fatal("Unable to connect to database: \n", err)
+    Log.Error("Unable to connect to database: \n" + err.Error())
     os.Exit(1)
   }
   defer sqlConn.Close()
   // Check if the database connection is valid
   if err = sqlConn.Ping(); err != nil {
-    log.Fatal("Cannot ping database: \n", err)
+    Log.Error("Cannot ping database: \n" + err.Error())
     os.Exit(1)
   }
 

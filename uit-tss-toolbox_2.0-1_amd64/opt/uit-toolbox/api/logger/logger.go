@@ -5,12 +5,6 @@ import (
 	"time"
 )
 
-type LoggerType int
-const (
-	Console LoggerType = iota
-	File
-)
-
 func TimePrefix () (string) {
     return time.Now().Format("2006-01-02 15:04:05")
 }
@@ -30,9 +24,9 @@ func (l *ConsoleLogger) Warning(message string) { fmt.Println(TimePrefix() + " [
 func (l *ConsoleLogger) Error(message string) { fmt.Println(TimePrefix() + " [ERROR] " + message) }
 
 
-func LoggerFactory(loggerType LoggerType) Logger {
+func LoggerFactory(loggerType string) Logger {
     switch loggerType {
-    case Console:
+    case "console":
         return &ConsoleLogger{}
     default:
         return &ConsoleLogger{}
