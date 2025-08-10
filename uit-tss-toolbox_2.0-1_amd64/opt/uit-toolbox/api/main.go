@@ -1,4 +1,4 @@
-// Don't forget - $ go mod init main; go mod tidy; 
+// Don't forget - $ go mod init api; go mod tidy; 
 package main
 
 import (
@@ -16,9 +16,11 @@ import (
   "net/url"
   "errors"
   "database/sql"
+  "sync"
+
   "api/database"
   "api/services"
-  "sync"
+  "api/logger"
 
   _ "net/http/pprof"
   _ "github.com/jackc/pgx/v5/stdlib"
