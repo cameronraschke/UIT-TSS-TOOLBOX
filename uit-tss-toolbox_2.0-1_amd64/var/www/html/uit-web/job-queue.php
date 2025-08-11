@@ -103,7 +103,7 @@ unset($_POST);
         <?php
         $dbPSQL->select("SELECT COUNT(tagnumber) AS count FROM remote WHERE job_queued IS NOT NULL AND status IS NOT NULL AND NOT status = 'Waiting for job' AND present_bool = TRUE");
         if (arrFilter($dbPSQL->get()) === 0) {
-          foreach ($dbPSQL->get() as $ley => $value) {
+          foreach ($dbPSQL->get() as $key => $value) {
             echo "<h3><b>Queued Jobs:</b> " . htmlspecialchars($value["count"]) . "</h3>";
           }
         }
@@ -118,154 +118,43 @@ unset($_POST);
 
       <table id='remotePresentTable' width="100%">
         <thead id="onlineTableHeader">
-        <tr>
-        <th>Tag Number</th>
-        <th>Last Job Time</th>
-        <th>Location</th>
-        <th>Current Status</th>
-        <th>OS Installed</th>
-        <th>Battery Charge</th>
-        <th>Uptime</th>
-        <th>CPU Temp</th>
-        <th>Disk Temp</th>
-        <th>Power Usage></th>
-        </tr>
-        </thead>
-        <tbody id="onlineTableBody">
           <tr>
-            <?php
-            // // Keep this td completely in PHP to avoid weird spacing issues.
-            // echo "<td id='tagnumber-" . htmlspecialchars($value["tagnumber"]) . "'>";
-            // if (strFilter($value["status"]) === 1) {
-            //   echo "<b>New Entry: </b>";
-            // } else if (strFilter($value["status"]) === 0) {
-            //   if (($value["status"] !== "Waiting for job" || strFilter($value["job_queued"]) === 0) && preg_match("/^fail\ \-.*$/i", $value["status"]) !== 1) {
-            //     echo "<b>In Progress: </b>";
-            //   }
-            // }
-            // echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b>";
-            // if ($value["present_bool"] === true && ($value["kernel_updated"] === true && $value["bios_updated"] === true)) {
-            //   echo "<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>";
-            //   // BIOS out of date, kernel not updated (x)
-            // } elseif ($value["present_bool"] === true && ($value["kernel_updated"] !== true && $value["bios_updated"] !== true)) {
-            //   echo "<span>&#10060;</span>";
-            //   //BIOS out of date, kernel updated (warning sign)
-            // } elseif ($value["present_bool"] === true && ($value["kernel_updated"] === true && $value["bios_updated"] !== true)) {
-            //   echo "<span>&#9888;&#65039;</span>";
-            //   //BIOS updated, kernel out of date (x)
-            // } elseif ($value["present_bool"] === true && ($value["kernel_updated"] !== true && $value["bios_updated"] === true)) {
-            //   echo "<span>&#10060;</span>";
-            // }
-            // echo "</td>";
-            ?>
-
-            <!-- <td id='lastJobTime'></td>
-            <td id='presentLocation'><b><a href='locations.php?location=</a></b></td>
-            <td id='presentStatus'></td>
-            <td id='osInstalled'></td>
-            <td></td>
-            <td id='uptime'></td>
-            <td class='presentCPUTemp' id='presentCPUTemp'></td>
-            <td class='presentDiskTemp' id='presentDiskTemp-'></td>
-            <td></td>
-          </tr> -->
-        </tbody>
+            <th>Tag Number</th>
+            <th>Last Job Time</th>
+            <th>Location</th>
+            <th>Current Status</th>
+            <th>OS Installed</th>
+            <th>Battery Charge</th>
+            <th>Uptime</th>
+            <th>CPU Temp</th>
+            <th>Disk Temp</th>
+            <th>Power Usage></th>
+          </tr>
+        </thead>
       </table>
     </div>
-
-    <script>
-      const cpuTemps = document.querySelectorAll('.presentCPUTemp');
-      cpuTemps.forEach(function(item) {
-        parseCPUTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
-      });
-
-      const diskTemps = document.querySelectorAll('.presentDiskTemp');
-      diskTemps.forEach(function(item) {
-        parseDiskTemp(item.id.replace(/\D/g, ""), item.textContent.replace(/\D/g, ""));
-      });
-    </script>
 
     <div class='pagetitle'>
       <h3>Offline Clients</h3>
     </div>
     <div>
-      <table id="myTable1" width="100%">
-      <thead>
-      <tr>
-      <th>Tag Number</th>
-      <th>Last Heard</th>
-      <th>Last Location</th>
-      <th>Last Known Status</th>
-      <th>OS Installed</th>
-      <th>Battery Charge</th>
-      <th>CPU Temp</th>
-      <th>Disk Temp</th>
-      <th>Power Draw</th>
-      </tr>
-      </thead>
+      <table id="remoteOfflineTable" width="100%">
+        <thead>
+          <tr>
+            <th>Tag Number</th>
+            <th>Last Heard</th>
+            <th>Last Location</th>
+            <th>Last Known Status</th>
+            <th>OS Installed</th>
+            <th>Battery Charge</th>
+            <th>CPU Temp</th>
+            <th>Disk Temp</th>
+            <th>Power Draw</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
 
-      <?php
-      unset($value);
-      // Clients not present
-      $dbPSQL->select("SELECT remote.tagnumber, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, 
-          remote.status, CONCAT(remote.battery_charge, '%') AS battery_charge, 
-          remote.battery_status, remote.cpu_temp, CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, 
-          CONCAT(remote.disk_temp, '°C') AS disk_temp, CONCAT(remote.watts_now, ' Watts') AS watts_now,
-          client_health.os_name AS os_installed_formatted, client_health.os_installed, 
-          (CASE WHEN locations.domain IS NOT NULL THEN TRUE ELSE FALSE END) AS domain_joined
-        FROM remote 
-        LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
-        LEFT JOIN locations ON remote.tagnumber = locations.tagnumber AND locations.time IN (SELECT time FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1)
-        WHERE remote.present_bool IS FALSE 
-          AND remote.present IS NOT NULL 
-        ORDER BY remote.present DESC, remote.tagnumber DESC");
-      if (arrFilter($dbPSQL->get()) === 0) {
-      foreach ($dbPSQL->get() as $key => $value) {
-      echo "<tr>". PHP_EOL;
-      echo "<td>" . PHP_EOL;
-      echo "<b><a href='tagnumber.php?tagnumber=" . htmlspecialchars($value["tagnumber"]) . "' target='_blank'>" . htmlspecialchars($value["tagnumber"]) . "</a></b>" . PHP_EOL;
-      echo "</td>";
-      echo "<td>" . $value["time_formatted"] . "</td>" . PHP_EOL;
-      $dbPSQL->Pselect("SELECT locationFormatting(location) AS location_formatted FROM locations WHERE tagnumber = :tagnumber AND location IS NOT NULL ORDER BY time DESC LIMIT 1", array(':tagnumber' => $value["tagnumber"]));
-      foreach ($dbPSQL->get() as $key => $value1) {
-        if (strFilter($value1["location_formatted"]) === 0) {
-      echo "<td id='absentLocation'><b><a href='locations.php?location=" . htmlspecialchars($value1["location_formatted"]) . "' target='_blank'>" . htmlspecialchars($value1["location_formatted"]) . "</a></b></td>" . PHP_EOL;
-        } else {
-      echo "<td><b>" . "<i>No Location</i>" . "</b></td>" . PHP_EOL;
-        }
-      }
-      unset($value1);
-      ?>
-
-
-      <td><?php echo htmlspecialchars($value["status"]); ?></td>
-
-      <td><?php echo htmlspecialchars($value["os_installed_formatted"]); if ($value["os_installed"] === true && $value["domain_joined"] === true) { echo "<img class='icon' src='/images/azure-ad-logo.png'>"; }?>
-
-      <?php
-      if (strFilter($value["battery_charge"]) === 0) {
-      echo "<td>" . htmlspecialchars($value["battery_charge"]);
-      if (strFilter($value["battery_status"]) === 0) {
-      " (" . htmlspecialchars($value["battery_status"]) . ")";
-      }
-      echo "</td>" . PHP_EOL;
-      } else {
-      echo "<td></td>";
-      }
-      ?>
-      
-
-      <?php
-      echo "<td>" . htmlspecialchars($value["cpu_temp_formatted"]) . "</td>" . PHP_EOL;
-      echo "<td>" . htmlspecialchars($value["disk_temp"]) . "</td>" . PHP_EOL;
-      echo "<td> " . htmlspecialchars($value["watts_now"]) . "</td>" . PHP_EOL;
-      echo "</tr>";
-      }
-      }
-      echo "</tbody>";
-      echo "</table>";
-    echo "</div>";
-    ?>
     <script>
     if ( window.history.replaceState ) {
       window.history.replaceState( null, null, window.location.href );

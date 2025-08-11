@@ -138,6 +138,118 @@ function test() {
 };
 
 
+async function updateRemoteOfflineTable() {
+  try {
+    const oldRemoteOfflineTable = document.getElementById('remoteOfflineTable');
+    const remoteOfflineTable = document.createElement('table');
+    remoteOfflineTable.setAttribute('id', 'remoteOfflineTable');
+    remoteOfflineTable.style.alignContent = 'left';
+
+    let tableHeader
+    tableHeader = document.createElement("thead");
+    let tableHeaderRow = document.createElement('tr');
+
+    var cell = document.createElement("th");
+    cell.innerText = "Offline Clients";
+    tableHeaderRow.appendChild(cell);
+
+    var cell = document.createElement("th");
+    cell.innerText = "Last Heard";
+    tableHeaderRow.appendChild(cell);
+
+    var cell = document.createElement("th");
+    cell.innerText = "Last Location";
+    tableHeaderRow.appendChild(cell);
+
+    var cell = document.createElement("th");
+    cell.innerText = "Last Status";
+    tableHeaderRow.appendChild(cell);
+
+    var cell = document.createElement("th");
+    cell.innerText = "OS Installed";
+    tableHeaderRow.appendChild(cell);
+
+    var cell = document.createElement("th");
+    cell.innerText = "Battery Charge";
+    tableHeaderRow.appendChild(cell);
+
+    var cell = document.createElement("th");
+    cell.innerText = "CPU Temp";
+    tableHeaderRow.appendChild(cell);
+
+    var cell = document.createElement("th");
+    cell.innerText = "Disk Temp";
+    tableHeaderRow.appendChild(cell);
+
+    var cell = document.createElement("th");
+    cell.innerText = "Power Draw";
+    tableHeaderRow.appendChild(cell);
+
+    tableHeader.appendChild(tableHeaderRow);
+
+
+    var tableBody
+    var tableBodyData
+    tableBody = document.createElement("tbody");
+    tableBodyData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_offline');
+
+    Object.entries(tableBodyData).forEach(([key, value]) => {
+      let tableBodyRow = document.createElement("tr");
+
+      var cell = document.createElement("td");
+      cell.innerText = value["tagnumber"];
+      tableBodyRow.appendChild(cell);
+
+      var cell = document.createElement("td");
+      cell.innerText = value["time_formatted"];
+      tableBodyRow.appendChild(cell);
+
+      var cell = document.createElement("td");
+      cell.innerText = value["location_formatted"];
+      tableBodyRow.appendChild(cell);
+
+      var cell = document.createElement("td");
+      cell.innerText = value["status"];
+      tableBodyRow.appendChild(cell);
+
+      var cell = document.createElement("td");
+      if (value["os_installed"] === true && value["domain_joined"] === true) {
+        cell.innerHTML = value["os_installed_formatted"] + "<img class='icon' src='/images/azure-ad-logo.png'></img>";
+      } else {
+        cell.innerText = value["os_installed_formatted"];
+      }
+      tableBodyRow.appendChild(cell);
+
+      var cell = document.createElement("td");
+      cell.innerText = value["battery_charge_formatted"];
+      tableBodyRow.appendChild(cell);
+
+      var cell = document.createElement("td");
+      cell.innerText = value["cpu_temp_formatted"];
+      tableBodyRow.appendChild(cell);
+
+      var cell = document.createElement("td");
+      cell.innerText = value["disk_temp_formatted"];
+      tableBodyRow.appendChild(cell);
+
+      var cell = document.createElement("td");
+      cell.innerText = value["watts_now_formatted"];
+      tableBodyRow.appendChild(cell);
+
+      tableBody.appendChild(tableBodyRow);
+
+    });
+
+    remoteOfflineTable.appendChild(tableHeader);
+    remoteOfflineTable.appendChild(tableBody);
+    oldRemoteOfflineTable.replaceWith(remoteOfflineTable);
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
 async function updateRemotePresentTable() {
 
   try {

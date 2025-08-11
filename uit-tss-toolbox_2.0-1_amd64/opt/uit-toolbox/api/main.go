@@ -424,7 +424,19 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       dbServices := services.NewMainService(dbRepo)
       var remoteTableJson string
       _, remoteTableJson, err = dbServices.GetRemoteOnlineTableJson()
+      if err != nil {
+        return "", errors.New("Query issue: " + err.Error());
+      }
       return remoteTableJson, nil
+    case "remote_offline":
+      dbRepo := database.NewDBRepository(db)
+      dbServices := services.NewMainService(dbRepo)
+      var remoteOfflineTableJson string
+      _, remoteOfflineTableJson, err = dbServices.GetRemoteOfflineTableJson()
+      if err != nil {
+        return "", errors.New("Query issue: " + err.Error());
+      }
+      return remoteOfflineTableJson, nil
     case "remote_present_header": 
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
