@@ -997,7 +997,7 @@ foreach ($tableArr as $key => $value1) {
 
   // Os installed
 	if ($value1["os_installed"] === true && strFilter($value1["domain"]) === 0) {
-		echo "<td>" . htmlspecialchars($value1['os_installed_formatted']) . "<img style='width: auto; height: 1.5em;' src='/images/azure-ad-logo.png'>" . "</td>" . PHP_EOL;
+		echo "<td>" . htmlspecialchars($value1['os_installed_formatted']) . "<img style='width: auto; height: 1.5em;' src='/images/10343-icon-service-Intune-For-Education.svg'>" . "</td>" . PHP_EOL;
 	} else {
 		echo "<td>" . htmlspecialchars($value1['os_installed_formatted']) . "</td>" . PHP_EOL;
 	}
