@@ -1531,7 +1531,7 @@ function execute {
 	printf '%s' "0" > /tmp/cpu-usage.txt
 	printf '%s' "0" > /tmp/network-usage.txt
 
-	printf '%s' "remote|${tagNum}|job_active|1" | /opt/uit-toolbox/parse
+	printf '%s' "remote|${tagNum}|job_active|TRUE" | /opt/uit-toolbox/parse
 
 	if [[ $cloneMode == "savedisk" && ($APPSELECT == "E" || $APPSELECT == "EC") ]]; then
 		printf '%s' "remote|${tagNum}|status|fail - Can't erase master image" | /opt/uit-toolbox/parse
@@ -1572,7 +1572,7 @@ function execute {
 		printf '%s' "remote|${tagNum}|clone_mode|$cloneMode" | /opt/uit-toolbox/parse
 		execute_Clone
 	else
-		printf '%s' "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+		printf '%s' "remote|${tagNum}|job_active|FALSE" | /opt/uit-toolbox/parse
 		printf '%s' "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
 		printf '%s' "remote|${tagNum}|status|fail - Invalid application selected" | /opt/uit-toolbox/parse
 		read -t 10 -p "${BOLD}${RED}Error - Invalid application selected.${RESET}"
@@ -1589,7 +1589,7 @@ function totaltime {
 
 function terminate {
 	printf '%s' "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
-	printf '%s' "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+	printf '%s' "remote|${tagNum}|job_active|FALSE" | /opt/uit-toolbox/parse
 	printf '%s' "remote|${tagNum}|status|Waiting for job" | /opt/uit-toolbox/parse
 	printf '%s' "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
 	printf '%s' "system-stats|network|${UUID}" | /opt/uit-toolbox/parse
@@ -1688,7 +1688,7 @@ function terminate {
 
 function resetForClientRestart {
 	printf '%s' "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
-	printf '%s' "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+	printf '%s' "remote|${tagNum}|job_active|FALSE" | /opt/uit-toolbox/parse
 	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
@@ -1755,13 +1755,13 @@ function autodetectClient {
 					break
 				fi
 				if [[ $job_queued_override == "NULL" ]]; then
-					printf '%s' "remote|${tagNum}|job_active|1" | /opt/uit-toolbox/parse
+					printf '%s' "remote|${tagNum}|job_active|TRUE" | /opt/uit-toolbox/parse
 					break
 				fi
 				if [[ $job_available == "NULL" && $job_queued_position == 1 ]]; then
 					okay_to_go=$(printf '%s' "SELECT COUNT(tagnumber) AS result FROM remote WHERE job_queued IN ('hpEraseAndClone', 'hpCloneOnly', 'generic-erase+clone', 'generic-clone') AND job_active = TRUE" | /opt/uit-toolbox/select)
 					if [[ $okay_to_go == "NULL" || $okay_to_go == "0" ]]; then
-						printf '%s' "remote|${tagNum}|job_active|1" | /opt/uit-toolbox/parse
+						printf '%s' "remote|${tagNum}|job_active|TRUE" | /opt/uit-toolbox/parse
 						break
 					fi
 				fi
@@ -1773,7 +1773,7 @@ function autodetectClient {
 					printf '%s' "0" > /tmp/cpu-usage.txt
 					printf '%s' "0" > /tmp/network-usage.txt
 					printf '%s' "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
-					printf '%s' "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+					printf '%s' "remote|${tagNum}|job_active|FALSE" | /opt/uit-toolbox/parse
 					pkill --terminal tty1
 				fi
 			done
@@ -1922,12 +1922,12 @@ function autodetectClient {
 			elif [[ $job_queued == "shutdown" ]]; then
 				printf '%s' "remote|${tagNum}|status|fail - Shutting down" | /opt/uit-toolbox/parse
 				printf '%s' "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
-				printf '%s' "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+				printf '%s' "remote|${tagNum}|job_active|FALSE" | /opt/uit-toolbox/parse
 				poweroff
 			elif [[ $job_queued == "clean-shutdown" ]]; then
 				printf '%s' "remote|${tagNum}|status|Shutting down" | /opt/uit-toolbox/parse
 				printf '%s' "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
-				printf '%s' "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+				printf '%s' "remote|${tagNum}|job_active|FALSE" | /opt/uit-toolbox/parse
 				poweroff				
 			elif [[ $job_queued == "fail-test" ]]; then
 				printf '%s' "remote|${tagNum}|status|fail - test" | /opt/uit-toolbox/parse
@@ -2055,7 +2055,7 @@ function main {
 		pkill --terminal tty1
 	fi
 	if [[ $unattended == "false" ]]; then
-		printf '%s' "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
+		printf '%s' "remote|${tagNum}|job_active|FALSE" | /opt/uit-toolbox/parse
 		terminate
 	fi
 }

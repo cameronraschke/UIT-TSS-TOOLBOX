@@ -226,7 +226,13 @@ if ($arr[0] == "remote") {
         $value = round(($secWatts - $firstWatts), 0);
     }
 
-    $dbPSQL->updateRemote($tagNum, $key, $value);
+    if ($value == "TRUE") {
+        $dbPSQL->updateRemote($tagNum, $key, true);
+    } else if ($value == "FALSE") {
+        $dbPSQL->updateRemote($tagNum, $key, false);
+    } else {
+        $dbPSQL->updateRemote($tagNum, $key, $value);
+    }
 }
 
 if ($arr[0] == "client_health") {
