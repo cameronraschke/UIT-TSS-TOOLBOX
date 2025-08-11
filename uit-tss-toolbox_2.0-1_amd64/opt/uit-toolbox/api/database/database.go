@@ -5,13 +5,18 @@ import (
 "context"
 "time"
 "errors"
+"encoding/json"
 
 _ "github.com/jackc/pgx/v5/stdlib"
 )
 
 var (
-	dbCTX context.Context
+  dbCTX context.Context
+  channelSqlCode chan string
+  channelSqlRows chan *sql.Rows
 )
+
+
 
 type JobQueue struct {
   PresentBool           *bool     `json:"present_bool"`
@@ -20,6 +25,57 @@ type JobQueue struct {
   RemoteStatus          *string   `json:"remote_status"`
   RemoteTimeFormatted   *string   `json:"remote_time_formatted"`
 }
+
+func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) ([]*JobQueue, error) {
+  var sqlCode string
+  var rows *sql.Rows
+  var results []*RemoteOnlineTable
+  var resultsJson string
+  var err error
+
+  sqlCode = `SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
+  remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted 
+  FROM remote 
+  LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = $1`
+
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+  defer cancel()
+
+  rows, err = db.QueryContext(dbCTX, sqlCode)
+  if err != nil {
+    return "", errors.New("Timeout error: " + err.Error())
+  }
+  defer rows.Close()
+
+  for rows.Next() {
+    row := &RemoteOfflineTable{}
+    if err = rows.Err(); err != nil {
+      return "", errors.New("Query error: " + err.Error())  
+    }
+    if err = dbCTX.Err(); err != nil {
+      return "", errors.New("Context error: " + err.Error())
+    }
+    err = rows.Scan(
+      &row.PresentBool,
+      &row.KernelUpdated,
+      &row.BiosUpdated,
+      &row.RemoteStatus,
+      &row.RemoteTimeFormatted,
+    )
+    if err != nil && err != sql.ErrNoRows {
+      return "", errors.New("Error scanning rows: " + err.Error())
+    }
+    results = append(results, row)
+  }
+
+  resultsJson, err = CreateJson(results)
+  if err != nil {
+    return "", errors.New("JSON error: " + err.Error())
+  }
+  return resultsJson, nil
+}
+
+
 
 type RemoteOnlineTable struct {
   Tagnumber                   *int32            `json:"tagnumber"`
@@ -49,74 +105,11 @@ type RemoteOnlineTable struct {
   JobActive                   *bool             `json:"job_active"`
 }
 
-
-type DBInterface interface {
-  GetJobQueueByTagnumber(tagnumber int) ([]*JobQueue, error)
-  GetRemoteOnlineTable() ([]*RemoteOnlineTable, error)
-  GetRemoteOfflineTable() ([]*RemoteOfflineTable, error)
-}
-
-
-type DBRepository struct {
-	db *sql.DB
-}
-
-
-func NewDBRepository(db *sql.DB) *DBRepository {
-	return &DBRepository{db: db}
-}
-
-
-func (r *DBRepository) GetJobQueueByTagnumber(tagnumber int) ([]*JobQueue, error) {
+func GetRemoteOnlineTable(db *sql.DB) (string, error) {
   var sqlCode string
   var rows *sql.Rows
-  var err error
-
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
-  defer cancel()
-
-  sqlCode = `SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
-  remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted 
-  FROM remote 
-  LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = $1`
-
-  rows, err = r.db.QueryContext(dbCTX, sqlCode, tagnumber)
-  if err != nil {
-    return nil, errors.New("Context error while querying job queue: " + err.Error())
-  }
-  defer rows.Close()
-
-  var results []*JobQueue
-  for rows.Next() {
-    row := &JobQueue{}
-    if err = rows.Err(); err != nil {
-      return nil, errors.New("Error with rows: " + err.Error())  
-    }
-    if dbCTX.Err() != nil {
-      return nil, errors.New("Context error: " + dbCTX.Err().Error())
-    }
-    err = rows.Scan(
-      &row.PresentBool,
-      &row.KernelUpdated,
-      &row.BiosUpdated,
-      &row.RemoteStatus,
-      &row.RemoteTimeFormatted,
-    )
-    if err != nil {
-      return nil, errors.New("Error scanning row: " + err.Error())
-    }
-
-    results = append(results, row)
-  }
-
-  return results, nil        
-}
-
-
-
-func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
-  var sqlCode string
-  var rows *sql.Rows
+  var results []*RemoteOnlineTable
+  var resultsJson string
   var err error
 
   sqlCode = `SELECT remote.tagnumber, live_images.screenshot, t1.domain, 
@@ -151,23 +144,22 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       remote.last_job_time DESC`
 
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()
 
-  rows, err = r.db.QueryContext(dbCTX, sqlCode)
+  rows, err = db.QueryContext(dbCTX, sqlCode)
   if err != nil {
-    return nil, errors.New("Error querying online remote table: " + err.Error())
+    return "", errors.New("Timeout error: " + err.Error())
   }
   defer rows.Close()
 
-  var results []*RemoteOnlineTable
   for rows.Next() {
     row := &RemoteOnlineTable{}
     if err = rows.Err(); err != nil {
-      return nil, errors.New("Error with rows: " + err.Error())  
+      return "", errors.New("Query error: " + err.Error())  
     }
-    if dbCTX.Err() != nil {
-      return nil, errors.New("Context error: " + dbCTX.Err().Error())
+    if err = dbCTX.Err(); err != nil {
+      return "", errors.New("Context error: " + err.Error())
     }
     err = rows.Scan(
       &row.Tagnumber,
@@ -197,66 +189,71 @@ func (r *DBRepository) GetRemoteOnlineTable() ([]*RemoteOnlineTable, error) {
       &row.JobActive,
     )
     if err != nil && err != sql.ErrNoRows {
-      return nil, errors.New("Error scanning row: " + err.Error())
+      return "", errors.New("Error scanning rows: " + err.Error())
     }
-
     results = append(results, row)
   }
 
-  return results, nil
+  resultsJson, err = CreateJson(results)
+  if err != nil {
+    return "", errors.New("JSON error: " + err.Error())
+  }
+  return resultsJson, nil
 }
+
 
 
 type RemoteOfflineTable struct {
-      Tagnumber                   *int32    `json:"tagnumber"`
-      TimeFormatted               *string   `json:"time_formatted"`
-      Status                      *string   `json:"status"`
-      Location                    *string   `json:"location_formatted"`
-      BatteryChargeFormatted      *string   `json:"battery_charge_formatted"`
-      CpuTempFormatted            *string   `json:"cpu_temp_formatted"`
-      DiskTempFormatted           *string   `json:"disk_temp_formatted"`
-      WattsNowFormatted           *string   `json:"watts_now_formatted"`
-      OsInstalledFormatted        *string   `json:"os_installed_formatted"`
-      OsInstalled                 *bool     `json:"os_installed"`
-      DomainJoined                *bool     `json:"domain_joined"`
+  Tagnumber                   *int32    `json:"tagnumber"`
+  TimeFormatted               *string   `json:"time_formatted"`
+  Status                      *string   `json:"status"`
+  Location                    *string   `json:"location_formatted"`
+  BatteryChargeFormatted      *string   `json:"battery_charge_formatted"`
+  CpuTempFormatted            *string   `json:"cpu_temp_formatted"`
+  DiskTempFormatted           *string   `json:"disk_temp_formatted"`
+  WattsNowFormatted           *string   `json:"watts_now_formatted"`
+  OsInstalledFormatted        *string   `json:"os_installed_formatted"`
+  OsInstalled                 *bool     `json:"os_installed"`
+  DomainJoined                *bool     `json:"domain_joined"`
 }
 
-func (r *DBRepository) GetRemoteOfflineTable() ([]*RemoteOfflineTable, error) {
+func GetRemoteOfflineTable(db *sql.DB) (string, error) {
   var sqlCode string
   var rows *sql.Rows
+  var results []*RemoteOfflineTable
+  var resultsJson string
   var err error
 
   sqlCode = `SELECT remote.tagnumber, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, 
-          remote.status, locationFormatting(locations.location) AS location_formatted, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
-          CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, 
-          CONCAT(remote.disk_temp, '°C') AS disk_temp_formatted, CONCAT(remote.watts_now, ' Watts') AS watts_now_formatted,
-          client_health.os_name AS os_installed_formatted, client_health.os_installed, 
-          (CASE WHEN locations.domain IS NOT NULL THEN TRUE ELSE FALSE END) AS domain_joined
-        FROM remote 
-        LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
-        LEFT JOIN locations ON remote.tagnumber = locations.tagnumber AND locations.time IN (SELECT time FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1)
-        WHERE remote.present_bool IS FALSE 
-          AND remote.present IS NOT NULL 
-        ORDER BY remote.present DESC, remote.tagnumber DESC`
+        remote.status, locationFormatting(locations.location) AS location_formatted, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
+        CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, 
+        CONCAT(remote.disk_temp, '°C') AS disk_temp_formatted, CONCAT(remote.watts_now, ' Watts') AS watts_now_formatted,
+        client_health.os_name AS os_installed_formatted, client_health.os_installed, 
+        (CASE WHEN locations.domain IS NOT NULL THEN TRUE ELSE FALSE END) AS domain_joined
+      FROM remote 
+      LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber
+      LEFT JOIN locations ON remote.tagnumber = locations.tagnumber AND locations.time IN (SELECT time FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) s1 WHERE s1.row_nums = 1)
+      WHERE remote.present_bool IS FALSE 
+        AND remote.present IS NOT NULL 
+      ORDER BY remote.present DESC, remote.tagnumber DESC`
 
 
   dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()
 
-  rows, err = r.db.QueryContext(dbCTX, sqlCode)
+  rows, err = db.QueryContext(dbCTX, sqlCode)
   if err != nil {
-    return nil, errors.New("Error querying online remote table: " + err.Error())
+    return "", errors.New("Timeout error: " + err.Error())
   }
   defer rows.Close()
 
-  var results []*RemoteOfflineTable
   for rows.Next() {
     row := &RemoteOfflineTable{}
     if err = rows.Err(); err != nil {
-      return nil, errors.New("Error with rows: " + err.Error())  
+      return "", errors.New("Query error: " + err.Error())  
     }
-    if dbCTX.Err() != nil {
-      return nil, errors.New("Context error: " + dbCTX.Err().Error())
+    if err = dbCTX.Err(); err != nil {
+      return "", errors.New("Context error: " + err.Error())
     }
     err = rows.Scan(
       &row.Tagnumber,
@@ -272,11 +269,35 @@ func (r *DBRepository) GetRemoteOfflineTable() ([]*RemoteOfflineTable, error) {
       &row.DomainJoined,
     )
     if err != nil && err != sql.ErrNoRows {
-      return nil, errors.New("Error scanning row: " + err.Error())
+      return "", errors.New("Error scanning rows: " + err.Error())
     }
-
     results = append(results, row)
   }
 
-  return results, nil
+  resultsJson, err = CreateJson(results)
+  if err != nil {
+    return "", errors.New("JSON error: " + err.Error())
+  }
+  return resultsJson, nil
+}
+
+
+func CreateJson(results interface{}) (string, error) {
+  var jsonData []byte
+  var jsonDataStr string
+  var err error
+
+	jsonData, err = json.Marshal(results)
+	if err != nil {
+		return "", errors.New("Error creating JSON data: " + err.Error())
+	}
+
+	// Convert jsonData to string
+	if len(jsonData) > 0 {
+		jsonDataStr = string(jsonData)
+	} else {
+		return "", errors.New("Length of JSON is zero")
+	}
+
+	return jsonDataStr, nil
 }

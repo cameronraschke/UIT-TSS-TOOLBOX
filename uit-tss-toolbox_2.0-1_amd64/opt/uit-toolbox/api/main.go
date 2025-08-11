@@ -19,7 +19,6 @@ import (
   "sync"
 
   "api/database"
-  "api/services"
   "api/logger"
 
   _ "net/http/pprof"
@@ -91,6 +90,8 @@ var (
   db *sql.DB
   authMap sync.Map
   Log = logger.LoggerFactory("console")
+  ChannelSqlCode = make(chan string)
+  ChannelSqlRows = make(chan *sql.Rows)
 )
 
 func formatHttpError (errorString string) (jsonErrStr string) {
@@ -396,19 +397,15 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       results = liveImages // Assign results to liveImages
 
     case "remote_present":
-      dbRepo := database.NewDBRepository(db)
-      dbServices := services.NewMainService(dbRepo)
       var remoteTableJson string
-      _, remoteTableJson, err = dbServices.GetRemoteOnlineTableJson()
+      remoteTableJson, err = database.GetRemoteOnlineTable(db)
       if err != nil {
         return "", errors.New("Query issue: " + err.Error());
       }
       return remoteTableJson, nil
     case "remote_offline":
-      dbRepo := database.NewDBRepository(db)
-      dbServices := services.NewMainService(dbRepo)
       var remoteOfflineTableJson string
-      _, remoteOfflineTableJson, err = dbServices.GetRemoteOfflineTableJson()
+      remoteOfflineTableJson, err = database.GetRemoteOfflineTable(db)
       if err != nil {
         return "", errors.New("Query issue: " + err.Error());
       }
@@ -875,6 +872,7 @@ func main() {
 
   log.Print("Connected to database successfully")
   db = sqlConn
+  defer db.Close()
 
   webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
