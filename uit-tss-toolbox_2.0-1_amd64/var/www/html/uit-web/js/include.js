@@ -206,49 +206,49 @@ async function updateRemotePresentTable() {
     Object.entries(tableHeaderData).forEach(([key, value]) => {
       let tableHeaderRow = document.createElement("tr");
 
-      var cell = document.createElement("th");
-      cell.innerText = "Online Clients " + value["tagnumber_count"];
-      tableHeaderRow.appendChild(cell);
+      let tagnumberCell = document.createElement("th");
+      tagnumberCell.innerText = "Online Clients " + value["tagnumber_count"];
+      tableHeaderRow.appendChild(tagnumberCell);
 
-      var cell = document.createElement("th");
-      cell.innerText = "Live View";
-      tableHeaderRow.appendChild(cell);
+      let screenshotCell = document.createElement("th");
+      screenshotCell.innerText = "Live View";
+      tableHeaderRow.appendChild(screenshotCell);
 
-      var cell = document.createElement("th");
-      cell.innerText = "Last Job Time";
-      tableHeaderRow.appendChild(cell);
+      let lastJobTimeCell = document.createElement("th");
+      lastJobTimeCell.innerText = "Last Job Time";
+      tableHeaderRow.appendChild(lastJobTimeCell);
       
-      var cell = document.createElement("th");
-      cell.innerText = "Location";
-      tableHeaderRow.appendChild(cell);
+      let locationCell = document.createElement("th");
+      locationCell.innerText = "Location";
+      tableHeaderRow.appendChild(locationCell);
 
-      var cell = document.createElement("th");
-      cell.innerText = "Status";
-      tableHeaderRow.appendChild(cell);
+      let statusCell = document.createElement("th");
+      statusCell.innerText = "Status";
+      tableHeaderRow.appendChild(statusCell);
 
-      var cell = document.createElement("th");
-      cell.innerText = "OS Installed " + value["os_installed_formatted"];
-      tableHeaderRow.appendChild(cell);
+      let osInstalledCell = document.createElement("th");
+      osInstalledCell.innerText = "OS Installed " + value["os_installed_formatted"];
+      tableHeaderRow.appendChild(osInstalledCell);
 
-      var cell = document.createElement("th");
-      cell.innerText = "Battery Charge " + value["battery_charge_formatted"];
-      tableHeaderRow.appendChild(cell);
+      let batteryChargeCell = document.createElement("th");
+      batteryChargeCell.innerText = "Battery Charge " + value["battery_charge_formatted"];
+      tableHeaderRow.appendChild(batteryChargeCell);
 
-      var cell = document.createElement("th");
-      cell.innerText = "Uptime";
-      tableHeaderRow.appendChild(cell);
+      let uptimeCell = document.createElement("th");
+      uptimeCell.innerText = "Uptime";
+      tableHeaderRow.appendChild(uptimeCell);
 
-      var cell = document.createElement("th");
-      cell.innerText = "CPU Temp " + value["cpu_temp_formatted"];
-      tableHeaderRow.appendChild(cell);
+      let cpuTempCell = document.createElement("th");
+      cpuTempCell.innerText = "CPU Temp " + value["cpu_temp_formatted"];
+      tableHeaderRow.appendChild(cpuTempCell);
 
-      var cell = document.createElement("th");
-      cell.innerText = "Disk Temp " + value["disk_temp_formatted"];
-      tableHeaderRow.appendChild(cell);
+      let diskTempCell = document.createElement("th");
+      diskTempCell.innerText = "Disk Temp " + value["disk_temp_formatted"];
+      tableHeaderRow.appendChild(diskTempCell);
 
-      var cell = document.createElement("th");
-      cell.innerText = "Power Usage " + value["power_usage_formatted"];
-      tableHeaderRow.appendChild(cell);
+      let wattsNowCell = document.createElement("th");
+      wattsNowCell.innerText = "Power Usage " + value["power_usage_formatted"];
+      tableHeaderRow.appendChild(wattsNowCell);
 
       tableHeader.appendChild(tableHeaderRow);
     });
@@ -286,86 +286,88 @@ async function updateRemotePresentTable() {
       // } else {
       //   tagnumber += "<span>🛠️</span>";
       // }
-      var cell = document.createElement("td");
-      cell.innerHTML = tagnumber;
-      tableBodyRow.appendChild(cell);
+      let tagnumberCell = document.createElement("td");
+      tagnumberCell.innerHTML = tagnumber;
+      tableBodyRow.appendChild(tagnumberCell);
 
 
-      var cell = document.createElement("td");
-      cell.innerHTML = "<a target='_blank' href='/view-images.php?live_image=1&tagnumber=" + value["tagnumber"] + "'><img style='max-height: 5em;' src='data:image/jpeg;base64," + value["screenshot"] + "'></a>"
-      tableBodyRow.appendChild(cell);
+      let screenshotCell = document.createElement("td");
+      if (value["screenshot"]) {
+        screenshotCell.innerHTML = "<a target='_blank' href='/view-images.php?live_image=1&tagnumber=" + value["tagnumber"] + "'><img style='max-height: 5em;' src='data:image/jpeg;base64," + value["screenshot"] + "'></a>"
+      }
+      tableBodyRow.appendChild(screenshotCell);
 
-      var cell = document.createElement("td");
-      cell.innerText = value["last_job_time_formatted"];
-      tableBodyRow.appendChild(cell);
+      let lastJobTimeCell = document.createElement("td");
+      lastJobTimeCell.innerText = value["last_job_time_formatted"];
+      tableBodyRow.appendChild(lastJobTimeCell);
 
-      var cell = document.createElement("td");
-      var link = document.createElement("a");
+      let locationCell = document.createElement("td");
+      let link = document.createElement("a");
       link.style.fontWeight = "bold";
       link.setAttribute('href', '/locations.php?location=' + encodeURIComponent(value["location_formatted"]));
       link.textContent = value["location_formatted"];
-      cell.appendChild(link);
-      tableBodyRow.appendChild(cell);
+      locationCell.appendChild(link);
+      tableBodyRow.appendChild(locationCell);
 
-      var cell = document.createElement("td");
-      cell.innerText = value["status"];
-      tableBodyRow.appendChild(cell);
+      let statusCell = document.createElement("td");
+      statusCell.innerText = value["status"];
+      tableBodyRow.appendChild(statusCell);
 
-      var cell = document.createElement("td");
-      cell.innerText = value["os_installed_formatted"];
-      tableBodyRow.appendChild(cell);
+      let osInstalledCell = document.createElement("td");
+      osInstalledCell.innerText = value["os_installed_formatted"];
+      tableBodyRow.appendChild(osInstalledCell);
 
-      var cell = document.createElement("td");
-      cell.innerText = value["battery_charge_formatted"];
-      tableBodyRow.appendChild(cell);
+      let batteryChargeCell = document.createElement("td");
+      batteryChargeCell.innerText = value["battery_charge_formatted"];
+      tableBodyRow.appendChild(batteryChargeCell);
 
-      var cell = document.createElement("td");
-      cell.innerText = value["uptime"];
-      tableBodyRow.appendChild(cell);
+      let uptimeCell = document.createElement("td");
+      uptimeCell.innerText = value["uptime"];
+      tableBodyRow.appendChild(uptimeCell);
 
 
       // Cpu temp
-      var maxTemp
-      var lowWarning
-      var mediumWarning
-      maxTemp = 90;
-      lowWarning = maxTemp - (maxTemp * 0.10);
-      mediumWarning = maxTemp - (maxTemp * 0.05);
+      let cpuMaxTemp
+      let cpuLowWarning
+      let cpuMediumWarning
+      cpuMaxTemp = 90;
+      cpuLowWarning = cpuMaxTemp - (cpuMaxTemp * 0.10);
+      cpuMediumWarning = cpuMaxTemp - (cpuMaxTemp * 0.05);
     
-      var cell = document.createElement("td");
-      cell.innerText = value["cpu_temp_formatted"];
-      if (value["cpu_temp"] > lowWarning && value["cpu_temp"] < mediumWarning) {
-        cell.style.backgroundColor = '#ffe6a0';
-      } else if (value["cpu_temp"] > mediumWarning && value["cpu_temp"] < maxTemp) {
-        cell.style.backgroundColor = '#f5aa50';
+      let cpuTempCell = document.createElement("td");
+      cpuTempCell.innerText = value["cpu_temp_formatted"];
+      if (value["cpu_temp"] > cpuLowWarning && value["cpu_temp"] < cpuMediumWarning) {
+        cpuTempCell.style.backgroundColor = '#ffe6a0';
+      } else if (value["cpu_temp"] > cpuMediumWarning && value["cpu_temp"] < cpuMaxTemp) {
+        cpuTempCell.style.backgroundColor = '#f5aa50';
       } else if (value["cpu_temp"] >= maxTemp) {
-        cell.style.backgroundColor = '#f55050';
+        cpuTempCell.style.backgroundColor = '#f55050';
       }
-      tableBodyRow.appendChild(cell);
+      tableBodyRow.appendChild(cpuTempCell);
 
 
       // Disk temp
-      var maxTemp
-      var lowWarning
-      var mediumWarning
-      maxTemp = value["max_disk_temp"];
-      lowWarning = maxTemp - (maxTemp * 0.10);
-      mediumWarning = maxTemp - (maxTemp * 0.05);
-      var cell = document.createElement("td");
-      cell.innerText = value["disk_temp_formatted"];
-      if (value["disk_temp"] > lowWarning && value["disk_temp"] < mediumWarning) {
-        cell.style.backgroundColor = '#ffe6a0';
-      } else if (value["disk_temp"] > mediumWarning && value["disk_temp"] < maxTemp) {
-        cell.style.backgroundColor = '#f5aa50';
-      } else if (value["disk_temp"] >= maxTemp) {
-        cell.style.backgroundColor = '#f55050';
+      let diskMaxTemp
+      let diskLowWarning
+      let diskMediumWarning
+      diskMaxTemp = value["max_disk_temp"];
+      diskLowWarning = diskMaxTemp - (diskMaxTemp * 0.10);
+      diskMediumWarning = diskMaxTemp - (diskMaxTemp * 0.05);
+      let diskTempCell = document.createElement("td");
+      diskTempCell.innerText = value["disk_temp_formatted"];
+      if (value["disk_temp"] > diskLowWarning && value["disk_temp"] < diskMediumWarning) {
+        diskTempCell.style.backgroundColor = '#ffe6a0';
+      } else if (value["disk_temp"] > diskMediumWarning && value["disk_temp"] < diskMaxTemp) {
+        diskTempCell.style.backgroundColor = '#f5aa50';
+      } else if (value["disk_temp"] >= diskMaxTemp) {
+        diskTempCell.style.backgroundColor = '#f55050';
       }
-      tableBodyRow.appendChild(cell);
+      tableBodyRow.appendChild(diskTempCell);
 
       // Current watts
-      var cell = document.createElement("td");
-      cell.innerText = value["watts_now"];
-      tableBodyRow.appendChild(cell);
+      let wattsNowCell = document.createElement("td");
+      wattsNowCell.innerText = value["watts_now"];
+      tableBodyRow.appendChild(wattsNowCell);
 
       tableBody.appendChild(tableBodyRow)
 
