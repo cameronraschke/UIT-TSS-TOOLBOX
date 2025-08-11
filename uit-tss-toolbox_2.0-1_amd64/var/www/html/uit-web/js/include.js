@@ -197,7 +197,8 @@ async function updateRemoteOfflineTable() {
       let tableBodyRow = document.createElement("tr");
 
       var cell = document.createElement("td");
-      cell.innerText = value["tagnumber"];
+      cell.innerHTML = "<b><a href='tagnumber.php?tagnumber=" + value["tagnumber"] + "' target='_blank'>" + value["tagnumber"] + "</a></b>";
+
       tableBodyRow.appendChild(cell);
 
       var cell = document.createElement("td");
@@ -205,7 +206,11 @@ async function updateRemoteOfflineTable() {
       tableBodyRow.appendChild(cell);
 
       var cell = document.createElement("td");
-      cell.innerText = value["location_formatted"];
+      var link = document.createElement("a");
+      link.style.fontWeight = "bold";
+      link.setAttribute('href', '/locations.php?location=' + encodeURIComponent(value["location_formatted"]));
+      link.textContent = value["location_formatted"];
+      cell.appendChild(link);
       tableBodyRow.appendChild(cell);
 
       var cell = document.createElement("td");
@@ -360,7 +365,11 @@ async function updateRemotePresentTable() {
       tableBodyRow.appendChild(cell);
 
       var cell = document.createElement("td");
-      cell.innerText = value["location_formatted"];
+      var link = document.createElement("a");
+      link.style.fontWeight = "bold";
+      link.setAttribute('href', '/locations.php?location=' + encodeURIComponent(value["location_formatted"]));
+      link.textContent = value["location_formatted"];
+      cell.appendChild(link);
       tableBodyRow.appendChild(cell);
 
       var cell = document.createElement("td");

@@ -118,7 +118,7 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
 
     parsedURL, err = url.Parse(requestURL)
     if err != nil {
-      log.Print("Cannot parse URL: " + requestURL)
+      Log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + requestURL + ")")
       return "", "", "", "", errors.New("Cannot parse URL: " + requestURL)
     }
 
@@ -139,6 +139,8 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
       eventType = "live_image"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
       eventType = "remote_present"
+    } else if path == "/api/remote" && queries.Get("type") == "remote_offline" {
+      eventType = "remote_offline"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present_header" {
       sql = `SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS battery_charge_formatted, CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS cpu_temp_formatted, CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS disk_temp_formatted, CONCAT('(', COUNT(client_health.os_installed), ')') AS os_installed_formatted, CONCAT('(', SUM(remote.watts_now), ' ', 'watts', ')') AS power_usage_formatted FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.present_bool = TRUE`
       eventType = "remote_present_header"
@@ -270,6 +272,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
 
   parsedURL, err = url.Parse(req.URL.RequestURI())
   if err != nil {
+    Log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
     http.Error(w, formatHttpError("Cannot parse URL: " + req.URL.RequestURI()), http.StatusBadRequest)
     return
   }
@@ -283,41 +286,14 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
         request = req.URL.RequestURI()
         sqlCode, tagnumber, systemSerial, _, err = getRequestToSQL(request)
         if err != nil {
+          Log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
           http.Error(w, formatHttpError("Cannot parse URL: " + req.URL.RequestURI()), http.StatusBadRequest)
           return
         }
       // case http.MethodPost:
-      //   log.Print("POST request received")
-      //   sqlCode, tagnumber, systemSerial, sqlTime, err = postRequestToSQL(req)
-      //   if err != nil {
-      //     log.Print("Cannot parse URL: ", err)
-      //     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
-      //     return
-      //   }
       // case http.MethodPut:
-      //   log.Print("PUT request received")
-      //   sqlCode, tagnumber, systemSerial, sqlTime, err = requestToSQL(request)
-      //   if err != nil {
-      //     log.Print("Cannot parse URL: ", err)
-      //     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
-      //     return
-      //   }
       // case http.MethodPatch:
-      //   log.Print("PATCH request received")
-      //   sqlCode, tagnumber, systemSerial, sqlTime, err = requestToSQL(request)
-      //   if err != nil {
-      //     log.Print("Cannot parse URL: ", err)
-      //     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
-      //     return
-      //   }
       // case http.MethodDelete:
-      //   log.Print("DELETE request received")
-      //   sqlCode, tagnumber, systemSerial, sqlTime, err = requestToSQL(request)
-      //   if err != nil {
-      //     log.Print("Cannot parse URL: ", err)
-      //     http.Error(w, "Cannot parse URL", http.StatusInternalServerError)
-      //     return
-      //   }
       default:
         http.Error(w, formatHttpError("Method not allowed: " + req.Method), http.StatusMethodNotAllowed)
         return
@@ -649,9 +625,9 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
 
   parsedURL, err = url.Parse(req.URL.RequestURI())
   if err != nil {
-    log.Print("Cannot parse URL: " + req.URL.RequestURI())
+    Log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
     http.Error(w, formatHttpError("Cannot parse URL: " + req.URL.RequestURI()), http.StatusInternalServerError)
-    return nil, "", errors.New("Cannot parse URL: " + req.URL.RequestURI())
+    return nil, "", errors.New("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
   }
 
   RawQuery := parsedURL.RawQuery

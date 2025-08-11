@@ -51,8 +51,9 @@ type RemoteOnlineTable struct {
 
 
 type DBInterface interface {
-	GetJobQueueByTagnumber(tagnumber int) ([]*JobQueue, error)
+  GetJobQueueByTagnumber(tagnumber int) ([]*JobQueue, error)
   GetRemoteOnlineTable() ([]*RemoteOnlineTable, error)
+  GetRemoteOfflineTable() ([]*RemoteOfflineTable, error)
 }
 
 
@@ -261,11 +262,11 @@ func (r *DBRepository) GetRemoteOfflineTable() ([]*RemoteOfflineTable, error) {
       &row.Tagnumber,
       &row.TimeFormatted,
       &row.Status,
-      &row.Location
+      &row.Location,
       &row.BatteryChargeFormatted,
       &row.CpuTempFormatted,
-      &row.DiskTempFormatted
-      &row.WattsNow,
+      &row.DiskTempFormatted,
+      &row.WattsNowFormatted,
       &row.OsInstalledFormatted,
       &row.OsInstalled,
       &row.DomainJoined,

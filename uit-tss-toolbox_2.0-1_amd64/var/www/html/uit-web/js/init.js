@@ -10,6 +10,27 @@ async function generateSHA256Hash(text) {
   return hash;
 }
 
+function escapeHtml(str) {
+  if (typeof str !== 'string') {
+    return '';
+  }
+
+  const escapeCharacter = (match) => {
+    switch (match) {
+      case '&': return '&amp;';
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '"': return '&quot;';
+      case '\'': return '&#039;';
+      case '`': return '&#096;';
+      default: return match;
+    }
+  };
+
+  return str.replace(/[&<>"'`]/g, escapeCharacter);
+}
+
+
 function getCreds() {
 
   document.cookie = "authCookie=";

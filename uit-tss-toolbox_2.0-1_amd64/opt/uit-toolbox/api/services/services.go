@@ -82,7 +82,7 @@ func (s *MainService) GetRemoteOnlineTableJson() ([]*database.RemoteOnlineTable,
 }
 
 
-func (s *MainService) GetRemoteOfflineTableJson() ([]*database.RemoteOnlineTable, string, error) {
+func (s *MainService) GetRemoteOfflineTableJson() ([]*database.RemoteOfflineTable, string, error) {
   var jsonData []byte
   var jsonDataStr string
 
