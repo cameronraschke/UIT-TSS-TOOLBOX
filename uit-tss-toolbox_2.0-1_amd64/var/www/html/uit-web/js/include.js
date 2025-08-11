@@ -340,7 +340,7 @@ async function updateRemotePresentTable() {
         cpuTempCell.style.backgroundColor = '#ffe6a0';
       } else if (value["cpu_temp"] > cpuMediumWarning && value["cpu_temp"] < cpuMaxTemp) {
         cpuTempCell.style.backgroundColor = '#f5aa50';
-      } else if (value["cpu_temp"] >= maxTemp) {
+      } else if (value["cpu_temp"] >= cpuMaxTemp) {
         cpuTempCell.style.backgroundColor = '#f55050';
       }
       tableBodyRow.appendChild(cpuTempCell);
