@@ -1253,24 +1253,9 @@ unset($value1);
       if ( window.history.replaceState ) {
         window.history.replaceState( null, null, window.location.href );
       }
+
+      autoFillTags();
     </script>
-
-  <script>
-    <?php
-    $dbPSQL->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
-    if (arrFilter($dbPSQL->get()) === 0) {
-      foreach ($dbPSQL->get() as $key => $value) {
-        $tagStr .= htmlspecialchars($value["tagnumber"]) . "|";
-      }
-    }
-    unset($value);
-    ?>
-
-    document.getElementById('dropdown-search').style.display = "none";
-    document.getElementById('dropdown-search').innerHTML = "";
-    autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
-  </script>
-
     <div class="uit-footer">
         <img src="/images/uh-footer.svg">
     </div>

@@ -111,18 +111,7 @@ if (arrFilter($db->get()) === 0) {
         </div>
 <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
   <script>
-    <?php
-    $db->select("SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC");
-    if (arrFilter($db->get()) === 0) {
-      foreach ($db->get() as $key => $value) {
-        $tagStr .= htmlspecialchars($value["tagnumber"]) . "|";
-    }
-    }
-    unset($value);
-    ?>
-    document.getElementById('dropdown-search').style.display = "none";
-    document.getElementById('dropdown-search').innerHTML = "";
-    autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
+      autoFillTags();
   </script>
 
         <div class="uit-footer">

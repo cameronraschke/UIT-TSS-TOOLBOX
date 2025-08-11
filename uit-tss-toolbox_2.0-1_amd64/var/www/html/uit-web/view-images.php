@@ -193,9 +193,7 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
 
 <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
 <script>
-  document.getElementById('dropdown-search').style.display = "none";
-  document.getElementById('dropdown-search').innerHTML = "";
-  autoFillTags(<?php echo "'" . substr($tagStr, 0, -1) . "'"; ?>);
+  autoFillTags();
 </script>
 
 <script>

@@ -366,10 +366,11 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
   switch eventType {
     case "all_tags":
     var allTagsJson string
-    allTagsJson, err = database.GetAllTags()
+    allTagsJson, err = database.GetAllTags(db)
     if err != nil {
       return "", errors.New("Query issue: " + err.Error());
     }
+    return allTagsJson, nil
     case "live_image": // Live image query
       if len(tagnumber) != 6 {
         return "", errors.New("Bad tagnumber length (needs to be 6 digits)")

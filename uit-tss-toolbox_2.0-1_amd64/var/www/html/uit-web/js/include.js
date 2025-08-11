@@ -385,27 +385,27 @@ async function autoFillTags() {
     tagJson = await fetchData('https://WAN_IP_ADDRESS:31411/api/locations?type=all_tags');
 
     let tagStr = []
-    Object.entries(tableBodyData).forEach(([key, value]) => {
-      tagStr.push(value["tagnumber"]);
+    Object.entries(tagJson).forEach(([key, value]) => {
+      tagStr.push(String(value["tagnumber"]));
     });
 
     document.getElementById('dropdown-search').style.display = "none";
     document.getElementById('dropdown-search').innerHTML = "";
 
+    var tagnumberField = document.getElementById('tagnumber-search');
+
     document.querySelector('body').addEventListener('click', () => {
       if (document.activeElement !== document.getElementById('tagnumber-search') && document.activeElement !== document.getElementById('tagnumber-search')) {
           document.getElementById('dropdown-search').style.display = "none";
           document.getElementById('dropdown-search').innerHTML = "";
+          tagnumberField.value = "";
       }
     });
-
-    var tagnumberField = document.getElementById('tagnumber-search');
 
     tagnumberField.addEventListener('keyup', (event) => {
       if (event.key === 'Backspace' || event.key === 'Delete' || event.key == "Escape") {
         tagnumberField.value = tagnumberField.value.substr(0, getCursorPos(tagnumberField));
         tagnumberField.setSelectionRange(getCursorPos(tagnumberField), getCursorPos(tagnumberField));
-        tagnumberField.removeEventListener('input', function() {});
       }
     });
 

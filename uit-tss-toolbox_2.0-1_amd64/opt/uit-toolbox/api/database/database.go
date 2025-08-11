@@ -81,7 +81,7 @@ type AllTags struct {
   Tagnumber   *int32    `json:"tagnumber"`
 }
 
-GetAllTags(db *sql.DB) (string, error) {
+func GetAllTags(db *sql.DB) (string, error) {
   var sqlCode string
   var rows *sql.Rows
   var results []*AllTags
