@@ -256,6 +256,7 @@ type RemoteOfflineTable struct {
   Tagnumber                   *int32    `json:"tagnumber"`
   TimeFormatted               *string   `json:"time_formatted"`
   Status                      *string   `json:"status"`
+  LocationsStatus             *string   `json:"locations_status"`
   Location                    *string   `json:"location_formatted"`
   BatteryChargeFormatted      *string   `json:"battery_charge_formatted"`
   CpuTempFormatted            *string   `json:"cpu_temp_formatted"`
@@ -274,7 +275,7 @@ func GetRemoteOfflineTable(db *sql.DB) (string, error) {
   var err error
 
   sqlCode = `SELECT remote.tagnumber, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, 
-        remote.status, locationFormatting(locations.location) AS location_formatted, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
+        remote.status, locations.status AS locations_status, locationFormatting(locations.location) AS location_formatted, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
         CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, 
         CONCAT(remote.disk_temp, '°C') AS disk_temp_formatted, CONCAT(remote.watts_now, ' watts') AS watts_now_formatted,
         client_health.os_name AS os_installed_formatted, client_health.os_installed, 
@@ -308,6 +309,7 @@ func GetRemoteOfflineTable(db *sql.DB) (string, error) {
       &row.Tagnumber,
       &row.TimeFormatted,
       &row.Status,
+      &row.LocationsStatus,
       &row.Location,
       &row.BatteryChargeFormatted,
       &row.CpuTempFormatted,
@@ -329,6 +331,7 @@ func GetRemoteOfflineTable(db *sql.DB) (string, error) {
   }
   return resultsJson, nil
 }
+
 
 
 func CreateJson(results interface{}) (string, error) {

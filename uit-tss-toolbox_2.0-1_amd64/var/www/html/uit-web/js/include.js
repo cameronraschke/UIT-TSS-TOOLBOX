@@ -272,8 +272,12 @@ async function updateRemotePresentTable() {
           tagnumber += "<b>In Progress: </b>";
         }
       }
+      
 
       tagnumber += "<b><a href='tagnumber.php?tagnumber=" + value["tagnumber"] + "' target='_blank'>" + value["tagnumber"] + "</a></b>";
+      if (value["locations_status"] === true) {
+        tagnumber += "🔧"
+      }
 
       // if (value["locations_status"] === false) {
         if (value["kernel_updated"] === true && value["bios_updated"] === true) {
