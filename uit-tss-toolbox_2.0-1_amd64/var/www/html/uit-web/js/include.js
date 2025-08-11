@@ -276,20 +276,16 @@ async function updateRemotePresentTable() {
 
       tagnumber += "<b><a href='tagnumber.php?tagnumber=" + value["tagnumber"] + "' target='_blank'>" + value["tagnumber"] + "</a></b>";
       if (value["locations_status"] === true) {
-        tagnumber += "🔧"
+        tagnumber += "🛠️"
       }
 
-      // if (value["locations_status"] === false) {
-        if (value["kernel_updated"] === true && value["bios_updated"] === true) {
-          tagnumber += "<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>";
-        } else if (value["kernel_updated"] === true && value["bios_updated"] !== true) {
-          tagnumber += "<span>&#9888;&#65039;</span>";
-        } else if (value["kernel_updated"] !== true) {
-          tagnumber += "<span>&#10060;</span>";
-        }
-      // } else {
-      //   tagnumber += "<span>🛠️</span>";
-      // }
+      if (value["kernel_updated"] === true && value["bios_updated"] === true) {
+        tagnumber += "<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>";
+      } else if (value["kernel_updated"] === true && value["bios_updated"] !== true) {
+        tagnumber += "<span>&#9888;&#65039;</span>";
+      } else if (value["kernel_updated"] !== true) {
+        tagnumber += "<span>&#10060;</span>";
+      }
       let tagnumberCell = document.createElement("td");
       tagnumberCell.innerHTML = tagnumber;
       tableBodyRow.appendChild(tagnumberCell);
