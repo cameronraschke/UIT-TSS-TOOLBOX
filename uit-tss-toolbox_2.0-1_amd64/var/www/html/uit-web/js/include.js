@@ -155,7 +155,7 @@ async function updateRemoteOfflineTable() {
 
       var cell = document.createElement("td");
       if (value["os_installed"] === true && value["domain_joined"] === true) {
-        cell.innerHTML = value["os_installed_formatted"] + "<img class='icon' src='/images/10343-icon-service-Intune-For-Education.svg'></img>";
+        cell.innerHTML = value["os_installed_formatted"] + "<img class='icon' src='/images/intune-joined.svg'></img>";
       } else {
         cell.innerText = value["os_installed_formatted"];
       }
