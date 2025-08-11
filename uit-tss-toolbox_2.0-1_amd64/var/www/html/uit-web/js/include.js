@@ -265,7 +265,7 @@ async function updateRemotePresentTable() {
 
       // Tag Number
       let tagnumber = "";
-      if (value["status"] === undefined) {
+      if (value["status"] === undefined || !(value["status"])) {
           tagnumber += "<b>New Entry: </b>";
       } else if (value["status"].length >= 1) {
         if (value["status"] !== "Waiting for job" || value["job_queued"] === true) {
