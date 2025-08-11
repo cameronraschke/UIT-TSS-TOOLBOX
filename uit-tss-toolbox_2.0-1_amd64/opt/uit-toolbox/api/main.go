@@ -108,7 +108,6 @@ func formatHttpError (errorString string) (jsonErrStr string) {
 
   jsonErrStr = string(jsonErr)
 
-  log.Print(errorString)
   return string(jsonErrStr)
 }
 
@@ -142,6 +141,8 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
       eventType = "remote_present"
     } else if path == "/api/remote" && queries.Get("type") == "remote_offline" {
       eventType = "remote_offline"
+    } else if path == "/api/locations" && queries.Get("type") == "all_tags" {
+      eventType = "all_tags"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present_header" {
       sql = `SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS battery_charge_formatted, CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS cpu_temp_formatted, CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS disk_temp_formatted, CONCAT('(', COUNT(client_health.os_installed), ')') AS os_installed_formatted, CONCAT('(', SUM(remote.watts_now), ' ', 'watts', ')') AS power_usage_formatted FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.present_bool = TRUE`
       eventType = "remote_present_header"
@@ -363,6 +364,12 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
 
 
   switch eventType {
+    case "all_tags":
+    var allTagsJson string
+    allTagsJson, err = database.GetAllTags()
+    if err != nil {
+      return "", errors.New("Query issue: " + err.Error());
+    }
     case "live_image": // Live image query
       if len(tagnumber) != 6 {
         return "", errors.New("Bad tagnumber length (needs to be 6 digits)")

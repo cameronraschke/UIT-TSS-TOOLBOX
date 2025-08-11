@@ -77,6 +77,55 @@ func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) (string, error) {
 
 
 
+type AllTags struct {
+  Tagnumber   *int32    `json:"tagnumber"`
+}
+
+GetAllTags(db *sql.DB) (string, error) {
+  var sqlCode string
+  var rows *sql.Rows
+  var results []*AllTags
+  var resultsJson string
+  var err error
+
+  sqlCode = `SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC`
+
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+  defer cancel()
+
+  rows, err = db.QueryContext(dbCTX, sqlCode)
+  if err != nil {
+    return "", errors.New("Timeout error: " + err.Error())
+  }
+  defer rows.Close()
+
+  for rows.Next() {
+    row := &AllTags{}
+    if err = rows.Err(); err != nil {
+      return "", errors.New("Query error: " + err.Error())  
+    }
+    if err = dbCTX.Err(); err != nil {
+      return "", errors.New("Context error: " + err.Error())
+    }
+    err = rows.Scan(
+      &row.Tagnumber,
+    )
+    if err != nil && err != sql.ErrNoRows {
+      return "", errors.New("Error scanning rows: " + err.Error())
+    }
+    results = append(results, row)
+  }
+
+  resultsJson, err = CreateJson(results)
+  if err != nil {
+    return "", errors.New("JSON error: " + err.Error())
+  }
+  return resultsJson, nil
+
+}
+
+
+
 type RemoteOnlineTable struct {
   Tagnumber                   *int32            `json:"tagnumber"`
   Screenshot                  *string           `json:"screenshot"`
@@ -227,7 +276,7 @@ func GetRemoteOfflineTable(db *sql.DB) (string, error) {
   sqlCode = `SELECT remote.tagnumber, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, 
         remote.status, locationFormatting(locations.location) AS location_formatted, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
         CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, 
-        CONCAT(remote.disk_temp, '°C') AS disk_temp_formatted, CONCAT(remote.watts_now, ' Watts') AS watts_now_formatted,
+        CONCAT(remote.disk_temp, '°C') AS disk_temp_formatted, CONCAT(remote.watts_now, ' watts') AS watts_now_formatted,
         client_health.os_name AS os_installed_formatted, client_health.os_installed, 
         (CASE WHEN locations.domain IS NOT NULL THEN TRUE ELSE FALSE END) AS domain_joined
       FROM remote 
