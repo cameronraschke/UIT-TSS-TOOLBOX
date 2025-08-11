@@ -815,7 +815,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
         }
         hashedTokenStr := fmt.Sprintf("%x", hash)
 
-        TTLDuration = time.Second * 10
+        TTLDuration = time.Second * 60
         // authMap[hashedTokenStr] = time.Now().Add(TTLDuration)
         authMap.Store(hashedTokenStr, time.Now().Add(TTLDuration))
         return hashedTokenStr, nil
