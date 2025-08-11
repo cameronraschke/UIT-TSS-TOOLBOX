@@ -26,10 +26,10 @@ type JobQueue struct {
   RemoteTimeFormatted   *string   `json:"remote_time_formatted"`
 }
 
-func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) ([]*JobQueue, error) {
+func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) (string, error) {
   var sqlCode string
   var rows *sql.Rows
-  var results []*RemoteOnlineTable
+  var results []*JobQueue
   var resultsJson string
   var err error
 
@@ -48,7 +48,7 @@ func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) ([]*JobQueue, error) {
   defer rows.Close()
 
   for rows.Next() {
-    row := &RemoteOfflineTable{}
+    row := &JobQueue{}
     if err = rows.Err(); err != nil {
       return "", errors.New("Query error: " + err.Error())  
     }
