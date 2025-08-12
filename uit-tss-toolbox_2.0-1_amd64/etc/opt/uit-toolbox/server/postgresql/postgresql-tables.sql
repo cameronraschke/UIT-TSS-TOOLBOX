@@ -411,13 +411,14 @@ VALUES
 DROP TABLE IF EXISTS static_domains;
 CREATE TABLE IF NOT EXISTS static_domains (
   domain VARCHAR(24) UNIQUE NOT NULL,
-  domain_readable VARCHAR(24) DEFAULT NULL
+  domain_readable VARCHAR(36) DEFAULT NULL
 );
 
 INSERT INTO 
     static_domains (domain, domain_readable)
 VALUES
-    ('UIT-CheckOut', 'TSS Laptop Checkout')
+    ('IT-TSS-CheckOut', 'TSS Laptop Checkout'),
+    ('IT-TSS-Teamleads', 'TSS ITSC Team Leads')
     ;
 
 
