@@ -30,6 +30,7 @@ if [[ $(dmidecode --string system-product-name) == "Latitude 3560" ]]; then
 else
 	/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz &>/dev/null
 fi
+setupcon
 printf '%s\n' "${GREEN}Done.${RESET}"
 
 printf '\n'
@@ -637,6 +638,7 @@ function advEraseMode_Shred {
 	else
 		setfont /usr/share/consolefonts/Lat7-Terminus28x14.psf.gz
 	fi
+	setupcon
 	footer
 
 	printf '\n'
@@ -724,6 +726,7 @@ function advEraseMode_Shred {
 
 	tput reset
 	setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz
+	setupcon
 	footer
 	read -p "Are you sure you want to use ${BOLD}${BLUE}${RMODE}${RESET} on ${BOLD}${BLUE}${CLIENTDISK}${RESET}? Press ${BOLD}${GREEN}Enter${RESET} to continue...${RESET} "
 

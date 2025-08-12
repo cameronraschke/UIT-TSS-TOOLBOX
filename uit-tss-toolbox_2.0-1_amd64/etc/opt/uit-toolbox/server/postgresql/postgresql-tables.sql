@@ -113,6 +113,7 @@ INSERT INTO static_disk_stats
     pcie_gen,
     pcie_lanes)
 VALUES 
+    ('PM9C1b Samsung 1024GB', 1024, 5600, 6000, 1500000, NULL, NULL, 0, 70, 'm.2', 'nvme', FALSE, NULL, NULL, 4, 4),
     ('LITEON CV8-8E128-11 SATA 128GB', 128, 550, 380, 1500000, 146, NULL, 0, 70, 'm.2', 'nvme', FALSE, NULL, 50000, NULL, NULL),
     ('MTFDHBA256TCK-1AS1AABHA', NULL, 3000, 1600, 2000000, 75, NULL, NULL, 82, 'm.2', 'nvme', FALSE, NULL, NULL, NULL, NULL),
     ('SSDPEMKF256G8 NVMe INTEL 256GB', 256, 3210, 1315, 1600000, 144, NULL, 0, 70, 'm.2', 'nvme', FALSE, NULL, NULL, NULL, NULL),
@@ -169,6 +170,7 @@ INSERT INTO static_bios_stats
     )
     VALUES
     ('HP ProBook 450 G6', 'R71 Ver. 01.32.00'),
+    ('Dell Pro Slim Plus QBS1250', '1.6.2'),
     ('Latitude 7400', '1.40.1'),
     ('OptiPlex 7000', '1.31.1'),
     ('Latitude 7420', '1.43.1'),
@@ -433,7 +435,7 @@ INSERT INTO
     static_image_names (image_name, image_os_author, image_version, image_platform_vendor, image_platform_model, image_name_readable)
 VALUES
     ('TechCommons-HP-LaptopsLZ4', 'Microsoft', 'Windows 11', 'HP', 'HP ProBook 450 G6', 'Windows 11'),
-    ('TechCommons-Dell-Desktop-Team-Leads', 'Microsoft', 'Windows 11', 'HP', 'Dell Pro Slim Plus', 'Windows 11'),
+    ('TechCommons-Dell-Desktop-Team-Leads', 'Microsoft', 'Windows 11', 'HP', 'Dell Pro Slim Plus QBS1250', 'Windows 11'),
     ('TechCommons-Dell-Laptops', 'Microsoft', 'Windows 11', 'Dell', 'Latitude 7400', 'Windows 11'),
     ('TechCommons-Dell-Desktops', 'Microsoft', 'Windows 11', 'Dell', 'OptiPlex 7000', 'Windows 11'),
     ('TechCommons-Dell-HelpDesk', 'Microsoft', 'Windows 11', 'Dell', 'Latitude 7420', 'Windows 11'),
