@@ -196,6 +196,7 @@ iperf3
 fbgrab
 php-gd
 ffmpeg
+fbset
 EOF
 
 mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root/
@@ -261,9 +262,9 @@ echo "${BOLD}Installing the client package${RESET}"
 if [[ $(dpkg-query -l | grep --quiet uit-toolbox-client; echo $?) == 0 ]]; then
 	dpkg --purge uit-toolbox-client 
 	fi
-curl http://mickey.uit/client/pkg/uit-toolbox-client.deb --output /root/uit-toolbox-client.deb &>/dev/null
+curl 'http://mickey.uit/client/pkg/uit-toolbox-client.deb' --output /root/uit-toolbox-client.deb &>/dev/null
 while [[ ! -f /root/uit-toolbox-client.deb ]]; do
-	curl http://mickey.uit/client/pkg/uit-toolbox-client.deb --output /root/uit-toolbox-client.deb &>/dev/null
+	curl 'http://mickey.uit/client/pkg/uit-toolbox-client.deb' --output /root/uit-toolbox-client.deb &>/dev/null
 	sleep 1
 done
 dpkg --install /root/uit-toolbox-client.deb &>/dev/null
