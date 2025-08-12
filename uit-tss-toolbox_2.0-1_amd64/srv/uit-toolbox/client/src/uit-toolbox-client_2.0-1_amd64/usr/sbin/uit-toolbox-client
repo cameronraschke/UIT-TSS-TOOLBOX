@@ -24,16 +24,19 @@ umount /home/partimag 2>/dev/null
 printf '\n'
 printf '%s\n' "${BOLD}Changing font...${RESET}"
 setupcon
-/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz &>/dev/null
+DefaultFontLines=$(tput lines)
+/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus32x16.psf.gz &>/dev/null
 XLFontLines=$(tput lines)
-/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus28x14.psf.gz &>/dev/null
+/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus28x14.psf.gz &>/dev/null
 LFontLines=$(tput lines)
-/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus24x12.psf.gz &>/dev/null
+/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus24x12.psf.gz &>/dev/null
 MFontLines=$(tput lines)
-/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus22x11.psf.gz &>/dev/null
+/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus22x11.psf.gz &>/dev/null
 SFontLines=$(tput lines)
-/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus20x10.psf.gz &>/dev/null
+/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus20x10.psf.gz &>/dev/null
 XSFontLines=$(tput lines)
+/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus18x10.psf.gz &>/dev/null
+XXSFontLines=$(tput lines)
 
 unset fontArr
 declare -A fontArr
@@ -42,31 +45,36 @@ fontArr["L"]=$LFontLines
 fontArr["M"]=$MFontLines
 fontArr["S"]=$SFontLines
 fontArr["XS"]=$XSFontLines
+fontArr["XXS"]=$XXSFontLines
 
+targetRows=33
+minDifference=$(( targetRows - DefaultFontLines ))
+if [[ $minDifference -lt 0 ]]; then minDifference=$(( -1 * minDifference )); fi
 for key in ${!fontArr[@]}; do
-	targetRows=33
 	value=${fontArr[${key}]}
 	difference=$(( targetRows - value ))
-	if [[ difference < 0 ]]; then
+	if [[ difference -lt 0 ]]; then
 		difference=$(( -1 * difference ))
 	fi
 
-	if [[ -z $minDifference || $difference < $minDifference ]]; then
+	if [[ $difference -lt $minDifference ]]; then
 		minDifference=$difference
 		fontValue=$key
 	fi
 done
 
 if [[ $fontValue == "XL" ]]; then
-	/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz &>/dev/null
+	/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus32x16.psf.gz &>/dev/null
 elif [[ $fontValue == "L" ]]; then
-	/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus28x14.psf.gz &>/dev/null
+	/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus28x14.psf.gz &>/dev/null
 elif [[ $fontValue == "M" ]]; then
-	MFontLines=$(tput lines)
+	/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus24x12.psf.gz &>/dev/null
 elif [[ $fontValue == "S" ]]; then
-	SFontLines=$(tput lines)
+	/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus22x11.psf.gz &>/dev/null
 elif [[ $fontValue == "XS" ]]; then
-	/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus20x10.psf.gz &>/dev/null
+	/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus20x10.psf.gz &>/dev/null
+elif [[ $fontValue == "XXS" ]]; then
+	/usr/bin/setfont /usr/share/consolefonts/Uni3-Terminus18x10.psf.gz &>/dev/null
 fi
 
 printf '%s\n' "${GREEN}Done.${RESET}"
@@ -671,7 +679,6 @@ function basicEraseMode_Shred {
 
 
 function advEraseMode_Shred {
-	setupcon
 	footer
 
 	printf '\n'
