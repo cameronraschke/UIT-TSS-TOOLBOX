@@ -43,7 +43,7 @@ fontArr["M"]=$MFontLines
 fontArr["S"]=$SFontLines
 fontArr["XS"]=$XSFontLines
 
-for key in ${!fontArr[@]} {
+for key in ${!fontArr[@]}; do
 	targetRows=33
 	value=${fontArr[${key}]}
 	difference=$(( targetRows - value ))
@@ -55,7 +55,8 @@ for key in ${!fontArr[@]} {
 		minDifference=$difference
 		fontValue=$key
 	fi
-}
+done
+
 if [[ $fontValue == "XL" ]]; then
 	/usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz &>/dev/null
 elif [[ $fontValue == "L" ]]; then
