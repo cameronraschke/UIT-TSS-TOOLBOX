@@ -6,9 +6,8 @@ if [[ "$EUID" > 0 ]]
 fi
 
 function confirmDelete {
-    read -p "Are you sure you want to unmount /srv/uit-toolbox/client/iso? [y/n]: " CONFIRM
+    read -p "Are you sure you want to continue [y/n]: " CONFIRM
     if [[ $CONFIRM == "y" ]]; then
-		umount /srv/uit-toolbox/client/iso
         return
     elif [[ $CONFIRM == "n" ]]; then
         exit 1
@@ -17,6 +16,10 @@ function confirmDelete {
     fi
 }
 confirmDelete
+
+if [[ -f /tmp/debian-live.deb ]]; then
+	rm /tmp/debian-live.deb
+fi
 
 apt purge live-build -y
 wget http://ftp.us.debian.org/debian/pool/main/l/live-build/live-build_20250505_all.deb \
@@ -27,11 +30,11 @@ apt install dosfstools -y
 
 apt install debian-archive-keyring -y
 
-if [[ ! -d /opt/uit-toolbox/debian-live/ ]]; then
-	mkdir /opt/uit-toolbox/debian-live/
+if [[ ! -d /tmp/uit-toolbox-live-iso/ ]]; then
+	mkdir /tmp/uit-toolbox-live-iso/
 fi
 
-( cd /opt/uit-toolbox/debian-live/ && \
+( cd /tmp/uit-toolbox-live-iso/ && \
 
 		lb clean && \
 
@@ -73,11 +76,11 @@ fi
 			--updates true \
 			--zsync true)
 
-mkdir -p /opt/uit-toolbox/debian-live/config/bootloaders
-cp -r /usr/share/live/build/bootloaders/isolinux /opt/uit-toolbox/debian-live/config/bootloaders
-cp -r /usr/share/live/build/bootloaders/grub-pc /opt/uit-toolbox/debian-live/config/bootloaders
+mkdir -p /tmp/uit-toolbox-live-iso/config/bootloaders
+cp -r /usr/share/live/build/bootloaders/isolinux /tmp/uit-toolbox-live-iso/config/bootloaders
+cp -r /usr/share/live/build/bootloaders/grub-pc /tmp/uit-toolbox-live-iso/config/bootloaders
 
-cat <<'EOF' > /opt/uit-toolbox/debian-live/config/bootloaders/isolinux/isolinux.cfg
+cat <<'EOF' > /tmp/uit-toolbox-live-iso/config/bootloaders/isolinux/isolinux.cfg
 UI vesamenu.c32
 MENU TITLE Boot Menu
 DEFAULT linux
@@ -92,8 +95,8 @@ label linux
         append @APPEND_LIVE@
 EOF
 
-rm -r /opt/uit-toolbox/debian-live/config/bootloaders/grub-pc/*
-cat <<'EOF' > /opt/uit-toolbox/debian-live/config/bootloaders/grub-pc/grub.cfg
+rm -r /tmp/uit-toolbox-live-iso/config/bootloaders/grub-pc/*
+cat <<'EOF' > /tmp/uit-toolbox-live-iso/config/bootloaders/grub-pc/grub.cfg
 insmod part_gpt
 insmod part_msdos
 insmod fat
@@ -113,7 +116,7 @@ menuentry "UIT-Toolbox Client by Cameron Raschke" {
 }
 EOF
 
-cat <<'EOF' > /opt/uit-toolbox/debian-live/config/package-lists/live.list.chroot
+cat <<'EOF' > /tmp/uit-toolbox-live-iso/config/package-lists/live.list.chroot
 live-boot
 live-config
 live-config-systemd
@@ -199,8 +202,8 @@ ffmpeg
 fbset
 EOF
 
-mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root/
-cat <<'EOF' > /opt/uit-toolbox/debian-live/config/hooks/live/0100-uit-toolbox-client-setup.hook.chroot
+mkdir -p /tmp/uit-toolbox-live-iso/config/includes.chroot/root/
+cat <<'EOF' > /tmp/uit-toolbox-live-iso/config/hooks/live/0100-uit-toolbox-client-setup.hook.chroot
 
 sysctl --quiet --write "net.ipv6.conf.all.disable_ipv6=1"
 sysctl --quiet --write "net.ipv6.conf.default.disable_ipv6=1"
@@ -224,15 +227,15 @@ echo -e "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 update-smart-drivedb
 EOF
 
-chmod 777 /opt/uit-toolbox/debian-live/config/hooks/live/0100-uit-toolbox-client-setup.hook.chroot
+chmod 777 /tmp/uit-toolbox-live-iso/config/hooks/live/0100-uit-toolbox-client-setup.hook.chroot
 
-mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root/
+mkdir -p /tmp/uit-toolbox-live-iso/config/includes.chroot/root/
 wget https://soundboardguy.com/wp-content/uploads/2022/01/Oven-Timer-Ding.mp3 \
---output-document=/opt/uit-toolbox/debian-live//config/includes.chroot/root/oven.mp3
+--output-document=/tmp/uit-toolbox-live-iso/config/includes.chroot/root/oven.mp3
 
-mkdir -p /opt/uit-toolbox/debian-live/config/includes.chroot/root
-touch /opt/uit-toolbox/debian-live/config/includes.chroot/root/.bash_profile
-cat <<'EOF' > /opt/uit-toolbox/debian-live/config/includes.chroot/root/.bash_profile
+mkdir -p /tmp/uit-toolbox-live-iso/config/includes.chroot/root
+touch /tmp/uit-toolbox-live-iso/config/includes.chroot/root/.bash_profile
+cat <<'EOF' > /tmp/uit-toolbox-live-iso/config/includes.chroot/root/.bash_profile
 #!/bin/bash
 
 RED=$(tput setaf 1)
@@ -275,10 +278,10 @@ rm /root/uit-toolbox-client.deb
 /usr/sbin/uit-toolbox-client
 EOF
 
-(cd /opt/uit-toolbox/debian-live/
+(cd /tmp/uit-toolbox-live-iso/
 lb build)
 
-rm /tmp/debian-live.deb
+rsync -Pav /tmp/uit-toolbox-live-iso/ /opt/uit-toolbox/debian-live/
 
-umount /srvuit-toolbox/client/iso
+umount /srv/uit-toolbox/client/iso
 mount /opt/uit-toolbox/debian-live/uit-toolbox-client-amd64.hybrid.iso /srv/uit-toolbox/client/iso
