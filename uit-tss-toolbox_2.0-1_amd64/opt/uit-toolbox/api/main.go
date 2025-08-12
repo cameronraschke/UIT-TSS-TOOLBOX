@@ -7,7 +7,6 @@ import (
   "os"
   "io"
   "net/http"
-  "log"
   "time"
   "encoding/json"
   "strings"
@@ -17,6 +16,7 @@ import (
   "errors"
   "database/sql"
   "sync"
+  "runtime/debug"
 
   "api/database"
   "api/logger"
@@ -25,7 +25,7 @@ import (
   _ "github.com/jackc/pgx/v5/stdlib"
 )
 
-//IMPORTANT: Order of struct matters for javacript for some reason
+
 // Structs for JSON responses
 type LiveImage struct {
   TimeFormatted   *string    `json:"time_formatted"`
@@ -89,7 +89,7 @@ var (
   eventType string
   db *sql.DB
   authMap sync.Map
-  Log = logger.LoggerFactory("console")
+  log = logger.LoggerFactory("console")
   ChannelSqlCode = make(chan string)
   ChannelSqlRows = make(chan *sql.Rows)
 )
@@ -102,7 +102,7 @@ func formatHttpError (errorString string) (jsonErrStr string) {
   jsonStr = httpErrorCodes{Message: errorString}
   jsonErr, err = json.Marshal(jsonStr)
   if err != nil {
-    log.Print("Cannot parse JSON error: ", err)
+    log.Error("Cannot parse JSON: " + err.Error())
     return
   }
 
@@ -118,7 +118,7 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
 
     parsedURL, err = url.Parse(requestURL)
     if err != nil {
-      Log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + requestURL + ")")
+      log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + requestURL + ")")
       return "", "", "", "", errors.New("Cannot parse URL: " + requestURL)
     }
 
@@ -169,56 +169,6 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
     return sql, tagnumber, systemSerial, sqlTime, nil
 }
 
-// func postRequestToSQL (req http.Request) (sql string, []tagnumber, []systemSerial, []sqlTime time.Time, err error) {
-//   var uniqueIteratedValues []string
-//   // If method is POST, read the form data
-//   if req.Method == http.MethodPost {
-//     err := req.ParseMultipartForm(32 << 20)
-//     if err != nil {
-//       log.Print("Failed to parse form: ", err)
-//       http.Error(w, "Failed to parse form", http.StatusInternalServerError)
-//       return "", "", "", "", nil
-//     }
-
-//     if req.Form != nil && len(req.Form) > 0 {
-//       for key, values := range req.Form {
-//         switch key {
-//           case "tagnumber":
-//             for _, value := range values {
-//               if len(value) != 6 {
-//                 log.Print("Bad tag number length: ", value)
-//                 http.Error(w, "Bad tag numebr length", http.StatusBadRequest)
-//                 return "", "", "", "", nil
-//               }
-//               tagnumber = append(tagnumber, value)
-//             }
-
-//           case "system_serial":
-//             for _, value := range values {
-//               if len(value) < 1 {
-//                 log.Print("Bad system serial length: ", value)
-//                 http.Error(w, "Bad system serial length", http.StatusBadRequest)
-//                 return "", "", "", "", nil
-//               }
-//               systemSerial = append(systemSerial, value)
-//             }
-
-//           default:
-//             log.Printf("Unknown form key: %s with values: %v", key, values)
-//             http.Error(w, "Unknown form key", http.StatusBadRequest)
-//             return "", "", "", "", nil
-//         }
-//       }
-//     } else {
-//       log.Print("No form values found in request")
-//       http.Error(w, "No form values found in request", http.StatusBadRequest)
-//       return "", "", "", "", nil
-//     }
-//   }
-  
-//   return sql, tagnumber, systemSerial, time, nil
-// }
-
 
 
 func apiFunction (writer http.ResponseWriter, req *http.Request) {
@@ -237,7 +187,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
 
   w, _, err = apiMiddleWare(writer, req)
   if err != nil {
-    log.Print("API middleware error: ", err)
+    log.Error("Middleware error: " + err.Error())
     return
   }
 
@@ -274,7 +224,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
 
   parsedURL, err = url.Parse(req.URL.RequestURI())
   if err != nil {
-    Log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
+    log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
     http.Error(w, formatHttpError("Cannot parse URL: " + req.URL.RequestURI()), http.StatusBadRequest)
     return
   }
@@ -288,7 +238,7 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
         request = req.URL.RequestURI()
         sqlCode, tagnumber, systemSerial, _, err = getRequestToSQL(request)
         if err != nil {
-          Log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
+          log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
           http.Error(w, formatHttpError("Cannot parse URL: " + req.URL.RequestURI()), http.StatusBadRequest)
           return
         }
@@ -317,30 +267,21 @@ func apiFunction (writer http.ResponseWriter, req *http.Request) {
       jsonString := "data: " + jsonData + "\n\n"
 
       if _, err := io.WriteString(w, eventString); err != nil {
-        log.Print("Cannot write output to client: ", err)
+        log.Error("Cannot write output to client: " + err.Error())
         http.Error(w, formatHttpError("Cannot write result to http stream: " + fmt.Errorf("%w", err).Error()), http.StatusInternalServerError)
       }
       if _, err := io.WriteString(w, jsonString); err != nil {
-        log.Print("Cannot write output to client: ", err)
+        log.Error("Cannot write output to client: " + err.Error())
         http.Error(w, formatHttpError("Cannot write result to http stream: " + fmt.Errorf("%w", err).Error()), http.StatusInternalServerError)
       }
     } else {
       if _, err := io.WriteString(w, jsonData); err != nil {
-        log.Print("Cannot write output to client: ", err)
+        log.Error("Cannot write output to client: " + err.Error())
         http.Error(w, formatHttpError("Cannot write result to http stream: " + fmt.Errorf("%w", err).Error()), http.StatusInternalServerError)
       }
     }
 
-
-
-  // if len(jsonData) < 1 {
-  //   log.Print("No results found for query: ", sqlCode)
-  //   http.Error(w, "No results found", http.StatusNotFound)
-  //   return
-  // }
-  // jsonEncoder := json.NewEncoder(w)
-  // jsonEncoder.Encode(jsonData)
-  return
+    return
 }
 
 func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDataStr string, err error) {
@@ -354,11 +295,11 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
 
   // Check if the database connection is valid
   if db == nil {
-    log.Print("Database connection is not valid")
+    log.Error("Database connection is not valid")
     return "", errors.New("Database connection is not valid")
   }
   if dbCTX.Err() != nil {
-    log.Print("Context error: ", dbCTX.Err()) 
+    log.Error("Context error: " + dbCTX.Err().Error()) 
     return "", errors.New("Context error: " + dbCTX.Err().Error())
   }
 
@@ -387,7 +328,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       for rows.Next() {
         var result LiveImage
         if dbCTX.Err() != nil {
-          log.Print("Context error: ", dbCTX.Err())
+          log.Error("Context error: " + dbCTX.Err().Error())
           return "", errors.New("Context error: " + dbCTX.Err().Error())
         }
         if err = rows.Err(); err != nil {
@@ -421,8 +362,8 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
     case "remote_present_header": 
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
-        log.Print(err)
-        return "", errors.New("Error querying present clients (main query)")
+        log.Error("Error querying present clients" + err.Error())
+        return "", errors.New("Error querying present clients")
       }
       defer rows.Close()
 
@@ -431,7 +372,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       for rows.Next() {
         var result RemotePresentHeader
         if dbCTX.Err() != nil {
-          log.Print("Context error: ", dbCTX.Err())
+          log.Error("Context error: " + dbCTX.Err().Error())
           return "", errors.New("Context error: " + dbCTX.Err().Error())
         }
         if err = rows.Err(); err != nil {
@@ -447,7 +388,7 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
         )
         
         if err != nil {
-          log.Print("Error scanning row: ", err)
+          log.Error("Error scanning row: " + err.Error())
           return "", errors.New("Error scanning row")
         }
         remotePresentHeader = append(remotePresentHeader, result)
@@ -471,11 +412,11 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
       for rows.Next() {
         var result Locations
         if dbCTX.Err() != nil {
-          log.Print("Context error: ", dbCTX.Err())
+          log.Error("Context error: " + dbCTX.Err().Error())
           return "", errors.New("Context error: " + dbCTX.Err().Error())
         }
         if err = rows.Err(); err != nil {
-          log.Print("Context error: ", dbCTX.Err())
+          log.Error("Context error: " + dbCTX.Err().Error())
           return "", errors.New("Error with rows: " + err.Error())
         }
         err = rows.Scan(
@@ -630,7 +571,7 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
 
   parsedURL, err = url.Parse(req.URL.RequestURI())
   if err != nil {
-    Log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
+    log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
     http.Error(w, formatHttpError("Cannot parse URL: " + req.URL.RequestURI()), http.StatusInternalServerError)
     return nil, "", errors.New("Cannot parse URL: " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
   }
@@ -689,14 +630,14 @@ func apiMiddleWare (w http.ResponseWriter, req *http.Request) (writer http.Respo
 
   // Check if request method is valid
   if req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete && req.Method != http.MethodOptions {
-    log.Print("Invalid request method: ", req.Method)
+    log.Warning("Invalid request method: " + req.Method)
     http.Error(w, formatHttpError("Invalid request method" + req.Method), http.StatusMethodNotAllowed)
     return nil, "", errors.New("Invalid request method: " + req.Method)
   }
 
   // Check if Content-Type is valid
   if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
-    log.Print("Invalid Content-Type: ", req.Header.Get("Content-Type"))
+    log.Warning("Invalid Content-Type: " + req.Header.Get("Content-Type"))
     http.Error(w, formatHttpError("Invalid content type: " + req.Header.Get("Content-Type")), http.StatusUnsupportedMediaType)
     return nil, "", errors.New("Invalid Content-Type: " + req.Header.Get("Content-Type"))
   }
@@ -718,12 +659,12 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
   var TTLDuration time.Duration
   var timeDiff time.Duration
 
-  log.Print("Received request: ", req.Method, " ", req.URL.RequestURI())
+  log.Info("Received request: " + req.Method + " " + req.URL.RequestURI())
 
   if req.Method == http.MethodGet {
     w, token, err = apiMiddleWare(w, req)
     if err != nil {
-      log.Print("API middleware error: ", err.Error())
+      log.Error("Middleware error: " + err.Error())
       return "", errors.New("API middleware error: " + err.Error())
     }
 
@@ -738,7 +679,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
       // Set second timeout below. Will countdown from timeout seconds.
       if timeDiff.Seconds() < 0 {
         authMap.Delete(key)
-        log.Print("Auth session expired: ", key, " (TTL: ", timeDiff, ")")
+        log.Debug("Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
       }
       return true
     })
@@ -761,7 +702,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
     })
 
     if matches >= 1 {
-      log.Print("Auth Cached: ", "(TTL: ", timeDiff, ")")
+      log.Debug("Auth Cached: " + "(TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
       return token, nil
     }
 
@@ -771,7 +712,7 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
       return "", errors.New("Connection to database failed")
     }
     if dbCTX.Err() != nil {
-      log.Print("Context error: ", dbCTX.Err()) 
+      log.Error("Context error: " + dbCTX.Err().Error()) 
       http.Error(w, formatHttpError("Context error interrupt"), http.StatusInternalServerError)
       return "", errors.New("Context error: " + dbCTX.Err().Error())
     }
@@ -816,7 +757,6 @@ func apiAuth (w http.ResponseWriter, req *http.Request) (BearerToken string, err
         hashedTokenStr := fmt.Sprintf("%x", hash)
 
         TTLDuration = time.Second * 60
-        // authMap[hashedTokenStr] = time.Now().Add(TTLDuration)
         authMap.Store(hashedTokenStr, time.Now().Add(TTLDuration))
         return hashedTokenStr, nil
 
@@ -846,31 +786,36 @@ func GetInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-  Log.Info("Starting...")
+  log.Info("Server time: " + time.Now().Format("01-02-2006 15:04:05"))
+  log.Info("UIT API Starting...")
 
   // Recover from panics
   defer func() {
     if pan := recover(); pan != nil {
-        log.Print("Recovered. Error:\n", pan)
+        log.Error("Recovered. Error: \n" + fmt.Sprintf("%v", pan))
+        log.Error("Trace: \n" + string(debug.Stack()))
     }
   }()
 
   go func() {
-	  log.Print(http.ListenAndServe("localhost:6060", nil))
+	  err := http.ListenAndServe("localhost:6060", nil)
+    if err != nil {
+      log.Error("Profiler error: " + err.Error())
+    }
   }()
 
   // Connect to db with pgx
-  Log.Info("Connecting to database...")
+  log.Info("Attempting connection to database...")
   const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
   sqlConn, err := sql.Open("pgx", dbConnString)
   if err != nil  {
-    Log.Error("Unable to connect to database: \n" + err.Error())
+    log.Error("Unable to connect to database: \n" + err.Error())
     os.Exit(1)
   }
   defer sqlConn.Close()
   // Check if the database connection is valid
   if err = sqlConn.Ping(); err != nil {
-    Log.Error("Cannot ping database: \n" + err.Error())
+    log.Error("Cannot ping database: \n" + err.Error())
     os.Exit(1)
   }
 
@@ -878,7 +823,7 @@ func main() {
   sqlConn.SetMaxIdleConns(10)
   sqlConn.SetConnMaxIdleTime(1 * time.Minute)
 
-  log.Print("Connected to database successfully")
+  log.Info("Connected to database successfully")
   db = sqlConn
   defer db.Close()
 
@@ -892,12 +837,12 @@ func main() {
 
   // Check if the web context is valid
   if webCTX.Err() != nil {
-    log.Print("Web context error: ", webCTX.Err())
+    log.Error("Web context error: " + webCTX.Err().Error())
     panic("Web context error")
   }
 
   if dbCTX.Err() != nil {
-    log.Print("DB context error: ", dbCTX.Err())
+    log.Error("DB context error: " + dbCTX.Err().Error())
     panic("DB context error")
   }
 
@@ -907,8 +852,7 @@ func main() {
   mux.HandleFunc("/dbstats/", GetInfoHandler)
 
 
-	log.Print("Server time: " + time.Now().Format("01-02-2006 15:04:05"))
-	log.Print("Starting web server on https://*:31411")
+	log.Info("Starting web server")
 
     httpServer := http.Server{
 		Addr: ":31411",
@@ -917,11 +861,27 @@ func main() {
     WriteTimeout: time.Duration(10) * time.Second,
     IdleTimeout: time.Duration(120) * time.Second,
     MaxHeaderBytes: 32 << 20,
-    ErrorLog: log.New(os.Stderr, "ERROR: ", log.LstdFlags),
 	}
 
-	log.Fatal(httpServer.ListenAndServeTLS("/usr/local/share/ca-certificates/uit-web.crt", "/usr/local/share/ca-certificates/uit-web.key"))
+	log.Error(httpServer.ListenAndServeTLS("/usr/local/share/ca-certificates/uit-web.crt", "/usr/local/share/ca-certificates/uit-web.key").Error())
+  if err != nil {
+    log.Error("Cannot start web server: " + err.Error())
+    os.Exit(1)
+  }
   defer httpServer.Close()
+  log.Info("Web server ready and listening for requests on https://*:31411")
 
-	log.Printf("Listening on https://*:31411")
+  client := http.Client{
+		Timeout: 5 * time.Second,
+	}
+	log.Info("Testing web server")
+  var resp *http.Response
+  resp, err = client.Get("https://localhost:31411/api/test")
+  if err != nil || resp == nil {
+    log.Error("No response from web server... exiting")
+    os.Exit(1)
+  }
+  resp.Body.Close()
+  log.Info("Web server running. Application ready!")
+
 }

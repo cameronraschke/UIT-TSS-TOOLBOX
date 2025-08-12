@@ -433,6 +433,7 @@ INSERT INTO
     static_image_names (image_name, image_os_author, image_version, image_platform_vendor, image_platform_model, image_name_readable)
 VALUES
     ('TechCommons-HP-LaptopsLZ4', 'Microsoft', 'Windows 11', 'HP', 'HP ProBook 450 G6', 'Windows 11'),
+    ('TechCommons-Dell-Desktop-Team-Leads', 'Microsoft', 'Windows 11', 'HP', 'Dell Pro Slim Plus', 'Windows 11'),
     ('TechCommons-Dell-Laptops', 'Microsoft', 'Windows 11', 'Dell', 'Latitude 7400', 'Windows 11'),
     ('TechCommons-Dell-Desktops', 'Microsoft', 'Windows 11', 'Dell', 'OptiPlex 7000', 'Windows 11'),
     ('TechCommons-Dell-HelpDesk', 'Microsoft', 'Windows 11', 'Dell', 'Latitude 7420', 'Windows 11'),
