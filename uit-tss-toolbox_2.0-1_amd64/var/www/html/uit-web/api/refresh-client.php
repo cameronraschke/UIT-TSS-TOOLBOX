@@ -20,8 +20,8 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
     (CASE WHEN ROUND((EXTRACT(EPOCH FROM (NOW()::timestamp - remote.present::timestamp))), 0) < 30 THEN TRUE ELSE FALSE END) AS present_bool, t2.time AS last_job_time, remote.disk_temp, remote.max_disk_temp, 
     (CASE 
       WHEN locations.disk_removed = TRUE THEN 'No OS'
-      WHEN t2.clone_completed IS FALSE AND t2.erase_completed = TRUE THEN 'No OS'
-      WHEN t2.clone_completed = TRUE THEN static_image_names.image_name_readable
+      WHEN t2.clone_completed = FALSE AND t2.erase_completed = TRUE THEN 'No OS'
+      WHEN t2.clone_completed = TRUE OR t2.clone_master = TRUE THEN static_image_names.image_name_readable
       ELSE 'Unknown OS'
     END) AS image_name_readable, 
     (CASE
@@ -42,7 +42,7 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
     (CASE 
       WHEN locations.disk_removed = TRUE THEN FALSE
       WHEN t4.checkout_bool = TRUE THEN TRUE
-      WHEN t2.clone_master = TRUE THEN TRUE
+      WHEN t2.clone_master = TRUE AND t2.clone_completed = TRUE THEN TRUE
       WHEN t2.erase_completed = TRUE AND t2.clone_completed = FALSE THEN FALSE
       WHEN t2.erase_completed = FALSE AND t2.clone_completed = TRUE THEN TRUE
       WHEN t2.erase_completed = TRUE AND t2.clone_completed = TRUE THEN TRUE 

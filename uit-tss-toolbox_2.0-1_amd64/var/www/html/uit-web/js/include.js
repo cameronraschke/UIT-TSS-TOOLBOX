@@ -313,9 +313,13 @@ async function updateRemotePresentTable() {
       statusCell.innerText = value["status"];
       tableBodyRow.appendChild(statusCell);
 
-      let osInstalledCell = document.createElement("td");
-      osInstalledCell.innerText = value["os_installed_formatted"];
-      tableBodyRow.appendChild(osInstalledCell);
+      var cell = document.createElement("td");
+      if (value["os_installed"] === true && value["domain_joined"] === true) {
+        cell.innerHTML = value["os_installed_formatted"] + "<img class='icon' src='/images/intune-joined.svg'></img>";
+      } else {
+        cell.innerText = value["os_installed_formatted"];
+      }
+      tableBodyRow.appendChild(cell);
 
       let batteryChargeCell = document.createElement("td");
       batteryChargeCell.innerText = value["battery_charge_formatted"];
