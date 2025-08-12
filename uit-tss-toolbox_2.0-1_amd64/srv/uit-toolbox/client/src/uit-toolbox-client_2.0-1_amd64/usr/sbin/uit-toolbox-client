@@ -25,7 +25,7 @@ printf '\n'
 printf '%s\n' "${BOLD}Changing font...${RESET}"
 setupcon
 /usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus32x16.psf.gz &>/dev/null
-XLFontLines=$(tput lines)Lines
+XLFontLines=$(tput lines)
 /usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus28x14.psf.gz &>/dev/null
 LFontLines=$(tput lines)
 /usr/bin/setfont /usr/share/consolefonts/Lat7-Terminus24x12.psf.gz &>/dev/null
