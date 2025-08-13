@@ -719,8 +719,10 @@ func apiAuth (next http.Handler) http.Handler {
       token = basicToken
     }
     
+    var totalArrEntries int
     authMap.Range(func(k, _ interface{}) bool {
       key := k.(string)
+      totalArrEntries++
 
       if key == token {
         matches++
@@ -731,7 +733,7 @@ func apiAuth (next http.Handler) http.Handler {
     })
 
     if matches >= 1 {
-      log.Debug("Auth Cached for " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(matches) + " session(s))")
+      log.Debug("Auth Cached for " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       next.ServeHTTP(w, req)
     } else {
       log.Debug("Reauthentication required for " + req.RemoteAddr)
