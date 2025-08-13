@@ -19,8 +19,8 @@ type Logger interface{
 
 type ConsoleLogger struct {}
 func (l *ConsoleLogger) Debug(message string) { fmt.Println(TimePrefix() + " [DEBUG] " + message) }
-func (l *ConsoleLogger) Info(message string) { fmt.Println(TimePrefix() + " [INFO] " + message) }
-func (l *ConsoleLogger) Warning(message string) { fmt.Println(TimePrefix() + " [WARN] " + message) }
+func (l *ConsoleLogger) Info(message string) { fmt.Println(TimePrefix() + " [INFO]  " + message) }
+func (l *ConsoleLogger) Warning(message string) { fmt.Println(TimePrefix() + " [WARN]  " + message) }
 func (l *ConsoleLogger) Error(message string) { fmt.Println(TimePrefix() + " [ERROR] " + message) }
 
 
