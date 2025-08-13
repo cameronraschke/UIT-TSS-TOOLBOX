@@ -733,7 +733,7 @@ func apiAuth (next http.Handler) http.Handler {
     })
 
     if matches >= 1 {
-      log.Debug("Auth Cached: " + req.RemoteAddr + "(TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(matches) + " sessions)")
+      log.Debug("Auth Cached: " + req.RemoteAddr + "(TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(matches) + " session(s))")
       next.ServeHTTP(w, req)
     } else {
       log.Debug("Reauthentication required for " + req.RemoteAddr)
