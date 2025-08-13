@@ -679,7 +679,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
 func apiAuth (next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
     var token string
-    var matches int32
+    var matches int
     var timeDiff time.Duration
     var bearerToken string
     var basicToken string
@@ -721,18 +721,19 @@ func apiAuth (next http.Handler) http.Handler {
     
     authMap.Range(func(k, _ interface{}) bool {
       key := k.(string)
-      var match int32
+      var match int
 
       if key == token {
         match++
         matches = match
-        return false
+        // Uncomment to return early
+        // return false
       }
       return true
     })
 
     if matches >= 1 {
-      log.Debug("Auth Cached: " + "(TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
+      log.Debug("Auth Cached: " + req.RemoteAddr + "(TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(matches) + " sessions)")
       next.ServeHTTP(w, req)
     } else {
       log.Debug("Reauthentication required for " + req.RemoteAddr)
