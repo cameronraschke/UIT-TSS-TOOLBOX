@@ -409,9 +409,13 @@ async function autoFillTags() {
     });
 
     tagnumberField.addEventListener('keyup', (event) => {
-      if (event.key === 'Backspace' || event.key === 'Delete' || event.key == "Escape") {
+      if (event.key === 'Backspace' || event.key === 'Delete') {
         tagnumberField.value = tagnumberField.value.substr(0, getCursorPos(tagnumberField));
         tagnumberField.setSelectionRange(getCursorPos(tagnumberField), getCursorPos(tagnumberField));
+      } else if (event.key == "Escape") {
+        document.getElementById('dropdown-search').style.display = "none";
+        document.getElementById('dropdown-search').innerHTML = "";
+        tagnumberField.value = "";
       }
     });
 

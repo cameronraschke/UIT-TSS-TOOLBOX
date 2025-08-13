@@ -48,14 +48,6 @@ func (chain muxChain) then(handle http.Handler) http.Handler {
     return handle
 }
 
-type RemotePresentHeader struct {
-  TagnumberCount            *string   `json:"tagnumber_count"`
-  OsInstalledFormatted      *string   `json:"os_installed_formatted"`
-  BatteryChargeFormatted    *string   `json:"battery_charge_formatted"`
-  CpuTempFormatted          *string   `json:"cpu_temp_formatted"`
-  DiskTempFormatted         *string   `json:"disk_temp_formatted"`
-  PowerUsageFormatted       *string   `json:"power_usage_formatted"`
-}
 
 type Locations struct {
   Time            *time.Time  `json:"time"`
@@ -158,7 +150,6 @@ func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSer
     } else if path == "/api/locations" && queries.Get("type") == "all_tags" {
       eventType = "all_tags"
     } else if path == "/api/remote" && queries.Get("type") == "remote_present_header" {
-      sql = `SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS battery_charge_formatted, CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS cpu_temp_formatted, CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS disk_temp_formatted, CONCAT('(', SUM((CASE WHEN client_health.os_installed = TRUE THEN 1 ELSE 0 END)), ')') AS os_installed_formatted, CONCAT('(', SUM(remote.watts_now), ' ', 'watts', ')') AS power_usage_formatted FROM remote LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.present_bool = TRUE`
       eventType = "remote_present_header"
     } else if path == "/api/test" && queries.Get("type") == "test" {
       sql = `SELECT 'test'`
@@ -208,10 +199,12 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
 
   tag := queries.Get("tagnumber")
   var tagnumber int
-  tagnumber, err = strconv.Atoi(tag)
-  if err != nil {
-    log.Warning("Tagnumber cannot be converted to integer: " + queries.Get("tagnumber"))
-    return
+  if len(tag) > 0 {
+    tagnumber, err = strconv.Atoi(tag)
+    if err != nil {
+      log.Warning("Tagnumber cannot be converted to integer: " + queries.Get("tagnumber"))
+      return
+    }
   }
   // if len(tagnumber) != 6 {
   //   log.Warning("Tagnumber not 6 digits long")
@@ -248,6 +241,23 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     }
     io.WriteString(w, liveImageTableJson)
     return
+  case "remote_present_header":
+    var remoteTableHeaderJson string
+    remoteTableHeaderJson, err = database.GetRemotePresentHeader(db)
+    if err != nil {
+      log.Error("Cannot query job queue table header")
+      return
+    }
+    io.WriteString(w, remoteTableHeaderJson)
+    return
+  case "remote_offline":
+    var remoteOfflineTableJson string
+    remoteOfflineTableJson, err = database.GetRemoteOfflineTable(db)
+    if err != nil {
+      return
+    }
+    io.WriteString(w, remoteOfflineTableJson)
+    return
   }
 }
 
@@ -264,87 +274,6 @@ func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDa
 
 
   switch eventType {
-    case "live_image": // Live image query
-      if len(tagnumber) != 6 {
-        return "", errors.New("Bad tagnumber length (needs to be 6 digits)")
-      }
-      rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
-      if err != nil {
-        return "", errors.New("Error querying live image")
-      }
-      defer rows.Close()
-
-
-      var liveImages []LiveImage
-      liveImages = make([]LiveImage, 0) // Ensure liveImages is initialized
-      for rows.Next() {
-        var result LiveImage
-        if dbCTX.Err() != nil {
-          log.Error("Context error: " + dbCTX.Err().Error())
-          return "", errors.New("Context error: " + dbCTX.Err().Error())
-        }
-        if err = rows.Err(); err != nil {
-          return "", errors.New("Row error: " + err.Error())
-        }
-        err = rows.Scan(
-          &result.TimeFormatted, 
-          &result.Screenshot,
-        )
-        if err != nil {
-          return "", errors.New("Error scanning row")
-        }
-        liveImages = append(liveImages, result)
-      }
-      results = liveImages // Assign results to liveImages
-
-    case "remote_offline":
-      var remoteOfflineTableJson string
-      remoteOfflineTableJson, err = database.GetRemoteOfflineTable(db)
-      if err != nil {
-        return "", errors.New("Query issue: " + err.Error());
-      }
-      return remoteOfflineTableJson, nil
-    case "remote_present_header": 
-      rows, err = db.QueryContext(dbCTX, sqlCode)
-      if err != nil {
-        log.Error("Error querying present clients" + err.Error())
-        return "", errors.New("Error querying present clients")
-      }
-      defer rows.Close()
-
-      var remotePresentHeader []RemotePresentHeader
-      remotePresentHeader = make([]RemotePresentHeader, 0)
-      for rows.Next() {
-        var result RemotePresentHeader
-        if dbCTX.Err() != nil {
-          log.Error("Context error: " + dbCTX.Err().Error())
-          return "", errors.New("Context error: " + dbCTX.Err().Error())
-        }
-        if err = rows.Err(); err != nil {
-          return "", errors.New("Context error: ")
-        }
-        err = rows.Scan(
-          &result.TagnumberCount,
-          &result.BatteryChargeFormatted,
-          &result.CpuTempFormatted,
-          &result.DiskTempFormatted,
-          &result.OsInstalledFormatted,
-          &result.PowerUsageFormatted,
-        )
-        
-        if err != nil {
-          log.Error("Error scanning row: " + err.Error())
-          return "", errors.New("Error scanning row")
-        }
-        remotePresentHeader = append(remotePresentHeader, result)
-      }
-
-      if err != nil {
-        return "", errors.New("Error querying present clients (main query)")
-      }
-      results = remotePresentHeader
-
-    
     case "locations":
       rows, err = db.QueryContext(dbCTX, sqlCode)
       if err != nil {
@@ -516,17 +445,35 @@ func apiMiddleWare (next http.Handler) http.Handler {
     var token string
     var err error
 
+    log.Info("Received request (" + req.RemoteAddr + "): " + req.Method + " " + req.URL.RequestURI())
+
     // Check if TLS connection is valid
     // if req.HandshakeComplete == false {
     //   log.Warning("TLS handshake failed for client " + req.RemoteAddr)
     //   return
     // }
 
+    // Check if request content length exceeds 64 MB
+    if req.ContentLength > 64 << 20 {
+      log.Warning("Request content length exceeds limit: " + fmt.Sprint(req.ContentLength))
+      return
+    }
+
+
     // Check if request method is valid
     if req.Method != http.MethodOptions && req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete {
       log.Warning("Invalid request method (" + req.RemoteAddr + "): " + req.Method)
       return
     }
+
+
+    // Check if Content-Type is valid
+    // if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
+    //   log.Warning("Invalid Content-Type: " + req.Header.Get("Content-Type"))
+    //   http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
+    //   return
+    // }
+
 
     // Parse URL to get path and queries
     parsedURL, err = url.Parse(req.URL.RequestURI())
@@ -537,7 +484,6 @@ func apiMiddleWare (next http.Handler) http.Handler {
     RawQuery := parsedURL.RawQuery
     queries, _ = url.ParseQuery(RawQuery)
 
-    log.Info("Received request (" + req.RemoteAddr + "): " + req.Method + " " + req.URL.RequestURI())
 
     // Check if headers exist
     headerCount := 0
@@ -550,6 +496,7 @@ func apiMiddleWare (next http.Handler) http.Handler {
       log.Warning("Empty header request from: " + req.RemoteAddr)
     }
 
+    
     // Set headers
     if queries.Get("sse") == "true" {
       w.Header().Set("Content-Type", "text/event-stream")
@@ -570,78 +517,172 @@ func apiMiddleWare (next http.Handler) http.Handler {
 
 
     // Check if Authorization header exists
-    authHeaderCount := 0
     headerMap := req.Header.Values("Authorization")
     if len(headerMap) >= 1 {
       for _, value := range headerMap {
-        authHeaderCount++
         if strings.HasPrefix(value, "Bearer ") {
           bearerToken = strings.TrimPrefix(value, "Bearer ")
         } else if strings.HasPrefix(value, "Basic ") {
           basicToken = strings.TrimPrefix(value, "Basic ")
         } else {
-          log.Warning("Malformed Authorization header")
-          http.Error(w, formatHttpError("Malformed authorization header"), http.StatusBadRequest)
+          log.Info("Missing/Malformed Authorization header")
+          // http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+          // return
+        }
+
+        if bearerToken != "" {
+          token = bearerToken
+        } else if basicToken != "" {
+          token = basicToken
+        }
+
+        // Check if the token is empty
+        if len(strings.TrimSpace(token)) == 0 {
+          log.Warning("Empty value for Authorization header")
+          http.Error(w, formatHttpError("Empty Authorization header"), http.StatusUnauthorized)
           return
         }
       }
     } else {
-      log.Warning("Authorization header missing: " + req.URL.RequestURI())
-      return
+      log.Info("Authorization header missing: " + req.URL.RequestURI())
     }
 
-    if authHeaderCount == 0 {
-      log.Warning("Authorization header missing: " + req.URL.RequestURI())
-      http.Error(w, formatHttpError("Missing 'Authorization' header: " + req.URL.RequestURI()), http.StatusUnauthorized)
-      return
-    }
-
-    if bearerToken != "" {
-      token = bearerToken
-    } else if basicToken != "" {
-      token = basicToken
-    }
-
-    // Check if the token is empty
-    if len(strings.TrimSpace(token)) == 0 {
-      log.Warning("Empty Authorization header")
-      http.Error(w, formatHttpError("Empty Authorization header"), http.StatusUnauthorized)
-      return
-    }
-
-    // Check if Content-Type is valid
-    if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
-      log.Warning("Invalid Content-Type: " + req.Header.Get("Content-Type"))
-      http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
-      return
-    }
-
-    // Check if request content length exceeds 64 MB
-    if req.ContentLength > 64 << 20 {
-      log.Warning("Request content length exceeds limit: " + fmt.Sprint(req.ContentLength))
-      http.Error(w, formatHttpError("Request content length exceeds limit"), http.StatusRequestEntityTooLarge)
-      return
-    }
-    
     // Don't call next.ServeHTTP(w, req) because this is first function in muxChain
+    next.ServeHTTP(w, req)
   })
+}
+
+func refreshClientToken(w http.ResponseWriter, req *http.Request) {
+  var token string
+  var rows *sql.Rows
+  var TTLDuration time.Duration
+  var jsonData []byte
+  var jsonDataStr string
+  var basicToken string
+  var bearerToken string
+  var apiAuthDBRowCount int
+  var err error
+
+  // TTL for tokens
+  TTLDuration = time.Second * 60
+
+  // Get BASIC token from Authorization header
+  headerMap := req.Header.Values("Authorization")
+  for _, value := range headerMap {
+    if strings.HasPrefix(value, "Bearer ") {
+      bearerToken = strings.TrimPrefix(value, "Bearer ")
+    } else if strings.HasPrefix(value, "Basic ") {
+      basicToken = strings.TrimPrefix(value, "Basic ")
+    } else {
+      log.Warning("Malformed Authorization header")
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+  }
+
+  if bearerToken != "" {
+    bearerToken = bearerToken
+  } else if basicToken != "" {
+    token = basicToken
+  } else {
+    log.Warning("Malformed Basic Authorization header")
+    http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+    return
+  }
+
+
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  defer cancel()
+
+  // Check if DB connection is valid
+  if db == nil {
+    log.Error("Connection to database failed while attempting API Auth")
+    http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+    return
+  }
+
+  // Check if the Basic token exists in the database
+  sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
+  rows, err = db.QueryContext(dbCTX, sqlCode, token)
+  if err != nil {
+    log.Error("Cannot query database for API Auth: " + err.Error())
+    http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+    return
+  }
+  defer rows.Close()
+
+  apiAuthDBRowCount = 0
+  for rows.Next() {
+    var dbToken string
+
+    if err = rows.Scan(&dbToken); err != nil {
+      log.Error("Error scanning token: " + err.Error())
+      http.Error(w, "Internal server error", http.StatusInternalServerError)
+      return
+    }
+    if dbCTX.Err() != nil {
+      log.Error("Context error: " + dbCTX.Err().Error())
+      http.Error(w, "Internal server error", http.StatusInternalServerError)
+      return
+    }
+    if len(strings.TrimSpace(dbToken)) == 0 {
+      log.Info("DB token has 0 length")
+      http.Error(w, formatHttpError("Internal server error"), http.StatusUnauthorized)
+      return
+    }
+
+    if dbToken == token {
+      // hash := sha256.New()
+      // hash.Write([]byte(dbToken))
+      // hashedTokenStr := fmt.Sprintf("%x", hash.Sum(nil))
+      hash := make([]byte, 32)
+      _, err = rand.Read(hash)
+      if err != nil {
+        log.Error("Cannot generate token: " + err.Error())
+        http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+        return
+      }
+      hashedTokenStr := fmt.Sprintf("%x", hash)
+
+      authMap.Store(hashedTokenStr, time.Now().Add(TTLDuration))
+      if hashedTokenStr != "" {
+        apiAuthDBRowCount++
+        // cookie := http.Cookie{
+        //   Name:     "authCookie",
+        //   Value:    hashedTokenStr,
+        //   Path:     "/",
+        //   MaxAge:   120,
+        //   HttpOnly: false, //false = accessible to JS
+        //   Secure:   true,
+        //   SameSite: http.SameSiteLaxMode,
+        // }
+        // http.SetCookie(w, &cookie)
+        jsonData, err = json.Marshal(Auth{Token: hashedTokenStr})
+        if err != nil {
+          log.Error("Cannot marshal Token to JSON: " + err.Error())
+          return
+        }
+
+        jsonDataStr = string(jsonData)
+        io.WriteString(w, jsonDataStr)
+        return
+      }
+    } else {
+        log.Info("DB returned no token for given auth")
+        http.Error(w, formatHttpError("Incorrect credentials"), http.StatusForbidden)
+        return
+    }
+  }
 }
 
 
 func apiAuth (next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
     var token string
-    var rows *sql.Rows
     var matches int32
-    var TTLDuration time.Duration
     var timeDiff time.Duration
     var bearerToken string
     var basicToken string
-    var err error
-
-    dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
-    defer cancel()
-
 
     // Delete expired tokens & malformed entries out of authMap
     authMap.Range(func(k, v interface{}) bool {
@@ -649,14 +690,13 @@ func apiAuth (next http.Handler) http.Handler {
       key := k.(string)
       timeDiff = value.Sub(time.Now())
 
-      // Set timeout in seconds below. Auth hits DB once countdown reaches zero.
+      // Auth cache entry expires once countdown reaches zero
       if timeDiff.Seconds() < 0 {
         authMap.Delete(key)
         log.Debug("Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
       }
       return true
     })
-
 
     
     // Get token from Authorization header
@@ -668,7 +708,7 @@ func apiAuth (next http.Handler) http.Handler {
         basicToken = strings.TrimPrefix(value, "Basic ")
       } else {
         log.Warning("Malformed Authorization header")
-        http.Error(w, formatHttpError("Malformed authorization header"), http.StatusBadRequest)
+        http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
         return
       }
     }
@@ -689,100 +729,15 @@ func apiAuth (next http.Handler) http.Handler {
         return false
       }
       return true
-
     })
 
     if matches >= 1 {
       log.Debug("Auth Cached: " + "(TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
-      // if BearerToken != "" && req.URL.Path == "/api/auth" {
-      //   cookie := http.Cookie{
-      //     Name:     "authCookie",
-      //     Value:    BearerToken,
-      //     Path:     "/",
-      //     MaxAge:   60,
-      //     HttpOnly: true,
-      //     Secure:   true,
-      //     SameSite: http.SameSiteLaxMode,
-      //   }
-      //   http.SetCookie(w, &cookie)
       next.ServeHTTP(w, req)
-    }
-
-    // Check if DB connection is valid
-    if db == nil {
-      log.Error("Connection to database failed while attempting API Auth")
-      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-      return
-    }
-
-    // Check if the Basic token exists in the database
-    sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as tokens FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
-    rows, err = db.QueryContext(dbCTX, sqlCode, token)
-    if err != nil {
-      log.Error("Cannot query database for API Auth: " + err.Error())
-      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-      return
-    }
-    defer rows.Close()
-
-    apiAuthDBRowCount := 0
-    for rows.Next() {
-      var dbToken string
-      apiAuthDBRowCount++
-
-      if err = rows.Scan(&dbToken); err != nil {
-        log.Error("Error scanning token: " + err.Error())
-        http.Error(w, "Internal server error", http.StatusInternalServerError)
-        return
-      }
-      if dbCTX.Err() != nil {
-        log.Error("Context error: " + dbCTX.Err().Error())
-        http.Error(w, "Internal server error", http.StatusInternalServerError)
-        return
-      }
-      if len(strings.TrimSpace(dbToken)) == 0 {
-        log.Info("DB returned no token for given auth")
-        http.Error(w, formatHttpError("Internal server error"), http.StatusUnauthorized)
-        return
-      }
-
-      if dbToken == token {
-        // hash := sha256.New()
-        // hash.Write([]byte(dbToken))
-        // hashedTokenStr := fmt.Sprintf("%x", hash.Sum(nil))
-        hash := make([]byte, 32)
-        _, err = rand.Read(hash)
-        if err != nil {
-          log.Error("Cannot generate token: " + err.Error())
-          http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-          return
-        }
-        hashedTokenStr := fmt.Sprintf("%x", hash)
-
-        TTLDuration = time.Second * 60
-        authMap.Store(hashedTokenStr, time.Now().Add(TTLDuration))
-        // if BearerToken != "" && req.URL.Path == "/api/auth" {
-        //   cookie := http.Cookie{
-        //     Name:     "authCookie",
-        //     Value:    BearerToken,
-        //     Path:     "/",
-        //     MaxAge:   60,
-        //     HttpOnly: true,
-        //     Secure:   true,
-        //     SameSite: http.SameSiteLaxMode,
-        //   }
-        //   http.SetCookie(w, &cookie)
-        next.ServeHTTP(w, req)
-      } else {
-        log.Info("DB returned no token for given auth")
-        http.Error(w, formatHttpError("Incorrect credentials"), http.StatusForbidden)
-        return
-      }
-    }
-
-    if apiAuthDBRowCount == 0 {
-      log.Info("DB returned no token for given auth")
-      http.Error(w, formatHttpError("Incorrect credentials"), http.StatusForbidden)
+    } else {
+      log.Debug("Reauthentication required for " + req.RemoteAddr)
+      // http.Redirect(w, req, "/api/auth", http.StatusFound)
+      http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
       return
     }
   })
@@ -862,8 +817,11 @@ func main() {
 
   // Route to correct function
   baseMuxChain := muxChain{apiMiddleWare, apiAuth}
+  refreshTokenMuxChain := muxChain{apiMiddleWare}
   mux := http.NewServeMux()
+  mux.Handle("/api/auth", refreshTokenMuxChain.thenFunc(refreshClientToken))
   mux.Handle("/api/remote", baseMuxChain.thenFunc(remoteAPI))
+  mux.Handle("/api/locations", baseMuxChain.thenFunc(remoteAPI))
   mux.HandleFunc("/dbstats/", GetInfoHandler)
 
 

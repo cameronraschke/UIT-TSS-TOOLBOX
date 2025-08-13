@@ -334,7 +334,7 @@ func GetRemoteOfflineTable(db *sql.DB) (string, error) {
 
 
 type LiveImage struct {
-  TimeFormatted     *time.Time     `json:"time_formatted"`
+  TimeFormatted     *string    `json:"time_formatted"`
   Screenshot        *string        `json:"screenshot"`
 }
 
@@ -382,6 +382,73 @@ func GetLiveImage(db *sql.DB, tagnumber int) (string, error) {
   }
   return resultsJson, nil
 
+}
+
+
+type RemotePresentHeader struct {
+  TagnumberCount            *string   `json:"tagnumber_count"`
+  OsInstalledFormatted      *string   `json:"os_installed_formatted"`
+  BatteryChargeFormatted    *string   `json:"battery_charge_formatted"`
+  CpuTempFormatted          *string   `json:"cpu_temp_formatted"`
+  DiskTempFormatted         *string   `json:"disk_temp_formatted"`
+  PowerUsageFormatted       *string   `json:"power_usage_formatted"`
+}
+
+func GetRemotePresentHeader(db *sql.DB) (string, error) {
+  var sqlCode string
+  var rows *sql.Rows
+  var results []*RemotePresentHeader
+  var resultsJson string
+  var err error
+
+  sqlCode = `SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, 
+        CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS battery_charge_formatted, 
+        CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS cpu_temp_formatted, 
+        CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS disk_temp_formatted, 
+        CONCAT('(', SUM((CASE WHEN client_health.os_installed = TRUE THEN 1 ELSE 0 END)), ')') AS os_installed_formatted, 
+        CONCAT('(', SUM(remote.watts_now), ' ', 'watts', ')') AS power_usage_formatted 
+      FROM remote 
+      LEFT JOIN client_health 
+        ON remote.tagnumber = client_health.tagnumber 
+      WHERE remote.present_bool = TRUE`
+
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+  defer cancel()
+
+  rows, err = db.QueryContext(dbCTX, sqlCode)
+  if err != nil {
+    return "", errors.New("Timeout error: " + err.Error())
+  }
+  defer rows.Close()
+
+  for rows.Next() {
+    row := &RemotePresentHeader{}
+    if err = rows.Err(); err != nil {
+      return "", errors.New("Query error: " + err.Error())  
+    }
+    if err = dbCTX.Err(); err != nil {
+      return "", errors.New("Context error: " + err.Error())
+    }
+
+    err = rows.Scan(
+      &row.TagnumberCount,
+      &row.BatteryChargeFormatted,
+      &row.CpuTempFormatted,
+      &row.DiskTempFormatted,
+      &row.OsInstalledFormatted,
+      &row.PowerUsageFormatted,
+    )
+    if err != nil && err != sql.ErrNoRows {
+        return "", errors.New("Error scanning rows: " + err.Error())
+    }
+      results = append(results, row)
+  }
+
+  resultsJson, err = CreateJson(results)
+  if err != nil {
+    return "", errors.New("JSON error: " + err.Error())
+  }
+  return resultsJson, nil
 }
 
 
