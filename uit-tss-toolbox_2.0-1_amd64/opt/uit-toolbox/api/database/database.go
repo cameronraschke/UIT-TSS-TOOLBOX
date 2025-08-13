@@ -333,6 +333,57 @@ func GetRemoteOfflineTable(db *sql.DB) (string, error) {
 }
 
 
+type LiveImage struct {
+  TimeFormatted     *time.Time     `json:"time_formatted"`
+  Screenshot        *string        `json:"screenshot"`
+}
+
+func GetLiveImage(db *sql.DB, tagnumber int) (string, error) {
+  var sqlCode string
+  var rows *sql.Rows
+  var results []*LiveImage
+  var resultsJson string
+  var err error
+
+  sqlCode = `SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot 
+            FROM live_images 
+            WHERE tagnumber = $1`
+
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+  defer cancel()
+
+  rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
+  if err != nil {
+    return "", errors.New("Timeout error: " + err.Error())
+  }
+  defer rows.Close()
+
+  for rows.Next() {
+    row := &LiveImage{}
+    if err = rows.Err(); err != nil {
+      return "", errors.New("Query error: " + err.Error())  
+    }
+    if err = dbCTX.Err(); err != nil {
+      return "", errors.New("Context error: " + err.Error())
+    }
+    err = rows.Scan(
+      &row.TimeFormatted,
+      &row.Screenshot,
+    )
+    if err != nil && err != sql.ErrNoRows {
+      return "", errors.New("Error scanning rows: " + err.Error())
+    }
+    results = append(results, row)
+  }
+
+  resultsJson, err = CreateJson(results)
+  if err != nil {
+    return "", errors.New("JSON error: " + err.Error())
+  }
+  return resultsJson, nil
+
+}
+
 
 func CreateJson(results interface{}) (string, error) {
   var jsonData []byte

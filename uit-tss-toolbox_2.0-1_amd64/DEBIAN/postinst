@@ -199,4 +199,4 @@ cp /usr/local/share/ca-certificates/uit-ca.crt /srv/uit-toolbox/client/certs/uit
 cp /usr/local/share/ca-certificates/uit-web.crt /srv/uit-toolbox/client/certs/uit-web.crt
 
 # Restart Nginx to reload certs
-systemctl restart nginx
+# systemctl restart nginx
