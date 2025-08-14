@@ -85,7 +85,7 @@ async function checkToken() {
       headers: headers
     };
 
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth', requestOptions);
+    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=check-token', requestOptions);
     if (!response.ok) {
       return false;
     }
@@ -99,6 +99,7 @@ async function checkToken() {
     }
 
   } catch (error) {
+    console.error(error)
     return false
   }
 }

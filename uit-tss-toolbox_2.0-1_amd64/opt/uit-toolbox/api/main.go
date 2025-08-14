@@ -90,6 +90,13 @@ type httpErrorCodes struct {
   Message string `json:"message"`
 }
 
+type RateLimiter struct {
+  Requests         int
+  LastSeen         time.Time
+  MapLastUpdated   time.Time
+  Banned           bool
+}
+
 
 var (
 	dbCTX context.Context
@@ -97,10 +104,43 @@ var (
   eventType string
   db *sql.DB
   authMap sync.Map
+  ipMap sync.Map
   log = logger.LoggerFactory("console")
   ChannelSqlCode = make(chan string)
   ChannelSqlRows = make(chan *sql.Rows)
 )
+
+
+func rateLimitCheck(requestIPAddr string) {
+  var totalEntries int
+  // var entryExists bool
+  var banned bool
+  var numOfRequests int
+
+  _, _ = ipMap.LoadOrStore(requestIPAddr, RateLimiter{Requests: 1, LastSeen: time.Now(), MapLastUpdated: time.Now(), Banned: false})
+
+  ipMap.Range(func(k, v interface{}) bool {
+    key := k.(string)
+    value := v.(RateLimiter)
+
+    totalEntries++
+
+    timeDiff := value.MapLastUpdated.Sub(time.Now())
+    numOfRequests = value.Requests + 1
+    
+    if (float64(numOfRequests) / timeDiff.Seconds()) > 1 {
+      banned = true
+    } else {
+      numOfRequests = 0
+      banned = false
+    }
+
+    ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: time.Now(), MapLastUpdated: time.Now(), Banned: banned})
+    return true
+  })
+  return
+}
+
 
 func formatHttpError (errorString string) (jsonErrStr string) {
   var err error
@@ -447,6 +487,9 @@ func apiMiddleWare (next http.Handler) http.Handler {
 
     log.Info("Received request (" + req.RemoteAddr + "): " + req.Method + " " + req.URL.RequestURI())
 
+    ip, _, err := net.SplitHostPort(req.RemoteAddr)
+    rateLimitCheck(ip)
+
     // Check if TLS connection is valid
     // if req.HandshakeComplete == false {
     //   log.Warning("TLS handshake failed for client " + req.RemoteAddr)
@@ -683,6 +726,9 @@ func apiAuth (next http.Handler) http.Handler {
     var timeDiff time.Duration
     var bearerToken string
     var basicToken string
+    var jsonData []byte
+    var jsonDataStr string
+    var err error
 
     // Delete expired tokens & malformed entries out of authMap
     authMap.Range(func(k, v interface{}) bool {
@@ -734,12 +780,23 @@ func apiAuth (next http.Handler) http.Handler {
 
     if matches >= 1 {
       log.Debug("Auth Cached for " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
+      if req.URL.Query().Get("type") == "check-token" {
+        jsonData, err = json.Marshal(Auth{Token: token})
+        if err != nil {
+          log.Error("Cannot marshal Token to JSON: " + err.Error())
+          return
+        }
+        jsonDataStr = string(jsonData)
+        io.WriteString(w, jsonDataStr)
+        return
+      }
       next.ServeHTTP(w, req)
     } else {
       log.Debug("Reauthentication required for " + req.RemoteAddr)
+      next.ServeHTTP(w, req)
       // http.Redirect(w, req, "/api/auth", http.StatusFound)
-      http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
-      return
+      // http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
+      // return
     }
   })
 }
@@ -818,9 +875,9 @@ func main() {
 
   // Route to correct function
   baseMuxChain := muxChain{apiMiddleWare, apiAuth}
-  refreshTokenMuxChain := muxChain{apiMiddleWare}
+  // refreshTokenMuxChain := muxChain{apiMiddleWare}
   mux := http.NewServeMux()
-  mux.Handle("/api/auth", refreshTokenMuxChain.thenFunc(refreshClientToken))
+  mux.Handle("/api/auth", baseMuxChain.thenFunc(refreshClientToken))
   mux.Handle("/api/remote", baseMuxChain.thenFunc(remoteAPI))
   mux.Handle("/api/locations", baseMuxChain.thenFunc(remoteAPI))
   mux.HandleFunc("/dbstats/", GetInfoHandler)
