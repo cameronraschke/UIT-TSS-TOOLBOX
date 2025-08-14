@@ -6,6 +6,7 @@ import (
   "fmt"
   "os"
   "io"
+  // "net"
   "net/http"
   "time"
   "encoding/json"
@@ -124,11 +125,14 @@ func rateLimitCheck(requestIPAddr string) {
     value := v.(RateLimiter)
 
     totalEntries++
+    numOfRequests = value.Requests + 1
 
     timeDiff := value.MapLastUpdated.Sub(time.Now())
     numOfRequests = value.Requests + 1
-    
-    if (float64(numOfRequests) / timeDiff.Seconds()) > 1 {
+
+    rate := float64(numOfRequests) / timeDiff.Seconds()
+    requestRate := rate * (1 / timeDiff.Seconds())
+    if requestRate > 1 {
       banned = true
     } else {
       numOfRequests = 0
@@ -487,8 +491,8 @@ func apiMiddleWare (next http.Handler) http.Handler {
 
     log.Info("Received request (" + req.RemoteAddr + "): " + req.Method + " " + req.URL.RequestURI())
 
-    ip, _, err := net.SplitHostPort(req.RemoteAddr)
-    rateLimitCheck(ip)
+    // ip, _, err := net.SplitHostPort(req.RemoteAddr)
+    // rateLimitCheck(ip)
 
     // Check if TLS connection is valid
     // if req.HandshakeComplete == false {
