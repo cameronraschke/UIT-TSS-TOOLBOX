@@ -6,7 +6,8 @@ import (
   "fmt"
   "os"
   "io"
-  // "net"
+  "math"
+  "net"
   "net/http"
   "time"
   "encoding/json"
@@ -95,6 +96,7 @@ type RateLimiter struct {
   Requests         int
   LastSeen         time.Time
   MapLastUpdated   time.Time
+  BannedUntil      time.Time
   Banned           bool
 }
 
@@ -107,39 +109,70 @@ var (
   authMap sync.Map
   ipMap sync.Map
   log = logger.LoggerFactory("console")
-  ChannelSqlCode = make(chan string)
-  ChannelSqlRows = make(chan *sql.Rows)
 )
 
 
-func rateLimitCheck(requestIPAddr string) {
+func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitChan chan<- int) {
   var totalEntries int
   // var entryExists bool
   var banned bool
   var numOfRequests int
+  var requestLimit float64
 
-  _, _ = ipMap.LoadOrStore(requestIPAddr, RateLimiter{Requests: 1, LastSeen: time.Now(), MapLastUpdated: time.Now(), Banned: false})
+  // Limit how many requests per second
+  requestLimit = 100
+
+  requestIPAddr := <-ipAddrChan
 
   ipMap.Range(func(k, v interface{}) bool {
     key := k.(string)
     value := v.(RateLimiter)
+    var timeDiff float64
+    var rate float64
+    var requestRate float64
 
     totalEntries++
-    numOfRequests = value.Requests + 1
 
-    timeDiff := value.MapLastUpdated.Sub(time.Now())
-    numOfRequests = value.Requests + 1
+    if key == requestIPAddr {
+      timeDiff = math.Abs(value.MapLastUpdated.Sub(time.Now()).Seconds())
+      numOfRequests = value.Requests + 1
+      rate = float64(numOfRequests) / timeDiff
+      requestRate = rate * (1 / timeDiff)
 
-    rate := float64(numOfRequests) / timeDiff.Seconds()
-    requestRate := rate * (1 / timeDiff.Seconds())
-    if requestRate > 1 {
-      banned = true
-    } else {
-      numOfRequests = 0
-      banned = false
+      if value.Banned == true && value.BannedUntil.Sub(time.Now()).Seconds() > 0 {
+          banned = true
+          bannedChan <- banned
+          rateLimitChan <- int(math.Round(requestRate))
+          close(bannedChan)
+          close(rateLimitChan)
+          return false
+      }
+
+      banned = false // Default value
+      if timeDiff > 1 {
+        if requestRate > requestLimit {
+          banned = true
+        } else {
+          numOfRequests = 0
+          banned = false
+        }
+        ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: time.Now(), MapLastUpdated: time.Now(), BannedUntil: time.Now().Add(time.Second * 10), Banned: banned})
+          bannedChan <- banned
+          rateLimitChan <- int(math.Round(requestRate))
+          close(bannedChan)
+          close(rateLimitChan)
+        return false
+      } else if timeDiff < 1 {
+        ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: value.LastSeen, MapLastUpdated: value.MapLastUpdated, BannedUntil: time.Now().Add(time.Second * 10), Banned: value.Banned})
+          bannedChan <- banned
+          rateLimitChan <- int(math.Round(requestRate))
+          close(bannedChan)
+          close(rateLimitChan)
+        return false
+      } else {
+        return true
+      }
     }
-
-    ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: time.Now(), MapLastUpdated: time.Now(), Banned: banned})
     return true
   })
   return
@@ -489,10 +522,33 @@ func apiMiddleWare (next http.Handler) http.Handler {
     var token string
     var err error
 
+    ipAddrChan := make(chan string)
+    bannedChan := make(chan bool)
+    rateLimitChan := make(chan int)
+
+    ip, _, err := net.SplitHostPort(req.RemoteAddr)
+    _, _ = ipMap.LoadOrStore(ip, RateLimiter{Requests: 1, LastSeen: time.Now(), MapLastUpdated: time.Now(), Banned: false})
+
     log.Info("Received request (" + req.RemoteAddr + "): " + req.Method + " " + req.URL.RequestURI())
 
-    // ip, _, err := net.SplitHostPort(req.RemoteAddr)
-    // rateLimitCheck(ip)
+    go func() {
+      rateLimitCheck(ipAddrChan, bannedChan, rateLimitChan)
+    }()
+
+    ipAddrChan <- ip
+    close(ipAddrChan)
+
+    select {
+    case bannedBool := <-bannedChan:
+      if bannedBool == true {
+        reqsPerSec := <-rateLimitChan
+        log.Warning("Banned [" + ip + "]" + ", too many requests (" + fmt.Sprintf("%d", reqsPerSec) + "/s)")
+        // http.Error(w, formatHttpError("Too many requests"), http.StatusTooManyRequests)
+        return
+      }
+    case <-time.After(5 * time.Second):
+      fmt.Println("Ban check timed out :(")
+    }
 
     // Check if TLS connection is valid
     // if req.HandshakeComplete == false {
