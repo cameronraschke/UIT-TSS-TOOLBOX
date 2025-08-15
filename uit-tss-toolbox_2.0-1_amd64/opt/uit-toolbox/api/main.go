@@ -552,7 +552,7 @@ func apiMiddleWare (next http.Handler) http.Handler {
         return
       }
     case <-time.After(5 * time.Second):
-      fmt.Println("Ban check timed out :(")
+      log.Error("Ban check timed out")
     }
 
     // Check if TLS connection is valid
@@ -563,7 +563,7 @@ func apiMiddleWare (next http.Handler) http.Handler {
 
     // Check if request content length exceeds 64 MB
     if req.ContentLength > 64 << 20 {
-      log.Warning("Request content length exceeds limit: " + fmt.Sprint(req.ContentLength))
+      log.Warning("Request content length exceeds limit: " + fmt.Sprintf("%.2f%s", float64(float64(req.ContentLength) / 1000000), "MB"))
       return
     }
 
@@ -867,13 +867,13 @@ func apiAuth (next http.Handler) http.Handler {
 }
 
 
-func GetInfoHandler(w http.ResponseWriter, r *http.Request) {
-    w.Header().Set("Content-Type", "application/json")
-    if err := json.NewEncoder(w).Encode(db.Stats()); err != nil {
-        http.Error(w, "Error encoding response", http.StatusInternalServerError)
-        return
-    }
-}
+// func GetInfoHandler(w http.ResponseWriter, r *http.Request) {
+//     w.Header().Set("Content-Type", "application/json")
+//     if err := json.NewEncoder(w).Encode(db.Stats()); err != nil {
+//         http.Error(w, "Error encoding response", http.StatusInternalServerError)
+//         return
+//     }
+// }
 
 
 func main() {
@@ -889,12 +889,12 @@ func main() {
     }
   }()
 
-  go func() {
-	  err := http.ListenAndServe("localhost:6060", nil)
-    if err != nil {
-      log.Error("Profiler error: " + err.Error())
-    }
-  }()
+  // go func() {
+	//   err := http.ListenAndServe("localhost:6060", nil)
+  //   if err != nil {
+  //     log.Error("Profiler error: " + err.Error())
+  //   }
+  // }()
 
   // Connect to db with pgx
   log.Info("Attempting connection to database...")
@@ -945,7 +945,7 @@ func main() {
   mux.Handle("/api/auth", baseMuxChain.thenFunc(refreshClientToken))
   mux.Handle("/api/remote", baseMuxChain.thenFunc(remoteAPI))
   mux.Handle("/api/locations", baseMuxChain.thenFunc(remoteAPI))
-  mux.HandleFunc("/dbstats/", GetInfoHandler)
+  // mux.HandleFunc("/dbstats/", GetInfoHandler)
 
 
 	log.Info("Starting web server")
