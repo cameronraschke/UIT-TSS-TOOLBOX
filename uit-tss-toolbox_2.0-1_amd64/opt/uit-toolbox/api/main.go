@@ -115,18 +115,21 @@ var (
 func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitChan chan<- int) {
   var totalEntries int
   // var entryExists bool
-  var banned bool
-  var numOfRequests int
   var requestLimit float64
+  var bannedTimeout time.Duration
 
-  // Limit how many requests per second
+  // Limit how many requests per second and how long a client gets timed out for
   requestLimit = 100
+  bannedTimeout = time.Second * 10
 
   requestIPAddr := <-ipAddrChan
 
   ipMap.Range(func(k, v interface{}) bool {
     key := k.(string)
     value := v.(RateLimiter)
+
+    var banned bool
+    var numOfRequests int
     var timeDiff float64
     var rate float64
     var requestRate float64
@@ -134,18 +137,20 @@ func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitC
     totalEntries++
 
     if key == requestIPAddr {
-      timeDiff = math.Abs(value.MapLastUpdated.Sub(time.Now()).Seconds())
+      timeDiff = math.Abs(value.LastSeen.Sub(time.Now()).Seconds())
       numOfRequests = value.Requests + 1
       rate = float64(numOfRequests) / timeDiff
       requestRate = rate * (1 / timeDiff)
 
       if value.Banned == true && value.BannedUntil.Sub(time.Now()).Seconds() > 0 {
-          banned = true
+        banned = true
+        if timeDiff > 1 {
           bannedChan <- banned
           rateLimitChan <- int(math.Round(requestRate))
-          close(bannedChan)
-          close(rateLimitChan)
-          return false
+        }
+        close(bannedChan)
+        close(rateLimitChan)
+        return false
       }
 
       banned = false // Default value
@@ -156,14 +161,14 @@ func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitC
           numOfRequests = 0
           banned = false
         }
-        ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: time.Now(), MapLastUpdated: time.Now(), BannedUntil: time.Now().Add(time.Second * 10), Banned: banned})
+        ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: time.Now(), MapLastUpdated: time.Now(), BannedUntil: time.Now().Add(bannedTimeout), Banned: banned})
           bannedChan <- banned
           rateLimitChan <- int(math.Round(requestRate))
           close(bannedChan)
           close(rateLimitChan)
         return false
       } else if timeDiff < 1 {
-        ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: value.LastSeen, MapLastUpdated: value.MapLastUpdated, BannedUntil: time.Now().Add(time.Second * 10), Banned: value.Banned})
+        ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: value.LastSeen, MapLastUpdated: value.MapLastUpdated, BannedUntil: time.Now().Add(bannedTimeout), Banned: value.Banned})
           bannedChan <- banned
           rateLimitChan <- int(math.Round(requestRate))
           close(bannedChan)
@@ -542,7 +547,7 @@ func apiMiddleWare (next http.Handler) http.Handler {
     case bannedBool := <-bannedChan:
       if bannedBool == true {
         reqsPerSec := <-rateLimitChan
-        log.Warning("Banned [" + ip + "]" + ", too many requests (" + fmt.Sprintf("%d", reqsPerSec) + "/s)")
+        log.Warning("Banned (" + ip + ")" + ", too many requests (" + fmt.Sprintf("%d", reqsPerSec) + "/s)")
         // http.Error(w, formatHttpError("Too many requests"), http.StatusTooManyRequests)
         return
       }

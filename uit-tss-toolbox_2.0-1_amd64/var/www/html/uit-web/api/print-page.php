@@ -151,7 +151,7 @@ INNER JOIN system_data ON system_data.tagnumber = t1.tagnumber
                 by the return date written below. UIT reserves the right to modify the return
                 date at any time.
             <li>I agree to treat this laptop with respect, to not modify the hardware 
-                of this laptop, and to contact UIT Support with any questions or concerns.
+                of this laptop, and to contact UIT Support with any questions or concerns
                 (contact information below).
           </ul>
         </i>
