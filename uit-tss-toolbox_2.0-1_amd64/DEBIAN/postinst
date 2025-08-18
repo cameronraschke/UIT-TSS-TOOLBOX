@@ -201,8 +201,9 @@ cp /usr/local/share/ca-certificates/uit-web.crt /srv/uit-toolbox/client/certs/ui
 # Restart Nginx to reload certs
 # systemctl restart nginx
 
-(cd /opt/uit-web/api/
+(cd /opt/uit-toolbox/api/
   go build .
+  chmod 750 /opt/uit-toolbox/api/api
 )
 
 # Create systemd service
