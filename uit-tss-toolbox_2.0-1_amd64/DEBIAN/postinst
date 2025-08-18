@@ -200,3 +200,26 @@ cp /usr/local/share/ca-certificates/uit-web.crt /srv/uit-toolbox/client/certs/ui
 
 # Restart Nginx to reload certs
 # systemctl restart nginx
+
+# Create systemd service
+touch /etc/systemd/system/uit-web.service
+chmod 644 /etc/systemd/system/uit-web.service
+
+cat <<EOF > /etc/systemd/system/uit-web.service
+[Unit]
+Description=UIT Web Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/uit-toolbox/api/api
+WorkingDirectory=/opt/uit-toolbox/api
+User=root
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl restart uit-web
