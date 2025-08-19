@@ -791,6 +791,7 @@ unset($value1);
 </table>
 </div>
 <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
+<script>updateTagnumberData();</script>
 <script>
 if ( window.history.replaceState ) {
 window.history.replaceState( null, null, window.location.href );

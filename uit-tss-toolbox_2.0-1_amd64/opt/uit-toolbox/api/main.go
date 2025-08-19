@@ -293,8 +293,6 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     }
     io.WriteString(w, tagnumberDataJson)
     return
-
-    
   }
 }
 

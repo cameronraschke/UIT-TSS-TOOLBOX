@@ -230,19 +230,24 @@ async function updateTagnumberData(tagnumber) {
       const generalClientInfoHeadTH = document.createElement("th");
       generalClientInfoHeadTH.innerText = "General Client Info - " + value["tagnumber"];
       generalClientInfoHeadTR.appendChild(generalClientInfoHeadTH);
-      generalClientInfoHeadTR.appendChild(document.createElement("tr"));
+      generalClientInfoHeadTR.appendChild(document.createElement("th"));
 
       // tbody
       const generalClientBodyTbody = document.createElement("tbody");
       generalClientInfoTable.append(generalClientBodyTbody);
 
-      // location cell
+      // location data
+      const location = document.createTextNode(value["location"]);
+      const locationReadable = document.createTextNode('"' + value["location"] + '" ');
       const locationRow = document.createElement("tr");
+
       const locationTD1 = document.createElement("td");
-      const locationTD2 = document.createElement("td");
       locationTD1.innerText = "Current Location";
-      if (value["locations_status"] == true) {
+
+      const locationTD2 = document.createElement("td");
+      if (value["locations_status"] && value["locations_status"] == true) {
         const locationErrorSpan = document.createElement("span");
+        locationErrorSpan.style.marginBottom = "1em";
         locationErrorSpan.style.whiteSpace = "nowrap";
         const locationErrorP1 = document.createElement("p");
         locationErrorP1.setAttribute("class", "error");
@@ -253,8 +258,9 @@ async function updateTagnumberData(tagnumber) {
         locationErrorSpan.append(locationErrorP1, locationErrorP2);
         locationTD2.append(locationErrorSpan);
       }
-      if (value["checkout_bool"] == true) {
+      if (value["checkout_bool"] && value["checkout_bool"] == true) {
         const checkoutP = document.createElement("p");
+        checkoutP.style.marginBottom = "1em";
         const checkoutSpan1 = document.createElement("span");
         checkoutSpan1.style.fontWeight = "bold";
         const checkoutText1 = document.createTextNode("[CHECKOUT] ");
@@ -277,18 +283,21 @@ async function updateTagnumberData(tagnumber) {
         locationTD2.append(checkoutP);
       }
 
-      let locationStr = createTextNode(value["location"]);
-      locationTD2.append(locationStr);
+      const locationP = document.createElement("p");
+      locationP.style.marginBottom = "1em";
+      locationP.append(locationReadable);
+      locationTD2.append(locationP);
 
 
-      if (length(value["note"]) > 0) {
+      if (value["note"] && value["note"].length > 0) {
         const noteP = document.createElement("p");
+        noteP.style.marginBottom = "1em";
         const noteSpan1 = document.createElement("span");
         noteSpan1.style.fontWeight = "bold";
-        const noteText1 = createTextNode("Note: ");
+        const noteText1 = document.createTextNode("Note: ");
         noteSpan1.append(noteText1);
         const noteSpan2 = document.createElement("span");
-        const noteText2 = createTextNode(value["note"]);
+        const noteText2 = document.createTextNode(value["note"]);
         noteSpan2.append(noteText2);
         noteP.append(noteSpan1, noteSpan2);
         locationTD2.append(noteP);
@@ -302,10 +311,8 @@ async function updateTagnumberData(tagnumber) {
       const departmentTD1 = document.createElement("td");
       const departmentTD2 = document.createElement("td");
 
-      const department = createTextNode(value["department"]);
-      const departmentReadable = createTextNode(value["department_readable"]);
-      const location = createTextNode(value["location"]);
-
+      const department = document.createTextNode(value["department"]);
+      const departmentReadable = document.createTextNode(value["department_readable"] + " ");
 
       departmentTD1.innerText = "Department";
 
@@ -318,7 +325,7 @@ async function updateTagnumberData(tagnumber) {
       departmentA1.innerText = "(Click to Update Department)"
 
       const newTabImg = document.createElement("img");
-      newTabImg.class = "icon";
+      newTabImg.classList.add('icon');
       newTabImg.src = '/images/new-tab.svg';
       departmentA1.append(newTabImg);
 
@@ -333,8 +340,8 @@ async function updateTagnumberData(tagnumber) {
       const domainTD1 = document.createElement("td");
       const domainTD2 = document.createElement("td");
 
-      const domain = createTextNode(value["domain"]);
-      const domainReadable = createTextNode(value["domain_readable"]);
+      const domain = document.createTextNode(value["domain"]);
+      const domainReadable = document.createTextNode(value["domain_readable"] + " ");
 
       domainTD1.innerText = "Domain";
 
@@ -348,10 +355,10 @@ async function updateTagnumberData(tagnumber) {
       
       domainA1.append(newTabImg);
 
-      domainP1.append(departmentReadable, domainA1);
+      domainP1.append(domainReadable, domainA1);
       domainTD2.append(domainP1);      
       
-      domainRow.append(departmentTD1, domainTD2);
+      domainRow.append(domainTD1, domainTD2);
       generalClientBodyTbody.append(domainRow);
       
 
