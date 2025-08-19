@@ -386,8 +386,7 @@ foreach ($dbPSQL->get() as $key => $value) {
             ?>
         </div>
 
-        <div class='pagetitle'><h3></u></h3></div>
-        <div id='client_info' style='width: auto; height: auto; overflow:auto;'>
+        <div id='client_info' style='width: auto; height: auto; overflow:auto; margin: 1em 1em 3em 1em;'>
           <table>
             <thead>
               <tr>
