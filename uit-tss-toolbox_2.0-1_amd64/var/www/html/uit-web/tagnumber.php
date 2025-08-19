@@ -791,7 +791,12 @@ unset($value1);
 </table>
 </div>
 <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
-<script>updateTagnumberData();</script>
+<script>
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const tagnumber = urlParams.get('tagnumber');
+  updateTagnumberData(tagnumber);
+</script>
 <script>
 if ( window.history.replaceState ) {
 window.history.replaceState( null, null, window.location.href );
