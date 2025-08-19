@@ -390,28 +390,48 @@ foreach ($dbPSQL->get() as $key => $value) {
         <div id='client_info' style='width: auto; height: auto; overflow:auto;'>
           <table>
             <thead>
-              <th>General Client Info</th>
-              <th></th>
+              <tr>
+                <th>General Client Info</th>
+                <th></th>
+              </tr>
             </thead>
             <tbody>
-              <td>Current Location</td>
-              <td></td>
-              <td>Department</td>
-              <td></td>
-              <td>Domain</td>
-              <td></td>
-              <td>Serial Number</td>
-              <td></td>
-              <td>MAC Address</td>
-              <td></td>
-              <td>System Model</td>
-              <td></td>
-              <td>OS Version</td>
-              <td></td>
-              <td>Bitlocker Info</td>
-              <td></td>
-              <td>BIOS Info</td>
-              <td></td>
+              <tr>
+                <td>Current Location</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Department</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Domain</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Serial Number</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>MAC Address</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>System Model</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>OS Version</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Bitlocker Info</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>BIOS Info</td>
+                <td></td>
+              </tr>
             </tbody>
           </table>
         </div>
