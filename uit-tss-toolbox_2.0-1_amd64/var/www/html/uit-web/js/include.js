@@ -191,6 +191,56 @@ async function updateRemoteOfflineTable() {
 }
 
 
+async function updateTagnumberData(tagnumber) {
+  try {
+    const oldGeneralClientInfo = document.getElementById("client_info");
+    const oldDiskInfo = document.getElementById("disk_info");
+    const oldClientHealthInfo = document.getElementById("client_health");
+    const oldCpuRamInfo = document.getElementById("cpu_ram_info");
+
+    
+    const diskInfo = document.createElement("table");
+    diskInfo.setAttribute("id", "disk_info");
+
+    const clientHealthInfo = document.createElement("table");
+    clientHealthInfo.setAttribute("id", "client_health");
+
+    const cpuRamInfo = document.createElement("table");
+    cpuRamInfo.setAttribute("id", "cpu_ram_info");
+
+    const tagnumberData = await fetchData("https://WAN_IP_ADDRESS:31411/api/remote?type=tagnumber_data?tagnumber=" + encodeURIComponent(tagnumber));
+    Object.entries(tagnumberData).forEach(([key, value]) => {
+      const generalClientInfoFragment = new DocumentFragment();
+
+      // table
+      const generalClientInfoTable = document.createElement("table");
+      generalClientInfoTable.setAttribute("id", "client_info");
+      generalClientInfoTable.style.width = '100%';
+
+      // thead
+      const generalClientInfoTableThead = document.createElement("thead");
+      generalClientInfoTable.append(generalClientInfoTableThead)
+
+      // tr
+      const generalClientInfoTableTR = document.createElement("tr");
+      generalClientInfoTableThead.appendChild(generalClientInfoTableTR);
+
+      const generalClientInfoTableTH = document.createElement("th");
+      generalClientInfoTableTH.innerText = "General Client Info - " + value["tagnumber"];
+      generalClientInfoTableTR.appendChild(generalClientInfoTableTH);
+
+      generalClientInfoFragment.replaceChildren(generalClientInfoTable);
+    });
+
+    oldGeneralClientInfo.replaceChildren(generalClientInfoFragment);
+
+  } catch(error) {
+    console.error(error);
+  }
+
+}
+
+
 async function updateRemotePresentTable() {
   try {
     const oldRemotePresentTable = document.getElementById('remotePresentTable');
