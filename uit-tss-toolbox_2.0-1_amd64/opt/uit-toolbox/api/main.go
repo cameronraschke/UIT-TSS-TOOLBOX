@@ -201,61 +201,6 @@ func formatHttpError (errorString string) (jsonErrStr string) {
   return string(jsonErrStr)
 }
 
-func getRequestToSQL(requestURL string) (sql string, tagnumber string, systemSerial string, sqlTime string, err error) {
-    var path string
-    var parsedURL *url.URL
-    var queries url.Values
-
-    parsedURL, err = url.Parse(requestURL)
-    if err != nil {
-      log.Warning("Cannot parse URL: " + " " + err.Error() + " (" + requestURL + ")")
-      return "", "", "", "", errors.New("Cannot parse URL: " + requestURL)
-    }
-
-    path = parsedURL.Path
-
-    RawQuery := parsedURL.RawQuery
-    queries, _ = url.ParseQuery(RawQuery)
-
-    tagnumber = queries.Get("tagnumber")
-    systemSerial = queries.Get("system_serial")
-    sqlTime = queries.Get("time")
-
-    // Query type determination
-    if path == "/api/remote" && queries.Get("type") == "live_image" && len(queries.Get("tagnumber")) == 6 {
-      sql = ``
-      eventType = "live_image"
-    } else if path == "/api/remote" && queries.Get("type") == "remote_present" {
-      eventType = "remote_present"
-    } else if path == "/api/remote" && queries.Get("type") == "remote_offline" {
-      eventType = "remote_offline"
-    } else if path == "/api/locations" && queries.Get("type") == "all_tags" {
-      eventType = "all_tags"
-    } else if path == "/api/remote" && queries.Get("type") == "remote_present_header" {
-      eventType = "remote_present_header"
-    } else if path == "/api/test" && queries.Get("type") == "test" {
-      sql = `SELECT 'test'`
-      eventType = "test"
-    } else if path == "/api/remote" && queries.Get("type") == "tag_lookup" && len(queries.Get("system_serial")) >= 1 {
-      sql = `SELECT tagnumber FROM locations WHERE system_serial = $1 ORDER BY time DESC LIMIT 1`
-      eventType = "tag_lookup"
-    } else if path == "/api/remote" && queries.Get("type") == "job_queue" && len(queries.Get("tagnumber")) == 6 {
-      sql = `SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
-              remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted 
-              FROM remote 
-              LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = $1`
-      eventType = "job_queue"
-    } else if len(queries.Get("type")) <= 0 {
-      eventType = "err"
-      return "", "", "", "", errors.New("Bad URL request (empty 'type' key in URL): " + requestURL)
-    } else {
-      eventType = "err"
-      return "", "", "", "", errors.New("Bad URL request (unknown error): " + requestURL)
-    }
-
-    return sql, tagnumber, systemSerial, sqlTime, nil
-}
-
 
 func remoteAPI (w http.ResponseWriter, req *http.Request) {
   var parsedURL *url.URL
@@ -340,6 +285,16 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     }
     io.WriteString(w, remoteOfflineTableJson)
     return
+  case "tagnumber_data": 
+    var tagnumberDataJson string
+    tagnumberDataJson, err = database.GetTagnumberData(db, tagnumber)
+    if err != nil {
+      return
+    }
+    io.WriteString(w, tagnumberDataJson)
+    return
+
+    
   }
 }
 
@@ -534,7 +489,7 @@ func apiMiddleWare (next http.Handler) http.Handler {
     ip, _, err := net.SplitHostPort(req.RemoteAddr)
     _, _ = ipMap.LoadOrStore(ip, RateLimiter{Requests: 1, LastSeen: time.Now(), MapLastUpdated: time.Now(), Banned: false})
 
-    log.Info("Received request (" + req.RemoteAddr + "): " + req.Method + " " + req.URL.RequestURI())
+    //log.Info("Received request (" + req.RemoteAddr + "): " + req.Method + " " + req.URL.RequestURI())
 
     go func() {
       rateLimitCheck(ipAddrChan, bannedChan, rateLimitChan)

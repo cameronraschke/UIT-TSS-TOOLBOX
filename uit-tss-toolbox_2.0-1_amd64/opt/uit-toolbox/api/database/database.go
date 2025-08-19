@@ -452,6 +452,246 @@ func GetRemotePresentHeader(db *sql.DB) (string, error) {
 }
 
 
+type TagnumberData struct {
+  LocationTimeFormatted               *string     `json:"location_time_formatted"`
+  PlaceholderBool                     *bool       `json:"placeholder_bool"`
+  JobstatsTime                        *string     `json:"jobstatstime"`
+  Tagnumber                           *int        `json:"tagnumber"`
+  SystemSerial                        *string     `json:"system_serial"`
+  Department                          *string     `json:"department"`
+  Location                            *string     `json:"location"`
+  RemoteStatus                        *string     `json:"remote_status_formatted"`
+  LocationsStatus                     *bool       `json:"locations_status"`
+  DepartmentReadable                  *string     `json:"department_readable"`
+  MostRecentNote                      *string     `json:"most_recent_note"`
+  Note                                *string     `json:"note"`
+  NoteTime                            *string     `json:"note_time_formatted"`
+  DiskRemovedFormatted                *string     `json:"disk_removed_formatted"`
+  DiskRemoved                         *bool       `json:"disk_removed"`
+  Etheraddress                        *string     `json:"etheraddress_formatted"`
+  WifiMac                             *string     `json:"wifi_mac_formatted"`
+  ChassicType                         *string     `json:"chassis_type"`
+  SystemModel                         *string     `json:"system_model_formatted"`
+  CpuModel                            *string     `json:"cpu_model"`
+  CpuMaxSpeed                         *string     `json:"cpu_maxspeed_formatted"`
+  MultithreadedFormatted              *string     `json:"multithreaded_formatted"`
+  RamCapacityFormatted                *string     `json:"ram_capacity_formatted"`
+  DiskModel                           *string     `json:"disk_model"`
+  DiskSize                            *string     `json:"disk_size"`
+  DiskType                            *string     `json:"disk_type"`
+  DiskSerial                          *string     `json:"disk_serial"`
+  Identifier                          *string     `json:"identifier"`
+  RecoveryKey                         *string     `json:"recovery_key"`
+  BatteryHealth                       *string     `json:"battery_health_formatted"`
+  DiskHealth                          *string     `json:"disk_health"`
+  AvgEraseTime                        *string     `json:"avg_erase_time"`
+  AvgCloneTime                        *string     `json:"avg_clone_time"`
+  AllJobs                             *int        `json:"all_jobs"`
+  NetworkSpeedFormatted               *string     `json:"network_speed_formatted"`
+  BiosUpdated                         *bool       `json:"bios_updated"`
+  BiosUpdatedFormatted                *string     `json:"bios_updated_formatted"`
+  DiskTBWFormatted                    *string     `json:"disk_tbw_formatted"`
+  DiskWrites                          *string     `json:"disk_writes_formatted"`
+  DiskReads                           *string     `json:"disk_reads_formatted"`
+  DiskPowerOnHours                    *string     `json:"disk_power_on_hours"`
+  DiskPowerCycles                     *string     `json:"disk_power_cycles"`
+  DiskErrors                          *int        `json:"disk_errors"`
+  Domain                              *string     `json:"domain"`
+  DomainReadable                      *string     `json:"domain_readable"`
+  OsInstalledFormatted                *string     `json:"os_installed_formatted"`
+  CustomerName                        *string     `json:"customer_name"`
+  CheckoutDate                        *time.Time  `json:"checkout_date"`
+  CheckoutBool                        *bool       `json:"checkout_bool"`
+  TpmVersion                          *int        `json:"tpm_version"`
+}
+
+func GetTagnumberData (db *sql.DB, tagnumber int) (string, error) {
+  var sqlCode string
+  var rows *sql.Rows
+  var results []*TagnumberData
+  var resultsJson string
+  var err error
+
+  sqlCode=`SELECT TO_CHAR(t10.time, 'MM/DD/YY HH12:MI:SS AM') AS location_time_formatted,
+    (CASE WHEN t3.time = t10.time THEN 1 ELSE 0 END) AS placeholder_bool,
+    jobstats.time AS jobstatsTime, locations.tagnumber, locations.system_serial, locations.department, 
+    locationFormatting(locations.location) AS location, 
+    (CASE WHEN locations.status = TRUE THEN 'Broken' ELSE 'Yes' END) AS remote_status_formatted, locations.status AS locations_status, t2.department_readable, t3.note AS most_recent_note,
+    locations.note, TO_CHAR(t3.time, 'MM/DD/YY HH12:MI:SS AM') AS note_time_formatted, 
+    (CASE WHEN locations.disk_removed = TRUE THEN 'Yes' ELSE 'No' END) AS disk_removed_formatted, locations.disk_removed,
+    (CASE 
+      WHEN jobstats.etheraddress IS NOT NULL AND system_data.system_model NOT IN ('Latitude 7400', 'Latitude 5289') THEN jobstats.etheraddress 
+      WHEN jobstats.etheraddress IS NOT NULL AND system_data.system_model IN ('Latitude 7400', 'Latitude 5289') THEN 'No ethernet NIC' 
+      ELSE 'Unknown' 
+      END) AS etheraddress_formatted, 
+    (CASE WHEN system_data.wifi_mac IS NOT NULL THEN system_data.wifi_mac ELSE 'Unknown' END) AS wifi_mac_formatted, 
+    system_data.chassis_type, 
+    (CASE
+      WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NOT NULL THEN CONCAT(system_data.system_manufacturer, ' - ', system_data.system_model)
+      WHEN system_data.system_manufacturer IS NULL AND system_data.system_model IS NOT NULL THEN system_data.system_model
+      WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NULL THEN system_data.system_manufacturer
+      ELSE NULL
+      END) AS system_model_formatted,
+    system_data.cpu_model,
+    (CASE 
+      WHEN system_data.cpu_maxspeed IS NOT NULL THEN CONCAT('(Max ', ROUND((system_data.cpu_maxspeed / 1000), 2), ' Ghz)') 
+      ELSE NULL 
+      END) AS cpu_maxspeed_formatted, 
+    (CASE 
+      WHEN system_data.cpu_threads > system_data.cpu_cores THEN CONCAT(system_data.cpu_cores, ' cores/', system_data.cpu_threads, ' threads (Multithreaded)') 
+      WHEN system_data.cpu_threads = system_data.cpu_cores THEN CONCAT(system_data.cpu_cores, ' cores (Not Multithreaded)')
+      ELSE NULL
+      END) AS multithreaded_formatted, 
+    (CASE 
+    WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NOT NULL THEN CONCAT(t8.ram_capacity, ' GB (', t8.ram_speed, ' MHz)')
+    WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NULL THEN CONCAT(t8.ram_capacity, ' GB')
+    END) AS ram_capacity_formatted,
+    t4.disk_model, CONCAT(t4.disk_size, 'GB') AS disk_size, t4.disk_type, t4.disk_serial, 
+    t5.identifier, t5.recovery_key, 
+    (CASE WHEN client_health.battery_health IS NOT NULL THEN CONCAT(client_health.battery_health, '%') ELSE NULL END) AS battery_health_formatted, (CASE WHEN client_health.disk_health IS NOT NULL THEN CONCAT(client_health.disk_health, '%') ELSE NULL END) AS disk_health, 
+    (CASE 
+      WHEN client_health.avg_erase_time IS NOT NULL THEN CONCAT(client_health.avg_erase_time, ' mins')
+      ELSE NULL 
+      END) AS avg_erase_time, 
+    (CASE 
+      WHEN client_health.avg_clone_time IS NOT NULL THEN CONCAT(client_health.avg_clone_time, ' mins')
+      ELSE NULL
+      END) AS avg_clone_time,
+    client_health.all_jobs, 
+    (CASE 
+      WHEN remote.network_speed IS NOT NULL 
+      THEN CONCAT(remote.network_speed, ' mbps') 
+      ELSE NULL 
+      END) AS network_speed_formatted, 
+    client_health.bios_updated, 
+    (CASE 
+      WHEN client_health.bios_updated = TRUE AND client_health.bios_version IS NOT NULL THEN CONCAT('Updated ', '(', client_health.bios_version, ')') 
+      WHEN client_health.bios_updated = FALSE AND client_health.bios_version IS NOT NULL THEN CONCAT('Out of date ', '(', client_health.bios_version, ')') 
+      ELSE 'Unknown BIOS Version' 
+      END) AS bios_updated_formatted, 
+    (CASE
+    WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_writes, ' TBW/', t4.disk_reads, 'TBR')
+    WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NULL THEN CONCAT(t4.disk_writes, ' TBW')
+    WHEN t4.disk_reads IS NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_reads, ' TBW')
+    ELSE NULL
+    END) AS disk_tbw_formatted,
+    CONCAT(t4.disk_writes, ' TBW') AS disk_writes_formatted, CONCAT(t4.disk_reads, ' TBR') AS disk_reads_formatted, CONCAT(t4.disk_power_on_hours, ' hrs') AS disk_power_on_hours,
+    t4.disk_power_cycles, t4.disk_errors, locations.domain, (CASE WHEN locations.domain IS NOT NULL THEN static_domains.domain_readable ELSE 'Not Joined' END) AS domain_readable,
+    (CASE 
+      WHEN client_health.os_installed = TRUE AND client_health.os_name IS NOT NULL AND NOT client_health.os_name = 'Unknown OS' THEN CONCAT(client_health.os_name, ' (Imaged on ', TO_CHAR(t6.time, 'MM/DD/YY HH12:MI:SS AM'), ')') 
+      WHEN client_health.os_installed = TRUE AND NOT client_health.os_name = 'Unknown OS' THEN client_health.os_name 
+      ELSE client_health.os_name 
+      END) AS os_installed_formatted,
+    checkouts.customer_name, checkouts.checkout_date, checkouts.checkout_bool, client_health.tpm_version
+    FROM locations
+    LEFT JOIN client_health ON locations.tagnumber = client_health.tagnumber
+    LEFT JOIN jobstats ON (locations.tagnumber = jobstats.tagnumber AND jobstats.time IN (SELECT MAX(time) AS time FROM jobstats WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL AND (host_connected = TRUE OR (uuid LIKE 'techComm-%' AND etheraddress IS NOT NULL)) GROUP BY tagnumber))
+    LEFT JOIN system_data ON locations.tagnumber = system_data.tagnumber
+    LEFT JOIN remote ON locations.tagnumber = remote.tagnumber
+    LEFT JOIN (SELECT department, department_readable FROM static_departments) t2
+    ON locations.department = t2.department
+    LEFT JOIN (SELECT tagnumber, time, note FROM locations WHERE time IN (SELECT MAX(time) FROM locations WHERE note IS NOT NULL GROUP BY tagnumber)) t3
+    ON locations.tagnumber = t3.tagnumber
+    LEFT JOIN (SELECT tagnumber, disk_model, disk_serial, disk_size, disk_type, disk_writes, disk_reads, disk_power_on_hours, disk_power_cycles, (CASE WHEN disk_errors IS NOT NULL THEN disk_errors ELSE 0 END) AS disk_errors FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE disk_type IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t4 
+    ON locations.tagnumber = t4.tagnumber
+    LEFT JOIN (SELECT tagnumber, identifier, recovery_key FROM bitlocker) t5 
+    ON locations.tagnumber = t5.tagnumber
+    LEFT JOIN (SELECT time, tagnumber, clone_image, row_nums FROM (SELECT time, tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = TRUE AND clone_image IS NOT NULL) s6 WHERE s6.row_nums = 1) t6
+    ON locations.tagnumber = t6.tagnumber
+    LEFT JOIN static_image_names ON t6.clone_image = static_image_names.image_name
+    LEFT JOIN (SELECT tagnumber, ram_capacity, ram_speed FROM jobstats WHERE time IN (SELECT MAX(time) FROM jobstats WHERE ram_capacity IS NOT NULL AND ram_speed IS NOT NULL AND tagnumber IS NOT NULL GROUP BY tagnumber)) t8
+    ON locations.tagnumber = t8.tagnumber
+    INNER JOIN (SELECT MAX(time) AS time FROM locations WHERE tagnumber IS NOT NULL AND system_serial IS NOT NULL GROUP BY tagnumber) t10
+    ON locations.time = t10.time
+    LEFT JOIN static_domains ON locations.domain = static_domains.domain
+    LEFT JOIN checkouts ON locations.tagnumber = checkouts.tagnumber AND checkouts.time IN (SELECT s11.time FROM (SELECT time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM checkouts) s11 WHERE s11.row_nums = 1)
+    WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
+    AND locations.tagnumber = $1`
+
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+  defer cancel()
+
+  rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
+  if err != nil {
+    return "", errors.New("Timeout error: " + err.Error())
+  }
+  defer rows.Close()
+
+  for rows.Next() {
+    row := &TagnumberData{}
+    if err = rows.Err(); err != nil {
+      return "", errors.New("Query error: " + err.Error())  
+    }
+    if err = dbCTX.Err(); err != nil {
+      return "", errors.New("Context error: " + err.Error())
+    }
+
+    err = rows.Scan(
+      &row.LocationTimeFormatted,
+      &row.PlaceholderBool,
+      &row.JobstatsTime,
+      &row.Tagnumber,
+      &row.SystemSerial,
+      &row.Department,
+      &row.Location,
+      &row.RemoteStatus,
+      &row.LocationsStatus,
+      &row.DepartmentReadable,
+      &row.MostRecentNote,
+      &row.Note,
+      &row.NoteTime,
+      &row.DiskRemovedFormatted,
+      &row.DiskRemoved,
+      &row.Etheraddress,
+      &row.WifiMac,
+      &row.ChassicType,
+      &row.SystemModel,
+      &row.CpuModel,
+      &row.CpuMaxSpeed,
+      &row.MultithreadedFormatted,
+      &row.RamCapacityFormatted,
+      &row.DiskModel,
+      &row.DiskSize,
+      &row.DiskType,
+      &row.DiskSerial,
+      &row.Identifier,
+      &row.RecoveryKey,
+      &row.BatteryHealth,
+      &row.DiskHealth,
+      &row.AvgEraseTime,
+      &row.AvgCloneTime,
+      &row.AllJobs,
+      &row.NetworkSpeedFormatted,
+      &row.BiosUpdated,
+      &row.BiosUpdatedFormatted,
+      &row.DiskTBWFormatted,
+      &row.DiskWrites,
+      &row.DiskReads,
+      &row.DiskPowerOnHours,
+      &row.DiskPowerCycles,
+      &row.DiskErrors,
+      &row.Domain,
+      &row.DomainReadable,
+      &row.OsInstalledFormatted,
+      &row.CustomerName,
+      &row.CheckoutDate,
+      &row.CheckoutBool,
+      &row.TpmVersion,
+    )
+    if err != nil && err != sql.ErrNoRows {
+        return "", errors.New("Error scanning rows: " + err.Error())
+    }
+      results = append(results, row)
+  }
+
+  resultsJson, err = CreateJson(results)
+  if err != nil {
+    return "", errors.New("JSON error: " + err.Error())
+  }
+  return resultsJson, nil
+}
+
+
 func CreateJson(results interface{}) (string, error) {
   var jsonData []byte
   var jsonDataStr string
