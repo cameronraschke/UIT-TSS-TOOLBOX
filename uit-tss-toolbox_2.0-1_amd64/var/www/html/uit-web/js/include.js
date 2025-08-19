@@ -387,7 +387,11 @@ async function updateTagnumberData(tagnumber) {
       }
 
       if (value["etheraddress_formatted"] && value["etheraddress_formatted"].length > 0) {
-        etherAddressFormatted = document.createTextNode(value["etheraddress_formatted"] + " (Ethernet)");
+        if (value["network_speed_formatted"] && value["network_speed_formatted"].length > 0) {
+          etherAddressFormatted = document.createTextNode(value["etheraddress_formatted"] + " (Ethernet) (" + value["network_speed_formatted"] + ")");
+        } else {
+          etherAddressFormatted = document.createTextNode(value["etheraddress_formatted"] + " (Ethernet)");
+        }
       }
 
 
@@ -429,48 +433,99 @@ async function updateTagnumberData(tagnumber) {
       macRow.append(macTD1, macTD2);
       
 
+      // System model
+      const modelRow = document.createElement("tr");
+      const modelTD1 = document.createElement("td");
+      const modelTD2 = document.createElement("td");
 
-      generalClientBodyTbody.append(locationRow, departmentRow, domainRow, serialRow, macRow);
+      modelTD1.innerText = "System Model";
+
+      const modelP1 = document.createElement("p");
+      const modelText1 = document.createTextNode(value["system_model_formatted"]);
+
+      modelP1.append(modelText1);
+      modelTD2.append(modelP1);
+      modelRow.append(modelTD1, modelTD2);
+
+
+      // OS Version
+      const osRow = document.createElement("tr");
+      const osTD1 = document.createElement("td");
+      const osTD2 = document.createElement("td");
+
+      osTD1.innerText = "OS Version";
+
+      const osP1 = document.createElement("p");
+      let osText1 = undefined;
+      // Don't check for tpm length bc it comes back from db as an int
+      if (value["tpm_version"]) {
+        osText1 = document.createTextNode(value["os_installed_formatted"] + " (TPM v" + value["tpm_version"] + ")");
+      } else {
+        osText1 = document.createTextNode(value["os_installed_formatted"]);
+      }
       
+      osP1.append(osText1);
+      osTD2.append(osP1);
+      osRow.append(osTD1, osTD2);
 
-          //         <td><p>MAC Address</p></td>
-          //         <td>
-          //           <?php
-          //           // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
-          //               echo "<table><tr><td><p>" . htmlspecialchars($value["wifi_mac_formatted"]) . " (Wi-Fi)</p></td></tr><tr><td><p>" . htmlspecialchars($value["etheraddress_formatted"]) . " (Ethernet)</p></td></tr></table>";
-          //           ?>
-          //         </td>
-          //       </tr>
-          //       <tr>
-          //         <td><p>System Model</p></td>
-          //         <td><p><?php echo htmlspecialchars($value["system_model_formatted"]); ?></p></td>
-          //       </tr>
-          //       <tr>
-          //         <td><p>TPM Version</p></td>
-          //         <td><p><?php echo htmlspecialchars($value["tpm_version"]); ?></p></td>
-          //       </tr>
-          //       <tr>
-          //         <td><p>OS Version<p></td>
-          //         <td><p><?php echo htmlspecialchars($value["os_installed_formatted"]); ?></p></td>
-          //       </tr>
-          //       <tr>
-          //         <td><p>Bitlocker Identifier</p></td>
-          //         <td><p><?php echo htmlspecialchars($value["identifier"]); ?></p></td>
-          //       </tr>
-          //       <tr>
-          //         <td><p>Bitlocker Recovery Key</p></td>
-          //         <td><p><?php echo htmlspecialchars($value["recovery_key"]); ?></p></td>
-          //       <tr>
-          //         <td><p>BIOS Version</p></td>
-          //         <td><p><?php echo htmlspecialchars($value["bios_updated_formatted"]); ?></p></td>
-          //       </tr>
-          //       <tr>
-          //         <td><p>Network Link Speed</p></td>
-          //         <td><p><?php echo htmlspecialchars($value['network_speed_formatted']); ?></p></td>
-          //       </tr>
-          //   </tbody>
-          // </table>
 
+      
+      // Bitlocker info
+      const bitlockerRow = document.createElement("tr");
+      const bitlockerTD1 = document.createElement("td");
+      const bitlockerTD2 = document.createElement("td");
+
+      bitlockerTD1.innerText = "Bitlocker Info";
+
+      if (value["recovery_key"] && value["recovery_key"].length > 0 && value["identifier"] && value["identifier"].length > 0) {
+        const bitlockerTable = document.createElement("table");
+
+        const bitlockerTR1 = document.createElement("tr");
+        const bitlockerSubTD1 = document.createElement("td");
+        const bitlockerP1 = document.createElement("p");
+        const bitlockerText1 = document.createTextNode(value["identifier"]);
+        bitlockerP1.append(bitlockerText1);
+        bitlockerSubTD1.append(bitlockerP1);
+        bitlockerTR1.append(bitlockerSubTD1);
+
+        const bitlockerTR2 = document.createElement("tr");
+        const bitlockerSubTD2 = document.createElement("td");
+        const bitlockerP2 = document.createElement("p");
+        const bitlockerText2 = document.createTextNode(value["recovery_key"]);
+        bitlockerP2.append(bitlockerText2);
+        bitlockerSubTD2.append(bitlockerP2);
+        bitlockerTR2.append(bitlockerSubTD2);
+
+        bitlockerTable.append(bitlockerTR1, bitlockerTR2);
+        bitlockerTD2.append(bitlockerTable);
+      }
+
+      bitlockerRow.append(bitlockerTD1, bitlockerTD2);
+
+
+      // bios_version
+      const biosRow = document.createElement("tr");
+      const biosTD1 = document.createElement("td");
+      const biosTD2 = document.createElement("td");
+
+      biosTD1.innerText = "BIOS Info";
+
+      const biosP2 = document.createElement("p");
+
+      let biosText2 = undefined;
+      if (value["bios_updated_formatted"] && value["bios_updated_formatted"].length > 0) {
+        biosText2 = document.createTextNode(value["bios_updated_formatted"]);
+      } else { 
+        biosText2 = document.createTextNode("");
+      }
+
+      biosP2.append(biosText2);
+      biosTD2.append(biosP2);
+
+      biosRow.append(biosTD1, biosTD2);
+
+
+      generalClientBodyTbody.append(locationRow, departmentRow, domainRow, serialRow, macRow, modelRow, osRow, bitlockerRow, biosRow);
       generalClientInfoFragment.replaceChildren(generalClientInfoTable);
     });
 

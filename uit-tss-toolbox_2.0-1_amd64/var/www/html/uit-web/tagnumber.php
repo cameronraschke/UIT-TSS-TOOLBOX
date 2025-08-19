@@ -387,7 +387,33 @@ foreach ($dbPSQL->get() as $key => $value) {
         </div>
 
         <div class='pagetitle'><h3></u></h3></div>
-        <div name='updateDiv1' id='client_info' style='width: auto; height: auto; overflow:auto; margin: 1% 1% 3% 2%;'>
+        <div id='client_info' style='width: auto; height: auto; overflow:auto;'>
+          <table>
+            <thead>
+              <th>General Client Info</th>
+              <th></th>
+            </thead>
+            <tbody>
+              <td>Current Location</td>
+              <td></td>
+              <td>Department</td>
+              <td></td>
+              <td>Domain</td>
+              <td></td>
+              <td>Serial Number</td>
+              <td></td>
+              <td>MAC Address</td>
+              <td></td>
+              <td>System Model</td>
+              <td></td>
+              <td>OS Version</td>
+              <td></td>
+              <td>Bitlocker Info</td>
+              <td></td>
+              <td>BIOS Info</td>
+              <td></td>
+            </tbody>
+          </table>
         </div>
         <!-- Close column div-->
       </div>
