@@ -211,7 +211,9 @@ async function updateTagnumberData(tagnumber) {
 
     const tagnumberData = await fetchData("https://WAN_IP_ADDRESS:31411/api/remote?type=tagnumber_data&tagnumber=" + encodeURIComponent(tagnumber));
     Object.entries(tagnumberData).forEach(([key, value]) => {
-      
+      const newTabImg = document.createElement("img");
+      newTabImg.classList.add('icon');
+      newTabImg.src = '/images/new-tab.svg';
 
       // table
       const generalClientInfoTable = document.createElement("table");
@@ -247,7 +249,6 @@ async function updateTagnumberData(tagnumber) {
       const locationTD2 = document.createElement("td");
       if (value["locations_status"] && value["locations_status"] == true) {
         const locationErrorSpan = document.createElement("span");
-        locationErrorSpan.style.marginBottom = "1em";
         locationErrorSpan.style.whiteSpace = "nowrap";
         const locationErrorP1 = document.createElement("p");
         locationErrorP1.setAttribute("class", "error");
@@ -260,7 +261,6 @@ async function updateTagnumberData(tagnumber) {
       }
       if (value["checkout_bool"] && value["checkout_bool"] == true) {
         const checkoutP = document.createElement("p");
-        checkoutP.style.marginBottom = "1em";
         const checkoutSpan1 = document.createElement("span");
         checkoutSpan1.style.fontWeight = "bold";
         const checkoutText1 = document.createTextNode("[CHECKOUT] ");
@@ -285,6 +285,7 @@ async function updateTagnumberData(tagnumber) {
 
       const locationP = document.createElement("p");
       locationP.style.marginBottom = "1em";
+      locationP.style.marginTop = "1em";
       locationP.append(locationReadable);
       locationTD2.append(locationP);
 
@@ -304,14 +305,12 @@ async function updateTagnumberData(tagnumber) {
       }
 
       locationRow.append(locationTD1, locationTD2);
-      generalClientBodyTbody.append(locationRow);
 
       // Department cell
       const departmentRow = document.createElement("tr");
       const departmentTD1 = document.createElement("td");
       const departmentTD2 = document.createElement("td");
 
-      const department = document.createTextNode(value["department"]);
       const departmentReadable = document.createTextNode(value["department_readable"] + " ");
 
       departmentTD1.innerText = "Department";
@@ -321,26 +320,21 @@ async function updateTagnumberData(tagnumber) {
       const departmentA1 = document.createElement("a");
       departmentA1.style.cursor = "pointer";
       departmentA1.style.fontStyle = "italic";
-      departmentA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(location) + "', '" + encodeURIComponent(tagnumber) + "', '" + encodeURIComponent(department) + "')")
-      departmentA1.innerText = "(Click to Update Department)"
+      departmentA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(value["location"]) + "', '" + encodeURIComponent(value["tagnumber"]) + "', '" + encodeURIComponent(value["department"]) + "')");
+      departmentA1.innerText = "(Click to Update Department)";
 
-      const newTabImg = document.createElement("img");
-      newTabImg.classList.add('icon');
-      newTabImg.src = '/images/new-tab.svg';
-      departmentA1.append(newTabImg);
+      departmentA1.append(newTabImg.cloneNode(true));
 
       departmentP1.append(departmentReadable, departmentA1);
       departmentTD2.append(departmentP1);      
       
       departmentRow.append(departmentTD1, departmentTD2);
-      generalClientBodyTbody.append(departmentRow);
       
       // Domain cell
       const domainRow = document.createElement("tr");
       const domainTD1 = document.createElement("td");
       const domainTD2 = document.createElement("td");
 
-      const domain = document.createTextNode(value["domain"]);
       const domainReadable = document.createTextNode(value["domain_readable"] + " ");
 
       domainTD1.innerText = "Domain";
@@ -350,16 +344,35 @@ async function updateTagnumberData(tagnumber) {
       const domainA1 = document.createElement("a");
       domainA1.style.cursor = "pointer";
       domainA1.style.fontStyle = "italic";
-      domainA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(location) + "', '" + encodeURIComponent(tagnumber) + "', '" + encodeURIComponent(domain) + "')")
-      domainA1.innerText = "(Click to Update Domain)"
+      domainA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(value["location"]) + "', '" + encodeURIComponent(value["tagnumber"]) + "', '" + encodeURIComponent(value["domain"]) + "')");
+      domainA1.innerText = "(Click to Update Domain)";
       
-      domainA1.append(newTabImg);
+      domainA1.append(newTabImg.cloneNode(true));
 
       domainP1.append(domainReadable, domainA1);
       domainTD2.append(domainP1);      
       
       domainRow.append(domainTD1, domainTD2);
-      generalClientBodyTbody.append(domainRow);
+
+
+      // system_serial cell
+      const serialRow = document.createElement("tr");
+      const serialTD1 = document.createElement("td");
+      const serialTD2 = document.createElement("td");
+
+      const serial = document.createTextNode(value["system_serial"]);
+
+      serialTD1.innerText = "Serial Number";
+
+      const serialP1 = document.createElement("p");
+      serialP1.append(serial);
+
+      serialTD2.append(serialP1);
+
+      serialRow.append(serialTD1, serialTD2);
+
+
+      generalClientBodyTbody.append(locationRow, departmentRow, domainRow, serialRow);
       
 
           //         <td><p>System Serial</p></td>
