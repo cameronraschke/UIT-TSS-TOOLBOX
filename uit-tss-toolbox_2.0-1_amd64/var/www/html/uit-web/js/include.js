@@ -371,14 +371,68 @@ async function updateTagnumberData(tagnumber) {
 
       serialRow.append(serialTD1, serialTD2);
 
+      
+      // mac addresses
+      const macRow = document.createElement("tr");
+      const macTD1 = document.createElement("td");
+      const macTD2 = document.createElement("td");
 
-      generalClientBodyTbody.append(locationRow, departmentRow, domainRow, serialRow);
+      let wifiMacFormatted = undefined;
+      let etherAddressFormatted = undefined;
+
+      macTD1.innerText = "MAC Address";
+
+      if (value["wifi_mac_formatted"] && value["wifi_mac_formatted"].length > 0) {
+        wifiMacFormatted = document.createTextNode(value["wifi_mac_formatted"] + " (Wi-Fi)");
+      }
+
+      if (value["etheraddress_formatted"] && value["etheraddress_formatted"].length > 0) {
+        etherAddressFormatted = document.createTextNode(value["etheraddress_formatted"] + " (Ethernet)");
+      }
+
+
+      if (wifiMacFormatted !== undefined && etherAddressFormatted !== undefined) {
+        const macTable = document.createElement("table");
+        macTable.style.maxWidth = "fit-content";
+        macTable.style.marginLeft = "0";
+        const macTBody = document.createElement("tbody");
+
+        const macTR1 = document.createElement("tr");
+        macTR1.style.borderBottom = "1px solid black";
+        const macSubTD1 = document.createElement("td");
+        const macP1 = document.createElement("p");
+        macP1.append(wifiMacFormatted);
+        macSubTD1.append(macP1);
+        macTR1.append(macSubTD1);
+
+        const macTR2 = document.createElement("tr");
+        macTR2.style.borderBottom = "none";
+        const macSubTD2 = document.createElement("td");
+        const macP2 = document.createElement("p");
+        macP2.append(etherAddressFormatted);
+        macSubTD2.append(macP2);
+        macTR2.append(macSubTD2);
+
+        macTBody.append(macTR1, macTR2);
+        macTable.append(macTBody);
+        macTD2.append(macTable);
+      } else if (wifiMacFormatted !== undefined && etherAddressFormatted === undefined) {
+        const macP1 = document.createElement("p");
+        macP1.append(wifiMacFormatted);
+        macTD2.append(macP1);
+      } else if (wifiMacFormatted === undefined && etherAddressFormatted !== undefined) {
+        const macP1 = document.createElement("p");
+        macP1.append(etherAddressFormatted);
+        macTD2.append(macP1);
+      }
+
+      macRow.append(macTD1, macTD2);
       
 
-          //         <td><p>System Serial</p></td>
-          //         <td><p><?php echo htmlspecialchars($value['system_serial'])?></p></td>
-          //       </tr>
-          //       <tr>
+
+      generalClientBodyTbody.append(locationRow, departmentRow, domainRow, serialRow, macRow);
+      
+
           //         <td><p>MAC Address</p></td>
           //         <td>
           //           <?php
