@@ -198,6 +198,7 @@ async function updateTagnumberData(tagnumber) {
     const oldClientHealthInfo = document.getElementById("client_health");
     const oldCpuRamInfo = document.getElementById("cpu_ram_info");
 
+    const generalClientInfoFragment = new DocumentFragment();
     
     const diskInfo = document.createElement("table");
     diskInfo.setAttribute("id", "disk_info");
@@ -208,9 +209,9 @@ async function updateTagnumberData(tagnumber) {
     const cpuRamInfo = document.createElement("table");
     cpuRamInfo.setAttribute("id", "cpu_ram_info");
 
-    const tagnumberData = await fetchData("https://WAN_IP_ADDRESS:31411/api/remote?type=tagnumber_data?tagnumber=" + encodeURIComponent(tagnumber));
+    const tagnumberData = await fetchData("https://WAN_IP_ADDRESS:31411/api/remote?type=tagnumber_data&tagnumber=" + encodeURIComponent(tagnumber));
     Object.entries(tagnumberData).forEach(([key, value]) => {
-      const generalClientInfoFragment = new DocumentFragment();
+      
 
       // table
       const generalClientInfoTable = document.createElement("table");
@@ -218,16 +219,183 @@ async function updateTagnumberData(tagnumber) {
       generalClientInfoTable.style.width = '100%';
 
       // thead
-      const generalClientInfoTableThead = document.createElement("thead");
-      generalClientInfoTable.append(generalClientInfoTableThead)
+      const generalClientInfoHeadThead = document.createElement("thead");
+      generalClientInfoTable.append(generalClientInfoHeadThead);
 
       // tr
-      const generalClientInfoTableTR = document.createElement("tr");
-      generalClientInfoTableThead.appendChild(generalClientInfoTableTR);
+      const generalClientInfoHeadTR = document.createElement("tr");
+      generalClientInfoHeadThead.appendChild(generalClientInfoHeadTR);
 
-      const generalClientInfoTableTH = document.createElement("th");
-      generalClientInfoTableTH.innerText = "General Client Info - " + value["tagnumber"];
-      generalClientInfoTableTR.appendChild(generalClientInfoTableTH);
+      // th - extra th for formatting
+      const generalClientInfoHeadTH = document.createElement("th");
+      generalClientInfoHeadTH.innerText = "General Client Info - " + value["tagnumber"];
+      generalClientInfoHeadTR.appendChild(generalClientInfoHeadTH);
+      generalClientInfoHeadTR.appendChild(document.createElement("tr"));
+
+      // tbody
+      const generalClientBodyTbody = document.createElement("tbody");
+      generalClientInfoTable.append(generalClientBodyTbody);
+
+      // location cell
+      const locationRow = document.createElement("tr");
+      const locationTD1 = document.createElement("td");
+      const locationTD2 = document.createElement("td");
+      locationTD1.innerText = "Current Location";
+      if (value["locations_status"] == true) {
+        const locationErrorSpan = document.createElement("span");
+        locationErrorSpan.style.whiteSpace = "nowrap";
+        const locationErrorP1 = document.createElement("p");
+        locationErrorP1.setAttribute("class", "error");
+        locationErrorP1.innerText = "[REPORTED BROKEN] ";
+        const locationErrorP2 = document.createElement("p");
+        locationErrorP2.style.fontWeight = "bold";
+        locationErrorP2.innerText = "on " + value["location_time_formatted"];
+        locationErrorSpan.append(locationErrorP1, locationErrorP2);
+        locationTD2.append(locationErrorSpan);
+      }
+      if (value["checkout_bool"] == true) {
+        const checkoutP = document.createElement("p");
+        const checkoutSpan1 = document.createElement("span");
+        checkoutSpan1.style.fontWeight = "bold";
+        const checkoutText1 = document.createTextNode("[CHECKOUT] ");
+        checkoutSpan1.append(checkoutText1);
+        const checkoutSpan2 = document.createElement("span");
+        const checkoutText2 = document.createTextNode("- Checked out to ");
+        checkoutSpan2.append(checkoutText2);
+        const checkoutSpan3 = document.createElement("span");
+        checkoutSpan3.style.fontWeight = "bold";
+        const checkoutText3 = document.createTextNode(value["customer_name"]);
+        checkoutSpan3.append(checkoutText3);
+        const checkoutSpan4 = document.createElement("span");
+        const checkoutText4 = document.createTextNode(" on ");
+        checkoutSpan4.append(checkoutText4);
+        const checkoutSpan5 = document.createElement("span");
+        checkoutSpan5.style.fontWeight = "bold";
+        const checkoutText5 = document.createTextNode(value["checkout_date"]);
+        checkoutSpan5.append(checkoutText5);
+        checkoutP.append(checkoutSpan1, checkoutSpan2, checkoutSpan3, checkoutSpan4, checkoutSpan5);
+        locationTD2.append(checkoutP);
+      }
+
+      let locationStr = createTextNode(value["location"]);
+      locationTD2.append(locationStr);
+
+
+      if (length(value["note"]) > 0) {
+        const noteP = document.createElement("p");
+        const noteSpan1 = document.createElement("span");
+        noteSpan1.style.fontWeight = "bold";
+        const noteText1 = createTextNode("Note: ");
+        noteSpan1.append(noteText1);
+        const noteSpan2 = document.createElement("span");
+        const noteText2 = createTextNode(value["note"]);
+        noteSpan2.append(noteText2);
+        noteP.append(noteSpan1, noteSpan2);
+        locationTD2.append(noteP);
+      }
+
+      locationRow.append(locationTD1, locationTD2);
+      generalClientBodyTbody.append(locationRow);
+
+      // Department cell
+      const departmentRow = document.createElement("tr");
+      const departmentTD1 = document.createElement("td");
+      const departmentTD2 = document.createElement("td");
+
+      const department = createTextNode(value["department"]);
+      const departmentReadable = createTextNode(value["department_readable"]);
+      const location = createTextNode(value["location"]);
+
+
+      departmentTD1.innerText = "Department";
+
+      const departmentP1 = document.createElement("p");
+
+      const departmentA1 = document.createElement("a");
+      departmentA1.style.cursor = "pointer";
+      departmentA1.style.fontStyle = "italic";
+      departmentA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(location) + "', '" + encodeURIComponent(tagnumber) + "', '" + encodeURIComponent(department) + "')")
+      departmentA1.innerText = "(Click to Update Department)"
+
+      const newTabImg = document.createElement("img");
+      newTabImg.class = "icon";
+      newTabImg.src = '/images/new-tab.svg';
+      departmentA1.append(newTabImg);
+
+      departmentP1.append(departmentReadable, departmentA1);
+      departmentTD2.append(departmentP1);      
+      
+      departmentRow.append(departmentTD1, departmentTD2);
+      generalClientBodyTbody.append(departmentRow);
+      
+      // Domain cell
+      const domainRow = document.createElement("tr");
+      const domainTD1 = document.createElement("td");
+      const domainTD2 = document.createElement("td");
+
+      const domain = createTextNode(value["domain"]);
+      const domainReadable = createTextNode(value["domain_readable"]);
+
+      domainTD1.innerText = "Domain";
+
+      const domainP1 = document.createElement("p");
+
+      const domainA1 = document.createElement("a");
+      domainA1.style.cursor = "pointer";
+      domainA1.style.fontStyle = "italic";
+      domainA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(location) + "', '" + encodeURIComponent(tagnumber) + "', '" + encodeURIComponent(domain) + "')")
+      domainA1.innerText = "(Click to Update Domain)"
+      
+      domainA1.append(newTabImg);
+
+      domainP1.append(departmentReadable, domainA1);
+      domainTD2.append(domainP1);      
+      
+      domainRow.append(departmentTD1, domainTD2);
+      generalClientBodyTbody.append(domainRow);
+      
+
+          //         <td><p>System Serial</p></td>
+          //         <td><p><?php echo htmlspecialchars($value['system_serial'])?></p></td>
+          //       </tr>
+          //       <tr>
+          //         <td><p>MAC Address</p></td>
+          //         <td>
+          //           <?php
+          //           // Latitude 7400 does not have ethernet ports, we use the USB ethernet ports for them, but the USB ethernet MAC address is still associated with their tagnumbers.
+          //               echo "<table><tr><td><p>" . htmlspecialchars($value["wifi_mac_formatted"]) . " (Wi-Fi)</p></td></tr><tr><td><p>" . htmlspecialchars($value["etheraddress_formatted"]) . " (Ethernet)</p></td></tr></table>";
+          //           ?>
+          //         </td>
+          //       </tr>
+          //       <tr>
+          //         <td><p>System Model</p></td>
+          //         <td><p><?php echo htmlspecialchars($value["system_model_formatted"]); ?></p></td>
+          //       </tr>
+          //       <tr>
+          //         <td><p>TPM Version</p></td>
+          //         <td><p><?php echo htmlspecialchars($value["tpm_version"]); ?></p></td>
+          //       </tr>
+          //       <tr>
+          //         <td><p>OS Version<p></td>
+          //         <td><p><?php echo htmlspecialchars($value["os_installed_formatted"]); ?></p></td>
+          //       </tr>
+          //       <tr>
+          //         <td><p>Bitlocker Identifier</p></td>
+          //         <td><p><?php echo htmlspecialchars($value["identifier"]); ?></p></td>
+          //       </tr>
+          //       <tr>
+          //         <td><p>Bitlocker Recovery Key</p></td>
+          //         <td><p><?php echo htmlspecialchars($value["recovery_key"]); ?></p></td>
+          //       <tr>
+          //         <td><p>BIOS Version</p></td>
+          //         <td><p><?php echo htmlspecialchars($value["bios_updated_formatted"]); ?></p></td>
+          //       </tr>
+          //       <tr>
+          //         <td><p>Network Link Speed</p></td>
+          //         <td><p><?php echo htmlspecialchars($value['network_speed_formatted']); ?></p></td>
+          //       </tr>
+          //   </tbody>
+          // </table>
 
       generalClientInfoFragment.replaceChildren(generalClientInfoTable);
     });
