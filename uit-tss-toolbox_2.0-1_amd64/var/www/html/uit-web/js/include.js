@@ -554,6 +554,7 @@ async function updateTagnumberData(tagnumber) {
       const totalJobsRow = document.createElement("tr");
       const totalJobsTD1 = document.createElement("td");
       const totalJobsTD2 = document.createElement("td");
+      const totalJobsP2 = document.createElement("p");
       
       totalJobsTD1.innerText = "Avg. Erase Time / Avg. Clone Time / Total Jobs";
       
@@ -561,25 +562,31 @@ async function updateTagnumberData(tagnumber) {
       if (value["all_jobs"] && value["all_jobs"] > 0) {
         allJobs = value["all_jobs"];
       } else {
-        allJobs = value["all_jobs"];
+        allJobs = "Unknown";
       }
 
       let avgCloneTime = undefined;
       if (value["avg_clone_time"] && value["avg_clone_time"] > 0) {
         avgCloneTime = value["avg_clone_time"];
       } else {
-        avgCloneTime = value["avg_clone_time"];
+        avgCloneTime = "Unknown";
       }
 
       let avgEraseTime = undefined;
       if (value["avg_erase_time"] && value["avg_erase_time"] > 0) {
         avgEraseTime = value["avg_erase_time"];
       } else {
-        avgEraseTime = value["avg_erase_time"];
+        avgEraseTime = "Unknown";
+      }
+
+      let totalJobsFormattedString = undefined;
+      if (allJobs !== "Unknown" || avgCloneTime !== "Unknown" || avgEraseTime !== "Unknown") {
+        totalJobsFormattedString = avgEraseTime + " mins / " + avgCloneTime + " mins / " + allJobs + " jobs";
+      } else {
+        totalJobsFormattedString = "";
       }
       
-      const totalJobsP2 = document.createElement("p");
-      const totalJobsText2 = document.createTextNode(avgEraseTime + " mins / " + avgCloneTime + " mins / " + allJobs + " jobs");
+      const totalJobsText2 = document.createTextNode(totalJobsFormattedString);
       totalJobsP2.append(totalJobsText2);
       totalJobsTD2.append(totalJobsP2);
 
@@ -670,9 +677,33 @@ async function updateTagnumberData(tagnumber) {
       diskHrsRow.append(diskHrsTD1, diskHrsTD2);
 
 
-      clientHealthTbody.append(totalJobsRow, batteryRow, diskTBWRow, diskHrsRow);
+      // Disk power cycles
+      const diskCyclesRow = document.createElement("tr");
+      const diskCyclesTD1 = document.createElement("td");
+      const diskCyclesP1 = document.createElement("p");
+      const diskCyclesTD2 = document.createElement("td");
+      const diskCyclesP2 = document.createElement("p");
+
+      const diskCyclesText1 = document.createTextNode("Disk Power Cycles");
+
+      let diskCyclesFormatted = undefined;
+      if (value["disk_power_cycles"] && value["disk_power_cycles"] > 0) {
+        diskCyclesFormatted = value["disk_power_cycles"] + "cycles";
+      } else {
+        diskCyclesFormatted = "";
+      }
+      const diskCyclesText2 = document.createTextNode(diskCyclesFormatted);
+
+      diskCyclesP1.append(diskCyclesText1);
+      diskCyclesTD1.append(diskCyclesP1);
+      diskCyclesP2.append(diskCyclesText2);
+      diskCyclesTD2.append(diskCyclesP2);
+      diskCyclesRow.append(diskCyclesTD1, diskCyclesTD2);
 
 
+
+
+      clientHealthTbody.append(totalJobsRow, batteryRow, diskTBWRow, diskHrsRow, diskCyclesRow);
       clientHealthTable.append(clientHealthThead, clientHealthTbody);
       clientHealthFragment.replaceChildren(clientHealthTable);
       oldClientHealthTable.replaceChildren(clientHealthFragment);

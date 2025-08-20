@@ -493,7 +493,7 @@ type TagnumberData struct {
   DiskWrites                          *float32    `json:"disk_writes"`
   DiskReads                           *float32    `json:"disk_reads"`
   DiskPowerOnHours                    *int        `json:"disk_power_on_hours"`
-  DiskPowerCycles                     *string     `json:"disk_power_cycles"`
+  DiskPowerCycles                     *int        `json:"disk_power_cycles"`
   DiskErrors                          *int        `json:"disk_errors"`
   Domain                              *string     `json:"domain"`
   DomainReadable                      *string     `json:"domain_readable"`
