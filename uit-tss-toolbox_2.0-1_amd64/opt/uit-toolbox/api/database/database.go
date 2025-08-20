@@ -490,9 +490,8 @@ type TagnumberData struct {
   NetworkSpeedFormatted               *string     `json:"network_speed_formatted"`
   BiosUpdated                         *bool       `json:"bios_updated"`
   BiosUpdatedFormatted                *string     `json:"bios_updated_formatted"`
-  DiskTBWFormatted                    *string     `json:"disk_tbw_formatted"`
-  DiskWrites                          *int        `json:"disk_writes_formatted"`
-  DiskReads                           *int        `json:"disk_reads_formatted"`
+  DiskWrites                          *int        `json:"disk_writes"`
+  DiskReads                           *int        `json:"disk_reads"`
   DiskPowerOnHours                    *string     `json:"disk_power_on_hours"`
   DiskPowerCycles                     *string     `json:"disk_power_cycles"`
   DiskErrors                          *int        `json:"disk_errors"`
@@ -569,12 +568,6 @@ func GetTagnumberData (db *sql.DB, tagnumber int) (string, error) {
       WHEN client_health.bios_updated = FALSE AND client_health.bios_version IS NOT NULL THEN CONCAT('Out of date ', '(', client_health.bios_version, ')') 
       ELSE 'Unknown BIOS Version' 
       END) AS bios_updated_formatted, 
-    (CASE
-    WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_writes, ' TBW/', t4.disk_reads, 'TBR')
-    WHEN t4.disk_writes IS NOT NULL AND t4.disk_reads IS NULL THEN CONCAT(t4.disk_writes, ' TBW')
-    WHEN t4.disk_reads IS NULL AND t4.disk_reads IS NOT NULL THEN CONCAT(t4.disk_reads, ' TBW')
-    ELSE NULL
-    END) AS disk_tbw_formatted,
     t4.disk_writes, t4.disk_reads, CONCAT(t4.disk_power_on_hours, ' hrs') AS disk_power_on_hours,
     t4.disk_power_cycles, t4.disk_errors, locations.domain, (CASE WHEN locations.domain IS NOT NULL THEN static_domains.domain_readable ELSE 'Not Joined' END) AS domain_readable,
     (CASE 
@@ -664,7 +657,6 @@ func GetTagnumberData (db *sql.DB, tagnumber int) (string, error) {
       &row.NetworkSpeedFormatted,
       &row.BiosUpdated,
       &row.BiosUpdatedFormatted,
-      &row.DiskTBWFormatted,
       &row.DiskWrites,
       &row.DiskReads,
       &row.DiskPowerOnHours,
