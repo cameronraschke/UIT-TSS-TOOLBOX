@@ -9,6 +9,7 @@ import (
   "math"
   "net"
   "net/http"
+  "net/http/httputil"
   "time"
   "encoding/json"
   // "unicode/utf8"
@@ -96,7 +97,7 @@ type RateLimiter struct {
 }
 
 type FormJobQueue struct {
-  Tagnumber         int     `json:"job_queued_tagnumber"`
+  Tagnumber         string  `json:"job_queued_tagnumber"`
   JobQueued         string  `json:"job_queued"`
 }
 
@@ -340,13 +341,9 @@ func postAPI (w http.ResponseWriter, req *http.Request) {
 
   switch queryType {
   case "test":
-    var jsonRequest FormJobQueue
-    err := json.NewDecoder(req.Body).Decode(&jsonRequest)
-    if err != nil {
-      log.Warning("JSON decode error: " + err.Error())
-      return
-    }
-    log.Debug("(" + tag + ")" + "Queued Job: " + jsonRequest.JobQueued)
+    dump, _ := httputil.DumpRequest(req, true)
+    fmt.Printf("--- Raw HTTP Request ---\n%s\n", dump)
+    fmt.Printnln(req.PostForm.Get("job_queued"))
   default:
     log.Warning("No POST type defined")
     return

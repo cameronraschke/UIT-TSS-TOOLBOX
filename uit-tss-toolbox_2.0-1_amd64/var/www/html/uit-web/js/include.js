@@ -83,6 +83,10 @@ async function postData(inputForm) {
 
   const formData = new FormData(inputForm);
 
+  const formObject = Object.fromEntries(formData.entries());
+
+  const jsonData = JSON.stringify(formObject);
+
   // const selection = await window.showOpenFilePicker();
   // if (selection.length > 0) {
   //   const file = await selection[0].getFile();
@@ -90,19 +94,16 @@ async function postData(inputForm) {
   // }
 
   try {
-    const headers = new Headers({
+    console.log(jsonData);
+    const requestOptions = {
+      method: 'POST',
+      headers: {
       'Content-Type': 'application/json',
       'credentials': 'include',
       'Authorization': 'Bearer ' + bearerToken
-    });
-
-    console.log(formData);
-    console.log(JSON.stringify(formData));
-    const requestOptions = {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(formData)
-    };
+      },
+      body: jsonData
+    }
 
     const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=test', requestOptions);
     if (!response.ok) {
