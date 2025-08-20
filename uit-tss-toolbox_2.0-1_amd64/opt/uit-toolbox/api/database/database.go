@@ -490,8 +490,8 @@ type TagnumberData struct {
   NetworkSpeedFormatted               *string     `json:"network_speed_formatted"`
   BiosUpdated                         *bool       `json:"bios_updated"`
   BiosUpdatedFormatted                *string     `json:"bios_updated_formatted"`
-  DiskWrites                          *int        `json:"disk_writes"`
-  DiskReads                           *int        `json:"disk_reads"`
+  DiskWrites                          *float32    `json:"disk_writes"`
+  DiskReads                           *float32    `json:"disk_reads"`
   DiskPowerOnHours                    *string     `json:"disk_power_on_hours"`
   DiskPowerCycles                     *string     `json:"disk_power_cycles"`
   DiskErrors                          *int        `json:"disk_errors"`

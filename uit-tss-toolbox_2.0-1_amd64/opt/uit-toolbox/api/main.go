@@ -247,7 +247,7 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     var allTagsJson string
     allTagsJson, err = database.GetAllTags(db)
     if err != nil {
-      log.Error("Cannot query all tags: " + err.Error())
+      log.Warning("Query error: " + err.Error());
       return
     }
     io.WriteString(w, allTagsJson)
@@ -256,7 +256,8 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     var remoteTableJson string
     remoteTableJson, err = database.GetRemoteOnlineTable(db)
     if err != nil {
-      log.Error("Cannot query present clients: " + err.Error());
+      log.Warning("Query error: " + err.Error());
+      return
     }
     io.WriteString(w, remoteTableJson)
     return
@@ -264,7 +265,8 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     var liveImageTableJson string
     liveImageTableJson, err = database.GetLiveImage(db, tagnumber)
     if err != nil {
-      log.Error("Cannot query present clients: " + err.Error());
+      log.Warning("Query error: " + err.Error());
+      return
     }
     io.WriteString(w, liveImageTableJson)
     return
@@ -272,7 +274,7 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     var remoteTableHeaderJson string
     remoteTableHeaderJson, err = database.GetRemotePresentHeader(db)
     if err != nil {
-      log.Error("Cannot query job queue table header")
+      log.Warning("Query error: " + err.Error());
       return
     }
     io.WriteString(w, remoteTableHeaderJson)
@@ -281,6 +283,7 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     var remoteOfflineTableJson string
     remoteOfflineTableJson, err = database.GetRemoteOfflineTable(db)
     if err != nil {
+      log.Warning("Query error: " + err.Error());
       return
     }
     io.WriteString(w, remoteOfflineTableJson)
@@ -289,6 +292,7 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     var tagnumberDataJson string
     tagnumberDataJson, err = database.GetTagnumberData(db, tagnumber)
     if err != nil {
+      log.Warning("Query error: " + err.Error());
       return
     }
     io.WriteString(w, tagnumberDataJson)
@@ -892,7 +896,7 @@ func main() {
     panic("DB context error")
   }
 
-  
+
   // Route to correct function
   baseMuxChain := muxChain{apiMiddleWare, apiAuth}
   // refreshTokenMuxChain := muxChain{apiMiddleWare}
