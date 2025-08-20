@@ -408,19 +408,19 @@ foreach ($dbPSQL->get() as $key => $value) {
                 <td></td>
               </tr>
               <tr>
-                <td>Serial Number</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>MAC Address</td>
-                <td></td>
-              </tr>
-              <tr>
                 <td>System Model</td>
                 <td></td>
               </tr>
               <tr>
                 <td>OS Version</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Serial Number</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>MAC Address</td>
                 <td></td>
               </tr>
               <tr>
@@ -449,7 +449,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                 <td></td>
               </tr>
               <tr>
-                <td>Battery Health</td>
+                <td>Overall Battery Health</td>
                 <td></td>
               </tr>
               <tr>
@@ -469,11 +469,14 @@ foreach ($dbPSQL->get() as $key => $value) {
                 <td></td>
               </tr>
               <tr>
-                <td>Disk Health</td>
+                <td>Overall Disk Health</td>
                 <td></td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div id='hardware_data' style='width: auto; height: auto; overflow:auto; margin: 1em 1em 3em 1em;'>
         </div>
         <!-- Close column div-->
       </div>
@@ -615,121 +618,6 @@ foreach ($dbPSQL->get() as $key => $value) {
       <!--Close row div-->
     </div>
 
-
-
-
-
-      <div class='row' style='margin: 1% 0% 0% 1%;'>
-        <div class='column'>
-          <div style='height: auto; overflow:auto;'>
-            <table width='100%'>
-              <thead>
-                <tr>
-                <th>Disk Info - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></th>
-                <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Disk Model</td>
-                  <td><?php echo htmlspecialchars($value["disk_model"]); ?></td>
-                </tr>
-                <tr>
-                  <td>Disk Serial</td>
-                  <td><?php echo htmlspecialchars($value["disk_serial"]); ?></td>
-                </tr>
-                <tr>
-                  <td>Disk Type</td>
-                  <td><?php echo htmlspecialchars($value["disk_type"]); ?></td>
-                </tr>
-                <tr>
-                  <td>Disk Size</td>
-                  <td><?php echo htmlspecialchars($value["disk_size"]); ?></td>
-                </tr>
-
-              </tbody>
-            </table>
-          </div>
-
-          <div style='height: auto; overflow:auto;'>
-            <table width='100%'>
-              <thead>
-                <tr>
-                <th>CPU/RAM Info - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></th>
-                <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>CPU Model</td>
-                  <td><?php echo htmlspecialchars($value["cpu_model"]); ?></td>
-                </tr>
-                <tr>
-                  <td>CPU Cores</td>
-                  <td><?php echo htmlspecialchars($value["multithreaded"]) . " " . htmlspecialchars($value["cpu_maxspeed_formatted"]); ?></td>
-                </tr>
-                <tr>
-                  <td>RAM Capacity</td>
-                  <td><?php echo htmlspecialchars($value["ram_capacity_formatted"]); ?></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-        </div>
-
-        <div class='column'>
-          <div style='width: auto; overflow:auto; margin: 1% 1% 5% 2%;'>
-            <table width='100%'>
-              <thead>
-                <tr>
-                <th>Client Health - <u><?php echo htmlspecialchars($_GET["tagnumber"]); ?></th>
-                <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Total Jobs</td>
-                  <td><?php echo htmlspecialchars($value['all_jobs']); ?></td>
-                </tr>
-                <tr>
-                  <td>Erase Avg. Time</td>
-                  <td><?php echo htmlspecialchars($value['avg_erase_time']); ?></td>
-                </tr>
-                <tr>
-                  <td>Clone Avg. Time</td>
-                  <td><?php echo htmlspecialchars($value['avg_clone_time']); ?></td>
-                </tr>
-                <tr>
-                  <td>Battery Health</td>
-                  <td><?php echo htmlspecialchars($value['battery_health_formatted']); ?></td>
-                </tr>
-                <tr>
-                  <td>Disk TBW/TBR</td>
-                  <td><?php echo htmlspecialchars($value['disk_tbw_formatted']); ?></td>
-                </tr>
-                <tr>
-                  <td>Disk Power on Hours</td>
-                  <td><?php echo htmlspecialchars($value['disk_power_on_hours']); ?></td>
-                </tr>
-                <tr>
-                  <td>Disk Power Cycles</td>
-                  <td><?php echo htmlspecialchars($value['disk_power_cycles']); ?></td>
-                </tr>
-                <tr>
-                  <td>Disk Errors</td>
-                  <td><?php echo htmlspecialchars($value['disk_errors']); ?></td>
-                </tr>
-                <tr>
-                  <td>Disk Health</td>
-                  <td><?php echo htmlspecialchars($value['disk_health']); ?></td>
-
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
   <?php
   // Close if & foreach statements for this row
   }

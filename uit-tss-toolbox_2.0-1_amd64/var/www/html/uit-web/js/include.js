@@ -599,7 +599,7 @@ async function updateTagnumberData(tagnumber) {
       const batteryTD2 = document.createElement("td");
       const batteryP2 = document.createElement("p");
 
-      const batteryText1 = document.createTextNode("Battery Health");
+      const batteryText1 = document.createTextNode("Overall Battery Health");
 
       let batteryText2 = undefined;
       if (value["battery_health"]) {
@@ -754,6 +754,54 @@ async function updateTagnumberData(tagnumber) {
       clientHealthTable.append(clientHealthThead, clientHealthTbody);
       clientHealthFragment.replaceChildren(clientHealthTable);
       oldClientHealthTable.replaceChildren(clientHealthFragment);
+
+
+
+
+      // Hardware Data
+      const oldHardwareTable = document.getElementById("hardware_data");
+      const hardwareFragment = new DocumentFragment();
+      const hardwareTable = document.createElement("table");
+      const hardwareTableHead = document.createElement("thead");
+      const hardwareTableBody = document.createElement("tbody");
+
+      const hardwareTableHeadTr = document.createElement("tr");
+      const hardwareTableHeadTh1 = document.createElement("th");
+      const hardwareTableHeadTh2 = document.createElement("th");
+      
+      hardwareTableHeadTh1.innerText = "Hardware Data - " + value["tagnumber"];
+
+      hardwareTableHeadTr.append(hardwareTableHeadTh1, hardwareTableHeadTh2);
+      hardwareTableHead.append(hardwareTableHeadTr);
+
+      // CPU model
+      const cpuModelRow = document.createElement("tr");
+      const cpuModelTd1 = document.createElement("td");
+      const cpuModelP1 = document.createElement("p");
+      const cpuModelTd2 = document.createElement("td");
+      const cpuModelP2 = document.createElement("p");
+
+      const cpuModelText1 = document.createTextNode("CPU Model");
+      
+      let cpuModelFormatted = undefined;
+      if (value["cpu_model"] && (value["cpu_maxspeed_formatted"] || value["multithreaded_formatted"])) {
+        cpuModelFormatted = value["cpu_model"] + " " + value["cpu_maxspeed_formatted"] + " " + value["multithreaded_formatted"];
+      } else {
+        cpuModelFormatted = "";
+      }
+      const cpuModelText2 = document.createTextNode(cpuModelFormatted);
+
+      cpuModelP1.append(cpuModelText1);
+      cpuModelTd1.append(cpuModelP1);
+      cpuModelP2.append(cpuModelText2);
+      cpuModelTd2.append(cpuModelP2);
+      cpuModelRow.append(cpuModelTd1, cpuModelTd2);
+
+
+      hardwareTableBody.append(cpuModelRow);
+      hardwareTable.append(hardwareTableHead, hardwareTableBody);
+      hardwareFragment.replaceChildren(hardwareTable);
+      oldHardwareTable.replaceChildren(hardwareFragment);
 
     });
 
