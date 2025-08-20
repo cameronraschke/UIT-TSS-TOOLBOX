@@ -195,7 +195,6 @@ async function updateTagnumberData(tagnumber) {
   try {
     const oldGeneralClientInfo = document.getElementById("client_info");
     const oldDiskInfo = document.getElementById("disk_info");
-    const oldClientHealthInfo = document.getElementById("client_health");
     const oldCpuRamInfo = document.getElementById("cpu_ram_info");
 
     const generalClientInfoFragment = new DocumentFragment();
@@ -203,8 +202,7 @@ async function updateTagnumberData(tagnumber) {
     const diskInfo = document.createElement("table");
     diskInfo.setAttribute("id", "disk_info");
 
-    const clientHealthInfo = document.createElement("table");
-    clientHealthInfo.setAttribute("id", "client_health");
+    
 
     const cpuRamInfo = document.createElement("table");
     cpuRamInfo.setAttribute("id", "cpu_ram_info");
@@ -527,9 +525,50 @@ async function updateTagnumberData(tagnumber) {
 
       generalClientBodyTbody.append(locationRow, departmentRow, domainRow, serialRow, macRow, modelRow, osRow, bitlockerRow, biosRow);
       generalClientInfoFragment.replaceChildren(generalClientInfoTable);
-    });
+      oldGeneralClientInfo.replaceChildren(generalClientInfoFragment);
 
-    oldGeneralClientInfo.replaceChildren(generalClientInfoFragment);
+
+
+      // Client health
+      const oldClientHealthTable = document.getElementById("client_health");
+
+      const clientHealthFragment = new DocumentFragment();
+      const clientHealthTable = document.createElement("table");
+      clientHealthTable.setAttribute("id", "client_health");
+      clientHealthTable.style.width = '100%';
+
+      // thead
+      const clientHealthThead = document.createElement("thead");
+      const clientHealthHeadTR1 = document.createElement("tr");
+      const clientHealthHeadTH1 = document.createElement("th");
+      clientHealthHeadTH1.innerText = "Client Health - " + value["tagnumber"];
+      const clientHealthHeadTH2 = document.createElement("th");
+
+      clientHealthHeadTR1.append(clientHealthHeadTH1, clientHealthHeadTH2);
+      clientHealthThead.append(clientHealthHeadTR1);
+
+      // tbody
+      const clientHealthTbody = document.createElement("tbody");
+
+      // Total jobs
+      const totalJobsRow = document.createElement("tr");
+      const totalJobsTD1 = document.createElement("td");
+      const totalJobsTD2 = document.createElement("td");
+      
+      totalJobsTD1.innerText = "Total Jobs";
+      
+      const totalJobsP2 = document.createElement("p");
+      const totalJobsText2 = document.createTextNode(value["total_jobs"]);
+      totalJobsP2.append(totalJobsText2);
+      totalJobsTD2.append(totalJobsP2);
+
+
+
+      clientHealthTbody.append(totalJobsRow);
+      clientHealthFragment.replaceChildren(clientHealthTable);
+      oldClientHealthTable.replaceChildren(clientHealthFragment);
+
+    });
 
   } catch(error) {
     console.error(error);

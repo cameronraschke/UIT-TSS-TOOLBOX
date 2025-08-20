@@ -434,6 +434,55 @@ foreach ($dbPSQL->get() as $key => $value) {
             </tbody>
           </table>
         </div>
+
+        <div id='client_health' style='width: auto; height: auto; overflow:auto; margin: 1em 1em 3em 1em;'>
+          <table>
+            <thead>
+              <tr>
+                <th>Client Health</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Total Jobs</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Erase Avg. Time</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Clone Avg. Time</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Battery Health</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Disk TBW/Tbr</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Disk Power on Hours</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Disk Power Cycles</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Disk Errors</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Disk Health</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <!-- Close column div-->
       </div>
 
