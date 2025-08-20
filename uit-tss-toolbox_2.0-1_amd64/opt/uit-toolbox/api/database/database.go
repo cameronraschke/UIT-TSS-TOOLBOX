@@ -483,7 +483,7 @@ type TagnumberData struct {
   Identifier                          *string     `json:"identifier"`
   RecoveryKey                         *string     `json:"recovery_key"`
   BatteryHealth                       *string     `json:"battery_health"`
-  DiskHealth                          *string     `json:"disk_health"`
+  DiskHealth                          *float32    `json:"disk_health"`
   AvgEraseTime                        *int        `json:"avg_erase_time"`
   AvgCloneTime                        *int        `json:"avg_clone_time"`
   AllJobs                             *int        `json:"all_jobs"`
@@ -547,7 +547,7 @@ func GetTagnumberData (db *sql.DB, tagnumber int) (string, error) {
     END) AS ram_capacity_formatted,
     t4.disk_model, CONCAT(t4.disk_size, 'GB') AS disk_size, t4.disk_type, t4.disk_serial, 
     t5.identifier, t5.recovery_key, 
-    (CASE WHEN client_health.battery_health IS NOT NULL THEN client_health.battery_health ELSE NULL END) AS battery_health, (CASE WHEN client_health.disk_health IS NOT NULL THEN CONCAT(client_health.disk_health, '%') ELSE NULL END) AS disk_health, 
+    (CASE WHEN client_health.battery_health IS NOT NULL THEN client_health.battery_health ELSE NULL END) AS battery_health, client_health.disk_health, 
     (CASE 
       WHEN client_health.avg_erase_time IS NOT NULL THEN client_health.avg_erase_time
       ELSE NULL 

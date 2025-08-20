@@ -688,7 +688,7 @@ async function updateTagnumberData(tagnumber) {
 
       let diskCyclesFormatted = undefined;
       if (value["disk_power_cycles"] && value["disk_power_cycles"] > 0) {
-        diskCyclesFormatted = value["disk_power_cycles"] + "cycles";
+        diskCyclesFormatted = value["disk_power_cycles"] + " cycles";
       } else {
         diskCyclesFormatted = "";
       }
@@ -701,9 +701,56 @@ async function updateTagnumberData(tagnumber) {
       diskCyclesRow.append(diskCyclesTD1, diskCyclesTD2);
 
 
+      // Disk errors
+      const diskErrorsRow = document.createElement("tr");
+      const diskErrorsTD1 = document.createElement("td");
+      const diskErrorsP1 = document.createElement("p");
+      const diskErrorsTD2 = document.createElement("td");
+      const diskErrorsP2 = document.createElement("p");
+
+      const diskErrorsText1 = document.createTextNode("Disk Errors");
+
+      let diskErrorsFormatted = undefined;
+      if (value["disk_errors"] || value["disk_errors"] == 0) {
+        diskErrorsFormatted = value["disk_errors"] + " errors";
+      } else {
+        diskErrorsFormatted = "";
+      }
+      const diskErrorsText2 = document.createTextNode(diskErrorsFormatted);
+
+      diskErrorsP1.append(diskErrorsText1);
+      diskErrorsTD1.append(diskErrorsP1);
+      diskErrorsP2.append(diskErrorsText2);
+      diskErrorsTD2.append(diskErrorsP2);
+      diskErrorsRow.append(diskErrorsTD1, diskErrorsTD2);
 
 
-      clientHealthTbody.append(totalJobsRow, batteryRow, diskTBWRow, diskHrsRow, diskCyclesRow);
+      // Disk health
+      const diskHealthRow = document.createElement("tr");
+      const diskHealthTD1 = document.createElement("td");
+      const diskHealthP1 = document.createElement("p");
+      const diskHealthTD2 = document.createElement("td");
+      const diskHealthP2 = document.createElement("p");
+
+      const diskHealthText1 = document.createTextNode("Overall Disk Health");
+
+      let diskHealthFormatted = undefined;
+      if (value["disk_health"] || value["disk_health"] == 0) {
+        diskHealthFormatted = value["disk_health"] + "%";
+      } else {
+        diskHealthFormatted = "";
+      }
+
+      const diskHealthText2 = document.createTextNode(diskHealthFormatted);
+
+      diskHealthP1.append(diskHealthText1);
+      diskHealthTD1.append(diskHealthP1);
+      diskHealthP2.append(diskHealthText2);
+      diskHealthTD2.append(diskHealthP2);
+      diskHealthRow.append(diskHealthTD1, diskHealthTD2);
+
+
+      clientHealthTbody.append(totalJobsRow, batteryRow, diskTBWRow, diskHrsRow, diskCyclesRow, diskErrorsRow, diskHealthRow);
       clientHealthTable.append(clientHealthThead, clientHealthTbody);
       clientHealthFragment.replaceChildren(clientHealthTable);
       oldClientHealthTable.replaceChildren(clientHealthFragment);
