@@ -492,7 +492,7 @@ type TagnumberData struct {
   BiosUpdatedFormatted                *string     `json:"bios_updated_formatted"`
   DiskWrites                          *float32    `json:"disk_writes"`
   DiskReads                           *float32    `json:"disk_reads"`
-  DiskPowerOnHours                    *string     `json:"disk_power_on_hours"`
+  DiskPowerOnHours                    *int        `json:"disk_power_on_hours"`
   DiskPowerCycles                     *string     `json:"disk_power_cycles"`
   DiskErrors                          *int        `json:"disk_errors"`
   Domain                              *string     `json:"domain"`
@@ -568,7 +568,7 @@ func GetTagnumberData (db *sql.DB, tagnumber int) (string, error) {
       WHEN client_health.bios_updated = FALSE AND client_health.bios_version IS NOT NULL THEN CONCAT('Out of date ', '(', client_health.bios_version, ')') 
       ELSE 'Unknown BIOS Version' 
       END) AS bios_updated_formatted, 
-    t4.disk_writes, t4.disk_reads, CONCAT(t4.disk_power_on_hours, ' hrs') AS disk_power_on_hours,
+    t4.disk_writes, t4.disk_reads, t4.disk_power_on_hours,
     t4.disk_power_cycles, t4.disk_errors, locations.domain, (CASE WHEN locations.domain IS NOT NULL THEN static_domains.domain_readable ELSE 'Not Joined' END) AS domain_readable,
     (CASE 
       WHEN client_health.os_installed = TRUE AND client_health.os_name IS NOT NULL AND NOT client_health.os_name = 'Unknown OS' THEN CONCAT(client_health.os_name, ' (Imaged on ', TO_CHAR(t6.time, 'MM/DD/YY HH12:MI:SS AM'), ')') 

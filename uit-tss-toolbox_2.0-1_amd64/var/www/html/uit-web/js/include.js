@@ -523,7 +523,7 @@ async function updateTagnumberData(tagnumber) {
       biosRow.append(biosTD1, biosTD2);
 
 
-      generalClientBodyTbody.append(locationRow, departmentRow, domainRow, serialRow, macRow, modelRow, osRow, bitlockerRow, biosRow);
+      generalClientBodyTbody.append(locationRow, departmentRow, domainRow, modelRow, osRow, serialRow, macRow, bitlockerRow, biosRow);
       generalClientInfoFragment.replaceChildren(generalClientInfoTable);
       oldGeneralClientInfo.replaceChildren(generalClientInfoFragment);
 
@@ -588,11 +588,11 @@ async function updateTagnumberData(tagnumber) {
       // Battery Health
       const batteryRow = document.createElement("tr");
       const batteryTD1 = document.createElement("td");
+      const batteryP1 = document.createElement("p");
       const batteryTD2 = document.createElement("td");
-
-      batteryTD1.innerText = "Battery Health";
-
       const batteryP2 = document.createElement("p");
+
+      const batteryText1 = document.createTextNode("Battery Health");
 
       let batteryText2 = undefined;
       if (value["battery_health"]) {
@@ -601,45 +601,76 @@ async function updateTagnumberData(tagnumber) {
         batteryText2 = document.createTextNode("");
       }
 
+      batteryP1.append(batteryText1);
+      batteryTD1.append(batteryP1);
       batteryP2.append(batteryText2);
       batteryTD2.append(batteryP2);
-
       batteryRow.append(batteryTD1, batteryTD2);
 
 
       // Disk TBW/TBR
-      const diskRow = document.createElement("tr");
-      const diskTD1 = document.createElement("td");
-      const diskTD2 = document.createElement("td");
+      const diskTBWRow = document.createElement("tr");
+      const diskTBWTD1 = document.createElement("td");
+      const diskTBWP1 = document.createElement("p");
+      const diskTBWTD2 = document.createElement("td");
+      const diskTBWP2 = document.createElement("p");
 
-      diskTD1.innerText = "Disk TBW / TBR";
-
-      const diskP2 = document.createElement("p");
+      const diskTBWText1 = document.createTextNode("Disk TBW / TBR");
 
       let diskWrites = undefined;
       if (value["disk_writes"] && value["disk_writes"] > 0) {
         diskWrites = value["disk_writes"];
       } else {
-        diskWrites = value["disk_writes"];
+        diskWrites = "Unknown";
       }
 
       let diskReads = undefined;
       if (value["disk_reads"] && value["disk_reads"] > 0) {
         diskReads = value["disk_reads"];
       } else {
-        diskReads = value["disk_reads"];
+        diskReads = "Unknown";
       }
 
-      const diskText2 = document.createTextNode(diskWrites + "TBW / " + diskReads + "TBR");
+      let diskTBWFormattedString = undefined;
+      if (diskWrites !== "Unknown" || diskReads !== "Unknown") {
+        diskTBWFormattedString = diskWrites + " TBW / " + diskReads + " TBR";
+      } else {
+        diskTBWFormattedString = ""
+      }
 
+      const diskTBWText2 = document.createTextNode(diskTBWFormattedString);
       
+      diskTBWP1.append(diskTBWText1);
+      diskTBWTD1.append(diskTBWP1);
+      diskTBWP2.append(diskTBWText2);
+      diskTBWTD2.append(diskTBWP2);
+      diskTBWRow.append(diskTBWTD1, diskTBWTD2);
+
+
+      // Disk power on hours
+      const diskHrsRow = document.createElement("tr");
+      const diskHrsTD1 = document.createElement("td");
+      const diskHrsP1 = document.createElement("p");
+      const diskHrsTD2 = document.createElement("td");
+      const diskHrsP2 = document.createElement("p");
+
+      const diskHrsText1 = document.createTextNode("Disk Power on Hours");
       
-      diskP2.append(diskText2);
-      diskTD2.append(diskP2);
-      diskRow.append(diskTD1, diskTD2);
+      let diskHrsText2 = undefined;
+      if (value["disk_power_on_hours"] && value["disk_power_on_hours"] > 0) {
+        diskHrsText2 = document.createTextNode(value["disk_power_on_hours"] + " hrs");
+      } else {
+        diskHrsText2 = document.createTextNode("");
+      }
+
+      diskHrsP1.append(diskHrsText1);
+      diskHrsTD1.append(diskHrsP1);
+      diskHrsP2.append(diskHrsText2);
+      diskHrsTD2.append(diskHrsP2);
+      diskHrsRow.append(diskHrsTD1, diskHrsTD2);
 
 
-      clientHealthTbody.append(totalJobsRow, batteryRow, diskRow);
+      clientHealthTbody.append(totalJobsRow, batteryRow, diskTBWRow, diskHrsRow);
 
 
       clientHealthTable.append(clientHealthThead, clientHealthTbody);
