@@ -346,7 +346,7 @@ func postAPI (w http.ResponseWriter, req *http.Request) {
       log.Warning("JSON decode error: " + err.Error())
       return
     }
-    log.Debug("Queued Job: " + jsonRequest.JobQueued)
+    log.Debug("(" + tagnumber + ")" + "Queued Job: " + jsonRequest.JobQueued)
   default:
     log.Warning("No POST type defined")
     return
