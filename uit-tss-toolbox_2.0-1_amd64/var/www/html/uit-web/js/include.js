@@ -585,9 +585,6 @@ async function updateTagnumberData(tagnumber) {
 
       totalJobsRow.append(totalJobsTD1, totalJobsTD2);
 
-
-
-
       // Battery Health
       const batteryRow = document.createElement("tr");
       const batteryTD1 = document.createElement("td");
@@ -610,7 +607,39 @@ async function updateTagnumberData(tagnumber) {
       batteryRow.append(batteryTD1, batteryTD2);
 
 
-      clientHealthTbody.append(totalJobsRow, batteryRow);
+      // Disk TBW/TBR
+      const diskRow = document.createElement("tr");
+      const diskTD1 = document.createElement("td");
+      const diskTD2 = document.createElement("td");
+
+      diskTD1.innerText = "Disk TBW / TBR";
+
+      const diskP2 = document.createElement("p");
+
+      let diskWrites = undefined;
+      if (value["disk_writes"] && value["disk_writes"] > 0) {
+        diskWrites = value["disk_writes"];
+      } else {
+        diskWrites = value["disk_writes"];
+      }
+
+      let diskReads = undefined;
+      if (value["disk_reads"] && value["disk_reads"] > 0) {
+        diskReads = value["disk_reads"];
+      } else {
+        diskReads = value["disk_reads"];
+      }
+
+      const diskText2 = document.createTextNode(diskWrites + "TBW / " + diskReads + "TBR");
+
+      
+      
+      diskP2.append(diskText2);
+      diskTD2.append(diskP2);
+      diskRow.append(diskTD1, diskTD2);
+
+
+      clientHealthTbody.append(totalJobsRow, batteryRow, diskRow);
 
 
       clientHealthTable.append(clientHealthThead, clientHealthTbody);

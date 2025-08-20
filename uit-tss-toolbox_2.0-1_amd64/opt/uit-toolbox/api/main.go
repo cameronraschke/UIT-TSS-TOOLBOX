@@ -830,6 +830,8 @@ func apiAuth (next http.Handler) http.Handler {
 
 
 func main() {
+  var err error
+
   debug.PrintStack()
   log.Info("Server time: " + time.Now().Format("01-02-2006 15:04:05"))
   log.Info("UIT API Starting...")
@@ -852,32 +854,31 @@ func main() {
   // Connect to db with pgx
   log.Info("Attempting connection to database...")
   const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
-  sqlConn, err := sql.Open("pgx", dbConnString)
+  db, err = sql.Open("pgx", dbConnString)
   if err != nil  {
     log.Error("Unable to connect to database: \n" + err.Error())
     os.Exit(1)
   }
-  defer sqlConn.Close()
+  defer db.Close()
+
   // Check if the database connection is valid
-  if err = sqlConn.Ping(); err != nil {
+  if err = db.Ping(); err != nil {
     log.Error("Cannot ping database: \n" + err.Error())
     os.Exit(1)
   }
-
-  sqlConn.SetMaxOpenConns(30)
-  sqlConn.SetMaxIdleConns(10)
-  sqlConn.SetConnMaxIdleTime(1 * time.Minute)
-
   log.Info("Connected to database successfully")
-  db = sqlConn
-  defer db.Close()
+
+  // Set defaults for db connection
+  db.SetMaxOpenConns(30)
+  db.SetMaxIdleConns(10)
+  db.SetConnMaxIdleTime(1 * time.Minute)
+
 
   webCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
 
   dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
-
 
 
   // Check if the web context is valid
@@ -891,6 +892,7 @@ func main() {
     panic("DB context error")
   }
 
+  
   // Route to correct function
   baseMuxChain := muxChain{apiMiddleWare, apiAuth}
   // refreshTokenMuxChain := muxChain{apiMiddleWare}

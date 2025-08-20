@@ -453,7 +453,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                 <td></td>
               </tr>
               <tr>
-                <td>Disk TBW/Tbr</td>
+                <td>Disk TBW/TBR</td>
                 <td></td>
               </tr>
               <tr>
