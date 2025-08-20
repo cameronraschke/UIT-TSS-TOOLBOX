@@ -323,7 +323,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                 ?>
               </div>
               <div>
-                <form name="job_queued_form" method="post">
+                <form name="job_queued_form" id="job_queued_form" method="post">
                   <div style='padding-left: 0;'><label for='tagnumber'>Enter a job to queue: </label></div>
                   <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
                   <div style='padding-left: 0;'><select name="job_queued">
@@ -359,6 +359,12 @@ foreach ($dbPSQL->get() as $key => $value) {
                   </select>
                   <button class='submit' type="submit">Queue Job</button></div>
                 </form>
+                <script>
+                  const form = document.querySelector("#job_queued_form");
+                  form.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    postData(form);
+                  });
               </div>
             </div>
             <div class='column' style='width: 50%; height: 100%;'>

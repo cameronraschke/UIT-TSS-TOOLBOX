@@ -74,6 +74,55 @@ function test() {
 };
 
 
+async function postData(inputForm) {
+  if (await checkToken() == false) {
+    await newToken();
+  }
+
+  const bearerToken = localStorage.getItem('bearerToken');
+
+  const formData = new FormData(inputForm);
+  formData.append("test", "test");
+
+  const selection = await window.showOpenFilePicker();
+  if (selection.length > 0) {
+    const file = await selection[0].getFile();
+    formData.append("file", file);
+  }
+
+  try {
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + bearerToken
+    });
+
+    const requestOptions = {
+      method: 'POST',
+      credentials: 'include',
+      headers: headers
+    };
+
+    await fetch('/api/form', {
+      method: 'POST',
+      headers: headers,
+      body: formData
+    });
+
+    const response = await fetch(url, requestOptions);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }   
+
+    const data = await response.json();
+    return(data);
+
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+
+
 async function updateRemoteOfflineTable() {
   try {
     const oldRemoteOfflineTable = document.getElementById('remoteOfflineTable');

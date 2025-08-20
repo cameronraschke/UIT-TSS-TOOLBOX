@@ -325,9 +325,10 @@ label {
 }
 .location-form input[type=text] {
 	padding: 0.5em 0.5em 0.5em 0.5em;
+	border: 0.5px solid grey;
 }
 .location-form input[type=text]:focus {
-	border: 1px solid black;
+	border: 0.5px solid black;
 }
 .location-form input[type=submit] {
 	padding: 0.5em 0.5em 0.5em 0.5em;

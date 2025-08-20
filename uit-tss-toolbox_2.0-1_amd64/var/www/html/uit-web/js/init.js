@@ -77,6 +77,7 @@ async function checkToken() {
 
     const headers = new Headers({
       'Content-Type': 'application/x-www-form-urlencoded',
+      'credentials': 'include',
       'Authorization': 'Bearer ' + bearerToken
     });
 
@@ -111,6 +112,7 @@ async function newToken() {
   
   const headers = new Headers({
     'Content-Type': 'application/x-www-form-urlencoded',
+    'credentials': 'include',
     'Authorization': 'Basic ' + basicToken
   });
 
@@ -169,7 +171,7 @@ async function fetchData(url) {
   } catch (error) {
     console.error(error.message);
   }
-};
+}
 
   
   async function fetchSSE (type, tag = undefined) {

@@ -83,11 +83,6 @@ type Auth struct {
 	Token string `json:"token"`
 }
 
-type StoredAuth struct {
-  Expires time.Time
-  Hash    string
-}
-
 type httpErrorCodes struct {
   Message string `json:"message"`
 }
@@ -98,6 +93,11 @@ type RateLimiter struct {
   MapLastUpdated   time.Time
   BannedUntil      time.Time
   Banned           bool
+}
+
+type FormJobQueue {
+  Tagnumber         int     `json:"job_queued_tagnumber"`
+  JobQueued         string  `json:"job_queued"`
 }
 
 
@@ -297,8 +297,62 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
     }
     io.WriteString(w, tagnumberDataJson)
     return
+  default:
+    log.Warning("No query type defined")
+    return
   }
 }
+
+
+func postAPI (w http.ResponseWriter, req *http.Request) {
+  var parsedURL *url.URL
+  var err error
+
+
+  // Check database connection
+  if db == nil {
+    log.Error("Connection to database failed while attempting API Auth")
+    http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+    return
+  }
+
+  // Parse URL
+  parsedURL, err = url.Parse(req.URL.RequestURI())
+  if err != nil {
+    log.Warning("Cannot parse URL ( " + req.RemoteAddr + "): " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
+    return
+  }
+  // path := parsedURL.Path
+  RawQuery := parsedURL.RawQuery
+  queries, _ := url.ParseQuery(RawQuery)
+
+  tag := queries.Get("tagnumber")
+  var tagnumber int
+  if len(tag) > 0 {
+    tagnumber, err = strconv.Atoi(tag)
+    if err != nil {
+      log.Warning("Tagnumber cannot be converted to integer: " + queries.Get("tagnumber"))
+      return
+    }
+  }
+
+  queryType := queries.Get("type")
+
+  switch queryType {
+  case "test":
+    var jsonRequest FormJobQueue
+    err := json.NewDecoder(req.Body).Decode(&jsonRequest)
+    if err != nil {
+      log.Warning("JSON decode error: " + err.Error())
+      return
+    }
+    log.Debug("Queued Job: " + jsonRequest.JobQueued)
+  default:
+    log.Warning("No POST type defined")
+    return
+  }
+}
+
 
 
 func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDataStr string, err error) {
@@ -903,6 +957,7 @@ func main() {
   mux := http.NewServeMux()
   mux.Handle("/api/auth", baseMuxChain.thenFunc(refreshClientToken))
   mux.Handle("/api/remote", baseMuxChain.thenFunc(remoteAPI))
+  mux.Handle("/api/post", baseMuxChain.thenFunc(postAPI))
   mux.Handle("/api/locations", baseMuxChain.thenFunc(remoteAPI))
   // mux.HandleFunc("/dbstats/", GetInfoHandler)
 
