@@ -95,7 +95,7 @@ type RateLimiter struct {
   Banned           bool
 }
 
-type FormJobQueue {
+type FormJobQueue struct {
   Tagnumber         int     `json:"job_queued_tagnumber"`
   JobQueued         string  `json:"job_queued"`
 }
