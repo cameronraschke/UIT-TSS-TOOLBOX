@@ -327,7 +327,7 @@ func postAPI (w http.ResponseWriter, req *http.Request) {
   RawQuery := parsedURL.RawQuery
   queries, _ := url.ParseQuery(RawQuery)
 
-  tag := queries.Get("tagnumber")
+  // tag := queries.Get("tagnumber")
   // var tagnumber int
   // if len(tag) > 0 {
   //   tagnumber, err = strconv.Atoi(tag)
@@ -341,9 +341,15 @@ func postAPI (w http.ResponseWriter, req *http.Request) {
 
   switch queryType {
   case "test":
+    var j FormJobQueue
+    err := json.NewDecoder(req.Body).Decode(&j)
+    if err != nil {
+      log.Warning("Error reading request: " + err.Error())
+    }
+    fmt.Println(j.JobQueued)
     dump, _ := httputil.DumpRequest(req, true)
     fmt.Printf("--- Raw HTTP Request ---\n%s\n", dump)
-    fmt.Printnln(req.PostForm.Get("job_queued"))
+    return
   default:
     log.Warning("No POST type defined")
     return

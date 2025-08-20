@@ -98,7 +98,7 @@ async function postData(inputForm) {
     const requestOptions = {
       method: 'POST',
       headers: {
-      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/json',
       'credentials': 'include',
       'Authorization': 'Bearer ' + bearerToken
       },
