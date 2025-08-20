@@ -327,14 +327,14 @@ func postAPI (w http.ResponseWriter, req *http.Request) {
   queries, _ := url.ParseQuery(RawQuery)
 
   tag := queries.Get("tagnumber")
-  var tagnumber int
-  if len(tag) > 0 {
-    tagnumber, err = strconv.Atoi(tag)
-    if err != nil {
-      log.Warning("Tagnumber cannot be converted to integer: " + queries.Get("tagnumber"))
-      return
-    }
-  }
+  // var tagnumber int
+  // if len(tag) > 0 {
+  //   tagnumber, err = strconv.Atoi(tag)
+  //   if err != nil {
+  //     log.Warning("Tagnumber cannot be converted to integer: " + queries.Get("tagnumber"))
+  //     return
+  //   }
+  // }
 
   queryType := queries.Get("type")
 
@@ -346,7 +346,7 @@ func postAPI (w http.ResponseWriter, req *http.Request) {
       log.Warning("JSON decode error: " + err.Error())
       return
     }
-    log.Debug("(" + tagnumber + ")" + "Queued Job: " + jsonRequest.JobQueued)
+    log.Debug("(" + tag + ")" + "Queued Job: " + jsonRequest.JobQueued)
   default:
     log.Warning("No POST type defined")
     return
