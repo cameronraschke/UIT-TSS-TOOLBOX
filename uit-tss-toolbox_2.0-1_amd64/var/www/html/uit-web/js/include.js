@@ -555,7 +555,7 @@ async function updateTagnumberData(tagnumber) {
       const totalJobsTD1 = document.createElement("td");
       const totalJobsTD2 = document.createElement("td");
       
-      totalJobsTD1.innerText = "Total Jobs/Avg. Erase Time/Avg. Clone Time";
+      totalJobsTD1.innerText = "Avg. Erase Time / Avg. Clone Time / Total Jobs";
       
       let allJobs = undefined;
       if (value["all_jobs"] && value["all_jobs"] > 0) {
