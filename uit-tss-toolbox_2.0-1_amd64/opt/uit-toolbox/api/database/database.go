@@ -482,10 +482,10 @@ type TagnumberData struct {
   DiskSerial                          *string     `json:"disk_serial"`
   Identifier                          *string     `json:"identifier"`
   RecoveryKey                         *string     `json:"recovery_key"`
-  BatteryHealth                       *string     `json:"battery_health_formatted"`
+  BatteryHealth                       *string     `json:"battery_health"`
   DiskHealth                          *string     `json:"disk_health"`
-  AvgEraseTime                        *string     `json:"avg_erase_time"`
-  AvgCloneTime                        *string     `json:"avg_clone_time"`
+  AvgEraseTime                        *int        `json:"avg_erase_time"`
+  AvgCloneTime                        *int        `json:"avg_clone_time"`
   AllJobs                             *int        `json:"all_jobs"`
   NetworkSpeedFormatted               *string     `json:"network_speed_formatted"`
   BiosUpdated                         *bool       `json:"bios_updated"`
@@ -548,13 +548,13 @@ func GetTagnumberData (db *sql.DB, tagnumber int) (string, error) {
     END) AS ram_capacity_formatted,
     t4.disk_model, CONCAT(t4.disk_size, 'GB') AS disk_size, t4.disk_type, t4.disk_serial, 
     t5.identifier, t5.recovery_key, 
-    (CASE WHEN client_health.battery_health IS NOT NULL THEN CONCAT(client_health.battery_health, '%') ELSE NULL END) AS battery_health_formatted, (CASE WHEN client_health.disk_health IS NOT NULL THEN CONCAT(client_health.disk_health, '%') ELSE NULL END) AS disk_health, 
+    (CASE WHEN client_health.battery_health IS NOT NULL THEN client_health.battery_health ELSE NULL END) AS battery_health, (CASE WHEN client_health.disk_health IS NOT NULL THEN CONCAT(client_health.disk_health, '%') ELSE NULL END) AS disk_health, 
     (CASE 
-      WHEN client_health.avg_erase_time IS NOT NULL THEN CONCAT(client_health.avg_erase_time, ' mins')
+      WHEN client_health.avg_erase_time IS NOT NULL THEN client_health.avg_erase_time
       ELSE NULL 
       END) AS avg_erase_time, 
     (CASE 
-      WHEN client_health.avg_clone_time IS NOT NULL THEN CONCAT(client_health.avg_clone_time, ' mins')
+      WHEN client_health.avg_clone_time IS NOT NULL THEN client_health.avg_clone_time
       ELSE NULL
       END) AS avg_clone_time,
     client_health.all_jobs, 

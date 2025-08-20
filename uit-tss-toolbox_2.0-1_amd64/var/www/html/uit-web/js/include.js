@@ -555,16 +555,65 @@ async function updateTagnumberData(tagnumber) {
       const totalJobsTD1 = document.createElement("td");
       const totalJobsTD2 = document.createElement("td");
       
-      totalJobsTD1.innerText = "Total Jobs";
+      totalJobsTD1.innerText = "Total Jobs/Avg. Erase Time/Avg. Clone Time";
+      
+      let allJobs = undefined;
+      if (value["all_jobs"] && value["all_jobs"] > 0) {
+        allJobs = value["all_jobs"];
+      } else {
+        allJobs = value["avg_clone_time"];
+      }
+
+      let avgCloneTime = undefined;
+      if (value["avg_clone_time"] && value["avg_clone_time"] > 0) {
+        avgCloneTime = value["avg_clone_time"];
+      } else {
+        avgCloneTime = value["avg_clone_time"];
+      }
+
+      let avgEraseTime = undefined;
+      if (value["avg_erase_time"] && value["avg_erase_time"] > 0) {
+        avgEraseTime = value["avg_erase_time"];
+      } else {
+        avgEraseTime = value["avg_clone_time"];
+      }
       
       const totalJobsP2 = document.createElement("p");
-      const totalJobsText2 = document.createTextNode(value["total_jobs"]);
+      const totalJobsText2 = document.createTextNode(allJobs + "jobs/" + avgEraseTime + " mins/" + avgCloneTime + " mins");
       totalJobsP2.append(totalJobsText2);
       totalJobsTD2.append(totalJobsP2);
 
+      totalJobsRow.append(totalJobsTD1, totalJobsTD2);
 
 
-      clientHealthTbody.append(totalJobsRow);
+
+
+      // Battery Health
+      const batteryRow = document.createElement("tr");
+      const batteryTD1 = document.createElement("td");
+      const batteryTD2 = document.createElement("td");
+
+      batteryTD1.innerText = "Battery Health";
+
+      const batteryP2 = document.createElement("p");
+
+      let batteryText2 = undefined;
+      if (value["battery_health"]) {
+        batteryText2 = document.createTextNode(value["battery_health"] + "%");
+      } else {
+        batteryText2 = document.createTextNode("");
+      }
+
+      batteryP2.append(batteryText2);
+      batteryTD2.append(batteryP2);
+
+      batteryRow.append(batteryTD1, batteryTD2);
+
+
+      clientHealthTbody.append(totalJobsRow, batteryRow);
+
+
+      clientHealthTable.append(clientHealthThead, clientHealthTbody);
       clientHealthFragment.replaceChildren(clientHealthTable);
       oldClientHealthTable.replaceChildren(clientHealthFragment);
 
