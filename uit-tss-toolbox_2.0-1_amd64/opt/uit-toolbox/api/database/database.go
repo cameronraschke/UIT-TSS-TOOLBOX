@@ -520,10 +520,10 @@ func GetTagnumberData (db *sql.DB, tagnumber int) (string, error) {
     (CASE WHEN locations.disk_removed = TRUE THEN 'Yes' ELSE 'No' END) AS disk_removed_formatted, locations.disk_removed,
     (CASE 
       WHEN jobstats.etheraddress IS NOT NULL AND system_data.system_model NOT IN ('Latitude 7400', 'Latitude 5289') THEN jobstats.etheraddress 
-      WHEN jobstats.etheraddress IS NOT NULL AND system_data.system_model IN ('Latitude 7400', 'Latitude 5289') THEN 'No ethernet NIC' 
-      ELSE 'Unknown' 
+      WHEN jobstats.etheraddress IS NOT NULL AND system_data.system_model IN ('Latitude 7400', 'Latitude 5289') THEN NULL 
+      ELSE NULL
       END) AS etheraddress_formatted, 
-    (CASE WHEN system_data.wifi_mac IS NOT NULL THEN system_data.wifi_mac ELSE 'Unknown' END) AS wifi_mac_formatted, 
+    system_data.wifi_mac, 
     system_data.chassis_type, 
     (CASE
       WHEN system_data.system_manufacturer IS NOT NULL AND system_data.system_model IS NOT NULL THEN CONCAT(system_data.system_manufacturer, ' - ', system_data.system_model)
@@ -545,7 +545,7 @@ func GetTagnumberData (db *sql.DB, tagnumber int) (string, error) {
     WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NOT NULL THEN CONCAT(t8.ram_capacity, ' GB (', t8.ram_speed, ' MHz)')
     WHEN t8.ram_capacity IS NOT NULL AND t8.ram_speed IS NULL THEN CONCAT(t8.ram_capacity, ' GB')
     END) AS ram_capacity_formatted,
-    t4.disk_model, CONCAT(t4.disk_size, 'GB') AS disk_size, t4.disk_type, t4.disk_serial, 
+    t4.disk_model, t4.disk_size, t4.disk_type, t4.disk_serial, 
     t5.identifier, t5.recovery_key, 
     (CASE WHEN client_health.battery_health IS NOT NULL THEN client_health.battery_health ELSE NULL END) AS battery_health, client_health.disk_health, 
     (CASE 

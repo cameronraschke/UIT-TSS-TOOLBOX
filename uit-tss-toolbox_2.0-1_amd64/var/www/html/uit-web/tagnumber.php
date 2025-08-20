@@ -477,6 +477,43 @@ foreach ($dbPSQL->get() as $key => $value) {
         </div>
 
         <div id='hardware_data' style='width: auto; height: auto; overflow:auto; margin: 1em 1em 3em 1em;'>
+          <table>
+            <thead>
+              <tr>
+                <th>Hardware Data</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>CPU Model</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>CPU Cores</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>RAM Capacity</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Disk Size</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Disk Model</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Disk Serial</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Disk Type</td>
+                <td></td>
+              </tr>
+          </table>
         </div>
         <!-- Close column div-->
       </div>

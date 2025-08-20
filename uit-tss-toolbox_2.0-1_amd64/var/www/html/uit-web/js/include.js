@@ -373,77 +373,93 @@ async function updateTagnumberData(tagnumber) {
       // mac addresses
       const macRow = document.createElement("tr");
       const macTD1 = document.createElement("td");
+      const macP1 = document.createElement("p");
       const macTD2 = document.createElement("td");
+      const macP2 = document.createElement("p");
+
+      const macText1 = document.createTextNode("MAC Address");
 
       let wifiMacFormatted = undefined;
-      let etherAddressFormatted = undefined;
-
-      macTD1.innerText = "MAC Address";
-
       if (value["wifi_mac_formatted"] && value["wifi_mac_formatted"].length > 0) {
-        wifiMacFormatted = document.createTextNode(value["wifi_mac_formatted"] + " (Wi-Fi)");
+        wifiMacFormatted = value["wifi_mac_formatted"] + " (Wi-Fi)";
+      } else {
+        wifiMacFormatted = "";
       }
 
+      let etherAddressFormatted = undefined;
       if (value["etheraddress_formatted"] && value["etheraddress_formatted"].length > 0) {
         if (value["network_speed_formatted"] && value["network_speed_formatted"].length > 0) {
-          etherAddressFormatted = document.createTextNode(value["etheraddress_formatted"] + " (Ethernet) (" + value["network_speed_formatted"] + ")");
+          etherAddressFormatted = value["etheraddress_formatted"] + " (Ethernet) (" + value["network_speed_formatted"] + ")";
         } else {
-          etherAddressFormatted = document.createTextNode(value["etheraddress_formatted"] + " (Ethernet)");
+          etherAddressFormatted = value["etheraddress_formatted"] + " (Ethernet)";
         }
       }
 
 
       if (wifiMacFormatted !== undefined && etherAddressFormatted !== undefined) {
-        const macTable = document.createElement("table");
-        macTable.style.maxWidth = "fit-content";
-        macTable.style.marginLeft = "0";
-        const macTBody = document.createElement("tbody");
+        const subMacTable = document.createElement("table");
+        subMacTable.style.maxWidth = "fit-content";
+        subMacTable.style.marginLeft = "0";
+        const subMacTBody = document.createElement("tbody");
 
-        const macTR1 = document.createElement("tr");
-        macTR1.style.borderBottom = "1px solid black";
-        const macSubTD1 = document.createElement("td");
-        const macP1 = document.createElement("p");
-        macP1.append(wifiMacFormatted);
-        macSubTD1.append(macP1);
-        macTR1.append(macSubTD1);
+        const subMacTr1 = document.createElement("tr");
+        subMacTr1.style.borderBottom = "1px solid black";
+        const subMacTd1 = document.createElement("td");
+        const subMacP1 = document.createElement("p");
+        const subMacText1 = document.createTextNode(wifiMacFormatted);
 
-        const macTR2 = document.createElement("tr");
-        macTR2.style.borderBottom = "none";
-        const macSubTD2 = document.createElement("td");
-        const macP2 = document.createElement("p");
-        macP2.append(etherAddressFormatted);
-        macSubTD2.append(macP2);
-        macTR2.append(macSubTD2);
+        const subMacTr2 = document.createElement("tr");
+        subMacTr2.style.borderBottom = "none";
+        const subMacTd2 = document.createElement("td");
+        const subMacP2 = document.createElement("p");
+        const subMacText2 = document.createTextNode(etherAddressFormatted);
 
-        macTBody.append(macTR1, macTR2);
-        macTable.append(macTBody);
-        macTD2.append(macTable);
+        subMacP1.append(subMacText1);
+        subMacTd1.append(subMacP1);
+        subMacTr1.append(subMacTd1);
+        subMacP2.append(subMacText2);
+        subMacTd2.append(subMacP2);
+        subMacTr2.append(subMacTd2);
+        subMacTBody.append(subMacTr1, subMacTr2);
+        subMacTable.append(subMacTBody);
+        macTD2.append(subMacTable);
       } else if (wifiMacFormatted !== undefined && etherAddressFormatted === undefined) {
-        const macP1 = document.createElement("p");
-        macP1.append(wifiMacFormatted);
-        macTD2.append(macP1);
+        const macText2 = document.createTextNode(wifiMacFormatted);
+        macP2.append(macText2);
+        macTD2.append(macP2);
       } else if (wifiMacFormatted === undefined && etherAddressFormatted !== undefined) {
-        const macP1 = document.createElement("p");
-        macP1.append(etherAddressFormatted);
-        macTD2.append(macP1);
+        const macText2 = document.createTextNode(etherAddressFormatted);
+        macP2.append(macText2);
+        macTD2.append(macP2);
       }
 
+      macP1.append(macText1);
+      macTD1.append(macP1);
       macRow.append(macTD1, macTD2);
       
 
       // System model
       const modelRow = document.createElement("tr");
       const modelTD1 = document.createElement("td");
-      const modelTD2 = document.createElement("td");
-
-      modelTD1.innerText = "System Model";
-
       const modelP1 = document.createElement("p");
-      const modelText1 = document.createTextNode(value["system_model_formatted"]);
+      const modelTD2 = document.createElement("td");
+      const modelP2 = document.createElement("p");
+
+      const modelText1 = document.createTextNode("System Model");
+
+      let systemModelFormatted = undefined;
+      if (value["system_model_formatted"] && value["system_model_formatted"].length > 0) {
+        systemModelFormatted = value["system_model_formatted"];
+      } else {
+        systemModelFormatted = ""
+      }
+      const modelText2 = document.createTextNode(systemModelFormatted);
 
       modelP1.append(modelText1);
-      modelTD2.append(modelP1);
-      modelRow.append(modelTD1, modelTD2);
+      modelTD1.append(modelP1);
+      modelP2.append(modelText2);
+      modelTD2.append(modelP2);
+      modelRow.append(modelTD1, modelTD2)
 
 
       // OS Version
@@ -784,8 +800,8 @@ async function updateTagnumberData(tagnumber) {
       const cpuModelText1 = document.createTextNode("CPU Model");
       
       let cpuModelFormatted = undefined;
-      if (value["cpu_model"] && (value["cpu_maxspeed_formatted"] || value["multithreaded_formatted"])) {
-        cpuModelFormatted = value["cpu_model"] + " " + value["cpu_maxspeed_formatted"] + " " + value["multithreaded_formatted"];
+      if (value["cpu_model"]) {
+        cpuModelFormatted = value["cpu_model"];
       } else {
         cpuModelFormatted = "";
       }
@@ -798,7 +814,164 @@ async function updateTagnumberData(tagnumber) {
       cpuModelRow.append(cpuModelTd1, cpuModelTd2);
 
 
-      hardwareTableBody.append(cpuModelRow);
+      // Cpu Cores
+      const cpuCoresRow = document.createElement("tr");
+      const cpuCoresTd1 = document.createElement("td");
+      const cpuCoresP1 = document.createElement("p");
+      const cpuCoresTd2 = document.createElement("td");
+      const cpuCoresP2 = document.createElement("p");
+
+      const cpuCoresText1 = document.createTextNode("CPU Cores");
+
+      let cpuMultithreadedFormatted = undefined;
+      if (value["multithreaded_formatted"]) {
+        cpuMultithreadedFormatted = value["multithreaded_formatted"];
+      }
+
+      let cpuMaxSpeedFormatted = undefined;
+      if (value["cpu_maxspeed_formatted"]) {
+        cpuMaxSpeedFormatted = value["cpu_maxspeed_formatted"];
+      }
+
+      let cpuCoresFormatted = undefined;
+      if (cpuMultithreadedFormatted && cpuMaxSpeedFormatted) {
+        cpuCoresFormatted = cpuMultithreadedFormatted + " " + cpuMaxSpeedFormatted;
+      } else {
+        cpuCoresFormatted = "";
+      }
+      const cpuCoresText2 = document.createTextNode(cpuCoresFormatted);
+
+      cpuCoresP1.append(cpuCoresText1);
+      cpuCoresTd1.append(cpuCoresP1);
+      cpuCoresP2.append(cpuCoresText2);
+      cpuCoresTd2.append(cpuCoresP2);
+      cpuCoresRow.append(cpuCoresTd1, cpuCoresTd2);
+
+
+      // RAM capacity
+      const ramRow = document.createElement("tr");
+      const ramTd1 = document.createElement("td");
+      const ramP1 = document.createElement("p");
+      const ramTd2 = document.createElement("td");
+      const ramP2 = document.createElement("p");
+
+      const ramText1 = document.createTextNode("RAM Capacity");
+
+      let ramFormatted = undefined;
+      if (value["ram_capacity_formatted"] && value["ram_capacity_formatted"].length > 0) {
+        ramFormatted = value["ram_capacity_formatted"];
+      } else {
+        ramFormatted = "";
+      }
+      const ramText2 = document.createTextNode(ramFormatted);
+
+      ramP1.append(ramText1);
+      ramTd1.append(ramP1);
+      ramP2.append(ramText2);
+      ramTd2.append(ramP2);
+      ramRow.append(ramTd1, ramTd2);
+
+
+      // Disk Model
+      const diskModelRow = document.createElement("tr");
+      const diskModelTd1 = document.createElement("td");
+      const diskModelP1 = document.createElement("p");
+      const diskModelTd2 = document.createElement("td");
+      const diskModelP2 = document.createElement("p");
+
+      const diskModelText1 = document.createTextNode("Disk Model");
+
+      let diskModelFormatted = undefined;
+      if (value["disk_model"] && value["disk_model"].length > 0) {
+        diskModelFormatted = value["disk_model"];
+      } else {
+        diskModelFormatted = "";
+      }
+      const diskModelText2 = document.createTextNode(diskModelFormatted);
+
+      diskModelP1.append(diskModelText1);
+      diskModelTd1.append(diskModelP1);
+      diskModelP2.append(diskModelText2);
+      diskModelTd2.append(diskModelP2);
+      diskModelRow.append(diskModelTd1, diskModelTd2);
+
+
+      // Disk Serial
+      const diskSerialRow = document.createElement("tr");
+      const diskSerialTd1 = document.createElement("td");
+      const diskSerialP1 = document.createElement("p");
+      const diskSerialTd2 = document.createElement("td");
+      const diskSerialP2 = document.createElement("p");
+
+      const diskSerialText1 = document.createTextNode("Disk Serial");
+
+      let diskSerialFormatted = undefined;
+      if (value["disk_serial"] && value["disk_serial"].length > 0) {
+        diskSerialFormatted = value["disk_serial"];
+      } else {
+        diskSerialFormatted = "";
+      }
+      const diskSerialText2 = document.createTextNode(diskSerialFormatted);
+
+      diskSerialP1.append(diskSerialText1);
+      diskSerialTd1.append(diskSerialP1);
+      diskSerialP2.append(diskSerialText2);
+      diskSerialTd2.append(diskSerialP2);
+      diskSerialRow.append(diskSerialTd1, diskSerialTd2);
+
+
+      // Disk type
+      const diskTypeRow = document.createElement("tr");
+      const diskTypeTd1 = document.createElement("td");
+      const diskTypeP1 = document.createElement("p");
+      const diskTypeTd2 = document.createElement("td");
+      const diskTypeP2 = document.createElement("p");
+
+      const diskTypeText1 = document.createTextNode("Disk Type");
+
+      let diskTypeFormatted = undefined;
+      if (value["disk_type"] && value["disk_type"].length > 0) {
+        diskTypeFormatted = value["disk_type"];
+      } else {
+        diskTypeFormatted = "";
+      }
+      const diskTypeText2 = document.createTextNode(diskTypeFormatted);
+
+      diskTypeP1.append(diskTypeText1);
+      diskTypeTd1.append(diskTypeP1);
+      diskTypeP2.append(diskTypeText2);
+      diskTypeTd2.append(diskTypeP2);
+      diskTypeRow.append(diskTypeTd1, diskTypeTd2);
+
+
+      // Disk size
+      const diskSizeRow = document.createElement("tr");
+      const diskSizeTd1 = document.createElement("td");
+      const diskSizeP1 = document.createElement("p");
+      const diskSizeTd2 = document.createElement("td");
+      const diskSizeP2 = document.createElement("p");
+
+      const diskSizeText1 = document.createTextNode("Disk Size");
+
+      let diskSizeFormatted = undefined;
+      if (value["disk_size"] && value["disk_size"].length > 0) {
+        diskSizeFormatted = value["disk_size"] + " GB";
+      } else {
+        diskSizeFormatted = "";
+      }
+      const diskSizeText2 = document.createTextNode(diskSizeFormatted);
+
+      diskSizeP1.append(diskSizeText1);
+      diskSizeTd1.append(diskSizeP1);
+      diskSizeP2.append(diskSizeText2);
+      diskSizeTd2.append(diskSizeP2);
+      diskSizeRow.append(diskSizeTd1, diskSizeTd2);
+
+      
+
+
+
+      hardwareTableBody.append(cpuModelRow, cpuCoresRow, ramRow, diskSizeRow, diskModelRow, diskSerialRow, diskTypeRow);
       hardwareTable.append(hardwareTableHead, hardwareTableBody);
       hardwareFragment.replaceChildren(hardwareTable);
       oldHardwareTable.replaceChildren(hardwareFragment);
