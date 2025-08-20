@@ -365,7 +365,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                     event.preventDefault();
                     postData(form);
                   });
-              </div>
+                </script>
             </div>
             <div class='column' style='width: 50%; height: 100%;'>
               <div><p id='live_image_time'></p></div>
