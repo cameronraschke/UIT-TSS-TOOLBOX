@@ -445,15 +445,7 @@ foreach ($dbPSQL->get() as $key => $value) {
             </thead>
             <tbody>
               <tr>
-                <td>Total Jobs</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Erase Avg. Time</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>Clone Avg. Time</td>
+                <td>Avg. Erase Time / Avg. Clone Time / Total Jobs</td>
                 <td></td>
               </tr>
               <tr>
