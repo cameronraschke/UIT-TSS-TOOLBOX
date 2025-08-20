@@ -82,33 +82,29 @@ async function postData(inputForm) {
   const bearerToken = localStorage.getItem('bearerToken');
 
   const formData = new FormData(inputForm);
-  formData.append("test", "test");
 
-  const selection = await window.showOpenFilePicker();
-  if (selection.length > 0) {
-    const file = await selection[0].getFile();
-    formData.append("file", file);
-  }
+  // const selection = await window.showOpenFilePicker();
+  // if (selection.length > 0) {
+  //   const file = await selection[0].getFile();
+  //   formData.append("file", file);
+  // }
 
   try {
     const headers = new Headers({
       'Content-Type': 'application/json',
+      'credentials': 'include',
       'Authorization': 'Bearer ' + bearerToken
     });
 
+    console.log(formData);
+    console.log(JSON.stringify(formData));
     const requestOptions = {
       method: 'POST',
-      credentials: 'include',
-      headers: headers
+      headers: headers,
+      body: JSON.stringify(formData)
     };
 
-    await fetch('/api/form', {
-      method: 'POST',
-      headers: headers,
-      body: formData
-    });
-
-    const response = await fetch(url, requestOptions);
+    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=test', requestOptions);
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }   
