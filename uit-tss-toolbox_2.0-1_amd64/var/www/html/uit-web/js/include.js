@@ -561,7 +561,7 @@ async function updateTagnumberData(tagnumber) {
       if (value["all_jobs"] && value["all_jobs"] > 0) {
         allJobs = value["all_jobs"];
       } else {
-        allJobs = value["avg_clone_time"];
+        allJobs = value["all_jobs"];
       }
 
       let avgCloneTime = undefined;
@@ -575,11 +575,11 @@ async function updateTagnumberData(tagnumber) {
       if (value["avg_erase_time"] && value["avg_erase_time"] > 0) {
         avgEraseTime = value["avg_erase_time"];
       } else {
-        avgEraseTime = value["avg_clone_time"];
+        avgEraseTime = value["avg_erase_time"];
       }
       
       const totalJobsP2 = document.createElement("p");
-      const totalJobsText2 = document.createTextNode(allJobs + "jobs/" + avgEraseTime + " mins/" + avgCloneTime + " mins");
+      const totalJobsText2 = document.createTextNode(avgEraseTime + " mins / " + avgCloneTime + " mins / " + allJobs + " jobs");
       totalJobsP2.append(totalJobsText2);
       totalJobsTD2.append(totalJobsP2);
 
