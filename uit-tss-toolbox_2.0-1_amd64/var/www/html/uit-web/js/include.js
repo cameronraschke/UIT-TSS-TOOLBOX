@@ -237,7 +237,7 @@ async function updateRemoteOfflineTable() {
 
 async function updateJobQueueData(tagnumber) {
   try {
-    const oldJobQueueSection = document.getElementsById("job_queued");
+    const oldJobQueueSection = document.getElementById("job_queued");
     const jobQueueSection = new DocumentFragment();
 
     const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber));

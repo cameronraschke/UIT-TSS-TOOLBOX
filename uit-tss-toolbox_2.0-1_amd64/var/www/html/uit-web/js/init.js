@@ -170,6 +170,7 @@ async function fetchData(url) {
 
   } catch (error) {
     console.error(error.message);
+    console.error(url);
   }
 }
 

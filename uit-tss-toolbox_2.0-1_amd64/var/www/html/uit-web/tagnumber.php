@@ -742,17 +742,15 @@ unset($value1);
 </div>
 <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
 <script>
-  updateJobQueueData();
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const tagnumber = urlParams.get('tagnumber');
+  updateJobQueueData(tagnumber);
   const form = document.querySelector("#job_queued_form");
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     postData(form, "job_queued");
   });
-</script>
-<script>
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  const tagnumber = urlParams.get('tagnumber');
   updateTagnumberData(tagnumber);
 </script>
 <script>
