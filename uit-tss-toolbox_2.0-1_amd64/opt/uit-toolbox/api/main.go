@@ -346,7 +346,7 @@ func postAPI(w http.ResponseWriter, req *http.Request) {
   queryType := queries.Get("type")
 
   switch queryType {
-  case "update_remote":
+  case "job_queued":
     err = post.UpdateRemote(req, db, queryType)
     if err != nil {
       log.Error("Cannot update DB: " + err.Error())
@@ -829,7 +829,7 @@ func apiAuth (next http.Handler) http.Handler {
       // Auth cache entry expires once countdown reaches zero
       if timeDiff.Seconds() < 0 {
         authMap.Delete(key)
-        log.Debug("Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
+        log.Info("Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
       }
       return true
     })
@@ -869,7 +869,7 @@ func apiAuth (next http.Handler) http.Handler {
     })
 
     if matches >= 1 {
-      log.Debug("Auth Cached for " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
+      // log.Debug("Auth Cached for " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       if req.URL.Query().Get("type") == "check-token" {
         jsonData, err = json.Marshal(Auth{Token: token})
         if err != nil {

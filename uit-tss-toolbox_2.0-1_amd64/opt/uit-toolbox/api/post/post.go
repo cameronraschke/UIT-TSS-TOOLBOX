@@ -50,7 +50,7 @@ func UpdateRemote(req *http.Request, db *sql.DB, key string) error {
 
   // Commit to DB
   if (key == "job_queued") {
-    err := database.UpdateDB(db, "UPDATE remote SET job_queued = $1 WHERE tagnumber = $2", tagnumber, value)
+    err := database.UpdateDB(db, "UPDATE remote SET job_queued = $1 WHERE tagnumber = $2", value, tagnumber)
     if err != nil {
       return errors.New("Database error: " + err.Error())
     }

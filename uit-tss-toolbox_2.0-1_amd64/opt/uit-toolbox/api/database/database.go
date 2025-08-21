@@ -704,7 +704,7 @@ func CreateJson(results interface{}) (string, error) {
 	return jsonDataStr, nil
 }
 
-func UpdateDB(db *sql.DB, sqlCode string, uniqueID string, value string) error {
+func UpdateDB(db *sql.DB, sqlCode string, value string, uniqueID string) error {
   dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
   defer cancel()
 
@@ -719,7 +719,7 @@ func UpdateDB(db *sql.DB, sqlCode string, uniqueID string, value string) error {
     return errors.New("Error while updating DB (rollback): " + err.Error())
   }
 
-  result, err := tx.ExecContext(dbCTX, sqlCode, uniqueID, value)
+  result, err := tx.ExecContext(dbCTX, sqlCode, value, uniqueID)
   if err != nil {
     return fail(err)
   }
