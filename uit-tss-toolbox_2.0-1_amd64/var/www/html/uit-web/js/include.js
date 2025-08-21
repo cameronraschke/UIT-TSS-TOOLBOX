@@ -238,7 +238,7 @@ async function updateRemoteOfflineTable() {
 async function updateJobQueueData(tagnumber) {
   try {
     const oldJobQueueSection = document.getElementById("job_queued");
-    const jobQueueSection = new DocumentFragment();
+    const jobQueueSectionFragment = new DocumentFragment();
 
     const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber));
 
@@ -377,14 +377,19 @@ async function updateJobQueueData(tagnumber) {
         liveImageScreenshot.setAttribute("loading", "lazy");
 
         liveImageTime.append(liveImageTimeText1);
-        col2.append(liveImageTime, liveImageScreenshot);
+        liveImageDiv1.append(liveImageTime);
+        liveImageDiv2.append(liveImageScreenshot);
+
+        col2.append(liveImageDiv1, liveImageDiv2);
       });
 
 
 
       row1.append(col1, col2);
       parentDiv.append(row1);
-
+      jobQueueSectionFragment.append(parentDiv);
+      jobQueueSectionFragment.replaceChildren(parentDiv);
+      oldJobQueueSection.replaceChildren(jobQueueSectionFragment);
     });
   } catch(error) {
     console.error(error);
