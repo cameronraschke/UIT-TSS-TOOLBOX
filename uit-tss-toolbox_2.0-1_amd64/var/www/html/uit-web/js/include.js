@@ -94,8 +94,6 @@ async function postData(inputForm, queryType) {
   // }
 
   try {
-    console.log(jsonData);
-
     const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType).replace(/'/g, "%27"), {
       method: 'POST',
       headers: {
@@ -109,7 +107,6 @@ async function postData(inputForm, queryType) {
       throw new Error(`Response status: ${response.status}`);
     }   
 
-    const data = await response.json();
     return(data);
 
   } catch (error) {
