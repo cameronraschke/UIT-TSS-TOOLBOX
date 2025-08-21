@@ -74,7 +74,7 @@ function test() {
 };
 
 
-async function postData(inputForm) {
+async function postData(inputForm, queryType) {
   if (await checkToken() == false) {
     await newToken();
   }
@@ -95,8 +95,8 @@ async function postData(inputForm) {
 
   try {
     console.log(jsonData);
-    
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=test', {
+
+    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType), {
       method: 'POST',
       headers: {
       // 'Content-Type': 'application/json',

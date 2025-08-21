@@ -716,7 +716,7 @@ func UpdateDB(db *sql.DB, sqlCode string, uniqueID string, value string) error {
 
   fail := func(err error) (error) {
     tx.Rollback()
-    return fmt.Errorf("DB Error (rollback): %v", err)
+    return errors.New("Error while updating DB (rollback): " + err.Error())
   }
 
   result, err := tx.ExecContext(dbCTX, sqlCode, uniqueID, value)

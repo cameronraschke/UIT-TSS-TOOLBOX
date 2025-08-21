@@ -806,7 +806,7 @@ unset($value1);
   const form = document.querySelector("#job_queued_form");
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    postData(form);
+    postData(form, "update_remote");
   });
 </script>
 <script>

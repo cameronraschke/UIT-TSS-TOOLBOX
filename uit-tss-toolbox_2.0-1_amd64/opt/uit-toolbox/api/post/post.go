@@ -2,12 +2,11 @@ package post
 
 import (
   "errors"
-  "fmt"
   "time"
   "database/sql"
-  "context"
   "encoding/json"
   "api/database"
+  "net/http"
 )
 
 type RemoteTable struct {
@@ -42,7 +41,6 @@ func UpdateRemote(req *http.Request, db *sql.DB, key string) error {
   var j FormJobQueue
   err := json.NewDecoder(req.Body).Decode(&j)
   if err != nil {
-    log.Warning("Error reading request: " + err.Error())
     return errors.New("Cannot parse request body JSON: " + err.Error())
   }
   defer req.Body.Close()
