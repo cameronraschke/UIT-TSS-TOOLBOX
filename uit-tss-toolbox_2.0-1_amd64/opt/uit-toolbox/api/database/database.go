@@ -17,13 +17,65 @@ var (
 )
 
 
+type AvailableJobs struct {
+  Job           *string   `json:"job"`
+  JobReadable   *string   `json:"job_readable"`
+}
+
+func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
+  var sqlCode string
+  var rows *sql.Rows
+  var results []*JobQueue
+  var resultsJson string
+  var err error
+
+  sqlCode = "SELECT job, job_readable FROM static_job_names WHERE job_html_bool = TRUE AND NOT job IN (SELECT (CASE WHEN remote.job_queued IS NULL THEN '' ELSE remote.job_queued END) FROM remote WHERE remote.tagnumber = $1) ORDER BY job_rank ASC"
+
+    dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+  defer cancel()
+
+  rows, err = db.QueryContext(dbCTX, sqlCode)
+  if err != nil {
+    return "", errors.New("Timeout error: " + err.Error())
+  }
+  defer rows.Close()
+
+  for rows.Next() {
+    row := &AvailableJobs{}
+    if err = rows.Err(); err != nil {
+      return "", errors.New("Query error: " + err.Error())  
+    }
+    if err = dbCTX.Err(); err != nil {
+      return "", errors.New("Context error: " + err.Error())
+    }
+    err = rows.Scan(
+      &row.Job,
+      &row.JobReadable,
+    )
+    if err != nil && err != sql.ErrNoRows {
+      return "", errors.New("Error scanning rows: " + err.Error())
+    }
+    results = append(results, row)
+  }
+
+  resultsJson, err = CreateJson(results)
+  if err != nil {
+    return "", errors.New("JSON error: " + err.Error())
+  }
+  return resultsJson, nil
+}
+
 
 type JobQueue struct {
+  Tagnumber             *int      `json:"tagnumber"`
   PresentBool           *bool     `json:"present_bool"`
   KernelUpdated         *bool     `json:"kernel_updated"`
   BiosUpdated           *bool     `json:"bios_updated"`
   RemoteStatus          *string   `json:"remote_status"`
   RemoteTimeFormatted   *string   `json:"remote_time_formatted"`
+  JobQueued             *string   `json:"job_queued"`
+  JobQueuedFormatted    *string   `json:"job_queued_formatted"`
+  JobActive             *bool     `json:"job_active"`
 }
 
 func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) (string, error) {
@@ -33,10 +85,15 @@ func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) (string, error) {
   var resultsJson string
   var err error
 
-  sqlCode = `SELECT remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
-  remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted 
+  sqlCode = `SELECT remote.tagnumber, remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
+  remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted,
+  (CASE WHEN remote.job_queued IS NOT NULL THEN remote.job_queued ELSE NULL END) AS job_queued,
+  (CASE WHEN remote.job_queued IS NOT NULL THEN static_job_names.job_readable ELSE 'No Job' END) AS job_queued_formatted,
+  remote.job_active
   FROM remote 
-  LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber WHERE remote.tagnumber = $1`
+  LEFT JOIN client_health ON remote.tagnumber = client_health.tagnumber 
+  LEFT JOIN static_job_names ON remote.job_queued = static_job_names.job 
+  WHERE remote.tagnumber = $1`
 
   dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()
@@ -56,11 +113,15 @@ func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) (string, error) {
       return "", errors.New("Context error: " + err.Error())
     }
     err = rows.Scan(
+      &row.Tagnumber,
       &row.PresentBool,
       &row.KernelUpdated,
       &row.BiosUpdated,
       &row.RemoteStatus,
       &row.RemoteTimeFormatted,
+      &row.JobQueued,
+      &row.JobQueuedFormatted,
+      &row.JobActive,
     )
     if err != nil && err != sql.ErrNoRows {
       return "", errors.New("Error scanning rows: " + err.Error())
@@ -334,7 +395,7 @@ func GetRemoteOfflineTable(db *sql.DB) (string, error) {
 
 
 type LiveImage struct {
-  TimeFormatted     *string    `json:"time_formatted"`
+  TimeFormatted     *string        `json:"time_formatted"`
   Screenshot        *string        `json:"screenshot"`
 }
 

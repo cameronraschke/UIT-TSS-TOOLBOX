@@ -235,12 +235,146 @@ async function updateRemoteOfflineTable() {
   }
 }
 
+async function updateJobQueueData(tagnumber) {
+  try {
+    const oldJobQueueSection = document.getElementsById("job_queued");
+    const jobQueueSection = new DocumentFragment();
+
+    const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber));
+
+    Object.entries(jobQueueByTagData).forEach(([key, value]) => {
+      const parentDiv = document.createElement("div");
+      parentDiv.classList.add("location-form");
+      parentDiv.setAttribute("id", "job_queued")
+      const row1 = document.createElement("div");
+      row1.classList.add("row");
+      const col1 = document.createElement("div");
+      col1.classList.add("row");
+      col1.style.borderRight = "1px solid black";
+      const jobStatus = document.createElement("div");
+      if (value["tagnumber"] && value["tagnumber"].length > 0) {
+        const jobStatusP1 = document.createElement("p");
+        const jobStatusText1 = document.createTextNode("Real-time Job Status: ");
+        const jobStatusP2 = document.createElement("p");
+        const jobStatusText2 = document.createTextNode(clientStatusFormatted);
+        const jobStatusP3 = document.createElement("p");
+        const jobStatusText3 = document.createTextNode(jobStatusFormatted);
+        jobStatusP3.append(jobStatusText3);
+        jobStatusP2.append(jobStatusText2);
+        jobStatusP1.append(jobStatusText1);
+        jobStatus.append(jobStatusP1, jobStatusP2, jobStatusP3);
+      } else {
+        const jobStatusP1 = document.createElement("p");
+        const jobStatusText1 = document.createTextNode("Missing required info. Please plug into laptop server to gather information.");
+        const jobStatusP2 = document.createElement("p");
+        const jobStatusText2 = document.createTextNode("To update the location, please update it from the ");
+        const jobStatusA1 = document.createElement("a");
+        jobStatusA1.href = "/locations.php?edit=1&tagnumber=" + encodeURIComponent(tagnumber);
+        jobStatusA1.innerText = "locations page";
+        jobStatusP1.append(jobStatusText1);
+        jobStatusP2.append(jobStatusText2, jobStatusA1);
+        jobStatus.append(jobStatusP1, jobStatusP2);
+      }
+
+      const jobFormParentDiv = document.createElement("div");
+      const jobForm = document.createElement("form");
+      jobForm.setAttribute("id", "job_queued_form");
+      const jobFormDiv1 = document.createElement("div");
+      jobFormDiv1.style.paddingLeft = "0";
+      const jobFormLabel1 = document.createElement("label");
+      jobFormLabel1.setAttribute("for", "tagnumber")
+      jobFormLabel1.innerText = "Enter a job to queue: "
+      const jobFormInput1 = document.createElement("input");
+      jobFormInput1.setAttribute("id", "job_queued_tagnumber");
+      jobFormInput1.setAttribute("name", "job_queued_tagnumber");
+      jobFormInput1.setAttribute("type", "hidden");
+      jobFormInput1.value = value["tagnumber"];
+      jobFormDiv1.append(jobFormLabel1, jobFormInput1)
+
+      const jobFormDiv2 = document.createElement("div");
+      jobFormDiv2.style.paddingLeft = "0";
+      const jobFormSelect = document.createElement("select");
+      jobFormSelect.setAttribute("id", "job_queued");
+      jobFormSelect.setAttribute("name", "job_queued");
+      // jobFormInput1.setAttribute("readonly", "true");
+      // jobFormInput1.setAttribute("required", "true");
+      if (value["tagnumber"] && value["tagnumber"].length > 0) {
+        if (value["job_queued"] && value["job_queued"].length > 1 && value["job_active"]) {
+          const jobFormOpt1 = document.createElement("option");
+          jobFormOpt1.value = value["job_queued"];
+          jobFormOpt1.innerText = "In Progress: " + value["job_queued_formatted"];
+          jobFormSelect.append(jobFormOpt1);
+        } else if (value["job_queued"] && value["job_queued"].length > 1 && !value["job_active"]) {
+          const jobFormOpt1 = document.createElement("option");
+          jobFormOpt1.value = value["job_queued"];
+          jobFormOpt1.innerText = "Queued: " + value["job_queued_formatted"];
+          jobFormSelect.append(jobFormOpt1);
+        } else {
+          const jobFormOpt1 = document.createElement("option");
+          jobFormOpt1.value = "";
+          jobFormOpt1.innerText = "--Select Job Below--";
+          jobFormSelect.append(jobFormOpt1);
+        }
+
+        const availableJobs = fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber));
+
+        Object.entries(availableJobs).forEach(([key1, value1]) => {
+          const jobFormOptionN = document.createElement("option");
+          jobFormOptionN.value = value1["job"];
+          jobFormOptionN.innerText = value1["job_readable"];
+          jobFormSelect.append(jobFormOptionN);
+        });
+
+        const jobFormButton = document.createElement("button");
+        jobFormButton.setAttribute("type", "submit");
+        jobFormButton.innerText = "Queue Job";
+
+        jobFormDiv2.append(jobFormSelect, jobFormButton);
+        jobForm.append(jobFormDiv1, jobFormDiv2);
+        col1.append(jobStatus, jobFormParentDiv)
+      } else {
+        const jobFormOpt1 = document.createElement("option");
+        jobFormOpt1.value = "";
+        jobFormOpt1.innerText = "ERR: " + tagnumber + " missing from DB :((("
+      }
+
+      const col2 = document.createElement("div");
+      col2.classList.add("column");
+      col2.style.width = "50%";
+      col2.style.height = "100%";
+
+      const liveImage = fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber));
+
+      Object.entries(liveImage).forEach(([key1, value1]) => {
+        const liveImageDiv1 = document.createElement("div");
+        const liveImageTime = document.createElement("p");
+        const liveImageTimeText1 = document.createTextNode(value["time_formatted"]);
+        
+        const liveImageDiv2 = document.createElement("div");
+        const liveImageScreenshot = document.createElement("img");
+        liveImageScreenshot.classList.add("live-image");
+        liveImageScreenshot.href = "data:image/jpeg;base64," + value["screenshot"];
+        liveImageScreenshot.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber) + "', '_blank')");
+        liveImageScreenshot.setAttribute("loading", "lazy");
+
+        liveImageTime.append(liveImageTimeText1);
+        col2.append(liveImageTime, liveImageScreenshot);
+      });
+
+
+
+      row1.append(col1, col2);
+      parentDiv.append(row1);
+
+    });
+  } catch(error) {
+    console.error(error);
+  }
+}
 
 async function updateTagnumberData(tagnumber) {
   try {
     const oldGeneralClientInfo = document.getElementById("client_info");
-    const oldDiskInfo = document.getElementById("disk_info");
-    const oldCpuRamInfo = document.getElementById("cpu_ram_info");
 
     const generalClientInfoFragment = new DocumentFragment();
     

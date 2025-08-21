@@ -307,68 +307,7 @@ foreach ($dbPSQL->get() as $key => $value) {
 
     <div class='row'>
       <div class='column'>
-        <div class='location-form'>
-          <div class='row'>
-            <div class='column' style='border-right: 1px solid black;'>
-              <div name='curJob' id='curJob'>
-                <p>Real-time Job Status: </p>
-                <?php
-                if (strFilter($value["tagnumber"]) === 0) {
-                  echo "<p id='bios_kernel_updated'></p>";
-                  echo "<p id='remote_status'></p>";
-                } else {
-                  echo "<p>Missing required info. Please plug into laptop server to gather information.
-                  To update the location, please update it from the <a href='/locations.php'>locations page</a></p>";
-                }
-                ?>
-              </div>
-              <div>
-                <form id="job_queued_form">
-                  <div style='padding-left: 0;'><label for='tagnumber'>Enter a job to queue: </label></div>
-                  <input type='hidden' id='job_queued_tagnumber' name='job_queued_tagnumber' value='<?php echo htmlspecialchars($_GET["tagnumber"]); ?>'>
-                  <div style='padding-left: 0;'><select name="job_queued">
-                    <?php
-                    // Get/set current jobs.
-                    if ($_GET['tagnumber'] && strFilter($value["tagnumber"]) === 0) {
-                      $dbPSQL->Pselect("SELECT tagnumber FROM remote WHERE tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
-                      if (arrFilter($dbPSQL->get()) === 0 ) {
-                        $dbPSQL->Pselect("SELECT (CASE WHEN remote.job_queued IS NOT NULL THEN remote.job_queued ELSE '' END) AS job_queued,
-                          (CASE WHEN remote.job_queued IS NOT NULL THEN static_job_names.job_readable ELSE 'No Job' END) AS job_queued_formatted,
-                          (CASE WHEN remote.job_active = TRUE THEN 'In Progress: ' ELSE 'Queued: ' END) AS job_status_formatted
-                          FROM remote 
-                          INNER JOIN static_job_names 
-                          ON remote.job_queued = static_job_names.job 
-                          WHERE remote.tagnumber = :tagnumber", array(':tagnumber' => htmlspecialchars_decode($_GET['tagnumber'])));
-                        if (arrFilter($dbPSQL->get()) === 0) {
-                          foreach ($dbPSQL->get() as $key => $value1) {
-                            echo "<option value='" . htmlspecialchars($value1["job_queued"]) . "'>" . htmlspecialchars($value1["job_status_formatted"]) . htmlspecialchars($value1["job_queued_formatted"]) . "</option>";
-                          }
-                          unset($value1);
-                        }
-                        echo "<option value=''>--Select Job Below--</option>" . PHP_EOL;
-                        $dbPSQL->Pselect("SELECT job, job_readable FROM static_job_names WHERE job_html_bool = TRUE AND NOT job IN (SELECT (CASE WHEN remote.job_queued IS NULL THEN '' ELSE remote.job_queued END) FROM remote WHERE remote.tagnumber = :tagnumber) ORDER BY job_rank ASC", array(':tagnumber' => $_GET["tagnumber"]));
-                        foreach ($dbPSQL->get() as $key => $value2) {
-                          echo "<option value='" . htmlspecialchars($value2["job"]) . "'>" . htmlspecialchars($value2["job_readable"]) . "</option>";
-                        }
-                        unset($value2);
-                      }
-                    } else {
-                      echo "<option>ERR: " . htmlspecialchars($_GET["tagnumber"]) . " missing info :((</option>";
-                    }
-                    ?>
-                  </select>
-                  <button class='submit' type="submit">Queue Job</button></div>
-                </form>
-              </div>
-            </div>
-            <div class='column' style='width: 50%; height: 100%;'>
-              <div><p id='live_image_time'></p></div>
-              <div><img id='live_image' class='live-image' onclick="window.open('/view-images.php?live_image=1&tagnumber=<?php echo htmlspecialchars($_GET['tagnumber']); ?>', '_blank')" src='' loading='lazy'/></div>
-            </div>
-          </div>
-        </div>
-          
-
+        <div id='job_queued'></div>
         <div class='location-form'>
           <form enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
