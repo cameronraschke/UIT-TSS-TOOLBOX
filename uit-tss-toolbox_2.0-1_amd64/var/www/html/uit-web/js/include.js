@@ -247,7 +247,7 @@ async function updateJobQueueData(tagnumber) {
     Object.entries(jobQueueByTagData).forEach(([key, value]) => {
       const parentDiv = document.createElement("div");
       parentDiv.classList.add("location-form");
-      parentDiv.setAttribute("id", "job_queued_form");
+      parentDiv.setAttribute("id", "job_queued");
 
       // row 1
       const row1 = document.createElement("div");
