@@ -307,7 +307,7 @@ foreach ($dbPSQL->get() as $key => $value) {
 
     <div class='row'>
       <div class='column'>
-        <div id='job_queued'></div>
+        <div id='job_queued_form'></div>
         <div class='location-form'>
           <form enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
