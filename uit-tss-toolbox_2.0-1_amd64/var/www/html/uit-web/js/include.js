@@ -105,10 +105,7 @@ async function postData(inputForm, queryType) {
     });
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
-    }   
-
-    return(data);
-
+    }
   } catch (error) {
     console.error(error.message);
   }
