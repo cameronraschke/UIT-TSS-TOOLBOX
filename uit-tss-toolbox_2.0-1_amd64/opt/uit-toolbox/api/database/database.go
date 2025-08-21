@@ -34,7 +34,7 @@ func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
     dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()
 
-  rows, err = db.QueryContext(dbCTX, sqlCode)
+  rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
   if err != nil {
     return "", errors.New("Timeout error: " + err.Error())
   }

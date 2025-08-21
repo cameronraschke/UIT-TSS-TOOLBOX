@@ -241,6 +241,8 @@ async function updateJobQueueData(tagnumber) {
     const jobQueueSectionFragment = new DocumentFragment();
 
     const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber));
+    const availableJobs = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber));
+    const liveImage = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber));
 
     Object.entries(jobQueueByTagData).forEach(([key, value]) => {
       const parentDiv = document.createElement("div");
@@ -324,13 +326,13 @@ async function updateJobQueueData(tagnumber) {
       const jobFormButton = document.createElement("button");
       jobFormButton.setAttribute("type", "submit");
       jobFormButton.innerText = "Queue Job";
-      if (value["tagnumber"] && value["tagnumber"].length > 0) {
-        if (value["job_queued"] && value["job_queued"].length > 1 && value["job_active"]) {
+      if (value["tagnumber"] && value["tagnumber"] > 0) {
+        if (value["job_queued"] && value["job_queued"] > 1 && value["job_active"]) {
           const jobFormOpt1 = document.createElement("option");
           jobFormOpt1.value = value["job_queued"];
           jobFormOpt1.innerText = "In Progress: " + value["job_queued_formatted"];
           jobFormSelect.append(jobFormOpt1);
-        } else if (value["job_queued"] && value["job_queued"].length > 1 && !value["job_active"]) {
+        } else if (value["job_queued"] && value["job_queued"] > 1 && !value["job_active"]) {
           const jobFormOpt1 = document.createElement("option");
           jobFormOpt1.value = value["job_queued"];
           jobFormOpt1.innerText = "Queued: " + value["job_queued_formatted"];
@@ -342,10 +344,8 @@ async function updateJobQueueData(tagnumber) {
           jobFormSelect.append(jobFormOpt1);
         }
 
-        const availableJobs = fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber));
-
         Object.entries(availableJobs).forEach(([key1, value1]) => {
-          const jobFormOptionN = document.createElement("option");
+          let jobFormOptionN = document.createElement("option");
           jobFormOptionN.value = value1["job"];
           jobFormOptionN.innerText = value1["job_readable"];
           jobFormSelect.append(jobFormOptionN);
@@ -355,7 +355,7 @@ async function updateJobQueueData(tagnumber) {
         const jobFormOpt1 = document.createElement("option");
         jobFormOpt1.value = "";
         jobFormOpt1.innerText = "ERR: " + tagnumber + " missing from DB :((("
-        jobFormDiv2.append(jobFormSelect);
+        jobFormSelect.append(jobFormOpt1);
       }
       
 
@@ -370,22 +370,20 @@ async function updateJobQueueData(tagnumber) {
       col2.style.width = "50%";
       col2.style.height = "100%";
 
-      const liveImage = fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber));
-
       Object.entries(liveImage).forEach(([key2, value2]) => {
         const liveImageDiv1 = document.createElement("div");
-        const liveImageTime = document.createElement("p");
+        const liveImageTimeP1 = document.createElement("p");
         const liveImageTimeText1 = document.createTextNode(value2["time_formatted"]);
         
         const liveImageDiv2 = document.createElement("div");
         const liveImageScreenshot = document.createElement("img");
         liveImageScreenshot.classList.add("live-image");
-        liveImageScreenshot.href = "data:image/jpeg;base64," + value2["screenshot"];
+        liveImageScreenshot.src = "data:image/jpeg;base64," + value2["screenshot"];
         liveImageScreenshot.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber) + "', '_blank')");
         liveImageScreenshot.setAttribute("loading", "lazy");
 
-        liveImageTime.append(liveImageTimeText1);
-        liveImageDiv1.append(liveImageTime);
+        liveImageTimeP1.append(liveImageTimeText1);
+        liveImageDiv1.append(liveImageTimeP1);
         liveImageDiv2.append(liveImageScreenshot);
 
         col2.append(liveImageDiv1, liveImageDiv2);
