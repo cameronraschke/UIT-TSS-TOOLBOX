@@ -792,32 +792,7 @@ async function parseSSE() {
     });
 
   } catch (error) {
-  }
-
-
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tagnumber = urlParams.get('tagnumber');
-    var response = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + tagnumber);
-    var liveImage = response[0];
-    if (liveImage != undefined) {
-      //if (key == "screenshot") {
-        newHTML = '';
-        newSRC = '';
-        newSRC = "data:image/jpeg;base64," + liveImage.screenshot;
-        document.getElementById('live_image').src = newSRC;
-      //}
-
-      newHTML = '';
-      newHTML = "Screenshot Time: " + liveImage.time_formatted;
-      document.getElementById('live_image_time').innerHTML = newHTML;
-    } else {
-      console.log("No image returned");
-    }
-  } catch (error) {
-    document.getElementById('live_image').src = '';
-    newHTML = "No Screenshot in DB :(" ;
-    document.getElementById('live_image_time').innerHTML = newHTML;
+    console.error(error);
   }
 };
 

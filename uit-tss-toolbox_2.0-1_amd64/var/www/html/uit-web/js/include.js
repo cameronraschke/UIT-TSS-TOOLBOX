@@ -252,6 +252,25 @@ async function updateJobQueueData(tagnumber) {
       col1.classList.add("row");
       col1.style.borderRight = "1px solid black";
       const jobStatus = document.createElement("div");
+      // BIOS and kernel updated (check mark)
+      let clientStatusFormatted = undefined
+      if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] === true)) {
+        clientStatusFormatted = "Online, no errors <span>&#10004;&#65039;</span>";
+      // BIOS and kernel out of date (x)
+      } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] !== true)) {
+        clientStatusFormatted = "Online, kernel and BIOS out of date <span>&#10060;</span>";
+      // BIOS out of date, kernel updated (warning sign)
+      } else if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] !== true)) {
+        clientStatusFormatted = "Online, please update BIOS <span>&#9888;&#65039;</span>";
+      // BIOS updated, kernel out of date (x)
+      } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] === true)) {
+        clientStatusFormatted = "Online, kernel out of date <span>&#10060;</span>)";
+      // Offline (x)
+      } else if (value["present_bool"] !== true) {
+        clientStatusFormatted = "Offline <span>&#9940;</span>";
+      } else {
+        clientStatusFormatted = "Unknown <span>&#9940;&#65039;</span>";
+      }
       if (value["tagnumber"] && value["tagnumber"].length > 0) {
         const jobStatusP1 = document.createElement("p");
         const jobStatusText1 = document.createTextNode("Real-time Job Status: ");
