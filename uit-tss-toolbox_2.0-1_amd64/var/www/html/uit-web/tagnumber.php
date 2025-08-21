@@ -746,7 +746,7 @@ unset($value1);
   const urlParams = new URLSearchParams(queryString);
   const tagnumber = urlParams.get('tagnumber');
 
-  async function fetchTagnumberData() {
+  async function fetchStaticContent() {
     try {
         await updateJobQueueData(tagnumber);
         const form = document.querySelector("#job_queued_form");
@@ -754,15 +754,24 @@ unset($value1);
           event.preventDefault();
           postData(form, "job_queued");
         });
+        await autoFillTags();
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+  fetchStaticContent();
+
+  async function updateDynamicContent() {
+    try {
+      await updateLiveImage(tagnumber);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }
 
-  // setInterval(function() {
-  //   fetchTagnumberData();
-  // }, 3000);
-  fetchTagnumberData();
+  setInterval(function() {
+    updateDynamicContent();
+  }, 3000);
 
   updateTagnumberData(tagnumber);
 </script>
@@ -770,7 +779,6 @@ unset($value1);
 if ( window.history.replaceState ) {
 window.history.replaceState( null, null, window.location.href );
 }
-autoFillTags();
 
 </script>
 <div class="uit-footer">

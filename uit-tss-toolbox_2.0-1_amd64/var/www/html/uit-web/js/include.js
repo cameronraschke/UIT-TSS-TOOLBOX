@@ -96,7 +96,7 @@ async function postData(inputForm, queryType) {
   try {
     console.log(jsonData);
 
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType), {
+    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType).replace(/'/g, "%27"), {
       method: 'POST',
       headers: {
       // 'Content-Type': 'application/json',
@@ -240,9 +240,9 @@ async function updateJobQueueData(tagnumber) {
     const oldJobQueueSection = document.getElementById("job_queued");
     const jobQueueSectionFragment = new DocumentFragment();
 
-    const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber));
-    const availableJobs = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber));
-    const liveImage = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber));
+    const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
+    const availableJobs = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
+    const liveImage = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
 
     Object.entries(jobQueueByTagData).forEach(([key, value]) => {
       const parentDiv = document.createElement("div");
@@ -294,7 +294,7 @@ async function updateJobQueueData(tagnumber) {
         const jobStatusP2 = document.createElement("p");
         const jobStatusText2 = document.createTextNode("To update the location, please update it from the ");
         const jobStatusA1 = document.createElement("a");
-        jobStatusA1.href = "/locations.php?edit=1&tagnumber=" + encodeURIComponent(tagnumber);
+        jobStatusA1.href = "/locations.php?edit=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27");
         jobStatusA1.innerText = "locations page";
         jobStatusP1.append(jobStatusText1);
         jobStatusP2.append(jobStatusText2, jobStatusA1);
@@ -378,10 +378,10 @@ async function updateJobQueueData(tagnumber) {
         
         const liveImageDiv2 = document.createElement("div");
         const liveImageScreenshot = document.createElement("img");
-        liveImageTimeP1.setAttribute("id", "live_image_screenshot");
+        liveImageScreenshot.setAttribute("id", "live_image_screenshot");
         liveImageScreenshot.classList.add("live-image");
         liveImageScreenshot.src = "data:image/jpeg;base64," + value2["screenshot"];
-        liveImageScreenshot.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber) + "', '_blank')");
+        liveImageScreenshot.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "', '_blank')");
         liveImageScreenshot.setAttribute("loading", "lazy");
 
         liveImageTimeP1.append(liveImageTimeText1);
@@ -404,8 +404,8 @@ async function updateJobQueueData(tagnumber) {
   }
 }
 
-async function updateLiveImage() {
-  const liveImage = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber));
+async function updateLiveImage(tagnumber) {
+  const liveImage = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
   Object.entries(liveImage).forEach(([key, value]) => {
     const oldScreenshotTime = document.getElementById("live_image_timestamp");
     const oldScreenshotData = document.getElementById("live_image_screenshot");
@@ -432,7 +432,7 @@ async function updateTagnumberData(tagnumber) {
     const cpuRamInfo = document.createElement("table");
     cpuRamInfo.setAttribute("id", "cpu_ram_info");
 
-    const tagnumberData = await fetchData("https://WAN_IP_ADDRESS:31411/api/remote?type=tagnumber_data&tagnumber=" + encodeURIComponent(tagnumber));
+    const tagnumberData = await fetchData("https://WAN_IP_ADDRESS:31411/api/remote?type=tagnumber_data&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
     Object.entries(tagnumberData).forEach(([key, value]) => {
       const newTabImg = document.createElement("img");
       newTabImg.classList.add('icon');
@@ -462,7 +462,6 @@ async function updateTagnumberData(tagnumber) {
       generalClientInfoTable.append(generalClientBodyTbody);
 
       // location data
-      const location = document.createTextNode(value["location"]);
       const locationReadable = document.createTextNode('"' + value["location"] + '" ');
       const locationRow = document.createElement("tr");
 
@@ -506,10 +505,17 @@ async function updateTagnumberData(tagnumber) {
         locationTD2.append(checkoutP);
       }
 
+      const locationA1 = document.createElement("a");
+      locationA1.style.cursor = "pointer";
+      locationA1.style.fontStyle = "italic";
+      locationA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(value["location"]).replace(/'/g, "%27") + "', '" + encodeURIComponent(value["tagnumber"]).replace(/'/g, "%27") + "')");
+      locationA1.innerText = "(Click to Update Location)";
+
+
       const locationP = document.createElement("p");
       locationP.style.marginBottom = "1em";
       locationP.style.marginTop = "1em";
-      locationP.append(locationReadable);
+      locationP.append(locationReadable, locationA1);
       locationTD2.append(locationP);
 
 
@@ -543,7 +549,7 @@ async function updateTagnumberData(tagnumber) {
       const departmentA1 = document.createElement("a");
       departmentA1.style.cursor = "pointer";
       departmentA1.style.fontStyle = "italic";
-      departmentA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(value["location"]) + "', '" + encodeURIComponent(value["tagnumber"]) + "', '" + encodeURIComponent(value["department"]) + "')");
+      departmentA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(value["location"]).replace(/'/g, "%27") + "', '" + encodeURIComponent(value["tagnumber"]).replace(/'/g, "%27") + "', '" + encodeURIComponent(value["department"]).replace(/'/g, "%27") + "')");
       departmentA1.innerText = "(Click to Update Department)";
 
       departmentA1.append(newTabImg.cloneNode(true));
@@ -567,7 +573,7 @@ async function updateTagnumberData(tagnumber) {
       const domainA1 = document.createElement("a");
       domainA1.style.cursor = "pointer";
       domainA1.style.fontStyle = "italic";
-      domainA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(value["location"]) + "', '" + encodeURIComponent(value["tagnumber"]) + "', '" + encodeURIComponent(value["domain"]) + "')");
+      domainA1.setAttribute("onclick", "newLocationWindow('" + encodeURIComponent(value["location"]).replace(/'/g, "%27") + "', '" + encodeURIComponent(value["tagnumber"]).replace(/'/g, "%27") + "', '" + encodeURIComponent(value["department"]).replace(/'/g, "%27") + "', '" + encodeURIComponent(value["domain_readable"]).replace(/'/g, "%27") + "')");
       domainA1.innerText = "(Click to Update Domain)";
       
       domainA1.append(newTabImg.cloneNode(true));
