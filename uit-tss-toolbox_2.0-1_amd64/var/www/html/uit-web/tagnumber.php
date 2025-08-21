@@ -745,12 +745,25 @@ unset($value1);
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const tagnumber = urlParams.get('tagnumber');
-  updateJobQueueData(tagnumber);
-  const form = document.querySelector("#job_queued_form");
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    postData(form, "job_queued");
-  });
+
+  async function fetchTagnumberData() {
+    try {
+        await updateJobQueueData(tagnumber);
+        const form = document.querySelector("#job_queued_form");
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          postData(form, "job_queued");
+        });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  // setInterval(function() {
+  //   fetchTagnumberData();
+  // }, 3000);
+  fetchTagnumberData();
+
   updateTagnumberData(tagnumber);
 </script>
 <script>

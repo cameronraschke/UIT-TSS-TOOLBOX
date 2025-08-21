@@ -237,7 +237,7 @@ async function updateRemoteOfflineTable() {
 
 async function updateJobQueueData(tagnumber) {
   try {
-    const oldJobQueueSection = document.getElementById("job_queued_form");
+    const oldJobQueueSection = document.getElementById("job_queued");
     const jobQueueSectionFragment = new DocumentFragment();
 
     const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber));
@@ -373,10 +373,12 @@ async function updateJobQueueData(tagnumber) {
       Object.entries(liveImage).forEach(([key2, value2]) => {
         const liveImageDiv1 = document.createElement("div");
         const liveImageTimeP1 = document.createElement("p");
+        liveImageTimeP1.setAttribute("id", "live_image_timestamp");
         const liveImageTimeText1 = document.createTextNode(value2["time_formatted"]);
         
         const liveImageDiv2 = document.createElement("div");
         const liveImageScreenshot = document.createElement("img");
+        liveImageTimeP1.setAttribute("id", "live_image_screenshot");
         liveImageScreenshot.classList.add("live-image");
         liveImageScreenshot.src = "data:image/jpeg;base64," + value2["screenshot"];
         liveImageScreenshot.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber) + "', '_blank')");
@@ -400,6 +402,20 @@ async function updateJobQueueData(tagnumber) {
   } catch(error) {
     console.error(error);
   }
+}
+
+async function updateLiveImage() {
+  const liveImage = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber));
+  Object.entries(liveImage).forEach(([key, value]) => {
+    const oldScreenshotTime = document.getElementById("live_image_timestamp");
+    const oldScreenshotData = document.getElementById("live_image_screenshot");
+    
+    const newScreenshotTime = value["time_formatted"];
+    const newScreenshotData = value["screenshot"];
+    
+    oldScreenshotTime.innerText = newScreenshotTime;
+    oldScreenshotData.src = "data:image/jpeg;base64," + newScreenshotData;
+  });
 }
 
 async function updateTagnumberData(tagnumber) {
