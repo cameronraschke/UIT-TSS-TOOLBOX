@@ -742,6 +742,7 @@ unset($value1);
 </div>
 <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
 <script>
+  updateJobQueueData();
   const form = document.querySelector("#job_queued_form");
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -758,47 +759,6 @@ unset($value1);
 if ( window.history.replaceState ) {
 window.history.replaceState( null, null, window.location.href );
 }
-
-
-async function parseSSE() { 
-  try {
-    const jobQueue = await fetchSSE("job_queue", <?php echo htmlspecialchars($_GET["tagnumber"]); ?>);
-    newHTML = '';
-    Object.entries(jobQueue).forEach(([key, value]) => {
-      // BIOS and kernel updated (check mark)
-      if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] === true && jobQueue["bios_updated"] === true)) {
-        newHTML = "Online, no errors <span>&#10004;&#65039;</span>";
-      // BIOS and kernel out of date (x)
-      } else if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] !== true && jobQueue["bios_updated"] !== true)) {
-        newHTML = "Online, kernel and BIOS out of date <span>&#10060;</span>";
-      // BIOS out of date, kernel updated (warning sign)
-      } else if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] === true && jobQueue["bios_updated"] !== true)) {
-        newHTML = "Online, please update BIOS <span>&#9888;&#65039;</span>";
-      // BIOS updated, kernel out of date (x)
-      } else if (jobQueue["present_bool"] === true && (jobQueue["kernel_updated"] !== true && jobQueue["bios_updated"] === true)) {
-        newHTML = "Online, kernel out of date <span>&#10060;</span>)";
-      // Offline (x)
-      } else if (jobQueue["present_bool"] !== true) {
-        newHTML = "Offline <span>&#9940;</span>";
-      } else {
-        newHTML = "Unknown <span>&#9940;&#65039;</span>";
-      }
-      
-      document.getElementById('bios_kernel_updated').innerHTML = newHTML;
-
-      newHTML = '';
-      newHTML = '<b>"' + jobQueue["remote_status"] + '"</b> at ' + jobQueue["remote_time_formatted"];
-      document.getElementById('remote_status').innerHTML = newHTML;
-    });
-
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-parseSSE();
-setInterval(parseSSE, 3000);
-
 autoFillTags();
 
 </script>
