@@ -3,6 +3,11 @@ package post
 import (
   "errors"
   "fmt"
+  "time"
+  "database/sql"
+  "context"
+  "encoding/json"
+  "api/database"
 )
 
 type RemoteTable struct {
@@ -27,40 +32,32 @@ type RemoteTable struct {
   NetworkSpeed        *int          `sql:"network_speed"`
 }
 
-func UpdateRemote(db *sql.DB, tagnumber string, key string, value string) error {
-  fail := func(err error) (int64, error) {
-    return fmt.Errorf("CreateOrder: %v", err)
-  }
+type FormJobQueue struct {
+  Tagnumber         string  `json:"job_queued_tagnumber"`
+  JobQueued         string  `json:"job_queued"`
+}
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
-  defer cancel()
-
-  tx, err := db.BeginTx(dbCTX)
+func UpdateRemote(req *http.Request, db *sql.DB, key string) error {
+  // Parse request body JSON
+  var j FormJobQueue
+  err := json.NewDecoder(req.Body).Decode(&j)
   if err != nil {
-    return fail(err)
+    log.Warning("Error reading request: " + err.Error())
+    return errors.New("Cannot parse request body JSON: " + err.Error())
   }
-  defer tx.Rollback()
+  defer req.Body.Close()
 
+  tagnumber := j.Tagnumber
+  value := j.JobQueued
+
+  // Commit to DB
   if (key == "job_queued") {
-    result, err = tx.ExecContext(dbCTX, "UPDATE remote SET job_queued = ? WHERE tagnumber = ?",
-      value, tagnumber)
+    err := database.UpdateDB(db, "UPDATE remote SET job_queued = $1 WHERE tagnumber = $2", tagnumber, value)
     if err != nil {
-      return fail(err)
+      return errors.New("Database error: " + err.Error())
     }
-
-    rowsAffected, err := result.RowsAffected()
-    if err != nil {
-      return fail(err)
-    }
-
-    if rowsAffected != 1 {
-      return fail(errors.New("Rows affected are not exactly 1"))
-    }
-
-    if err = tx.Commit(); err != nil {
-      return fail(err)
-    }
-
     return nil
   }
+
+  return errors.New("Unknown key: " + key)
 }

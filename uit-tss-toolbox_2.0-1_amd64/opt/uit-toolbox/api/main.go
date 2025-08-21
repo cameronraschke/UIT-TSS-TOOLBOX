@@ -26,6 +26,7 @@ import (
 
   "api/database"
   "api/logger"
+  "api/post"
 
   _ "net/http/pprof"
   _ "github.com/jackc/pgx/v5/stdlib"
@@ -94,11 +95,6 @@ type RateLimiter struct {
   MapLastUpdated   time.Time
   BannedUntil      time.Time
   Banned           bool
-}
-
-type FormJobQueue struct {
-  Tagnumber         string  `json:"job_queued_tagnumber"`
-  JobQueued         string  `json:"job_queued"`
 }
 
 
@@ -350,20 +346,10 @@ func postAPI(w http.ResponseWriter, req *http.Request) {
   queryType := queries.Get("type")
 
   switch queryType {
-  case "test":
-    var j FormJobQueue
-    err := json.NewDecoder(req.Body).Decode(&j)
+  case "update_remote":
+    err = post.UpdateRemote(req, db, queryType)
     if err != nil {
-      log.Warning("Error reading request: " + err.Error())
-      return
-    }
-    dump, _ := httputil.DumpRequest(req, true)
-    fmt.Printf("--- Raw HTTP Request ---\n%s\n", dump)
-    fmt.Println(j.JobQueued)
-    fmt.Println(j.Tagnumber)
-    err = post.UpdateRemote(db, j.Tagnumber, "job_queued", j.JobQueued)
-    if err != nil {
-      log.Error("Database update error: " + err.Error())
+      log.Error("Cannot update DB: " + err.Error())
       return
     }
     return

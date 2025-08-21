@@ -504,7 +504,7 @@ type TagnumberData struct {
   TpmVersion                          *int        `json:"tpm_version"`
 }
 
-func GetTagnumberData (db *sql.DB, tagnumber int) (string, error) {
+func GetTagnumberData(db *sql.DB, tagnumber int) (string, error) {
   var sqlCode string
   var rows *sql.Rows
   var results []*TagnumberData
@@ -702,4 +702,40 @@ func CreateJson(results interface{}) (string, error) {
 	}
 
 	return jsonDataStr, nil
+}
+
+func UpdateDB(db *sql.DB, sqlCode string, uniqueID string, value string) error {
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  defer cancel()
+
+  tx, err := db.BeginTx(dbCTX, nil)
+  if err != nil {
+    return errors.New("Cannot begin DB transaction: " + err.Error())
+  }
+  defer tx.Rollback()
+
+  fail := func(err error) (error) {
+    tx.Rollback()
+    return fmt.Errorf("DB Error (rollback): %v", err)
+  }
+
+  result, err := tx.ExecContext(dbCTX, sqlCode, uniqueID, value)
+  if err != nil {
+    return fail(err)
+  }
+
+  rowsAffected, err := result.RowsAffected()
+  if err != nil {
+    return fail(err)
+  }
+
+  if rowsAffected != 1 {
+    return fail(errors.New("Rows affected are not exactly 1"))
+  }
+
+  if err = tx.Commit(); err != nil {
+    return fail(err)
+  }
+
+  return nil
 }
