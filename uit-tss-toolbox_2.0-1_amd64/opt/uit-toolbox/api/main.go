@@ -203,10 +203,15 @@ func formatHttpError (errorString string) (jsonErrStr string) {
 }
 
 
-func remoteAPI (w http.ResponseWriter, req *http.Request) {
+func remoteAPI(w http.ResponseWriter, req *http.Request) {
   var parsedURL *url.URL
   var err error
 
+  if req.Method != http.MethodGet {
+    log.Info("Method " + req.Method + " not allowed")
+    http.Error(w, formatHttpError("Method not allowed"), http.StatusMethodNotAllowed)
+    return
+  }
 
   // Check database connection
   if db == nil {
@@ -305,10 +310,15 @@ func remoteAPI (w http.ResponseWriter, req *http.Request) {
 }
 
 
-func postAPI (w http.ResponseWriter, req *http.Request) {
+func postAPI(w http.ResponseWriter, req *http.Request) {
   var parsedURL *url.URL
   var err error
 
+  if req.Method != http.MethodPost {
+    log.Info("Method " + req.Method + " not allowed")
+    http.Error(w, formatHttpError("Method not allowed"), http.StatusMethodNotAllowed)
+    return
+  }
 
   // Check database connection
   if db == nil {
@@ -345,10 +355,17 @@ func postAPI (w http.ResponseWriter, req *http.Request) {
     err := json.NewDecoder(req.Body).Decode(&j)
     if err != nil {
       log.Warning("Error reading request: " + err.Error())
+      return
     }
-    fmt.Println(j.JobQueued)
     dump, _ := httputil.DumpRequest(req, true)
     fmt.Printf("--- Raw HTTP Request ---\n%s\n", dump)
+    fmt.Println(j.JobQueued)
+    fmt.Println(j.Tagnumber)
+    err = post.UpdateRemote(db, j.Tagnumber, "job_queued", j.JobQueued)
+    if err != nil {
+      log.Error("Database update error: " + err.Error())
+      return
+    }
     return
   default:
     log.Warning("No POST type defined")
@@ -618,6 +635,14 @@ func apiMiddleWare (next http.Handler) http.Handler {
       log.Warning("Empty header request from: " + req.RemoteAddr)
     }
 
+    if req.Method == http.MethodOptions {
+      w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
+      w.Header().Set("Access-Control-Allow-Credentials", "true")
+      w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+      w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
+      w.WriteHeader(http.StatusNoContent)
+      return
+    }
     
     // Set headers
     if queries.Get("sse") == "true" {

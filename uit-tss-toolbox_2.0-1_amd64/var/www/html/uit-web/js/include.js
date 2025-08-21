@@ -95,7 +95,8 @@ async function postData(inputForm) {
 
   try {
     console.log(jsonData);
-    const requestOptions = {
+    
+    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=test', {
       method: 'POST',
       headers: {
       // 'Content-Type': 'application/json',
@@ -103,9 +104,7 @@ async function postData(inputForm) {
       'Authorization': 'Bearer ' + bearerToken
       },
       body: jsonData
-    }
-
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=test', requestOptions);
+    });
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }   
