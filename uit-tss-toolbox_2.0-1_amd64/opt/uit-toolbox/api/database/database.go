@@ -25,7 +25,7 @@ type AvailableJobs struct {
 func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
   var sqlCode string
   var rows *sql.Rows
-  var results []*JobQueue
+  var results []*AvailableJobs
   var resultsJson string
   var err error
 

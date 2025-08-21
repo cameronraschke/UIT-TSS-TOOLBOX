@@ -308,15 +308,6 @@ func remoteAPI(w http.ResponseWriter, req *http.Request) {
     }
     io.WriteString(w, remoteJobQueueByTagJson)
     return
-  case "tagnumber_data": 
-    var tagnumberDataJson string
-    tagnumberDataJson, err = database.GetTagnumberData(db, tagnumber)
-    if err != nil {
-      log.Warning("Query error: " + err.Error());
-      return
-    }
-    io.WriteString(w, tagnumberDataJson)
-    return
   case "available_jobs":
     var availableJobsJson string
     availableJobsJson, err = database.GetAvailableJobs(db, tagnumber)
