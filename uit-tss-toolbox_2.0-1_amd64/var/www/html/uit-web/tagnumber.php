@@ -309,12 +309,12 @@ foreach ($dbPSQL->get() as $key => $value) {
 
 
 
-    <?php echo "<div class='page-content'><h3>Update Queued Job and Location Data - <u>" . htmlspecialchars($_GET["tagnumber"]) . "</u></h3></div>"; ?>
 
     <div class='flex-container'>
       <div class='flex-container-child'>
+        <?php echo "<div class='page-content'><h3>Update Queued Job and Location Data - <u>" . htmlspecialchars($_GET["tagnumber"]) . "</u></h3></div>"; ?>
         <div id='job_queued' class='flex-container location-form' style='width: 100%; height: 40%;'></div>
-        <div class='location-form'>
+        <div class='location-form' style='width: 100%;'>
           <!-- <form id="client_image_upload" enctype="multipart/form-data" action="https://WAN_IP_ADDRESS:31411/api/post?type=client_image" method="POST" > -->
           <form id="client_image_upload" enctype="multipart/form-data" method="POST" >
             <div><p>Upload Image: </p></div>
