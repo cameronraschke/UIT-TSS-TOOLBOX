@@ -13,6 +13,7 @@ import (
   _ "image/jpeg"
   _ "image/png"
   "bytes"
+  "fmt"
 )
 
 type RemoteTable struct {
@@ -76,7 +77,7 @@ func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
   const DefaultQuality = 100
   
   // Parse request body
-  err := r.ParseMultipartForm(32 << 20)
+  err := req.ParseMultipartForm(32 << 20)
   if err != nil {
     return errors.New("File upload too large")
   }
@@ -88,7 +89,7 @@ func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
     }
     defer file.Close()
 
-    uploadedImage, err := file.image.Decode()
+    uploadedImage, err := jpeg.Decode(file)
     if err != nil {
       return errors.New("Cannot decode uploaded file")
     }
@@ -101,7 +102,7 @@ func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
 
     EncodedImageData := base64.StdEncoding.EncodeToString([]byte(convertedImage))
     
-    note := r.FormValue("note")
+    note := req.FormValue("note")
 
     uuidBytes := uuid.New()
     uuid := uuidBytes.String()
@@ -111,6 +112,7 @@ func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
     fmt.Println(EncodedImageData)
     fmt.Println(uuid)
     fmt.Println(time)
+    fmt.Println(note)
 
     // var j FormClientImages
     // err := json.NewDecoder(req.Body).Decode(&j)
