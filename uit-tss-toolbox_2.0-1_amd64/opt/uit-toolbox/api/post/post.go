@@ -9,9 +9,9 @@ import (
   "net/http"
   "encoding/base64"
   "github.com/google/uuid"
-  "image"
-  _ "image/jpeg"
-  _ "image/png"
+  // "image"
+  "image/jpeg"
+  // "image/png"
   "bytes"
   "fmt"
 )
@@ -73,13 +73,11 @@ type FormClientImages struct {
   ImageNote             *string     `json:"note"`
 }
 
-func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
-  const DefaultQuality = 100
-  
+func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {  
   // Parse request body
-  err := req.ParseMultipartForm(32 << 20)
+  err := req.ParseMultipartForm(64 << 20)
   if err != nil {
-    return errors.New("File upload too large")
+    return errors.New("Cannot parse form: " + err.Error())
   }
   files := req.MultipartForm.File["userfile"]
   for _, fileHeader := range files {
@@ -95,12 +93,13 @@ func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
     }
 
     var b bytes.Buffer
-    convertedImage, err := jpeg.Encode(&b, uploadedImage, Options{Quality: 100})
+    err = jpeg.Encode(&b, uploadedImage, &jpeg.Options{Quality: 100})
     if err != nil {
       return errors.New("Cannot encode uploaded file")
     }
 
-    EncodedImageData := base64.StdEncoding.EncodeToString([]byte(convertedImage))
+    byteSlice := b.Bytes()
+    EncodedImageData := base64.StdEncoding.EncodeToString([]byte(byteSlice))
     
     note := req.FormValue("note")
 
