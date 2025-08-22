@@ -14,6 +14,7 @@ import (
   // "image/png"
   "bytes"
   "fmt"
+  "net/http/httputil"
 )
 
 type RemoteTable struct {
@@ -74,8 +75,19 @@ type FormClientImages struct {
 }
 
 func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {  
+
+  dump, err := httputil.DumpRequestOut(req, true)
+	if err != nil {
+		return errors.New("Cannot dump HTTP request: " + err.Error())
+	}
+
+	fmt.Println("--- Dumped HTTP Request ---")
+	fmt.Println(string(dump))
+	fmt.Println("---------------------------")
+
+
   // Parse request body
-  err := req.ParseMultipartForm(64 << 20)
+  err = req.ParseMultipartForm(64 << 20)
   if err != nil {
     return errors.New("Cannot parse form: " + err.Error())
   }
@@ -134,5 +146,5 @@ func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
     return nil
   }
 
-  return errors.New("Unknown key: " + key)
+  return errors.New("No files in upload: " + key)
 }
