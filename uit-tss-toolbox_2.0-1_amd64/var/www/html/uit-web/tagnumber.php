@@ -181,6 +181,7 @@ if ($_POST) {
 <!DOCTYPE html>
   <head>
     <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
       body {
         visibility: hidden;
@@ -195,11 +196,11 @@ if ($_POST) {
   <body>
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
-  <div class='row'>
-    <div class='column'>
-  <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber']); ?>)</h1></div>
-</div>
-</div>
+  <div class='flex-container'>
+    <div class='flex-container-child'>
+      <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber']); ?>)</h1></div>
+    </div>
+  </div>
 
 
 <?php
@@ -310,9 +311,9 @@ foreach ($dbPSQL->get() as $key => $value) {
 
     <?php echo "<div class='page-content'><h3>Update Queued Job and Location Data - <u>" . htmlspecialchars($_GET["tagnumber"]) . "</u></h3></div>"; ?>
 
-    <div class='row'>
-      <div class='column'>
-        <div id='job_queued' class='job-queue-container location-form' style='width: 100%; height: 40%;'></div>
+    <div class='flex-container'>
+      <div class='flex-container-child'>
+        <div id='job_queued' class='flex-container location-form' style='width: 100%; height: 40%;'></div>
         <div class='location-form'>
           <form enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
@@ -462,7 +463,7 @@ foreach ($dbPSQL->get() as $key => $value) {
         <!-- Close column div-->
       </div>
 
-      <div class='column'>
+      <div class='flex-container-child'>
         <?php
         $dbPSQL->Pselect("SELECT COUNT(tagnumber) AS count FROM client_images WHERE hidden = FALSE AND tagnumber = :tagnumber", array(':tagnumber' => $_GET["tagnumber"]));
         $totalImages = $dbPSQL->nested_get()["count"];
