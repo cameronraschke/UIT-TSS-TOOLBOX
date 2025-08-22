@@ -315,7 +315,8 @@ foreach ($dbPSQL->get() as $key => $value) {
       <div class='flex-container-child'>
         <div id='job_queued' class='flex-container location-form' style='width: 100%; height: 40%;'></div>
         <div class='location-form'>
-          <form id="client_image_upload" enctype="multipart/form-data" action="https://172.27.53.113:31411/api/post?type=client_image" method="POST" >
+          <!-- <form id="client_image_upload" enctype="multipart/form-data" action="https://WAN_IP_ADDRESS:31411/api/post?type=client_image" method="POST" > -->
+          <form id="client_image_upload" enctype="multipart/form-data" method="POST" >
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
             <div><input name="userfile[]" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" multiple /></div>
