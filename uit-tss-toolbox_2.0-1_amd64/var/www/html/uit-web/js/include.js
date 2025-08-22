@@ -316,7 +316,13 @@ async function updateJobQueueData(tagnumber) {
       // jobFormInput1.setAttribute("required", "true");
       const jobFormButton = document.createElement("button");
       jobFormButton.setAttribute("type", "submit");
-      jobFormButton.innerText = "Queue Job";
+      jobFormButton.classList.add("submit");
+      if (value["job_active"] === true) {
+        jobFormButton.innerText = "Cancel Job";
+        jobFormButton.style.backgroundColor = "red";
+      } else if (value["job_active"] === false) {
+        jobFormButton.innerText = "Queue Job";
+      }
       if (value["tagnumber"] && value["tagnumber"] > 0) {
         if (value["job_queued"] && value["job_queued"] > 1 && value["job_active"]) {
           const jobFormOpt1 = document.createElement("option");

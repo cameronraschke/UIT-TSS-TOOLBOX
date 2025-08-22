@@ -197,8 +197,8 @@ if ($_POST) {
   <?php include('/var/www/html/uit-web/php/navigation-bar.php'); ?>
 
   <div class='flex-container'>
-    <div class='flex-container-child'>
-      <div class='pagetitle'><h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber']); ?>)</h1></div>
+    <div class='pagetitle flex-container-child' style='flex-direction: column; align-self: center;'>
+      <h1>Client Lookup (<?php echo htmlspecialchars($_GET['tagnumber']); ?>)</h1>
     </div>
   </div>
 
@@ -306,9 +306,6 @@ $dbPSQL->Pselect($sql, array(':tagnumber' => htmlspecialchars_decode($_GET["tagn
 if (arrFilter($dbPSQL->get()) === 0) {
 foreach ($dbPSQL->get() as $key => $value) {
 ?>
-
-
-
 
     <div class='flex-container'>
       <div class='flex-container-child'>
