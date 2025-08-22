@@ -362,6 +362,7 @@ async function updateJobQueueData(tagnumber) {
       jobForm.append(jobFormDiv1, jobFormDiv2);
       jobFormParentDiv.append(jobForm);
       col1.append(jobStatus, jobFormParentDiv);
+      parentDiv.append(col1);
 
       const col2 = document.createElement("div");
       col2.classList.add("flex-container-child");
@@ -370,30 +371,37 @@ async function updateJobQueueData(tagnumber) {
       col2.style.alignSelf = "center";
 
       Object.entries(liveImage).forEach(([key2, value2]) => {
-        const liveImageDiv1 = document.createElement("div");
-        const liveImageTimeP1 = document.createElement("p");
-        liveImageTimeP1.setAttribute("id", "live_image_timestamp");
-        const liveImageTimeText1 = document.createTextNode(value2["time_formatted"]);
-        
-        const liveImageDiv2 = document.createElement("div");
-        const liveImageScreenshot = document.createElement("img");
-        liveImageScreenshot.setAttribute("id", "live_image_screenshot");
-        liveImageScreenshot.classList.add("live-image");
-        liveImageScreenshot.src = "data:image/jpeg;base64," + value2["screenshot"];
-        liveImageScreenshot.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "', '_blank')");
-        liveImageScreenshot.setAttribute("loading", "lazy");
+        if (document.getElementById("live_image_timestamp") && document.getElementById("live_image_screenshot")) {
+          document.getElementById("live_image_timestamp").innerText = value2["time_formatted"];
+          document.getElementById("live_image_screenshot").src = "data:image/jpeg;base64," + value2["screenshot"];
+        } else {
+          const liveImageDiv1 = document.createElement("div");
+          const liveImageTimeP1 = document.createElement("p");
+          liveImageTimeP1.setAttribute("id", "live_image_timestamp");
+          const liveImageTimeText1 = document.createTextNode(value2["time_formatted"]);
+          
+          const liveImageDiv2 = document.createElement("div");
+          const liveImageScreenshot = document.createElement("img");
+          liveImageScreenshot.setAttribute("id", "live_image_screenshot");
+          liveImageScreenshot.classList.add("live-image");
+          liveImageScreenshot.src = "data:image/jpeg;base64," + value2["screenshot"];
+          liveImageScreenshot.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "', '_blank')");
+          liveImageScreenshot.setAttribute("loading", "lazy");
 
-        liveImageTimeP1.append(liveImageTimeText1);
-        liveImageDiv1.append(liveImageTimeP1);
-        liveImageDiv2.append(liveImageScreenshot);
+          liveImageTimeP1.append(liveImageTimeText1);
+          liveImageDiv1.append(liveImageTimeP1);
+          liveImageDiv2.append(liveImageScreenshot);
 
-        col2.append(liveImageDiv1, liveImageDiv2);
+          col2.append(liveImageDiv1, liveImageDiv2);
+          parentDiv.append(col2);
+        }
       });
 
-      parentDiv.append(col1, col2);
       jobQueueSectionFragment.append(parentDiv);
       jobQueueSectionFragment.replaceChildren(parentDiv);
-      oldJobQueueSection.replaceChildren(jobQueueSectionFragment);
+      if (!document.getElementById("job_queue_div")) {
+        oldJobQueueSection.replaceChildren(jobQueueSectionFragment);
+      }
     });
   } catch(error) {
     console.error(error);
