@@ -298,7 +298,7 @@ async function updateJobQueueData(tagnumber) {
       const jobFormDiv1 = document.createElement("div");
       jobFormDiv1.style.paddingLeft = "0";
       const jobFormLabel1 = document.createElement("label");
-      jobFormLabel1.setAttribute("for", "job_queued")
+      jobFormLabel1.setAttribute("for", "job_queued_tagnumber")
       jobFormLabel1.innerText = "Enter a job to queue: "
       
 
@@ -310,16 +310,17 @@ async function updateJobQueueData(tagnumber) {
       jobFormInput1.setAttribute("type", "hidden");
       jobFormInput1.value = value["tagnumber"];
       const jobFormSelect = document.createElement("select");
-      jobFormSelect.setAttribute("id", "job_queued");
-      jobFormSelect.setAttribute("name", "job_queued");
+      jobFormSelect.setAttribute("id", "job_queued_select");
+      jobFormSelect.setAttribute("name", "job_queued_select");
       // jobFormInput1.setAttribute("readonly", "true");
       // jobFormInput1.setAttribute("required", "true");
       const jobFormButton = document.createElement("button");
+      jobFormButton.setAttribute("id", "job_form_button");
       jobFormButton.setAttribute("type", "submit");
       jobFormButton.classList.add("submit");
       if (value["job_active"]) {
         jobFormButton.innerText = "Cancel Job";
-        jobFormButton.style.backgroundColor = "red";
+        jobFormButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
       } else if (value["job_active"] === false) {
         jobFormButton.innerText = "Queue Job";
       }
@@ -388,8 +389,6 @@ async function updateJobQueueData(tagnumber) {
 
         col2.append(liveImageDiv1, liveImageDiv2);
       });
-
-
 
       parentDiv.append(col1, col2);
       jobQueueSectionFragment.append(parentDiv);

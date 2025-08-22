@@ -41,7 +41,7 @@ type RemoteTable struct {
 
 type FormJobQueue struct {
   Tagnumber         string  `json:"job_queued_tagnumber"`
-  JobQueued         string  `json:"job_queued"`
+  JobQueued         string  `json:"job_queued_select"`
 }
 
 func UpdateRemote(req *http.Request, db *sql.DB, key string) error {
