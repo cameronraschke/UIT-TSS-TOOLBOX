@@ -181,6 +181,11 @@ if ($_POST) {
 <!DOCTYPE html>
   <head>
     <meta charset='UTF-8'>
+    <style>
+      body {
+        visibility: hidden;
+      }
+    </style>
     <link rel='stylesheet' type='text/css' href='/css/main.css' />
     <title><?php echo htmlspecialchars($_GET['tagnumber']) . " - UIT Client Mgmt"; ?></title>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -307,7 +312,7 @@ foreach ($dbPSQL->get() as $key => $value) {
 
     <div class='row'>
       <div class='column'>
-        <div id='job_queued'></div>
+        <div id='job_queued' style='width: 100%; height: 400px;'></div>
         <div class='location-form'>
           <form enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
@@ -774,11 +779,10 @@ unset($value1);
   }, 3000);
 
   updateTagnumberData(tagnumber);
-</script>
-<script>
-if ( window.history.replaceState ) {
-window.history.replaceState( null, null, window.location.href );
-}
+
+  document.addEventListener("DOMContentLoaded", function() {
+    document.body.style.visibility = "visible";
+  });
 
 </script>
 <div class="uit-footer">

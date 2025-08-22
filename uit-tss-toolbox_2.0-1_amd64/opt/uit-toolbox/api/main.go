@@ -659,6 +659,8 @@ func apiMiddleWare (next http.Handler) http.Handler {
     w.Header().Set("Access-Control-Allow-Credentials", "true")
     w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
     w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
+    w.Header().Set("Content-Security-Policy", "img-src 'none'")
+    w.Header().Set("Content-Security-Policy", "img-src https://WAN_IP_ADDRESS/api/remote/")
     w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
     w.Header().Set("Pragma", "no-cache")
     w.Header().Set("Expires", "0")
