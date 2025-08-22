@@ -7,6 +7,12 @@ import (
   "encoding/json"
   "api/database"
   "net/http"
+  "encoding/base64"
+  "github.com/google/uuid"
+  "image"
+  _ "image/jpeg"
+  _ "image/png"
+  "bytes"
 )
 
 type RemoteTable struct {
@@ -54,6 +60,76 @@ func UpdateRemote(req *http.Request, db *sql.DB, key string) error {
     if err != nil {
       return errors.New("Database error: " + err.Error())
     }
+    return nil
+  }
+
+  return errors.New("Unknown key: " + key)
+}
+
+
+type FormClientImages struct {
+  Tagnumber             *string     `json:"tagnumber"`
+  ImageNote             *string     `json:"note"`
+}
+
+func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
+  const DefaultQuality = 100
+  
+  // Parse request body
+  err := r.ParseMultipartForm(32 << 20)
+  if err != nil {
+    return errors.New("File upload too large")
+  }
+  files := req.MultipartForm.File["userfile"]
+  for _, fileHeader := range files {
+    file, err := fileHeader.Open()
+    if err != nil {
+      return errors.New("Cannot open uploaded file for reading")
+    }
+    defer file.Close()
+
+    uploadedImage, err := file.image.Decode()
+    if err != nil {
+      return errors.New("Cannot decode uploaded file")
+    }
+
+    var b bytes.Buffer
+    convertedImage, err := jpeg.Encode(&b, uploadedImage, Options{Quality: 100})
+    if err != nil {
+      return errors.New("Cannot encode uploaded file")
+    }
+
+    EncodedImageData := base64.StdEncoding.EncodeToString([]byte(convertedImage))
+    
+    note := r.FormValue("note")
+
+    uuidBytes := uuid.New()
+    uuid := uuidBytes.String()
+
+    time := time.Now().Format("2025-08-22 00:00:00.000")
+
+    fmt.Println(EncodedImageData)
+    fmt.Println(uuid)
+    fmt.Println(time)
+
+    // var j FormClientImages
+    // err := json.NewDecoder(req.Body).Decode(&j)
+    // if err != nil {
+    //   return errors.New("Cannot parse request body JSON: " + err.Error())
+    // }
+    defer req.Body.Close()
+
+    // tagnumber := j.Tagnumber
+    // value := j.JobQueued
+
+    // // Commit to DB
+    // if (key == "job_queued") {
+    //   err := database.UpdateDB(db, "UPDATE remote SET job_queued = $1 WHERE tagnumber = $2", value, tagnumber)
+    //   if err != nil {
+    //     return errors.New("Database error: " + err.Error())
+    //   }
+    //   return nil
+    // }
     return nil
   }
 

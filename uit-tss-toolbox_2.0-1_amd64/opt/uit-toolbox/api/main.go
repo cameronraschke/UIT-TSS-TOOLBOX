@@ -371,6 +371,13 @@ func postAPI(w http.ResponseWriter, req *http.Request) {
       return
     }
     return
+  case "client_image":
+    err = post.UpdateClientImages(req, db, queryType)
+    if err != nil {
+      log.Error("Cannot update DB: " + err.Error())
+      return
+    }
+    return
   default:
     log.Warning("No POST type defined")
     return

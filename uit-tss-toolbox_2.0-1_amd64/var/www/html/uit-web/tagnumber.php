@@ -315,7 +315,7 @@ foreach ($dbPSQL->get() as $key => $value) {
       <div class='flex-container-child'>
         <div id='job_queued' class='flex-container location-form' style='width: 100%; height: 40%;'></div>
         <div class='location-form'>
-          <form enctype="multipart/form-data" method="POST">
+          <form id="client_image_upload" enctype="multipart/form-data" method="POST">
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->
             <div><input name="userfile[]" type="file" accept="image/png, image/jpeg, image/webp, image/avif, video/mp4, video/quicktime" multiple /></div>
@@ -751,6 +751,12 @@ unset($value1);
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const tagnumber = urlParams.get('tagnumber');
+
+  const form = document.querySelector("#client_image_upload");
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      postData(form, "client_image");
+  });
 
   async function fetchStaticContent() {
     try {
