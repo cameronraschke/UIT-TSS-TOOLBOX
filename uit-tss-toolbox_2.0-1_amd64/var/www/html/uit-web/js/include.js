@@ -240,17 +240,13 @@ async function updateJobQueueData(tagnumber) {
 
     Object.entries(jobQueueByTagData).forEach(([key, value]) => {
       const parentDiv = document.createElement("div");
+      parentDiv.classList.add("job-queue-container");
       parentDiv.classList.add("location-form");
       parentDiv.setAttribute("id", "job_queued");
-      parentDiv.style.height = "fit-content";
-
-      // row 1
-      const row1 = document.createElement("div");
-      row1.classList.add("row");
 
       // col 1
       const col1 = document.createElement("div");
-      col1.classList.add("column");
+      col1.classList.add("job-queue-child");
       col1.style.borderRight = "1px solid black";
       const jobStatus = document.createElement("div");
 
@@ -361,7 +357,7 @@ async function updateJobQueueData(tagnumber) {
       col1.append(jobStatus, jobFormParentDiv);
 
       const col2 = document.createElement("div");
-      col2.classList.add("column");
+      col2.classList.add("job-queue-child");
       col2.style.width = "50%";
       col2.style.height = "100%";
 
@@ -388,8 +384,7 @@ async function updateJobQueueData(tagnumber) {
 
 
 
-      row1.append(col1, col2);
-      parentDiv.append(row1);
+      parentDiv.append(col1, col2);
       jobQueueSectionFragment.append(parentDiv);
       jobQueueSectionFragment.replaceChildren(parentDiv);
       oldJobQueueSection.replaceChildren(jobQueueSectionFragment);
