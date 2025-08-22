@@ -272,8 +272,14 @@ label {
 
 .flex-container-child {
 	align-self: flex-start;
+	min-width: 48%;
 	max-width: 48%;
 	margin: 1% 1% 1% 1%;
+}
+
+#job_queue_div {
+	border: none;
+	border-right: 1px solid black;
 }
 
 @media only screen and (max-width: 1250px) {
@@ -282,15 +288,11 @@ label {
   }
   .flex-container-child {
 	max-width: 98%;
+	min-width: 98%;
   }
-}
-
-@media only screen and (max-width: 1900px) {
-  .flex-container {
-    flex-direction: column;
-  }
-  .flex-container-child {
-	max-width: 98%;
+  #job_queue_div {
+	border: none;
+	border-bottom: 1px solid black;
   }
 }
 

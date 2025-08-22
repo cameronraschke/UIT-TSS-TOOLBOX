@@ -246,8 +246,8 @@ async function updateJobQueueData(tagnumber) {
 
       // col 1
       const col1 = document.createElement("div");
+      col1.setAttribute("id", "job_queue_div");
       col1.classList.add("flex-container-child");
-      col1.style.borderRight = "1px solid black";
       const jobStatus = document.createElement("div");
 
 
