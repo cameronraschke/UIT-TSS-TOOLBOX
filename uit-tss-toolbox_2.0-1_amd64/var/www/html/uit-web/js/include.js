@@ -317,7 +317,7 @@ async function updateJobQueueData(tagnumber) {
       const jobFormButton = document.createElement("button");
       jobFormButton.setAttribute("type", "submit");
       jobFormButton.classList.add("submit");
-      if (value["job_active"] === true) {
+      if (value["job_active"]) {
         jobFormButton.innerText = "Cancel Job";
         jobFormButton.style.backgroundColor = "red";
       } else if (value["job_active"] === false) {
@@ -366,6 +366,7 @@ async function updateJobQueueData(tagnumber) {
       col2.classList.add("flex-container-child");
       col2.style.width = "50%";
       col2.style.height = "100%";
+      col2.style.alignSelf = "center";
 
       Object.entries(liveImage).forEach(([key2, value2]) => {
         const liveImageDiv1 = document.createElement("div");
