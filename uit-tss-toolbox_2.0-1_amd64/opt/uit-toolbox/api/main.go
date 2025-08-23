@@ -659,7 +659,7 @@ func apiMiddleWare (next http.Handler) http.Handler {
     if queries.Get("sse") == "true" {
       w.Header().Set("Content-Type", "text/event-stream")
     } else {
-      w.Header().Set("Content-Type", "application/json")
+      w.Header().Set("Content-Type", "application/json; charset=utf-8")
     }
 
     w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
@@ -667,11 +667,15 @@ func apiMiddleWare (next http.Handler) http.Handler {
     w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
     w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
     w.Header().Set("Content-Security-Policy", "img-src 'none'")
-    w.Header().Set("Content-Security-Policy", "img-src https://WAN_IP_ADDRESS/api/remote/")
+    w.Header().Set("Content-Security-Policy", "img-src https://WAN_IP_ADDRESS:31411/api/remote/")
+    w.Header().Set("X-Content-Type-Options", "nosniff")
     w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
     w.Header().Set("Pragma", "no-cache")
     w.Header().Set("Expires", "0")
-    w.Header().Set("Connection", "keep-alive")
+    w.Header().Set("Host", "WAN_IP_ADDRESS:31411")
+    w.Header().Set("X-Frame-Options", "DENY")
+    w.Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
+    w.Header().Set("Strict-Transport-Security", "max-age=86400; includeSubDomains")
     w.Header().Set("X-Accel-Buffering", "no")
     w.WriteHeader(http.StatusOK)
 
