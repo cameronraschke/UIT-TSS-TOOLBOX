@@ -9,9 +9,9 @@ import (
   "net/http"
   "encoding/base64"
   "github.com/google/uuid"
-  // "image"
+  "image"
   "image/jpeg"
-  // "image/png"
+  _ "image/png"
   "bytes"
   "fmt"
   "net/http/httputil"
@@ -99,7 +99,7 @@ func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
     }
     defer file.Close()
 
-    uploadedImage, err := jpeg.Decode(file)
+    uploadedImage, err := image.Decode(file)
     if err != nil {
       return errors.New("Cannot decode uploaded file")
     }
