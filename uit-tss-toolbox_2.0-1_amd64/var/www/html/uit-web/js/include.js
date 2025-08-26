@@ -239,47 +239,43 @@ async function updateDynamicJobQueueData(tagnumber) {
       updateLiveImage(tagnumber);
       Object.entries(jobQueueByTagData).forEach(([key, value]) => {
         Object.entries(availableJobs).forEach(([key1, value1]) => {
-          if (jobSelect && !document.getElementById("job_queued_select").querySelector(`option[value="${value1["job"]}"]`)) {
-            const firstOption = document.createElement('option');
-            const option = document.createElement('option');
-            option.value = value1["job"];
-            if (value["job_active"] && value1["job"] === value["job_queued"]) {
-              firstOption.textContent = "In Progress: " + value1["job_readable"];
-              firstOption.value = "";
-              firstOption.selected = true;
-            } else {
-              firstOption.innerText = "--Select Job Below--";
-              firstOption.value = "";
-              firstOption.selected = true;
-            }
-            option.value = value1["job"];
-            option.textContent = value1["job_readable"];
-            option.selected = false;
-            jobSelect.appendChild(firstOption, option);
+          const firstOption = document.createElement('option');
+          const option = document.createElement('option');
+          option.value = value1["job"];
+          if (value["job_active"] && value1["job"] === value["job_queued"]) {
+            firstOption.textContent = "In Progress: " + value1["job_readable"];
+            firstOption.value = "";
+            firstOption.selected = true;
+          }
+          option.value = value1["job"];
+          option.textContent = value1["job_readable"];
+          option.selected = false;
+          jobSelect.appendChild(firstOption, option);
 
-            if (document.getElementById("job_queued_select") !== jobSelect) {
-              while (jobSelect.options.length > 1) {
-                jobSelect.remove(1);
-              }
-              jobSelect.appendChild(firstOption, option);
+          if (document.getElementById("job_queued_select") !== jobSelect) {
+            while (jobSelect.options.length > 1) {
+              jobSelect.remove(1);
             }
+            jobSelect.replaceChildren(firstOption, option);
           }
         });
 
-        if (value["job_active"] && (value["job_queued"] && value["job_queued"].length > 1)) {
-          if (formButton && jobSelect) {
+        if (formButton && jobSelect) {
+          if (value["job_active"] && (value["job_queued"] && value["job_queued"].length > 1)) {
             formButton.innerText = "Cancel Job";
+            formButton.style.backgroundColor = "";
             formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
             jobSelect.setAttribute("disabled", "true");
-          }
-        } else if (!value["job_active"] || !value["job_queued"]) {
-          if (formButton && jobSelect) {
+          } else {
             formButton.innerText = "Queue Job";
+            formButton.style.backgroundColor = "";
             formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";
             jobSelect.removeAttribute("disabled");
           }
         }
       });
+    } else {
+      console.log("No job queue data or available jobs data");
     }
   } catch(error) {
     console.error(error);
@@ -395,6 +391,7 @@ async function updateStaticJobQueueData(tagnumber) {
           const jobFormOpt1 = document.createElement("option");
           jobFormOpt1.value = "";
           jobFormOpt1.innerText = "--Select Job Below--";
+          jobFormOpt1.selected = true;
           jobFormSelect.append(jobFormOpt1);
         }
 
