@@ -768,6 +768,11 @@ unset($value1);
   async function updateDynamicContent() {
     try {
       await updateDynamicJobQueueData(tagnumber);
+      const form = document.querySelector("#job_queued_form");
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          postData(form, "job_queued");
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
     }
