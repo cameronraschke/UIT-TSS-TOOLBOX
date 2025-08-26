@@ -31,7 +31,7 @@ func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
   var resultsJson string
   var err error
 
-  sqlCode = "SELECT remote.tagnumber, static_job_names.job, static_job_names.job_readable, remote.job_active FROM static_job_names LEFT JOIN remote ON (static_job_names.job = remote.job_queued OR (remote.job_active = FALSE OR remote.job_queued IS NULL)) WHERE remote.tagnumber = $1 AND static_job_names.job_html_bool = TRUE ORDER BY static_job_names.job_rank ASC"
+  sqlCode = "SELECT remote.tagnumber, static_job_names.job, static_job_names.job_readable, remote.job_active FROM static_job_names LEFT JOIN remote ON (static_job_names.job = remote.job_queued OR (remote.job_active = TRUE OR remote.job_active = FALSE OR remote.job_queued IS NOT NULL OR remote.job_queued IS NULL)) WHERE remote.tagnumber = $1 AND static_job_names.job_html_bool = TRUE ORDER BY static_job_names.job_rank ASC;"
 
     dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()

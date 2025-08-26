@@ -270,11 +270,13 @@ async function updateDynamicJobQueueData(tagnumber) {
 
         if (value["job_active"] && (value["job_queued"] && value["job_queued"].length > 1)) {
           formButton.innerText = "Cancel Job";
+          formButton.setAttribute("onclick", "ConfirmCancelJob()");
           formButton.style.backgroundColor = "";
           formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
           jobSelect.setAttribute("disabled", "true");
         } else {
           formButton.innerText = "Queue Job";
+          formButton.removeAttribute("onclick");
           formButton.style.backgroundColor = "";
           formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";
           jobSelect.removeAttribute("disabled");
@@ -285,6 +287,16 @@ async function updateDynamicJobQueueData(tagnumber) {
     }
   } catch(error) {
     console.error(error);
+  }
+}
+
+async function ConfirmCancelJob() {
+  var retVal = confirm("Are you sure you want to cancel this job?");
+  if( retVal == true ) {
+    await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=cancel_job&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
+    return true;
+  } else {
+    return false;
   }
 }
 

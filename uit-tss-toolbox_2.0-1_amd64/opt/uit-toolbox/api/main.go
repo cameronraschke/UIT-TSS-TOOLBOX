@@ -317,6 +317,14 @@ func remoteAPI(w http.ResponseWriter, req *http.Request) {
     }
     io.WriteString(w, availableJobsJson)
     return
+  case "cancel_job":
+    sqlCode := "UPDATE remote SET job_queued = $1, job_active = FALSE WHERE tagnumber = $2"
+    availableJobsJson, err = database.UpdateDB(db, sqlCode, "fail", tagnumber)
+    if err != nil {
+      log.Warning("Query error: " + err.Error());
+      return
+    }
+    return
   default:
     log.Warning("No query type defined")
     return
