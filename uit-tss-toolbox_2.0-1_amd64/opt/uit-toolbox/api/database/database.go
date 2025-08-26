@@ -18,6 +18,7 @@ var (
 
 
 type AvailableJobs struct {
+  Tagnumber     *int      `json:"tagnumber"`
   Job           *string   `json:"job"`
   JobReadable   *string   `json:"job_readable"`
   JobActive     *bool     `json:"job_active"`
@@ -50,6 +51,7 @@ func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
       return "", errors.New("Context error: " + err.Error())
     }
     err = rows.Scan(
+      &row.Tagnumber,
       &row.Job,
       &row.JobReadable,
       &row.JobActive,
