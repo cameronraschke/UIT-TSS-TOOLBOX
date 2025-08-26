@@ -318,7 +318,7 @@ func remoteAPI(w http.ResponseWriter, req *http.Request) {
     io.WriteString(w, availableJobsJson)
     return
   case "cancel_job":
-    sqlCode := "UPDATE remote SET job_queued = $1, job_active = FALSE WHERE tagnumber = $2"
+    sqlCode := "UPDATE remote SET job_queued = $1, job_active = TRUE WHERE tagnumber = $2"
     err = database.UpdateDB(db, sqlCode, "cancel", string(tagnumber))
     if err != nil {
       log.Warning("Query error: " + err.Error());
