@@ -241,7 +241,7 @@ async function updateDynamicJobQueueData(tagnumber) {
       updateLiveImage(tagnumber);
       Object.entries(jobQueueByTagData).forEach(([key, value]) => {
         const firstOption = document.createElement('option');
-        if (value["job_active"] && (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
+        if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
           firstOption.textContent = "In Progress: " + value["job_queued_formatted"];
           firstOption.value = "";
           firstOption.selected = true;
@@ -268,7 +268,7 @@ async function updateDynamicJobQueueData(tagnumber) {
           jobSelect.replaceWith(newSelect);
         }
 
-        if (value["job_active"] && (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
+        if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
           formButton.innerText = "Cancel Job";
           formButton.setAttribute("onclick", "ConfirmCancelJob()");
           formButton.style.backgroundColor = "";
