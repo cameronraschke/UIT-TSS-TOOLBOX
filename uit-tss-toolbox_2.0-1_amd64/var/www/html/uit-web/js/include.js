@@ -229,7 +229,34 @@ async function updateRemoteOfflineTable() {
   }
 }
 
-async function updateJobQueueData(tagnumber) {
+async function updateDynamicJobQueueData(tagnumber) {
+  try {
+    const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
+    if (jobQueueByTagData && Object.keys(jobQueueByTagData).length > 0) {
+      setTimeout(() => { updateDynamicJobQueueData(tagnumber); }, 10000);
+      Object.entries(jobQueueByTagData).forEach(([key, value]) => {
+        if (value["job_active"] === true || value["job_queued"] > 1) {
+          updateLiveImage(tagnumber);
+          const formButton = document.getElementById("job_form_button");
+          const jobSelect = document.getElementById("job_queued_select");
+          if (formButton && value["job_active"] === true) {
+            formButton.innerText = "Cancel Job";
+            formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
+            jobSelect.setAttribute("disabled", "true");
+          } else if (formButton && value["job_active"] === false) {
+            formButton.innerText = "Queue Job";
+            formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";
+            jobSelect.removeAttribute("disabled");
+          }
+        }
+      });
+    }
+  } catch(error) {
+    console.error(error);
+  }
+}
+
+async function updateStaticJobQueueData(tagnumber) {
   try {
     const oldJobQueueSection = document.getElementById("job_queued");
     const jobQueueSectionFragment = new DocumentFragment();

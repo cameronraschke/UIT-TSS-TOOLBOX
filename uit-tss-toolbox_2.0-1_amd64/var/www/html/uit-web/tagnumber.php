@@ -752,7 +752,7 @@ unset($value1);
 
   async function fetchStaticContent() {
     try {
-        await updateJobQueueData(tagnumber);
+        await updateStaticJobQueueData(tagnumber);
         const form = document.querySelector("#job_queued_form");
         form.addEventListener("submit", (event) => {
           event.preventDefault();
@@ -767,17 +767,15 @@ unset($value1);
 
   async function updateDynamicContent() {
     try {
-      await updateLiveImage(tagnumber);
+      await updateDynamicJobQueueData(tagnumber);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }
 
-  setInterval(function() {
+  setInterval(() => {
     updateDynamicContent();
-  }, 3000);
-
-  updateTagnumberData(tagnumber);
+  }, 1000);
 
   document.addEventListener("DOMContentLoaded", function() {
     document.body.style.visibility = "visible";

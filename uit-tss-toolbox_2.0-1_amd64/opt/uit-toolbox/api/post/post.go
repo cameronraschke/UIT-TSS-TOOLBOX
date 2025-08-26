@@ -99,7 +99,7 @@ func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
     }
     defer file.Close()
 
-    uploadedImage, err := image.Decode(file)
+    uploadedImage, imageType, err := image.Decode(file)
     if err != nil {
       return errors.New("Cannot decode uploaded file")
     }
@@ -121,6 +121,7 @@ func UpdateClientImages(req *http.Request, db *sql.DB, key string) error {
     time := time.Now().Format("2025-08-22 00:00:00.000")
 
     fmt.Println(EncodedImageData)
+    fmt.Println(imageType)
     fmt.Println(uuid)
     fmt.Println(time)
     fmt.Println(note)
