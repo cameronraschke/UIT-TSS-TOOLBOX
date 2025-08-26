@@ -232,18 +232,48 @@ async function updateRemoteOfflineTable() {
 async function updateDynamicJobQueueData(tagnumber) {
   try {
     const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
-    if (jobQueueByTagData && Object.keys(jobQueueByTagData).length > 0) {
-      setTimeout(() => { updateDynamicJobQueueData(tagnumber); }, 10000);
+    const availableJobs = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
+    if (jobQueueByTagData && availableJobs && Object.keys(jobQueueByTagData).length > 0) {
+      const formButton = document.getElementById("job_form_button");
+      const jobSelect = document.getElementById("job_queued_select");
+      updateLiveImage(tagnumber);
       Object.entries(jobQueueByTagData).forEach(([key, value]) => {
+        Object.entries(availableJobs).forEach(([key1, value1]) => {
+          if (jobSelect && !document.getElementById("job_queued_select").querySelector(`option[value="${value1["job"]}"]`)) {
+            const firstOption = document.createElement('option');
+            const option = document.createElement('option');
+            option.value = value1["job"];
+            if (value["job_active"] === true && value1["job"] === value["job_queued"]) {
+              firstOption.textContent = "In Progress: " + value1["job_readable"];
+              firstOption.value = "";
+              firstOption.selected = true;
+            } else {
+              firstOption.innerText = "--Select Job Below--";
+              firstOption.value = "";
+              firstOption.selected = true;
+            }
+            option.value = value1["job"];
+            option.textContent = value1["job_readable"];
+            option.selected = false;
+            jobSelect.appendChild(firstOption, option);
+
+            if (document.getElementById("job_queued_select") !== jobSelect) {
+              while (jobSelect.options.length > 1) {
+                jobSelect.remove(1);
+              }
+              jobSelect.appendChild(firstOption, option);
+            }
+          }
+        });
+
         if (value["job_active"] === true || value["job_queued"] > 1) {
-          updateLiveImage(tagnumber);
-          const formButton = document.getElementById("job_form_button");
-          const jobSelect = document.getElementById("job_queued_select");
-          if (formButton && value["job_active"] === true) {
+          if (formButton && jobSelect) {
             formButton.innerText = "Cancel Job";
             formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
             jobSelect.setAttribute("disabled", "true");
-          } else if (formButton && value["job_active"] === false) {
+          }
+        } else if (value["job_active"] === false && value["job_queued"] < 1) {
+          if (formButton && jobSelect) {
             formButton.innerText = "Queue Job";
             formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";
             jobSelect.removeAttribute("disabled");
@@ -269,7 +299,6 @@ async function updateStaticJobQueueData(tagnumber) {
       const parentDiv = document.createElement("div");
       parentDiv.classList.add("flex-container");
       parentDiv.classList.add("location-form");
-      parentDiv.setAttribute("id", "job_queued");
 
       // col 1
       const col1 = document.createElement("div");

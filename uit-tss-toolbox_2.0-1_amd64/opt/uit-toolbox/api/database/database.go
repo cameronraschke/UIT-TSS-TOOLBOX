@@ -20,6 +20,7 @@ var (
 type AvailableJobs struct {
   Job           *string   `json:"job"`
   JobReadable   *string   `json:"job_readable"`
+  JobActive     *bool     `json:"job_active"`
 }
 
 func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
@@ -29,7 +30,7 @@ func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
   var resultsJson string
   var err error
 
-  sqlCode = "SELECT job, job_readable FROM static_job_names WHERE job_html_bool = TRUE AND NOT job IN (SELECT (CASE WHEN remote.job_queued IS NULL THEN '' ELSE remote.job_queued END) FROM remote WHERE remote.tagnumber = $1) ORDER BY job_rank ASC"
+  sqlCode = "SELECT job, job_readable, job_active FROM static_job_names WHERE job_html_bool = TRUE AND NOT job IN (SELECT (CASE WHEN remote.job_queued IS NULL THEN '' ELSE remote.job_queued END) FROM remote WHERE remote.tagnumber = $1) ORDER BY job_rank ASC"
 
     dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()
