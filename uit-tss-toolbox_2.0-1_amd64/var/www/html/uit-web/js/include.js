@@ -236,42 +236,48 @@ async function updateDynamicJobQueueData(tagnumber) {
     if (jobQueueByTagData && availableJobs && Object.keys(jobQueueByTagData).length > 0) {
       const formButton = document.getElementById("job_form_button");
       const jobSelect = document.getElementById("job_queued_select");
+      const newSelect = document.createElement("select");
+      newSelect.setAttribute("id", "job_queued_select");
       updateLiveImage(tagnumber);
       Object.entries(jobQueueByTagData).forEach(([key, value]) => {
+        const firstOption = document.createElement('option');
+        if (value["job_active"] && (value["job_queued"] && value["job_queued"].length > 1)) {
+          firstOption.textContent = "In Progress: " + value["job_queued_formatted"];
+          firstOption.value = "";
+          firstOption.selected = true;
+          newSelect.setAttribute("disabled", "true");
+        } else {
+          firstOption.textContent = "--Select Job Below--";
+          firstOption.value = "";
+          firstOption.selected = true;
+          newSelect.removeAttribute("disabled");
+        } 
+
+        newSelect.replaceChildren(firstOption);
+
         Object.entries(availableJobs).forEach(([key1, value1]) => {
-          const firstOption = document.createElement('option');
           const option = document.createElement('option');
-          option.value = value1["job"];
-          if (value["job_active"] && value1["job"] === value["job_queued"]) {
-            firstOption.textContent = "In Progress: " + value1["job_readable"];
-            firstOption.value = "";
-            firstOption.selected = true;
-          }
           option.value = value1["job"];
           option.textContent = value1["job_readable"];
           option.selected = false;
-          jobSelect.appendChild(firstOption, option);
-
-          if (document.getElementById("job_queued_select") !== jobSelect) {
-            while (jobSelect.options.length > 1) {
-              jobSelect.remove(1);
-            }
-            jobSelect.replaceChildren(firstOption, option);
-          }
+          newSelect.append(option);
         });
 
-        if (formButton && jobSelect) {
-          if (value["job_active"] && (value["job_queued"] && value["job_queued"].length > 1)) {
-            formButton.innerText = "Cancel Job";
-            formButton.style.backgroundColor = "";
-            formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
-            jobSelect.setAttribute("disabled", "true");
-          } else {
-            formButton.innerText = "Queue Job";
-            formButton.style.backgroundColor = "";
-            formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";
-            jobSelect.removeAttribute("disabled");
-          }
+        // check if new option values are different than current option values
+        if (document.getElementById("job_queued_select").options[0].textContent !== newSelect.options[0].textContent) {
+          jobSelect.replaceWith(newSelect);
+        }
+
+        if (value["job_active"] && (value["job_queued"] && value["job_queued"].length > 1)) {
+          formButton.innerText = "Cancel Job";
+          formButton.style.backgroundColor = "";
+          formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
+          jobSelect.setAttribute("disabled", "true");
+        } else {
+          formButton.innerText = "Queue Job";
+          formButton.style.backgroundColor = "";
+          formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";
+          jobSelect.removeAttribute("disabled");
         }
       });
     } else {
