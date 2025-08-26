@@ -30,7 +30,7 @@ func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
   var resultsJson string
   var err error
 
-  sqlCode = "SELECT job, job_readable, job_active FROM static_job_names WHERE job_html_bool = TRUE AND NOT job IN (SELECT (CASE WHEN remote.job_queued IS NULL THEN '' ELSE remote.job_queued END) FROM remote WHERE remote.tagnumber = $1) ORDER BY job_rank ASC"
+  sqlCode = "SELECT static_job_names.job, static_job_names.job_readable, remote.job_active FROM static_job_names LEFT JOIN remote ON (static_job_names.job = remote.job_queued OR remote.job_queued IS NULL) WHERE static_job_names.job_html_bool = TRUE AND remote.tagnumber = $1 ORDER BY static_job_names.job_rank ASC;"
 
     dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()
@@ -52,6 +52,7 @@ func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
     err = rows.Scan(
       &row.Job,
       &row.JobReadable,
+      &row.JobActive,
     )
     if err != nil && err != sql.ErrNoRows {
       return "", errors.New("Error scanning rows: " + err.Error())

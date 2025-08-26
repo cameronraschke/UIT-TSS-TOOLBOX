@@ -243,7 +243,7 @@ async function updateDynamicJobQueueData(tagnumber) {
             const firstOption = document.createElement('option');
             const option = document.createElement('option');
             option.value = value1["job"];
-            if (value["job_active"] === true && value1["job"] === value["job_queued"]) {
+            if (value["job_active"] && value1["job"] === value["job_queued"]) {
               firstOption.textContent = "In Progress: " + value1["job_readable"];
               firstOption.value = "";
               firstOption.selected = true;
@@ -266,13 +266,13 @@ async function updateDynamicJobQueueData(tagnumber) {
           }
         });
 
-        if (value["job_active"] === true || value["job_queued"] > 1) {
+        if (value["job_active"] && (value["job_queued"] && value["job_queued"].length > 1)) {
           if (formButton && jobSelect) {
             formButton.innerText = "Cancel Job";
             formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
             jobSelect.setAttribute("disabled", "true");
           }
-        } else if (value["job_active"] === false && value["job_queued"] < 1) {
+        } else if (!value["job_active"] || !value["job_queued"]) {
           if (formButton && jobSelect) {
             formButton.innerText = "Queue Job";
             formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";

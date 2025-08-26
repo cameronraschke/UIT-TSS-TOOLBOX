@@ -775,7 +775,7 @@ unset($value1);
 
   setInterval(() => {
     updateDynamicContent();
-  }, 1000);
+  }, 2000);
 
   document.addEventListener("DOMContentLoaded", function() {
     document.body.style.visibility = "visible";
