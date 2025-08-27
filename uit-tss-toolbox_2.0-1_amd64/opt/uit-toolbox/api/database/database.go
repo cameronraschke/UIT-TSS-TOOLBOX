@@ -781,10 +781,10 @@ func UpdateDB(db *sql.DB, sqlCode string, value string, uniqueID string) error {
 
   fail := func(err error) (error) {
     tx.Rollback()
-    return errors.New("Error while updating DB (rollback): " + err.Error())
+    return errors.New("Error while updating DB (rollback): " + err.Error() + " \n\tSQL: " + sqlCode + " Value: " + value + " UniqueID: " + uniqueID)
   }
 
-  result, err := tx.ExecContext(dbCTX, sqlCode, value, string(uniqueID))
+  result, err := tx.ExecContext(dbCTX, sqlCode, value, uniqueID)
   if err != nil {
     return fail(err)
   }
