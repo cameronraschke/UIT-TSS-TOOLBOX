@@ -785,7 +785,7 @@ unset($value1);
 
   async function updateDynamicContent() {
     try {
-      await updateDynamicTagnumberData(tagnumber);
+      await updateDynamicTagnumberJobData(tagnumber);
       const form = document.querySelector("#job_queued_form");
         form.addEventListener("submit", (event) => {
           event.preventDefault();
@@ -796,9 +796,9 @@ unset($value1);
     }
   }
 
-  await updateDynamicContent();
+  updateDynamicContent();
   setInterval(() => {
-    await updateDynamicContent();
+    updateDynamicContent();
   }, 2000);
 
   document.addEventListener("DOMContentLoaded", function() {
