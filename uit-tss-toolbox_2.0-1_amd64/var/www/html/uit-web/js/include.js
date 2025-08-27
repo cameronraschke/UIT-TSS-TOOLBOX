@@ -243,6 +243,7 @@ async function updateDynamicTagnumberJobData(tagnumber) {
       const jobSelect = document.getElementById("job_queued_select");
       const newSelect = document.createElement("select");
       newSelect.setAttribute("id", "job_queued_select");
+      newSelect.setAttribute("name", "job_queued_select");
       updateLiveImage(tagnumber);
       Object.entries(jobQueueByTagData).forEach(([key, value]) => {
         let clientStatusTextFormatted = undefined
@@ -389,8 +390,6 @@ async function updateStaticTagnumberData(tagnumber) {
       jobFormInput1.setAttribute("type", "hidden");
       jobFormInput1.value = value["tagnumber"];
       const jobFormSelect = document.createElement("select");
-      jobFormSelect.setAttribute("id", "job_queued_select");
-      jobFormSelect.setAttribute("name", "job_queued_select");
       // jobFormInput1.setAttribute("readonly", "true");
       // jobFormInput1.setAttribute("required", "true");
       const jobFormButton = document.createElement("button");

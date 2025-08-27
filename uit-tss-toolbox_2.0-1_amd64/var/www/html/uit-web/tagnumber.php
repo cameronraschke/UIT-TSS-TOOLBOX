@@ -165,12 +165,12 @@ if (isset($_FILES) && strFilter($_FILES) === 0) {
 }
 
 
-if (isset($_POST["job_queued_tagnumber"])) {
-  if (strFilter($_POST["job_queued"]) === 0) {
-    $dbPSQL->updateRemote($_POST["job_queued_tagnumber"], "job_queued", $_POST["job_queued"]);
-  }
-  unset($_POST["job_queued_form"]);
-}
+// if (isset($_POST["job_queued_tagnumber"])) {
+//   if (strFilter($_POST["job_queued"]) === 0) {
+//     $dbPSQL->updateRemote($_POST["job_queued_tagnumber"], "job_queued", $_POST["job_queued"]);
+//   }
+//   unset($_POST["job_queued_form"]);
+// }
 
 if ($_POST) {
   header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
@@ -326,7 +326,7 @@ foreach ($dbPSQL->get() as $key => $value) {
                 <div style="padding-left: 0px">
                   <input id="job_queued_tagnumber" name="job_queued_tagnumber" type=hidden value=""></input>
                   <select id="job_queued_select" name="job_queued_select" disabled="true">
-                    <option value=""></option>
+                    <option selected="true" value=""></option>
                   </select>
                   <div>
                     <button id="job_form_button" type="submit" class="submit" disabled="true" value="">Loading...</button>
@@ -786,17 +786,22 @@ unset($value1);
   async function updateDynamicContent() {
     try {
       await updateDynamicTagnumberJobData(tagnumber);
-      const form = document.querySelector("#job_queued_form");
-        form.addEventListener("submit", (event) => {
-          event.preventDefault();
-          postData(form, "job_queued");
-      });
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }
 
   updateDynamicContent();
+  addEventListener();
+
+  async function addEventListener() {
+    const form = document.querySelector("#job_queued_form");
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      postData(form, "job_queued");
+    });
+  }
+  
   setInterval(() => {
     updateDynamicContent();
   }, 2000);
