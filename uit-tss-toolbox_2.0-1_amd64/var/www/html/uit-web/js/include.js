@@ -285,6 +285,8 @@ async function updateDynamicTagnumberJobData(tagnumber) {
           clientStatus.append(clientStatusP1, clientStatusP2, clientStatusA1);
         }
 
+        const jobQueuedTagnumber = document.getElementById("job_queued_tagnumber");
+        jobQueuedTagnumber.value = value["tagnumber"];
 
         const firstOption = document.createElement('option');
         if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
@@ -316,7 +318,7 @@ async function updateDynamicTagnumberJobData(tagnumber) {
 
         if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
           formButton.innerText = "Cancel Job";
-          formButton.setAttribute("onclick", "ConfirmCancelJob(" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + ")");
+          formButton.setAttribute("onclick", "ConfirmCancelJob('" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "')");
           formButton.style.backgroundColor = "";
           formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
           formButton.removeAttribute("disabled");
