@@ -781,7 +781,7 @@ func UpdateDB(db *sql.DB, sqlCode string, value string, tagnumber int) error {
 
   fail := func(err error) (error) {
     tx.Rollback()
-    return errors.New("Error while updating DB (rollback): " + err.Error() + " \n\tSQL: " + sqlCode + " Value: " + value + " Tagnumber: " + tagnumber)
+    return errors.New("Error while updating DB (rollback): " + err.Error() + " \n\tSQL: " + sqlCode + " Value: " + value + " Tagnumber: " + string(tagnumber))
   }
 
   result, err := tx.ExecContext(dbCTX, sqlCode, value, tagnumber)
