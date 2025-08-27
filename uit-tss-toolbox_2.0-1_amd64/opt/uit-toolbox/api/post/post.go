@@ -41,7 +41,7 @@ type RemoteTable struct {
 }
 
 type FormJobQueue struct {
-  Tagnumber         string  `json:"job_queued_tagnumber"`
+  Tagnumber         int     `json:"job_queued_tagnumber"`
   JobQueued         string  `json:"job_queued_select"`
 }
 
