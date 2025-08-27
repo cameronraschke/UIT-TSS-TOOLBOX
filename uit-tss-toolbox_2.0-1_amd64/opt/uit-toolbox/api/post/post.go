@@ -16,6 +16,7 @@ import (
   "fmt"
   "net/http/httputil"
   "log"
+  "strconv"
 )
 
 type RemoteTable struct {
@@ -41,7 +42,7 @@ type RemoteTable struct {
 }
 
 type FormJobQueue struct {
-  Tagnumber         int     `json:"job_queued_tagnumber"`
+  Tagnumber         string  `json:"job_queued_tagnumber"`
   JobQueued         string  `json:"job_queued_select"`
 }
 
@@ -54,10 +55,17 @@ func UpdateRemoteJobQueued(req *http.Request, db *sql.DB, key string) error {
   }
   defer req.Body.Close()
 
-  tagnumber := j.Tagnumber
+  tag := j.Tagnumber
+  var tagnumber int
+  if len(tag) > 0 {
+    tagnumber, err = strconv.Atoi(tag)
+    if err != nil {
+      return errors.New("Tagnumber cannot be converted to integer: " + j.Tagnumber)
+    }
+  }
   value := j.JobQueued
 
-  log.Println("Updating job_queued for tagnumber " + string(tagnumber) + " to value " + value)
+  log.Println("Updating job_queued for tagnumber " + j.JobQueued + " to value " + value)
 
   // Commit to DB
   if (key == "job_queued") {
