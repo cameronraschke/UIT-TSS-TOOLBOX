@@ -44,7 +44,7 @@ type FormJobQueue struct {
   JobQueued         string  `json:"job_queued_select"`
 }
 
-func UpdateRemote(req *http.Request, db *sql.DB, key string) error {
+func UpdateRemoteJobQueued(req *http.Request, db *sql.DB, key string) error {
   // Parse request body JSON
   var j FormJobQueue
   err := json.NewDecoder(req.Body).Decode(&j)
