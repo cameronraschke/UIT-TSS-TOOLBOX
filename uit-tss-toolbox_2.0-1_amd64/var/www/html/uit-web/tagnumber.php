@@ -310,7 +310,40 @@ foreach ($dbPSQL->get() as $key => $value) {
     <div class='flex-container'>
       <div class='flex-container-child'>
         <?php echo "<div class='page-content'><h3>Update Queued Job and Location Data - <u>" . htmlspecialchars($_GET["tagnumber"]) . "</u></h3></div>"; ?>
-        <div id='job_queued' class='flex-container location-form' style='width: 100%; height: 40%;'></div>
+        <div id='job_queued' class='flex-container location-form' style='width: 100%; height: 40%;'>
+          <div id="job_queue_div" class="flex-container-child">
+            <div id="client_status">
+              <p>Loading status...</p>
+            </div>
+            <div>
+              <p id="queue_status">Loading queued job...</p>
+            </div>
+            <div>
+              <form id="job_queue_form">
+                <div style="padding-left: 0px">
+                  <label for="job_queued_tagnumber">Enter a job to queue: </label>
+                </div>
+                <div style="padding-left: 0px">
+                  <input id="job_queued_tagnumber" name="job_queued_tagnumber" type=hidden value=""></input>
+                  <select id="job_queued_select" name="job_queued_select" disabled="true">
+                    <option value=""></option>
+                  </select>
+                  <div>
+                    <button id="job_form_button" type="submit" class="submit" disabled="true" value="">Loading...</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="flex-container-child" style="width: 50%; height: 50%; align-self: center;">
+            <div>
+              <p id="live_image_timestamp">Loading timestamp...</p>
+            </div>
+            <div>
+              <img id="live_image_screenshot" class="live-image" loading="lazy">
+            </div>
+          </div>
+        </div>
         <div class='location-form' style='width: 100%;'>
           <!-- <form id="client_image_upload" enctype="multipart/form-data" action="https://WAN_IP_ADDRESS:31411/api/post?type=client_image" method="POST" > -->
           <form id="client_image_upload" enctype="multipart/form-data" method="POST" >
@@ -750,24 +783,9 @@ unset($value1);
   const urlParams = new URLSearchParams(queryString);
   const tagnumber = urlParams.get('tagnumber');
 
-  async function fetchStaticContent() {
-    try {
-        await updateStaticJobQueueData(tagnumber);
-        const form = document.querySelector("#job_queued_form");
-        form.addEventListener("submit", (event) => {
-          event.preventDefault();
-          postData(form, "job_queued");
-        });
-        await autoFillTags();
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  }
-  fetchStaticContent();
-
   async function updateDynamicContent() {
     try {
-      await updateDynamicJobQueueData(tagnumber);
+      await updateDynamicTagnumberData(tagnumber);
       const form = document.querySelector("#job_queued_form");
         form.addEventListener("submit", (event) => {
           event.preventDefault();
@@ -778,8 +796,9 @@ unset($value1);
     }
   }
 
+  await updateDynamicContent();
   setInterval(() => {
-    updateDynamicContent();
+    await updateDynamicContent();
   }, 2000);
 
   document.addEventListener("DOMContentLoaded", function() {

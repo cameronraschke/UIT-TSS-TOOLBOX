@@ -143,7 +143,8 @@ async function newToken() {
 }
 
 async function fetchData(url) {
-  if (await checkToken() == false) {
+  const tokenStatus = await checkToken()
+  if (tokenStatus === false) {
     await newToken();
   }
   const bearerToken = localStorage.getItem('bearerToken');
@@ -162,15 +163,14 @@ async function fetchData(url) {
   try {
     const response = await fetch(url, requestOptions);
     if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
+      throw new Error(`Error fetching data: ${response.status}`);
     }   
 
     const data = await response.json();
     return(data);
 
   } catch (error) {
-    console.error(error.message);
-    console.error(url);
+    console.error(error.message + "\n" + url);
   }
 }
 

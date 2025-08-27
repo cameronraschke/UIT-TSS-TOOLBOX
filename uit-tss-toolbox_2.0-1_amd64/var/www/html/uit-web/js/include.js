@@ -229,10 +229,54 @@ async function updateRemoteOfflineTable() {
   }
 }
 
-async function updateDynamicJobQueueData(tagnumber) {
+async function updateDynamicTagnumberJobData(tagnumber) {
   try {
-    const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
-    const availableJobs = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
+    const [jobQueueByTagData, availableJobs] = await Promise.all([
+      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27")),
+      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"))
+    ]);
+
+    const clientStatus = document.getElementById("client_status");
+
+    let clientStatusTextFormatted = undefined
+    if (value["tagnumber"] && value["tagnumber"] > 0) {
+      const clientStatusP1 = document.createElement("p");
+      // BIOS and kernel updated (check mark)
+      if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] === true)) {
+        clientStatusTextFormatted = "Online, no errors ✔️";
+      // BIOS and kernel out of date (x)
+      } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] !== true)) {
+        clientStatusTextFormatted = "Online, kernel and BIOS out of date ❌";
+      // BIOS out of date, kernel updated (warning sign)
+      } else if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] !== true)) {
+        clientStatusTextFormatted = "Online, please update BIOS ⚠️";
+      // BIOS updated, kernel out of date (x)
+      } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] === true)) {
+        clientStatusTextFormatted = "Online, kernel out of date ❌";
+      // Offline (x)
+      } else if (value["present_bool"] !== true) {
+        clientStatusTextFormatted = "Offline ⛔";
+      } else {
+        clientStatusTextFormatted = "Unknown ⛔";
+      }
+
+      const clientStatusText1 = "Real-time Job Status for " + value["tagnumber"] + ": " + clientStatusTextFormatted;
+      clientStatusP1.replaceChildren(clientStatusText1);
+      clientStatus.replaceChildren(clientStatusP1); 
+    } else {
+      const clientStatusP1 = document.createElement("p");
+      const clientStatusText1 = document.createTextNode("Missing required info. Please plug into laptop server to gather information.");
+      const clientStatusP2 = document.createElement("p");
+      const clientStatusText2 = document.createTextNode("To update the location, please update it from the ");
+      const clientStatusA1 = document.createElement("a");
+      clientStatusA1.href = "/locations.php?edit=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27");
+      clientStatusA1.innerText = "locations page";
+      
+      clientStatusP1.append(clientStatusText1);
+      clientStatusP2.append(clientStatusText2);
+      clientStatus.append(clientStatusP1, clientStatusP2, clientStatusA1);
+    }
+
     if (jobQueueByTagData && availableJobs && Object.keys(jobQueueByTagData).length > 0) {
       const formButton = document.getElementById("job_form_button");
       const jobSelect = document.getElementById("job_queued_select");
@@ -270,7 +314,7 @@ async function updateDynamicJobQueueData(tagnumber) {
 
         if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
           formButton.innerText = "Cancel Job";
-          formButton.setAttribute("onclick", "ConfirmCancelJob()");
+          formButton.setAttribute("onclick", "ConfirmCancelJob(" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + ")");
           formButton.style.backgroundColor = "";
           formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
           jobSelect.setAttribute("disabled", "true");
@@ -290,9 +334,9 @@ async function updateDynamicJobQueueData(tagnumber) {
   }
 }
 
-async function ConfirmCancelJob() {
-  var retVal = confirm("Are you sure you want to cancel this job?");
-  if( retVal == true ) {
+async function ConfirmCancelJob(tagnumber) {
+  var cancelJob = confirm("Are you sure you want to cancel this job?");
+  if (cancelJob === true) {
     await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=cancel_job&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
     return true;
   } else {
@@ -300,14 +344,15 @@ async function ConfirmCancelJob() {
   }
 }
 
-async function updateStaticJobQueueData(tagnumber) {
+async function updateStaticTagnumberData(tagnumber) {
   try {
+    const [jobQueueByTagData, availableJobs, liveImage] = await Promise.all([
+      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27")),
+      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27")),
+    ]);
+
     const oldJobQueueSection = document.getElementById("job_queued");
     const jobQueueSectionFragment = new DocumentFragment();
-
-    const jobQueueByTagData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
-    const availableJobs = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
-    const liveImage = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
 
     Object.entries(jobQueueByTagData).forEach(([key, value]) => {
       const parentDiv = document.createElement("div");
@@ -321,46 +366,7 @@ async function updateStaticJobQueueData(tagnumber) {
       const jobStatus = document.createElement("div");
 
 
-      let clientStatusFormatted = undefined
-      // BIOS and kernel updated (check mark)
-      if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] === true)) {
-        clientStatusFormatted = "Online, no errors ✔️";
-      // BIOS and kernel out of date (x)
-      } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] !== true)) {
-        clientStatusFormatted = "Online, kernel and BIOS out of date ❌";
-      // BIOS out of date, kernel updated (warning sign)
-      } else if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] !== true)) {
-        clientStatusFormatted = "Online, please update BIOS ⚠️";
-      // BIOS updated, kernel out of date (x)
-      } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] === true)) {
-        clientStatusFormatted = "Online, kernel out of date ❌";
-      // Offline (x)
-      } else if (value["present_bool"] !== true) {
-        clientStatusFormatted = "Offline ⛔";
-      } else {
-        clientStatusFormatted = "Unknown ⛔";
-      }
-
-      if (value["tagnumber"] && value["tagnumber"] > 0) {
-        const jobStatusP1 = document.createElement("p");
-        const jobStatusText1 = document.createTextNode("Real-time Job Status for " + value["tagnumber"] + ":");
-        const jobStatusP2 = document.createElement("p");
-        const jobStatusText2 = document.createTextNode(clientStatusFormatted);
-        jobStatusP2.append(jobStatusText2);
-        jobStatusP1.append(jobStatusText1);
-        jobStatus.append(jobStatusP1, jobStatusP2);
-      } else {
-        const jobStatusP1 = document.createElement("p");
-        const jobStatusText1 = document.createTextNode("Missing required info. Please plug into laptop server to gather information.");
-        const jobStatusP2 = document.createElement("p");
-        const jobStatusText2 = document.createTextNode("To update the location, please update it from the ");
-        const jobStatusA1 = document.createElement("a");
-        jobStatusA1.href = "/locations.php?edit=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27");
-        jobStatusA1.innerText = "locations page";
-        jobStatusP1.append(jobStatusText1);
-        jobStatusP2.append(jobStatusText2, jobStatusA1);
-        jobStatus.append(jobStatusP1, jobStatusP2);
-      }
+      
 
       const jobFormParentDiv = document.createElement("div");
       const jobForm = document.createElement("form");
@@ -388,39 +394,22 @@ async function updateStaticJobQueueData(tagnumber) {
       jobFormButton.setAttribute("id", "job_form_button");
       jobFormButton.setAttribute("type", "submit");
       jobFormButton.classList.add("submit");
-      if (value["job_active"]) {
-        jobFormButton.innerText = "Cancel Job";
-        jobFormButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
-      } else if (value["job_active"] === false) {
-        jobFormButton.innerText = "Queue Job";
-      }
+      jobFormButton.setAttribute("disabled", "true");
+      jobFormButton.innerText = "Loading...";
       if (value["tagnumber"] && value["tagnumber"] > 0) {
-        if (value["job_queued"] && value["job_queued"] > 1 && value["job_active"]) {
-          const jobFormOpt1 = document.createElement("option");
-          jobFormOpt1.value = value["job_queued"];
-          jobFormOpt1.innerText = "In Progress: " + value["job_queued_formatted"];
-          jobFormSelect.append(jobFormOpt1);
-        } else if (value["job_queued"] && value["job_queued"] > 1 && !value["job_active"]) {
-          const jobFormOpt1 = document.createElement("option");
-          jobFormOpt1.value = value["job_queued"];
-          jobFormOpt1.innerText = "Queued: " + value["job_queued_formatted"];
-          jobFormSelect.append(jobFormOpt1);
-        } else {
-          const jobFormOpt1 = document.createElement("option");
-          jobFormOpt1.value = "";
-          jobFormOpt1.innerText = "--Select Job Below--";
-          jobFormOpt1.selected = true;
-          jobFormSelect.append(jobFormOpt1);
-        }
-
+        const jobFormOpt1 = document.createElement("option");
+        jobFormOpt1.value = "";
+        jobFormOpt1.innerText = "--Select Job Below--";
+        jobFormOpt1.selected = true;
+        jobFormSelect.append(jobFormOpt1);
         Object.entries(availableJobs).forEach(([key1, value1]) => {
           let jobFormOptionN = document.createElement("option");
           jobFormOptionN.value = value1["job"];
           jobFormOptionN.innerText = value1["job_readable"];
           jobFormSelect.append(jobFormOptionN);
         });
-
       } else {
+        jobFormSelect.setAttribute("disabled", "true");
         const jobFormOpt1 = document.createElement("option");
         jobFormOpt1.value = "";
         jobFormOpt1.innerText = "ERR: " + tagnumber + " missing from DB :((("
@@ -442,30 +431,23 @@ async function updateStaticJobQueueData(tagnumber) {
       col2.style.alignSelf = "center";
 
       Object.entries(liveImage).forEach(([key2, value2]) => {
-        if (document.getElementById("live_image_timestamp") && document.getElementById("live_image_screenshot")) {
-          document.getElementById("live_image_timestamp").innerText = value2["time_formatted"];
-          document.getElementById("live_image_screenshot").src = "data:image/jpeg;base64," + value2["screenshot"];
-        } else {
-          const liveImageDiv1 = document.createElement("div");
-          const liveImageTimeP1 = document.createElement("p");
-          liveImageTimeP1.setAttribute("id", "live_image_timestamp");
-          const liveImageTimeText1 = document.createTextNode(value2["time_formatted"]);
-          
-          const liveImageDiv2 = document.createElement("div");
-          const liveImageScreenshot = document.createElement("img");
-          liveImageScreenshot.setAttribute("id", "live_image_screenshot");
-          liveImageScreenshot.classList.add("live-image");
-          liveImageScreenshot.src = "data:image/jpeg;base64," + value2["screenshot"];
-          liveImageScreenshot.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "', '_blank')");
-          liveImageScreenshot.setAttribute("loading", "lazy");
+        const liveImageDiv1 = document.createElement("div");
+        const liveImageTimeP1 = document.createElement("p");
+        liveImageTimeP1.setAttribute("id", "live_image_timestamp");
+        const liveImageTimeText1 = document.createTextNode(value2["time_formatted"]);
+        
+        const liveImageDiv2 = document.createElement("div");
+        const liveImageScreenshot = document.createElement("img");
+        liveImageScreenshot.setAttribute("id", "live_image_screenshot");
+        liveImageScreenshot.classList.add("live-image");
+        liveImageScreenshot.setAttribute("loading", "lazy");
 
-          liveImageTimeP1.append(liveImageTimeText1);
-          liveImageDiv1.append(liveImageTimeP1);
-          liveImageDiv2.append(liveImageScreenshot);
+        liveImageTimeP1.append(liveImageTimeText1);
+        liveImageDiv1.append(liveImageTimeP1);
+        liveImageDiv2.append(liveImageScreenshot);
 
-          col2.append(liveImageDiv1, liveImageDiv2);
-          parentDiv.append(col2);
-        }
+        col2.append(liveImageDiv1, liveImageDiv2);
+        parentDiv.append(col2);
       });
 
       jobQueueSectionFragment.append(parentDiv);
@@ -487,9 +469,10 @@ async function updateLiveImage(tagnumber) {
     
     const newScreenshotTime = value["time_formatted"];
     const newScreenshotData = value["screenshot"];
-    
+
     oldScreenshotTime.innerText = newScreenshotTime;
     oldScreenshotData.src = "data:image/jpeg;base64," + newScreenshotData;
+    newScreenshotData.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "', '_blank')");
   });
 }
 
