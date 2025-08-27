@@ -57,7 +57,7 @@ func UpdateRemoteJobQueued(req *http.Request, db *sql.DB, key string) error {
   tagnumber := j.Tagnumber
   value := j.JobQueued
 
-  log.Println("Updating job_queued for tagnumber " + tagnumber + " to value " + value)
+  log.Println("Updating job_queued for tagnumber " + string(tagnumber) + " to value " + value)
 
   // Commit to DB
   if (key == "job_queued") {
