@@ -348,7 +348,7 @@ async function updateStaticTagnumberData(tagnumber) {
   try {
     const [jobQueueByTagData, availableJobs, liveImage] = await Promise.all([
       fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27")),
-      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27")),
+      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"))
     ]);
 
     const oldJobQueueSection = document.getElementById("job_queued");
