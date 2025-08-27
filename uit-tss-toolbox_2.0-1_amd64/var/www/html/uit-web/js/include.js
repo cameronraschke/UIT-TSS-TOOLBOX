@@ -236,56 +236,55 @@ async function updateDynamicTagnumberJobData(tagnumber) {
       fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"))
     ]);
 
-    const clientStatus = document.getElementById("client_status");
-
-    Object.entries(jobQueueByTagData).forEach(([key, value]) => {
-      let clientStatusTextFormatted = undefined
-      if (value["tagnumber"] && value["tagnumber"] > 0) {
-        const clientStatusP1 = document.createElement("p");
-        // BIOS and kernel updated (check mark)
-        if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] === true)) {
-          clientStatusTextFormatted = "Online, no errors ✔️";
-        // BIOS and kernel out of date (x)
-        } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] !== true)) {
-          clientStatusTextFormatted = "Online, kernel and BIOS out of date ❌";
-        // BIOS out of date, kernel updated (warning sign)
-        } else if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] !== true)) {
-          clientStatusTextFormatted = "Online, please update BIOS ⚠️";
-        // BIOS updated, kernel out of date (x)
-        } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] === true)) {
-          clientStatusTextFormatted = "Online, kernel out of date ❌";
-        // Offline (x)
-        } else if (value["present_bool"] !== true) {
-          clientStatusTextFormatted = "Offline ⛔";
-        } else {
-          clientStatusTextFormatted = "Unknown ⛔";
-        }
-
-        const clientStatusText1 = "Real-time Job Status for " + value["tagnumber"] + ": " + clientStatusTextFormatted;
-        clientStatusP1.replaceChildren(clientStatusText1);
-        clientStatus.replaceChildren(clientStatusP1); 
-      } else {
-        const clientStatusP1 = document.createElement("p");
-        const clientStatusText1 = document.createTextNode("Missing required info. Please plug into laptop server to gather information.");
-        const clientStatusP2 = document.createElement("p");
-        const clientStatusText2 = document.createTextNode("To update the location, please update it from the ");
-        const clientStatusA1 = document.createElement("a");
-        clientStatusA1.href = "/locations.php?edit=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27");
-        clientStatusA1.innerText = "locations page";
-        
-        clientStatusP1.append(clientStatusText1);
-        clientStatusP2.append(clientStatusText2);
-        clientStatus.append(clientStatusP1, clientStatusP2, clientStatusA1);
-      }
-    });
 
     if (jobQueueByTagData && availableJobs && Object.keys(jobQueueByTagData).length > 0) {
+      const clientStatus = document.getElementById("client_status");
       const formButton = document.getElementById("job_form_button");
       const jobSelect = document.getElementById("job_queued_select");
       const newSelect = document.createElement("select");
       newSelect.setAttribute("id", "job_queued_select");
       updateLiveImage(tagnumber);
       Object.entries(jobQueueByTagData).forEach(([key, value]) => {
+        let clientStatusTextFormatted = undefined
+        if (value["tagnumber"] && value["tagnumber"] > 0) {
+          const clientStatusP1 = document.createElement("p");
+          // BIOS and kernel updated (check mark)
+          if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] === true)) {
+            clientStatusTextFormatted = "Online, no errors ✔️";
+          // BIOS and kernel out of date (x)
+          } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] !== true)) {
+            clientStatusTextFormatted = "Online, kernel and BIOS out of date ❌";
+          // BIOS out of date, kernel updated (warning sign)
+          } else if (value["present_bool"] === true && (value["kernel_updated"] === true && value["bios_updated"] !== true)) {
+            clientStatusTextFormatted = "Online, please update BIOS ⚠️";
+          // BIOS updated, kernel out of date (x)
+          } else if (value["present_bool"] === true && (value["kernel_updated"] !== true && value["bios_updated"] === true)) {
+            clientStatusTextFormatted = "Online, kernel out of date ❌";
+          // Offline (x)
+          } else if (value["present_bool"] !== true) {
+            clientStatusTextFormatted = "Offline ⛔";
+          } else {
+            clientStatusTextFormatted = "Unknown ⛔";
+          }
+
+          const clientStatusText1 = "Real-time Job Status for " + value["tagnumber"] + ": " + clientStatusTextFormatted;
+          clientStatusP1.replaceChildren(clientStatusText1);
+          clientStatus.replaceChildren(clientStatusP1); 
+        } else {
+          const clientStatusP1 = document.createElement("p");
+          const clientStatusText1 = document.createTextNode("Missing required info. Please plug into laptop server to gather information.");
+          const clientStatusP2 = document.createElement("p");
+          const clientStatusText2 = document.createTextNode("To update the location, please update it from the ");
+          const clientStatusA1 = document.createElement("a");
+          clientStatusA1.href = "/locations.php?edit=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27");
+          clientStatusA1.innerText = "locations page";
+          
+          clientStatusP1.append(clientStatusText1);
+          clientStatusP2.append(clientStatusText2);
+          clientStatus.append(clientStatusP1, clientStatusP2, clientStatusA1);
+        }
+
+
         const firstOption = document.createElement('option');
         if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
           firstOption.textContent = "In Progress: " + value["job_queued_formatted"];
@@ -319,12 +318,14 @@ async function updateDynamicTagnumberJobData(tagnumber) {
           formButton.setAttribute("onclick", "ConfirmCancelJob(" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + ")");
           formButton.style.backgroundColor = "";
           formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
+          formButton.removeAttribute("disabled");
           jobSelect.setAttribute("disabled", "true");
         } else {
           formButton.innerText = "Queue Job";
           formButton.removeAttribute("onclick");
           formButton.style.backgroundColor = "";
           formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";
+          formButton.removeAttribute("disabled");
           jobSelect.removeAttribute("disabled");
         }
       });
@@ -474,7 +475,7 @@ async function updateLiveImage(tagnumber) {
 
     oldScreenshotTime.innerText = newScreenshotTime;
     oldScreenshotData.src = "data:image/jpeg;base64," + newScreenshotData;
-    newScreenshotData.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "', '_blank')");
+    oldScreenshotData.setAttribute("onclick", "window.open('/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "', '_blank')");
   });
 }
 

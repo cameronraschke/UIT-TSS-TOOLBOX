@@ -319,7 +319,7 @@ foreach ($dbPSQL->get() as $key => $value) {
               <p id="queue_status">Loading queued job...</p>
             </div>
             <div>
-              <form id="job_queue_form">
+              <form id="job_queue_form" method="POST">
                 <div style="padding-left: 0px">
                   <label for="job_queued_tagnumber">Enter a job to queue: </label>
                 </div>
@@ -786,7 +786,7 @@ unset($value1);
   async function updateDynamicContent() {
     try {
       await updateDynamicTagnumberJobData(tagnumber);
-      const form = document.querySelector("#job_queued_form");
+      const form = document.querySelector("#job_queue_form");
         form.addEventListener("submit", (event) => {
           event.preventDefault();
           postData(form, "job_queued");
