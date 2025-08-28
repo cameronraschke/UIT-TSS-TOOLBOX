@@ -23,6 +23,7 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
       WHEN t6.job_failed = TRUE THEN 'Image Job Failed'
       WHEN t2.clone_completed = FALSE AND t2.erase_completed = TRUE THEN 'No OS'
       WHEN t2.clone_completed = TRUE AND t2.clone_master = TRUE THEN static_image_names.image_name_readable
+      WHEN t2.clone_completed = TRUE AND t2.clone_master = FALSE THEN static_image_names.image_name_readable
       ELSE 'Unknown OS'
     END) AS image_name_readable, 
     (CASE
