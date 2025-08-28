@@ -357,7 +357,7 @@ async function ConfirmCancelJob(tagnumber) {
 }
 
 async function QueueJobFormatting() {
-  const formButton = document.getElementById("job_queued_button");
+  const formButton = document.getElementById("job_form_button");
   formButton.innerText = "Queuing...";
   formButton.setAttribute("disabled", "true");
   formButton.style.backgroundColor = "";
