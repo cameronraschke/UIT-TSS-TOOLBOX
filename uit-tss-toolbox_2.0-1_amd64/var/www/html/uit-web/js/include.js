@@ -266,9 +266,10 @@ async function updateDynamicTagnumberJobData(tagnumber) {
             clientStatusTextFormatted = "Unknown ⛔";
           }
 
-          const clientStatusText1 = "Real-time Job Status for " + value["tagnumber"] + ": " + clientStatusTextFormatted;
+          const clientStatusText1 = "Real-time Job Status for " + value["tagnumber"] + ": ";
           clientStatusP1.replaceChildren(clientStatusText1);
-          clientStatus.replaceChildren(clientStatusP1); 
+          clientStatus.replaceChildren(clientStatusP1);
+          document.getElementById("queue_status").innerText = clientStatusTextFormatted;
         } else {
           const clientStatusP1 = document.createElement("p");
           const clientStatusText1 = document.createTextNode("Missing required info. Please plug into laptop server to gather information.");
@@ -317,7 +318,7 @@ async function updateDynamicTagnumberJobData(tagnumber) {
         if (document.getElementById("job_queued_select").options[0].textContent !== newSelect.options[0].textContent) {
           jobSelect.replaceWith(newSelect);
         }
-        if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel" && value["job_queued"])) {
+        if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel" && value["job_queued"] !== "null")) {
           formButton.innerText = "Cancel Job";
           formButton.removeAttribute("onclick");
           formButton.setAttribute("onclick", "ConfirmCancelJob('" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "')");
@@ -1370,8 +1371,10 @@ async function updateRemotePresentTable() {
       if (value["status"] === undefined || !(value["status"])) {
           tagnumber += "<b>New Entry: </b>";
       } else if (value["status"].length >= 1) {
-        if (value["status"] !== "Waiting for job" || value["job_queued"] === true) {
+        if (value["job_queued"] && value["job_queued"].length > 0) {
           tagnumber += "<b>In Progress: </b>";
+        } else if (value["job_queued"] === null && value["status"].match(/(fail.*)/i)) {
+          tagnumber += "<b>Failed: </b>";
         }
       }
       

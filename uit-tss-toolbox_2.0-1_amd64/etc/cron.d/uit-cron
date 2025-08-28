@@ -1,2 +1,2 @@
 0 */3 * * * root /usr/sbin/uit-sql-refresh
-0 */12 * * * root /usr/sbin/uit-backup
+0 */24 * * * root /usr/sbin/uit-backup
