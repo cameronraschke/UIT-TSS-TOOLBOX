@@ -636,6 +636,7 @@ func GetTagnumberData(db *sql.DB, tagnumber int) (string, error) {
     t4.disk_writes, t4.disk_reads, t4.disk_power_on_hours,
     t4.disk_power_cycles, t4.disk_errors, locations.domain, (CASE WHEN locations.domain IS NOT NULL THEN static_domains.domain_readable ELSE 'Not Joined' END) AS domain_readable,
     (CASE 
+      WHEN client_health.os_installed = FALSE AND client_health.os_name IS NOT NULL AND client_health.os_name = 'Image Job Failed' THEN CONCAT(client_health.os_name, ' (Failed on ', TO_CHAR(t6.time, 'MM/DD/YY HH12:MI:SS AM'), ')')
       WHEN client_health.os_installed = TRUE AND client_health.os_name IS NOT NULL AND NOT client_health.os_name = 'Unknown OS' THEN CONCAT(client_health.os_name, ' (Imaged on ', TO_CHAR(t6.time, 'MM/DD/YY HH12:MI:SS AM'), ')') 
       WHEN client_health.os_installed = TRUE AND NOT client_health.os_name = 'Unknown OS' THEN client_health.os_name 
       ELSE client_health.os_name 
