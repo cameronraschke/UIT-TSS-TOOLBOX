@@ -289,7 +289,7 @@ async function updateDynamicTagnumberJobData(tagnumber) {
         const firstOption = document.createElement('option');
         if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
           firstOption.textContent = "In Progress: " + value["job_queued_formatted"];
-          firstOption.value = "";
+          firstOption.value = value["job_queued"];
           firstOption.selected = true;
           newSelect.setAttribute("disabled", "true");
         } else {
@@ -316,6 +316,7 @@ async function updateDynamicTagnumberJobData(tagnumber) {
 
         if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
           formButton.innerText = "Cancel Job";
+          formButton.removeAttribute("onclick");
           formButton.setAttribute("onclick", "ConfirmCancelJob('" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "')");
           formButton.style.backgroundColor = "";
           formButton.style.backgroundColor = "rgba(200, 16, 47, 0.31)";
@@ -324,6 +325,7 @@ async function updateDynamicTagnumberJobData(tagnumber) {
         } else {
           formButton.innerText = "Queue Job";
           formButton.removeAttribute("onclick");
+          formButton.setAttribute("onclick", "QueueJobFormatting()");
           formButton.style.backgroundColor = "";
           formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";
           formButton.removeAttribute("disabled");
@@ -341,7 +343,8 @@ async function updateDynamicTagnumberJobData(tagnumber) {
 async function ConfirmCancelJob(tagnumber) {
   var cancelJob = confirm("Are you sure you want to cancel this job?");
   if (cancelJob === true) {
-    const jsonObj = { 
+    document.querySelector("#job_queued_select").value = "cancel";
+    const jsonObj = {
       "job_queued_tagnumber": tagnumber,
       "job_queued_select": "cancel" 
     };
@@ -351,6 +354,13 @@ async function ConfirmCancelJob(tagnumber) {
   } else {
     return false;
   }
+}
+
+async function QueueJobFormatting() {
+  const formButton = document.getElementById("job_queued_button");
+  formButton.innerText = "Queuing...";
+  formButton.setAttribute("disabled", "true");
+  formButton.style.backgroundColor = "";
 }
 
 async function updateStaticTagnumberData(tagnumber) {
