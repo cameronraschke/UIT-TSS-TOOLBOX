@@ -801,6 +801,8 @@ unset($value1);
       postData(form, "job_queued");
     });
   }
+
+  updateTagnumberData(tagnumber);
   
   setInterval(() => {
     updateDynamicContent();

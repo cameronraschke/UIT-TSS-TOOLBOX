@@ -343,7 +343,10 @@ async function updateDynamicTagnumberJobData(tagnumber) {
 async function ConfirmCancelJob(tagnumber) {
   var cancelJob = confirm("Are you sure you want to cancel this job?");
   if (cancelJob === true) {
-    await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=cancel_job&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
+    const tmpForm = new formData();
+    tmpForm.append("job_queued_tagnumber", tagnumber);
+    tmpForm.append("job_queued_select", "cancel");
+    await postData(tmpForm, "cancel_job");
     return true;
   } else {
     return false;
