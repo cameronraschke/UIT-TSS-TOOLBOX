@@ -325,7 +325,6 @@ async function updateDynamicTagnumberJobData(tagnumber) {
         } else {
           formButton.innerText = "Queue Job";
           formButton.removeAttribute("onclick");
-          formButton.setAttribute("onclick", "QueueJobFormatting()");
           formButton.style.backgroundColor = "";
           formButton.style.backgroundColor = "rgba(0, 179, 136, 0.30);";
           formButton.removeAttribute("disabled");
