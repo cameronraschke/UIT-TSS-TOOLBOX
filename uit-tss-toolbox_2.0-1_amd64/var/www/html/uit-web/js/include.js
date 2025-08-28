@@ -289,7 +289,11 @@ async function updateDynamicTagnumberJobData(tagnumber) {
         const firstOption = document.createElement('option');
         if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
           firstOption.textContent = "In Progress: " + value["job_queued_formatted"];
-          firstOption.value = value["job_queued"];
+          if (value["job_queued"] !== "null") {
+            firstOption.value = value["job_queued"];
+          } else {
+            firstOption.value = "";
+          }
           firstOption.selected = true;
           newSelect.setAttribute("disabled", "true");
         } else {
@@ -313,8 +317,7 @@ async function updateDynamicTagnumberJobData(tagnumber) {
         if (document.getElementById("job_queued_select").options[0].textContent !== newSelect.options[0].textContent) {
           jobSelect.replaceWith(newSelect);
         }
-
-        if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel")) {
+        if (value["job_active"] || (value["job_queued"] && value["job_queued"].length > 1 && value["job_queued"] !== "cancel" && value["job_queued"])) {
           formButton.innerText = "Cancel Job";
           formButton.removeAttribute("onclick");
           formButton.setAttribute("onclick", "ConfirmCancelJob('" + encodeURIComponent(tagnumber).replace(/'/g, "%27") + "')");
