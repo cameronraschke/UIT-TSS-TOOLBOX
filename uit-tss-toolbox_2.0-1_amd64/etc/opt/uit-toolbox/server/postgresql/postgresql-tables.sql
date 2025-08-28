@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS jobstats (
     clone_image VARCHAR(36) DEFAULT NULL,
     clone_master BOOLEAN DEFAULT FALSE,
     clone_time SMALLINT DEFAULT NULL,
+    job_failed BOOLEAN DEFAULT FALSE,
     host_connected BOOLEAN DEFAULT FALSE
 );
 

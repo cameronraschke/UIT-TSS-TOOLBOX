@@ -84,9 +84,10 @@ if [[ $(echo "SELECT job_queued AS result FROM remote WHERE tagnumber = '${tagNu
     echo "remote|${tagNum}|job_queued|" | /opt/uit-toolbox/parse
     echo "remote|${tagNum}|job_active|" | /opt/uit-toolbox/parse
     echo "remote|${tagNum}|status|fail - Job cancelled :(" | /opt/uit-toolbox/parse
-    UUID=$(echo "SELECT uuid AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = TRUE ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+    UUID=$(printf '%s' "SELECT uuid AS result FROM jobstats WHERE tagnumber = '${tagNum}' AND host_connected = TRUE ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
     echo "general|erase_completed||${UUID}" | /opt/uit-toolbox/parse
     echo "general|clone_completed||${UUID}" | /opt/uit-toolbox/parse
+    echo "general|job_failed|TRUE|${UUID}" | /opt/uit-toolbox/parse
     pkill --terminal tty1
 fi
 

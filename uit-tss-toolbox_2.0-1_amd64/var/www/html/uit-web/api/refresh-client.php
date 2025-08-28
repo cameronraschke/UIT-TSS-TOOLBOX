@@ -20,8 +20,9 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
     (CASE WHEN ROUND((EXTRACT(EPOCH FROM (NOW()::timestamp - remote.present::timestamp))), 0) < 30 THEN TRUE ELSE FALSE END) AS present_bool, t2.time AS last_job_time, remote.disk_temp, remote.max_disk_temp, 
     (CASE 
       WHEN locations.disk_removed = TRUE THEN 'No OS'
+      WHEN t2.job_failed = TRUE THEN 'No OS'
       WHEN t2.clone_completed = FALSE AND t2.erase_completed = TRUE THEN 'No OS'
-      WHEN t2.clone_completed = TRUE OR t2.clone_master = TRUE THEN static_image_names.image_name_readable
+      WHEN t2.clone_completed = TRUE AND t2.clone_master = TRUE THEN static_image_names.image_name_readable
       ELSE 'Unknown OS'
     END) AS image_name_readable, 
     (CASE
@@ -72,7 +73,7 @@ $sql = "SELECT tagnumber, client_health_tag, remote_tag, present_bool, last_job_
     LEFT JOIN (SELECT time, tagnumber, clone_image, row_nums FROM (SELECT time, tagnumber, clone_image, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND clone_completed = TRUE AND clone_image IS NOT NULL AND jobstats.time IS NOT NULL) s1 WHERE s1.row_nums = 1) t1
       ON locations.tagnumber = t1.tagnumber
     LEFT JOIN static_image_names ON t1.clone_image = static_image_names.image_name
-    LEFT JOIN (SELECT time, tagnumber, erase_completed, clone_completed, clone_master FROM (SELECT time, tagnumber, erase_completed, clone_completed, clone_master, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND (erase_completed = TRUE OR clone_completed = TRUE) AND jobstats.time IS NOT NULL) s2 WHERE s2.row_nums = 1) t2
+    LEFT JOIN (SELECT time, tagnumber, erase_completed, clone_completed, clone_master, job_failed FROM (SELECT time, tagnumber, erase_completed, clone_completed, clone_master, job_failed, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE tagnumber IS NOT NULL AND (erase_completed = TRUE OR clone_completed = TRUE) AND jobstats.time IS NOT NULL) s2 WHERE s2.row_nums = 1) t2
       ON locations.tagnumber = t2.tagnumber
     LEFT JOIN (SELECT tagnumber, CAST(ROUND(AVG(erase_time / 60), 0) AS SMALLINT) AS avg_erase_time FROM (SELECT tagnumber, erase_time, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM jobstats WHERE erase_completed = TRUE AND jobstats.time IS NOT NULL) s3 WHERE s3.row_nums <= 3 GROUP BY s3.tagnumber) eraseTable
       ON locations.tagnumber = eraseTable.tagnumber
