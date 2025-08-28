@@ -80,13 +80,8 @@ async function postData(queryType, jsonStr) {
   }
 
   const bearerToken = localStorage.getItem('bearerToken');
-  
 
-  let jsonData = undefined;
-
-  if (queryType !== undefined) {
-      jsonData = jsonStr;
-  } else {
+  if (queryType == undefined) {
     return false;
   }
 
@@ -104,7 +99,7 @@ async function postData(queryType, jsonStr) {
       'credentials': 'include',
       'Authorization': 'Bearer ' + bearerToken
       },
-      body: jsonData
+      body: jsonStr
     });
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);

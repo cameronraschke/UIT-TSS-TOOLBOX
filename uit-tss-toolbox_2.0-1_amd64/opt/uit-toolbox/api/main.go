@@ -379,7 +379,7 @@ func postAPI(w http.ResponseWriter, req *http.Request) {
     }
     return
   default:
-    log.Warning("No POST type defined")
+    log.Warning("No POST type defined: " + queryType)
     return
   }
 }

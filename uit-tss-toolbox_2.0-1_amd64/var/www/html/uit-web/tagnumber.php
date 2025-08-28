@@ -798,7 +798,12 @@ unset($value1);
     const form = document.querySelector("#job_queued_form");
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      postData(form, "job_queued");
+      jsonObject = {
+        tagnumber: document.querySelector("#job_queued_tagnumber").value,
+        job: document.querySelector("#job_queued_select").value
+      };
+      jsonStr = JSON.stringify(jsonObject);
+      postData("job_queued", jsonStr);
     });
   }
 
