@@ -371,14 +371,6 @@ func postAPI(w http.ResponseWriter, req *http.Request) {
       return
     }
     return
-  case "cancel_job":
-    // err = database.UpdateDB(db, "UPDATE remote SET job_queued = $1, job_active = TRUE WHERE tagnumber = $2", "cancel", tagnumber)
-    err = post.UpdateRemoteJobQueued(req, db, queryType)
-    if err != nil {
-      log.Warning("Query error: " + err.Error());
-      return
-    }
-    return
   case "client_image":
     err = post.UpdateClientImages(req, db, queryType)
     if err != nil {

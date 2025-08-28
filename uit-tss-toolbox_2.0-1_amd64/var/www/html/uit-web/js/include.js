@@ -74,18 +74,21 @@ function test() {
 };
 
 
-async function postData(inputForm, queryType) {
-  if (await checkToken() == false) {
+async function postData(queryType, jsonStr) {
+  if (await checkToken() === false) {
     await newToken();
   }
 
   const bearerToken = localStorage.getItem('bearerToken');
+  
 
-  const formData = new FormData(inputForm);
+  let jsonData = undefined;
 
-  const formObject = Object.fromEntries(formData.entries());
-
-  const jsonData = JSON.stringify(formObject);
+  if (queryType !== undefined) {
+      jsonData = jsonStr;
+  } else {
+    return false;
+  }
 
   // const selection = await window.showOpenFilePicker();
   // if (selection.length > 0) {
@@ -343,10 +346,12 @@ async function updateDynamicTagnumberJobData(tagnumber) {
 async function ConfirmCancelJob(tagnumber) {
   var cancelJob = confirm("Are you sure you want to cancel this job?");
   if (cancelJob === true) {
-    const tmpForm = new formData();
-    tmpForm.append("job_queued_tagnumber", tagnumber);
-    tmpForm.append("job_queued_select", "cancel");
-    await postData(tmpForm, "cancel_job");
+    const jsonObj = { 
+      "job_queued_tagnumber": tagnumber,
+      "job_queued_select": "cancel" 
+    };
+    const jsonStr = JSON.stringify(jsonObj);
+    await postData("job_queued", jsonStr);
     return true;
   } else {
     return false;
