@@ -799,8 +799,8 @@ unset($value1);
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       jsonObject = {
-        tagnumber: document.querySelector("#job_queued_tagnumber").value,
-        job: document.querySelector("#job_queued_select").value
+        job_queued_tagnumber: document.querySelector("#job_queued_tagnumber").value,
+        job_queued_select: document.querySelector("#job_queued_select").value
       };
       jsonStr = JSON.stringify(jsonObject);
       postData("job_queued", jsonStr);
