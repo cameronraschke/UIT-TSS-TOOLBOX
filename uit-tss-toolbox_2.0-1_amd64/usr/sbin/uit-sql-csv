@@ -2,88 +2,27 @@
 <?php
 require('/var/www/html/uit-web/php/include.php');
 
-$db = new db();
+$db = new dbPSQL();
 
-// SHRL Report
-$file = new SplFileObject("/tmp/uit-tmp-reports/shrl-report-".$date.".csv", 'w');
-$db->AssocSelect("CALL iterateSHRLcsv()");
-foreach ($db->get() as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
 
-// Server Table
-$file = new SplFileObject("/tmp/uit-tmp-reports/server-report-".$date.".csv", 'w');
-$db->AssocSelect("CALL iterateServerCSV()");
-foreach ($db->get() as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-// Property Table
-$file = new SplFileObject("/tmp/uit-tmp-reports/property-report-".$date.".csv", 'w');
-$db->AssocSelect("CALL iterateLocationsPropertyCSV()");
-foreach ($db->get() as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-// Client Table
-$file = new SplFileObject("/tmp/uit-tmp-reports/client-report-".$date.".csv", 'w');
-$db->AssocSelect("CALL iterateClientCSV()");
-foreach ($db->get() as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-// Locations Table
-$file = new SplFileObject("/tmp/uit-tmp-reports/location-report-".$date.".csv", 'w');
-$db->AssocSelect("CALL iterateLocationsCSV()");
-foreach ($db->get() as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-// Job Table
-$file = new SplFileObject("/tmp/uit-tmp-reports/job-report-".$date.".csv", 'w');
-$db->AssocSelect("CALL iterateJobCSV()");
-foreach ($db->get() as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-$file = new SplFileObject("/tmp/uit-tmp-reports/custom-report-" . $date . ".csv", "w");
-$db->AssocSelect("CALL iterateCustomReport()");
-foreach ($db->get() as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-// Pre property report
-$file = new SplFileObject("/tmp/uit-tmp-reports/pre-property-report-" . $date . ".csv", "w");
-$db->AssocSelect("CALL iteratePreProperty()");
-foreach ($db->get() as $key => $value) {
-    $file->fputcsv($value);
-}
-unset($value);
-$file = null;
-
-// Checkout to a specific person
 $file = new SplFileObject("/tmp/uit-tmp-reports/checkout-report-" . $date . ".csv", "w");
-$db->AssocSelect("CALL iterateCheckoutName()");
+$db->select("SELECT 'Tag Number', 'Customer Name', 'Checkout Date', 'Return Date', 'Note'");
+foreach ($db->get() as $key => $value) {
+    $file->fputcsv($value);
+}
+unset($value);
+
+$db->AssocSelect("SELECT tagnumber, customer_name, checkout_date, return_date, note FROM (SELECT checkouts.tagnumber, checkouts.customer_name, checkouts.checkout_date, checkouts.return_date, checkouts.note,
+    checkouts.checkout_bool,
+    ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums 
+    FROM checkouts) t1
+    WHERE (t1.checkout_date IS NOT NULL OR t1.return_date IS NOT NULL)
+        AND t1.row_nums <= 1 AND NOT t1.row_nums IS NULL AND t1.checkout_bool = TRUE 
+    ORDER BY t1.customer_name ASC, t1.checkout_date DESC, t1.tagnumber DESC");
 foreach ($db->get() as $key => $value) {
     $file->fputcsv($value);
 }
 unset($value);
 $file = null;
-
-
 
 ?>
