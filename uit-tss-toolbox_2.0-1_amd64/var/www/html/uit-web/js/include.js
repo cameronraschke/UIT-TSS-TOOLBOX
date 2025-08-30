@@ -388,8 +388,6 @@ async function updateStaticTagnumberData(tagnumber) {
       const jobStatus = document.createElement("div");
 
 
-      
-
       const jobFormParentDiv = document.createElement("div");
       const jobForm = document.createElement("form");
       jobForm.setAttribute("id", "job_queued_form");
@@ -1296,152 +1294,147 @@ async function updateTagnumberData(tagnumber) {
 
 async function updateRemotePresentTable() {
   try {
-    const oldRemotePresentTable = document.getElementById('remotePresentTable');
+    const [remotePresentHeaderData, remotePresentBodyData] = await Promise.all([
+      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header'),
+      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present')
+    ]);
+
+    const remotePresentTableFragment = new DocumentFragment();
     const remotePresentTable = document.createElement("table");
     remotePresentTable.setAttribute('id', 'remotePresentTable');
     remotePresentTable.style.alignContent = 'left';
 
-    var tableHeader
-    var tableHeaderData
-    tableHeader = document.createElement("thead");
-    tableHeaderData = "";
-    tableHeaderData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header');
-    Object.entries(tableHeaderData).forEach(([key, value]) => {
-      let tableHeaderRow = document.createElement("tr");
+    const remotePresentHeaderThead = document.createElement("thead");
+    Object.entries(remotePresentHeaderData).forEach(([key, value]) => {
+      const tagnumberHeader = document.createElement("th");
+      tagnumberHeader.innerText = "Online Clients " + value["tagnumber_count"];
 
-      let tagnumberCell = document.createElement("th");
-      tagnumberCell.innerText = "Online Clients " + value["tagnumber_count"];
-      tableHeaderRow.appendChild(tagnumberCell);
+      const screenshotHeader = document.createElement("th");
+      screenshotHeader.innerText = "Live View";
 
-      let screenshotCell = document.createElement("th");
-      screenshotCell.innerText = "Live View";
-      tableHeaderRow.appendChild(screenshotCell);
-
-      let lastJobTimeCell = document.createElement("th");
-      lastJobTimeCell.innerText = "Last Job Time";
-      tableHeaderRow.appendChild(lastJobTimeCell);
+      const lastJobTimeHeader = document.createElement("th");
+      lastJobTimeHeader.innerText = "Last Job Time";
       
-      let locationCell = document.createElement("th");
-      locationCell.innerText = "Location";
-      tableHeaderRow.appendChild(locationCell);
+      const locationHeader = document.createElement("th");
+      locationHeader.innerText = "Location";
 
-      let statusCell = document.createElement("th");
-      statusCell.innerText = "Status";
-      tableHeaderRow.appendChild(statusCell);
+      const statusHeader = document.createElement("th");
+      statusHeader.innerText = "Status";
 
-      let osInstalledCell = document.createElement("th");
-      osInstalledCell.innerText = "OS Installed " + value["os_installed_formatted"];
-      tableHeaderRow.appendChild(osInstalledCell);
+      const osInstalledHeader = document.createElement("th");
+      osInstalledHeader.innerText = "OS Installed " + value["os_installed_formatted"];
 
-      let batteryChargeCell = document.createElement("th");
-      batteryChargeCell.innerText = "Battery Charge " + value["battery_charge_formatted"];
-      tableHeaderRow.appendChild(batteryChargeCell);
+      const batteryChargeHeader = document.createElement("th");
+      batteryChargeHeader.innerText = "Battery Charge " + value["battery_charge_formatted"];
 
-      let uptimeCell = document.createElement("th");
-      uptimeCell.innerText = "Uptime";
-      tableHeaderRow.appendChild(uptimeCell);
+      const uptimeHeader = document.createElement("th");
+      uptimeHeader.innerText = "Uptime";
 
-      let cpuTempCell = document.createElement("th");
-      cpuTempCell.innerText = "CPU Temp " + value["cpu_temp_formatted"];
-      tableHeaderRow.appendChild(cpuTempCell);
+      const cpuTempHeader = document.createElement("th");
+      cpuTempHeader.innerText = "CPU Temp " + value["cpu_temp_formatted"];
 
-      let diskTempCell = document.createElement("th");
-      diskTempCell.innerText = "Disk Temp " + value["disk_temp_formatted"];
-      tableHeaderRow.appendChild(diskTempCell);
+      const diskTempHeader = document.createElement("th");
+      diskTempHeader.innerText = "Disk Temp " + value["disk_temp_formatted"];
 
-      let wattsNowCell = document.createElement("th");
-      wattsNowCell.innerText = "Power Usage " + value["power_usage_formatted"];
-      tableHeaderRow.appendChild(wattsNowCell);
+      const wattsNowHeader = document.createElement("th");
+      wattsNowHeader.innerText = "Power Usage " + value["power_usage_formatted"];
 
-      tableHeader.appendChild(tableHeaderRow);
+      const remotePresentHeaderTr = document.createElement("tr");
+      remotePresentHeaderTr.append(tagnumberHeader, screenshotHeader, lastJobTimeHeader, locationHeader, statusHeader, osInstalledHeader, batteryChargeHeader, uptimeHeader, cpuTempHeader, diskTempHeader, wattsNowHeader)
+      remotePresentHeaderThead.append(remotePresentHeaderTr)
     });
 
-
-
-    var tableBody
-    var tableBodyData
-    tableBody = document.createElement("tbody");
-    tableBodyData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present');
-
-    Object.entries(tableBodyData).forEach(([key, value]) => {
-      let tableBodyRow = document.createElement("tr");
+    const remotePresentBodyTbody = document.createElement("tbody");
+    Object.entries(remotePresentBodyData).forEach(([key, value]) => {
+      const remotePresentTableBodyTr = document.createElement("tr");
 
       // Tag Number
-      let tagnumber = "";
+      const beforeTagnumberBodySpan1 = document.createElement("span");
+      beforeTagnumberBodySpan1.style.fontWeight = "bold";
+      const beforeTagnumberBodyP1 = document.createElement("p");
+      let beforeTagnumberBodyText1 = undefined;
       if (value["status"] === undefined || !(value["status"])) {
-          tagnumber += "<b>New Entry: </b>";
+        beforeTagnumberBodyText1 = document.createTextNode("New Entry: ");
       } else if (value["status"].length >= 1) {
         if (value["job_queued"] && value["job_queued"].length > 0) {
-          tagnumber += "<b>In Progress: </b>";
+          beforeTagnumberBodyText1 = document.createTextNode("In Progress: ");
         } else if (value["job_queued"] === null && value["status"].match(/(fail.*)/i)) {
-          tagnumber += "<b>Failed: </b>";
+          beforeTagnumberBodyText1 = document.createTextNode("Failed: ");
         }
       }
-      
 
-      tagnumber += "<b><a href='tagnumber.php?tagnumber=" + value["tagnumber"] + "' target='_blank'>" + value["tagnumber"] + "</a></b>";
+      if (beforeTagnumberBodyText1 !== undefined) {
+        beforeTagnumberBodyP1.append(beforeTagnumberBodyText1);
+        beforeTagnumberBodySpan1.append(beforeTagnumberBodyP1);
+      }
+      
+      tagnumberBodyA1 = document.createElement("a");
+      tagnumberBodyA1.setAttribute("href", "'tagnumber.php?tagnumber=" + value["tagnumber"] + "'");
+      tagnumberBodyA1.setAttribute("target", "'_blank'");
+      tagnumberBodyA1.style.fontWeight = "bold";
+      tagnumberBodyA1.innerText = value["tagnumber"];
+
+      const afterTagnumberBodySpan2 = document.createElement("span");
+      const afterTagnumberBodyP2 = document.createElement("p");
+      let afterTagnumberText2 = undefined
       if (value["locations_status"] === true) {
-        tagnumber += "🛠️"
+        afterTagnumberText2 += "🛠️"
       }
 
       if (value["kernel_updated"] === true && value["bios_updated"] === true) {
-        tagnumber += "<span style='color:rgb(0, 120, 50)'><b>&#10004;</b></span>";
+        afterTagnumberText2 += "✔️";
       } else if (value["kernel_updated"] === true && value["bios_updated"] !== true) {
-        tagnumber += "<span>&#9888;&#65039;</span>";
+        afterTagnumberText2 += "⚠️";
       } else if (value["kernel_updated"] !== true) {
-        tagnumber += "<span>&#10060;</span>";
+        afterTagnumberText2 += "❌";
       }
-      let tagnumberCell = document.createElement("td");
-      tagnumberCell.innerHTML = tagnumber;
-      tableBodyRow.appendChild(tagnumberCell);
+      afterTagnumberBodyP2.append(afterTagnumberText2);
+      afterTagnumberBodySpan2.append(afterTagnumberBodyP2);
 
+      const tagnumberCell = document.createElement("td");
+      tagnumberCell.append(beforeTagnumberBodySpan1, tagnumberBodyA1, afterTagnumberBodySpan2);
 
-      let screenshotCell = document.createElement("td");
+      // Screenshot cell
+      const screenshotCell = document.createElement("td");
       if (value["screenshot"]) {
         screenshotCell.innerHTML = "<a target='_blank' href='/view-images.php?live_image=1&tagnumber=" + value["tagnumber"] + "'><img style='max-height: 5em;' src='data:image/jpeg;base64," + value["screenshot"] + "'></a>"
       }
-      tableBodyRow.appendChild(screenshotCell);
 
-      let lastJobTimeCell = document.createElement("td");
+      // Last job time cell
+      const lastJobTimeCell = document.createElement("td");
       lastJobTimeCell.innerText = value["last_job_time_formatted"];
-      tableBodyRow.appendChild(lastJobTimeCell);
 
-      let locationCell = document.createElement("td");
-      let link = document.createElement("a");
-      link.style.fontWeight = "bold";
-      link.setAttribute('href', '/locations.php?location=' + encodeURIComponent(value["location_formatted"]));
-      link.textContent = value["location_formatted"];
-      locationCell.appendChild(link);
-      tableBodyRow.appendChild(locationCell);
+      // Location cell
+      const locationCell = document.createElement("td");
+      const locationLink = document.createElement("a");
+      locationLink.style.fontWeight = "bold";
+      locationLink.setAttribute('href', '/locations.php?location=' + encodeURIComponent(value["location_formatted"]));
+      locationLink.textContent = value["location_formatted"];
+      locationCell.append(locationLink);
 
-      let statusCell = document.createElement("td");
+      // Status cell (working/broken)
+      const statusCell = document.createElement("td");
       statusCell.innerText = value["status"];
-      tableBodyRow.appendChild(statusCell);
 
-      var cell = document.createElement("td");
+      // OS installed
+      const osInstalledCell = document.createElement("td");
       if (value["os_installed"] === true && value["domain_joined"] === true) {
-        cell.innerHTML = value["os_installed_formatted"] + "<img class='icon' src='/images/intune-joined.svg'></img>";
+        osInstalledCell.innerHTML = value["os_installed_formatted"] + "<img class='icon' src='/images/intune-joined.svg'></img>";
       } else {
-        cell.innerText = value["os_installed_formatted"];
+        osInstalledCell.innerText = value["os_installed_formatted"];
       }
-      tableBodyRow.appendChild(cell);
 
-      let batteryChargeCell = document.createElement("td");
+      // Battery charge
+      const batteryChargeCell = document.createElement("td");
       batteryChargeCell.innerText = value["battery_charge_formatted"];
-      tableBodyRow.appendChild(batteryChargeCell);
 
-      let uptimeCell = document.createElement("td");
+      const uptimeCell = document.createElement("td");
       uptimeCell.innerText = value["uptime"];
-      tableBodyRow.appendChild(uptimeCell);
-
 
       // Cpu temp
-      let cpuMaxTemp
-      let cpuLowWarning
-      let cpuMediumWarning
-      cpuMaxTemp = 90;
-      cpuLowWarning = cpuMaxTemp - (cpuMaxTemp * 0.10);
-      cpuMediumWarning = cpuMaxTemp - (cpuMaxTemp * 0.05);
+      const cpuMaxTemp = 90;
+      const cpuLowWarning = cpuMaxTemp - (cpuMaxTemp * 0.10);
+      const cpuMediumWarning = cpuMaxTemp - (cpuMaxTemp * 0.05);
     
       let cpuTempCell = document.createElement("td");
       cpuTempCell.innerText = value["cpu_temp_formatted"];
@@ -1452,16 +1445,11 @@ async function updateRemotePresentTable() {
       } else if (value["cpu_temp"] >= cpuMaxTemp) {
         cpuTempCell.style.backgroundColor = '#f55050';
       }
-      tableBodyRow.appendChild(cpuTempCell);
-
 
       // Disk temp
-      let diskMaxTemp
-      let diskLowWarning
-      let diskMediumWarning
-      diskMaxTemp = value["max_disk_temp"];
-      diskLowWarning = diskMaxTemp - (diskMaxTemp * 0.10);
-      diskMediumWarning = diskMaxTemp - (diskMaxTemp * 0.05);
+      const diskMaxTemp = value["max_disk_temp"];
+      const diskLowWarning = diskMaxTemp - (diskMaxTemp * 0.10);
+      const diskMediumWarning = diskMaxTemp - (diskMaxTemp * 0.05);
       let diskTempCell = document.createElement("td");
       diskTempCell.innerText = value["disk_temp_formatted"];
       if (value["disk_temp"] > diskLowWarning && value["disk_temp"] < diskMediumWarning) {
@@ -1471,20 +1459,19 @@ async function updateRemotePresentTable() {
       } else if (value["disk_temp"] >= diskMaxTemp) {
         diskTempCell.style.backgroundColor = '#f55050';
       }
-      tableBodyRow.appendChild(diskTempCell);
 
       // Current watts
       let wattsNowCell = document.createElement("td");
       wattsNowCell.innerText = value["watts_now"];
-      tableBodyRow.appendChild(wattsNowCell);
 
-      tableBody.appendChild(tableBodyRow)
-
+      remotePresentTableBodyTr.append(tagnumberCell, screenshotCell, lastJobTimeCell, locationCell, statusCell, osInstalledCell, batteryChargeCell, uptimeCell, cpuTempCell, diskTempCell, wattsNowCell)
+      remotePresentBodyTbody.append(remotePresentTableBodyTr)
     });
 
-    remotePresentTable.appendChild(tableHeader);
-    remotePresentTable.appendChild(tableBody);
-    oldRemotePresentTable.replaceWith(remotePresentTable);
+    remotePresentTableFragment.append(remotePresentHeaderThead);
+    remotePresentTableFragment.append(remotePresentBodyTbody);
+    const oldRemotePresentTable = document.getElementById("remotePresentTable");
+    oldRemotePresentTable.replaceWith(remotePresentTableFragment);
   } catch (error) {
     console.log(error);
   }
