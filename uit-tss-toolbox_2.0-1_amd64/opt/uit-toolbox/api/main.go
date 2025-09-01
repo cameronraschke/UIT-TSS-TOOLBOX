@@ -575,7 +575,7 @@ func apiMiddleWare (next http.Handler) http.Handler {
     cors := http.NewCrossOriginProtection()
     cors.AddTrustedOrigin("https://WAN_IP_ADDRESS:1411")
     if err = cors.Check(req); err != nil {
-      log.Warning("Request to " + req.URL.RequestURI + " blocked from " + req.RemoteAddr)
+      log.Warning("Request to " + req.URL.RequestURI() + " blocked from " + req.RemoteAddr)
       return
     }
 
