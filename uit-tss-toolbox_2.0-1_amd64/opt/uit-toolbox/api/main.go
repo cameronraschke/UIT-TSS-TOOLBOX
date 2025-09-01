@@ -16,6 +16,7 @@ import (
   "strings"
 	// "crypto/sha256"
   "crypto/rand"
+  "crypto/tls"
   "net/url"
   "errors"
   "database/sql"
@@ -23,7 +24,8 @@ import (
   "runtime/debug"
   "slices"
   "strconv"
-
+  // "log"
+  // "log/slog"
   "api/database"
   "api/logger"
   "api/post"
@@ -569,6 +571,15 @@ func apiMiddleWare (next http.Handler) http.Handler {
     var token string
     var err error
 
+    // Check CORS policy
+    cors := http.NewCrossOriginProtection()
+    cors.AddTrustedOrigin("https://WAN_IP_ADDRESS:1411")
+    if err = cors.Check(req); err != nil {
+      log.Warning("Request to " + req.URL.RequestURI + " blocked from " + req.RemoteAddr)
+      return
+    }
+
+    // Check rate limiting map
     ipAddrChan := make(chan string)
     bannedChan := make(chan bool)
     rateLimitChan := make(chan int)
@@ -598,10 +609,10 @@ func apiMiddleWare (next http.Handler) http.Handler {
     }
 
     // Check if TLS connection is valid
-    // if req.HandshakeComplete == false {
-    //   log.Warning("TLS handshake failed for client " + req.RemoteAddr)
-    //   return
-    // }
+    if req.TLS.HandshakeComplete == false && req.TLS.DidResume == false {
+      log.Warning("TLS handshake failed for client " + req.RemoteAddr)
+      return
+    }
 
     // Check if request content length exceeds 64 MB
     if req.ContentLength > 64 << 20 {
@@ -611,18 +622,24 @@ func apiMiddleWare (next http.Handler) http.Handler {
 
 
     // Check if request method is valid
-    if req.Method != http.MethodOptions && req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodPatch && req.Method != http.MethodDelete {
+    if req.Method != http.MethodOptions && req.Method != http.MethodGet && req.Method != http.MethodPost && req.Method != http.MethodPut && req.Method != http.MethodDelete {
       log.Warning("Invalid request method (" + req.RemoteAddr + "): " + req.Method)
       return
     }
 
 
-    // Check if Content-Type is valid
-    // if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
-    //   log.Warning("Invalid Content-Type: " + req.Header.Get("Content-Type"))
-    //   http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
-    //   return
+    // Check if MIME type and Content-Type is valid
+    // mimeType := http.DetectContentType(req.Body)
+    // if mimeType == "application/octet-stream" || (mimeType != "application/x-www-form-urlencoded" && mimeType != "application/json") {
+    //  log.Sprintf("%s %s\n", "Invalid Mime Type: ", mimeType)
+    //  http.Error(w, formatHttpError("Invalid MIME type"), http.StatusUnsupportedMediaType)
+    //  return
     // }
+    if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
+      log.Warning("Invalid Content-Type header: " + req.Header.Get("Content-Type"))
+      http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
+      return
+    }
 
 
     // Parse URL to get path and queries
@@ -646,6 +663,8 @@ func apiMiddleWare (next http.Handler) http.Handler {
       log.Warning("Empty header request from: " + req.RemoteAddr)
     }
 
+
+    // Headers for OPTIONS request
     if req.Method == http.MethodOptions {
       w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
       w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -655,7 +674,7 @@ func apiMiddleWare (next http.Handler) http.Handler {
       return
     }
     
-    // Set headers
+    // Headers for all other requests
     if queries.Get("sse") == "true" {
       w.Header().Set("Content-Type", "text/event-stream")
     } else {
@@ -681,9 +700,9 @@ func apiMiddleWare (next http.Handler) http.Handler {
 
 
     // Check if Authorization header exists
-    headerMap := req.Header.Values("Authorization")
-    if len(headerMap) >= 1 {
-      for _, value := range headerMap {
+    authHeaderMap := req.Header.Values("authorization")
+    if len(authHeaderMap) >= 1 {
+      for _, value := range authHeaderMap {
         if strings.HasPrefix(value, "Bearer ") {
           bearerToken = strings.TrimPrefix(value, "Bearer ")
         } else if strings.HasPrefix(value, "Basic ") {
@@ -1006,17 +1025,25 @@ func main() {
   mux.Handle("/api/locations", baseMuxChain.thenFunc(remoteAPI))
   // mux.HandleFunc("/dbstats/", GetInfoHandler)
 
-
 	log.Info("Starting web server")
+
+  tlsConfig := &tls.Config{
+    MinVersion: tls.VersionTLS12, //0x0303
+  }
 
   httpServer := http.Server{
 		Addr: ":31411",
     Handler: mux,
-    ReadTimeout: time.Duration(10) * time.Second,
-    WriteTimeout: time.Duration(10) * time.Second,
-    IdleTimeout: time.Duration(120) * time.Second,
-    MaxHeaderBytes: 32 << 20,
+    TLSConfig: tlsConfig,
+    ReadTimeout: 10 * time.Second,
+    WriteTimeout: 10 * time.Second,
+    IdleTimeout: 120 * time.Second,
+    MaxHeaderBytes: 1 << 20, // 1MB header size max
 	}
+
+  httpServer.Protocols = new(http.Protocols)
+  httpServer.Protocols.SetHTTP1(false)
+  httpServer.Protocols.SetHTTP2(true)
 
   log.Info("Web server ready and listening for requests on https://*:31411")
 
