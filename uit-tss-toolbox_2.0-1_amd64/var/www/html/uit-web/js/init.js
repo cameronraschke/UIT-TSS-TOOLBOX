@@ -1,5 +1,3 @@
-const tokenWorker = new Worker('js/auth-webworker.js');
-
 function escapeHtml(str) {
   if (typeof str !== 'string') {
     return '';
@@ -64,7 +62,21 @@ function getCreds() {
       return false;
     }
 
+    const tokenWorker = new Worker('js/auth-webworker.js');
     const tokenDB = indexedDB.open("uitTokens", 1);
+    tokenDB.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      console.log(`Upgrading to version ${db.version}`);
+
+      const objectStore = db.createObjectStore("uitTokens", {
+        keyPath: "tokenType",
+      });
+
+      objectStore.createIndex("authStr", "authStr", { unique: true });
+      objectStore.createIndex("basicToken", "basicToken", { unique: true });
+      objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
+    }
+
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
       const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
@@ -76,6 +88,7 @@ function getCreds() {
             }
           ;
         db.close();
+        tokenWorker.postMessage({ type: "updateTokenDB", authStr: authStr });
     }
     tokenDB.onerror = function(event) {
       throw new Error('IndexedDB error: ' + event.target.errorCode);

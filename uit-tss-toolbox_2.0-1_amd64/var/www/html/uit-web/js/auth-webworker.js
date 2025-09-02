@@ -32,7 +32,7 @@ async function checkAndUpdateTokenDB() {
       objectStore.createIndex("authStr", "authStr", { unique: true });
       objectStore.createIndex("basicToken", "basicToken", { unique: true });
       objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
-    }
+    };
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
       const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
@@ -87,7 +87,7 @@ async function checkAndUpdateTokenDB() {
       // Get bearerToken object
       let bearerTokenObj = undefined;
       const bearerTokenRequest = tokenObjectStore.get("bearerToken")
-        bearerTokenRequest.onsuccess = function(event) {
+      bearerTokenRequest.onsuccess = function(event) {
         bearerTokenObj = event.target.result;
         // if (bearerTokenObj === undefined || bearerTokenObj === null || bearerTokenObj.length === 0 || bearerTokenObj == "") {
         //   throw new Error('No bearerToken found in IndexedDB');
@@ -114,7 +114,6 @@ async function checkAndUpdateTokenDB() {
           ;
         }
       };
-
       bearerTokenRequest.onerror = function(event) {
         throw new Error("Error retrieving bearerToken from IndexedDB: " + event.target.error);
       };
@@ -129,7 +128,7 @@ async function checkAndUpdateTokenDB() {
 
 async function checkToken(bearerToken = null) {
   if (bearerToken === undefined || bearerToken === null || bearerToken.length === 0 || bearerToken == "") {
-    return false
+    throw new Error("No bearerToken provided to checkToken function");
   }
 
   try {
@@ -146,27 +145,27 @@ async function checkToken(bearerToken = null) {
 
     const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=check-token', requestOptions);
     if (!response.ok) {
-      return false;
+      throw new Error(`Response status: ${response.status}`);
     }
 
     var data = await response.json();
 
     // Check if all entries in data are valid
     if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
-      return false;
+      throw new Error('No data returned from token check API');
     }
 
     Object.entries(data).forEach(([key, value]) => {
       if (value["token"] !== undefined && value["token"] !== null && value["token"] != "" && value["ttl"] > 5 && value["valid"] === true) {
         return true;
       } else {
-        return false;
+        throw new Error("Invalid token or TTL too low");
       }
     });
     return false;
   } catch (error) {
-    console.error(error)
-    return false
+    console.error("Error in checkToken function: " + error);
+    return false;
   }
 }
 
@@ -208,4 +207,10 @@ async function newToken(basicToken = null) {
   }
 }
 
-checkAndUpdateTokenDB();
+// Wait for a postMessage command from getCreds function
+self.addEventListener("message", async (event) => {
+  if (event.data.type === "updateTokenDB") {
+    checkAndUpdateTokenDB();
+  }
+});
+
