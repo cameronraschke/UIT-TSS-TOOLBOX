@@ -635,10 +635,12 @@ func apiMiddleWare (next http.Handler) http.Handler {
     //  http.Error(w, formatHttpError("Invalid MIME type"), http.StatusUnsupportedMediaType)
     //  return
     // }
-    if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
-      log.Warning("Invalid Content-Type header: " + req.Header.Get("Content-Type"))
-      http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
-      return
+    if req.Method != http.MethodOptions && req.Method != http.MethodPost && req.Method != http.MethodPut {
+      if req.Header.Get("Content-Type") != "application/x-www-form-urlencoded" && req.Header.Get("Content-Type") != "application/json" {
+        log.Warning("Invalid Content-Type header: " + req.Header.Get("Content-Type") + " (" + req.RemoteAddr + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+        http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
+        return
+      }
     }
 
 

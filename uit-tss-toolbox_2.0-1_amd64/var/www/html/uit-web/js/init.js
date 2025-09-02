@@ -149,19 +149,16 @@ async function fetchData(url) {
   }
   const bearerToken = localStorage.getItem('bearerToken');
 
-  const headers = new Headers({
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + bearerToken
-  });
-
-  const requestOptions = {
-    method: 'GET',
-    credentials: 'include',
-    headers: headers
-  };
-
   try {
-    const response = await fetch(url, requestOptions);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'credentials': 'include',
+        'Authorization': 'Bearer ' + bearerToken
+      },
+      body: null
+    });
     if (!response.ok) {
       throw new Error(`Error fetching data: ${response.status}`);
     }   

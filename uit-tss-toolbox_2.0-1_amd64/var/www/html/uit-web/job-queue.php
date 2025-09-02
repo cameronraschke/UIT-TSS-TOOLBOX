@@ -128,7 +128,7 @@ unset($_POST);
             <th>Uptime</th>
             <th>CPU Temp</th>
             <th>Disk Temp</th>
-            <th>Power Usage></th>
+            <th>Power Usage</th>
           </tr>
         </thead>
       </table>
