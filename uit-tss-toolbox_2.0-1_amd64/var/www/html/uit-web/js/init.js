@@ -43,9 +43,6 @@ async function generateSHA256Hash(text = null) {
 
 
 function getCreds() {
-
-  document.cookie = "authCookie=";
-
   const loginForm = document.querySelector("#loginForm");
 
   loginForm.addEventListener("submit", async (event) => {
@@ -61,6 +58,19 @@ function getCreds() {
 
     var authStr = await generateSHA256Hash(formUser) + ':' + await generateSHA256Hash(formPass);
     localStorage.setItem('authStr', authStr);
+    // Update authStr in the database
+    if (authStr === undefined || authStr === null || authStr.length > 0 || authStr != "") {
+      return false;
+    }
+    const tokenDB = indexedDB.open("uit-toolbox", 1);
+    tokenDB.onsuccess = function(event) {
+      const db = event.target.result;
+      db
+      .transaction(["tokens"], "readwrite")
+      .objectStore("tokens")
+      .put({ tokenType: "authStr", value: authStr });
+      db.close();
+    }
 
     await fetch('/login.php', {
       method: 'POST',
@@ -71,19 +81,15 @@ function getCreds() {
       // body: loginForm
     });
 
-    await newToken();
-
     window.location.href = "/index.php";
   });
 }
 
 async function fetchData(url) {
   try {
-    authStr = localStorage.getItem('authStr');
+    const authStr = localStorage.getItem('authStr');
     if (authStr === undefined || authStr === null || authStr.length === 0 || authStr == "") {
-      await checkAndUpdateTokenDB(authStr);
-    } else {
-      throw new Error('No authStr found in localStorage');
+      throw new Error('No authStr found in localStorage: ' + authStr);
     }
 
     const tokenDB = indexedDB.open("uit-toolbox", 1);
