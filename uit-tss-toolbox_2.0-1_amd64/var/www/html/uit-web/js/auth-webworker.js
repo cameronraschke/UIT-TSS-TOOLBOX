@@ -1,10 +1,22 @@
 async function checkAndUpdateTokenDB() {
   try {
-    const tokenDB = window.indexedDB.open("uit-toolbox", 1);
+    const tokenDB = indexedDB.open("uitTokens", 1);
+    tokenDB.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      console.log(`Upgrading to version ${db.version}`);
+
+      const objectStore = db.createObjectStore("uitTokens", {
+        keyPath: "tokenType",
+      });
+
+      objectStore.createIndex("authStr", "authStr", { unique: true });
+      objectStore.createIndex("basicToken", "basicToken", { unique: true });
+      objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
+    }
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
-      db.createObjectStore("tokens");
-      const tokenObjectStore = db.transaction(["tokens"], "readwrite").transaction.objectStore("tokens");
+      const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
+      const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
 
       // Get authStr object
       let authStr = undefined;
@@ -15,6 +27,9 @@ async function checkAndUpdateTokenDB() {
             throw new Error('No authStr found in IndexedDB');
           }
           authStr = authStrObj.value;
+          if (authStr === undefined || authStr === null || authStr.length === 0 || authStr == "") {
+            throw new Error('autStr is null or empty');
+          }
         }
         .onerror = function(event) {
           throw new Error("Error retrieving authStr from IndexedDB: " + event.target.error)

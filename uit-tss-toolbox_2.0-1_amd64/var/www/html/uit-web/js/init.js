@@ -64,10 +64,11 @@ function getCreds() {
       return false;
     }
 
-    const tokenDB = window.indexedDB.open("uit-toolbox", 1);
+    const tokenDB = window.indexedDB.open("uitTokens", 1);
     tokenDB.onsuccess = function(event) {
-        const db = event.target.result;
-        const tokenObjectStore = db.transaction(["tokens"], "readwrite").transaction.objectStore("tokens");
+      const db = event.target.result;
+      const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
+      const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
         tokenObjectStore
           .put({ tokenType: "authStr", value: authStr })
             .onerror = function(event) {
@@ -102,10 +103,11 @@ async function fetchData(url) {
     }
 
 
-    const tokenDB = window.indexedDB.open("uit-toolbox", 1);
+    const tokenDB = window.indexedDB.open("uitTokens", 1);
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
-      const tokenObjectStore = db.transaction(["tokens"], "readwrite").transaction.objectStore("tokens");
+      const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
+      const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
       tokenObjectStore.get("bearerToken")
         .onsuccess = async function(event) {
           const bearerToken = event.target.result;
