@@ -162,3 +162,4 @@ async function newToken(basicToken = null) {
   }
 }
 
+checkAndUpdateTokenDB();
