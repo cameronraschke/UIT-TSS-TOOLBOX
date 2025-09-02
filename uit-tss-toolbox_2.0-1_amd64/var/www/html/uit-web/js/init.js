@@ -24,7 +24,7 @@ function escapeHtml(str) {
 async function generateSHA256Hash(text = null) {
   try {
     if (text === undefined || text === null || text.length === 0 || text == "") {
-      return null;
+      throw new Error('Cannot hash empty string');
     }
     const encoder = new TextEncoder();
     const buffer = encoder.encode(text);
@@ -56,21 +56,30 @@ function getCreds() {
       password: formPass
     };
 
-    var authStr = await generateSHA256Hash(formUser) + ':' + await generateSHA256Hash(formPass);
+    const authStr = await generateSHA256Hash(formUser) + ':' + await generateSHA256Hash(formPass);
     localStorage.setItem('authStr', authStr);
     // Update authStr in the database
-    if (authStr === undefined || authStr === null || authStr.length > 0 || authStr != "") {
+    if (authStr === undefined || authStr === null || authStr.length === 0 || authStr == "") {
+      console.error("authStr is invalid: " + authStr);
       return false;
     }
-    const tokenDB = indexedDB.open("uit-toolbox", 1);
+
+    const tokenDB = window.indexedDB.open("uit-toolbox", 1);
     tokenDB.onsuccess = function(event) {
-      const db = event.target.result;
-      db
-      .transaction(["tokens"], "readwrite")
-      .objectStore("tokens")
-      .put({ tokenType: "authStr", value: authStr });
-      db.close();
+        const db = event.target.result;
+        const tokenObjectStore = db.transaction(["tokens"], "readwrite").transaction.objectStore("tokens");
+        tokenObjectStore
+          .put({ tokenType: "authStr", value: authStr })
+            .onerror = function(event) {
+              throw new Error("Error storing authStr in IndexedDB: " + event.target.error)
+            }
+          ;
+        db.close();
     }
+    tokenDB.onerror = function(event) {
+      throw new Error('IndexedDB error: ' + event.target.errorCode);
+    }
+    ;
 
     await fetch('/login.php', {
       method: 'POST',
@@ -92,59 +101,64 @@ async function fetchData(url) {
       throw new Error('No authStr found in localStorage: ' + authStr);
     }
 
-    const tokenDB = indexedDB.open("uit-toolbox", 1);
+
+    const tokenDB = window.indexedDB.open("uit-toolbox", 1);
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
-      db
-      .transaction(["tokens"], "readonly")
-      .objectStore("tokens")
-      .get("bearerToken")
-      .onsuccess = async function(event) {
-        const bearerToken = event.target.result;
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        headers.append('credentials', 'include');
-        if (bearerToken !== undefined && bearerToken.value !== null && bearerToken.value.length > 0 && bearerToken.value != "") {
-          headers.append('Authorization', 'Bearer ' + bearerToken.value);
-        } else {
-          throw new Error('No bearer token found in IndexedDB');
-        }
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: headers,
-          body: null
-        });
+      const tokenObjectStore = db.transaction(["tokens"], "readwrite").transaction.objectStore("tokens");
+      tokenObjectStore.get("bearerToken")
+        .onsuccess = async function(event) {
+          const bearerToken = event.target.result;
+          const headers = new Headers();
+          headers.append('Content-Type', 'application/x-www-form-urlencoded');
+          headers.append('credentials', 'include');
+          if (bearerToken !== undefined && bearerToken.value !== null && bearerToken.value.length > 0 && bearerToken.value != "") {
+            headers.append('Authorization', 'Bearer ' + bearerToken.value);
+          } else {
+            throw new Error('No bearer token found in IndexedDB');
+          }
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: headers,
+            body: null
+          });
 
-        if (!response.ok) {
-          throw new Error(`Error fetching data: ` + url + ` ${response.status}`);
-        }
+          if (!response.ok) {
+            throw new Error(`Error fetching data: ` + url + ` ${response.status}`);
+          }
 
-        // No content (OPTIONS request)
-        if (response.status === 204) {
-          return null;
-        }
+          // No content (OPTIONS request)
+          if (response.status === 204) {
+            return null;
+          }
 
-        if (response.headers === undefined || response.headers === null || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
-          throw new Error('Response is undefined or not JSON');
-        }
+          if (response.headers === undefined || response.headers === null || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
+            throw new Error('Response is undefined or not JSON');
+          }
 
-        const data = await response.json();
-        if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
-          throw new Error("Response JSON is empty or invalid: " + url);
-        }
+          const data = await response.json();
+          if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
+            throw new Error("Response JSON is empty or invalid: " + url);
+          }
 
-        return(data);
-      };
-    };
+          db.close();
+          
+          return(data);
+        }
+        .onerror = function(event) {
+          throw new Error("Error retrieving bearerToken from IndexedDB: " + event.target.error)
+        }
+      ;
+    }
     tokenDB.onerror = function(event) {
       throw new Error('IndexedDB error: ' + event.target.errorCode);
-    };
+    }
     tokenDB.onblocked = function(event) {
       throw new Error('IndexedDB blocked: ' + event.target.errorCode);
-    };
-    db.close();
+    }
+    ;
   } catch (error) {
-    console.error(error.message + "\n" + url);
+    console.error("Error fetching data: " + error.message + "\n" + url);
     return null;
   }
 }

@@ -3,6 +3,7 @@ async function checkAndUpdateTokenDB() {
     const tokenDB = window.indexedDB.open("uit-toolbox", 1);
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
+      db.createObjectStore("tokens");
       const tokenObjectStore = db.transaction(["tokens"], "readwrite").transaction.objectStore("tokens");
 
       // Get authStr object
