@@ -64,7 +64,7 @@ function getCreds() {
       return false;
     }
 
-    const tokenDB = window.indexedDB.open("uitTokens", 1);
+    const tokenDB = indexedDB.open("uitTokens", 1);
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
       const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
@@ -103,7 +103,7 @@ async function fetchData(url) {
     }
 
 
-    const tokenDB = window.indexedDB.open("uitTokens", 1);
+    const tokenDB = indexedDB.open("uitTokens", 1);
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
       const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
