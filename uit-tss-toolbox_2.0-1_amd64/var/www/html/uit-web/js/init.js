@@ -21,6 +21,27 @@ function escapeHtml(str) {
 }
 
 
+async function generateSHA256Hash(text = null) {
+  try {
+    if (text === undefined || text === null || text.length === 0 || text == "") {
+      return null;
+    }
+    const encoder = new TextEncoder();
+    const buffer = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    
+    // Convert the ArrayBuffer to a hexadecimal string
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    return hash;
+  } catch (error) {
+    console.error("Cannot hash string: " + error);
+    return null;
+  }
+}
+
+
 function getCreds() {
 
   document.cookie = "authCookie=";

@@ -64,19 +64,6 @@ async function checkAndUpdateTokenDB(authStr = null) {
 }
 
 
-async function generateSHA256Hash(text) {
-  const encoder = new TextEncoder(); // Encodes the string to a Uint8Array
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data); // Hashes the data
-  
-  // Convert the ArrayBuffer to a hexadecimal string
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  
-  return hash;
-}
-
-
 function checkToken(bearerToken = null) {
   if (bearerToken === undefined || bearerToken === null || bearerToken.length === 0 || bearerToken == "") {
     return false
