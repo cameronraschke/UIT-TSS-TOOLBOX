@@ -83,8 +83,10 @@ type TestQuery struct {
   Message   *string   `json:"message"`
 }
 
-type Auth struct {
-	Token string `json:"token"`
+type AuthToken struct {
+	Token   string    `json:"token"`
+  TTL     float64   `json:"ttl"`
+  Valid   bool      `json:"valid"`
 }
 
 type httpErrorCodes struct {
@@ -842,7 +844,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
         //   SameSite: http.SameSiteLaxMode,
         // }
         // http.SetCookie(w, &cookie)
-        jsonData, err = json.Marshal(Auth{Token: hashedTokenStr})
+        jsonData, err = json.Marshal(AuthToken{Token: hashedTokenStr, TTL: TTLDuration.Seconds(), Valid: true})
         if err != nil {
           log.Error("Cannot marshal Token to JSON: " + err.Error())
           return
@@ -923,7 +925,7 @@ func apiAuth (next http.Handler) http.Handler {
     if matches >= 1 {
       // log.Debug("Auth Cached for " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       if req.URL.Query().Get("type") == "check-token" {
-        jsonData, err = json.Marshal(Auth{Token: token})
+        jsonData, err = json.Marshal(AuthToken{Token: token, TTL: timeDiff.Seconds(), Valid: true})
         if err != nil {
           log.Error("Cannot marshal Token to JSON: " + err.Error())
           return

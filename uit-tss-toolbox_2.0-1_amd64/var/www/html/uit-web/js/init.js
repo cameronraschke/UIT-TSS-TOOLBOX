@@ -1,14 +1,4 @@
-async function generateSHA256Hash(text) {
-  const encoder = new TextEncoder(); // Encodes the string to a Uint8Array
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data); // Hashes the data
-  
-  // Convert the ArrayBuffer to a hexadecimal string
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  
-  return hash;
-}
+const tokenWorker = new Worker('js/auth-webworker.js');
 
 function escapeHtml(str) {
   if (typeof str !== 'string') {
@@ -66,108 +56,69 @@ function getCreds() {
   });
 }
 
-
-async function checkToken() {
-  if (localStorage.getItem('bearerToken') == undefined) {
-    return false
-  }
-
-  try {
-    const bearerToken = localStorage.getItem('bearerToken');
-
-    const headers = new Headers({
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'credentials': 'include',
-      'Authorization': 'Bearer ' + bearerToken
-    });
-
-    const requestOptions = {
-      method: 'GET',
-      headers: headers
-    };
-
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=check-token', requestOptions);
-    if (!response.ok) {
-      return false;
-    }
-
-    var data = await response.json();
-
-    if (data != undefined) {
-      return true
-    } else {
-      return false
-    }
-
-  } catch (error) {
-    console.error(error)
-    return false
-  }
-}
-
-async function newToken() {
-  const basicToken = await generateSHA256Hash(localStorage.getItem('authStr'));
-
-  localStorage.setItem('basicToken', basicToken)
-  
-  const headers = new Headers({
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'credentials': 'include',
-    'Authorization': 'Basic ' + basicToken
-  });
-
-  const requestOptions = {
-    method: 'GET',
-    headers: headers
-  };
-
-  try {
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth', requestOptions);
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-
-    var data = await response.json();
-
-    if (data.token != undefined) {
-        localStorage.setItem('bearerToken', data.token);
-        document.cookie = "authCookie=" + data.token;
-        // document.cookie = "authCookie=Yes";
-    } else {
-        console.error("No token returned");
-    }
-
-  } catch (error) {
-    console.error(error.message);
-  }
-}
-
 async function fetchData(url) {
-  const tokenStatus = await checkToken()
-  if (tokenStatus === false) {
-    await newToken();
-  }
-  const bearerToken = localStorage.getItem('bearerToken');
-
   try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'credentials': 'include',
-        'Authorization': 'Bearer ' + bearerToken
-      },
-      body: null
-    });
-    if (!response.ok) {
-      throw new Error(`Error fetching data: ${response.status}`);
-    }   
+    authStr = localStorage.getItem('authStr');
+    if (authStr === undefined || authStr === null || authStr.length === 0 || authStr == "") {
+      await checkAndUpdateTokenDB(authStr);
+    } else {
+      throw new Error('No authStr found in localStorage');
+    }
 
-    const data = await response.json();
-    return(data);
+    const tokenDB = indexedDB.open("uit-toolbox", 1);
+    tokenDB.onsuccess = function(event) {
+      const db = event.target.result;
+      db
+      .transaction(["tokens"], "readonly")
+      .objectStore("tokens")
+      .get("bearerToken")
+      .onsuccess = async function(event) {
+        const bearerToken = event.target.result;
+        const headers = new Headers();
+        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+        headers.append('credentials', 'include');
+        if (bearerToken !== undefined && bearerToken.value !== null && bearerToken.value.length > 0 && bearerToken.value != "") {
+          headers.append('Authorization', 'Bearer ' + bearerToken.value);
+        } else {
+          throw new Error('No bearer token found in IndexedDB');
+        }
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: headers,
+          body: null
+        });
 
+        if (!response.ok) {
+          throw new Error(`Error fetching data: ` + url + ` ${response.status}`);
+        }
+
+        // No content (OPTIONS request)
+        if (response.status === 204) {
+          return null;
+        }
+
+        if (response.headers === undefined || response.headers === null || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
+          throw new Error('Response is undefined or not JSON');
+        }
+
+        const data = await response.json();
+        if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
+          throw new Error("Response JSON is empty or invalid: " + url);
+        }
+
+        return(data);
+      };
+    };
+    tokenDB.onerror = function(event) {
+      throw new Error('IndexedDB error: ' + event.target.errorCode);
+    };
+    tokenDB.onblocked = function(event) {
+      throw new Error('IndexedDB blocked: ' + event.target.errorCode);
+    };
+    db.close();
   } catch (error) {
     console.error(error.message + "\n" + url);
+    return null;
   }
 }
 

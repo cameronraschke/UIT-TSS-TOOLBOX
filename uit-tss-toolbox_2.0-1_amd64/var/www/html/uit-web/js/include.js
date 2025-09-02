@@ -1369,14 +1369,13 @@ async function updateRemotePresentTable() {
       }
       
       tagnumberBodyA1 = document.createElement("a");
-      tagnumberBodyA1.setAttribute("href", "'tagnumber.php?tagnumber=" + value["tagnumber"] + "'");
-      tagnumberBodyA1.setAttribute("target", "'_blank'");
+      tagnumberBodyA1.setAttribute("href", "tagnumber.php?tagnumber=" + value["tagnumber"]);
+      tagnumberBodyA1.setAttribute("target", "_blank");
       tagnumberBodyA1.style.fontWeight = "bold";
       tagnumberBodyA1.innerText = value["tagnumber"];
 
       const afterTagnumberBodySpan2 = document.createElement("span");
-      const afterTagnumberBodyP2 = document.createElement("p");
-      let afterTagnumberText2 = undefined
+      let afterTagnumberText2 = "";
       if (value["locations_status"] === true) {
         afterTagnumberText2 += "🛠️"
       }
@@ -1388,8 +1387,7 @@ async function updateRemotePresentTable() {
       } else if (value["kernel_updated"] !== true) {
         afterTagnumberText2 += "❌";
       }
-      afterTagnumberBodyP2.append(afterTagnumberText2);
-      afterTagnumberBodySpan2.append(afterTagnumberBodyP2);
+      afterTagnumberBodySpan2.append(afterTagnumberText2);
 
       const tagnumberCell = document.createElement("td");
       tagnumberCell.append(beforeTagnumberBodySpan1, tagnumberBodyA1, afterTagnumberBodySpan2);
@@ -1468,8 +1466,8 @@ async function updateRemotePresentTable() {
       remotePresentBodyTbody.append(remotePresentTableBodyTr)
     });
 
-    remotePresentTableFragment.append(remotePresentHeaderThead);
-    remotePresentTableFragment.append(remotePresentBodyTbody);
+    remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
+    remotePresentTableFragment.append(remotePresentTable);
     const oldRemotePresentTable = document.getElementById("remotePresentTable");
     oldRemotePresentTable.replaceWith(remotePresentTableFragment);
   } catch (error) {
