@@ -936,11 +936,11 @@ func apiAuth (next http.Handler) http.Handler {
       }
       next.ServeHTTP(w, req)
     } else {
-      // log.Debug("Auth cache miss for " + req.RemoteAddr)
-      next.ServeHTTP(w, req)
+      log.Debug("Auth cache miss for " + req.RemoteAddr)
+      // next.ServeHTTP(w, req)
       // http.Redirect(w, req, "/api/auth", http.StatusFound)
-      // http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
-      // return
+      http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
+      return
     }
   })
 }
