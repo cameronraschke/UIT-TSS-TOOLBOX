@@ -152,9 +152,9 @@ async function checkToken(bearerToken = null) {
       .then(response => {
         if (!response.ok) {
           reject(`Response status: ${response.status}`);
-          throw new Error(`Response status: ${response.status}`);
           return;
         }
+        return response.json();
       })
       .then(data => {
         if (
