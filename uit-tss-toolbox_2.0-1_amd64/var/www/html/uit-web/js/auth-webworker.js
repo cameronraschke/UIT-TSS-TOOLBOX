@@ -270,7 +270,7 @@ self.addEventListener("message", async (event) => {
 });
 
 // set timeout
-setTimeout(() => {
+setInterval(() => {
   checkAndUpdateTokenDB();
 }, 1000);
 checkAndUpdateTokenDB();
