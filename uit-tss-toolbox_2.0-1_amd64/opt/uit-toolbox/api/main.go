@@ -756,9 +756,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
   // Get BASIC token from Authorization header
   headerMap := req.Header.Values("Authorization")
   for _, value := range headerMap {
-    if strings.HasPrefix(value, "Bearer ") {
-      bearerToken = strings.TrimPrefix(value, "Bearer ")
-    } else if strings.HasPrefix(value, "Basic ") {
+    if strings.HasPrefix(value, "Basic ") {
       basicToken = strings.TrimPrefix(value, "Basic ")
     } else {
       log.Warning("Malformed Authorization header")
@@ -767,9 +765,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
     }
   }
 
-  if bearerToken != "" {
-    bearerToken = bearerToken
-  } else if basicToken != "" {
+  if basicToken != "" {
     token = basicToken
   } else {
     log.Warning("Malformed Basic Authorization header")
@@ -777,8 +773,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
     return
   }
 
-
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()
 
   // Check if DB connection is valid
@@ -937,10 +932,12 @@ func apiAuth (next http.Handler) http.Handler {
       next.ServeHTTP(w, req)
     } else {
       log.Debug("Auth cache miss for " + req.RemoteAddr)
-      // next.ServeHTTP(w, req)
-      // http.Redirect(w, req, "/api/auth", http.StatusFound)
-      http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
-      return
+      if req.URL.Query().Get("type") == "new-token" {
+        next.ServeHTTP(w, req)
+      } else {
+        http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
+        return
+      }
     }
   })
 }

@@ -133,7 +133,7 @@ async function checkToken(bearerToken = null) {
   return new Promise((resolve, reject) => {
     if (bearerToken === undefined || bearerToken === null || bearerToken.length === 0 || bearerToken == "") {
       reject("No bearerToken provided to checkToken function");
-      return false;
+      return;
     }
 
     const headers = new Headers({
@@ -151,16 +151,24 @@ async function checkToken(bearerToken = null) {
     fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=check-token', requestOptions)
       .then(response => {
         if (!response.ok) {
+          reject(`Response status: ${response.status}`);
           throw new Error(`Response status: ${response.status}`);
+          return;
         }
-        return response.json();
       })
       .then(data => {
-        if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
-          reject('No data returned from token check API');
-          return false;
+        if (
+          data === undefined ||
+          data === null ||
+          data === false ||
+          data == "" ||
+          (typeof data === "object" && Object.keys(data).length === 0)
+        ) {
+          console.log('No data returned from token check API');
+          resolve(false);
+          return;
         }
-
+        
         if (
           data.token !== undefined &&
           data.token !== null &&
@@ -169,16 +177,16 @@ async function checkToken(bearerToken = null) {
           (data.valid === true || data.valid === "true")
         ) {
           resolve(true);
+          return;
         } else {
           resolve(false);
+          return;
         }
       })
       .catch(error => {
         reject("Error in fetch: " + error);
+        return;
       });
-
-      resolve(true);
-      return true;
   });
 }
 
@@ -224,9 +232,18 @@ async function newToken() {
         })
         .then(data => {
           // Check if all entries in data are valid
-          if (data === undefined || data === null || data == "" || Object.keys(data).length === 0 || data === false) {
-            throw new Error("No valid data returned from new token API");
+          if (
+            data === undefined ||
+            data === null ||
+            data === false ||
+            data == "" ||
+            (typeof data === "object" && Object.keys(data).length === 0)
+          ) {
+            console.log('No data returned from newToken API');
+            resolve(null);
+            return;
           }
+
           if (
             data.token !== undefined &&
             data.token !== null &&
@@ -239,25 +256,30 @@ async function newToken() {
             const bearerTokenPutRequest = newObjectStore.put({ tokenType: "bearerToken", value: data.token });
             bearerTokenPutRequest.onsuccess = function() {
               resolve(data.token);
+              return;
             };
             bearerTokenPutRequest.onerror = function(event) {
               reject("Error storing new bearerToken in IndexedDB: " + event.target.error);
+              return;
             };
           } else {
             reject("No valid bearer token found");
-            return null;
+            return;
           }
         })
         .catch(error => {
           reject("Error fetching new bearerToken: " + error);
+          return;
         });
       };
       basicTokenRequest.onerror = function(event) {
         reject("Error fetching basicToken: " + event.target.error);
+        return;
       };
     };
     tokenDB.onerror = function(event) {
       reject("Cannot open token DB to create new token: " + event.target.error);
+      return;
     };
   });
 }
