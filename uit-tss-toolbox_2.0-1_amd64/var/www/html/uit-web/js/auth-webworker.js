@@ -39,37 +39,19 @@ async function checkAndUpdateTokenDB() {
       const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
 
       // Get authStr object
-      let authStr = undefined;
       const authStrRequest = tokenObjectStore.get("authStr")
-      authStrRequest.onsuccess = (event) => {
+      authStrRequest.onsuccess = async (event) => {
         const authStrObj = event.target.result;
         if (authStrObj === undefined || authStrObj === null || authStrObj.length === 0 || authStrObj == "") {
           throw new Error('No authStr found in IndexedDB: ' + authStrObj);
         }
-        authStr = authStrObj.value;
-        if (authStr === undefined || authStr === null || authStr.length === 0 || authStr == "") {
+        
+        if (authStrObj.value === undefined || authStrObj.value === null || authStrObj.value.length === 0 || authStrObj.value == "") {
           throw new Error('authStr is null or empty: ' + authStr);
         }
-        tokenObjectStore.put({ tokenType: "authStr", value: authStr })
-          .onerror = function(event) {
-            throw new Error("Error storing authStr in IndexedDB: " + event.target.error)
-          };
-      };
-      authStrRequest.onerror = (event) => {
-        throw new Error("Error retrieving authStr from IndexedDB: " + event.target.error);
-      };
-
-      // Hash authStr into basicToken & store basicToken in DB
-      let basicToken = undefined;
-      const authStrRequest2 = tokenObjectStore.get("authStr")
-      authStrRequest2.onsuccess = async function(event) {
-        const authStrObj = event.target.result;
-        if (authStrObj === undefined || authStrObj === null || authStrObj.length === 0 || authStrObj == "") {
-          throw new Error('No authStr found in IndexedDB');
-        }
-        authStr = authStrObj.value;
-    
-        basicToken = await generateSHA256Hash(authStr);
+        const authStr = authStrObj.value;
+      
+        const basicToken = await generateSHA256Hash(authStr);
         if (basicToken === undefined || basicToken === null || basicToken.length === 0 || basicToken == "") {
           throw new Error('basicToken hashing failed: ' + basicToken);
         }
@@ -79,9 +61,10 @@ async function checkAndUpdateTokenDB() {
           }
         ;
       };
-      authStrRequest2.onerror = function(event) {
+      authStrRequest.onerror = (event) => {
         throw new Error("Error retrieving authStr from IndexedDB: " + event.target.error);
       };
+
 
 
       // Get bearerToken object
@@ -89,19 +72,19 @@ async function checkAndUpdateTokenDB() {
       bearerTokenRequest.onsuccess = async function(event) {
         const bearerTokenObj = event.target.result;
 
+        // If token is invalid or expired, request a new one from the API
         if (bearerTokenObj === undefined || bearerTokenObj === null || bearerTokenObj.length === 0 || bearerTokenObj == "") {
-          // If token is invalid or expired, request a new one from the API
+          await newToken();
+        } else {
+          const bearerToken = bearerTokenObj.value;
           if (await checkToken(bearerToken) === false) {
             const newBearerToken = await newToken();
             if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
               throw new Error('Failed to retrieve new bearerToken');
             }
           }
+          return bearerToken;
         }
-
-        // Get the value of the bearerToken in indexedDB
-        const bearerToken = bearerTokenObj.value;
-        return bearerToken;
       };
       bearerTokenRequest.onerror = async function(event) {
         const newBearerToken = await newToken();

@@ -110,55 +110,49 @@ function getCreds() {
 
 async function fetchData(url) {
   try {
-    const authStr = localStorage.getItem('authStr');
-    if (authStr === undefined || authStr === null || authStr.length === 0 || authStr == "") {
-      throw new Error('No authStr found in localStorage: ' + authStr);
-    }
-
-
+    // Get bearerToken from IndexedDB
     const tokenDB = indexedDB.open("uitTokens", 1);
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
-      const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
+      const tokenTransaction = db.transaction(["uitTokens"], "readwrite");
       const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
       const bearerTokenRequest = tokenObjectStore.get("bearerToken");
       bearerTokenRequest.onsuccess = async function(event) {
-        const bearerToken = event.target.result;
+        const bearerTokenObj = event.target.result;
+        if (bearerTokenObj === undefined || bearerTokenObj.value === null || bearerTokenObj.value.length === 0 || bearerTokenObj.value == "") {
+          throw new Error('No bearer token found in IndexedDB');
+        }
         const headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
         headers.append('credentials', 'include');
-          if (bearerToken !== undefined && bearerToken.value !== null && bearerToken.value.length > 0 && bearerToken.value != "") {
-            headers.append('Authorization', 'Bearer ' + bearerToken.value);
-          } else {
-            throw new Error('No bearer token found in IndexedDB');
-          }
-          const response = await fetch(url, {
-            method: 'GET',
-            headers: headers,
-            body: null
-          });
+        headers.append('Authorization', 'Bearer ' + bearerTokenObj.value);
 
-          if (!response.ok) {
-            throw new Error(`Error fetching data: ` + url + ` ${response.status}`);
-          }
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: headers,
+          body: null
+        });
 
-          // No content (OPTIONS request)
-          if (response.status === 204) {
-            return null;
-          }
+        if (!response.ok) {
+          throw new Error(`Error fetching data: ` + url + ` ${response.status}`);
+        }
 
-          if (response.headers === undefined || response.headers === null || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
-            throw new Error('Response is undefined or not JSON');
-          }
+        // No content (OPTIONS request)
+        if (response.status === 204) {
+          return null;
+        }
 
-          const data = await response.json();
-          if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
-            throw new Error("Response JSON is empty or invalid: " + url);
-          }
+        if (response.headers === undefined || response.headers === null || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
+          throw new Error('Response is undefined or not JSON');
+        }
 
-          db.close();
-          
-          return(data);
+        const data = await response.json();
+        if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
+          throw new Error("Response JSON is empty or invalid: " + url);
+        }
+
+        db.close();
+        return(data);
       };
       bearerTokenRequest.onerror = function(event) {
         throw new Error("Error retrieving bearerToken from IndexedDB: " + event.target.error)
