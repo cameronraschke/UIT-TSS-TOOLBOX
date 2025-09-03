@@ -35,37 +35,42 @@ async function checkAndUpdateTokenDB() {
     };
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
-      const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
-      const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
 
       // Get authStr object
-      const authStrRequest = tokenObjectStore.get("authStr")
-      authStrRequest.onsuccess = async (event) => {
+      const tokenTransaction = db.transaction(["uitTokens"], "readonly");
+      const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
+      const authStrRequest = tokenObjectStore.get("authStr");
+      authStrRequest.onsuccess = function(event) {
         const authStrObj = event.target.result;
         if (authStrObj === undefined || authStrObj === null || authStrObj.length === 0 || authStrObj == "") {
           throw new Error('No authStr found in IndexedDB: ' + authStrObj);
         }
-        
         if (authStrObj.value === undefined || authStrObj.value === null || authStrObj.value.length === 0 || authStrObj.value == "") {
-          throw new Error('authStr is null or empty: ' + authStr);
+          throw new Error('authStr is null or empty: ' + authStrObj.value);
         }
         const authStr = authStrObj.value;
-      
-        const basicToken = await generateSHA256Hash(authStr);
-        if (basicToken === undefined || basicToken === null || basicToken.length === 0 || basicToken == "") {
-          throw new Error('basicToken hashing failed: ' + basicToken);
-        }
-        tokenObjectStore.put({ tokenType: "basicToken", value: basicToken })
-          .onerror = function(event) {
-            throw new Error("Error storing basicToken in IndexedDB: " + event.target.error)
+
+        generateSHA256Hash(authStr).then((basicToken) => {
+          if (basicToken === undefined || basicToken === null || basicToken.length === 0 || basicToken == "") {
+            throw new Error('basicToken hashing failed: ' + basicToken);
           }
-        ;
+
+          // Open a new transaction for storing basicToken
+          const basicTokenTransaction = db.transaction(["uitTokens"], "readwrite");
+          const basicTokenObjectStore = basicTokenTransaction.objectStore("uitTokens");
+          const basicTokenPutRequest = basicTokenObjectStore.put({ tokenType: "basicToken", value: basicToken });
+          basicTokenPutRequest.onsuccess = function(event) {
+            console.log("basicToken stored successfully");
+            db.close();
+          };
+          basicTokenPutRequest.onerror = function(event) {
+            throw new Error("Error storing basicToken in IndexedDB: " + event.target.error);
+          };
+        });
       };
       authStrRequest.onerror = (event) => {
         throw new Error("Error retrieving authStr from IndexedDB: " + event.target.error);
       };
-
-
 
       // Get bearerToken object
       const bearerTokenRequest = tokenObjectStore.get("bearerToken")
@@ -92,7 +97,6 @@ async function checkAndUpdateTokenDB() {
           throw new Error('Failed to retrieve new bearerToken');
         }
       };
-      db.close();
     }
   } catch (error) {
     console.error("Error in checkAndUpdateTokenDB: " + error);
@@ -150,6 +154,7 @@ async function checkToken(bearerToken = null) {
 async function newToken() {
   try {
     // If token is invalid or expired, request a new one from the API
+    const tokenDB = indexedDB.open("uitTokens", 1);
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
       const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
