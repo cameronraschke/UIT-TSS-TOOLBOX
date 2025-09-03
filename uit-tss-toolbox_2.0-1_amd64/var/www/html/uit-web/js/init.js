@@ -121,12 +121,12 @@ async function fetchData(url) {
       const db = event.target.result;
       const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
       const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
-      tokenObjectStore.get("bearerToken")
-        .onsuccess = async function(event) {
-          const bearerToken = event.target.result;
-          const headers = new Headers();
-          headers.append('Content-Type', 'application/x-www-form-urlencoded');
-          headers.append('credentials', 'include');
+      const bearerTokenRequest = tokenObjectStore.get("bearerToken");
+      bearerTokenRequest.onsuccess = async function(event) {
+        const bearerToken = event.target.result;
+        const headers = new Headers();
+        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+        headers.append('credentials', 'include');
           if (bearerToken !== undefined && bearerToken.value !== null && bearerToken.value.length > 0 && bearerToken.value != "") {
             headers.append('Authorization', 'Bearer ' + bearerToken.value);
           } else {
@@ -159,19 +159,17 @@ async function fetchData(url) {
           db.close();
           
           return(data);
-        }
-        .onerror = function(event) {
-          throw new Error("Error retrieving bearerToken from IndexedDB: " + event.target.error)
-        }
-      ;
-    }
+      };
+      bearerTokenRequest.onerror = function(event) {
+        throw new Error("Error retrieving bearerToken from IndexedDB: " + event.target.error)
+      };
+    };
     tokenDB.onerror = function(event) {
       throw new Error('IndexedDB error: ' + event.target.errorCode);
-    }
+    };
     tokenDB.onblocked = function(event) {
       throw new Error('IndexedDB blocked: ' + event.target.errorCode);
-    }
-    ;
+    };
   } catch (error) {
     console.error("Error fetching data: " + error.message + "\n" + url);
     return null;
