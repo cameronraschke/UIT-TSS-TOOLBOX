@@ -746,7 +746,6 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
   var jsonData []byte
   var jsonDataStr string
   var basicToken string
-  var bearerToken string
   var apiAuthDBRowCount int
   var err error
 
