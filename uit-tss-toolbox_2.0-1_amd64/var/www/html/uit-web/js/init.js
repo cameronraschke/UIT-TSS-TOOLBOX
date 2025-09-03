@@ -124,7 +124,7 @@ function getCreds() {
 }
 
 async function fetchData(url) {
-  try {
+  return new Promise((resolve, reject) => {
     // Get bearerToken from IndexedDB
     const tokenDB = indexedDB.open("uitTokens", 1);
     tokenDB.onsuccess = function(event) {
@@ -134,55 +134,80 @@ async function fetchData(url) {
       const bearerTokenRequest = tokenObjectStore.get("bearerToken");
       bearerTokenRequest.onsuccess = async function(event) {
         const bearerTokenObj = event.target.result;
-        if (bearerTokenObj === undefined || bearerTokenObj.value === null || bearerTokenObj.value.length === 0 || bearerTokenObj.value == "") {
-          throw new Error('No bearer token found in IndexedDB');
+        if (
+          bearerTokenObj === undefined || 
+          bearerTokenObj.value === null || 
+          bearerTokenObj.value.length === 0 || 
+          typeof bearerTokenObj.value !== "string" || 
+          bearerTokenObj.value == ""
+        ) {
+          db.close();
+          reject(new Error('No bearer token found in IndexedDB'));
+          return null;
         }
+        const bearerToken = bearerTokenObj.value;
+
         const headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
         headers.append('credentials', 'include');
-        headers.append('Authorization', 'Bearer ' + bearerTokenObj.value);
+        headers.append('Authorization', 'Bearer ' + bearerToken);
 
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: headers,
-          body: null
-        });
+        try {
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: headers,
+            body: null
+          });
 
-        if (!response.ok) {
-          throw new Error(`Error fetching data: ` + url + ` ${response.status}`);
+          if (!response.ok) {
+            db.close();
+            reject(new Error(`Error fetching data: ${url} ${response.status}`));
+            return;
+          }
+
+          // No content (OPTIONS request)
+          if (response.status === 204) {
+            db.close();
+            resolve(null);
+            return;
+          }
+
+          if (
+            !response.headers ||
+            !response.headers.get('Content-Type') ||
+            !response.headers.get('Content-Type').includes('application/json')
+          ) {
+            db.close();
+            reject(new Error('Response is undefined or not JSON'));
+            return;
+          }
+
+          const data = await response.json();
+          if (!data || Object.keys(data).length === 0) {
+            db.close();
+            reject(new Error("Response JSON is empty or invalid: " + url));
+            return;
+          }
+
+          db.close();
+          resolve(data);
+        } catch (error) {
+          db.close();
+          reject(error);
         }
-
-        // No content (OPTIONS request)
-        if (response.status === 204) {
-          return null;
-        }
-
-        if (response.headers === undefined || response.headers === null || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
-          throw new Error('Response is undefined or not JSON');
-        }
-
-        const data = await response.json();
-        if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
-          throw new Error("Response JSON is empty or invalid: " + url);
-        }
-
-        db.close();
-        return(data);
       };
       bearerTokenRequest.onerror = function(event) {
-        throw new Error("Error retrieving bearerToken from IndexedDB: " + event.target.error)
+        db.close();
+        reject(new Error("Error retrieving bearerToken from IndexedDB: " + event.target.error));
       };
     };
     tokenDB.onerror = function(event) {
-      throw new Error('IndexedDB error: ' + event.target.errorCode);
+      reject(new Error('IndexedDB error: ' + event.target.errorCode));
     };
     tokenDB.onblocked = function(event) {
-      throw new Error('IndexedDB blocked: ' + event.target.errorCode);
+      reject(new Error('IndexedDB blocked: ' + event.target.errorCode));
     };
-  } catch (error) {
-    console.error("Error fetching data: " + error.message + "\n" + url);
-    return null;
-  }
+  });
 }
 
   
