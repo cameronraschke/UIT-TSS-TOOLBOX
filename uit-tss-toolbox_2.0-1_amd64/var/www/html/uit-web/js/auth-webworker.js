@@ -74,27 +74,52 @@ async function checkAndUpdateTokenDB() {
 
       // Get bearerToken object
       const bearerTokenRequest = tokenObjectStore.get("bearerToken")
-      bearerTokenRequest.onsuccess = async function(event) {
+      bearerTokenRequest.onsuccess = function(event) {
         const bearerTokenObj = event.target.result;
 
         // If token is invalid or expired, request a new one from the API
-        if (bearerTokenObj === undefined || bearerTokenObj === null || bearerTokenObj.length === 0 || bearerTokenObj == "") {
-          await newToken();
+        if (bearerTokenObj.value === undefined || bearerTokenObj.value === null || bearerTokenObj.value.length === 0 || bearerTokenObj.value == "") {
+          newToken().then(newBearerToken => {
+            if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
+              throw new Error('1 Failed to retrieve new bearerToken');
+            }
+          });
         } else {
           const bearerToken = bearerTokenObj.value;
-          if (await checkToken(bearerToken) === false) {
-            const newBearerToken = await newToken();
-            if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
-              throw new Error('Failed to retrieve new bearerToken');
+          checkToken(bearerToken).then(isValid => {
+            if (isValid === false) {
+              newToken().then(newBearerToken => {
+                if (
+                  newBearerToken === undefined ||
+                  newBearerToken === null ||
+                  newBearerToken.length === 0 ||
+                  newBearerToken == ""
+                ) {
+                  throw new Error('2 Failed to retrieve new bearerToken');
+                }
+              });
             }
-          }
-          return bearerToken;
+          });
         }
       };
-      bearerTokenRequest.onerror = async function(event) {
-        const newBearerToken = await newToken();
+      bearerTokenRequest.onerror = function(event) {
+        newToken().then(newBearerToken => {
+          if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
+              throw new Error('3 Failed to retrieve new bearerToken');
+            }
+          });
         if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
-          throw new Error('Failed to retrieve new bearerToken');
+          throw new Error('4 Failed to retrieve new bearerToken');
+        }
+      };
+      bearerTokenRequest.onerror = function(event) {
+        newToken().then(newBearerToken => {
+          if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
+              throw new Error('5 Failed to retrieve new bearerToken');
+            }
+          });
+        if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
+          throw new Error('6 Failed to retrieve new bearerToken');
         }
       };
     }
@@ -106,11 +131,12 @@ async function checkAndUpdateTokenDB() {
 
 
 async function checkToken(bearerToken = null) {
-  if (bearerToken === undefined || bearerToken === null || bearerToken.length === 0 || bearerToken == "") {
-    throw new Error("No bearerToken provided to checkToken function");
-  }
+  return new Promise((resolve, reject) => {
+    if (bearerToken === undefined || bearerToken === null || bearerToken.length === 0 || bearerToken == "") {
+      reject("No bearerToken provided to checkToken function");
+      return false;
+    }
 
-  try {
     const headers = new Headers({
       'Content-Type': 'application/x-www-form-urlencoded',
       'credentials': 'include',
@@ -122,42 +148,48 @@ async function checkToken(bearerToken = null) {
       headers: headers
     };
 
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=check-token', requestOptions);
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-
-    var data = await response.json();
-
-    // Check if all entries in data are valid
-    if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
-      throw new Error('No data returned from token check API');
-    }
-
-    Object.entries(data).forEach(async ([key, value]) => {
-      if (value["token"] === undefined && value["token"] === null && value["token"] == "" && value["ttl"] < 5 && value["valid"] === false) {
-        const newBearerToken = await newToken();
-        if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
-          throw new Error('Failed to retrieve new bearerToken');
+    fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=check-token', requestOptions)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
         }
-      }
+        return response.json();
+      })
+      .then(data => {
+        if (Object.keys(data).length === 0 || data === false || data === undefined || data === null || data == "") {
+          reject('No data returned from token check API');
+          return false;
+        }
+
+        if (
+          data.token !== undefined &&
+          data.token !== null &&
+          data.token !== "" &&
+          Number(data.ttl) >= 5 &&
+          (data.valid === true || data.valid === "true")
+        ) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      })
+      .catch(error => {
+        reject("Error in fetch: " + error);
+      });
+
+      resolve(true);
       return true;
-    });
-    return false;
-  } catch (error) {
-    console.error("Error in checkToken function: " + error);
-    return false;
-  }
+  });
 }
 
 
 async function newToken() {
-  try {
+  return new Promise((resolve, reject) => {
     // If token is invalid or expired, request a new one from the API
     const tokenDB = indexedDB.open("uitTokens", 1);
     tokenDB.onsuccess = function(event) {
       const db = event.target.result;
-      const tokenTransaction = db.transaction(["uitTokens"], "readwrite")
+      const tokenTransaction = db.transaction(["uitTokens"], "readwrite");
       const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
 
       // Get basicToken
@@ -165,67 +197,68 @@ async function newToken() {
       basicTokenRequest.onsuccess = function(event) {
         const basicTokenObj = event.target.result;
         if (basicTokenObj === undefined || basicTokenObj === null || basicTokenObj.length === 0 || basicTokenObj == "") {
-          throw new Error('basicToken object is invalid');
+          reject('basicToken object is invalid');
+          return null;
+        }
+        if (basicTokenObj.value === undefined || basicTokenObj.value === null || basicTokenObj.value.length === 0 || basicTokenObj.value == "") {
+          reject('basicToken value is invalid');
+          return null;
         }
         const basicToken = basicTokenObj.value;
-        if (basicToken === undefined || basicToken === null || basicToken.length === 0 || basicToken == "") {
-          throw new Error('basicToken is invalid');
-        }
 
-        (async () => {
-          const headers = new Headers({
+        fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=new-token', {
+          method: 'GET',
+          headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'credentials': 'include',
             'Authorization': 'Basic ' + basicToken
-          });
-
-          const requestOptions = {
-            method: 'GET',
-            headers: headers
-          };
-
-          const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=new-token', requestOptions);
+          },
+          body: null
+        })
+        .then(response => {
           if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
           }
-
-          const data = await response.json();
+          return response.json();
+        })
+        .then(data => {
           // Check if all entries in data are valid
           if (data === undefined || data === null || data == "" || Object.keys(data).length === 0 || data === false) {
             throw new Error("No valid data returned from new token API");
           }
-
-          let bearerToken = undefined;
-          const validEntry = Object.values(data).find(value =>
-            value["token"] !== undefined || 
-            value["token"] !== null || 
-            value["token"] != "" || 
-            value["ttl"] > 5 || 
-            value["valid"] !== false
-          );
-
-          if (validEntry) {
-            bearerToken = validEntry["token"];
+          if (
+            data.token !== undefined &&
+            data.token !== null &&
+            data.token !== "" &&
+            Number(data.ttl) >= 5 &&
+            (data.valid === true || data.valid === "true")
+          ) {
+            const newTransaction = db.transaction(["uitTokens"], "readwrite");
+            const newObjectStore = newTransaction.objectStore("uitTokens");
+            const bearerTokenPutRequest = newObjectStore.put({ tokenType: "bearerToken", value: data.token });
+            bearerTokenPutRequest.onsuccess = function() {
+              resolve(data.token);
+            };
+            bearerTokenPutRequest.onerror = function(event) {
+              reject("Error storing new bearerToken in IndexedDB: " + event.target.error);
+            };
+          } else {
+            reject("No valid bearer token found");
+            return null;
           }
-        
-          const newTransaction = db.transaction(["uitTokens"], "readwrite");
-          const newObjectStore = newTransaction.objectStore("uitTokens");
-          const bearerTokenPutRequest = newObjectStore.put({ tokenType: "bearerToken", value: bearerToken });
-          bearerTokenPutRequest.onerror = function(event) {
-            throw new Error("Error storing new bearerToken in IndexedDB: " + event.target.error);
-          };
-
-          return bearerToken;
-        })();
+        })
+        .catch(error => {
+          reject("Error fetching new bearerToken: " + error);
+        });
       };
-      tokenDB.onerror = function(event) {
-        throw new Error("Cannot open token DB to create new token: " + event.target.error);
+      basicTokenRequest.onerror = function(event) {
+        reject("Error fetching basicToken: " + event.target.error);
       };
     };
-  } catch (error) {
-    console.error(error.message);
-    return null;
-  }
+    tokenDB.onerror = function(event) {
+      reject("Cannot open token DB to create new token: " + event.target.error);
+    };
+  });
 }
 
 // Wait for a postMessage command from getCreds function
