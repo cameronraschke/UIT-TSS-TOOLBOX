@@ -268,5 +268,8 @@ self.addEventListener("message", async (event) => {
   }
 });
 
+// set timeout
+setTimeout(() => {
+  checkAndUpdateTokenDB();
+}, 1000);
 checkAndUpdateTokenDB();
-
