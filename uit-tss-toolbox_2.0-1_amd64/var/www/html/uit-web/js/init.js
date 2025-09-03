@@ -14,6 +14,39 @@ tokenDB.onupgradeneeded = (event) => {
 
 const tokenWorker = new Worker('js/auth-webworker.js');
 
+
+async function getKeyFromIndexDB(key = null) {
+  return new Promise((resolve, reject) => {
+    if (key === undefined || key === null || key.length === 0 || key == "") {
+      reject("Key is invalid: " + key);
+      return;
+    }
+    const tokenDBConnection = indexedDB.open("uitTokens", 1);
+    tokenDBConnection.onsuccess = function(event) {
+      const db1 = event.target.result;
+      const tokenTransaction = db1.transaction(["uitTokens"], "readwrite");
+      const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
+      const tokenRequest = tokenObjectStore.get(key);
+      tokenRequest.onsuccess = async function(event) {
+        const tokenObj = event.target.result;
+        console.log(tokenObj);
+        if (tokenObj === undefined || tokenObj === null) {
+          reject("No token found for key: " + key);
+          return;
+        }
+        resolve(tokenObj);
+      };
+      tokenRequest.onerror = function(event) {
+        reject("Error retrieving token from IndexedDB: " + event.target.error);
+      };
+    };
+    tokenDBConnection.onerror = function(event) {
+      reject("Error opening IndexedDB: " + event.target.error);
+    };
+  });
+}
+
+
 function escapeHtml(str) {
   if (typeof str !== 'string') {
     return '';
