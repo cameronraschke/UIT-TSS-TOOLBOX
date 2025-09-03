@@ -162,7 +162,7 @@ async function newToken() {
 
       // Get basicToken
       const basicTokenRequest = tokenObjectStore.get("basicToken")
-      basicTokenRequest.onsuccess = async function(event) {
+      basicTokenRequest.onsuccess = function(event) {
         const basicTokenObj = event.target.result;
         if (basicTokenObj === undefined || basicTokenObj === null || basicTokenObj.length === 0 || basicTokenObj == "") {
           throw new Error('basicToken object is invalid');
@@ -172,53 +172,56 @@ async function newToken() {
           throw new Error('basicToken is invalid');
         }
 
-        const headers = new Headers({
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'credentials': 'include',
-          'Authorization': 'Basic ' + basicToken
-        });
+        (async () => {
+          const headers = new Headers({
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'credentials': 'include',
+            'Authorization': 'Basic ' + basicToken
+          });
 
-        const requestOptions = {
-          method: 'GET',
-          headers: headers
-        };
+          const requestOptions = {
+            method: 'GET',
+            headers: headers
+          };
 
-        const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=new-token', requestOptions);
-        if (!response.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        // Check if all entries in data are valid
-        if (data === undefined || data === null || data == "" || Object.keys(data).length === 0 || data === false) {
-          throw new Error("No valid data returned from new token API");
-        }
-
-        let bearerToken = undefined;
-        Object.entries(data).forEach(([key, value]) => {
-          if (value["token"] === undefined && value["token"] === null && value["token"] == "" && value["ttl"] > 5 && value["valid"] === false) {
-            return false;
-          } else {
-            bearerToken = value["token"];
+          const response = await fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=new-token', requestOptions);
+          if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
           }
-        });
 
-        if (bearerToken === undefined || bearerToken === null || bearerToken.length === 0 || bearerToken == "") {
-          throw new Error('Failed to generate new bearerToken');
-        }
+          const data = await response.json();
+          // Check if all entries in data are valid
+          if (data === undefined || data === null || data == "" || Object.keys(data).length === 0 || data === false) {
+            throw new Error("No valid data returned from new token API");
+          }
+
+          let bearerToken = undefined;
+          const validEntry = Object.values(data).find(value =>
+            value["token"] !== undefined || 
+            value["token"] !== null || 
+            value["token"] != "" || 
+            value["ttl"] > 5 || 
+            value["valid"] !== false
+          );
+
+          if (validEntry) {
+            bearerToken = validEntry["token"];
+          }
         
-        const bearerTokenPutRequest = tokenObjectStore.put({ tokenType: "bearerToken", value: bearerToken })
-        bearerTokenPutRequest.onerror = function(event) {
-          throw new Error("Error storing new bearerToken in IndexedDB: " + event.target.error)
-        };
+          const newTransaction = db.transaction(["uitTokens"], "readwrite");
+          const newObjectStore = newTransaction.objectStore("uitTokens");
+          const bearerTokenPutRequest = newObjectStore.put({ tokenType: "bearerToken", value: bearerToken });
+          bearerTokenPutRequest.onerror = function(event) {
+            throw new Error("Error storing new bearerToken in IndexedDB: " + event.target.error);
+          };
 
-        return bearerToken;
-      }
+          return bearerToken;
+        })();
+      };
+      tokenDB.onerror = function(event) {
+        throw new Error("Cannot open token DB to create new token: " + event.target.error);
+      };
     };
-    tokenDB.onerror = function(event) {
-      throw new Error("Cannot open token DB to create new token: " + event.target.error);
-    };
-
   } catch (error) {
     console.error(error.message);
     return null;
