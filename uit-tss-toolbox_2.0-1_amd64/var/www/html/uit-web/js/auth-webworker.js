@@ -19,113 +19,134 @@ async function generateSHA256Hash(text = null) {
 }
 
 async function checkAndUpdateTokenDB() {
-  try {
-    const tokenDB = indexedDB.open("uitTokens", 1);
-    tokenDB.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      console.log(`Upgrading to version ${db.version}`);
+  return new Promise((resolve, reject) => {
+    try {
+      const tokenDB = indexedDB.open("uitTokens", 1);
+      tokenDB.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        console.log(`Upgrading to version ${db.version}`);
 
-      const objectStore = db.createObjectStore("uitTokens", {
-        keyPath: "tokenType",
-      });
-
-      objectStore.createIndex("authStr", "authStr", { unique: true });
-      objectStore.createIndex("basicToken", "basicToken", { unique: true });
-      objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
-    };
-    tokenDB.onsuccess = function(event) {
-      const db = event.target.result;
-
-      // Get authStr object
-      const tokenTransaction = db.transaction(["uitTokens"], "readonly");
-      const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
-      const authStrRequest = tokenObjectStore.get("authStr");
-      authStrRequest.onsuccess = function(event) {
-        const authStrObj = event.target.result;
-        if (authStrObj === undefined || authStrObj === null || authStrObj.length === 0 || authStrObj == "") {
-          throw new Error('No authStr found in IndexedDB: ' + authStrObj);
-        }
-        if (authStrObj.value === undefined || authStrObj.value === null || authStrObj.value.length === 0 || authStrObj.value == "") {
-          throw new Error('authStr is null or empty: ' + authStrObj.value);
-        }
-        const authStr = authStrObj.value;
-
-        generateSHA256Hash(authStr).then((basicToken) => {
-          if (basicToken === undefined || basicToken === null || basicToken.length === 0 || basicToken == "") {
-            throw new Error('basicToken hashing failed: ' + basicToken);
-          }
-
-          // Open a new transaction for storing basicToken
-          const basicTokenTransaction = db.transaction(["uitTokens"], "readwrite");
-          const basicTokenObjectStore = basicTokenTransaction.objectStore("uitTokens");
-          const basicTokenPutRequest = basicTokenObjectStore.put({ tokenType: "basicToken", value: basicToken });
-          basicTokenPutRequest.onsuccess = function(event) {
-            db.close();
-          };
-          basicTokenPutRequest.onerror = function(event) {
-            throw new Error("Error storing basicToken in IndexedDB: " + event.target.error);
-          };
+        const objectStore = db.createObjectStore("uitTokens", {
+          keyPath: "tokenType",
         });
-      };
-      authStrRequest.onerror = (event) => {
-        throw new Error("Error retrieving authStr from IndexedDB: " + event.target.error);
-      };
 
-      // Get bearerToken object
-      const bearerTokenRequest = tokenObjectStore.get("bearerToken")
-      bearerTokenRequest.onsuccess = function(event) {
-        const bearerTokenObj = event.target.result;
+        objectStore.createIndex("authStr", "authStr", { unique: true });
+        objectStore.createIndex("basicToken", "basicToken", { unique: true });
+        objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
+      };
+      tokenDB.onsuccess = function(event) {
+        const db = event.target.result;
 
-        // If token is invalid or expired, request a new one from the API
-        if (bearerTokenObj.value === undefined || bearerTokenObj.value === null || bearerTokenObj.value.length === 0 || bearerTokenObj.value == "") {
-          newToken().then(newBearerToken => {
-            if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
-              throw new Error('1 Failed to retrieve new bearerToken');
+        // Get authStr object
+        const tokenTransaction = db.transaction(["uitTokens"], "readonly");
+        const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
+        const authStrRequest = tokenObjectStore.get("authStr");
+        authStrRequest.onsuccess = function(event) {
+          const authStrObj = event.target.result;
+          if (!authStrObj || !authStrObj.value) {
+            reject('authStr is null or empty: ' + authStrObj.value);
+            return;
+          }
+          const authStr = authStrObj.value;
+
+          generateSHA256Hash(authStr).then((basicToken) => {
+            if (!basicToken) {
+              reject('basicToken hashing failed: ' + basicToken);
+              return;
             }
+
+            // Open a new transaction for storing basicToken
+            const basicTokenTransaction = db.transaction(["uitTokens"], "readwrite");
+            const basicTokenObjectStore = basicTokenTransaction.objectStore("uitTokens");
+            const basicTokenPutRequest = basicTokenObjectStore.put({ tokenType: "basicToken", value: basicToken });
+            basicTokenPutRequest.onsuccess = function(event) {
+              db.close();
+            };
+            basicTokenPutRequest.onerror = function(event) {
+              reject("Error storing basicToken in IndexedDB: " + event.target.error);
+              return;
+            };
           });
-        } else {
-          const bearerToken = bearerTokenObj.value;
-          checkToken(bearerToken).then(isValid => {
-            if (isValid === false) {
-              newToken().then(newBearerToken => {
-                if (
-                  newBearerToken === undefined ||
-                  newBearerToken === null ||
-                  newBearerToken.length === 0 ||
-                  newBearerToken == ""
-                ) {
-                  throw new Error('2 Failed to retrieve new bearerToken');
+        };
+        authStrRequest.onerror = (event) => {
+          reject("Error retrieving authStr from IndexedDB: " + event.target.error);
+          return;
+        };
+
+        // Get bearerToken object
+        const bearerTokenRequest = tokenObjectStore.get("bearerToken")
+        bearerTokenRequest.onsuccess = function(event) {
+          const bearerTokenObj = event.target.result;
+
+          // If token is invalid or expired, request a new one from the API
+          if (!bearerTokenObj || !bearerTokenObj.value) {
+            newToken()
+              .then(newBearerToken => {
+                if (!newBearerToken) {
+                  reject('Failed to retrieve new bearerToken');
+                  return;
                 }
-              });
-            }
-          });
-        }
+                // Check validity of the new token
+                checkToken(newBearerToken).then(result => {
+                  if (!result.valid || result.ttl < 10) {
+                    reject('New bearerToken is invalid or TTL too low');
+                  } else {
+                    resolve();
+                  }
+                }).catch(reject);
+              })
+              .catch(reject);
+          } else {
+            const bearerToken = bearerTokenObj.value;
+            checkToken(bearerToken).then(result => {
+              if (!result.valid || result.ttl < 10) {
+                newToken()
+                  .then(newBearerToken => {
+                    if (!newBearerToken) {
+                      reject('Failed to retrieve new bearerToken');
+                      return;
+                    }
+                    // Check validity of the new token
+                    checkToken(newBearerToken).then(result => {
+                      if (!result.valid || result.ttl < 10) {
+                        reject('New bearerToken is invalid or TTL too low');
+                      } else {
+                        resolve();
+                      }
+                    }).catch(reject);
+                  }).catch(reject);
+              } else {
+                resolve();
+              }
+            }).catch(reject);
+          }
+        };
+        bearerTokenRequest.onerror = function(event) {
+          newToken()
+            .then(newBearerToken => {
+              if (!newBearerToken) {
+                reject('Failed to retrieve new bearerToken');
+                return;
+              }
+              // Check validity of the new token
+              checkToken(newBearerToken).then(result => {
+                if (!result.valid || result.ttl < 10) {
+                  reject('New bearerToken is invalid or TTL too low');
+                } else {
+                  resolve();
+                }
+              }).catch(reject);
+            }).catch(reject);
+        };
       };
-      bearerTokenRequest.onerror = function(event) {
-        newToken().then(newBearerToken => {
-          if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
-              throw new Error('3 Failed to retrieve new bearerToken');
-            }
-          });
-        if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
-          throw new Error('4 Failed to retrieve new bearerToken');
-        }
+      tokenDB.onerror = function(event) {
+        reject("Cannot open token DB: " + event.target.error);
       };
-      bearerTokenRequest.onerror = function(event) {
-        newToken().then(newBearerToken => {
-          if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
-              throw new Error('5 Failed to retrieve new bearerToken');
-            }
-          });
-        if (newBearerToken === undefined || newBearerToken === null || newBearerToken.length === 0 || newBearerToken == "") {
-          throw new Error('6 Failed to retrieve new bearerToken');
-        }
-      };
+    } catch (error) {
+      reject("Error in checkAndUpdateTokenDB: " + error);
+      return;
     }
-  } catch (error) {
-    console.error("Error in checkAndUpdateTokenDB: " + error);
-    return false;
-  }
+  });
 }
 
 
@@ -158,33 +179,24 @@ async function checkToken(bearerToken = null) {
       })
       .then(data => {
         if (
-          data === undefined ||
-          data === null ||
-          data === false ||
-          data == "" ||
+          !data ||
           (typeof data === "object" && Object.keys(data).length === 0)
         ) {
           console.log('No data returned from token check API');
-          resolve(false);
+          resolve({ valid: false, ttl: 0 });
           return;
         }
-        
-        if (
-          data.token !== undefined &&
-          data.token !== null &&
-          data.token !== "" &&
-          Number(data.ttl) >= 5 &&
-          (data.valid === true || data.valid === "true")
-        ) {
-          resolve(true);
+
+        if (data.token && Number(data.ttl) >= 5 && (data.valid === true || data.valid === "true")) {
+          resolve({ valid: true, ttl: Number(data.ttl) });
           return;
         } else {
-          resolve(false);
+          resolve({ valid: false, ttl: 0 });
           return;
         }
       })
       .catch(error => {
-        reject("Error in fetch: " + error);
+        reject("Error checking token: " + error);
         return;
       });
   });
@@ -204,13 +216,9 @@ async function newToken() {
       const basicTokenRequest = tokenObjectStore.get("basicToken")
       basicTokenRequest.onsuccess = function(event) {
         const basicTokenObj = event.target.result;
-        if (basicTokenObj === undefined || basicTokenObj === null || basicTokenObj.length === 0 || basicTokenObj == "") {
+        if (!basicTokenObj || !basicTokenObj.value) {
           reject('basicToken object is invalid');
-          return null;
-        }
-        if (basicTokenObj.value === undefined || basicTokenObj.value === null || basicTokenObj.value.length === 0 || basicTokenObj.value == "") {
-          reject('basicToken value is invalid');
-          return null;
+          return;
         }
         const basicToken = basicTokenObj.value;
 
@@ -226,31 +234,18 @@ async function newToken() {
         })
         .then(response => {
           if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
+            reject(`Response status: ${response.status}`);
           }
           return response.json();
         })
         .then(data => {
           // Check if all entries in data are valid
-          if (
-            data === undefined ||
-            data === null ||
-            data === false ||
-            data == "" ||
-            (typeof data === "object" && Object.keys(data).length === 0)
-          ) {
-            console.log('No data returned from newToken API');
-            resolve(null);
+          if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
+            reject('No data returned from newToken API');
             return;
           }
 
-          if (
-            data.token !== undefined &&
-            data.token !== null &&
-            data.token !== "" &&
-            Number(data.ttl) >= 5 &&
-            (data.valid === true || data.valid === "true")
-          ) {
+          if (data.token && Number(data.ttl) >= 5 && (data.valid === true || data.valid === "true")) {
             const newTransaction = db.transaction(["uitTokens"], "readwrite");
             const newObjectStore = newTransaction.objectStore("uitTokens");
             const bearerTokenPutRequest = newObjectStore.put({ tokenType: "bearerToken", value: data.token });
@@ -291,8 +286,15 @@ self.addEventListener("message", async (event) => {
   }
 });
 
-// set timeout
-setInterval(() => {
-  checkAndUpdateTokenDB();
-}, 1000);
-checkAndUpdateTokenDB();
+async function periodicTokenCheck() {
+  try {
+    await checkAndUpdateTokenDB();
+  } catch (error) {
+    console.error("Error in checkAndUpdateTokenDB:", error);
+  }
+  // Wait 1 second after completion
+  setTimeout(periodicTokenCheck, 1000);
+}
+
+// Start the loop
+periodicTokenCheck();
