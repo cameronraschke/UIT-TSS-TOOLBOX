@@ -60,7 +60,6 @@ async function checkAndUpdateTokenDB() {
           const basicTokenObjectStore = basicTokenTransaction.objectStore("uitTokens");
           const basicTokenPutRequest = basicTokenObjectStore.put({ tokenType: "basicToken", value: basicToken });
           basicTokenPutRequest.onsuccess = function(event) {
-            console.log("basicToken stored successfully");
             db.close();
           };
           basicTokenPutRequest.onerror = function(event) {
@@ -148,6 +147,7 @@ async function checkToken(bearerToken = null) {
       headers: headers
     };
 
+    console.log("Checking token");
     fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=check-token', requestOptions)
       .then(response => {
         if (!response.ok) {
@@ -206,6 +206,7 @@ async function newToken() {
         }
         const basicToken = basicTokenObj.value;
 
+        console.log("Requesting new token");
         fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=new-token', {
           method: 'GET',
           headers: {
