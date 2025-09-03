@@ -1,3 +1,5 @@
+const tokenWorker = new Worker('js/auth-webworker.js');
+
 function escapeHtml(str) {
   if (typeof str !== 'string') {
     return '';
@@ -62,7 +64,6 @@ function getCreds() {
       return false;
     }
 
-    const tokenWorker = new Worker('js/auth-webworker.js');
     const tokenDB = indexedDB.open("uitTokens", 1);
     tokenDB.onupgradeneeded = (event) => {
       const db = event.target.result;
