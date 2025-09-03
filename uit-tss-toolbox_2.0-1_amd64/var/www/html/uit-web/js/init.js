@@ -1,3 +1,17 @@
+const tokenDB = indexedDB.open("uitTokens", 1);
+tokenDB.onupgradeneeded = (event) => {
+  const db = event.target.result;
+  console.log(`Upgrading to version ${db.version}`);
+
+  const objectStore = db.createObjectStore("uitTokens", {
+    keyPath: "tokenType",
+  });
+
+  objectStore.createIndex("authStr", "authStr", { unique: true });
+  objectStore.createIndex("basicToken", "basicToken", { unique: true });
+  objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
+};
+
 const tokenWorker = new Worker('js/auth-webworker.js');
 
 function escapeHtml(str) {

@@ -227,3 +227,5 @@ self.addEventListener("message", async (event) => {
   }
 });
 
+checkAndUpdateTokenDB();
+
