@@ -827,8 +827,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
 
       authMap.Store(hashedTokenStr, time.Now().Add(TTLDuration))
       var totalArrEntries int
-      authMap.Range(func(k, _ interface{}) bool {
-        key := k.(string)
+      authMap.Range(func(_, _ interface{}) bool {
         totalArrEntries++
         return true
       })
