@@ -33,6 +33,7 @@ function openTokenDB() {
   });
 }
 
+
 function getTokenObject(db, key) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(["uitTokens"], "readonly");
@@ -42,6 +43,7 @@ function getTokenObject(db, key) {
     req.onerror = event => reject("Error retrieving " + key + " from IndexedDB: " + event.target.error);
   });
 }
+
 
 function putTokenObject(db, key, value) {
   return new Promise((resolve, reject) => {
@@ -53,8 +55,10 @@ function putTokenObject(db, key, value) {
   });
 }
 
+
 async function checkAndUpdateTokenDB() {
   if (isRequestingNewToken) return;
+  isRequestingNewToken = true;
   let db = undefined;
   try {
     db = await openTokenDB();
@@ -66,44 +70,37 @@ async function checkAndUpdateTokenDB() {
 
     // Check if bearerToken exists and is valid, otherwise request a new one
     const bearerTokenObj = await getTokenObject(db, "bearerToken");
-    if (!bearerTokenObj || !bearerTokenObj.value) {
-      isRequestingNewToken = true;
-      const newBearerToken = await newToken();
-      isRequestingNewToken = false;
-      if (!newBearerToken) throw new Error('Failed to retrieve new bearerToken');
-      db.close();
-      return;
+    let bearerToken;
+    if (bearerTokenObj && bearerTokenObj.value) {
+      bearerToken = bearerTokenObj.value;
+    } else {
+      bearerToken = null;
     }
 
-    const bearerToken = bearerTokenObj.value;
-    if (!isRequestingNewToken) {
-      isRequestingNewToken = true;
-      try {
-        const result = await checkToken(bearerToken);
-        if (result.valid || Number(result.ttl) > 5) {
-          isRequestingNewToken = false;
-          db.close();
-          return;
-        } else {
-          const newBearerToken = await newToken();
-          isRequestingNewToken = false;
-          if (!newBearerToken) throw new Error('Failed to retrieve new bearerToken');
-          db.close();
-          return;
-        }
-      } catch (error) {
-        isRequestingNewToken = false;
-        if (db) db.close();
-        throw error;
-      }
+    let result;
+    if (bearerToken) {
+      result = await checkToken(bearerToken);
     } else {
-      db.close();
-      return;
+      result = { valid: false, ttl: 0 };
     }
+
+    if (!result.valid || Number(result.ttl) <= 5) {
+      const newBearerToken = await newToken();
+      if (!newBearerToken) {
+        throw new Error('Failed to retrieve new bearerToken');
+      }
+      const newResult = await checkToken(newBearerToken);
+      console.log("New token TTL:", newResult.ttl);
+    }
+    
+    db.close();
+    return;
   } catch (error) {
     if (db) db.close();
     isRequestingNewToken = false;
     throw error;
+  } finally {
+    isRequestingNewToken = false;
   }
 }
 
