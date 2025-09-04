@@ -837,7 +837,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
           value := v.(time.Time)
           if key == hashedTokenStr {
             log.Info("New auth session created: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(totalArrEntries) + " TTL: " + fmt.Sprintf("%.2f", value.Sub(time.Now()).Seconds()) + "s)")
-            jsonData, err = json.Marshal(AuthToken{Token: hashedTokenStr, TTL: value.Sub(time.Now()).Seconds(), Valid: true})
+            jsonData, err = json.Marshal(AuthToken{Token: hashedTokenStr, TTL: fmt.Sprintf("%.2f", value.Sub(time.Now()).Seconds()), Valid: true})
             if err != nil {
               log.Error("Cannot marshal Token to JSON: " + err.Error())
               return false
