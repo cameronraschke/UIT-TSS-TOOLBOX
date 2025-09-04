@@ -301,7 +301,8 @@ async function updateDynamicTagnumberJobData(tagnumber) {
           
           clientStatusP1.append(clientStatusText1);
           clientStatusP2.append(clientStatusText2);
-          clientStatus.append(clientStatusP1, clientStatusP2, clientStatusA1);
+          clientStatusP2.append(clientStatusA1);
+          clientStatus.replaceChildren(clientStatusP1, clientStatusP2);
         }
 
         const jobQueuedTagnumber = document.getElementById("job_queued_tagnumber");

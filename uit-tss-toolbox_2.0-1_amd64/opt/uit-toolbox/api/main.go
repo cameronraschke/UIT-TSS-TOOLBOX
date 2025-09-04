@@ -925,7 +925,7 @@ func apiAuth (next http.Handler) http.Handler {
     authMap.Range(func(k, _ interface{}) bool {
       key := k.(string)
 
-      if key == token {
+      if key == bearerToken {
         matches++
         // Return early on match
         return false
