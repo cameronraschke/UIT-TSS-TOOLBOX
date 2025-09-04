@@ -917,7 +917,7 @@ func apiAuth (next http.Handler) http.Handler {
     })
 
     if matches >= 1 {
-      log.Debug("Auth Cached for " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
+      log.Debug("Auth cached: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       if req.URL.Query().Get("type") == "check-token" {
         jsonData, err = json.Marshal(AuthToken{Token: token, TTL: timeDiff.Seconds(), Valid: true})
         if err != nil {
@@ -958,10 +958,12 @@ func startAuthMapCleanup(interval time.Duration) {
       authMap.Range(func(k, v interface{}) bool {
         value := v.(time.Time)
         key := k.(string)
-        timeDiff := value.Sub(time.Now())
+        timeDiff = value.Sub(time.Now())
+
+        // Auth cache entry expires once countdown reaches zero
         if timeDiff.Seconds() < 0 {
           authMap.Delete(key)
-          log.Info("Auth session expired (periodic cleanup): " + key)
+          log.Info("(Auth Cleanup) Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
         }
         return true
       })

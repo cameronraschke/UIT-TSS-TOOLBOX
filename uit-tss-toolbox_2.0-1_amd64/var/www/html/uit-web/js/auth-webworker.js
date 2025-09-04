@@ -87,16 +87,9 @@ async function checkAndUpdateTokenDB() {
                   reject('Failed to retrieve new bearerToken');
                   return;
                 }
-                // Check validity of the new token
-                checkToken(newBearerToken).then(result => {
-                  if (!result.valid || Number(result.ttl) < 5) {
-                    reject('New bearerToken is invalid or TTL too low: ' + result.ttl);
-                  } else {
-                    resolve();
-                  }
-                }).catch(reject);
-              })
-              .catch(reject);
+                resolve();
+                return;
+              }).catch(reject);
           } else {
             const bearerToken = bearerTokenObj.value;
             checkToken(bearerToken).then(result => {
@@ -108,17 +101,12 @@ async function checkAndUpdateTokenDB() {
                       reject('Failed to retrieve new bearerToken');
                       return;
                     }
-                    // Check validity of the new token
-                    checkToken(newBearerToken).then(result => {
-                      if (!result.valid || Number(result.ttl) < 5) {
-                        reject('New bearerToken is invalid or TTL too low: ' + result.ttl);
-                      } else {
-                        resolve();
-                      }
-                    }).catch(reject);
+                    resolve();
+                    return;
                   }).catch(reject);
               } else {
                 resolve();
+                return;
               }
             }).catch(reject);
           }
@@ -159,6 +147,7 @@ async function checkToken(bearerToken = null) {
     fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=check-token', requestOptions)
       .then(response => {
         if (!response.ok) {
+          console.log("Web server error while checking token: " + response.statusText);
           resolve({ valid: false, ttl: 0 });
           return;
         }
@@ -175,6 +164,7 @@ async function checkToken(bearerToken = null) {
           resolve({ valid: true, ttl: Number(data.ttl) });
           return;
         } else {
+          console.log("Token from API is invalid or TTL is too low");
           resolve({ valid: false, ttl: 0 });
           return;
         }
@@ -222,13 +212,7 @@ async function newToken() {
           return response.json();
         })
         .then(data => {
-          // Check if all entries in data are valid
-          if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
-            reject('No data returned from newToken API');
-            return;
-          }
-
-          if (data.token && Number(data.ttl) >= 5 && (data.valid === true || data.valid === "true")) {
+          if (data.token && (data.valid === true || data.valid === "true")) {
             const newTransaction = db.transaction(["uitTokens"], "readwrite");
             const newObjectStore = newTransaction.objectStore("uitTokens");
             const bearerTokenPutRequest = newObjectStore.put({ tokenType: "bearerToken", value: data.token });
@@ -241,7 +225,7 @@ async function newToken() {
               return;
             };
           } else {
-            reject("No valid bearer token found");
+            reject('No data returned from newToken API');
             return;
           }
         })
@@ -275,8 +259,8 @@ async function periodicTokenCheck() {
   } catch (error) {
     console.error("Error in checkAndUpdateTokenDB:", error);
   }
-  // Wait 1 second after completion
-  setTimeout(periodicTokenCheck, 1000);
+  // Wait 3 seconds after checkAndUpdateTokenDB
+  setTimeout(periodicTokenCheck, 3000);
 }
 
 // Start the loop
