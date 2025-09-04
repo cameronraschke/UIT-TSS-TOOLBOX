@@ -21,6 +21,13 @@ async function generateSHA256Hash(text = null) {
 }
 
 async function checkAndUpdateTokenDB() {
+  // Prevent concurrent execution
+  if (isRefreshingToken) {
+    console.log("Token refresh already in progress");
+    return;
+  }
+  isRefreshingToken = true;
+
   return new Promise((resolve, reject) => {
     try {
       const tokenDB = indexedDB.open("uitTokens", 1);
@@ -82,72 +89,68 @@ async function checkAndUpdateTokenDB() {
 
           // If token is invalid or expired, request a new one from the API
           if (!bearerTokenObj || !bearerTokenObj.value) {
-            if (!isRefreshingToken) {
-              isRefreshingToken = true;
-              console.log("Requesting new token - no token in IndexedDB");
-              newToken()
-                .then(newBearerToken => {
-                  if (!newBearerToken) {
-                    isRefreshingToken = false;
-                    reject('Failed to retrieve new bearerToken');
-                    return;
-                  }
-                  isRefreshingToken = false;
-                  resolve();
-                  return;
-                }).catch(error => {
-                  isRefreshingToken = false;
-                  reject(error);
-                  return;
-                });
-            } else {
-              console.log("Token is already being refreshed");
+            console.log("Requesting new token - no token in IndexedDB");
+            newToken()
+            .then(newBearerToken => {
+              if (!newBearerToken) {
+                isRefreshingToken = false;
+                reject('Failed to retrieve new bearerToken');
+                return;
+              }
+              isRefreshingToken = false;
               resolve();
               return;
-            }
+            }).catch(error => {
+              isRefreshingToken = false;
+              reject(error);
+              return;
+            });
           } else {
             const bearerToken = bearerTokenObj.value;
             checkToken(bearerToken).then(result => {
               if (!result.valid || Number(result.ttl) < 5) {
-                if (!isRefreshingToken) {
-                  isRefreshingToken = true;
-                  console.log("Requesting new token - current token is invalid");
-                  newToken()
-                    .then(newBearerToken => {
-                      if (!newBearerToken) {
-                        isRefreshingToken = false;
-                        reject('Failed to retrieve new bearerToken');
-                        return;
-                      }
+                console.log("Requesting new token - current token is invalid");
+                newToken()
+                  .then(newBearerToken => {
+                    if (!newBearerToken) {
                       isRefreshingToken = false;
-                      resolve();
+                      reject('Failed to retrieve new bearerToken');
                       return;
-                    })
-                    .catch(error => {
-                      isRefreshingToken = false;
-                      reject(error);
-                      return;
-                    });
-                } else {
-                  console.log("Token is already being refreshed");
-                  resolve();
-                  return;
-                }
+                    }
+                    isRefreshingToken = false;
+                    resolve();
+                    return;
+                  })
+                  .catch(error => {
+                    isRefreshingToken = false;
+                    reject(error);
+                    return;
+                  });
             } else {
+              isRefreshingToken = false;
               resolve();
               return;
             }
-            }).catch(reject);
+            }).catch(error => {
+              isRefreshingToken = false;
+              reject(error);
+              return;
+            });
           }
         };
         bearerTokenRequest.onerror = function(event) {
+          isRefreshingToken = false;
           reject("Error fetching bearerToken: " + event.target.error);
+          return;
         };
       };
       tokenDB.onerror = function(event) {
+        isRefreshingToken = false;
         reject("Cannot open token DB: " + event.target.error);
+        return;
       };
     } catch (error) {
+      isRefreshingToken = false;
       reject("Error in checkAndUpdateTokenDB: " + error);
       return;
     }
