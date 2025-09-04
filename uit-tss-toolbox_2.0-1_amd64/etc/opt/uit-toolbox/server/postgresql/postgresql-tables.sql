@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS locations (
     disk_removed BOOLEAN DEFAULT NULL,
     department VARCHAR(24) DEFAULT NULL,
     domain VARCHAR(24) DEFAULT NULL,
-    note VARCHAR(256) DEFAULT NULL
+    note VARCHAR(512) DEFAULT NULL
 );
 
 
@@ -478,7 +478,7 @@ CREATE TABLE IF NOT EXISTS checkouts (
     checkout_date DATE DEFAULT NULL,
     return_date DATE DEFAULT NULL,
     checkout_group VARCHAR(48) DEFAULT NULL,
-    note VARCHAR(128) DEFAULT NULL
+    note VARCHAR(512) DEFAULT NULL
 );
 
 

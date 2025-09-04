@@ -875,6 +875,12 @@ func apiAuth (next http.Handler) http.Handler {
     var err error
 
     // Delete expired tokens & malformed entries out of authMap
+    var totalArrEntries int
+    authMap.Range(func(k, v interface{}) bool {
+      totalArrEntries++
+      return true
+    })
+
     authMap.Range(func(k, v interface{}) bool {
       value := v.(time.Time)
       key := k.(string)
@@ -883,7 +889,7 @@ func apiAuth (next http.Handler) http.Handler {
       // Auth cache entry expires once countdown reaches zero
       if timeDiff.Seconds() < 0 {
         authMap.Delete(key)
-        log.Info("Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
+        log.Info("Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       }
       return true
     })
@@ -894,12 +900,14 @@ func apiAuth (next http.Handler) http.Handler {
     for _, value := range headerMap {
       if strings.HasPrefix(value, "Bearer ") {
         bearerToken = strings.TrimPrefix(value, "Bearer ")
-      } else if strings.HasPrefix(value, "Basic ") {
+      }
+      if strings.HasPrefix(value, "Basic ") {
         basicToken = strings.TrimPrefix(value, "Basic ")
-      } else {
-        log.Warning("Malformed Authorization header")
-        http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-        return
+      }
+
+      log.Warning("Malformed Authorization header")
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
       }
     }
 
@@ -909,10 +917,8 @@ func apiAuth (next http.Handler) http.Handler {
       token = basicToken
     }
     
-    var totalArrEntries int
     authMap.Range(func(k, _ interface{}) bool {
       key := k.(string)
-      totalArrEntries++
 
       if key == token {
         matches++
