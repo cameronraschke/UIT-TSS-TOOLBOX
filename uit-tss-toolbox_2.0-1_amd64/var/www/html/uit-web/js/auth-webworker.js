@@ -3,17 +3,14 @@ let isRequestingNewToken = false;
 
 async function generateSHA256Hash(text = null) {
   try {
-    if (text === undefined || text === null || text.length === 0 || text == "") {
+    if (!text) {
       throw new Error('Cannot hash empty string');
     }
     const encoder = new TextEncoder();
     const buffer = encoder.encode(text);
     const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-    
-    // Convert the ArrayBuffer to a hexadecimal string
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
+    const hash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    if (!hash) throw new Error('Hashing returned empty string');
     return hash;
   } catch (error) {
     console.error("Cannot hash string: " + error);
@@ -21,140 +18,85 @@ async function generateSHA256Hash(text = null) {
   }
 }
 
-async function checkAndUpdateTokenDB() {
+function openTokenDB() {
   return new Promise((resolve, reject) => {
-    try {
-      const tokenDB = indexedDB.open("uitTokens", 1);
-      tokenDB.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        console.log(`Upgrading to version ${db.version}`);
+    const request = indexedDB.open("uitTokens", 1);
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      const objectStore = db.createObjectStore("uitTokens", { keyPath: "tokenType" });
+      objectStore.createIndex("authStr", "authStr", { unique: true });
+      objectStore.createIndex("basicToken", "basicToken", { unique: true });
+      objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
+    };
+    request.onsuccess = event => resolve(event.target.result);
+    request.onerror = event => reject("Cannot open token DB: " + event.target.error);
+  });
+}
 
-        const objectStore = db.createObjectStore("uitTokens", {
-          keyPath: "tokenType",
-        });
+function getTokenObject(db, key) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(["uitTokens"], "readonly");
+    const store = tx.objectStore("uitTokens");
+    const req = store.get(key);
+    req.onsuccess = event => resolve(event.target.result);
+    req.onerror = event => reject("Error retrieving " + key + " from IndexedDB: " + event.target.error);
+  });
+}
 
-        objectStore.createIndex("authStr", "authStr", { unique: true });
-        objectStore.createIndex("basicToken", "basicToken", { unique: true });
-        objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
-      };
-      tokenDB.onsuccess = function(event) {
-        const db = event.target.result;
+function putTokenObject(db, key, value) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(["uitTokens"], "readwrite");
+    const store = tx.objectStore("uitTokens");
+    const req = store.put({ tokenType: key, value });
+    req.onsuccess = () => resolve();
+    req.onerror = event => reject("Error storing " + key + " in IndexedDB: " + event.target.error);
+  });
+}
 
-        // Get authStr object
-        const tokenTransaction = db.transaction(["uitTokens"], "readonly");
-        const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
-        const authStrRequest = tokenObjectStore.get("authStr");
-        authStrRequest.onsuccess = function(event) {
-          const authStrObj = event.target.result;
-          if (!authStrObj || !authStrObj.value) {
-            reject('authStr is null or empty: ' + authStrObj.value);
-            return;
-          }
-          const authStr = authStrObj.value;
+async function checkAndUpdateTokenDB() {
+  let db = undefined;
+  try {
+    db = await openTokenDB();
+    const authStrObj = await getTokenObject(db, "authStr");
+    if (!authStrObj || !authStrObj.value) throw new Error('authStr is null or empty');
+    const basicToken = await generateSHA256Hash(authStrObj.value);
+    if (!basicToken) throw new Error('basicToken hashing failed');
+    await putTokenObject(db, "basicToken", basicToken);
 
-          generateSHA256Hash(authStr).then((basicToken) => {
-            if (!basicToken) {
-              reject('basicToken hashing failed: ' + basicToken);
-              return;
-            }
-
-            // Open a new transaction for storing basicToken
-            const basicTokenTransaction = db.transaction(["uitTokens"], "readwrite");
-            const basicTokenObjectStore = basicTokenTransaction.objectStore("uitTokens");
-            const basicTokenPutRequest = basicTokenObjectStore.put({ tokenType: "basicToken", value: basicToken });
-            basicTokenPutRequest.onsuccess = function(event) {
-              db.close();
-            };
-            basicTokenPutRequest.onerror = function(event) {
-              reject("Error storing basicToken in IndexedDB: " + event.target.error);
-              return;
-            };
-          });
-        };
-        authStrRequest.onerror = (event) => {
-          reject("Error retrieving authStr from IndexedDB: " + event.target.error);
-          return;
-        };
-
-        // Get bearerToken object
-        const bearerTokenRequest = tokenObjectStore.get("bearerToken")
-        bearerTokenRequest.onsuccess = function(event) {
-          const bearerTokenObj = event.target.result;
-
-          // If token is invalid or expired, request a new one from the API
-          if (!bearerTokenObj || !bearerTokenObj.value) {
-            if (!isRequestingNewToken) {
-              isRequestingNewToken = true;
-              console.log("Requesting new token - no token in IndexedDB");
-              newToken()
-              .then(newBearerToken => {
-                isRequestingNewToken = false;
-                if (!newBearerToken) {
-                  reject('Failed to retrieve new bearerToken');
-                  return;
-                }
-                resolve();
-                return;
-              })
-              .catch(error => {
-                isRequestingNewToken = false;
-                reject(error);
-                return;
-              });
-            } else {
-              resolve();
-              return;
-            }
-          } else {
-            const bearerToken = bearerTokenObj.value;
-            checkToken(bearerToken).then(result => {
-              if (!result.valid || Number(result.ttl) < 5) {
-                if (!isRequestingNewToken) {
-                  isRequestingNewToken = true;
-                  console.log("Requesting new token - current token is invalid");
-                  newToken()
-                    .then(newBearerToken => {
-                      isRequestingNewToken = false;
-                      if (!newBearerToken) {
-                        reject('Failed to retrieve new bearerToken');
-                        return;
-                      }
-                      resolve();
-                      return;
-                    })
-                    .catch(error => {
-                      isRequestingNewToken = false;
-                      reject(error);
-                      return;
-                    });
-                  } else {
-                    resolve();
-                    return;
-                  }
-            } else {
-              resolve();
-              return;
-            }
-            }).catch(error => {
-              reject(error);
-              return;
-            });
-          }
-        };
-        bearerTokenRequest.onerror = function(event) {
-          reject("Error fetching bearerToken: " + event.target.error);
-          return;
-        };
-      };
-      tokenDB.onerror = function(event) {
-        reject("Cannot open token DB: " + event.target.error);
-        return;
-      };
-    } catch (error) {
-      reject("Error in checkAndUpdateTokenDB: " + error);
+    // Check if bearerToken exists and is valid, otherwise request a new one
+    const bearerTokenObj = await getTokenObject(db, "bearerToken");
+    if (isRequestingNewToken) {
+      db.close();
       return;
     }
-  });
+
+    if (!bearerTokenObj || !bearerTokenObj.value) {
+      isRequestingNewToken = true;
+      const newBearerToken = await newToken();
+      isRequestingNewToken = false;
+      if (!newBearerToken) throw new Error('Failed to retrieve new bearerToken');
+      db.close();
+      return;
+    }
+
+    const bearerToken = bearerTokenObj.value;
+    isRequestingNewToken = true;
+    const result = await checkToken(bearerToken);
+    if (result.valid || Number(result.ttl) > 5) {
+      isRequestingNewToken = false;
+      db.close();
+      return;
+    } else {
+      const newBearerToken = await newToken();
+      isRequestingNewToken = false;
+      if (!newBearerToken) throw new Error('Failed to retrieve new bearerToken');
+      db.close();
+      return;
+    }
+  } catch (error) {
+    if (db) db.close();
+    throw error;
+  }
 }
 
 
