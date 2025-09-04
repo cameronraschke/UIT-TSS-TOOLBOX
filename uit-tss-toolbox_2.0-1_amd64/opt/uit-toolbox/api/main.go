@@ -740,7 +740,6 @@ func apiMiddleWare (next http.Handler) http.Handler {
 }
 
 func refreshClientToken(w http.ResponseWriter, req *http.Request) {
-  var token string
   var rows *sql.Rows
   var TTLDuration time.Duration
   var jsonData []byte
@@ -841,7 +840,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
             jsonData, err = json.Marshal(AuthToken{Token: hashedTokenStr, TTL: value.Sub(time.Now()).Seconds(), Valid: true})
             if err != nil {
               log.Error("Cannot marshal Token to JSON: " + err.Error())
-              return
+              return false
             }
 
             jsonDataStr = string(jsonData)
@@ -851,6 +850,11 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
             return true
           }
         })
+        return
+      } else {
+        log.Error("Failed to create new auth session: " + req.RemoteAddr)
+        http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+        return
       }
     } else {
         log.Info("Incorrect credentials provided for token refresh: " + req.RemoteAddr)
