@@ -917,7 +917,7 @@ func apiAuth (next http.Handler) http.Handler {
     })
 
     if matches >= 1 {
-      log.Debug("Auth cached: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
+      // log.Debug("Auth cached: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       if req.URL.Query().Get("type") == "check-token" {
         jsonData, err = json.Marshal(AuthToken{Token: token, TTL: timeDiff.Seconds(), Valid: true})
         if err != nil {
@@ -930,7 +930,7 @@ func apiAuth (next http.Handler) http.Handler {
       }
       next.ServeHTTP(w, req)
     } else {
-      log.Debug("Auth cache miss for " + req.RemoteAddr)
+      log.Debug("Auth cache miss: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       if req.URL.Query().Get("type") == "new-token" {
         next.ServeHTTP(w, req)
       } else {
