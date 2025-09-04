@@ -76,16 +76,27 @@ async function checkAndUpdateTokenDB() {
     }
 
     const bearerToken = bearerTokenObj.value;
-    isRequestingNewToken = true;
-    const result = await checkToken(bearerToken);
-    if (result.valid || Number(result.ttl) > 5) {
-      isRequestingNewToken = false;
-      db.close();
-      return;
+    if (!isRequestingNewToken) {
+      isRequestingNewToken = true;
+      try {
+        const result = await checkToken(bearerToken);
+        if (result.valid || Number(result.ttl) > 5) {
+          isRequestingNewToken = false;
+          db.close();
+          return;
+        } else {
+          const newBearerToken = await newToken();
+          isRequestingNewToken = false;
+          if (!newBearerToken) throw new Error('Failed to retrieve new bearerToken');
+          db.close();
+          return;
+        }
+      } catch (error) {
+        isRequestingNewToken = false;
+        if (db) db.close();
+        throw error;
+      }
     } else {
-      const newBearerToken = await newToken();
-      isRequestingNewToken = false;
-      if (!newBearerToken) throw new Error('Failed to retrieve new bearerToken');
       db.close();
       return;
     }
