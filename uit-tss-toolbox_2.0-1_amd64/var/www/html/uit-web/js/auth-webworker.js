@@ -21,13 +21,6 @@ async function generateSHA256Hash(text = null) {
 }
 
 async function checkAndUpdateTokenDB() {
-  // Prevent concurrent execution
-  if (isRefreshingToken) {
-    console.log("Token refresh already in progress");
-    return;
-  }
-  isRefreshingToken = true;
-
   return new Promise((resolve, reject) => {
     try {
       const tokenDB = indexedDB.open("uitTokens", 1);
@@ -93,15 +86,12 @@ async function checkAndUpdateTokenDB() {
             newToken()
             .then(newBearerToken => {
               if (!newBearerToken) {
-                isRefreshingToken = false;
                 reject('Failed to retrieve new bearerToken');
                 return;
               }
-              isRefreshingToken = false;
               resolve();
               return;
             }).catch(error => {
-              isRefreshingToken = false;
               reject(error);
               return;
             });
@@ -113,44 +103,36 @@ async function checkAndUpdateTokenDB() {
                 newToken()
                   .then(newBearerToken => {
                     if (!newBearerToken) {
-                      isRefreshingToken = false;
                       reject('Failed to retrieve new bearerToken');
                       return;
                     }
-                    isRefreshingToken = false;
                     resolve();
                     return;
                   })
                   .catch(error => {
-                    isRefreshingToken = false;
                     reject(error);
                     return;
                   });
             } else {
-              isRefreshingToken = false;
               resolve();
               return;
             }
             }).catch(error => {
-              isRefreshingToken = false;
               reject(error);
               return;
             });
           }
         };
         bearerTokenRequest.onerror = function(event) {
-          isRefreshingToken = false;
           reject("Error fetching bearerToken: " + event.target.error);
           return;
         };
       };
       tokenDB.onerror = function(event) {
-        isRefreshingToken = false;
         reject("Cannot open token DB: " + event.target.error);
         return;
       };
     } catch (error) {
-      isRefreshingToken = false;
       reject("Error in checkAndUpdateTokenDB: " + error);
       return;
     }
@@ -287,12 +269,18 @@ self.addEventListener("message", async (event) => {
 });
 
 async function periodicTokenCheck() {
+  if (isRefreshingToken) {
+    setTimeout(periodicTokenCheck, 1000);
+    return;
+  }
+  isRefreshingToken = true;
   try {
     await checkAndUpdateTokenDB();
   } catch (error) {
     console.error("Error in checkAndUpdateTokenDB:", error);
   }
   // Wait 1 second after checkAndUpdateTokenDB
+  isRefreshingToken = false;
   setTimeout(periodicTokenCheck, 1000);
 }
 
