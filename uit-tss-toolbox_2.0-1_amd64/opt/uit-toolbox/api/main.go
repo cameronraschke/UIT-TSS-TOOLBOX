@@ -865,7 +865,6 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
 
 func apiAuth (next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-    var token string
     var matches int
     var timeDiff time.Duration
     var bearerToken string
