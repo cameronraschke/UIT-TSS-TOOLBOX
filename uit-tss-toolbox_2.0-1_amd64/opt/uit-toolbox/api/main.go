@@ -889,6 +889,10 @@ func apiAuth (next http.Handler) http.Handler {
       // Auth cache entry expires once countdown reaches zero
       if timeDiff.Seconds() < 0 {
         authMap.Delete(key)
+        totalArrEntries--
+        if totalArrEntries < 0 {
+          totalArrEntries = 0
+        }
         log.Info("Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       }
       return true
@@ -899,22 +903,21 @@ func apiAuth (next http.Handler) http.Handler {
     headerMap := req.Header.Values("Authorization")
     for _, value := range headerMap {
       if strings.HasPrefix(value, "Bearer ") {
-        bearerToken = strings.TrimPrefix(value, "Bearer ")
+        bearerToken = strings.TrimPrefix(value, "Bearer ").TrimSpace()
       }
       if strings.HasPrefix(value, "Basic ") {
-        basicToken = strings.TrimPrefix(value, "Basic ")
+        basicToken = strings.TrimPrefix(value, "Basic ").TrimSpace()
       }
-
-      log.Warning("Malformed Authorization header")
-      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-      return
+      if bearerToken == "" && basicToken == "" {
+        log.Info("Missing/Malformed Authorization header")
+        http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+        return
       }
-    }
-
-    if bearerToken != "" {
-      token = bearerToken
-    } else if basicToken != "" {
-      token = basicToken
+      if len(strings.TrimSpace(bearerToken)) == 0 && len(strings.TrimSpace(basicToken)) == 0 {
+        log.Warning("Empty value for Authorization header")
+        http.Error(w, formatHttpError("Empty Authorization header"), http.StatusUnauthorized)
+        return
+      }
     }
     
     authMap.Range(func(k, _ interface{}) bool {
@@ -922,8 +925,8 @@ func apiAuth (next http.Handler) http.Handler {
 
       if key == token {
         matches++
-        // Uncomment to return early
-        // return false
+        // Return early on match
+        return false
       }
       return true
     })
@@ -931,7 +934,7 @@ func apiAuth (next http.Handler) http.Handler {
     if matches >= 1 {
       // log.Debug("Auth cached: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       if req.URL.Query().Get("type") == "check-token" {
-        jsonData, err = json.Marshal(AuthToken{Token: token, TTL: timeDiff.Seconds(), Valid: true})
+        jsonData, err = json.Marshal(AuthToken{Token: bearerToken, TTL: timeDiff.Seconds(), Valid: true})
         if err != nil {
           log.Error("Cannot marshal Token to JSON: " + err.Error())
           return
