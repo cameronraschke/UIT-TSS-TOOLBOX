@@ -113,6 +113,7 @@ async function checkAndUpdateTokenDB() {
                   console.log("Requesting new token - current token is invalid");
                   newToken()
                     .then(newBearerToken => {
+                      isRequestingNewToken = false;
                       if (!newBearerToken) {
                         reject('Failed to retrieve new bearerToken');
                         return;
