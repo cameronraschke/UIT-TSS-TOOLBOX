@@ -836,7 +836,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
           key := k.(string)
           value := v.(time.Time)
           if key == hashedTokenStr {
-            log.Info("New auth session created: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(totalArrEntries) + " TTL: " + fmt.Sprintf("%.2f", TTLDuration.Seconds()) + "s)")
+            log.Info("New auth session created: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(totalArrEntries) + " TTL: " + fmt.Sprintf("%.2f", value.Sub(time.Now()).Seconds()) + "s)")
             jsonData, err = json.Marshal(AuthToken{Token: hashedTokenStr, TTL: value.Sub(time.Now()).Seconds(), Valid: true})
             if err != nil {
               log.Error("Cannot marshal Token to JSON: " + err.Error())
@@ -875,13 +875,13 @@ func apiAuth (next http.Handler) http.Handler {
     var jsonDataStr string
     var err error
 
-    // Delete expired tokens & malformed entries out of authMap
     var totalArrEntries int
     authMap.Range(func(k, v interface{}) bool {
       totalArrEntries++
       return true
     })
 
+    // Delete expired tokens & malformed entries out of authMap
     authMap.Range(func(k, v interface{}) bool {
       value := v.(time.Time)
       key := k.(string)
@@ -948,7 +948,7 @@ func apiAuth (next http.Handler) http.Handler {
       }
       next.ServeHTTP(w, req)
     } else {
-      log.Debug("Auth cache miss: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
+      log.Debug("Auth cache miss: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(totalArrEntries) + ")")
       if req.URL.Query().Get("type") == "new-token" && len(strings.TrimSpace(basicToken)) > 0 {
         next.ServeHTTP(w, req)
       } else {
