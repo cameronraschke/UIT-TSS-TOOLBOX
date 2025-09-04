@@ -87,11 +87,12 @@ async function checkAndUpdateTokenDB() {
               console.log("Requesting new token - no token in IndexedDB");
               newToken()
                 .then(newBearerToken => {
-                  isRefreshingToken = false;
                   if (!newBearerToken) {
+                    isRefreshingToken = false;
                     reject('Failed to retrieve new bearerToken');
                     return;
                   }
+                  isRefreshingToken = false;
                   resolve();
                   return;
                 }).catch(error => {
@@ -113,11 +114,12 @@ async function checkAndUpdateTokenDB() {
                   console.log("Requesting new token - current token is invalid");
                   newToken()
                     .then(newBearerToken => {
-                      isRefreshingToken = false;
                       if (!newBearerToken) {
+                        isRefreshingToken = false;
                         reject('Failed to retrieve new bearerToken');
                         return;
                       }
+                      isRefreshingToken = false;
                       resolve();
                       return;
                     })
@@ -126,10 +128,11 @@ async function checkAndUpdateTokenDB() {
                       reject(error);
                       return;
                     });
-              } else {
-                resolve();
-                return;
-              }
+                } else {
+                  console.log("Token is already being refreshed");
+                  resolve();
+                  return;
+                }
             } else {
               resolve();
               return;
