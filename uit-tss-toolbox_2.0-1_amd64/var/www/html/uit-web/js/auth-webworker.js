@@ -262,27 +262,40 @@ async function newToken() {
 }
 
 // Wait for a postMessage command from getCreds function
-self.addEventListener("message", async (event) => {
-  if (event.data.type === "updateTokenDB") {
-    checkAndUpdateTokenDB();
-  }
-});
+// self.addEventListener("message", async (event) => {
+//   if (event.data.type === "updateTokenDB") {
+//     checkAndUpdateTokenDB();
+//   }
+// });
+
+// async function periodicTokenCheck() {
+//   if (isRefreshingToken) {
+//     return;
+//   }
+//   isRefreshingToken = true;
+//   try {
+//     await checkAndUpdateTokenDB();
+//   } catch (error) {
+//     console.error("Error in checkAndUpdateTokenDB:", error);
+//   }
+//   // Wait 1 second after checkAndUpdateTokenDB
+//   isRefreshingToken = false;
+//   setTimeout(periodicTokenCheck, 1000);
+// }
 
 async function periodicTokenCheck() {
-  if (isRefreshingToken) {
-    setTimeout(periodicTokenCheck, 1000);
-    return;
+  while (true) {
+    if (!isRefreshingToken) {
+      isRefreshingToken = true;
+      try {
+        await checkAndUpdateTokenDB();
+      } catch (error) {
+        console.error("Error in checkAndUpdateTokenDB:", error);
+      }
+      isRefreshingToken = false;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
-  isRefreshingToken = true;
-  try {
-    await checkAndUpdateTokenDB();
-  } catch (error) {
-    console.error("Error in checkAndUpdateTokenDB:", error);
-  }
-  // Wait 1 second after checkAndUpdateTokenDB
-  isRefreshingToken = false;
-  setTimeout(periodicTokenCheck, 1000);
 }
 
-// Start the loop
 periodicTokenCheck();
