@@ -122,7 +122,7 @@ async function postData(queryType, jsonStr) {
 
     const data = await response.json();
     if (!data || Object.keys(data).length === 0) {
-      console.warn("Response JSON is empty or invalid: " + url);
+      console.warn("Response JSON is empty: " + url);
     }
     return data;
   } catch (error) {
