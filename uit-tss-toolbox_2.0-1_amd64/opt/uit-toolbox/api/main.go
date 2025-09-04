@@ -746,30 +746,32 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
   var jsonData []byte
   var jsonDataStr string
   var basicToken string
-  var apiAuthDBRowCount int
   var err error
 
   // TTL for tokens
   TTLDuration = time.Second * 60
 
-  // Get BASIC token from Authorization header
+  // Get Basic token from Authorization header
   headerMap := req.Header.Values("Authorization")
   for _, value := range headerMap {
-    if strings.HasPrefix(value, "Basic ") {
-      basicToken = strings.TrimPrefix(value, "Basic ")
-    } else {
-      log.Warning("Malformed Authorization header")
+    if strings.HasPrefix(value, "Bearer ") {
       http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
       return
     }
-  }
-
-  if basicToken != "" {
-    token = basicToken
-  } else {
-    log.Warning("Malformed Basic Authorization header")
-    http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-    return
+    if strings.HasPrefix(value, "Basic ") {
+      basicToken = strings.TrimPrefix(value, "Basic ")
+      basicToken = strings.TrimSpace(basicToken)
+    }
+    if basicToken == "" {
+      log.Info("Missing/Malformed Basic Authorization header")
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+    if len(strings.TrimSpace(basicToken)) == 0 {
+      log.Warning("Empty value for Basic Authorization header")
+      http.Error(w, formatHttpError("Empty Basic Authorization header"), http.StatusUnauthorized)
+      return
+    }
   }
 
   dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -784,7 +786,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
 
   // Check if the Basic token exists in the database
   sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
-  rows, err = db.QueryContext(dbCTX, sqlCode, token)
+  rows, err = db.QueryContext(dbCTX, sqlCode, basicToken)
   if err != nil {
     log.Error("Cannot query database for API Auth: " + err.Error())
     http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
@@ -792,7 +794,6 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
   }
   defer rows.Close()
 
-  apiAuthDBRowCount = 0
   for rows.Next() {
     var dbToken string
 
@@ -812,7 +813,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
       return
     }
 
-    if dbToken == token {
+    if dbToken == basicToken {
       // hash := sha256.New()
       // hash.Write([]byte(dbToken))
       // hashedTokenStr := fmt.Sprintf("%x", hash.Sum(nil))
@@ -831,32 +832,29 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
         totalArrEntries++
         return true
       })
-      log.Debug("New auth session created: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(totalArrEntries) + " TTL: " + fmt.Sprintf("%.2f", TTLDuration.Seconds()) + "s)")
-      if hashedTokenStr != "" {
-        apiAuthDBRowCount++
-        // cookie := http.Cookie{
-        //   Name:     "authCookie",
-        //   Value:    hashedTokenStr,
-        //   Path:     "/",
-        //   MaxAge:   120,
-        //   HttpOnly: false, //false = accessible to JS
-        //   Secure:   true,
-        //   SameSite: http.SameSiteLaxMode,
-        // }
-        // http.SetCookie(w, &cookie)
-        jsonData, err = json.Marshal(AuthToken{Token: hashedTokenStr, TTL: TTLDuration.Seconds(), Valid: true})
-        if err != nil {
-          log.Error("Cannot marshal Token to JSON: " + err.Error())
-          return
-        }
+      if hashedTokenStr != "" && len(strings.TrimSpace(hashedTokenStr)) > 0 {
+        authMap.Range(func(k, v interface{}) bool {
+          key := k.(string)
+          value := v.(time.Time)
+          if key == hashedTokenStr {
+            log.Info("New auth session created: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(totalArrEntries) + " TTL: " + fmt.Sprintf("%.2f", TTLDuration.Seconds()) + "s)")
+            jsonData, err = json.Marshal(AuthToken{Token: hashedTokenStr, TTL: value.Sub(time.Now()).Seconds(), Valid: true})
+            if err != nil {
+              log.Error("Cannot marshal Token to JSON: " + err.Error())
+              return
+            }
 
-        jsonDataStr = string(jsonData)
-        io.WriteString(w, jsonDataStr)
-        return
+            jsonDataStr = string(jsonData)
+            io.WriteString(w, jsonDataStr)
+            return false
+          } else {
+            return true
+          }
+        })
       }
     } else {
-        log.Info("DB returned no token for given auth")
-        http.Error(w, formatHttpError("Incorrect credentials"), http.StatusForbidden)
+        log.Info("Incorrect credentials provided for token refresh: " + req.RemoteAddr)
+        http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
         return
     }
   }
@@ -934,7 +932,7 @@ func apiAuth (next http.Handler) http.Handler {
 
     if matches >= 1 {
       // log.Debug("Auth cached: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
-      if req.URL.Query().Get("type") == "check-token" {
+      if req.URL.Query().Get("type") == "check-token" && len(strings.TrimSpace(bearerToken)) > 0 {
         jsonData, err = json.Marshal(AuthToken{Token: bearerToken, TTL: timeDiff.Seconds(), Valid: true})
         if err != nil {
           log.Error("Cannot marshal Token to JSON: " + err.Error())
@@ -947,7 +945,7 @@ func apiAuth (next http.Handler) http.Handler {
       next.ServeHTTP(w, req)
     } else {
       log.Debug("Auth cache miss: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
-      if req.URL.Query().Get("type") == "new-token" {
+      if req.URL.Query().Get("type") == "new-token" && len(strings.TrimSpace(basicToken)) > 0 {
         next.ServeHTTP(w, req)
       } else {
         http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)

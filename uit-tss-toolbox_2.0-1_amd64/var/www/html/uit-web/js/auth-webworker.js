@@ -95,7 +95,8 @@ async function checkAndUpdateTokenDB() {
                 }
                 resolve();
                 return;
-              }).catch(error => {
+              })
+              .catch(error => {
                 isRequestingNewToken = false;
                 reject(error);
                 return;
