@@ -1,4 +1,5 @@
 let isRefreshingToken = false;
+let isRequestingNewToken = false;
 
 async function generateSHA256Hash(text = null) {
   try {
@@ -82,37 +83,52 @@ async function checkAndUpdateTokenDB() {
 
           // If token is invalid or expired, request a new one from the API
           if (!bearerTokenObj || !bearerTokenObj.value) {
-            console.log("Requesting new token - no token in IndexedDB");
-            newToken()
-            .then(newBearerToken => {
-              if (!newBearerToken) {
-                reject('Failed to retrieve new bearerToken');
+            if (!isRequestingNewToken) {
+              isRequestingNewToken = true;
+              console.log("Requesting new token - no token in IndexedDB");
+              newToken()
+              .then(newBearerToken => {
+                isRequestingNewToken = false;
+                if (!newBearerToken) {
+                  reject('Failed to retrieve new bearerToken');
+                  return;
+                }
+                resolve();
                 return;
-              }
+              }).catch(error => {
+                isRequestingNewToken = false;
+                reject(error);
+                return;
+              });
+            } else {
               resolve();
               return;
-            }).catch(error => {
-              reject(error);
-              return;
-            });
+            }
           } else {
             const bearerToken = bearerTokenObj.value;
             checkToken(bearerToken).then(result => {
               if (!result.valid || Number(result.ttl) < 5) {
-                console.log("Requesting new token - current token is invalid");
-                newToken()
-                  .then(newBearerToken => {
-                    if (!newBearerToken) {
-                      reject('Failed to retrieve new bearerToken');
+                if (!isRequestingNewToken) {
+                  isRequestingNewToken = true;
+                  console.log("Requesting new token - current token is invalid");
+                  newToken()
+                    .then(newBearerToken => {
+                      if (!newBearerToken) {
+                        reject('Failed to retrieve new bearerToken');
+                        return;
+                      }
+                      resolve();
                       return;
-                    }
+                    })
+                    .catch(error => {
+                      isRequestingNewToken = false;
+                      reject(error);
+                      return;
+                    });
+                  } else {
                     resolve();
                     return;
-                  })
-                  .catch(error => {
-                    reject(error);
-                    return;
-                  });
+                  }
             } else {
               resolve();
               return;
