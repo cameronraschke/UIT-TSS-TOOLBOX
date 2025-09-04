@@ -958,7 +958,7 @@ func startAuthMapCleanup(interval time.Duration) {
       authMap.Range(func(k, v interface{}) bool {
         value := v.(time.Time)
         key := k.(string)
-        timeDiff = value.Sub(time.Now())
+        timeDiff := value.Sub(time.Now())
 
         // Auth cache entry expires once countdown reaches zero
         if timeDiff.Seconds() < 0 {
