@@ -80,6 +80,7 @@ async function checkAndUpdateTokenDB() {
 
           // If token is invalid or expired, request a new one from the API
           if (!bearerTokenObj || !bearerTokenObj.value) {
+            console.log("Requesting new token - no token in IndexedDB");
             newToken()
               .then(newBearerToken => {
                 if (!newBearerToken) {
@@ -88,8 +89,8 @@ async function checkAndUpdateTokenDB() {
                 }
                 // Check validity of the new token
                 checkToken(newBearerToken).then(result => {
-                  if (!result.valid || result.ttl < 10) {
-                    reject('New bearerToken is invalid or TTL too low');
+                  if (!result.valid || Number(result.ttl) < 5) {
+                    reject('New bearerToken is invalid or TTL too low: ' + result.ttl);
                   } else {
                     resolve();
                   }
@@ -99,7 +100,8 @@ async function checkAndUpdateTokenDB() {
           } else {
             const bearerToken = bearerTokenObj.value;
             checkToken(bearerToken).then(result => {
-              if (!result.valid || result.ttl < 10) {
+              if (!result.valid || Number(result.ttl) < 5) {
+                console.log("Requesting new token - current token is invalid");
                 newToken()
                   .then(newBearerToken => {
                     if (!newBearerToken) {
@@ -108,8 +110,8 @@ async function checkAndUpdateTokenDB() {
                     }
                     // Check validity of the new token
                     checkToken(newBearerToken).then(result => {
-                      if (!result.valid || result.ttl < 10) {
-                        reject('New bearerToken is invalid or TTL too low');
+                      if (!result.valid || Number(result.ttl) < 5) {
+                        reject('New bearerToken is invalid or TTL too low: ' + result.ttl);
                       } else {
                         resolve();
                       }
@@ -122,21 +124,7 @@ async function checkAndUpdateTokenDB() {
           }
         };
         bearerTokenRequest.onerror = function(event) {
-          newToken()
-            .then(newBearerToken => {
-              if (!newBearerToken) {
-                reject('Failed to retrieve new bearerToken');
-                return;
-              }
-              // Check validity of the new token
-              checkToken(newBearerToken).then(result => {
-                if (!result.valid || result.ttl < 10) {
-                  reject('New bearerToken is invalid or TTL too low');
-                } else {
-                  resolve();
-                }
-              }).catch(reject);
-            }).catch(reject);
+          reject("Error fetching bearerToken: " + event.target.error);
         };
       };
       tokenDB.onerror = function(event) {
@@ -152,7 +140,7 @@ async function checkAndUpdateTokenDB() {
 
 async function checkToken(bearerToken = null) {
   return new Promise((resolve, reject) => {
-    if (bearerToken === undefined || bearerToken === null || bearerToken.length === 0 || bearerToken == "") {
+    if (!bearerToken) {
       reject("No bearerToken provided to checkToken function");
       return;
     }
@@ -168,20 +156,16 @@ async function checkToken(bearerToken = null) {
       headers: headers
     };
 
-    console.log("Checking token");
     fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=check-token', requestOptions)
       .then(response => {
         if (!response.ok) {
-          reject(`Response status: ${response.status}`);
+          resolve({ valid: false, ttl: 0 });
           return;
         }
         return response.json();
       })
       .then(data => {
-        if (
-          !data ||
-          (typeof data === "object" && Object.keys(data).length === 0)
-        ) {
+        if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
           console.log('No data returned from token check API');
           resolve({ valid: false, ttl: 0 });
           return;
@@ -196,8 +180,8 @@ async function checkToken(bearerToken = null) {
         }
       })
       .catch(error => {
-        reject("Error checking token: " + error);
-        return;
+        console.error("Error checking token validity: " + error);
+        resolve({ valid: false, ttl: 0 });
       });
   });
 }
@@ -222,7 +206,6 @@ async function newToken() {
         }
         const basicToken = basicTokenObj.value;
 
-        console.log("Requesting new token");
         fetch('https://WAN_IP_ADDRESS:31411/api/auth?type=new-token', {
           method: 'GET',
           headers: {

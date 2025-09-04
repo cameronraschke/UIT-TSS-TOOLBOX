@@ -951,6 +951,25 @@ func apiAuth (next http.Handler) http.Handler {
 // }
 
 
+func startAuthMapCleanup(interval time.Duration) {
+  go func() {
+    for {
+      time.Sleep(interval)
+      authMap.Range(func(k, v interface{}) bool {
+        value := v.(time.Time)
+        key := k.(string)
+        timeDiff := value.Sub(time.Now())
+        if timeDiff.Seconds() < 0 {
+          authMap.Delete(key)
+          log.Info("Auth session expired (periodic cleanup): " + key)
+        }
+        return true
+      })
+    }
+  }()
+}
+
+
 func main() {
   var err error
 
@@ -965,6 +984,8 @@ func main() {
         log.Error("Trace: \n" + string(debug.Stack()))
     }
   }()
+
+  startAuthMapCleanup(15 * time.Second)
 
   // go func() {
 	//   err := http.ListenAndServe("localhost:6060", nil)
