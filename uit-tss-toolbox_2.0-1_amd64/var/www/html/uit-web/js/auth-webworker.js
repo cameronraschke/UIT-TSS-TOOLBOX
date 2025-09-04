@@ -1,5 +1,6 @@
 let isRefreshingToken = false;
 let isRequestingNewToken = false;
+let tokenRequestPromise = null;
 
 async function generateSHA256Hash(text = null) {
   try {
@@ -85,14 +86,16 @@ async function checkAndUpdateTokenDB() {
     }
 
     if (!result.valid || Number(result.ttl) <= 5) {
-      const newBearerToken = await newToken();
+      const newBearerToken = await getOrRequestToken();
       if (!newBearerToken) {
         throw new Error('Failed to retrieve new bearerToken');
       }
       const newResult = await checkToken(newBearerToken);
-      console.log("New token TTL:", newResult.ttl);
+      if (!newResult.valid) {
+        throw new Error('New bearerToken is invalid after retrieval');
+      }
     }
-    
+
     db.close();
     return;
   } catch (error) {
@@ -247,6 +250,23 @@ async function newToken() {
 //   isRefreshingToken = false;
 //   setTimeout(periodicTokenCheck, 1000);
 // }
+
+function getOrRequestToken() {
+  if (tokenRequestPromise) {
+    // If a request is already in progress, return the same promise
+    return tokenRequestPromise;
+  }
+  tokenRequestPromise = newToken()
+    .then(token => {
+      tokenRequestPromise = null;
+      return token;
+    })
+    .catch(error => {
+      tokenRequestPromise = null;
+      throw error;
+    });
+  return tokenRequestPromise;
+}
 
 async function periodicTokenCheck() {
   while (true) {
