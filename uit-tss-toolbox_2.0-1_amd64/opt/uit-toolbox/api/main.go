@@ -903,10 +903,12 @@ func apiAuth (next http.Handler) http.Handler {
     headerMap := req.Header.Values("Authorization")
     for _, value := range headerMap {
       if strings.HasPrefix(value, "Bearer ") {
-        bearerToken = strings.TrimPrefix(value, "Bearer ").TrimSpace()
+        bearerToken = strings.TrimPrefix(value, "Bearer ")
+        bearerToken = strings.TrimSpace(bearerToken)
       }
       if strings.HasPrefix(value, "Basic ") {
-        basicToken = strings.TrimPrefix(value, "Basic ").TrimSpace()
+        basicToken = strings.TrimPrefix(value, "Basic ")
+        basicToken = strings.TrimSpace(basicToken)
       }
       if bearerToken == "" && basicToken == "" {
         log.Info("Missing/Malformed Authorization header")
