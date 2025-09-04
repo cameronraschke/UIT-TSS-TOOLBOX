@@ -923,12 +923,14 @@ func apiAuth (next http.Handler) http.Handler {
       }
     }
     
-    authMap.Range(func(k, _ interface{}) bool {
+    var tokenTTL float64 = -1
+    authMap.Range(func(k, v interface{}) bool {
       key := k.(string)
+      value := v.(time.Time)
 
       if key == bearerToken {
+        tokenTTL = value.Sub(time.Now()).Seconds()
         matches++
-        // Return early on match
         return false
       }
       return true
@@ -937,7 +939,7 @@ func apiAuth (next http.Handler) http.Handler {
     if matches >= 1 {
       // log.Debug("Auth cached: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
       if req.URL.Query().Get("type") == "check-token" && len(strings.TrimSpace(bearerToken)) > 0 {
-        jsonData, err = json.Marshal(AuthToken{Token: bearerToken, TTL: timeDiff.Seconds(), Valid: true})
+        jsonData, err = json.Marshal(AuthToken{Token: bearerToken, TTL: tokenTTL, Valid: true})
         if err != nil {
           log.Error("Cannot marshal Token to JSON: " + err.Error())
           return
