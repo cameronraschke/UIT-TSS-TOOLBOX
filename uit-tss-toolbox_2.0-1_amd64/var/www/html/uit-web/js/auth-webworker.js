@@ -1,3 +1,5 @@
+let isRefreshingToken = false;
+
 async function generateSHA256Hash(text = null) {
   try {
     if (text === undefined || text === null || text.length === 0 || text == "") {
@@ -80,34 +82,58 @@ async function checkAndUpdateTokenDB() {
 
           // If token is invalid or expired, request a new one from the API
           if (!bearerTokenObj || !bearerTokenObj.value) {
-            console.log("Requesting new token - no token in IndexedDB");
-            newToken()
-              .then(newBearerToken => {
-                if (!newBearerToken) {
-                  reject('Failed to retrieve new bearerToken');
+            if (!isRefreshingToken) {
+              isRefreshingToken = true;
+              console.log("Requesting new token - no token in IndexedDB");
+              newToken()
+                .then(newBearerToken => {
+                  isRefreshingToken = false;
+                  if (!newBearerToken) {
+                    reject('Failed to retrieve new bearerToken');
+                    return;
+                  }
+                  resolve();
                   return;
-                }
-                resolve();
-                return;
-              }).catch(reject);
+                }).catch(error => {
+                  isRefreshingToken = false;
+                  reject(error);
+                  return;
+                });
+            } else {
+              console.log("Token is already being refreshed");
+              resolve();
+              return;
+            }
           } else {
             const bearerToken = bearerTokenObj.value;
             checkToken(bearerToken).then(result => {
               if (!result.valid || Number(result.ttl) < 5) {
-                console.log("Requesting new token - current token is invalid");
-                newToken()
-                  .then(newBearerToken => {
-                    if (!newBearerToken) {
-                      reject('Failed to retrieve new bearerToken');
+                if (!isRefreshingToken) {
+                  isRefreshingToken = true;
+                  console.log("Requesting new token - current token is invalid");
+                  newToken()
+                    .then(newBearerToken => {
+                      isRefreshingToken = false;
+                      if (!newBearerToken) {
+                        reject('Failed to retrieve new bearerToken');
+                        return;
+                      }
+                      resolve();
                       return;
-                    }
-                    resolve();
-                    return;
-                  }).catch(reject);
+                    })
+                    .catch(error => {
+                      isRefreshingToken = false;
+                      reject(error);
+                      return;
+                    });
               } else {
                 resolve();
                 return;
               }
+            } else {
+              resolve();
+              return;
+            }
             }).catch(reject);
           }
         };
@@ -208,6 +234,7 @@ async function newToken() {
         .then(response => {
           if (!response.ok) {
             reject(`Response status: ${response.status}`);
+            return;
           }
           return response.json();
         })
@@ -259,8 +286,8 @@ async function periodicTokenCheck() {
   } catch (error) {
     console.error("Error in checkAndUpdateTokenDB:", error);
   }
-  // Wait 3 seconds after checkAndUpdateTokenDB
-  setTimeout(periodicTokenCheck, 3000);
+  // Wait 1 second after checkAndUpdateTokenDB
+  setTimeout(periodicTokenCheck, 1000);
 }
 
 // Start the loop

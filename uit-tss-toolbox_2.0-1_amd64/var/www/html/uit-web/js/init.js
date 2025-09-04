@@ -157,129 +157,123 @@ function getCreds() {
 }
 
 async function fetchData(url) {
-  return new Promise((resolve, reject) => {
+  try {
+    if (!url || url.trim().length === 0) {
+      throw new Error("No URL specified for fetchData");
+    }
+
     // Get bearerToken from IndexedDB
-    const tokenDB = indexedDB.open("uitTokens", 1);
-    tokenDB.onsuccess = function(event) {
+    const bearerToken = await getBearerToken();
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    headers.append('credentials', 'include');
+    headers.append('Authorization', 'Bearer ' + bearerToken);
+    
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: headers
+    });
+
+    // No content (OPTIONS request)
+    if (response.status === 204) {
+      return null;
+    }
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${url} ${response.status}`);
+    }
+    if (!response.headers || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
+      throw new Error('Response is undefined or not JSON');
+    }
+    const data = await response.json();
+    if (!data || Object.keys(data).length === 0) {
+      console.warn("Response JSON is empty: " + url);
+    }
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+async function getBearerToken() {
+  return new Promise((resolve, reject) => {
+    const tokenDBConn = indexedDB.open("uitTokens", 1);
+    tokenDBConn.onsuccess = function(event) {
       const db = event.target.result;
       const tokenTransaction = db.transaction(["uitTokens"], "readwrite");
       const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
       const bearerTokenRequest = tokenObjectStore.get("bearerToken");
-      bearerTokenRequest.onsuccess = async function(event) {
-        const bearerTokenObj = event.target.result;
-        if (
-          bearerTokenObj === undefined || 
-          bearerTokenObj.value === null || 
-          bearerTokenObj.value.length === 0 || 
-          typeof bearerTokenObj.value !== "string" || 
-          bearerTokenObj.value == ""
-        ) {
-          db.close();
-          reject(new Error('No bearer token found in IndexedDB'));
-          return null;
-        }
-        const bearerToken = bearerTokenObj.value;
-
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        headers.append('credentials', 'include');
-        headers.append('Authorization', 'Bearer ' + bearerToken);
-
+      bearerTokenRequest.onsuccess = function(event) {
         try {
-          const response = await fetch(url, {
-            method: 'GET',
-            headers: headers,
-            body: null
-          });
-
-          if (!response.ok) {
+          const bearerTokenObj = event.target.result;
+          if (!bearerTokenObj || !bearerTokenObj.value || typeof bearerTokenObj.value !== "string" || bearerTokenObj.value.trim() === "") {
             db.close();
-            reject(new Error(`Error fetching data: ${url} ${response.status}`));
+            reject(new Error('No bearer token found in IndexedDB'));
             return;
           }
-
-          // No content (OPTIONS request)
-          if (response.status === 204) {
-            db.close();
-            resolve(null);
-            return;
-          }
-
-          if (
-            !response.headers ||
-            !response.headers.get('Content-Type') ||
-            !response.headers.get('Content-Type').includes('application/json')
-          ) {
-            db.close();
-            reject(new Error('Response is undefined or not JSON'));
-            return;
-          }
-
-          const data = await response.json();
-          if (!data || Object.keys(data).length === 0) {
-            db.close();
-            reject(new Error("Response JSON is empty or invalid: " + url));
-            return;
-          }
-
-          db.close();
-          resolve(data);
+          const bearerToken = bearerTokenObj.value;
+          resolve(bearerToken);
+          return;
         } catch (error) {
-          db.close();
-          reject(error);
+          reject(new Error("Error processing bearerToken from IndexedDB: " + error));
+          return;
         }
       };
       bearerTokenRequest.onerror = function(event) {
         db.close();
         reject(new Error("Error retrieving bearerToken from IndexedDB: " + event.target.error));
+        return;
       };
-    };
-    tokenDB.onerror = function(event) {
-      reject(new Error('IndexedDB error: ' + event.target.errorCode));
-    };
-    tokenDB.onblocked = function(event) {
-      reject(new Error('IndexedDB blocked: ' + event.target.errorCode));
+      tokenDBConn.onerror = function(event) {
+        reject(new Error('IndexedDB error: ' + event.target.errorCode));
+        return;
+      };
+      tokenDBConn.onblocked = function(event) {
+        reject(new Error('IndexedDB blocked: ' + event.target.errorCode));
+        return;
+      };
     };
   });
 }
 
   
-  async function fetchSSE (type, tag = undefined) {
-    return new Promise((resolve, reject) => {
-  
-      if (tag === undefined) {
-        var sse = new EventSource("/api/sse.php?type=" + type);
-      } else {
-        var sse = new EventSource("/api/sse.php?type=" + type + "&tagnumber=" + tag);
+async function fetchSSE (type, tag = undefined) {
+  return new Promise((resolve, reject) => {
+
+    if (tag === undefined) {
+      var sse = new EventSource("/api/sse.php?type=" + type);
+    } else {
+      var sse = new EventSource("/api/sse.php?type=" + type + "&tagnumber=" + tag);
+    }
+
+    sse.addEventListener("server_time", (event) => { 
+      if (event.data !== undefined) {
+        const ret = JSON.parse(event.data);
+        resolve(ret);
       }
-  
-      sse.addEventListener("server_time", (event) => { 
-        if (event.data !== undefined) {
-          const ret = JSON.parse(event.data);
-          resolve(ret);
-        }
-      });
-      sse.addEventListener("live_image", (event) => { 
-        if (event.data !== undefined) {
-          const ret = JSON.parse(event.data);
-          resolve(ret);
-        }
-      });
-      sse.addEventListener("cpu_temp", (event) => { 
-        if (event.data !== undefined) {
-          const ret = JSON.parse(event.data);
-          resolve(ret);
-        }
-      });
-      sse.addEventListener("disk_temp", (event) => { 
-        if (event.data !== undefined) {
-          const ret = JSON.parse(event.data);
-          resolve(ret);
-        }
-      });
-      sse.onerror = (error) => {
-        reject(error);
-        sse.close();
-      };
     });
-  };
+    sse.addEventListener("live_image", (event) => { 
+      if (event.data !== undefined) {
+        const ret = JSON.parse(event.data);
+        resolve(ret);
+      }
+    });
+    sse.addEventListener("cpu_temp", (event) => { 
+      if (event.data !== undefined) {
+        const ret = JSON.parse(event.data);
+        resolve(ret);
+      }
+    });
+    sse.addEventListener("disk_temp", (event) => { 
+      if (event.data !== undefined) {
+        const ret = JSON.parse(event.data);
+        resolve(ret);
+      }
+    });
+    sse.onerror = (error) => {
+      reject(error);
+      sse.close();
+    };
+  });
+};

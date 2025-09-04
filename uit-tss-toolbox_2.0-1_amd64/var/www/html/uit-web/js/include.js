@@ -75,40 +75,60 @@ function test() {
 
 
 async function postData(queryType, jsonStr) {
-  if (await checkToken() === false) {
-    await newToken();
-  }
-
-  const bearerToken = localStorage.getItem('bearerToken');
-
-  if (queryType == undefined) {
-    return false;
-  }
-
-  // const selection = await window.showOpenFilePicker();
-  // if (selection.length > 0) {
-  //   const file = await selection[0].getFile();
-  //   formData.append("file", file);
-  // }
-
   try {
+    if (!queryType || queryType.trim().length === 0 || typeof queryType !== 'string') {
+      throw new Error("No queryType specified for postData");
+    }
+    if (!jsonStr || jsonStr.trim().length === 0) {
+      // Check if jsonStr is valid JSON
+      try {
+        JSON.parse(jsonStr);
+      } catch (error) {
+        throw new Error("Invalid JSON string specified for postData");
+      }
+      throw new Error("No JSON string specified for postData");
+    }
+
+    // const selection = await window.showOpenFilePicker();
+    // if (selection.length > 0) {
+    //   const file = await selection[0].getFile();
+    //   formData.append("file", file);
+    // }
+
+    // Get bearerToken from IndexedDB
+    const bearerToken = await getBearerToken();
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    headers.append('credentials', 'include');
+    headers.append('Authorization', 'Bearer ' + bearerToken);
+    
+
     const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType).replace(/'/g, "%27"), {
       method: 'POST',
-      headers: {
-      // 'Content-Type': 'application/json',
-      'credentials': 'include',
-      'Authorization': 'Bearer ' + bearerToken
-      },
+      headers: headers,
       body: jsonStr
     });
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-  } catch (error) {
-    console.error(error.message);
-  }
-};
 
+    // No content (OPTIONS request)
+    if (response.status === 204) {
+      return null;
+    }
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${url} ${response.status}`);
+    }
+    if (!response.headers || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
+      throw new Error('Response is undefined or not JSON');
+    }
+
+    const data = await response.json();
+    if (!data || Object.keys(data).length === 0) {
+      console.warn("Response JSON is empty or invalid: " + url);
+    }
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 
 async function updateRemoteOfflineTable() {
