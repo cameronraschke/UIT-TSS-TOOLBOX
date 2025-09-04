@@ -54,6 +54,7 @@ function putTokenObject(db, key, value) {
 }
 
 async function checkAndUpdateTokenDB() {
+  if (isRequestingNewToken) return;
   let db = undefined;
   try {
     db = await openTokenDB();
@@ -65,11 +66,6 @@ async function checkAndUpdateTokenDB() {
 
     // Check if bearerToken exists and is valid, otherwise request a new one
     const bearerTokenObj = await getTokenObject(db, "bearerToken");
-    if (isRequestingNewToken) {
-      db.close();
-      return;
-    }
-
     if (!bearerTokenObj || !bearerTokenObj.value) {
       isRequestingNewToken = true;
       const newBearerToken = await newToken();
@@ -95,6 +91,7 @@ async function checkAndUpdateTokenDB() {
     }
   } catch (error) {
     if (db) db.close();
+    isRequestingNewToken = false;
     throw error;
   }
 }
