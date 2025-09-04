@@ -826,6 +826,19 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
       hashedTokenStr := fmt.Sprintf("%x", hash)
 
       authMap.Store(hashedTokenStr, time.Now().Add(TTLDuration))
+      var totalArrEntries int
+      authMap.Range(func(k, _ interface{}) bool {
+        key := k.(string)
+        totalArrEntries++
+
+        if key == token {
+          matches++
+          // Uncomment to return early
+          // return false
+        }
+        return true
+      })
+      log.Debug("New auth session created: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(totalArrEntries) + " TTL: " + fmt.Sprintf("%.2f", TTLDuration.Seconds()) + "s)")
       if hashedTokenStr != "" {
         apiAuthDBRowCount++
         // cookie := http.Cookie{
