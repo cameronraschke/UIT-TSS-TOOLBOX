@@ -975,6 +975,8 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
         basicValid = true
         basicTTL = authSession.Basic.Expiry.Sub(time.Now()).Seconds()
         matchedSession = &authSession
+      } else {
+        log.Debug("Basic token found but expired/invalid for IP: " + sessionIP)
       }
     }
 
@@ -983,6 +985,8 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
         bearerValid = true
         bearerTTL = authSession.Bearer.Expiry.Sub(time.Now()).Seconds()
         matchedSession = &authSession
+      } else {
+        log.Debug("Bearer token found but expired/invalid for IP: " + sessionIP)
       }
     }
 
@@ -1044,7 +1048,7 @@ func apiAuth(next http.Handler) http.Handler {
       return
     }
     
-    basicValid, bearerValid, basicTTL, bearerTTL, matchedSession := checkAuthSession(&authMap, requestIP, requestBasicToken, requestBearerToken)
+    basicValid, bearerValid, _, bearerTTL, matchedSession := checkAuthSession(&authMap, requestIP, requestBasicToken, requestBearerToken)
     
     if (basicValid && bearerValid) || bearerValid {
       if queryType == "check-token" {
