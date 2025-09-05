@@ -942,13 +942,13 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
 func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken string, requestBearerToken string) (basicValid bool, bearerValid bool, basicTTL float64, bearerTTL float64, matchedSession *AuthSession) {
   basicValid = false
   bearerValid = false
-  basicTTL = 0
-  bearerTTL = 0
-  matchedSession = nil
+  basicTTL = 0.0
+  bearerTTL = 0.0
+  matchedSession = &authSession
 
   authMap.Range(func(k, v interface{}) bool {
-    sessionID := k.(string)
     authSession := v.(AuthSession)
+    sessionID := fmt.Sprintf("%s:%s", requestIP, requestBearerToken)
     sessionIP := strings.SplitN(sessionID, ":", 2)[0]
 
     basicExists := strings.TrimSpace(authSession.Basic.Token) != ""
