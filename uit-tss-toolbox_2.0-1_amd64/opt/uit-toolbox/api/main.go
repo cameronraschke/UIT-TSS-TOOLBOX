@@ -1070,7 +1070,7 @@ func apiAuth(next http.Handler) http.Handler {
         http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
         return
       }
-    } else if basicValid && !bearerValid {
+    } else if (basicValid && !bearerValid) || (!basicValid && !bearerValid) {
       authMapEntryCount := atomic.LoadInt64(&authMapEntryCount)
       log.Debug("Auth cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + ")")
       if queryType == "new-token" && strings.TrimSpace(requestBasicToken) != "" {
