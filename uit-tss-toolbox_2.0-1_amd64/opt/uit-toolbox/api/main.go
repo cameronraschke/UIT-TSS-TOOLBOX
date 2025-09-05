@@ -947,8 +947,8 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
   matchedSession = nil
 
   authMap.Range(func(k, v interface{}) bool {
+    sessionID := k.(string)
     authSession := v.(AuthSession)
-    sessionID := fmt.Sprintf("%s:%s", requestIP, requestBearerToken)
     sessionIP := strings.SplitN(sessionID, ":", 2)[0]
 
     basicExists := strings.TrimSpace(authSession.Basic.Token) != ""
@@ -959,7 +959,7 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
       atomic.AddInt64(&authMapEntryCount, -1)
       return true
     }
-    if (requestIP != sessionIP) || (basicExists && sessionIP != authSession.Basic.IP) || (bearerExists && sessionIP != authSession.Bearer.IP) {
+    if (requestIP != sessionIP) {
       authMap.Delete(sessionID)
       atomic.AddInt64(&authMapEntryCount, -1)
       return true
@@ -970,7 +970,7 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
       return true
     }
 
-    if basicExists && requestBasicToken == authSession.Basic.Token {
+    if basicExists && strings.TrimSpace(requestBasicToken) == strings.TrimSpace(authSession.Basic.Token) && sessionIP != authSession.Basic.IP {
       if time.Now().Before(authSession.Basic.Expiry) && authSession.Basic.Valid && authSession.Basic.IP == sessionIP {
         basicValid = true
         basicTTL = authSession.Basic.Expiry.Sub(time.Now()).Seconds()
@@ -980,7 +980,7 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
       }
     }
 
-    if bearerExists && requestBearerToken == authSession.Bearer.Token {
+    if bearerExists && strings.TrimSpace(requestBearerToken) == strings.TrimSpace(authSession.Bearer.Token) && sessionIP != authSession.Bearer.IP {
       if time.Now().Before(authSession.Bearer.Expiry) && authSession.Bearer.Valid && authSession.Bearer.IP == sessionIP {
         bearerValid = true
         bearerTTL = authSession.Bearer.Expiry.Sub(time.Now()).Seconds()
