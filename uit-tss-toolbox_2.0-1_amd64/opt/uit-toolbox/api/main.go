@@ -36,7 +36,6 @@ import (
 )
 
 
-// Structs for JSON responses
 type LiveImage struct {
   TimeFormatted   *string    `json:"time_formatted"`
   Screenshot      *string    `json:"screenshot"`
@@ -55,7 +54,6 @@ func (chain muxChain) then(handle http.Handler) http.Handler {
     return handle
 }
 
-
 type HttpHeaders struct {
   Authorization AuthHeader
   ContentType   *string
@@ -67,36 +65,8 @@ type HttpHeaders struct {
 }
 
 type AuthHeader struct {
-  Basic *string
-  Bearer *string
-}
-
-type Locations struct {
-  Time            *time.Time  `json:"time"`
-  Tagnumber       *int32      `json:"tagnumber"`
-  SystemSerial    *string     `json:"system_serial"`
-  Location        *string     `json:"location"`
-  Status          *bool       `json:"status"`
-  DiskRemoved     *bool       `json:"disk_removed"`
-  Department      *string     `json:"department"`
-  Domain          *string     `json:"domain"`
-  Note            *string     `json:"note"`
-}
-
-type JobQueue struct {
-  PresentBool     *bool   `json:"present_bool"`
-  KernelUpdated   *bool   `json:"kernel_updated"`
-  BiosUpdated     *bool   `json:"bios_updated"`
-  RemoteStatus    *string   `json:"remote_status"`
-  RemoteTimeFormatted *string `json:"remote_time_formatted"`
-}
-
-type TagLookup struct {
-  Tagnumber *string `json:"tagnumber"`
-}
-
-type TestQuery struct {
-  Message   *string   `json:"message"`
+  Basic   *string
+  Bearer  *string
 }
 
 type BasicToken struct {
@@ -153,34 +123,216 @@ var (
 )
 
 
+func rateLimitMiddleware(next http.Handler) http.Handler {
+  return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+    requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
+    if err != nil {
+      log.Warning("Cannot parse IP: " + req.RemoteAddr)
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+    _, _ = ipMap.LoadOrStore(requestIP, RateLimiter{Requests: 1, LastSeen: time.Now(), MapLastUpdated: time.Now(), Banned: false})
 
-func ParseHeaders(header http.Header) HttpHeaders {
-  var headers HttpHeaders
-  var authHeader AuthHeader
-  for _, value := range header.Values("Authorization") {
-    value = strings.TrimSpace(value)
-    if strings.HasPrefix(value, "Basic ") {
-      basic := strings.TrimSpace(strings.TrimPrefix(value, "Basic "))
-      authHeader.Basic = &basic
+    ipAddrChan := make(chan string)
+    bannedChan := make(chan bool)
+    rateLimitChan := make(chan int)
+
+    go func() {
+      rateLimitCheck(ipAddrChan, bannedChan, rateLimitChan)
+    }()
+    ipAddrChan <- requestIP
+    close(ipAddrChan)
+
+    select {
+    case bannedBool := <-bannedChan:
+      if bannedBool {
+        reqsPerSec := <-rateLimitChan
+        log.Warning("Banned (" + requestIP + ")" + ", too many requests (" + fmt.Sprintf("%d", reqsPerSec) + "/s)")
+        http.Error(w, formatHttpError("Too many requests"), http.StatusTooManyRequests)
+        return
+      }
+    case <-time.After(5 * time.Second):
+      log.Error("Ban check timed out")
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
     }
-    if strings.HasPrefix(value, "Bearer ") {
-      bearer := strings.TrimSpace(strings.TrimPrefix(value, "Bearer "))
-      authHeader.Bearer = &bearer
+
+    next.ServeHTTP(w, req)
+  })
+}
+
+
+func corsMiddleware(next http.Handler) http.Handler {
+  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    // Check CORS policy
+    cors := http.NewCrossOriginProtection()
+    cors.AddTrustedOrigin("https://WAN_IP_ADDRESS:1411")
+    if err := cors.Check(req); err != nil {
+      log.Warning("Request to " + req.URL.RequestURI() + " blocked from " + req.RemoteAddr)
+      return
     }
-  }
-  headers.Authorization = authHeader
-  return headers
+
+    w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
+    w.Header().Set("Access-Control-Allow-Credentials", "true")
+    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
+    w.Header().Set("X-Content-Type-Options", "nosniff")
+    w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+    w.Header().Set("Pragma", "no-cache")
+    w.Header().Set("Expires", "0")
+    w.Header().Set("Host", "WAN_IP_ADDRESS:31411")
+    w.Header().Set("X-Frame-Options", "DENY")
+    w.Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
+    w.Header().Set("Strict-Transport-Security", "max-age=86400; includeSubDomains")
+    w.Header().Set("X-Accel-Buffering", "no")
+
+    // JSON or SSE response
+    parsedURL, _ := url.Parse(req.URL.RequestURI())
+    queries, _ := url.ParseQuery(parsedURL.RawQuery)
+    if queries.Get("sse") == "true" {
+      w.Header().Set("Content-Type", "text/event-stream")
+    } else {
+      w.Header().Set("Content-Type", "application/json; charset=utf-8")
+    }
+
+    // Handle OPTIONS early
+    if req.Method == http.MethodOptions {
+      // Headers for OPTIONS request
+      w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
+      w.Header().Set("Access-Control-Allow-Credentials", "true")
+      w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+      w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
+      w.WriteHeader(http.StatusNoContent)
+      return
+    }
+
+    next.ServeHTTP(w, req)
+  })
+}
+
+
+func tlsMiddleware(next http.Handler) http.Handler {
+  return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+    if req.TLS == nil || !req.TLS.HandshakeComplete {
+      log.Warning("TLS handshake failed for client " + req.RemoteAddr)
+      http.Error(w, formatHttpError("TLS handshake failed"), http.StatusForbidden)
+      return
+    }
+    next.ServeHTTP(w, req)
+  })
+}
+
+
+func headersAndMethodMiddleware(next http.Handler) http.Handler {
+  return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+    // Get IP address
+    requestIP, _, err := net.SplitHostPort(requestIP)
+    if err != nil {
+      log.Warning("Cannot parse IP: " + requestIP)
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+
+    // Content length
+    if req.ContentLength > 64<<20 {
+      log.Warning("Request content length exceeds limit: " + fmt.Sprintf("%.2fMB", float64(req.ContentLength)/1e6))
+      http.Error(w, formatHttpError("Request too large"), http.StatusRequestEntityTooLarge)
+      return
+    }
+
+    // URL length
+    if len(req.URL.RequestURI()) > 2048 {
+      log.Warning("Request URL length exceeds limit: " + fmt.Sprintf("%d", len(req.URL.RequestURI())) + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+      http.Error(w, formatHttpError("Request URI too long"), http.StatusRequestURITooLong)
+      return
+    }
+
+    // URL path
+    if strings.ContainsAny(req.URL.Path, "<>\"'%;()&+") {
+      log.Warning("Invalid characters in URL path: " + req.URL.Path + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+
+    // URL query
+    if strings.ContainsAny(req.URL.RawQuery, "<>\"'%;()+") {
+      log.Warning("Invalid characters in query parameters: " + req.URL.RawQuery + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+
+    // Origin header
+    origin := req.Header.Get("Origin")
+    if origin != "" && len(origin) > 2048 {
+      log.Warning("Invalid Origin header: " + origin + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+
+    // Host header
+    host := req.Host
+    if strings.TrimSpace(host) == "" || strings.ContainsAny(host, " <>\"'%;()&+") || len(host) > 255 {
+      log.Warning("Invalid Host header: " + host + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+
+    // User-Agent header
+    userAgent := req.Header.Get("User-Agent")
+    if userAgent == "" || len(userAgent) > 256 {
+      log.Warning("Invalid User-Agent header: " + userAgent + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+
+    // Referer header
+    referer := req.Header.Get("Referer")
+    if referer != "" && len(referer) > 2048 {
+      log.Warning("Invalid Referer header: " + referer + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+
+    // Other headers
+    for key, value := range req.Header {
+      if strings.ContainsAny(key, "<>\"'%;()&+") || strings.ContainsAny(value[0], "<>\"'%;()&+") {
+        log.Warning("Invalid characters in header '" + key + "': " + value[0] + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+        http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+        return
+      }
+    }
+
+    // Check method
+    validMethods := map[string]bool{
+      http.MethodOptions: true,
+      http.MethodGet:     true,
+      http.MethodPost:    true,
+      http.MethodPut:     true,
+      http.MethodDelete:  true,
+    }
+    if !validMethods[req.Method] {
+      log.Warning("Invalid request method (" + requestIP + "): " + req.Method)
+      http.Error(w, formatHttpError("Method not allowed"), http.StatusMethodNotAllowed)
+      return
+    }
+    // Check Content-Type for POST/PUT
+    if req.Method == http.MethodPost || req.Method == http.MethodPut {
+      contentType := req.Header.Get("Content-Type")
+      if contentType != "application/x-www-form-urlencoded" && contentType != "application/json" {
+        log.Warning("Invalid Content-Type header: " + contentType + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+        http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
+        return
+      }
+    }
+    next.ServeHTTP(w, req)
+  })
 }
 
 
 func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitChan chan<- int) {
-  // float64 has to be used in order to compare to the request rate which is calculated as a float64 value
-  var requestLimit float64
-  var bannedTimeout time.Duration
-
-  // Limit how many requests per second and how long a client gets timed out for
-  requestLimit = 200
-  bannedTimeout = time.Second * 10
+  // requestLimit (per second) is float64 because request rate is a float64
+  var requestLimit float64 = 200
+  var bannedTimeout time.Duration = time.Second * 10
 
   requestIPAddr := <-ipAddrChan
 
@@ -211,7 +363,7 @@ func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitC
         return false
       }
 
-      banned = false // Default value
+      banned = false
       if timeDiff > 1 {
         if requestRate > requestLimit {
           banned = true
@@ -227,10 +379,10 @@ func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitC
         return false
       } else if timeDiff < 1 {
         ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: value.LastSeen, MapLastUpdated: value.MapLastUpdated, BannedUntil: time.Now().Add(bannedTimeout), Banned: value.Banned})
-          bannedChan <- banned
-          rateLimitChan <- int(math.Round(requestRate))
-          close(bannedChan)
-          close(rateLimitChan)
+        bannedChan <- banned
+        rateLimitChan <- int(math.Round(requestRate))
+        close(bannedChan)
+        close(rateLimitChan)
         return false
       } else {
         return true
@@ -242,21 +394,33 @@ func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitC
 }
 
 
-func formatHttpError (errorString string) (jsonErrStr string) {
-  var err error
-  var jsonStr httpErrorCodes
-  var jsonErr []byte
-
-  jsonStr = httpErrorCodes{Message: errorString}
-  jsonErr, err = json.Marshal(jsonStr)
+func formatHttpError(errorString string) (jsonErrStr string) {
+  jsonStr := httpErrorCodes{Message: errorString}
+  jsonErr, err := json.Marshal(jsonStr)
   if err != nil {
     log.Error("Cannot parse JSON: " + err.Error())
     return
   }
+  return string(jsonErr)
+}
 
-  jsonErrStr = string(jsonErr)
 
-  return string(jsonErrStr)
+func ParseHeaders(header http.Header) HttpHeaders {
+  var headers HttpHeaders
+  var authHeader AuthHeader
+  for _, value := range header.Values("Authorization") {
+    value = strings.TrimSpace(value)
+    if strings.HasPrefix(value, "Basic ") {
+      basic := strings.TrimSpace(strings.TrimPrefix(value, "Basic "))
+      authHeader.Basic = &basic
+    }
+    if strings.HasPrefix(value, "Bearer ") {
+      bearer := strings.TrimSpace(strings.TrimPrefix(value, "Bearer "))
+      authHeader.Bearer = &bearer
+    }
+  }
+  headers.Authorization = authHeader
+  return headers
 }
 
 
@@ -446,182 +610,150 @@ func postAPI(w http.ResponseWriter, req *http.Request) {
 }
 
 
+func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
+  var basicToken string
+  requestIP, _, _ := net.SplitHostPort(req.RemoteAddr)
 
-func queryResults(sqlCode string, tagnumber string, systemSerial string) (jsonDataStr string, err error) {
-  var results any
-  // var sqlTime string
-  var rows *sql.Rows
-  var jsonData []byte
+  headers := ParseHeaders(req.Header)
+  if headers.Authorization.Basic != nil {
+    basicToken = *headers.Authorization.Basic
+  }
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
+  if strings.TrimSpace(basicToken) == "" {
+    log.Warning("Empty value for Basic Authorization header")
+    http.Error(w, formatHttpError("Empty Basic Authorization header"), http.StatusUnauthorized)
+    return
+  }
+
+  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
   defer cancel()
 
-
-
-  switch eventType {
-    case "locations":
-      rows, err = db.QueryContext(dbCTX, sqlCode)
-      if err != nil {
-        return "", errors.New("Error querying locations")
-      }
-      defer rows.Close()
-      
-      var locations []Locations // Initialize Locations slice
-      locations = make([]Locations, 0) // Ensure Locations is initialized
-      for rows.Next() {
-        var result Locations
-        if dbCTX.Err() != nil {
-          log.Error("Context error: " + dbCTX.Err().Error())
-          return "", errors.New("Context error: " + dbCTX.Err().Error())
-        }
-        if err = rows.Err(); err != nil {
-          log.Error("Context error: " + dbCTX.Err().Error())
-          return "", errors.New("Error with rows: " + err.Error())
-        }
-        err = rows.Scan(
-          &result.Time,
-          &result.Tagnumber,
-          &result.SystemSerial,
-          &result.Location,
-          &result.Status,
-          &result.DiskRemoved,
-          &result.Department,
-          &result.Domain,
-          &result.Note,
-        )
-        if err != nil {
-          return "", errors.New("Error scanning row: " + err.Error())
-        }
-        locations = append(locations, result) // Append result to locations
-      }
-
-      if err = rows.Err(); err != nil {
-        return "", errors.New("Error with rows: " + err.Error())
-      }
-
-      if err != nil {
-        return "", errors.New("Error querying locations")
-      }
-      results = locations // Assign results to Locations
-
-    case "tag_lookup":
-      rows, err = db.QueryContext(dbCTX, sqlCode, systemSerial)
-      if err != nil {
-        return "", errors.New("Error querying tag lookup")
-      }
-      defer rows.Close()
-
-      var tagLookup []TagLookup // Initialize tagLookup slice
-      tagLookup = make([]TagLookup, 0) // Ensure tagLookup is initialized
-      for rows.Next() {
-        var result TagLookup
-        if dbCTX.Err() != nil {
-          return "", errors.New("Context error: " + dbCTX.Err().Error())
-        }
-        if err = rows.Err(); err != nil {
-          return "", errors.New("Error with rows: " + err.Error())  
-        }
-        err = rows.Scan(
-          &result.Tagnumber,
-        )
-        if err != nil {
-          return "", errors.New("Error scanning row: " + err.Error())
-        }
-        tagLookup = append(tagLookup, result)
-      }
-
-      results = tagLookup // Assign results to tagLookup
-
-    case "job_queue":
-      rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
-      if err != nil {
-        return "", errors.New("Error querying tag lookup")
-      }
-      defer rows.Close()
-
-      var jobQueue []JobQueue
-      jobQueue = make([]JobQueue, 0)
-      for rows.Next() {
-        var result JobQueue
-        if dbCTX.Err() != nil {
-          return "", errors.New("Context error: " + dbCTX.Err().Error())
-        }
-        if err = rows.Err(); err != nil {
-          return "", errors.New("Error with rows: " + err.Error())  
-        }
-        err = rows.Scan(
-          &result.PresentBool,
-          &result.KernelUpdated,
-          &result.BiosUpdated,
-          &result.RemoteStatus,
-          &result.RemoteTimeFormatted,
-        )
-        if err != nil {
-          return "", errors.New("Error scanning row: " + err.Error())
-        }
-        jobQueue = append(jobQueue, result)
-      }
-
-      results = jobQueue
-
-    case "test":
-      rows, err = db.QueryContext(dbCTX, sqlCode)
-      if err != nil {
-        return "", errors.New("Error querying test query")
-      }
-      defer rows.Close()
-
-      var testQuery []TestQuery
-      testQuery = make([]TestQuery, 0)
-      for rows.Next() {
-        var result TestQuery
-        if dbCTX.Err() != nil {
-          return "", errors.New("Context error: " + dbCTX.Err().Error())
-        }
-        if err = rows.Err(); err != nil {
-          return "", errors.New("Error with rows: " + err.Error())  
-        }
-        err = rows.Scan(
-          &result.Message,
-        )
-        if err != nil {
-          return "", errors.New("Error scanning row: " + err.Error())
-        }
-        testQuery = append(testQuery, result)
-      }
-
-      results = testQuery
-
-    case "err":
-      return "", errors.New("Query type is not valid (error query type)")
-    default:
-      return "", errors.New("Unknown query type: " + eventType)
+  // Check if DB connection is valid
+  if db == nil {
+    log.Error("Connection to database failed while attempting API Auth")
+    http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+    return
   }
 
-
-
-  jsonData, err = json.Marshal(results)
+  // Check if the Basic token exists in the database
+  sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
+  rows, err := db.QueryContext(dbCTX, sqlCode, basicToken)
   if err != nil {
-    return "", errors.New("Error creating JSON data: " + err.Error())
-  }  
-  if len(jsonData) < 1 {
-    return "", errors.New("No results found for query: " + sqlCode)
+    log.Error("Cannot query database for API Auth: " + err.Error())
+    http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+    return
   }
+  defer rows.Close()
 
+  for rows.Next() {
+    var dbToken string
 
-  // Convert jsonData to string
-  if len(jsonData) > 0 {
-    jsonDataStr = string(jsonData)
-  } else {
-    return "", errors.New("No results found for query: " + sqlCode)
+    if err := rows.Scan(&dbToken); err != nil {
+      log.Error("Error scanning token: " + err.Error())
+      http.Error(w, "Internal server error", http.StatusInternalServerError)
+      return
+    }
+    if dbCTX.Err() != nil {
+      log.Error("Context error: " + dbCTX.Err().Error())
+      http.Error(w, "Internal server error", http.StatusInternalServerError)
+      return
+    }
+    if strings.TrimSpace(dbToken) == "" {
+      log.Info("DB token has 0 length")
+      http.Error(w, formatHttpError("Internal server error"), http.StatusUnauthorized)
+      return
+    }
+
+    if dbToken != basicToken {
+      log.Info("Incorrect credentials provided for token refresh: " + req.RemoteAddr)
+      http.Error(w, formatHttpError("Forbidden"), http.StatusUnauthorized)
+      return
+    }
+
+    // hash := sha256.New()
+    // hash.Write([]byte(dbToken))
+    // bearerToken := fmt.Sprintf("%x", hash.Sum(nil))
+    hash := make([]byte, 32)
+    _, err := rand.Read(hash)
+    if err != nil {
+      log.Error("Cannot generate token: " + err.Error())
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+    bearerToken := fmt.Sprintf("%x", hash)
+    if strings.TrimSpace(bearerToken) == "" {
+      log.Error("Failed to generate bearer token")
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+
+    sessionID := fmt.Sprintf("%s:%s", requestIP, bearerToken)
+
+    // Set expiry time
+    basicTTL := 60 * time.Minute
+    bearerTTL := 60 * time.Second
+    basicExpiry := time.Now().Add(basicTTL)
+    bearerExpiry := time.Now().Add(bearerTTL)
+
+    basic := BasicToken{Token: basicToken, Expiry: basicExpiry, NotBefore: time.Now(), TTL: basicExpiry.Sub(time.Now()).Seconds(), IP: requestIP, Valid: true}
+    bearer := BearerToken{Token: bearerToken, Expiry: bearerExpiry, NotBefore: time.Now(), TTL: bearerExpiry.Sub(time.Now()).Seconds(), IP: requestIP, Valid: true}
+    _, exists := authMap.Load(sessionID)
+    authMap.Store(sessionID, AuthSession{Basic: basic, Bearer: bearer})
+
+    value, ok := authMap.Load(sessionID)
+    if !ok {
+      log.Error("Cannot load auth session from authMap")
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+    authSession := value.(AuthSession)
+
+    if authSession.Bearer.Token != bearerToken || authSession.Bearer.TTL <= 0 || 
+        authSession.Bearer.Valid == false || authSession.Bearer.IP != requestIP || 
+        time.Now().After(authSession.Bearer.Expiry) || time.Now().Before(authSession.Bearer.NotBefore) {
+      log.Error("Error while creating new bearer token: " + requestIP)
+      authMap.Delete(sessionID)
+      atomic.AddInt64(&authMapEntryCount, -1)
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+
+    authMapEntryCount = atomic.LoadInt64(&authMapEntryCount)
+    if authMapEntryCount < 0 {
+      authMapEntryCount = 0
+    }
+
+    if exists {
+      log.Info("Auth session exists: " + requestIP + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
+    } else {
+      atomic.AddInt64(&authMapEntryCount, 1)
+      authMapEntryCount = atomic.LoadInt64(&authMapEntryCount)
+      if authMapEntryCount < 0 {
+        authMapEntryCount = 0
+      }
+      log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
+    }
+
+    returnedJsonStruct := returnedJsonToken{
+      Token: authSession.Bearer.Token,
+      TTL:   authSession.Bearer.TTL,
+      Valid: authSession.Bearer.Valid,
+    }
+
+    jsonData, err := json.Marshal(returnedJsonStruct)
+    if err != nil {
+      log.Error("Cannot marshal Token to JSON: " + err.Error())
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+
+    io.WriteString(w, string(jsonData))
+    return
   }
-
-
-  return jsonDataStr, nil
 }
 
 
-func apiMiddleWare (next http.Handler) http.Handler {
+func apiMiddleWare(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
     var parsedURL *url.URL
     var queries url.Values
@@ -796,148 +928,6 @@ func apiMiddleWare (next http.Handler) http.Handler {
   })
 }
 
-func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
-  var basicToken string
-  requestIP, _, _ := net.SplitHostPort(req.RemoteAddr)
-
-  headers := ParseHeaders(req.Header)
-  if headers.Authorization.Basic != nil {
-    basicToken = *headers.Authorization.Basic
-  }
-
-  if strings.TrimSpace(basicToken) == "" {
-    log.Warning("Empty value for Basic Authorization header")
-    http.Error(w, formatHttpError("Empty Basic Authorization header"), http.StatusUnauthorized)
-    return
-  }
-
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-  defer cancel()
-
-  // Check if DB connection is valid
-  if db == nil {
-    log.Error("Connection to database failed while attempting API Auth")
-    http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-    return
-  }
-
-  // Check if the Basic token exists in the database
-  sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
-  rows, err := db.QueryContext(dbCTX, sqlCode, basicToken)
-  if err != nil {
-    log.Error("Cannot query database for API Auth: " + err.Error())
-    http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-    return
-  }
-  defer rows.Close()
-
-  for rows.Next() {
-    var dbToken string
-
-    if err := rows.Scan(&dbToken); err != nil {
-      log.Error("Error scanning token: " + err.Error())
-      http.Error(w, "Internal server error", http.StatusInternalServerError)
-      return
-    }
-    if dbCTX.Err() != nil {
-      log.Error("Context error: " + dbCTX.Err().Error())
-      http.Error(w, "Internal server error", http.StatusInternalServerError)
-      return
-    }
-    if strings.TrimSpace(dbToken) == "" {
-      log.Info("DB token has 0 length")
-      http.Error(w, formatHttpError("Internal server error"), http.StatusUnauthorized)
-      return
-    }
-
-    if dbToken != basicToken {
-      log.Info("Incorrect credentials provided for token refresh: " + req.RemoteAddr)
-      http.Error(w, formatHttpError("Forbidden"), http.StatusUnauthorized)
-      return
-    }
-
-    // hash := sha256.New()
-    // hash.Write([]byte(dbToken))
-    // bearerToken := fmt.Sprintf("%x", hash.Sum(nil))
-    hash := make([]byte, 32)
-    _, err := rand.Read(hash)
-    if err != nil {
-      log.Error("Cannot generate token: " + err.Error())
-      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-      return
-    }
-    bearerToken := fmt.Sprintf("%x", hash)
-    if strings.TrimSpace(bearerToken) == "" {
-      log.Error("Failed to generate bearer token")
-      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-      return
-    }
-
-    sessionID := fmt.Sprintf("%s:%s", requestIP, bearerToken)
-
-    // Set expiry time
-    basicTTL := 60 * time.Minute
-    bearerTTL := 60 * time.Second
-    basicExpiry := time.Now().Add(basicTTL)
-    bearerExpiry := time.Now().Add(bearerTTL)
-
-    basic := BasicToken{Token: basicToken, Expiry: basicExpiry, NotBefore: time.Now(), TTL: basicExpiry.Sub(time.Now()).Seconds(), IP: requestIP, Valid: true}
-    bearer := BearerToken{Token: bearerToken, Expiry: bearerExpiry, NotBefore: time.Now(), TTL: bearerExpiry.Sub(time.Now()).Seconds(), IP: requestIP, Valid: true}
-    _, exists := authMap.Load(sessionID)
-    authMap.Store(sessionID, AuthSession{Basic: basic, Bearer: bearer})
-
-    value, ok := authMap.Load(sessionID)
-    if !ok {
-      log.Error("Cannot load auth session from authMap")
-      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-      return
-    }
-    authSession := value.(AuthSession)
-
-    if authSession.Bearer.Token != bearerToken || authSession.Bearer.TTL <= 0 || 
-        authSession.Bearer.Valid == false || authSession.Bearer.IP != requestIP || 
-        time.Now().After(authSession.Bearer.Expiry) || time.Now().Before(authSession.Bearer.NotBefore) {
-      log.Error("Error while creating new bearer token: " + requestIP)
-      authMap.Delete(sessionID)
-      atomic.AddInt64(&authMapEntryCount, -1)
-      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-      return
-    }
-
-    authMapEntryCount = atomic.LoadInt64(&authMapEntryCount)
-    if authMapEntryCount < 0 {
-      authMapEntryCount = 0
-    }
-
-    if exists {
-      log.Info("Auth session exists: " + requestIP + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
-    } else {
-      atomic.AddInt64(&authMapEntryCount, 1)
-      authMapEntryCount = atomic.LoadInt64(&authMapEntryCount)
-      if authMapEntryCount < 0 {
-        authMapEntryCount = 0
-      }
-      log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
-    }
-
-    returnedJsonStruct := returnedJsonToken{
-      Token: authSession.Bearer.Token,
-      TTL:   authSession.Bearer.TTL,
-      Valid: authSession.Bearer.Valid,
-    }
-
-    jsonData, err := json.Marshal(returnedJsonStruct)
-    if err != nil {
-      log.Error("Cannot marshal Token to JSON: " + err.Error())
-      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-      return
-    }
-
-    io.WriteString(w, string(jsonData))
-    return
-  }
-}
-
 
 func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken string, requestBearerToken string) (basicValid bool, bearerValid bool, basicTTL float64, bearerTTL float64, matchedSession *AuthSession) {
   basicValid = false
@@ -998,6 +988,7 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
 
   return
 }
+
 
 func apiAuth(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -1193,7 +1184,13 @@ func main() {
 
 
   // Route to correct function
-  baseMuxChain := muxChain{apiMiddleWare, apiAuth}
+  baseMuxChain := muxChain{
+    rateLimitMiddleware,
+    corsMiddleware,
+    tlsMiddleware,
+    headersAndMethodMiddleware,
+    apiAuth,
+  }
   // refreshTokenMuxChain := muxChain{apiMiddleWare}
   mux := http.NewServeMux()
   mux.Handle("/api/auth", baseMuxChain.thenFunc(getNewBearerToken))
