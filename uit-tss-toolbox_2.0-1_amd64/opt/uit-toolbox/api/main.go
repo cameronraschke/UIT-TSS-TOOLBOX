@@ -881,10 +881,11 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
 
     basic := BasicToken{Token: basicToken, Expiry: basicExpiry, NotBefore: time.Now(), TTL: basicExpiry.Sub(time.Now()).Seconds(), IP: requestIP, Valid: true}
     bearer := BearerToken{Token: bearerToken, Expiry: bearerExpiry, NotBefore: time.Now(), TTL: bearerExpiry.Sub(time.Now()).Seconds(), IP: requestIP, Valid: true}
-    authMap.Delete(requestIP)
-    atomic.AddInt64(&authMapEntryCount, -1)
+    _, exists := authMap.Load(requestIP)
     authMap.Store(requestIP, AuthSession{Basic: basic, Bearer: bearer})
-    atomic.AddInt64(&authMapEntryCount, 1)
+    if !exists {
+      atomic.AddInt64(&authMapEntryCount, 1)
+    }
 
     value, ok := authMap.Load(requestIP)
     if !ok {
