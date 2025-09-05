@@ -86,6 +86,7 @@ async function checkAndUpdateTokenDB() {
     }
 
     if (!result.valid || Number(result.ttl) <= 5) {
+      console.log("Bearer token is invalid or expired, requesting new token from API.");
       const newBearerToken = await getOrRequestToken();
       if (!newBearerToken) {
         throw new Error('Failed to retrieve new bearerToken');
@@ -146,7 +147,6 @@ async function checkToken(bearerToken = null) {
           resolve({ valid: true, ttl: Number(data.ttl) });
           return;
         } else {
-          console.log("Current bearerToken is invalid or expired. Requesting new token from API.");
           resolve({ valid: false, ttl: 0 });
           return;
         }

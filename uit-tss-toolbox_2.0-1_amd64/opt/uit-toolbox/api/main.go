@@ -905,7 +905,7 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
       return
     }
 
-    log.Info("New auth session created: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
+    log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
 
     returnedJsonStruct := returnedJsonToken{
       Token: authSession.Bearer.Token,
