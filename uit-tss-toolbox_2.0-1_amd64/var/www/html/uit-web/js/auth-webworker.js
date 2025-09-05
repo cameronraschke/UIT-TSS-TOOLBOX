@@ -146,7 +146,7 @@ async function checkToken(bearerToken = null) {
           resolve({ valid: true, ttl: Number(data.ttl) });
           return;
         } else {
-          console.log("Token from API is invalid or TTL is too low");
+          console.log("Current bearerToken is invalid or expired. Requesting new token from API.");
           resolve({ valid: false, ttl: 0 });
           return;
         }

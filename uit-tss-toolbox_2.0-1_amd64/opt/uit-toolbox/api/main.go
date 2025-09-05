@@ -21,6 +21,7 @@ import (
   "errors"
   "database/sql"
   "sync"
+  "sync/atomic"
   "runtime/debug"
   "slices"
   "strconv"
@@ -55,6 +56,21 @@ func (chain muxChain) then(handle http.Handler) http.Handler {
 }
 
 
+type HttpHeaders struct {
+  Authorization AuthHeader
+  ContentType   *string
+  Accept        *string
+  Origin        *string
+  UserAgent     *string
+  Referer       *string
+  Host          *string
+}
+
+type AuthHeader struct {
+  Basic *string
+  Bearer *string
+}
+
 type Locations struct {
   Time            *time.Time  `json:"time"`
   Tagnumber       *int32      `json:"tagnumber"`
@@ -83,10 +99,33 @@ type TestQuery struct {
   Message   *string   `json:"message"`
 }
 
-type AuthToken struct {
-	Token   string    `json:"token"`
-  TTL     float64   `json:"ttl"`
-  Valid   bool      `json:"valid"`
+type BasicToken struct {
+	Token       string    `json:"token"`
+  Expiry      time.Time `json:"expiry"`
+  NotBefore   time.Time `json:"not_before"`
+  TTL         float64   `json:"ttl"`
+  IP          string    `json:"ip"`
+  Valid       bool      `json:"valid"`
+}
+
+type BearerToken struct {
+	Token       string    `json:"token"`
+	Expiry      time.Time `json:"expiry"`
+	NotBefore   time.Time `json:"not_before"`
+	TTL         float64   `json:"ttl"`
+	IP          string    `json:"ip"`
+	Valid       bool      `json:"valid"`
+}
+
+type AuthSession struct {
+    Basic  BasicToken
+    Bearer BearerToken
+}
+
+type returnedJsonToken struct {
+  Token string  `json:"token"`
+  TTL   float64 `json:"ttl"`
+  Valid bool    `json:"valid"`
 }
 
 type httpErrorCodes struct {
@@ -108,19 +147,39 @@ var (
   eventType string
   db *sql.DB
   authMap sync.Map
+  authMapEntryCount int64
   ipMap sync.Map
   log = logger.LoggerFactory("console")
 )
 
 
+
+func ParseHeaders(header http.Header) HttpHeaders {
+  var headers HttpHeaders
+  var authHeader AuthHeader
+  for _, value := range header.Values("Authorization") {
+    value = strings.TrimSpace(value)
+    if strings.HasPrefix(value, "Basic ") {
+      basic := strings.TrimSpace(strings.TrimPrefix(value, "Basic "))
+      authHeader.Basic = &basic
+    }
+    if strings.HasPrefix(value, "Bearer ") {
+      bearer := strings.TrimSpace(strings.TrimPrefix(value, "Bearer "))
+      authHeader.Bearer = &bearer
+    }
+  }
+  headers.Authorization = authHeader
+  return headers
+}
+
+
 func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitChan chan<- int) {
-  var totalEntries int
-  // var entryExists bool
+  // float64 has to be used in order to compare to the request rate which is calculated as a float64 value
   var requestLimit float64
   var bannedTimeout time.Duration
 
   // Limit how many requests per second and how long a client gets timed out for
-  requestLimit = 100
+  requestLimit = 200
   bannedTimeout = time.Second * 10
 
   requestIPAddr := <-ipAddrChan
@@ -134,8 +193,6 @@ func rateLimitCheck(ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitC
     var timeDiff float64
     var rate float64
     var requestRate float64
-
-    totalEntries++
 
     if key == requestIPAddr {
       timeDiff = math.Abs(value.LastSeen.Sub(time.Now()).Seconds())
@@ -739,38 +796,19 @@ func apiMiddleWare (next http.Handler) http.Handler {
   })
 }
 
-func refreshClientToken(w http.ResponseWriter, req *http.Request) {
-  var rows *sql.Rows
-  var TTLDuration time.Duration
-  var jsonData []byte
-  var jsonDataStr string
+func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
   var basicToken string
-  var err error
+  requestIP, _, _ := net.SplitHostPort(req.RemoteAddr)
 
-  // TTL for tokens
-  TTLDuration = time.Second * 60
+  headers := ParseHeaders(req.Header)
+  if headers.Authorization.Basic != nil {
+    basicToken = *headers.Authorization.Basic
+  }
 
-  // Get Basic token from Authorization header
-  headerMap := req.Header.Values("Authorization")
-  for _, value := range headerMap {
-    if strings.HasPrefix(value, "Bearer ") {
-      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-      return
-    }
-    if strings.HasPrefix(value, "Basic ") {
-      basicToken = strings.TrimPrefix(value, "Basic ")
-      basicToken = strings.TrimSpace(basicToken)
-    }
-    if basicToken == "" {
-      log.Info("Missing/Malformed Basic Authorization header")
-      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-      return
-    }
-    if len(strings.TrimSpace(basicToken)) == 0 {
-      log.Warning("Empty value for Basic Authorization header")
-      http.Error(w, formatHttpError("Empty Basic Authorization header"), http.StatusUnauthorized)
-      return
-    }
+  if strings.TrimSpace(basicToken) == "" {
+    log.Warning("Empty value for Basic Authorization header")
+    http.Error(w, formatHttpError("Empty Basic Authorization header"), http.StatusUnauthorized)
+    return
   }
 
   dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -785,7 +823,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
 
   // Check if the Basic token exists in the database
   sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
-  rows, err = db.QueryContext(dbCTX, sqlCode, basicToken)
+  rows, err := db.QueryContext(dbCTX, sqlCode, basicToken)
   if err != nil {
     log.Error("Cannot query database for API Auth: " + err.Error())
     http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
@@ -796,7 +834,7 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
   for rows.Next() {
     var dbToken string
 
-    if err = rows.Scan(&dbToken); err != nil {
+    if err := rows.Scan(&dbToken); err != nil {
       log.Error("Error scanning token: " + err.Error())
       http.Error(w, "Internal server error", http.StatusInternalServerError)
       return
@@ -806,155 +844,195 @@ func refreshClientToken(w http.ResponseWriter, req *http.Request) {
       http.Error(w, "Internal server error", http.StatusInternalServerError)
       return
     }
-    if len(strings.TrimSpace(dbToken)) == 0 {
+    if strings.TrimSpace(dbToken) == "" {
       log.Info("DB token has 0 length")
       http.Error(w, formatHttpError("Internal server error"), http.StatusUnauthorized)
       return
     }
 
-    if dbToken == basicToken {
-      // hash := sha256.New()
-      // hash.Write([]byte(dbToken))
-      // hashedTokenStr := fmt.Sprintf("%x", hash.Sum(nil))
-      hash := make([]byte, 32)
-      _, err = rand.Read(hash)
-      if err != nil {
-        log.Error("Cannot generate token: " + err.Error())
-        http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-        return
-      }
-      hashedTokenStr := fmt.Sprintf("%x", hash)
-
-      authMap.Store(hashedTokenStr, time.Now().Add(TTLDuration))
-      var totalArrEntries int
-      authMap.Range(func(_, _ interface{}) bool {
-        totalArrEntries++
-        return true
-      })
-      if hashedTokenStr != "" && len(strings.TrimSpace(hashedTokenStr)) > 0 {
-        authMap.Range(func(k, v interface{}) bool {
-          key := k.(string)
-          value := v.(time.Time)
-          if key == hashedTokenStr {
-            log.Info("New auth session created: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(totalArrEntries) + " TTL: " + fmt.Sprintf("%.2f", value.Sub(time.Now()).Seconds()) + "s)")
-            jsonData, err = json.Marshal(AuthToken{Token: hashedTokenStr, TTL: value.Sub(time.Now()).Seconds(), Valid: true})
-            if err != nil {
-              log.Error("Cannot marshal Token to JSON: " + err.Error())
-              return false
-            }
-
-            jsonDataStr = string(jsonData)
-            io.WriteString(w, jsonDataStr)
-            return false
-          } else {
-            return true
-          }
-        })
-        return
-      } else {
-        log.Error("Failed to create new auth session: " + req.RemoteAddr)
-        http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-        return
-      }
-    } else {
-        log.Info("Incorrect credentials provided for token refresh: " + req.RemoteAddr)
-        http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
-        return
+    if dbToken != basicToken {
+      log.Info("Incorrect credentials provided for token refresh: " + req.RemoteAddr)
+      http.Error(w, formatHttpError("Forbidden"), http.StatusUnauthorized)
+      return
     }
+
+    // hash := sha256.New()
+    // hash.Write([]byte(dbToken))
+    // bearerToken := fmt.Sprintf("%x", hash.Sum(nil))
+    hash := make([]byte, 32)
+    _, err := rand.Read(hash)
+    if err != nil {
+      log.Error("Cannot generate token: " + err.Error())
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+    bearerToken := fmt.Sprintf("%x", hash)
+    if strings.TrimSpace(bearerToken) == "" {
+      log.Error("Failed to generate bearer token")
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+
+    // Set expiry time
+    basicTTL := 60 * time.Minute
+    bearerTTL := 60 * time.Second
+    basicExpiry := time.Now().Add(basicTTL)
+    bearerExpiry := time.Now().Add(bearerTTL)
+
+    basic := BasicToken{Token: basicToken, Expiry: basicExpiry, NotBefore: time.Now(), TTL: basicExpiry.Sub(time.Now()).Seconds(), IP: requestIP, Valid: true}
+    bearer := BearerToken{Token: bearerToken, Expiry: bearerExpiry, NotBefore: time.Now(), TTL: bearerExpiry.Sub(time.Now()).Seconds(), IP: requestIP, Valid: true}
+    authMap.Delete(requestIP)
+    atomic.AddInt64(&authMapEntryCount, -1)
+    authMap.Store(requestIP, AuthSession{Basic: basic, Bearer: bearer})
+    atomic.AddInt64(&authMapEntryCount, 1)
+
+    value, ok := authMap.Load(requestIP)
+    if !ok {
+      log.Error("Cannot load auth session from authMap")
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+    authSession := value.(AuthSession)
+
+    if authSession.Bearer.Token != bearerToken || authSession.Bearer.TTL <= 0 || 
+        authSession.Bearer.Valid == false || authSession.Bearer.IP != requestIP || 
+        time.Now().After(authSession.Bearer.Expiry) || time.Now().Before(authSession.Bearer.NotBefore) {
+      log.Error("Error while creating new bearer token: " + requestIP)
+      authMap.Delete(requestIP)
+      atomic.AddInt64(&authMapEntryCount, -1)
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+
+    log.Info("New auth session created: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
+
+    returnedJsonStruct := returnedJsonToken{
+      Token: authSession.Bearer.Token,
+      TTL:   authSession.Bearer.TTL,
+      Valid: authSession.Bearer.Valid,
+    }
+
+    jsonData, err := json.Marshal(returnedJsonStruct)
+    if err != nil {
+      log.Error("Cannot marshal Token to JSON: " + err.Error())
+      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      return
+    }
+
+    io.WriteString(w, string(jsonData))
+    return
   }
 }
 
 
 func apiAuth (next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-    var matches int
-    var timeDiff time.Duration
-    var bearerToken string
-    var basicToken string
-    var jsonData []byte
-    var jsonDataStr string
-    var err error
-
-    var totalArrEntries int
-    authMap.Range(func(k, v interface{}) bool {
-      totalArrEntries++
-      return true
-    })
+    var requestBasicToken string
+    var requestBearerToken string
 
     // Delete expired tokens & malformed entries out of authMap
     authMap.Range(func(k, v interface{}) bool {
-      value := v.(time.Time)
-      key := k.(string)
-      timeDiff = value.Sub(time.Now())
+      ip := k.(string)
+      authSession := v.(AuthSession)
+      // basicExpiry := authSession.Basic.Expiry.Sub(time.Now())
+      bearerExpiry := authSession.Bearer.Expiry.Sub(time.Now())
 
       // Auth cache entry expires once countdown reaches zero
-      if timeDiff.Seconds() < 0 {
-        authMap.Delete(key)
-        totalArrEntries--
-        if totalArrEntries < 0 {
-          totalArrEntries = 0
+      if bearerExpiry.Seconds() <= 0 {
+        authMap.Delete(ip)
+        atomic.AddInt64(&authMapEntryCount, -1)
+        authMapEntryCount := atomic.LoadInt64(&authMapEntryCount)
+        if authMapEntryCount < 0 {
+          authMapEntryCount = 0
         }
-        log.Info("Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
+        log.Info("Auth session expired: " + ip + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " +   strconv.Itoa(int(authMapEntryCount)) + " session(s))")
       }
       return true
     })
 
+    requestIP, _, _ := net.SplitHostPort(req.RemoteAddr)
+
     
-    // Get token from Authorization header
-    headerMap := req.Header.Values("Authorization")
-    for _, value := range headerMap {
-      if strings.HasPrefix(value, "Bearer ") {
-        bearerToken = strings.TrimPrefix(value, "Bearer ")
-        bearerToken = strings.TrimSpace(bearerToken)
-      }
-      if strings.HasPrefix(value, "Basic ") {
-        basicToken = strings.TrimPrefix(value, "Basic ")
-        basicToken = strings.TrimSpace(basicToken)
-      }
-      if bearerToken == "" && basicToken == "" {
-        log.Info("Missing/Malformed Authorization header")
-        http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-        return
-      }
-      if len(strings.TrimSpace(bearerToken)) == 0 && len(strings.TrimSpace(basicToken)) == 0 {
-        log.Warning("Empty value for Authorization header")
-        http.Error(w, formatHttpError("Empty Authorization header"), http.StatusUnauthorized)
-        return
-      }
+    headers := ParseHeaders(req.Header)
+    if headers.Authorization.Basic != nil {
+      requestBasicToken = *headers.Authorization.Basic
+    }
+    if headers.Authorization.Bearer != nil {
+      requestBearerToken = *headers.Authorization.Bearer
+    }
+
+    if strings.TrimSpace(requestBearerToken) == "" && strings.TrimSpace(requestBasicToken) == "" {
+      log.Warning("Empty value for Authorization header")
+      http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
+      return
     }
     
-    var tokenTTL float64 = -1
+    queryType := req.URL.Query().Get("type")
+    authMatches := int(0)
+    tokenTTL := float64(0)
     authMap.Range(func(k, v interface{}) bool {
-      key := k.(string)
-      value := v.(time.Time)
+      ip := k.(string)
+      authSession := v.(AuthSession)
 
-      if key == bearerToken {
-        tokenTTL = value.Sub(time.Now()).Seconds()
-        matches++
-        return false
+      if ip != requestIP {
+        return true
       }
-      return true
+      
+      basicExists := strings.TrimSpace(authSession.Basic.Token) != ""
+      bearerExists := strings.TrimSpace(authSession.Bearer.Token) != ""
+
+      if !basicExists && !bearerExists {
+        authMap.Delete(ip)
+        atomic.AddInt64(&authMapEntryCount, -1)
+        authMatches = 0
+        return true
+      }
+
+      if basicExists {
+        if time.Now().After(authSession.Basic.Expiry) || !authSession.Basic.Valid || authSession.Basic.IP != ip {
+          authMap.Delete(ip)
+          atomic.AddInt64(&authMapEntryCount, -1)
+          return true
+        }
+      }
+
+      if bearerExists {
+        if time.Now().After(authSession.Bearer.Expiry) || !authSession.Bearer.Valid || authSession.Bearer.IP != ip {
+          authMap.Delete(ip)
+          atomic.AddInt64(&authMapEntryCount, -1)
+          return true
+        }
+        
+        tokenTTL = authSession.Bearer.Expiry.Sub(time.Now()).Seconds()
+      }
+
+      authMatches = 1
+      return false
     })
 
-    if matches >= 1 {
-      // log.Debug("Auth cached: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(totalArrEntries) + " session(s))")
-      if req.URL.Query().Get("type") == "check-token" && len(strings.TrimSpace(bearerToken)) > 0 {
-        jsonData, err = json.Marshal(AuthToken{Token: bearerToken, TTL: tokenTTL, Valid: true})
+    if authMatches == 1 {
+      // log.Debug("Auth cached: " + req.RemoteAddr + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ", " + strconv.Itoa(authMapEntryCount) + " session(s))")
+      if queryType == "check-token" {
+        jsonData, err := json.Marshal(returnedJsonToken{
+          Token: requestBearerToken, 
+          TTL: tokenTTL, 
+          Valid: true,
+        })
         if err != nil {
           log.Error("Cannot marshal Token to JSON: " + err.Error())
           return
         }
-        jsonDataStr = string(jsonData)
-        io.WriteString(w, jsonDataStr)
+        io.WriteString(w, string(jsonData))
         return
       }
       next.ServeHTTP(w, req)
     } else {
-      log.Debug("Auth cache miss: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(totalArrEntries) + ")")
-      if req.URL.Query().Get("type") == "new-token" && len(strings.TrimSpace(basicToken)) > 0 {
+      authMapEntryCount := atomic.LoadInt64(&authMapEntryCount)
+      log.Debug("Auth cache miss: " + req.RemoteAddr + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + ")")
+      if queryType == "new-token" && strings.TrimSpace(requestBasicToken) != "" {
         next.ServeHTTP(w, req)
       } else {
-        http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
+        http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
         return
       }
     }
@@ -976,17 +1054,23 @@ func startAuthMapCleanup(interval time.Duration) {
     for {
       time.Sleep(interval)
       authMap.Range(func(k, v interface{}) bool {
-        value := v.(time.Time)
-        key := k.(string)
-        timeDiff := value.Sub(time.Now())
+      ip := k.(string)
+      authSession := v.(AuthSession)
+      // basicExpiry := authSession.Basic.Expiry.Sub(time.Now())
+      bearerExpiry := authSession.Bearer.Expiry.Sub(time.Now())
 
-        // Auth cache entry expires once countdown reaches zero
-        if timeDiff.Seconds() < 0 {
-          authMap.Delete(key)
-          log.Info("(Auth Cleanup) Auth session expired: " + key + " (TTL: " + fmt.Sprintf("%.2f", timeDiff.Seconds()) + ")")
+      // Auth cache entry expires once countdown reaches zero
+      if bearerExpiry.Seconds() <= 0 {
+        authMap.Delete(ip)
+        atomic.AddInt64(&authMapEntryCount, -1)
+        authMapEntryCount := atomic.LoadInt64(&authMapEntryCount)
+        if authMapEntryCount < 0 {
+          authMapEntryCount = 0
         }
-        return true
-      })
+        log.Info("(Cleanup) Auth session expired: " + ip + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(authMapEntryCount)) + " session(s))")
+      }
+      return true
+    })
     }
   }()
 }
@@ -1062,7 +1146,7 @@ func main() {
   baseMuxChain := muxChain{apiMiddleWare, apiAuth}
   // refreshTokenMuxChain := muxChain{apiMiddleWare}
   mux := http.NewServeMux()
-  mux.Handle("/api/auth", baseMuxChain.thenFunc(refreshClientToken))
+  mux.Handle("/api/auth", baseMuxChain.thenFunc(getNewBearerToken))
   mux.Handle("/api/remote", baseMuxChain.thenFunc(remoteAPI))
   mux.Handle("/api/post", baseMuxChain.thenFunc(postAPI))
   mux.Handle("/api/locations", baseMuxChain.thenFunc(remoteAPI))
