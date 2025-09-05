@@ -944,7 +944,7 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
   bearerValid = false
   basicTTL = 0.0
   bearerTTL = 0.0
-  matchedSession = &authSession
+  matchedSession = nil
 
   authMap.Range(func(k, v interface{}) bool {
     authSession := v.(AuthSession)
