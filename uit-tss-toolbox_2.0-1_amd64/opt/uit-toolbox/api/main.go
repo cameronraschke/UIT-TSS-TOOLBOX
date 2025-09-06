@@ -445,6 +445,9 @@ func apiAuth(next http.Handler) http.Handler {
 
 func csrfMiddleware(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+  // Still testing function
+  next.ServeHTTP(w, req)
+
     requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
     if err != nil {
       log.Warning("Cannot parse IP: " + req.RemoteAddr)
@@ -476,7 +479,7 @@ func csrfMiddleware(next http.Handler) http.Handler {
         return
       }
       authSession := value.(AuthSession)
-      
+
       if csrfToken != authSession.CSRF {
         log.Warning("Invalid CSRF token for session: " + sessionID)
         http.Error(w, formatHttpError("Forbidden: invalid CSRF token"), http.StatusForbidden)
