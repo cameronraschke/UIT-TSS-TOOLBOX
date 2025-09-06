@@ -156,7 +156,7 @@ func rateLimitMiddleware(next http.Handler) http.Handler {
       }
     case <-time.After(5 * time.Second):
       log.Error("Ban check timed out")
-      http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+      http.Error(w, formatHttpError("Server error"), http.StatusInternalServerError)
       return
     }
 
@@ -169,7 +169,7 @@ func tlsMiddleware(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
     if req.TLS == nil || !req.TLS.HandshakeComplete {
       log.Warning("TLS handshake failed for client " + req.RemoteAddr)
-      http.Error(w, formatHttpError("TLS handshake failed"), http.StatusForbidden)
+      http.Error(w, formatHttpError("TLS required"), http.StatusUpgradeRequired)
       return
     }
     next.ServeHTTP(w, req)
@@ -200,18 +200,6 @@ func httpMethodMiddleware(next http.Handler) http.Handler {
       http.Error(w, formatHttpError("Method not allowed"), http.StatusMethodNotAllowed)
       return
     }
-
-    // Handle OPTIONS early
-    if req.Method == http.MethodOptions {
-      // Headers for OPTIONS request
-      w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
-      w.Header().Set("Access-Control-Allow-Credentials", "true")
-      w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-      w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
-      w.WriteHeader(http.StatusNoContent)
-      return
-    }
-
     
     // Check Content-Type for POST/PUT
     if req.Method == http.MethodPost || req.Method == http.MethodPut {
@@ -221,30 +209,6 @@ func httpMethodMiddleware(next http.Handler) http.Handler {
         http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
         return
       }
-    }
-    next.ServeHTTP(w, req)
-  })
-}
-
-
-func csrfMiddleware(next http.Handler) http.Handler {
-  return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-    // Only check for state-changing methods
-    if req.Method == http.MethodPost || req.Method == http.MethodPut || req.Method == http.MethodPatch || req.Method == http.MethodDelete {
-      csrfToken := req.Header.Get("X-CSRF-Token")
-      sessionToken := ""
-      csrfCookie, err := req.Cookie("csrf_token")
-      if err == nil {
-        sessionToken = csrfCookie.Value
-      }
-
-      if csrfToken == "" || sessionToken == "" || csrfToken != sessionToken {
-        http.Error(w, "Invalid or missing CSRF token", http.StatusForbidden)
-        return
-      }
-
-      // Add csrf token to authMap
-      
     }
     next.ServeHTTP(w, req)
   })
@@ -342,23 +306,41 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
     cors.AddTrustedOrigin("https://WAN_IP_ADDRESS:1411")
     if err := cors.Check(req); err != nil {
       log.Warning("Request to " + req.URL.RequestURI() + " blocked from " + req.RemoteAddr)
+      http.Error(w, formatHttpError("CORS policy violation"), http.StatusForbidden)
+      return
+    }
+
+    // Handle OPTIONS early
+    if req.Method == http.MethodOptions {
+      // Headers for OPTIONS request
+      w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
+      w.Header().Set("Access-Control-Allow-Credentials", "true")
+      w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+      w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
+      w.WriteHeader(http.StatusNoContent)
       return
     }
 
     w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
     w.Header().Set("Access-Control-Allow-Credentials", "true")
     w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
     w.Header().Set("X-Content-Type-Options", "nosniff")
     w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
     w.Header().Set("Pragma", "no-cache")
     w.Header().Set("Expires", "0")
-    w.Header().Set("Host", "WAN_IP_ADDRESS:31411")
     w.Header().Set("X-Frame-Options", "DENY")
     w.Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
     w.Header().Set("Strict-Transport-Security", "max-age=86400; includeSubDomains")
     w.Header().Set("X-Accel-Buffering", "no")
     w.Header().Set("Referrer-Policy", "no-referrer")
+    w.Header().Set("Server", "")
+    w.Header().Set("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+
+    // Deprecated headers
+    w.Header().Set("X-XSS-Protection", "1; mode=block")
+    w.Header().Set("X-Download-Options", "noopen")
+    w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
 
     // JSON or SSE response
     parsedURL, _ := url.Parse(req.URL.RequestURI())
@@ -369,6 +351,117 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
       w.Header().Set("Content-Type", "application/json; charset=utf-8")
     }
 
+    next.ServeHTTP(w, req)
+  })
+}
+
+
+func apiAuth(next http.Handler) http.Handler {
+  return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+    var requestBasicToken string
+    var requestBearerToken string
+
+    // Delete expired tokens & malformed entries out of authMap
+    authMap.Range(func(k, v interface{}) bool {
+      sessionID := k.(string)
+      authSession := v.(AuthSession)
+      sessionIP := strings.SplitN(sessionID, ":", 2)[0]
+
+      // basicExpiry := authSession.Basic.Expiry.Sub(time.Now())
+      bearerExpiry := authSession.Bearer.Expiry.Sub(time.Now())
+
+      // Auth cache entry expires once countdown reaches zero
+      if bearerExpiry.Seconds() <= 0 {
+        authMap.Delete(sessionID)
+        atomic.AddInt64(&authMapEntryCount, -1)
+        sessionCount = atomic.LoadInt64(&authMapEntryCount)
+        log.Info("Auth session expired: " + sessionIP + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(sessionCount)) + " session(s))")
+      }
+      return true
+    })
+
+    requestIP, _, _ := net.SplitHostPort(req.RemoteAddr)
+    queryType := strings.TrimSpace(req.URL.Query().Get("type"))
+    if strings.TrimSpace(queryType) == "" {
+      log.Warning("No query type defined for request: " + req.RemoteAddr)
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+
+    headers := ParseHeaders(req.Header)
+    if headers.Authorization.Basic != nil {
+      requestBasicToken = *headers.Authorization.Basic
+    }
+    if headers.Authorization.Bearer != nil {
+      requestBearerToken = *headers.Authorization.Bearer
+    }
+
+    if strings.TrimSpace(requestBearerToken) == "" && strings.TrimSpace(requestBasicToken) == "" {
+      log.Warning("Empty value for Authorization header")
+      http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
+      return
+    }
+    
+    basicValid, bearerValid, _, bearerTTL, matchedSession := checkAuthSession(&authMap, requestIP, requestBasicToken, requestBearerToken)
+    
+    if (basicValid && bearerValid) || bearerValid {
+      if queryType == "check-token" {
+        jsonData, err := json.Marshal(returnedJsonToken{
+          Token: matchedSession.Bearer.Token,
+          TTL:   bearerTTL,
+          Valid: true,
+        })
+        if err != nil {
+          log.Error("Cannot marshal Token to JSON: " + err.Error())
+          return
+        }
+        io.WriteString(w, string(jsonData))
+        return
+      } else if strings.TrimSpace(queryType) != "" {
+        next.ServeHTTP(w, req)
+      } else {
+        log.Warning("No query type defined for bearer token: " + requestIP)
+        http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+        return
+      }
+    } else if (basicValid && !bearerValid) || (!basicValid && !bearerValid) {
+      sessionCount = atomic.LoadInt64(&authMapEntryCount)
+      log.Debug("Auth cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + ")")
+      if queryType == "new-token" && strings.TrimSpace(requestBasicToken) != "" {
+        next.ServeHTTP(w, req)
+      } else {
+        http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
+        return
+      }
+    } else {
+      log.Warning("No valid authentication found for request: " + requestIP)
+      http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
+      return
+    }
+  })
+}
+
+
+func csrfMiddleware(next http.Handler) http.Handler {
+  return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+    // Only check for state-changing methods
+    if req.Method == http.MethodPost || req.Method == http.MethodPut || req.Method == http.MethodPatch || req.Method == http.MethodDelete {
+      csrfToken := req.Header.Get("X-CSRF-Token")
+      sessionToken := ""
+      csrfCookie, err := req.Cookie("csrf_token")
+      if err == nil {
+        sessionToken = csrfCookie.Value
+      }
+
+      if csrfToken == "" || sessionToken == "" || csrfToken != sessionToken {
+        log.Warning("Invalid or missing CSRF token from " + req.RemoteAddr + " for " + req.Method + " " + req.URL.RequestURI())
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+      }
+
+      // Add csrf token to authMap
+      
+    }
     next.ServeHTTP(w, req)
   })
 }
@@ -791,20 +884,14 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
       return
     }
 
-    authMapEntryCount = atomic.LoadInt64(&authMapEntryCount)
-    if authMapEntryCount < 0 {
-      authMapEntryCount = 0
-    }
+    sessionCount = atomic.LoadInt64(&authMapEntryCount)
 
     if exists {
-      log.Info("Auth session exists: " + requestIP + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
+      log.Info("Auth session exists: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
     } else {
       atomic.AddInt64(&authMapEntryCount, 1)
-      authMapEntryCount = atomic.LoadInt64(&authMapEntryCount)
-      if authMapEntryCount < 0 {
-        authMapEntryCount = 0
-      }
-      log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
+      sessionCount = atomic.LoadInt64(&authMapEntryCount)
+      log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
     }
 
     returnedJsonStruct := returnedJsonToken{
@@ -887,95 +974,6 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
 }
 
 
-func apiAuth(next http.Handler) http.Handler {
-  return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-    var requestBasicToken string
-    var requestBearerToken string
-
-    // Delete expired tokens & malformed entries out of authMap
-    authMap.Range(func(k, v interface{}) bool {
-      sessionID := k.(string)
-      authSession := v.(AuthSession)
-      sessionIP := strings.SplitN(sessionID, ":", 2)[0]
-
-      // basicExpiry := authSession.Basic.Expiry.Sub(time.Now())
-      bearerExpiry := authSession.Bearer.Expiry.Sub(time.Now())
-
-      // Auth cache entry expires once countdown reaches zero
-      if bearerExpiry.Seconds() <= 0 {
-        authMap.Delete(sessionID)
-        atomic.AddInt64(&authMapEntryCount, -1)
-        authMapEntryCount = atomic.LoadInt64(&authMapEntryCount)
-        if authMapEntryCount < 0 {
-          authMapEntryCount = 0
-        }
-        log.Info("Auth session expired: " + sessionIP + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(authMapEntryCount)) + " session(s))")
-      }
-      return true
-    })
-
-    requestIP, _, _ := net.SplitHostPort(req.RemoteAddr)
-    queryType := strings.TrimSpace(req.URL.Query().Get("type"))
-    if strings.TrimSpace(queryType) == "" {
-      log.Warning("No query type defined for request: " + req.RemoteAddr)
-      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-      return
-    }
-
-    headers := ParseHeaders(req.Header)
-    if headers.Authorization.Basic != nil {
-      requestBasicToken = *headers.Authorization.Basic
-    }
-    if headers.Authorization.Bearer != nil {
-      requestBearerToken = *headers.Authorization.Bearer
-    }
-
-    if strings.TrimSpace(requestBearerToken) == "" && strings.TrimSpace(requestBasicToken) == "" {
-      log.Warning("Empty value for Authorization header")
-      http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
-      return
-    }
-    
-    basicValid, bearerValid, _, bearerTTL, matchedSession := checkAuthSession(&authMap, requestIP, requestBasicToken, requestBearerToken)
-    
-    if (basicValid && bearerValid) || bearerValid {
-      if queryType == "check-token" {
-        jsonData, err := json.Marshal(returnedJsonToken{
-          Token: matchedSession.Bearer.Token,
-          TTL:   bearerTTL,
-          Valid: true,
-        })
-        if err != nil {
-          log.Error("Cannot marshal Token to JSON: " + err.Error())
-          return
-        }
-        io.WriteString(w, string(jsonData))
-        return
-      } else if strings.TrimSpace(queryType) != "" {
-        next.ServeHTTP(w, req)
-      } else {
-        log.Warning("No query type defined for bearer token: " + requestIP)
-        http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-        return
-      }
-    } else if (basicValid && !bearerValid) || (!basicValid && !bearerValid) {
-      authMapEntryCount = atomic.LoadInt64(&authMapEntryCount)
-      log.Debug("Auth cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(authMapEntryCount)) + ")")
-      if queryType == "new-token" && strings.TrimSpace(requestBasicToken) != "" {
-        next.ServeHTTP(w, req)
-      } else {
-        http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
-        return
-      }
-    } else {
-      log.Warning("No valid authentication found for request: " + requestIP)
-      http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
-      return
-    }
-  })
-}
-
-
 // func GetInfoHandler(w http.ResponseWriter, r *http.Request) {
 //     w.Header().Set("Content-Type", "application/json")
 //     if err := json.NewEncoder(w).Encode(db.Stats()); err != nil {
@@ -1001,11 +999,8 @@ func startAuthMapCleanup(interval time.Duration) {
         if bearerExpiry.Seconds() <= 0 {
           authMap.Delete(sessionID)
           atomic.AddInt64(&authMapEntryCount, -1)
-          authMapEntryCount = atomic.LoadInt64(&authMapEntryCount)
-          if authMapEntryCount < 0 {
-            authMapEntryCount = 0
-          }
-          log.Info("(Cleanup) Auth session expired: " + sessionIP + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(authMapEntryCount)) + " session(s))")
+          sessionCount = atomic.LoadInt64(&authMapEntryCount)
+          log.Info("(Cleanup) Auth session expired: " + sessionIP + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(sessionCount)) + " session(s))")
         }
         return true
       })
@@ -1085,10 +1080,10 @@ func main() {
     rateLimitMiddleware,
     tlsMiddleware,
     httpMethodMiddleware,
-    csrfMiddleware,
     checkHeadersMiddleware,
     setHeadersMiddleware,
     apiAuth,
+    csrfMiddleware,
   }
   // refreshTokenMuxChain := muxChain{apiMiddleWare}
   mux := http.NewServeMux()
