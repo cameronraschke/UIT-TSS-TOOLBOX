@@ -455,16 +455,34 @@ func csrfMiddleware(next http.Handler) http.Handler {
     // Only check for state-changing methods
     if req.Method == http.MethodPost || req.Method == http.MethodPut || req.Method == http.MethodPatch || req.Method == http.MethodDelete {
       csrfToken := req.Header.Get("X-CSRF-Token")
-      csrfCookie, err := req.Cookie("csrf_token")
-      if err == nil {
-        sessionToken = csrfCookie.Value
-      }
-
-      if csrfToken == "" || csrfToken != sessionToken {
-        log.Warning("Invalid or missing CSRF token from " + requestIP + " for " + req.Method + " " + req.URL.RequestURI())
-        http.Error(w, "Forbidden", http.StatusForbidden)
+      if strings.TrimSpace(csrfToken) == "" {
+        log.Warning("Missing CSRF token in request from " + req.RemoteAddr)
+        http.Error(w, formatHttpError("Forbidden: missing CSRF token"), http.StatusForbidden)
         return
       }
+
+      headers := ParseHeaders(req.Header)
+      var bearerToken string
+      if headers.Authorization.Bearer != nil {
+        bearerToken = *headers.Authorization.Bearer
+      }
+
+      sessionID := requestIP + ":" + bearerToken
+
+      value, ok := authMap.Load(sessionID)
+      if !ok {
+        log.Warning("No session found for CSRF check: " + sessionID)
+        http.Error(w, formatHttpError("Forbidden: invalid session"), http.StatusForbidden)
+        return
+      }
+      authSession := value.(AuthSession)
+      
+      if csrfToken != authSession.CSRF {
+        log.Warning("Invalid CSRF token for session: " + sessionID)
+        http.Error(w, formatHttpError("Forbidden: invalid CSRF token"), http.StatusForbidden)
+        return
+      }
+      
     }
     next.ServeHTTP(w, req)
   })

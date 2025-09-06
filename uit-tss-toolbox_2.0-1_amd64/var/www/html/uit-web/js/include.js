@@ -74,6 +74,14 @@ function test() {
 };
 
 
+function getCsrfCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return '';
+}
+
+
 async function postData(queryType, jsonStr) {
   try {
     if (!queryType || queryType.trim().length === 0 || typeof queryType !== 'string') {
@@ -97,11 +105,15 @@ async function postData(queryType, jsonStr) {
 
     // Get bearerToken from IndexedDB
     const bearerToken = await getBearerToken();
+    const csrfToken = getCsrfCookie('csrf_token');
+
+    
     const headers = new Headers();
     headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    headers.append('credentials', 'include');
     headers.append('Authorization', 'Bearer ' + bearerToken);
-    
+    if (csrfToken) {
+      headers.append('X-CSRF-Token', csrfToken);
+    }
 
     const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType).replace(/'/g, "%27"), {
       method: 'POST',
