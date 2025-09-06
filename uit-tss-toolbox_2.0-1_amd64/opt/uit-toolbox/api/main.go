@@ -2,16 +2,17 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"io"
-	"math"
 	"net"
 	"net/http"
 	"os"
+	"path"
+	"path/filepath"
+	"unicode"
 
 	// "net/http/httputil"
-	"encoding/base64"
+
 	"encoding/json"
 	"time"
 
@@ -121,515 +122,13 @@ var (
 	authMapEntryCount int64
 	ipMap             sync.Map
 	log               logger.Logger = logger.CreateLogger("console", logger.ParseLogLevel(os.Getenv("UIT_TOOLBOX_LOG_LEVEL")))
+
+	allowedFiles = map[string]bool{
+		"filesystem.squashfs": true,
+		"initrd.img":          true,
+		"vmlinuz":             true,
+	}
 )
-
-// Middleware section
-
-func rateLimitMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
-		if err != nil {
-			log.Warning("Cannot parse IP: " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-		_, _ = ipMap.LoadOrStore(requestIP, RateLimiter{Requests: 1, LastSeen: time.Now(), MapLastUpdated: time.Now(), Banned: false})
-
-		ipAddrChan := make(chan string)
-		bannedChan := make(chan bool)
-		rateLimitChan := make(chan int)
-
-		go func() {
-			rateLimitCheck(req.Context(), ipAddrChan, bannedChan, rateLimitChan)
-		}()
-		ipAddrChan <- requestIP
-		close(ipAddrChan)
-
-		select {
-		case bannedBool := <-bannedChan:
-			if bannedBool {
-				reqsPerSec := <-rateLimitChan
-				log.Warning("Banned (" + requestIP + ")" + ", too many requests (" + fmt.Sprintf("%d", reqsPerSec) + "/s)")
-				http.Error(w, formatHttpError("Too many requests"), http.StatusTooManyRequests)
-				return
-			}
-		case <-time.After(5 * time.Second):
-			log.Error("Ban check timed out")
-			http.Error(w, formatHttpError("Server error"), http.StatusInternalServerError)
-			return
-		}
-
-		next.ServeHTTP(w, req)
-	})
-}
-
-func timeoutMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		ctx, cancel := context.WithTimeout(req.Context(), 10*time.Second)
-		defer cancel()
-		req = req.WithContext(ctx)
-		next.ServeHTTP(w, req)
-	})
-}
-
-func tlsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		if req.TLS == nil || !req.TLS.HandshakeComplete {
-			log.Warning("TLS handshake failed for client " + req.RemoteAddr)
-			http.Error(w, formatHttpError("TLS required"), http.StatusUpgradeRequired)
-			return
-		}
-
-		if req.TLS.Version < tls.VersionTLS13 {
-			log.Warning("Rejected connection with weak TLS version from " + req.RemoteAddr)
-			http.Error(w, formatHttpError("TLS version too low"), http.StatusUpgradeRequired)
-			return
-		}
-
-		weakCiphers := map[uint16]bool{
-			tls.TLS_RSA_WITH_RC4_128_SHA:                true,
-			tls.TLS_RSA_WITH_3DES_EDE_CBC_SHA:           true,
-			tls.TLS_RSA_WITH_AES_128_CBC_SHA256:         true,
-			tls.TLS_ECDHE_ECDSA_WITH_RC4_128_SHA:        true,
-			tls.TLS_ECDHE_RSA_WITH_RC4_128_SHA:          true,
-			tls.TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA:     true,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256: true,
-			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256:   true,
-		}
-		if weakCiphers[req.TLS.CipherSuite] {
-			log.Warning("Rejected connection with weak cipher suite from " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Weak cipher suite not allowed"), http.StatusUpgradeRequired)
-			return
-		}
-
-		next.ServeHTTP(w, req)
-	})
-}
-
-func httpMethodMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		// Get IP address
-		requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
-		if err != nil {
-			log.Warning("Cannot parse IP: " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// Check method
-		validMethods := map[string]bool{
-			http.MethodOptions: true,
-			http.MethodGet:     true,
-			http.MethodPost:    true,
-			http.MethodPut:     true,
-			http.MethodDelete:  true,
-		}
-		if !validMethods[req.Method] {
-			log.Warning("Invalid request method (" + requestIP + "): " + req.Method)
-			http.Error(w, formatHttpError("Method not allowed"), http.StatusMethodNotAllowed)
-			return
-		}
-
-		// Check Content-Type for POST/PUT
-		if req.Method == http.MethodPost || req.Method == http.MethodPut {
-			contentType := req.Header.Get("Content-Type")
-			if contentType != "application/x-www-form-urlencoded" && contentType != "application/json" {
-				log.Warning("Invalid Content-Type header: " + contentType + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-				http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
-			}
-		}
-		next.ServeHTTP(w, req)
-	})
-}
-
-func checkHeadersMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		// Get IP address
-		requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
-		if err != nil {
-			log.Warning("Cannot parse IP: " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// Content length
-		if req.ContentLength > 64<<20 {
-			log.Warning("Request content length exceeds limit: " + fmt.Sprintf("%.2fMB", float64(req.ContentLength)/1e6))
-			http.Error(w, formatHttpError("Request too large"), http.StatusRequestEntityTooLarge)
-			return
-		}
-
-		// URL length
-		if len(req.URL.RequestURI()) > 2048 {
-			log.Warning("Request URL length exceeds limit: " + fmt.Sprintf("%d", len(req.URL.RequestURI())) + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Request URI too long"), http.StatusRequestURITooLong)
-			return
-		}
-
-		// URL path
-		if strings.ContainsAny(req.URL.Path, "<>\"'%;()&+") {
-			log.Warning("Invalid characters in URL path: " + req.URL.Path + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// URL query
-		if strings.ContainsAny(req.URL.RawQuery, "<>\"'%;()+") {
-			log.Warning("Invalid characters in query parameters: " + req.URL.RawQuery + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// Origin header
-		origin := req.Header.Get("Origin")
-		if origin != "" && len(origin) > 2048 {
-			log.Warning("Invalid Origin header: " + origin + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// Host header
-		host := req.Host
-		if strings.TrimSpace(host) == "" || strings.ContainsAny(host, " <>\"'%;()&+") || len(host) > 255 {
-			log.Warning("Invalid Host header: " + host + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// User-Agent header
-		userAgent := req.Header.Get("User-Agent")
-		if userAgent == "" || len(userAgent) > 256 {
-			log.Warning("Invalid User-Agent header: " + userAgent + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// Referer header
-		referer := req.Header.Get("Referer")
-		if referer != "" && len(referer) > 2048 {
-			log.Warning("Invalid Referer header: " + referer + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// Other headers
-		// for key, value := range req.Header {
-		//   if strings.ContainsAny(key, "<>\"'%;()&+") || strings.ContainsAny(value[0], "<>\"'%;()&+") {
-		//     log.Warning("Invalid characters in header '" + key + "': " + value[0] + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-		//     http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-		//     return
-		//   }
-		// }
-
-		next.ServeHTTP(w, req)
-	})
-}
-
-func setHeadersMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		// Check CORS policy
-		cors := http.NewCrossOriginProtection()
-		cors.AddTrustedOrigin("https://WAN_IP_ADDRESS:1411")
-		if err := cors.Check(req); err != nil {
-			log.Warning("Request to " + req.URL.RequestURI() + " blocked from " + req.RemoteAddr)
-			http.Error(w, formatHttpError("CORS policy violation"), http.StatusForbidden)
-			return
-		}
-
-		// Handle OPTIONS early
-		if req.Method == http.MethodOptions {
-			// Headers for OPTIONS request
-			w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		w.Header().Set("Pragma", "no-cache")
-		w.Header().Set("Expires", "0")
-		w.Header().Set("X-Frame-Options", "DENY")
-		w.Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
-		w.Header().Set("Strict-Transport-Security", "max-age=86400; includeSubDomains")
-		w.Header().Set("X-Accel-Buffering", "no")
-		w.Header().Set("Referrer-Policy", "no-referrer")
-		w.Header().Set("Server", "")
-		w.Header().Set("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
-
-		// Deprecated headers
-		w.Header().Set("X-XSS-Protection", "1; mode=block")
-		w.Header().Set("X-Download-Options", "noopen")
-		w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
-
-		// JSON or SSE response
-		parsedURL, _ := url.Parse(req.URL.RequestURI())
-		queries, _ := url.ParseQuery(parsedURL.RawQuery)
-		if queries.Get("sse") == "true" {
-			w.Header().Set("Content-Type", "text/event-stream")
-		} else {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		}
-
-		next.ServeHTTP(w, req)
-	})
-}
-
-func apiAuth(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		var requestBasicToken string
-		var requestBearerToken string
-		var sessionCount int = 0
-
-		// Delete expired tokens & malformed entries out of authMap
-		authMap.Range(func(k, v interface{}) bool {
-			sessionID := k.(string)
-			authSession := v.(AuthSession)
-			sessionIP := strings.SplitN(sessionID, ":", 2)[0]
-
-			// basicExpiry := authSession.Basic.Expiry.Sub(time.Now())
-			bearerExpiry := time.Until(authSession.Bearer.Expiry)
-
-			// Auth cache entry expires once countdown reaches zero
-			if bearerExpiry.Seconds() <= 0 {
-				authMap.Delete(sessionID)
-				sessionCount = countAuthSessions(&authMap)
-				log.Info("Auth session expired: " + sessionIP + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(sessionCount)) + " session(s))")
-			}
-			return true
-		})
-
-		requestIP, _, _ := net.SplitHostPort(req.RemoteAddr)
-		queryType := strings.TrimSpace(req.URL.Query().Get("type"))
-		if strings.TrimSpace(queryType) == "" {
-			log.Warning("No query type defined for request: " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		headers := ParseHeaders(req.Header)
-		if headers.Authorization.Basic != nil {
-			requestBasicToken = *headers.Authorization.Basic
-		}
-		if headers.Authorization.Bearer != nil {
-			requestBearerToken = *headers.Authorization.Bearer
-		}
-
-		if strings.TrimSpace(requestBearerToken) == "" && strings.TrimSpace(requestBasicToken) == "" {
-			log.Warning("Empty value for Authorization header")
-			http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
-			return
-		}
-
-		basicValid, bearerValid, _, bearerTTL, matchedSession := checkAuthSession(&authMap, requestIP, requestBasicToken, requestBearerToken)
-
-		if (basicValid && bearerValid) || bearerValid {
-			if queryType == "check-token" {
-				jsonData, err := json.Marshal(returnedJsonToken{
-					Token: matchedSession.Bearer.Token,
-					TTL:   bearerTTL,
-					Valid: true,
-				})
-				if err != nil {
-					log.Error("Cannot marshal Token to JSON: " + err.Error())
-					return
-				}
-				w.Write(jsonData)
-				return
-			} else if strings.TrimSpace(queryType) != "" {
-				next.ServeHTTP(w, req)
-			} else {
-				log.Warning("No query type defined for bearer token: " + requestIP)
-				http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-				return
-			}
-		} else if (basicValid && !bearerValid) || (!basicValid && !bearerValid) {
-			sessionCount = countAuthSessions(&authMap)
-			log.Debug("Auth cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + ")")
-			if queryType == "new-token" && strings.TrimSpace(requestBasicToken) != "" {
-				next.ServeHTTP(w, req)
-			} else {
-				http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
-				return
-			}
-		} else {
-			log.Warning("No valid authentication found for request: " + requestIP)
-			http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
-			return
-		}
-	})
-}
-
-func csrfMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		// Still testing function
-
-		requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
-		if err != nil {
-			log.Warning("Cannot parse IP: " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// Only check for state-changing methods
-		if req.Method == http.MethodPost || req.Method == http.MethodPut || req.Method == http.MethodPatch || req.Method == http.MethodDelete {
-			csrfToken := req.Header.Get("X-CSRF-Token")
-			if strings.TrimSpace(csrfToken) == "" {
-				log.Warning("Missing CSRF token in request from " + req.RemoteAddr)
-				http.Error(w, formatHttpError("Forbidden: missing CSRF token"), http.StatusForbidden)
-				return
-			}
-
-			headers := ParseHeaders(req.Header)
-			var bearerToken string
-			if headers.Authorization.Bearer != nil {
-				bearerToken = *headers.Authorization.Bearer
-			}
-
-			sessionID := requestIP + ":" + bearerToken
-
-			value, ok := authMap.Load(sessionID)
-			if !ok {
-				log.Warning("No session found for CSRF check: " + sessionID)
-				http.Error(w, formatHttpError("Forbidden: invalid session"), http.StatusForbidden)
-				return
-			}
-			authSession := value.(AuthSession)
-
-			if csrfToken != authSession.CSRF {
-				log.Warning("Invalid CSRF token for session: " + sessionID)
-				http.Error(w, formatHttpError("Forbidden: invalid CSRF token"), http.StatusForbidden)
-				return
-			}
-
-		}
-		next.ServeHTTP(w, req)
-	})
-}
-
-// Helper functions section
-
-func countAuthSessions(m *sync.Map) int {
-	count := 0
-	m.Range(func(_, _ interface{}) bool {
-		count++
-		return true
-	})
-	return count
-}
-
-func formatHttpError(errorString string) (jsonErrStr string) {
-	jsonStr := httpErrorCodes{Message: errorString}
-	jsonErr, err := json.Marshal(jsonStr)
-	if err != nil {
-		log.Error("Cannot parse JSON: " + err.Error())
-		return
-	}
-	return string(jsonErr)
-}
-
-func rateLimitCheck(ctx context.Context, ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitChan chan<- int) {
-	// requestLimit (per second) is float64 because request rate is a float64
-	var requestLimit float64 = 200
-	var bannedTimeout time.Duration = time.Second * 10
-
-	select {
-	case requestIPAddr := <-ipAddrChan:
-		ipMap.Range(func(k, v any) bool {
-			key := k.(string)
-			value := v.(RateLimiter)
-
-			var banned bool
-			var numOfRequests int
-			var timeDiff float64
-			var rate float64
-			var requestRate float64
-
-			if key == requestIPAddr {
-				timeDiff = math.Abs(time.Until(value.LastSeen).Seconds())
-				numOfRequests = value.Requests + 1
-				rate = float64(numOfRequests) / timeDiff
-				requestRate = rate * (1 / timeDiff)
-
-				if value.Banned && time.Until(value.BannedUntil).Seconds() > 0 {
-					banned = true
-					if timeDiff > 1 {
-						bannedChan <- banned
-						rateLimitChan <- int(math.Round(requestRate))
-					}
-					close(bannedChan)
-					close(rateLimitChan)
-					return false
-				}
-
-				banned = false
-				if timeDiff > 1 {
-					if requestRate > requestLimit {
-						banned = true
-					} else {
-						numOfRequests = 0
-						banned = false
-					}
-					ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: time.Now(), MapLastUpdated: time.Now(), BannedUntil: time.Now().Add(bannedTimeout), Banned: banned})
-					bannedChan <- banned
-					rateLimitChan <- int(math.Round(requestRate))
-					close(bannedChan)
-					close(rateLimitChan)
-					return false
-				} else if timeDiff < 1 {
-					ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: value.LastSeen, MapLastUpdated: value.MapLastUpdated, BannedUntil: time.Now().Add(bannedTimeout), Banned: value.Banned})
-					bannedChan <- banned
-					rateLimitChan <- int(math.Round(requestRate))
-					close(bannedChan)
-					close(rateLimitChan)
-					return false
-				} else {
-					return true
-				}
-			}
-			return true
-		})
-	case <-ctx.Done():
-		close(bannedChan)
-		close(rateLimitChan)
-		return
-	}
-}
-
-func generateCSRFToken() (string, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(b), nil
-}
-
-func ParseHeaders(header http.Header) HttpHeaders {
-	var headers HttpHeaders
-	var authHeader AuthHeader
-	for _, value := range header.Values("Authorization") {
-		value = strings.TrimSpace(value)
-		if strings.HasPrefix(value, "Basic ") {
-			basic := strings.TrimSpace(strings.TrimPrefix(value, "Basic "))
-			authHeader.Basic = &basic
-		}
-		if strings.HasPrefix(value, "Bearer ") {
-			bearer := strings.TrimSpace(strings.TrimPrefix(value, "Bearer "))
-			authHeader.Bearer = &bearer
-		}
-	}
-	headers.Authorization = authHeader
-	return headers
-}
-
-// Web endpoints
 
 func remoteAPI(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
@@ -1059,6 +558,209 @@ func startAuthMapCleanup(interval time.Duration) {
 	}()
 }
 
+func redirectToHTTPSHandler(httpsPort string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		host := r.Host
+		if colon := strings.LastIndex(host, ":"); colon != -1 {
+			host = host[:colon]
+		}
+		httpsURL := "https://" + host
+		if httpsPort != "443" && httpsPort != "" {
+			httpsURL += ":" + httpsPort
+		}
+		httpsURL += r.URL.RequestURI()
+		http.Redirect(w, r, httpsURL, http.StatusMovedPermanently)
+	})
+}
+
+func serveLiveISO(w http.ResponseWriter, r *http.Request) {
+	requestIP := r.RemoteAddr
+
+	basePath := "/srv/uit-toolbox/client/iso/live/"
+	rawPath := strings.TrimPrefix(r.URL.Path, "/client/iso/live/")
+	unescapedPath, err := url.PathUnescape(rawPath)
+	if err != nil {
+		log.Warning("Cannot unescape URL path: " + err.Error())
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	sanitizedPath := path.Clean(unescapedPath)
+	sanitizedFileName := path.Base(sanitizedPath)
+
+	// Check valid UTF-8 and allowed characters
+	var disallowedChars = "~%$#\\<>:\"'`|?*"
+	for _, char := range sanitizedFileName {
+		if char < 32 || char == 127 {
+			log.Warning("Control/non-printable character in filename: " + requestIP)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+		if char > 127 {
+			log.Warning("Non-ASCII character in filename: " + requestIP)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+		if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '-' || char == '_' || char == '.') {
+			log.Warning("Invalid Unicode in filename: " + requestIP)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+		if strings.ContainsRune(disallowedChars, char) {
+			log.Warning("Disallowed character in filename: " + requestIP)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+	}
+
+	if strings.Contains(sanitizedPath, "..") ||
+		strings.HasPrefix(sanitizedPath, "/") ||
+		strings.HasPrefix(sanitizedFileName, ".") ||
+		strings.HasSuffix(sanitizedFileName, ".bak") ||
+		strings.HasSuffix(sanitizedFileName, ".tmp") ||
+		strings.HasSuffix(sanitizedFileName, ".swp") {
+		log.Warning("Attempt to access restricted file: " + r.RemoteAddr + " (" + sanitizedFileName + ")")
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	if len(allowedFiles) > 0 && !allowedFiles[sanitizedFileName] {
+		log.Warning("File not in whitelist: " + sanitizedFileName)
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	fullFilePathSanitized := path.Join(basePath, sanitizedFileName)
+
+	log.Info("File request from " + requestIP + " for " + sanitizedFileName)
+
+	resolvedPath, err := filepath.EvalSymlinks(fullFilePathSanitized)
+	if err != nil || !strings.HasPrefix(resolvedPath, basePath) {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	// Open the file
+	f, err := os.Open(resolvedPath)
+	if err != nil {
+		log.Warning("File not found: " + resolvedPath + " (" + err.Error() + ")")
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	defer f.Close()
+
+	// Get file info for headers
+	stat, err := f.Stat()
+	if err != nil {
+		log.Error("Cannot stat file: " + resolvedPath + " (" + err.Error() + ")")
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	if stat.IsDir() {
+		log.Warning("Attempt to access directory as file: " + resolvedPath)
+		http.Error(w, "Not a file", http.StatusForbidden)
+		return
+	}
+
+	// Set headers
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+stat.Name()+"\"")
+
+	// Serve the file
+	_, err = io.Copy(w, f)
+	if err != nil {
+		log.Error("Error sending file: " + err.Error())
+		return
+	}
+	log.Info("Served file: " + resolvedPath + " to " + r.RemoteAddr)
+}
+
+func getEnvironmentVars() {
+	WAN_IF := os.Getenv("UIT_WAN_IF")
+	if strings.TrimSpace(WAN_IF) == "" {
+		log.Error("WAN_IF environment variable not set")
+		os.Exit(1)
+	}
+
+	WAN_IP_ADDRESS := os.Getenv("UIT_WAN_IP_ADDRESS")
+	if strings.TrimSpace(WAN_IP_ADDRESS) == "" {
+		log.Error("WAN_IP_ADDRESS environment variable not set")
+		os.Exit(1)
+	}
+
+	WAN_ALLOWED_IP := os.Getenv("UIT_WAN_ALLOWED_IP")
+	if strings.TrimSpace(WAN_ALLOWED_IP) == "" {
+		log.Error("WAN_ALLOWED_IP environment variable not set")
+		os.Exit(1)
+	}
+
+	LAN_IF := os.Getenv("UIT_LAN_IF")
+	if strings.TrimSpace(LAN_IF) == "" {
+		log.Error("LAN_IF environment variable not set")
+		os.Exit(1)
+	}
+
+	LAN_IP_ADDRESS := os.Getenv("UIT_LAN_IP_ADDRESS")
+	if strings.TrimSpace(LAN_IP_ADDRESS) == "" {
+		log.Error("LAN_IP_ADDRESS environment variable not set")
+		os.Exit(1)
+	}
+
+	LAN_ALLOWED_IP := os.Getenv("UIT_LAN_ALLOWED_IP")
+	if strings.TrimSpace(LAN_ALLOWED_IP) == "" {
+		log.Error("LAN_ALLOWED_IP environment variable not set")
+		os.Exit(1)
+	}
+
+	DB_ADMIN_PASSWD := os.Getenv("UIT_DB_ADMIN_PASSWD")
+	if strings.TrimSpace(DB_ADMIN_PASSWD) == "" {
+		log.Error("DB_ADMIN_PASSWD environment variable not set")
+		os.Exit(1)
+	}
+
+	DB_CLIENT_PASSWD := os.Getenv("UIT_DB_CLIENT_PASSWD")
+	if strings.TrimSpace(DB_CLIENT_PASSWD) == "" {
+		log.Error("DB_CLIENT_PASSWD environment variable not set")
+		os.Exit(1)
+	}
+
+	WEB_USER_DEFAULT_PASSWD := os.Getenv("UIT_WEB_USER_DEFAULT_PASSWD")
+	if strings.TrimSpace(WEB_USER_DEFAULT_PASSWD) == "" {
+		log.Error("WEB_USER_DEFAULT_PASSWD environment variable not set")
+		os.Exit(1)
+	}
+
+	WEBMASTER_NAME := os.Getenv("UIT_WEBMASTER_NAME")
+	if strings.TrimSpace(WEBMASTER_NAME) == "" {
+		log.Error("WEBMASTER_NAME environment variable not set")
+		os.Exit(1)
+	}
+
+	WEBMASTER_EMAIL := os.Getenv("UIT_WEBMASTER_EMAIL")
+	if strings.TrimSpace(WEBMASTER_EMAIL) == "" {
+		log.Error("WEBMASTER_EMAIL environment variable not set")
+		os.Exit(1)
+	}
+
+	// // Web users in the database login table. Format is below:
+	// // WEB_USERS='username1','First Last1' 'username2','First Last2'
+	// WEB_USERS := os.Getenv("UIT_WEB_USERS")
+	// if strings.TrimSpace(WEB_USERS) == "" {
+	// 	log.Error("WEB_USERS environment variable not set")
+	// 	os.Exit(1)
+	// }
+
+	PRINTER_IP := os.Getenv("UIT_PRINTER_IP")
+	if strings.TrimSpace(PRINTER_IP) == "" {
+		log.Error("PRINTER_IP environment variable not set")
+		os.Exit(1)
+	}
+}
+
 func main() {
 	debug.PrintStack()
 	log.Info("Server time: " + time.Now().Format("01-02-2006 15:04:05"))
@@ -1069,6 +771,40 @@ func main() {
 		if pan := recover(); pan != nil {
 			log.Error("Recovered. Error: \n" + fmt.Sprintf("%v", pan))
 			log.Error("Trace: \n" + string(debug.Stack()))
+		}
+	}()
+
+	getEnvironmentVars()
+
+	fileServerMuxChain := muxChain{
+		allowIPRangeMiddleware("10.0.0.0/16"),
+		rateLimitMiddleware,
+		timeoutMiddleware,
+		denyAllMiddleware,
+	}
+
+	httpRedirectToHttps := muxChain{
+		rateLimitMiddleware,
+		timeoutMiddleware,
+		denyAllMiddleware,
+	}
+
+	httpMux := http.NewServeMux()
+	httpMux.Handle("/", httpRedirectToHttps.then(redirectToHTTPSHandler("31411")))
+	httpMux.Handle("/client/iso/live/", fileServerMuxChain.thenFunc(serveLiveISO))
+
+	httpServer := &http.Server{
+		Addr:         "127.0.0.1:8080",
+		Handler:      httpMux,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 1 * time.Minute,
+		IdleTimeout:  2 * time.Minute,
+	}
+
+	go func() {
+		log.Info("File server listening on http://127.0.0.1:8080")
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("File server error: " + err.Error())
 		}
 	}()
 
@@ -1104,7 +840,8 @@ func main() {
 	db.SetConnMaxIdleTime(1 * time.Minute)
 
 	// Route to correct function
-	baseMuxChain := muxChain{
+	httpsMuxChain := muxChain{
+		// allowIPRangeMiddleware("10.0.0.0/16"),
 		rateLimitMiddleware,
 		timeoutMiddleware,
 		tlsMiddleware,
@@ -1113,14 +850,15 @@ func main() {
 		setHeadersMiddleware,
 		apiAuth,
 		// csrfMiddleware,
+		denyAllMiddleware,
 	}
 	// refreshTokenMuxChain := muxChain{apiMiddleWare}
-	mux := http.NewServeMux()
-	mux.Handle("/api/auth", baseMuxChain.thenFunc(getNewBearerToken))
-	mux.Handle("/api/remote", baseMuxChain.thenFunc(remoteAPI))
-	mux.Handle("/api/post", baseMuxChain.thenFunc(postAPI))
-	mux.Handle("/api/locations", baseMuxChain.thenFunc(remoteAPI))
-	// mux.HandleFunc("/dbstats/", GetInfoHandler)
+	httpsMux := http.NewServeMux()
+	httpsMux.Handle("/api/auth", httpsMuxChain.thenFunc(getNewBearerToken))
+	httpsMux.Handle("/api/remote", httpsMuxChain.thenFunc(remoteAPI))
+	httpsMux.Handle("/api/post", httpsMuxChain.thenFunc(postAPI))
+	httpsMux.Handle("/api/locations", httpsMuxChain.thenFunc(remoteAPI))
+	// httpsMux.HandleFunc("/dbstats/", GetInfoHandler)
 
 	log.Info("Starting web server")
 
@@ -1140,9 +878,9 @@ func main() {
 		SessionTicketsDisabled:   true,
 	}
 
-	httpServer := http.Server{
+	httpsServer := http.Server{
 		Addr:           ":31411",
-		Handler:        mux,
+		Handler:        httpsMux,
 		TLSConfig:      tlsConfig,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
@@ -1150,16 +888,16 @@ func main() {
 		MaxHeaderBytes: 1 << 20, // 1MB header size max
 	}
 
-	httpServer.Protocols = new(http.Protocols)
-	httpServer.Protocols.SetHTTP1(false)
-	httpServer.Protocols.SetHTTP2(true)
+	httpsServer.Protocols = new(http.Protocols)
+	httpsServer.Protocols.SetHTTP1(false)
+	httpsServer.Protocols.SetHTTP2(true)
 
 	log.Info("Web server ready and listening for requests on https://*:31411")
 
-	log.Error(httpServer.ListenAndServeTLS("/usr/local/share/ca-certificates/uit-web.crt", "/usr/local/share/ca-certificates/uit-web.key").Error())
+	log.Error(httpsServer.ListenAndServeTLS("/usr/local/share/ca-certificates/uit-web.crt", "/usr/local/share/ca-certificates/uit-web.key").Error())
 	if err != nil {
 		log.Error("Cannot start web server: " + err.Error())
 		os.Exit(1)
 	}
-	defer httpServer.Close()
+	defer httpsServer.Close()
 }
