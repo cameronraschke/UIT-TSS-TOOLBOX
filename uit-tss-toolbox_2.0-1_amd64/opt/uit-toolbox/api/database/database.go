@@ -1,95 +1,85 @@
 package database
 
 import (
-"database/sql"
-"context"
-"time"
-"errors"
-"encoding/json"
+	"context"
+	"database/sql"
+	"encoding/json"
+	"errors"
+	"strconv"
+	"time"
 
-_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/jackc/pgx/v5"
 )
-
-var (
-  dbCTX context.Context
-  channelSqlCode chan string
-  channelSqlRows chan *sql.Rows
-)
-
 
 type AvailableJobs struct {
-  Tagnumber     *int      `json:"tagnumber"`
-  Job           *string   `json:"job"`
-  JobReadable   *string   `json:"job_readable"`
-  JobActive     *bool     `json:"job_active"`
+	Tagnumber   *int    `json:"tagnumber"`
+	Job         *string `json:"job"`
+	JobReadable *string `json:"job_readable"`
+	JobActive   *bool   `json:"job_active"`
 }
 
-func GetAvailableJobs(db *sql.DB, tagnumber int) (string, error) {
-  var sqlCode string
-  var rows *sql.Rows
-  var results []*AvailableJobs
-  var resultsJson string
-  var err error
+func GetAvailableJobs(ctx context.Context, db *sql.DB, tagnumber int) (string, error) {
+	var sqlCode string
+	var rows *sql.Rows
+	var results []*AvailableJobs
+	var resultsJson string
+	var err error
 
-  sqlCode = "SELECT remote.tagnumber, static_job_names.job, static_job_names.job_readable, remote.job_active FROM static_job_names LEFT JOIN remote ON (static_job_names.job = remote.job_queued OR (remote.job_active = TRUE OR remote.job_active = FALSE OR remote.job_queued IS NOT NULL OR remote.job_queued IS NULL)) WHERE remote.tagnumber = $1 AND static_job_names.job_html_bool = TRUE ORDER BY static_job_names.job_rank ASC;"
+	sqlCode = "SELECT remote.tagnumber, static_job_names.job, static_job_names.job_readable, remote.job_active FROM static_job_names LEFT JOIN remote ON (static_job_names.job = remote.job_queued OR (remote.job_active = TRUE OR remote.job_active = FALSE OR remote.job_queued IS NOT NULL OR remote.job_queued IS NULL)) WHERE remote.tagnumber = $1 AND static_job_names.job_html_bool = TRUE ORDER BY static_job_names.job_rank ASC;"
 
-    dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-  defer cancel()
+	rows, err = db.QueryContext(ctx, sqlCode, tagnumber)
+	if err != nil {
+		return "", errors.New("Timeout error: " + err.Error())
+	}
+	defer rows.Close()
 
-  rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
-  if err != nil {
-    return "", errors.New("Timeout error: " + err.Error())
-  }
-  defer rows.Close()
+	for rows.Next() {
+		row := &AvailableJobs{}
+		if err = rows.Err(); err != nil {
+			return "", errors.New("Query error: " + err.Error())
+		}
+		if err = ctx.Err(); err != nil {
+			return "", errors.New("Context error: " + err.Error())
+		}
+		err = rows.Scan(
+			&row.Tagnumber,
+			&row.Job,
+			&row.JobReadable,
+			&row.JobActive,
+		)
+		if err != nil && err != sql.ErrNoRows {
+			return "", errors.New("Error scanning rows: " + err.Error())
+		}
+		results = append(results, row)
+	}
 
-  for rows.Next() {
-    row := &AvailableJobs{}
-    if err = rows.Err(); err != nil {
-      return "", errors.New("Query error: " + err.Error())  
-    }
-    if err = dbCTX.Err(); err != nil {
-      return "", errors.New("Context error: " + err.Error())
-    }
-    err = rows.Scan(
-      &row.Tagnumber,
-      &row.Job,
-      &row.JobReadable,
-      &row.JobActive,
-    )
-    if err != nil && err != sql.ErrNoRows {
-      return "", errors.New("Error scanning rows: " + err.Error())
-    }
-    results = append(results, row)
-  }
-
-  resultsJson, err = CreateJson(results)
-  if err != nil {
-    return "", errors.New("JSON error: " + err.Error())
-  }
-  return resultsJson, nil
+	resultsJson, err = CreateJson(results)
+	if err != nil {
+		return "", errors.New("JSON error: " + err.Error())
+	}
+	return resultsJson, nil
 }
-
 
 type JobQueue struct {
-  Tagnumber             *int      `json:"tagnumber"`
-  PresentBool           *bool     `json:"present_bool"`
-  KernelUpdated         *bool     `json:"kernel_updated"`
-  BiosUpdated           *bool     `json:"bios_updated"`
-  RemoteStatus          *string   `json:"remote_status"`
-  RemoteTimeFormatted   *string   `json:"remote_time_formatted"`
-  JobQueued             *string   `json:"job_queued"`
-  JobQueuedFormatted    *string   `json:"job_queued_formatted"`
-  JobActive             *bool     `json:"job_active"`
+	Tagnumber           *int    `json:"tagnumber"`
+	PresentBool         *bool   `json:"present_bool"`
+	KernelUpdated       *bool   `json:"kernel_updated"`
+	BiosUpdated         *bool   `json:"bios_updated"`
+	RemoteStatus        *string `json:"remote_status"`
+	RemoteTimeFormatted *string `json:"remote_time_formatted"`
+	JobQueued           *string `json:"job_queued"`
+	JobQueuedFormatted  *string `json:"job_queued_formatted"`
+	JobActive           *bool   `json:"job_active"`
 }
 
-func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) (string, error) {
-  var sqlCode string
-  var rows *sql.Rows
-  var results []*JobQueue
-  var resultsJson string
-  var err error
+func GetJobQueueByTagnumber(ctx context.Context, db *sql.DB, tagnumber int) (string, error) {
+	var sqlCode string
+	var rows *sql.Rows
+	var results []*JobQueue
+	var resultsJson string
+	var err error
 
-  sqlCode = `SELECT remote.tagnumber, remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
+	sqlCode = `SELECT remote.tagnumber, remote.present_bool, remote.kernel_updated, client_health.bios_updated, 
   remote.status AS remote_status, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS remote_time_formatted,
   (CASE WHEN remote.job_queued IS NOT NULL THEN remote.job_queued ELSE NULL END) AS job_queued,
   (CASE WHEN remote.job_queued IS NOT NULL THEN static_job_names.job_readable ELSE 'No Job' END) AS job_queued_formatted,
@@ -99,134 +89,124 @@ func GetJobQueueByTagnumber(db *sql.DB, tagnumber int) (string, error) {
   LEFT JOIN static_job_names ON remote.job_queued = static_job_names.job 
   WHERE remote.tagnumber = $1`
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-  defer cancel()
+	rows, err = db.QueryContext(ctx, sqlCode, tagnumber)
+	if err != nil {
+		return "", errors.New("Timeout error: " + err.Error())
+	}
+	defer rows.Close()
 
-  rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
-  if err != nil {
-    return "", errors.New("Timeout error: " + err.Error())
-  }
-  defer rows.Close()
+	for rows.Next() {
+		row := &JobQueue{}
+		if err = rows.Err(); err != nil {
+			return "", errors.New("Query error: " + err.Error())
+		}
+		if err = ctx.Err(); err != nil {
+			return "", errors.New("Context error: " + err.Error())
+		}
+		err = rows.Scan(
+			&row.Tagnumber,
+			&row.PresentBool,
+			&row.KernelUpdated,
+			&row.BiosUpdated,
+			&row.RemoteStatus,
+			&row.RemoteTimeFormatted,
+			&row.JobQueued,
+			&row.JobQueuedFormatted,
+			&row.JobActive,
+		)
+		if err != nil && err != sql.ErrNoRows {
+			return "", errors.New("Error scanning rows: " + err.Error())
+		}
+		results = append(results, row)
+	}
 
-  for rows.Next() {
-    row := &JobQueue{}
-    if err = rows.Err(); err != nil {
-      return "", errors.New("Query error: " + err.Error())  
-    }
-    if err = dbCTX.Err(); err != nil {
-      return "", errors.New("Context error: " + err.Error())
-    }
-    err = rows.Scan(
-      &row.Tagnumber,
-      &row.PresentBool,
-      &row.KernelUpdated,
-      &row.BiosUpdated,
-      &row.RemoteStatus,
-      &row.RemoteTimeFormatted,
-      &row.JobQueued,
-      &row.JobQueuedFormatted,
-      &row.JobActive,
-    )
-    if err != nil && err != sql.ErrNoRows {
-      return "", errors.New("Error scanning rows: " + err.Error())
-    }
-    results = append(results, row)
-  }
-
-  resultsJson, err = CreateJson(results)
-  if err != nil {
-    return "", errors.New("JSON error: " + err.Error())
-  }
-  return resultsJson, nil
+	resultsJson, err = CreateJson(results)
+	if err != nil {
+		return "", errors.New("JSON error: " + err.Error())
+	}
+	return resultsJson, nil
 }
-
-
 
 type AllTags struct {
-  Tagnumber   *int32    `json:"tagnumber"`
+	Tagnumber *int32 `json:"tagnumber"`
 }
 
-func GetAllTags(db *sql.DB) (string, error) {
-  var sqlCode string
-  var rows *sql.Rows
-  var results []*AllTags
-  var resultsJson string
-  var err error
+func GetAllTags(ctx context.Context, db *sql.DB) (string, error) {
+	var sqlCode string
+	var rows *sql.Rows
+	var results []*AllTags
+	var resultsJson string
+	var err error
 
-  sqlCode = `SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC`
+	sqlCode = `SELECT t1.tagnumber FROM (SELECT time, tagnumber, ROW_NUMBER() OVER (PARTITION BY tagnumber ORDER BY time DESC) AS row_nums FROM locations) t1 WHERE t1.row_nums = 1 ORDER BY t1.time DESC`
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-  defer cancel()
+	rows, err = db.QueryContext(ctx, sqlCode)
+	if err != nil {
+		return "", errors.New("Timeout error: " + err.Error())
+	}
+	defer rows.Close()
 
-  rows, err = db.QueryContext(dbCTX, sqlCode)
-  if err != nil {
-    return "", errors.New("Timeout error: " + err.Error())
-  }
-  defer rows.Close()
+	for rows.Next() {
+		row := &AllTags{}
+		if err = rows.Err(); err != nil {
+			return "", errors.New("Query error: " + err.Error())
+		}
+		if err = ctx.Err(); err != nil {
+			return "", errors.New("Context error: " + err.Error())
+		}
+		err = rows.Scan(
+			&row.Tagnumber,
+		)
+		if err != nil && err != sql.ErrNoRows {
+			return "", errors.New("Error scanning rows: " + err.Error())
+		}
+		results = append(results, row)
+	}
 
-  for rows.Next() {
-    row := &AllTags{}
-    if err = rows.Err(); err != nil {
-      return "", errors.New("Query error: " + err.Error())  
-    }
-    if err = dbCTX.Err(); err != nil {
-      return "", errors.New("Context error: " + err.Error())
-    }
-    err = rows.Scan(
-      &row.Tagnumber,
-    )
-    if err != nil && err != sql.ErrNoRows {
-      return "", errors.New("Error scanning rows: " + err.Error())
-    }
-    results = append(results, row)
-  }
-
-  resultsJson, err = CreateJson(results)
-  if err != nil {
-    return "", errors.New("JSON error: " + err.Error())
-  }
-  return resultsJson, nil
+	resultsJson, err = CreateJson(results)
+	if err != nil {
+		return "", errors.New("JSON error: " + err.Error())
+	}
+	return resultsJson, nil
 
 }
-
-
 
 type RemoteOnlineTable struct {
-  Tagnumber                   *int32            `json:"tagnumber"`
-  Screenshot                  *string           `json:"screenshot"`
-  LastJobTimeFormatted        *string           `json:"last_job_time_formatted"`
-  LocationFormatted           *string           `json:"location_formatted"`
-  LocationsStatus             *bool             `json:"locations_status"`
-  Status                      *string           `json:"status"`
-  OsInstalled                 *bool             `json:"os_installed"`
-  OsInstalledFormatted        *string           `json:"os_installed_formatted"`
-  BatteryChargeFormatted      *string           `json:"battery_charge_formatted"`
-  Uptime                      *string           `json:"uptime"`
-  CpuTemp                     *int32            `json:"cpu_temp"`
-  CpuTempFormatted            *string           `json:"cpu_temp_formatted"`
-  DiskTemp                    *int32            `json:"disk_temp"`
-  DiskTempFormatted           *string           `json:"disk_temp_formatted"`
-  MaxDiskTemp                 *int32            `json:"max_disk_temp"`
-  WattsNow                    *string           `json:"watts_now"`
-  Domain                      *string           `json:"domain"`
-  TimeFormatted               *string           `json:"time_formatted"`
-  JobQueued                   *string           `json:"job_queued"`
-  QueuePosition               *int32            `json:"queue_position"`
-  PresentBool                 *bool             `json:"present_bool"`
-  BiosUpdated                 *bool             `json:"bios_updated"`
-  BiosUpdatedFormatted        *string           `json:"bios_updated_formatted"`
-  KernelUpdated               *bool             `json:"kernel_updated"`
-  JobActive                   *bool             `json:"job_active"`
+	Tagnumber              *int32  `json:"tagnumber"`
+	Screenshot             *string `json:"screenshot"`
+	LastJobTimeFormatted   *string `json:"last_job_time_formatted"`
+	LocationFormatted      *string `json:"location_formatted"`
+	LocationsStatus        *bool   `json:"locations_status"`
+	Status                 *string `json:"status"`
+	OsInstalled            *bool   `json:"os_installed"`
+	OsInstalledFormatted   *string `json:"os_installed_formatted"`
+	BatteryChargeFormatted *string `json:"battery_charge_formatted"`
+	Uptime                 *string `json:"uptime"`
+	CpuTemp                *int32  `json:"cpu_temp"`
+	CpuTempFormatted       *string `json:"cpu_temp_formatted"`
+	DiskTemp               *int32  `json:"disk_temp"`
+	DiskTempFormatted      *string `json:"disk_temp_formatted"`
+	MaxDiskTemp            *int32  `json:"max_disk_temp"`
+	WattsNow               *string `json:"watts_now"`
+	Domain                 *string `json:"domain"`
+	TimeFormatted          *string `json:"time_formatted"`
+	JobQueued              *string `json:"job_queued"`
+	QueuePosition          *int32  `json:"queue_position"`
+	PresentBool            *bool   `json:"present_bool"`
+	BiosUpdated            *bool   `json:"bios_updated"`
+	BiosUpdatedFormatted   *string `json:"bios_updated_formatted"`
+	KernelUpdated          *bool   `json:"kernel_updated"`
+	JobActive              *bool   `json:"job_active"`
 }
 
-func GetRemoteOnlineTable(db *sql.DB) (string, error) {
-  var sqlCode string
-  var rows *sql.Rows
-  var results []*RemoteOnlineTable
-  var resultsJson string
-  var err error
+func GetRemoteOnlineTable(ctx context.Context, db *sql.DB) (string, error) {
+	var sqlCode string
+	var rows *sql.Rows
+	var results []*RemoteOnlineTable
+	var resultsJson string
+	var err error
 
-  sqlCode = `SELECT remote.tagnumber, live_images.screenshot, t1.domain, 
+	sqlCode = `SELECT remote.tagnumber, live_images.screenshot, t1.domain, 
       TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, locationFormatting(t3.location) AS location_formatted, 
       TO_CHAR(remote.last_job_time, 'MM/DD/YY HH12:MI:SS AM') AS last_job_time_formatted, 
       remote.job_queued, remote.status, t2.queue_position, remote.present_bool, 
@@ -257,89 +237,83 @@ func GetRemoteOnlineTable(db *sql.DB) (string, error) {
       remote.kernel_updated DESC, t1.locations_status = TRUE DESC, client_health.bios_updated = TRUE DESC, 
       remote.last_job_time DESC`
 
+	rows, err = db.QueryContext(ctx, sqlCode)
+	if err != nil {
+		return "", errors.New("Timeout error: " + err.Error())
+	}
+	defer rows.Close()
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-  defer cancel()
+	for rows.Next() {
+		row := &RemoteOnlineTable{}
+		if err = rows.Err(); err != nil {
+			return "", errors.New("Query error: " + err.Error())
+		}
+		if err = ctx.Err(); err != nil {
+			return "", errors.New("Context error: " + err.Error())
+		}
+		err = rows.Scan(
+			&row.Tagnumber,
+			&row.Screenshot,
+			&row.Domain,
+			&row.TimeFormatted,
+			&row.LocationFormatted,
+			&row.LastJobTimeFormatted,
+			&row.JobQueued,
+			&row.Status,
+			&row.QueuePosition,
+			&row.PresentBool,
+			&row.OsInstalledFormatted,
+			&row.OsInstalled,
+			&row.LocationsStatus,
+			&row.BiosUpdated,
+			&row.BiosUpdatedFormatted,
+			&row.KernelUpdated,
+			&row.BatteryChargeFormatted,
+			&row.Uptime,
+			&row.CpuTemp,
+			&row.CpuTempFormatted,
+			&row.DiskTemp,
+			&row.DiskTempFormatted,
+			&row.MaxDiskTemp,
+			&row.WattsNow,
+			&row.JobActive,
+		)
+		if err != nil && err != sql.ErrNoRows {
+			return "", errors.New("Error scanning rows: " + err.Error())
+		}
+		results = append(results, row)
+	}
 
-  rows, err = db.QueryContext(dbCTX, sqlCode)
-  if err != nil {
-    return "", errors.New("Timeout error: " + err.Error())
-  }
-  defer rows.Close()
-
-  for rows.Next() {
-    row := &RemoteOnlineTable{}
-    if err = rows.Err(); err != nil {
-      return "", errors.New("Query error: " + err.Error())  
-    }
-    if err = dbCTX.Err(); err != nil {
-      return "", errors.New("Context error: " + err.Error())
-    }
-    err = rows.Scan(
-      &row.Tagnumber,
-      &row.Screenshot,
-      &row.Domain,
-      &row.TimeFormatted,
-      &row.LocationFormatted,
-      &row.LastJobTimeFormatted,
-      &row.JobQueued,
-      &row.Status,
-      &row.QueuePosition,
-      &row.PresentBool,
-      &row.OsInstalledFormatted,
-      &row.OsInstalled,
-      &row.LocationsStatus,
-      &row.BiosUpdated,
-      &row.BiosUpdatedFormatted,
-      &row.KernelUpdated,
-      &row.BatteryChargeFormatted,
-      &row.Uptime,
-      &row.CpuTemp,
-      &row.CpuTempFormatted,
-      &row.DiskTemp,
-      &row.DiskTempFormatted,
-      &row.MaxDiskTemp,
-      &row.WattsNow,
-      &row.JobActive,
-    )
-    if err != nil && err != sql.ErrNoRows {
-      return "", errors.New("Error scanning rows: " + err.Error())
-    }
-    results = append(results, row)
-  }
-
-  resultsJson, err = CreateJson(results)
-  if err != nil {
-    return "", errors.New("JSON error: " + err.Error())
-  }
-  return resultsJson, nil
+	resultsJson, err = CreateJson(results)
+	if err != nil {
+		return "", errors.New("JSON error: " + err.Error())
+	}
+	return resultsJson, nil
 }
-
-
 
 type RemoteOfflineTable struct {
-  Tagnumber                   *int32    `json:"tagnumber"`
-  TimeFormatted               *string   `json:"time_formatted"`
-  Status                      *string   `json:"status"`
-  LocationsStatus             *string   `json:"locations_status"`
-  Location                    *string   `json:"location_formatted"`
-  BatteryChargeFormatted      *string   `json:"battery_charge_formatted"`
-  CpuTempFormatted            *string   `json:"cpu_temp_formatted"`
-  DiskTempFormatted           *string   `json:"disk_temp_formatted"`
-  WattsNowFormatted           *string   `json:"watts_now_formatted"`
-  OsInstalledFormatted        *string   `json:"os_installed_formatted"`
-  OsInstalled                 *bool     `json:"os_installed"`
-  DomainJoined                *bool     `json:"domain_joined"`
+	Tagnumber              *int32  `json:"tagnumber"`
+	TimeFormatted          *string `json:"time_formatted"`
+	Status                 *string `json:"status"`
+	LocationsStatus        *string `json:"locations_status"`
+	Location               *string `json:"location_formatted"`
+	BatteryChargeFormatted *string `json:"battery_charge_formatted"`
+	CpuTempFormatted       *string `json:"cpu_temp_formatted"`
+	DiskTempFormatted      *string `json:"disk_temp_formatted"`
+	WattsNowFormatted      *string `json:"watts_now_formatted"`
+	OsInstalledFormatted   *string `json:"os_installed_formatted"`
+	OsInstalled            *bool   `json:"os_installed"`
+	DomainJoined           *bool   `json:"domain_joined"`
 }
 
-func GetRemoteOfflineTable(db *sql.DB) (string, error) {
-  var sqlCode string
-  var rows *sql.Rows
-  var results []*RemoteOfflineTable
-  var resultsJson string
-  var err error
+func GetRemoteOfflineTable(ctx context.Context, db *sql.DB) (string, error) {
+	var sqlCode string
+	var rows *sql.Rows
+	var results []*RemoteOfflineTable
+	var resultsJson string
+	var err error
 
-  sqlCode = `SELECT remote.tagnumber, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, 
+	sqlCode = `SELECT remote.tagnumber, TO_CHAR(remote.present, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, 
         remote.status, locations.status AS locations_status, locationFormatting(locations.location) AS location_formatted, CONCAT(remote.battery_charge, '%', ' - ', remote.battery_status) AS battery_charge_formatted, 
         CONCAT(remote.cpu_temp, '°C') AS cpu_temp_formatted, 
         CONCAT(remote.disk_temp, '°C') AS disk_temp_formatted, CONCAT(remote.watts_now, ' watts') AS watts_now_formatted,
@@ -352,121 +326,112 @@ func GetRemoteOfflineTable(db *sql.DB) (string, error) {
         AND remote.present IS NOT NULL 
       ORDER BY remote.present DESC, remote.tagnumber DESC`
 
+	rows, err = db.QueryContext(ctx, sqlCode)
+	if err != nil {
+		return "", errors.New("Timeout error: " + err.Error())
+	}
+	defer rows.Close()
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-  defer cancel()
+	for rows.Next() {
+		row := &RemoteOfflineTable{}
+		if err = rows.Err(); err != nil {
+			return "", errors.New("Query error: " + err.Error())
+		}
+		if err = ctx.Err(); err != nil {
+			return "", errors.New("Context error: " + err.Error())
+		}
+		err = rows.Scan(
+			&row.Tagnumber,
+			&row.TimeFormatted,
+			&row.Status,
+			&row.LocationsStatus,
+			&row.Location,
+			&row.BatteryChargeFormatted,
+			&row.CpuTempFormatted,
+			&row.DiskTempFormatted,
+			&row.WattsNowFormatted,
+			&row.OsInstalledFormatted,
+			&row.OsInstalled,
+			&row.DomainJoined,
+		)
+		if err != nil && err != sql.ErrNoRows {
+			return "", errors.New("Error scanning rows: " + err.Error())
+		}
+		results = append(results, row)
+	}
 
-  rows, err = db.QueryContext(dbCTX, sqlCode)
-  if err != nil {
-    return "", errors.New("Timeout error: " + err.Error())
-  }
-  defer rows.Close()
-
-  for rows.Next() {
-    row := &RemoteOfflineTable{}
-    if err = rows.Err(); err != nil {
-      return "", errors.New("Query error: " + err.Error())  
-    }
-    if err = dbCTX.Err(); err != nil {
-      return "", errors.New("Context error: " + err.Error())
-    }
-    err = rows.Scan(
-      &row.Tagnumber,
-      &row.TimeFormatted,
-      &row.Status,
-      &row.LocationsStatus,
-      &row.Location,
-      &row.BatteryChargeFormatted,
-      &row.CpuTempFormatted,
-      &row.DiskTempFormatted,
-      &row.WattsNowFormatted,
-      &row.OsInstalledFormatted,
-      &row.OsInstalled,
-      &row.DomainJoined,
-    )
-    if err != nil && err != sql.ErrNoRows {
-      return "", errors.New("Error scanning rows: " + err.Error())
-    }
-    results = append(results, row)
-  }
-
-  resultsJson, err = CreateJson(results)
-  if err != nil {
-    return "", errors.New("JSON error: " + err.Error())
-  }
-  return resultsJson, nil
+	resultsJson, err = CreateJson(results)
+	if err != nil {
+		return "", errors.New("JSON error: " + err.Error())
+	}
+	return resultsJson, nil
 }
-
 
 type LiveImage struct {
-  TimeFormatted     *string        `json:"time_formatted"`
-  Screenshot        *string        `json:"screenshot"`
+	TimeFormatted *string `json:"time_formatted"`
+	Screenshot    *string `json:"screenshot"`
 }
 
-func GetLiveImage(db *sql.DB, tagnumber int) (string, error) {
-  var sqlCode string
-  var rows *sql.Rows
-  var results []*LiveImage
-  var resultsJson string
-  var err error
+func GetLiveImage(ctx context.Context, db *sql.DB, tagnumber int) (string, error) {
+	var sqlCode string
+	var rows *sql.Rows
+	var results []*LiveImage
+	var resultsJson string
+	var err error
 
-  sqlCode = `SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot 
+	sqlCode = `SELECT TO_CHAR(time, 'MM/DD/YY HH12:MI:SS AM') AS time_formatted, screenshot 
             FROM live_images 
             WHERE tagnumber = $1`
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-  defer cancel()
+	rows, err = db.QueryContext(ctx, sqlCode, tagnumber)
+	if err != nil {
+		return "", errors.New("Timeout error: " + err.Error())
+	}
+	defer rows.Close()
 
-  rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
-  if err != nil {
-    return "", errors.New("Timeout error: " + err.Error())
-  }
-  defer rows.Close()
+	for rows.Next() {
+		row := &LiveImage{}
+		if err = rows.Err(); err != nil {
+			return "", errors.New("Query error: " + err.Error())
+		}
+		if err = ctx.Err(); err != nil {
+			return "", errors.New("Context error: " + err.Error())
+		}
+		err = rows.Scan(
+			&row.TimeFormatted,
+			&row.Screenshot,
+		)
+		if err != nil && err != sql.ErrNoRows {
+			return "", errors.New("Error scanning rows: " + err.Error())
+		}
+		results = append(results, row)
+	}
 
-  for rows.Next() {
-    row := &LiveImage{}
-    if err = rows.Err(); err != nil {
-      return "", errors.New("Query error: " + err.Error())  
-    }
-    if err = dbCTX.Err(); err != nil {
-      return "", errors.New("Context error: " + err.Error())
-    }
-    err = rows.Scan(
-      &row.TimeFormatted,
-      &row.Screenshot,
-    )
-    if err != nil && err != sql.ErrNoRows {
-      return "", errors.New("Error scanning rows: " + err.Error())
-    }
-    results = append(results, row)
-  }
-
-  resultsJson, err = CreateJson(results)
-  if err != nil {
-    return "", errors.New("JSON error: " + err.Error())
-  }
-  return resultsJson, nil
+	resultsJson, err = CreateJson(results)
+	if err != nil {
+		return "", errors.New("JSON error: " + err.Error())
+	}
+	return resultsJson, nil
 
 }
-
 
 type RemotePresentHeader struct {
-  TagnumberCount            *string   `json:"tagnumber_count"`
-  OsInstalledFormatted      *string   `json:"os_installed_formatted"`
-  BatteryChargeFormatted    *string   `json:"battery_charge_formatted"`
-  CpuTempFormatted          *string   `json:"cpu_temp_formatted"`
-  DiskTempFormatted         *string   `json:"disk_temp_formatted"`
-  PowerUsageFormatted       *string   `json:"power_usage_formatted"`
+	TagnumberCount         *string `json:"tagnumber_count"`
+	OsInstalledFormatted   *string `json:"os_installed_formatted"`
+	BatteryChargeFormatted *string `json:"battery_charge_formatted"`
+	CpuTempFormatted       *string `json:"cpu_temp_formatted"`
+	DiskTempFormatted      *string `json:"disk_temp_formatted"`
+	PowerUsageFormatted    *string `json:"power_usage_formatted"`
 }
 
-func GetRemotePresentHeader(db *sql.DB) (string, error) {
-  var sqlCode string
-  var rows *sql.Rows
-  var results []*RemotePresentHeader
-  var resultsJson string
-  var err error
+func GetRemotePresentHeader(ctx context.Context, db *sql.DB) (string, error) {
+	var sqlCode string
+	var rows *sql.Rows
+	var results []*RemotePresentHeader
+	var resultsJson string
+	var err error
 
-  sqlCode = `SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, 
+	sqlCode = `SELECT CONCAT('(', COUNT(remote.tagnumber), ')') AS tagnumber_count, 
         CONCAT('(', MIN(remote.battery_charge), '%', '/', MAX(remote.battery_charge), '%', '/', ROUND(AVG(remote.battery_charge), 2), '%', ')') AS battery_charge_formatted, 
         CONCAT('(', MIN(remote.cpu_temp), '°C', '/', MAX(remote.cpu_temp), '°C', '/', ROUND(AVG(remote.cpu_temp), 2), '°C', ')') AS cpu_temp_formatted, 
         CONCAT('(', MIN(remote.disk_temp), '°C',  '/', MAX(remote.disk_temp), '°C' , '/', ROUND(AVG(remote.disk_temp), 2), '°C' , ')') AS disk_temp_formatted, 
@@ -477,106 +442,102 @@ func GetRemotePresentHeader(db *sql.DB) (string, error) {
         ON remote.tagnumber = client_health.tagnumber 
       WHERE remote.present_bool = TRUE`
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-  defer cancel()
+	rows, err = db.QueryContext(ctx, sqlCode)
+	if err != nil {
+		return "", errors.New("Timeout error: " + err.Error())
+	}
+	defer rows.Close()
 
-  rows, err = db.QueryContext(dbCTX, sqlCode)
-  if err != nil {
-    return "", errors.New("Timeout error: " + err.Error())
-  }
-  defer rows.Close()
+	for rows.Next() {
+		row := &RemotePresentHeader{}
+		if err = rows.Err(); err != nil {
+			return "", errors.New("Query error: " + err.Error())
+		}
+		if err = ctx.Err(); err != nil {
+			return "", errors.New("Context error: " + err.Error())
+		}
 
-  for rows.Next() {
-    row := &RemotePresentHeader{}
-    if err = rows.Err(); err != nil {
-      return "", errors.New("Query error: " + err.Error())  
-    }
-    if err = dbCTX.Err(); err != nil {
-      return "", errors.New("Context error: " + err.Error())
-    }
+		err = rows.Scan(
+			&row.TagnumberCount,
+			&row.BatteryChargeFormatted,
+			&row.CpuTempFormatted,
+			&row.DiskTempFormatted,
+			&row.OsInstalledFormatted,
+			&row.PowerUsageFormatted,
+		)
+		if err != nil && err != sql.ErrNoRows {
+			return "", errors.New("Error scanning rows: " + err.Error())
+		}
+		results = append(results, row)
+	}
 
-    err = rows.Scan(
-      &row.TagnumberCount,
-      &row.BatteryChargeFormatted,
-      &row.CpuTempFormatted,
-      &row.DiskTempFormatted,
-      &row.OsInstalledFormatted,
-      &row.PowerUsageFormatted,
-    )
-    if err != nil && err != sql.ErrNoRows {
-        return "", errors.New("Error scanning rows: " + err.Error())
-    }
-      results = append(results, row)
-  }
-
-  resultsJson, err = CreateJson(results)
-  if err != nil {
-    return "", errors.New("JSON error: " + err.Error())
-  }
-  return resultsJson, nil
+	resultsJson, err = CreateJson(results)
+	if err != nil {
+		return "", errors.New("JSON error: " + err.Error())
+	}
+	return resultsJson, nil
 }
-
 
 type TagnumberData struct {
-  LocationTimeFormatted               *string     `json:"location_time_formatted"`
-  PlaceholderBool                     *bool       `json:"placeholder_bool"`
-  JobstatsTime                        *string     `json:"jobstatstime"`
-  Tagnumber                           *int        `json:"tagnumber"`
-  SystemSerial                        *string     `json:"system_serial"`
-  Department                          *string     `json:"department"`
-  Location                            *string     `json:"location"`
-  RemoteStatus                        *string     `json:"remote_status_formatted"`
-  LocationsStatus                     *bool       `json:"locations_status"`
-  DepartmentReadable                  *string     `json:"department_readable"`
-  MostRecentNote                      *string     `json:"most_recent_note"`
-  Note                                *string     `json:"note"`
-  NoteTime                            *string     `json:"note_time_formatted"`
-  DiskRemovedFormatted                *string     `json:"disk_removed_formatted"`
-  DiskRemoved                         *bool       `json:"disk_removed"`
-  Etheraddress                        *string     `json:"etheraddress_formatted"`
-  WifiMac                             *string     `json:"wifi_mac_formatted"`
-  ChassicType                         *string     `json:"chassis_type"`
-  SystemModel                         *string     `json:"system_model_formatted"`
-  CpuModel                            *string     `json:"cpu_model"`
-  CpuMaxSpeed                         *string     `json:"cpu_maxspeed_formatted"`
-  MultithreadedFormatted              *string     `json:"multithreaded_formatted"`
-  RamCapacityFormatted                *string     `json:"ram_capacity_formatted"`
-  DiskModel                           *string     `json:"disk_model"`
-  DiskSize                            *string     `json:"disk_size"`
-  DiskType                            *string     `json:"disk_type"`
-  DiskSerial                          *string     `json:"disk_serial"`
-  Identifier                          *string     `json:"identifier"`
-  RecoveryKey                         *string     `json:"recovery_key"`
-  BatteryHealth                       *string     `json:"battery_health"`
-  DiskHealth                          *float32    `json:"disk_health"`
-  AvgEraseTime                        *int        `json:"avg_erase_time"`
-  AvgCloneTime                        *int        `json:"avg_clone_time"`
-  AllJobs                             *int        `json:"all_jobs"`
-  NetworkSpeedFormatted               *string     `json:"network_speed_formatted"`
-  BiosUpdated                         *bool       `json:"bios_updated"`
-  BiosUpdatedFormatted                *string     `json:"bios_updated_formatted"`
-  DiskWrites                          *float32    `json:"disk_writes"`
-  DiskReads                           *float32    `json:"disk_reads"`
-  DiskPowerOnHours                    *int        `json:"disk_power_on_hours"`
-  DiskPowerCycles                     *int        `json:"disk_power_cycles"`
-  DiskErrors                          *int        `json:"disk_errors"`
-  Domain                              *string     `json:"domain"`
-  DomainReadable                      *string     `json:"domain_readable"`
-  OsInstalledFormatted                *string     `json:"os_installed_formatted"`
-  CustomerName                        *string     `json:"customer_name"`
-  CheckoutDate                        *time.Time  `json:"checkout_date"`
-  CheckoutBool                        *bool       `json:"checkout_bool"`
-  TpmVersion                          *int        `json:"tpm_version"`
+	LocationTimeFormatted  *string    `json:"location_time_formatted"`
+	PlaceholderBool        *bool      `json:"placeholder_bool"`
+	JobstatsTime           *string    `json:"jobstatstime"`
+	Tagnumber              *int       `json:"tagnumber"`
+	SystemSerial           *string    `json:"system_serial"`
+	Department             *string    `json:"department"`
+	Location               *string    `json:"location"`
+	RemoteStatus           *string    `json:"remote_status_formatted"`
+	LocationsStatus        *bool      `json:"locations_status"`
+	DepartmentReadable     *string    `json:"department_readable"`
+	MostRecentNote         *string    `json:"most_recent_note"`
+	Note                   *string    `json:"note"`
+	NoteTime               *string    `json:"note_time_formatted"`
+	DiskRemovedFormatted   *string    `json:"disk_removed_formatted"`
+	DiskRemoved            *bool      `json:"disk_removed"`
+	Etheraddress           *string    `json:"etheraddress_formatted"`
+	WifiMac                *string    `json:"wifi_mac_formatted"`
+	ChassicType            *string    `json:"chassis_type"`
+	SystemModel            *string    `json:"system_model_formatted"`
+	CpuModel               *string    `json:"cpu_model"`
+	CpuMaxSpeed            *string    `json:"cpu_maxspeed_formatted"`
+	MultithreadedFormatted *string    `json:"multithreaded_formatted"`
+	RamCapacityFormatted   *string    `json:"ram_capacity_formatted"`
+	DiskModel              *string    `json:"disk_model"`
+	DiskSize               *string    `json:"disk_size"`
+	DiskType               *string    `json:"disk_type"`
+	DiskSerial             *string    `json:"disk_serial"`
+	Identifier             *string    `json:"identifier"`
+	RecoveryKey            *string    `json:"recovery_key"`
+	BatteryHealth          *string    `json:"battery_health"`
+	DiskHealth             *float32   `json:"disk_health"`
+	AvgEraseTime           *int       `json:"avg_erase_time"`
+	AvgCloneTime           *int       `json:"avg_clone_time"`
+	AllJobs                *int       `json:"all_jobs"`
+	NetworkSpeedFormatted  *string    `json:"network_speed_formatted"`
+	BiosUpdated            *bool      `json:"bios_updated"`
+	BiosUpdatedFormatted   *string    `json:"bios_updated_formatted"`
+	DiskWrites             *float32   `json:"disk_writes"`
+	DiskReads              *float32   `json:"disk_reads"`
+	DiskPowerOnHours       *int       `json:"disk_power_on_hours"`
+	DiskPowerCycles        *int       `json:"disk_power_cycles"`
+	DiskErrors             *int       `json:"disk_errors"`
+	Domain                 *string    `json:"domain"`
+	DomainReadable         *string    `json:"domain_readable"`
+	OsInstalledFormatted   *string    `json:"os_installed_formatted"`
+	CustomerName           *string    `json:"customer_name"`
+	CheckoutDate           *time.Time `json:"checkout_date"`
+	CheckoutBool           *bool      `json:"checkout_bool"`
+	TpmVersion             *int       `json:"tpm_version"`
 }
 
-func GetTagnumberData(db *sql.DB, tagnumber int) (string, error) {
-  var sqlCode string
-  var rows *sql.Rows
-  var results []*TagnumberData
-  var resultsJson string
-  var err error
+func GetTagnumberData(ctx context.Context, db *sql.DB, tagnumber int) (string, error) {
+	var sqlCode string
+	var rows *sql.Rows
+	var results []*TagnumberData
+	var resultsJson string
+	var err error
 
-  sqlCode=`SELECT TO_CHAR(t10.time, 'MM/DD/YY HH12:MI:SS AM') AS location_time_formatted,
+	sqlCode = `SELECT TO_CHAR(t10.time, 'MM/DD/YY HH12:MI:SS AM') AS location_time_formatted,
     (CASE WHEN t3.time = t10.time THEN 1 ELSE 0 END) AS placeholder_bool,
     jobstats.time AS jobstatsTime, locations.tagnumber, locations.system_serial, locations.department, 
     locationFormatting(locations.location) AS location, 
@@ -667,93 +628,89 @@ func GetTagnumberData(db *sql.DB, tagnumber int) (string, error) {
     WHERE locations.tagnumber IS NOT NULL and locations.system_serial IS NOT NULL
     AND locations.tagnumber = $1`
 
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-  defer cancel()
+	rows, err = db.QueryContext(ctx, sqlCode, tagnumber)
+	if err != nil {
+		return "", errors.New("Timeout error: " + err.Error())
+	}
+	defer rows.Close()
 
-  rows, err = db.QueryContext(dbCTX, sqlCode, tagnumber)
-  if err != nil {
-    return "", errors.New("Timeout error: " + err.Error())
-  }
-  defer rows.Close()
+	for rows.Next() {
+		row := &TagnumberData{}
+		if err = rows.Err(); err != nil {
+			return "", errors.New("Query error: " + err.Error())
+		}
+		if err = ctx.Err(); err != nil {
+			return "", errors.New("Context error: " + err.Error())
+		}
 
-  for rows.Next() {
-    row := &TagnumberData{}
-    if err = rows.Err(); err != nil {
-      return "", errors.New("Query error: " + err.Error())  
-    }
-    if err = dbCTX.Err(); err != nil {
-      return "", errors.New("Context error: " + err.Error())
-    }
+		err = rows.Scan(
+			&row.LocationTimeFormatted,
+			&row.PlaceholderBool,
+			&row.JobstatsTime,
+			&row.Tagnumber,
+			&row.SystemSerial,
+			&row.Department,
+			&row.Location,
+			&row.RemoteStatus,
+			&row.LocationsStatus,
+			&row.DepartmentReadable,
+			&row.MostRecentNote,
+			&row.Note,
+			&row.NoteTime,
+			&row.DiskRemovedFormatted,
+			&row.DiskRemoved,
+			&row.Etheraddress,
+			&row.WifiMac,
+			&row.ChassicType,
+			&row.SystemModel,
+			&row.CpuModel,
+			&row.CpuMaxSpeed,
+			&row.MultithreadedFormatted,
+			&row.RamCapacityFormatted,
+			&row.DiskModel,
+			&row.DiskSize,
+			&row.DiskType,
+			&row.DiskSerial,
+			&row.Identifier,
+			&row.RecoveryKey,
+			&row.BatteryHealth,
+			&row.DiskHealth,
+			&row.AvgEraseTime,
+			&row.AvgCloneTime,
+			&row.AllJobs,
+			&row.NetworkSpeedFormatted,
+			&row.BiosUpdated,
+			&row.BiosUpdatedFormatted,
+			&row.DiskWrites,
+			&row.DiskReads,
+			&row.DiskPowerOnHours,
+			&row.DiskPowerCycles,
+			&row.DiskErrors,
+			&row.Domain,
+			&row.DomainReadable,
+			&row.OsInstalledFormatted,
+			&row.CustomerName,
+			&row.CheckoutDate,
+			&row.CheckoutBool,
+			&row.TpmVersion,
+		)
+		if err != nil && err != sql.ErrNoRows {
+			return "", errors.New("Error scanning rows: " + err.Error())
+		}
+		results = append(results, row)
+	}
 
-    err = rows.Scan(
-      &row.LocationTimeFormatted,
-      &row.PlaceholderBool,
-      &row.JobstatsTime,
-      &row.Tagnumber,
-      &row.SystemSerial,
-      &row.Department,
-      &row.Location,
-      &row.RemoteStatus,
-      &row.LocationsStatus,
-      &row.DepartmentReadable,
-      &row.MostRecentNote,
-      &row.Note,
-      &row.NoteTime,
-      &row.DiskRemovedFormatted,
-      &row.DiskRemoved,
-      &row.Etheraddress,
-      &row.WifiMac,
-      &row.ChassicType,
-      &row.SystemModel,
-      &row.CpuModel,
-      &row.CpuMaxSpeed,
-      &row.MultithreadedFormatted,
-      &row.RamCapacityFormatted,
-      &row.DiskModel,
-      &row.DiskSize,
-      &row.DiskType,
-      &row.DiskSerial,
-      &row.Identifier,
-      &row.RecoveryKey,
-      &row.BatteryHealth,
-      &row.DiskHealth,
-      &row.AvgEraseTime,
-      &row.AvgCloneTime,
-      &row.AllJobs,
-      &row.NetworkSpeedFormatted,
-      &row.BiosUpdated,
-      &row.BiosUpdatedFormatted,
-      &row.DiskWrites,
-      &row.DiskReads,
-      &row.DiskPowerOnHours,
-      &row.DiskPowerCycles,
-      &row.DiskErrors,
-      &row.Domain,
-      &row.DomainReadable,
-      &row.OsInstalledFormatted,
-      &row.CustomerName,
-      &row.CheckoutDate,
-      &row.CheckoutBool,
-      &row.TpmVersion,
-    )
-    if err != nil && err != sql.ErrNoRows {
-        return "", errors.New("Error scanning rows: " + err.Error())
-    }
-      results = append(results, row)
-  }
-
-  resultsJson, err = CreateJson(results)
-  if err != nil {
-    return "", errors.New("JSON error: " + err.Error())
-  }
-  return resultsJson, nil
+	resultsJson, err = CreateJson(results)
+	if err != nil {
+		return "", errors.New("JSON error: " + err.Error())
+	}
+	return resultsJson, nil
 }
 
-
-func CreateJson(results interface{}) (string, error) {
-  var jsonData []byte
-  var jsonDataStr string
-  var err error
+func CreateJson(results any) (string, error) {
+	var jsonData []byte
+	var jsonDataStr string
+	var err error
 
 	jsonData, err = json.Marshal(results)
 	if err != nil {
@@ -764,44 +721,41 @@ func CreateJson(results interface{}) (string, error) {
 	if len(jsonData) > 0 {
 		jsonDataStr = string(jsonData)
 	} else {
-		return "", errors.New("Length of JSON is zero")
+		return "", errors.New("length of JSON is zero")
 	}
 
 	return jsonDataStr, nil
 }
 
-func UpdateDB(db *sql.DB, sqlCode string, value string, tagnumber int) error {
-  dbCTX, cancel := context.WithTimeout(context.Background(), 10*time.Second) 
-  defer cancel()
+func UpdateDB(ctx context.Context, db *sql.DB, sqlCode string, value string, tagnumber int) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return errors.New("Cannot begin DB transaction: " + err.Error())
+	}
+	defer tx.Rollback()
 
-  tx, err := db.BeginTx(dbCTX, nil)
-  if err != nil {
-    return errors.New("Cannot begin DB transaction: " + err.Error())
-  }
-  defer tx.Rollback()
+	fail := func(err error) error {
+		tx.Rollback()
+		return errors.New("Error while updating DB (rollback): " + err.Error() + " \n\tSQL: " + sqlCode + " Value: " + value + " Tagnumber: " + strconv.Itoa(tagnumber))
+	}
 
-  fail := func(err error) (error) {
-    tx.Rollback()
-    return errors.New("Error while updating DB (rollback): " + err.Error() + " \n\tSQL: " + sqlCode + " Value: " + value + " Tagnumber: " + string(tagnumber))
-  }
+	result, err := tx.ExecContext(ctx, sqlCode, value, tagnumber)
+	if err != nil {
+		return fail(err)
+	}
 
-  result, err := tx.ExecContext(dbCTX, sqlCode, value, tagnumber)
-  if err != nil {
-    return fail(err)
-  }
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fail(err)
+	}
 
-  rowsAffected, err := result.RowsAffected()
-  if err != nil {
-    return fail(err)
-  }
+	if rowsAffected != 1 {
+		return fail(errors.New("rows affected are not exactly 1"))
+	}
 
-  if rowsAffected != 1 {
-    return fail(errors.New("Rows affected are not exactly 1"))
-  }
+	if err = tx.Commit(); err != nil {
+		return fail(err)
+	}
 
-  if err = tx.Commit(); err != nil {
-    return fail(err)
-  }
-
-  return nil
+	return nil
 }
