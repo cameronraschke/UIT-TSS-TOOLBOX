@@ -322,13 +322,13 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
     }
 
     // Other headers
-    for key, value := range req.Header {
-      if strings.ContainsAny(key, "<>\"'%;()&+") || strings.ContainsAny(value[0], "<>\"'%;()&+") {
-        log.Warning("Invalid characters in header '" + key + "': " + value[0] + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-        http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-        return
-      }
-    }
+    // for key, value := range req.Header {
+    //   if strings.ContainsAny(key, "<>\"'%;()&+") || strings.ContainsAny(value[0], "<>\"'%;()&+") {
+    //     log.Warning("Invalid characters in header '" + key + "': " + value[0] + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+    //     http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+    //     return
+    //   }
+    // }
 
     next.ServeHTTP(w, req)
   })
