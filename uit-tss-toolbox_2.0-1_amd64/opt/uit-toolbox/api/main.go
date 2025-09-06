@@ -19,7 +19,6 @@ import (
   "crypto/rand"
   "crypto/tls"
   "net/url"
-  "errors"
   "database/sql"
   "sync"
   "sync/atomic"
@@ -337,7 +336,7 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 
 
 func setHeadersMiddleware(next http.Handler) http.Handler {
-  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+  return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
     // Check CORS policy
     cors := http.NewCrossOriginProtection()
     cors.AddTrustedOrigin("https://WAN_IP_ADDRESS:1411")
