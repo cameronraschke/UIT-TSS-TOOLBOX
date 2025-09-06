@@ -455,20 +455,16 @@ func csrfMiddleware(next http.Handler) http.Handler {
     // Only check for state-changing methods
     if req.Method == http.MethodPost || req.Method == http.MethodPut || req.Method == http.MethodPatch || req.Method == http.MethodDelete {
       csrfToken := req.Header.Get("X-CSRF-Token")
-      sessionToken := ""
       csrfCookie, err := req.Cookie("csrf_token")
       if err == nil {
         sessionToken = csrfCookie.Value
       }
 
-      if csrfToken == "" || sessionToken == "" || csrfToken != sessionToken {
+      if csrfToken == "" || csrfToken != sessionToken {
         log.Warning("Invalid or missing CSRF token from " + requestIP + " for " + req.Method + " " + req.URL.RequestURI())
         http.Error(w, "Forbidden", http.StatusForbidden)
         return
       }
-
-      // Add csrf token to authMap
-      
     }
     next.ServeHTTP(w, req)
   })
