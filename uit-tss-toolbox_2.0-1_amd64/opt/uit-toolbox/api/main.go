@@ -446,7 +446,6 @@ func apiAuth(next http.Handler) http.Handler {
 func csrfMiddleware(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
   // Still testing function
-  next.ServeHTTP(w, req)
 
     requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
     if err != nil {
@@ -1116,7 +1115,7 @@ func main() {
     checkHeadersMiddleware,
     setHeadersMiddleware,
     apiAuth,
-    csrfMiddleware,
+    // csrfMiddleware,
   }
   // refreshTokenMuxChain := muxChain{apiMiddleWare}
   mux := http.NewServeMux()
