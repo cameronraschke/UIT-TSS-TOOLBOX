@@ -445,6 +445,13 @@ func apiAuth(next http.Handler) http.Handler {
 
 func csrfMiddleware(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+    requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
+    if err != nil {
+      log.Warning("Cannot parse IP: " + req.RemoteAddr)
+      http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+      return
+    }
+
     // Only check for state-changing methods
     if req.Method == http.MethodPost || req.Method == http.MethodPut || req.Method == http.MethodPatch || req.Method == http.MethodDelete {
       csrfToken := req.Header.Get("X-CSRF-Token")
@@ -455,7 +462,7 @@ func csrfMiddleware(next http.Handler) http.Handler {
       }
 
       if csrfToken == "" || sessionToken == "" || csrfToken != sessionToken {
-        log.Warning("Invalid or missing CSRF token from " + req.RemoteAddr + " for " + req.Method + " " + req.URL.RequestURI())
+        log.Warning("Invalid or missing CSRF token from " + requestIP + " for " + req.Method + " " + req.URL.RequestURI())
         http.Error(w, "Forbidden", http.StatusForbidden)
         return
       }

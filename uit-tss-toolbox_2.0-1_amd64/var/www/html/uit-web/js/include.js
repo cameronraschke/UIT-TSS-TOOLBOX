@@ -106,7 +106,8 @@ async function postData(queryType, jsonStr) {
     const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType).replace(/'/g, "%27"), {
       method: 'POST',
       headers: headers,
-      body: jsonStr
+      body: jsonStr,
+      credentials: 'include'
     });
 
     // No content (OPTIONS request)
@@ -114,7 +115,7 @@ async function postData(queryType, jsonStr) {
       return null;
     }
     if (!response.ok) {
-      throw new Error(`Error fetching data: ${url} ${response.status}`);
+      throw new Error(`Error fetching data: ${encodeURIComponent(queryType).replace(/'/g, "%27")} (Status: ${response.status})`);
     }
     if (!response.headers || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
       throw new Error('Response is undefined or not JSON');
