@@ -21,9 +21,9 @@ func allowIPRangeMiddleware(allowedCIDR string) func(http.Handler) http.Handler 
 				http.Error(w, "Forbidden", http.StatusForbidden)
 				return
 			}
-			ip := net.ParseIP(ipStr)
+			requestIP := net.ParseIP(ipStr)
 			_, ipNet, err := net.ParseCIDR(allowedCIDR)
-			if err != nil || !ipNet.Contains(ip) {
+			if err != nil || !ipNet.Contains(requestIP) {
 				http.Error(w, "Forbidden", http.StatusForbidden)
 				return
 			}
@@ -33,40 +33,26 @@ func allowIPRangeMiddleware(allowedCIDR string) func(http.Handler) http.Handler 
 }
 
 func rateLimitMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestIP, _, err := net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
-			log.Warning("Cannot parse IP: " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-		_, _ = ipMap.LoadOrStore(requestIP, RateLimiter{Requests: 1, LastSeen: time.Now(), MapLastUpdated: time.Now(), Banned: false})
-
-		ipAddrChan := make(chan string)
-		bannedChan := make(chan bool)
-		rateLimitChan := make(chan int)
-
-		go func() {
-			rateLimitCheck(req.Context(), ipAddrChan, bannedChan, rateLimitChan)
-		}()
-		ipAddrChan <- requestIP
-		close(ipAddrChan)
-
-		select {
-		case bannedBool := <-bannedChan:
-			if bannedBool {
-				reqsPerSec := <-rateLimitChan
-				log.Warning("Banned (" + requestIP + ")" + ", too many requests (" + fmt.Sprintf("%d", reqsPerSec) + "/s)")
-				http.Error(w, formatHttpError("Too many requests"), http.StatusTooManyRequests)
-				return
-			}
-		case <-time.After(5 * time.Second):
-			log.Error("Ban check timed out")
-			http.Error(w, formatHttpError("Server error"), http.StatusInternalServerError)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
 
-		next.ServeHTTP(w, req)
+		if isBlocked(requestIP) {
+			http.Error(w, "Too Many Requests (IP temporarily blocked)", http.StatusTooManyRequests)
+			return
+		}
+
+		limiter := getLimiter(requestIP)
+		if !limiter.Allow() {
+			blockIP(requestIP)
+			http.Error(w, "Too Many Requests (IP temporarily blocked)", http.StatusTooManyRequests)
+			return
+		}
+
+		next.ServeHTTP(w, r)
 	})
 }
 

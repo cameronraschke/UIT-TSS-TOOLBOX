@@ -40,9 +40,26 @@ import (
 	_ "github.com/jackc/pgx/v5"
 )
 
-type LiveImage struct {
-	TimeFormatted *string `json:"time_formatted"`
-	Screenshot    *string `json:"screenshot"`
+type AppConfig struct {
+	WAN_IF                  string
+	WAN_IP_ADDRESS          string
+	WAN_ALLOWED_IP          string
+	LAN_IF                  string
+	LAN_IP_ADDRESS          string
+	LAN_ALLOWED_IP          string
+	DB_ADMIN_PASSWD         string
+	DB_CLIENT_PASSWD        string
+	WEB_USER_DEFAULT_PASSWD string
+	WEBMASTER_NAME          string
+	WEBMASTER_EMAIL         string
+	PRINTER_IP              string
+	HTTP_PORT               string
+	HTTPS_PORT              string
+	TLS_CERT_FILE           string
+	TLS_KEY_FILE            string
+	RATE_LIMIT_BURST        int
+	RATE_LIMIT_INTERVAL     int64
+	RATE_LIMIT_BAN_DURATION time.Duration
 }
 
 // Mux handlers
@@ -120,7 +137,6 @@ var (
 	db                *sql.DB
 	authMap           sync.Map
 	authMapEntryCount int64
-	ipMap             sync.Map
 	log               logger.Logger = logger.CreateLogger("console", logger.ParseLogLevel(os.Getenv("UIT_TOOLBOX_LOG_LEVEL")))
 
 	allowedFiles = map[string]bool{
@@ -679,85 +695,134 @@ func serveLiveISO(w http.ResponseWriter, r *http.Request) {
 	log.Info("Served file: " + resolvedPath + " to " + r.RemoteAddr)
 }
 
-func getEnvironmentVars() {
-	WAN_IF := os.Getenv("UIT_WAN_IF")
-	if strings.TrimSpace(WAN_IF) == "" {
-		log.Error("WAN_IF environment variable not set")
-		os.Exit(1)
+func configureEnvironment() AppConfig {
+	// WAN interface, IP, and allowed IPs
+	wanIf, ok := os.LookupEnv("UIT_WAN_IF")
+	if !ok {
+		log.Error("Error getting UIT_WAN_IF: not found")
+	}
+	wanIP, ok := os.LookupEnv("UIT_WAN_IP_ADDRESS")
+	if !ok {
+		log.Error("Error getting UIT_WAN_IP_ADDRESS: not found")
+	}
+	wanAllowedIP, ok := os.LookupEnv("UIT_WAN_ALLOWED_IP")
+	if !ok {
+		log.Error("Error getting UIT_WAN_ALLOWED_IP: not found")
 	}
 
-	WAN_IP_ADDRESS := os.Getenv("UIT_WAN_IP_ADDRESS")
-	if strings.TrimSpace(WAN_IP_ADDRESS) == "" {
-		log.Error("WAN_IP_ADDRESS environment variable not set")
-		os.Exit(1)
+	// LAN interface, IP, and allowed IPs
+	lanIf, ok := os.LookupEnv("UIT_LAN_IF")
+	if !ok {
+		log.Error("Error getting UIT_LAN_IF: not found")
+	}
+	lanIP, ok := os.LookupEnv("UIT_LAN_IP_ADDRESS")
+	if !ok {
+		log.Error("Error getting UIT_LAN_IP_ADDRESS: not found")
+	}
+	lanAllowedIP, ok := os.LookupEnv("UIT_LAN_ALLOWED_IP")
+	if !ok {
+		log.Error("Error getting UIT_LAN_ALLOWED_IP: not found")
 	}
 
-	WAN_ALLOWED_IP := os.Getenv("UIT_WAN_ALLOWED_IP")
-	if strings.TrimSpace(WAN_ALLOWED_IP) == "" {
-		log.Error("WAN_ALLOWED_IP environment variable not set")
-		os.Exit(1)
+	// Database credentials
+	dbAdminPasswd, ok := os.LookupEnv("UIT_DB_ADMIN_PASSWD")
+	if !ok {
+		log.Error("Error getting UIT_DB_ADMIN_PASSWD: not found")
+	}
+	dbClientPasswd, ok := os.LookupEnv("UIT_DB_CLIENT_PASSWD")
+	if !ok {
+		log.Error("Error getting UIT_DB_CLIENT_PASSWD: not found")
+	}
+	webUserDefaultPasswd, ok := os.LookupEnv("UIT_WEB_USER_DEFAULT_PASSWD")
+	if !ok {
+		log.Error("Error getting UIT_WEB_USER_DEFAULT_PASSWD: not found")
 	}
 
-	LAN_IF := os.Getenv("UIT_LAN_IF")
-	if strings.TrimSpace(LAN_IF) == "" {
-		log.Error("LAN_IF environment variable not set")
-		os.Exit(1)
+	// Website config
+	webmasterName, ok := os.LookupEnv("UIT_WEBMASTER_NAME")
+	if !ok {
+		log.Error("Error getting UIT_WEBMASTER_NAME: not found")
+	}
+	webmasterEmail, ok := os.LookupEnv("UIT_WEBMASTER_EMAIL")
+	if !ok {
+		log.Error("Error getting UIT_WEBMASTER_EMAIL: not found")
 	}
 
-	LAN_IP_ADDRESS := os.Getenv("UIT_LAN_IP_ADDRESS")
-	if strings.TrimSpace(LAN_IP_ADDRESS) == "" {
-		log.Error("LAN_IP_ADDRESS environment variable not set")
-		os.Exit(1)
+	// Printer IP
+	printerIP, ok := os.LookupEnv("UIT_PRINTER_IP")
+	if !ok {
+		log.Error("Error getting UIT_PRINTER_IP: not found")
 	}
 
-	LAN_ALLOWED_IP := os.Getenv("UIT_LAN_ALLOWED_IP")
-	if strings.TrimSpace(LAN_ALLOWED_IP) == "" {
-		log.Error("LAN_ALLOWED_IP environment variable not set")
-		os.Exit(1)
+	// Webserver config
+	httpPort, ok := os.LookupEnv("UIT_HTTP_PORT")
+	if !ok {
+		log.Error("Error getting UIT_HTTP_PORT: not found")
+	}
+	httpsPort, ok := os.LookupEnv("UIT_HTTPS_PORT")
+	if !ok {
+		log.Error("Error getting UIT_HTTPS_PORT: not found")
+	}
+	tlsCertFile, ok := os.LookupEnv("UIT_TLS_CERT_FILE")
+	if !ok {
+		log.Error("Error getting UIT_TLS_CERT_FILE: not found")
+	}
+	tlsKeyFile, ok := os.LookupEnv("UIT_TLS_KEY_FILE")
+	if !ok {
+		log.Error("Error getting UIT_TLS_KEY_FILE: not found")
 	}
 
-	DB_ADMIN_PASSWD := os.Getenv("UIT_DB_ADMIN_PASSWD")
-	if strings.TrimSpace(DB_ADMIN_PASSWD) == "" {
-		log.Error("DB_ADMIN_PASSWD environment variable not set")
-		os.Exit(1)
+	// Rate limiting config
+	rateLimitBurstStr, ok := os.LookupEnv("UIT_RATE_LIMIT_BURST")
+	if !ok {
+		log.Error("Error getting UIT_RATE_LIMIT_BURST: not found")
 	}
-
-	DB_CLIENT_PASSWD := os.Getenv("UIT_DB_CLIENT_PASSWD")
-	if strings.TrimSpace(DB_CLIENT_PASSWD) == "" {
-		log.Error("DB_CLIENT_PASSWD environment variable not set")
-		os.Exit(1)
+	rateLimitBurst, err := strconv.Atoi(rateLimitBurstStr)
+	if err != nil || rateLimitBurst <= 0 {
+		log.Error("Error converting UIT_RATE_LIMIT_BURST to integer: " + err.Error())
+		rateLimitBurst = 60
 	}
-
-	WEB_USER_DEFAULT_PASSWD := os.Getenv("UIT_WEB_USER_DEFAULT_PASSWD")
-	if strings.TrimSpace(WEB_USER_DEFAULT_PASSWD) == "" {
-		log.Error("WEB_USER_DEFAULT_PASSWD environment variable not set")
-		os.Exit(1)
+	rateLimitIntervalStr, ok := os.LookupEnv("UIT_RATE_LIMIT_INTERVAL")
+	if !ok {
+		log.Error("Error getting UIT_RATE_LIMIT_INTERVAL: not found")
 	}
-
-	WEBMASTER_NAME := os.Getenv("UIT_WEBMASTER_NAME")
-	if strings.TrimSpace(WEBMASTER_NAME) == "" {
-		log.Error("WEBMASTER_NAME environment variable not set")
-		os.Exit(1)
+	var rateLimitErr error
+	rateLimitInterval, rateLimitErr = strconv.ParseInt(rateLimitIntervalStr, 10, 64)
+	if rateLimitErr != nil || rateLimitInterval <= 0 {
+		log.Error("Error converting UIT_RATE_LIMIT_INTERVAL to integer: " + rateLimitErr.Error())
+		rateLimitInterval = 1
 	}
-
-	WEBMASTER_EMAIL := os.Getenv("UIT_WEBMASTER_EMAIL")
-	if strings.TrimSpace(WEBMASTER_EMAIL) == "" {
-		log.Error("WEBMASTER_EMAIL environment variable not set")
-		os.Exit(1)
+	rateLimitBanDurationStr, ok := os.LookupEnv("UIT_RATE_LIMIT_BAN_DURATION")
+	if !ok {
+		log.Error("Error getting UIT_RATE_LIMIT_BAN_DURATION: not found")
 	}
+	banDurationInt, err := strconv.ParseInt(rateLimitBanDurationStr, 10, 64)
+	if err != nil || banDurationInt <= 0 {
+		log.Error("Error converting UIT_RATE_LIMIT_BAN_DURATION to integer: " + err.Error())
+		banDurationInt = 30
+	}
+	rateLimitBanDuration = time.Duration(banDurationInt) * time.Second
 
-	// // Web users in the database login table. Format is below:
-	// // WEB_USERS='username1','First Last1' 'username2','First Last2'
-	// WEB_USERS := os.Getenv("UIT_WEB_USERS")
-	// if strings.TrimSpace(WEB_USERS) == "" {
-	// 	log.Error("WEB_USERS environment variable not set")
-	// 	os.Exit(1)
-	// }
-
-	PRINTER_IP := os.Getenv("UIT_PRINTER_IP")
-	if strings.TrimSpace(PRINTER_IP) == "" {
-		log.Error("PRINTER_IP environment variable not set")
-		os.Exit(1)
+	return AppConfig{
+		WAN_IF:                  wanIf,
+		WAN_IP_ADDRESS:          wanIP,
+		WAN_ALLOWED_IP:          wanAllowedIP,
+		LAN_IF:                  lanIf,
+		LAN_IP_ADDRESS:          lanIP,
+		LAN_ALLOWED_IP:          lanAllowedIP,
+		DB_ADMIN_PASSWD:         dbAdminPasswd,
+		DB_CLIENT_PASSWD:        dbClientPasswd,
+		WEB_USER_DEFAULT_PASSWD: webUserDefaultPasswd,
+		WEBMASTER_NAME:          webmasterName,
+		WEBMASTER_EMAIL:         webmasterEmail,
+		PRINTER_IP:              printerIP,
+		HTTP_PORT:               httpPort,
+		HTTPS_PORT:              httpsPort,
+		TLS_CERT_FILE:           tlsCertFile,
+		TLS_KEY_FILE:            tlsKeyFile,
+		RATE_LIMIT_BURST:        rateLimitBurst,
+		RATE_LIMIT_INTERVAL:     rateLimitInterval,
+		RATE_LIMIT_BAN_DURATION: rateLimitBanDuration,
 	}
 }
 
@@ -774,7 +839,7 @@ func main() {
 		}
 	}()
 
-	getEnvironmentVars()
+	configureEnvironment()
 
 	fileServerMuxChain := muxChain{
 		allowIPRangeMiddleware("10.0.0.0/16"),

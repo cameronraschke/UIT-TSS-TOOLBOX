@@ -1,24 +1,50 @@
 package main
 
 import (
-	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"math"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/time/rate"
+)
+
+type LimiterMap struct {
+	m        sync.Map
+	interval int64
+	burst    int
+}
+
+type BlockedMap struct {
+	m         sync.Map
+	banPeriod time.Duration
+}
+
+var (
+	rateLimitBurst       int
+	rateLimitInterval    int64
+	rateLimitBanDuration time.Duration
+
+	ipRequests = &LimiterMap{
+		interval: rateLimitInterval,
+		burst:    rateLimitBurst,
+	}
+
+	blockedIPs = &BlockedMap{
+		banPeriod: rateLimitBanDuration,
+	}
 )
 
 func countAuthSessions(m *sync.Map) int {
-	count := 0
+	authSessionCount := 0
 	m.Range(func(_, _ interface{}) bool {
-		count++
+		authSessionCount++
 		return true
 	})
-	return count
+	return authSessionCount
 }
 
 func formatHttpError(errorString string) (jsonErrStr string) {
@@ -31,72 +57,53 @@ func formatHttpError(errorString string) (jsonErrStr string) {
 	return string(jsonErr)
 }
 
-func rateLimitCheck(ctx context.Context, ipAddrChan <-chan string, bannedChan chan<- bool, rateLimitChan chan<- int) {
-	// requestLimit (per second) is float64 because request rate is a float64
-	var requestLimit float64 = 200
-	var bannedTimeout time.Duration = time.Second * 10
-
-	select {
-	case requestIPAddr := <-ipAddrChan:
-		ipMap.Range(func(k, v any) bool {
-			key := k.(string)
-			value := v.(RateLimiter)
-
-			var banned bool
-			var numOfRequests int
-			var timeDiff float64
-			var rate float64
-			var requestRate float64
-
-			if key == requestIPAddr {
-				timeDiff = math.Abs(time.Until(value.LastSeen).Seconds())
-				numOfRequests = value.Requests + 1
-				rate = float64(numOfRequests) / timeDiff
-				requestRate = rate * (1 / timeDiff)
-
-				if value.Banned && time.Until(value.BannedUntil).Seconds() > 0 {
-					banned = true
-					if timeDiff > 1 {
-						bannedChan <- banned
-						rateLimitChan <- int(math.Round(requestRate))
-					}
-					close(bannedChan)
-					close(rateLimitChan)
-					return false
-				}
-
-				banned = false
-				if timeDiff > 1 {
-					if requestRate > requestLimit {
-						banned = true
-					} else {
-						numOfRequests = 0
-						banned = false
-					}
-					ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: time.Now(), MapLastUpdated: time.Now(), BannedUntil: time.Now().Add(bannedTimeout), Banned: banned})
-					bannedChan <- banned
-					rateLimitChan <- int(math.Round(requestRate))
-					close(bannedChan)
-					close(rateLimitChan)
-					return false
-				} else if timeDiff < 1 {
-					ipMap.Store(key, RateLimiter{Requests: numOfRequests, LastSeen: value.LastSeen, MapLastUpdated: value.MapLastUpdated, BannedUntil: time.Now().Add(bannedTimeout), Banned: value.Banned})
-					bannedChan <- banned
-					rateLimitChan <- int(math.Round(requestRate))
-					close(bannedChan)
-					close(rateLimitChan)
-					return false
-				} else {
-					return true
-				}
-			}
-			return true
-		})
-	case <-ctx.Done():
-		close(bannedChan)
-		close(rateLimitChan)
-		return
+func (lm *LimiterMap) Get(ip string) *rate.Limiter {
+	newLimiter := rate.NewLimiter(rate.Limit(lm.interval), lm.burst)
+	queriedLimiter, _ := lm.m.LoadOrStore(ip, newLimiter)
+	existingLimiter, ok := queriedLimiter.(*rate.Limiter)
+	if !ok {
+		lm.m.Delete(ip)
+		lm.m.Store(ip, newLimiter)
+		return newLimiter
 	}
+	return existingLimiter
+}
+
+func (lm *LimiterMap) Delete(ip string) {
+	lm.m.Delete(ip)
+}
+
+func (bm *BlockedMap) IsBlocked(ip string) bool {
+	val, ok := bm.m.Load(ip)
+	if !ok {
+		return false
+	}
+	unblockTime, ok := val.(time.Time)
+	if !ok {
+		bm.m.Delete(ip)
+		return false
+	}
+	if time.Now().After(unblockTime) {
+		bm.m.Delete(ip)
+		return false
+	}
+	return true
+}
+
+func (bm *BlockedMap) Block(ip string) {
+	bm.m.Store(ip, time.Now().Add(bm.banPeriod))
+}
+
+func getLimiter(requestIP string) *rate.Limiter {
+	return ipRequests.Get(requestIP)
+}
+
+func isBlocked(requestIP string) bool {
+	return blockedIPs.IsBlocked(requestIP)
+}
+
+func blockIP(requestIP string) {
+	blockedIPs.Block(requestIP)
 }
 
 func generateCSRFToken() (string, error) {
