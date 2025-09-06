@@ -89,7 +89,7 @@ if [[ -f /etc/uit-toolbox.env ]]; then
   rm /etc/uit-toolbox.env
 fi
 for key in "${!configArr[@]}"; do 
-  printf "%s\n" "$key=\"${configArr[$key]}\"" > /etc/uit-toolbox.env
+  printf "%s\n" "$key=\"${configArr[$key]}\"" >> /etc/uit-toolbox.env
 done
 
 sudo chmod 640 /etc/uit-toolbox.env
