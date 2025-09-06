@@ -360,6 +360,7 @@ func apiAuth(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
     var requestBasicToken string
     var requestBearerToken string
+    var sessionCount int(0)
 
     // Delete expired tokens & malformed entries out of authMap
     authMap.Range(func(k, v interface{}) bool {
@@ -374,7 +375,7 @@ func apiAuth(next http.Handler) http.Handler {
       if bearerExpiry.Seconds() <= 0 {
         authMap.Delete(sessionID)
         atomic.AddInt64(&authMapEntryCount, -1)
-        sessionCount = atomic.LoadInt64(&authMapEntryCount)
+        sessionCount = countAuthSessions(&authMap)
         log.Info("Auth session expired: " + sessionIP + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(sessionCount)) + " session(s))")
       }
       return true
@@ -425,7 +426,7 @@ func apiAuth(next http.Handler) http.Handler {
         return
       }
     } else if (basicValid && !bearerValid) || (!basicValid && !bearerValid) {
-      sessionCount = atomic.LoadInt64(&authMapEntryCount)
+      sessionCount = countAuthSessions(&authMap)
       log.Debug("Auth cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + ")")
       if queryType == "new-token" && strings.TrimSpace(requestBasicToken) != "" {
         next.ServeHTTP(w, req)
@@ -468,6 +469,16 @@ func csrfMiddleware(next http.Handler) http.Handler {
 
 
 // Helper functions section
+
+func countAuthSessions(m *sync.Map) int {
+    count := 0
+    m.Range(func(_, _ interface{}) bool {
+        count++
+        return true
+    })
+    return count
+}
+
 
 func formatHttpError(errorString string) (jsonErrStr string) {
   jsonStr := httpErrorCodes{Message: errorString}
@@ -884,13 +895,11 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
       return
     }
 
-    sessionCount = atomic.LoadInt64(&authMapEntryCount)
-
+    sessionCount := countAuthSessions(&authMap)
     if exists {
       log.Info("Auth session exists: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
     } else {
       atomic.AddInt64(&authMapEntryCount, 1)
-      sessionCount = atomic.LoadInt64(&authMapEntryCount)
       log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
     }
 
@@ -999,7 +1008,7 @@ func startAuthMapCleanup(interval time.Duration) {
         if bearerExpiry.Seconds() <= 0 {
           authMap.Delete(sessionID)
           atomic.AddInt64(&authMapEntryCount, -1)
-          sessionCount = atomic.LoadInt64(&authMapEntryCount)
+          sessionCount := countAuthSessions(&authMap)
           log.Info("(Cleanup) Auth session expired: " + sessionIP + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(sessionCount)) + " session(s))")
         }
         return true
