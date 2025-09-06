@@ -41,25 +41,25 @@ import (
 )
 
 type AppConfig struct {
-	WAN_IF                  string
-	WAN_IP_ADDRESS          string
-	WAN_ALLOWED_IP          string
-	LAN_IF                  string
-	LAN_IP_ADDRESS          string
-	LAN_ALLOWED_IP          string
-	DB_ADMIN_PASSWD         string
-	DB_CLIENT_PASSWD        string
-	WEB_USER_DEFAULT_PASSWD string
-	WEBMASTER_NAME          string
-	WEBMASTER_EMAIL         string
-	PRINTER_IP              string
-	HTTP_PORT               string
-	HTTPS_PORT              string
-	TLS_CERT_FILE           string
-	TLS_KEY_FILE            string
-	RATE_LIMIT_BURST        int
-	RATE_LIMIT_INTERVAL     int64
-	RATE_LIMIT_BAN_DURATION time.Duration
+	UIT_WAN_IF                  string
+	UIT_WAN_IP_ADDRESS          string
+	UIT_WAN_ALLOWED_IP          string
+	UIT_LAN_IF                  string
+	UIT_LAN_IP_ADDRESS          string
+	UIT_LAN_ALLOWED_IP          string
+	UIT_DB_ADMIN_PASSWD         string
+	UIT_DB_CLIENT_PASSWD        string
+	UIT_WEB_USER_DEFAULT_PASSWD string
+	UIT_WEBMASTER_NAME          string
+	UIT_WEBMASTER_EMAIL         string
+	UIT_PRINTER_IP              string
+	UIT_HTTP_PORT               string
+	UIT_HTTPS_PORT              string
+	UIT_TLS_CERT_FILE           string
+	UIT_TLS_KEY_FILE            string
+	UIT_RATE_LIMIT_BURST        int
+	UIT_RATE_LIMIT_INTERVAL     int64
+	UIT_RATE_LIMIT_BAN_DURATION time.Duration
 }
 
 // Mux handlers
@@ -804,25 +804,25 @@ func configureEnvironment() AppConfig {
 	rateLimitBanDuration = time.Duration(banDurationInt) * time.Second
 
 	return AppConfig{
-		WAN_IF:                  wanIf,
-		WAN_IP_ADDRESS:          wanIP,
-		WAN_ALLOWED_IP:          wanAllowedIP,
-		LAN_IF:                  lanIf,
-		LAN_IP_ADDRESS:          lanIP,
-		LAN_ALLOWED_IP:          lanAllowedIP,
-		DB_ADMIN_PASSWD:         dbAdminPasswd,
-		DB_CLIENT_PASSWD:        dbClientPasswd,
-		WEB_USER_DEFAULT_PASSWD: webUserDefaultPasswd,
-		WEBMASTER_NAME:          webmasterName,
-		WEBMASTER_EMAIL:         webmasterEmail,
-		PRINTER_IP:              printerIP,
-		HTTP_PORT:               httpPort,
-		HTTPS_PORT:              httpsPort,
-		TLS_CERT_FILE:           tlsCertFile,
-		TLS_KEY_FILE:            tlsKeyFile,
-		RATE_LIMIT_BURST:        rateLimitBurst,
-		RATE_LIMIT_INTERVAL:     rateLimitInterval,
-		RATE_LIMIT_BAN_DURATION: rateLimitBanDuration,
+		UIT_WAN_IF:                  wanIf,
+		UIT_WAN_IP_ADDRESS:          wanIP,
+		UIT_WAN_ALLOWED_IP:          wanAllowedIP,
+		UIT_LAN_IF:                  lanIf,
+		UIT_LAN_IP_ADDRESS:          lanIP,
+		UIT_LAN_ALLOWED_IP:          lanAllowedIP,
+		UIT_DB_ADMIN_PASSWD:         dbAdminPasswd,
+		UIT_DB_CLIENT_PASSWD:        dbClientPasswd,
+		UIT_WEB_USER_DEFAULT_PASSWD: webUserDefaultPasswd,
+		UIT_WEBMASTER_NAME:          webmasterName,
+		UIT_WEBMASTER_EMAIL:         webmasterEmail,
+		UIT_PRINTER_IP:              printerIP,
+		UIT_HTTP_PORT:               httpPort,
+		UIT_HTTPS_PORT:              httpsPort,
+		UIT_TLS_CERT_FILE:           tlsCertFile,
+		UIT_TLS_KEY_FILE:            tlsKeyFile,
+		UIT_RATE_LIMIT_BURST:        rateLimitBurst,
+		UIT_RATE_LIMIT_INTERVAL:     rateLimitInterval,
+		UIT_RATE_LIMIT_BAN_DURATION: rateLimitBanDuration,
 	}
 }
 
@@ -884,7 +884,7 @@ func main() {
 
 	// Connect to db with pgx
 	log.Info("Attempting connection to database...")
-	const dbConnString = "postgres://uitweb:WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
+	const dbConnString = "postgres://uitweb:UIT_WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
 	db, err := sql.Open("pgx", dbConnString)
 	if err != nil {
 		log.Error("Unable to connect to database: \n" + err.Error())

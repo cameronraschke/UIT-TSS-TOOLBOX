@@ -222,7 +222,7 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		// Check CORS policy
 		cors := http.NewCrossOriginProtection()
-		cors.AddTrustedOrigin("https://WAN_IP_ADDRESS:1411")
+		cors.AddTrustedOrigin("https://UIT_WAN_IP_ADDRESS:1411")
 		if err := cors.Check(req); err != nil {
 			log.Warning("Request to " + req.URL.RequestURI() + " blocked from " + req.RemoteAddr)
 			http.Error(w, formatHttpError("CORS policy violation"), http.StatusForbidden)
@@ -232,7 +232,7 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 		// Handle OPTIONS early
 		if req.Method == http.MethodOptions {
 			// Headers for OPTIONS request
-			w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
+			w.Header().Set("Access-Control-Allow-Origin", "https://UIT_WAN_IP_ADDRESS:1411")
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie, credentials")
@@ -240,7 +240,7 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		w.Header().Set("Access-Control-Allow-Origin", "https://WAN_IP_ADDRESS:1411")
+		w.Header().Set("Access-Control-Allow-Origin", "https://UIT_WAN_IP_ADDRESS:1411")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")

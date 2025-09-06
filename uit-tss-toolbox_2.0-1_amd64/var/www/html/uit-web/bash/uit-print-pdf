@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ $1 != "WEB_SVC_PASSWD" ]]; then
+if [[ $1 != "UIT_WEB_SVC_PASSWD" ]]; then
     exit 1;
 fi
 

@@ -115,7 +115,7 @@ async function postData(queryType, jsonStr) {
       headers.append('X-CSRF-Token', csrfToken);
     }
 
-    const response = await fetch('https://WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType).replace(/'/g, "%27"), {
+    const response = await fetch('https://UIT_WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType).replace(/'/g, "%27"), {
       method: 'POST',
       headers: headers,
       body: jsonStr,
@@ -197,7 +197,7 @@ async function updateRemoteOfflineTable() {
     var tableBody
     var tableBodyData
     tableBody = document.createElement("tbody");
-    tableBodyData = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_offline');
+    tableBodyData = await fetchData('https://UIT_UIT_WAN_IP_ADDRESS:31411/api/remote?type=remote_offline');
 
     Object.entries(tableBodyData).forEach(([key, value]) => {
       let tableBodyRow = document.createElement("tr");
@@ -263,8 +263,8 @@ async function updateRemoteOfflineTable() {
 async function updateDynamicTagnumberJobData(tagnumber) {
   try {
     const [jobQueueByTagData, availableJobs] = await Promise.all([
-      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27")),
-      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"))
+      fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27")),
+      fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"))
     ]);
 
 
@@ -403,8 +403,8 @@ async function QueueJobFormatting() {
 async function updateStaticTagnumberData(tagnumber) {
   try {
     const [jobQueueByTagData, availableJobs, liveImage] = await Promise.all([
-      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27")),
-      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"))
+      fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=job_queue_by_tag&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27")),
+      fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=available_jobs&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"))
     ]);
 
     const oldJobQueueSection = document.getElementById("job_queued");
@@ -514,7 +514,7 @@ async function updateStaticTagnumberData(tagnumber) {
 }
 
 async function updateLiveImage(tagnumber) {
-  const liveImage = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
+  const liveImage = await fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
   Object.entries(liveImage).forEach(([key, value]) => {
     const oldScreenshotTime = document.getElementById("live_image_timestamp");
     const oldScreenshotData = document.getElementById("live_image_screenshot");
@@ -542,7 +542,7 @@ async function updateTagnumberData(tagnumber) {
     const cpuRamInfo = document.createElement("table");
     cpuRamInfo.setAttribute("id", "cpu_ram_info");
 
-    const tagnumberData = await fetchData("https://WAN_IP_ADDRESS:31411/api/remote?type=tagnumber_data&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
+    const tagnumberData = await fetchData("https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=tagnumber_data&tagnumber=" + encodeURIComponent(tagnumber).replace(/'/g, "%27"));
     Object.entries(tagnumberData).forEach(([key, value]) => {
       const newTabImg = document.createElement("img");
       newTabImg.classList.add('icon');
@@ -1329,8 +1329,8 @@ async function updateTagnumberData(tagnumber) {
 async function updateRemotePresentTable() {
   try {
     const [remotePresentHeaderData, remotePresentBodyData] = await Promise.all([
-      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header'),
-      fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=remote_present')
+      fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header'),
+      fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=remote_present')
     ]);
 
     const remotePresentTableFragment = new DocumentFragment();
@@ -1512,7 +1512,7 @@ async function updateRemotePresentTable() {
 
 async function autoFillTags() {
   try {
-    tagJson = await fetchData('https://WAN_IP_ADDRESS:31411/api/locations?type=all_tags');
+    tagJson = await fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/locations?type=all_tags');
 
     let tagStr = []
     Object.entries(tagJson).forEach(([key, value]) => {

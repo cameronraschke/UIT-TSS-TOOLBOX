@@ -1,7 +1,7 @@
 <?php
 require("/var/www/html/uit-web/php/include.php");
 
-if ($_POST["password"] !== "WEB_SVC_PASSWD") {
+if ($_POST["password"] !== "UIT_WEB_SVC_PASSWD") {
   exit();
 }
 

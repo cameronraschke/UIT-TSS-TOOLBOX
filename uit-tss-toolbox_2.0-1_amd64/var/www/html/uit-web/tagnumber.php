@@ -24,7 +24,7 @@ if (strFilter($dbPSQL->get()) === 1) {
 }
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "https://localhost:1411/api/refresh-client.php?password=DB_CLIENT_PASSWD&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "");
+curl_setopt($ch, CURLOPT_URL, "https://localhost:1411/api/refresh-client.php?password=UIT_DB_CLIENT_PASSWD&tagnumber=" . htmlspecialchars($_GET["tagnumber"]) . "");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -137,9 +137,9 @@ if (isset($_FILES) && strFilter($_FILES) === 0) {
           $file = fopen("/var/www/html/uit-web/transcode/" . $transcodeFile, 'c');
           fwrite($file, $rawFileData);
           fclose($file);
-          $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "normal-quality");
+          $imageFileConverted = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("UIT_WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "normal-quality");
           $mimeType = mime_content_type('/var/www/html/uit-web/transcode/' . $transcodeFile);
-          //$imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
+          //$imageFileCompressed = shell_exec("bash /var/www/html/uit-web/bash/convert-to-mp4" . " " . escapeshellarg("UIT_WEB_SVC_PASSWD") . " " . $transcodeFile . " " . "low-quality");
         }
 
           $dbPSQL->insertImage($imageUUID, $time, $_GET["tagnumber"]);
@@ -345,7 +345,7 @@ foreach ($dbPSQL->get() as $key => $value) {
           </div>
         </div>
         <div class='location-form' style='width: 100%;'>
-          <!-- <form id="client_image_upload" enctype="multipart/form-data" action="https://WAN_IP_ADDRESS:31411/api/post?type=client_image" method="POST" > -->
+          <!-- <form id="client_image_upload" enctype="multipart/form-data" action="https://UIT_WAN_IP_ADDRESS:31411/api/post?type=client_image" method="POST" > -->
           <form id="client_image_upload" enctype="multipart/form-data" method="POST" >
             <div><p>Upload Image: </p></div>
             <!--<div><input name="userfile" type="file" onchange='this.form.submit();' accept="image/png, image/jpeg, image/webp, image/avif" /></div>-->

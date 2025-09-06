@@ -24,26 +24,33 @@ fi
 # File replacements
 # Insert include.php with modifications for the clients.
 cat /var/www/html/uit-web/php/include.php | sed 's/localhost/10.0.0.1/g' | sed 's/uitweb/uitclient/g' > /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
-sed --in-place 's/WEB_SVC_PASSWD/DB_CLIENT_PASSWD/g' /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
+sed --in-place 's/UIT_WEB_SVC_PASSWD/UIT_DB_CLIENT_PASSWD/g' /srv/uit-toolbox/client/src/uit-toolbox-client_2.0-1_amd64/opt/uit-toolbox/include.php
 
 
 unset configArr
 declare -A configArr
 
-configArr[DB_ADMIN_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^DB_ADMIN_PASSWD=' | sed 's/DB_ADMIN_PASSWD=//g' | sed 's/[[:space:]]//g')
-configArr[DB_CLIENT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^DB_CLIENT_PASSWD=' | sed 's/DB_CLIENT_PASSWD=//g' | sed 's/[[:space:]]//g')
-configArr[WEB_USER_DEFAULT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WEB_USER_DEFAULT_PASSWD=' | sed 's/WEB_USER_DEFAULT_PASSWD=//g' | sed 's/[[:space:]]//g')
-configArr[WEBMASTER_NAME]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WEBMASTER_NAME=' | sed 's/WEBMASTER_NAME=//g')
-configArr[WEBMASTER_EMAIL]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WEBMASTER_EMAIL=' | sed 's/WEBMASTER_EMAIL=//g' | sed 's/[[:space:]]//g')
-configArr[WEB_USERS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WEB_USERS=' | sed 's/WEB_USERS=//g')
-configArr[WAN_IF]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WAN_IF=' | sed 's/WAN_IF=//g' | sed 's/[[:space:]]//g')
-configArr[WAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WAN_IP_ADDRESS=' | sed 's/WAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
-configArr[LAN_IF]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^LAN_IF=' | sed 's/LAN_IF=//g' | sed 's/[[:space:]]//g')
-configArr[LAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^LAN_IP_ADDRESS=' | sed 's/LAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
-configArr[WAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^WAN_ALLOWED_IP=' | sed 's/WAN_ALLOWED_IP=//g')
-configArr[LAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^LAN_ALLOWED_IP=' | sed 's/LAN_ALLOWED_IP=//g')
-configArr[PRINTER_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^PRINTER_IP=' | sed 's/PRINTER_IP=//g' | sed 's/[[:space:]]//g')
-configArr[WEB_SVC_PASSWD]=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}' | sed 's/[[:space:]]//g')
+configArr[UIT_DB_ADMIN_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_DB_ADMIN_PASSWD=' | sed 's/UIT_DB_ADMIN_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_DB_CLIENT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_DB_CLIENT_PASSWD=' | sed 's/UIT_DB_CLIENT_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WEB_USER_DEFAULT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WEB_USER_DEFAULT_PASSWD=' | sed 's/UIT_WEB_USER_DEFAULT_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WEBMASTER_NAME]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WEBMASTER_NAME=' | sed 's/UIT_WEBMASTER_NAME=//g')
+configArr[UIT_WEBMASTER_EMAIL]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WEBMASTER_EMAIL=' | sed 's/UIT_WEBMASTER_EMAIL=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WEB_USERS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WEB_USERS=' | sed 's/UIT_WEB_USERS=//g')
+configArr[UIT_WAN_IF]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WAN_IF=' | sed 's/UIT_WAN_IF=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WAN_IP_ADDRESS=' | sed 's/UIT_WAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_LAN_IF]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_LAN_IF=' | sed 's/UIT_LAN_IF=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_LAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_LAN_IP_ADDRESS=' | sed 's/UIT_LAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WAN_ALLOWED_IP=' | sed 's/UIT_WAN_ALLOWED_IP=//g')
+configArr[UIT_LAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_LAN_ALLOWED_IP=' | sed 's/UIT_LAN_ALLOWED_IP=//g')
+configArr[UIT_PRINTER_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_PRINTER_IP=' | sed 's/UIT_PRINTER_IP=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WEB_SVC_PASSWD]=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}' | sed 's/[[:space:]]//g')
+configArr[UIT_HTTP_PORT]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_HTTP_PORT=' | sed 's/UIT_HTTP_PORT=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_HTTPS_PORT]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_HTTPS_PORT=' | sed 's/UIT_HTTPS_PORT=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_TLS_CERT_FILE]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_TLS_CERT_FILE=' | sed 's/UIT_TLS_CERT_FILE=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_TLS_KEY_FILE]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_TLS_KEY_FILE=' | sed 's/UIT_TLS_KEY_FILE=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_RATE_LIMIT_BURST]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_RATE_LIMIT_BURST=' | sed 's/UIT_RATE_LIMIT_BURST=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_RATE_LIMIT_INTERVAL]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_RATE_LIMIT_INTERVAL=' | sed 's/UIT_RATE_LIMIT_INTERVAL=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_RATE_LIMIT_BAN_DURATION]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_RATE_LIMIT_BAN_DURATION=' | sed 's/UIT_RATE_LIMIT_BAN_DURATION=//g' | sed 's/[[:space:]]//g')
 
 function checkNullConfigVals() {
 for checkVal in ${!configArr[@]}; do
@@ -82,7 +89,7 @@ if [[ -f /etc/uit-toolbox.env ]]; then
   rm /etc/uit-toolbox.env
 fi
 for key in "${!configArr[@]}"; do 
-  printf "%s\n" "export $key=\"${configArr[$key]}\"" > /etc/uit-toolbox.env
+  printf "%s\n" "$key=\"${configArr[$key]}\"" > /etc/uit-toolbox.env
 done
 
 sudo chmod 640 /etc/uit-toolbox.env
@@ -102,15 +109,15 @@ sudo chmod 640 /etc/uit-toolbox.env
   # PSQL
   echo "  --PSQL Passwords"
   # PostgreSQL Users
-  sudo -u postgres psql --command="ALTER USER cameron WITH PASSWORD '${configArr[DB_ADMIN_PASSWD]}';"
-  sudo -u postgres psql --command="ALTER USER uitclient WITH PASSWORD '${configArr[DB_CLIENT_PASSWD]}';"
-  sudo -u postgres psql --command="ALTER USER uitweb WITH PASSWORD '${configArr[WEB_SVC_PASSWD]}';"
+  sudo -u postgres psql --command="ALTER USER cameron WITH PASSWORD '${configArr[UIT_DB_ADMIN_PASSWD]}';"
+  sudo -u postgres psql --command="ALTER USER uitclient WITH PASSWORD '${configArr[UIT_DB_CLIENT_PASSWD]}';"
+  sudo -u postgres psql --command="ALTER USER uitweb WITH PASSWORD '${configArr[UIT_WEB_SVC_PASSWD]}';"
 
 
   echo "  --Website Passwords"
   sudo -u postgres psql --command="DELETE FROM logins;" uitdb
-  for webUser in ${configArr[WEB_USERS]}; do
-    sudo -u postgres psql --command="INSERT INTO logins (username, name, password) VALUES (${webUser}, ENCODE(SHA256('${configArr[WEB_USER_DEFAULT_PASSWD]}'::bytea), 'hex'));" uitdb
+  for webUser in ${configArr[UIT_WEB_USERS]}; do
+    sudo -u postgres psql --command="INSERT INTO logins (username, name, password) VALUES (${webUser}, ENCODE(SHA256('${configArr[UIT_WEB_USER_DEFAULT_PASSWD]}'::bytea), 'hex'));" uitdb
   done
   sudo -u postgres psql --command="UPDATE logins SET username = ENCODE(SHA256(username::bytea), 'hex');" uitdb
 

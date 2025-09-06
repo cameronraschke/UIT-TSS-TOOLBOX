@@ -1,9 +1,9 @@
 #!/bin/bash
-wanif='WAN_IF'
-wan='WAN_ALLOWED_IP'
-lanif='LAN_IF'
-lan='LAN_ALLOWED_IP'
-printer='PRINTER_IP'
+wanif='UIT_WAN_IF'
+wan='UIT_WAN_ALLOWED_IP'
+lanif='UIT_LAN_IF'
+lan='UIT_LAN_ALLOWED_IP'
+printer='UIT_PRINTER_IP'
 
 # Disable IP forwarding and IPv6
 sysctl -w net.ipv4.ip_forward=0

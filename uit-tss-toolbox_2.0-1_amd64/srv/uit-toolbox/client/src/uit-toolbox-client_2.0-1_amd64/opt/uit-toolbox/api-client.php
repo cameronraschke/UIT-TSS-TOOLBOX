@@ -20,7 +20,7 @@ $notnull = explode(', ', htmlspecialchars($arr[5]));
 
 $postData = http_build_query(
   array(
-    'password' => 'DB_CLIENT_PASSWD',
+    'password' => 'UIT_DB_CLIENT_PASSWD',
     'tagnumber' => $tagNum,
     'table' => $table,
     'queryType' => $queryType,

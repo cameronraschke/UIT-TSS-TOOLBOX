@@ -59,8 +59,8 @@
   <?php
     if ($_SERVER['PHP_SELF'] == "/index.php") {
       echo "<h1 class='header-title'>UIT-Web Client Management Site</h1>";
-      echo "<h2 class='header-title'>Contact WEBMASTER_NAME for Assistance: </h2>";
-      echo "<h3 class='header-title'><img class='icon' src='/images/new-tab.svg'><a href='mailto:WEBMASTER_EMAIL?subject=UIT-TC-MGMT%20Assistance%20with%20" . $_SERVER["REQUEST_URI"] . "'>Send Email</a></h3>";
+      echo "<h2 class='header-title'>Contact UIT_WEBMASTER_NAME for Assistance: </h2>";
+      echo "<h3 class='header-title'><img class='icon' src='/images/new-tab.svg'><a href='mailto:UIT_WEBMASTER_EMAIL?subject=UIT-TC-MGMT%20Assistance%20with%20" . $_SERVER["REQUEST_URI"] . "'>Send Email</a></h3>";
     }
 
     if ($_SERVER['PHP_SELF'] == "/job-queue.php") {

@@ -201,7 +201,7 @@ if (isset($_GET["live_image"]) && $_GET["live_image"] == "1" && isset($_GET["tag
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const tagnumber = urlParams.get('tagnumber');
-    var response = await fetchData('https://WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + tagnumber);
+    var response = await fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=live_image&tagnumber=' + tagnumber);
     var liveImage = response[0];
     if (liveImage != undefined) {
       // if (key == "screenshot") {
