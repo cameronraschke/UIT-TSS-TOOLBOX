@@ -360,7 +360,7 @@ func apiAuth(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
     var requestBasicToken string
     var requestBearerToken string
-    var sessionCount int(0)
+    var sessionCount int = 0
 
     // Delete expired tokens & malformed entries out of authMap
     authMap.Range(func(k, v interface{}) bool {
