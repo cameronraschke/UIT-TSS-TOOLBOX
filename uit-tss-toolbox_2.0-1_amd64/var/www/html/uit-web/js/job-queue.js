@@ -1,5 +1,4 @@
-let isUpdatingOnlineTable = false;
-let isUpdatingOfflineTable = false;
+let isUpdatingPage = false;
 let jobQueueTimeout = null;
 let currentAbortController = null;
 
@@ -8,8 +7,8 @@ async function updateJobQueue() {
         currentAbortController.abort();
     }
     currentAbortController = new AbortController();
-    if (isUpdatingOnlineTable) return;
-    isUpdatingOnlineTable = true;
+    if (isUpdatingPage) return;
+    isUpdatingPage = true;
     try {
         await Promise.all([
             updateOnlineTable(currentAbortController.signal),
@@ -23,8 +22,7 @@ async function updateJobQueue() {
         }
     } finally {
         currentAbortController = null;
-        isUpdatingOnlineTable = false;
-        isUpdatingOfflineTable = false;
+        isUpdatingPage = false;
         jobQueueTimeout = setTimeout(() => {
             updateTimeout = null;
             updateJobQueue();
@@ -33,8 +31,6 @@ async function updateJobQueue() {
 }
 
 async function updateOnlineTable(signal) {
-  if (isUpdatingOnlineTable) return;
-  isUpdatingOnlineTable = true;
   try {
     const [remotePresentHeaderData, remotePresentBodyData] = await Promise.all([
       fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=remote_present_header', { signal }),
