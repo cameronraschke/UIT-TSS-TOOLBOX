@@ -7,7 +7,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"unicode"
 
 	// "net/http/httputil"
 
@@ -669,11 +668,11 @@ func serveFiles(appState *AppState) http.HandlerFunc {
 					http.Error(w, "Forbidden", http.StatusForbidden)
 					return
 				}
-				if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '-' || char == '_' || char == '.') {
-					log.Warning("Invalid Unicode in filename: " + requestIP)
-					http.Error(w, "Forbidden", http.StatusForbidden)
-					return
-				}
+				// if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '-' || char == '_' || char == '.') {
+				// 	log.Warning("Invalid Unicode in filename: " + requestIP)
+				// 	http.Error(w, "Forbidden", http.StatusForbidden)
+				// 	return
+				// }
 				if strings.ContainsRune(disallowedChars, char) {
 					log.Warning("Disallowed character in filename: " + requestIP)
 					http.Error(w, "Forbidden", http.StatusForbidden)
