@@ -124,11 +124,15 @@ label {
 
 
 .fade-in {
-  transition: opacity 0.3s;
   opacity: 0;
+  transition: opacity 0.3s;
 }
 .fade-in.loaded {
   opacity: 1;
+}
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 

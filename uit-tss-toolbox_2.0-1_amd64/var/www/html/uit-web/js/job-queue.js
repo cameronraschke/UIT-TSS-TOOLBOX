@@ -136,6 +136,9 @@ async function updateOnlineTable(signal) {
 
       // Screenshot cell
       const screenshotCell = document.createElement("td");
+      const oldImg = document.getElementById("screenshot-" + value["tagnumber"]);
+      screenshotCell.style.width = "240px";
+      screenshotCell.style.height = "135px";
       if (value["screenshot"]) {
         const screenshotDataURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
         const screenshotLink = document.createElement("a");
@@ -143,17 +146,31 @@ async function updateOnlineTable(signal) {
         screenshotLink.setAttribute("href", "/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(value["tagnumber"]));
 
         const preloadedImg = new window.Image();
+        preloadedImg.className = 'fade-in';
+        preloadedImg.id = "screenshot-" + value["tagnumber"];
         preloadedImg.width = 240;
         preloadedImg.height = 135;
-        preloadedImg.className = 'fade-in';
-        preloadedImg.style = "width: 240px; height: 135px; max-width: 100%; object-fit: cover;";
+        preloadedImg.style = "width: 240px; height: 135px; max-width: 100%; max-height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;";
         preloadedImg.loading = "lazy";
-        preloadedImg.src = screenshotDataURL;
         preloadedImg.onload = () => {
             preloadedImg.classList.add('loaded');
-            screenshotLink.appendChild(preloadedImg);
-            screenshotCell.appendChild(screenshotLink);
+            setTimeout(() => { if (oldImg) oldImg.remove(); }, 300);
         };
+
+        const imgContainer = document.createElement("div");
+        imgContainer.style.position = "relative";
+        imgContainer.style.width = "240px";
+        imgContainer.style.height = "135px";
+
+        preloadedImg.onload = () => {
+        preloadedImg.classList.add('loaded');
+        // setTimeout(() => { if (oldImg) oldImg.remove(); }, 300);
+        };
+        
+        preloadedImg.src = screenshotDataURL;
+        imgContainer.appendChild(preloadedImg);
+        screenshotLink.appendChild(imgContainer);
+        screenshotCell.appendChild(screenshotLink);
       }
 
       // Last job time cell
@@ -227,12 +244,14 @@ async function updateOnlineTable(signal) {
     remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
     remotePresentTableFragment.append(remotePresentTable);
     const oldRemotePresentTable = document.getElementById("remotePresentTable");
-    oldRemotePresentTable.classList.add("fade-in");
+    oldRemotePresentTable.classList.add("fade-out");
     setTimeout(() => {
         oldRemotePresentTable.replaceWith(remotePresentTableFragment);
         const newTable = document.getElementById("remotePresentTable");
-        newTable.classList.add("fade-in");
-        setTimeout(() => newTable.classList.add("loaded"), 10);
+        if (newTable) {
+            newTable.classList.add("fade-in");
+            setTimeout(() => newTable.classList.add("loaded"), 10);
+        }
     }, 300);
     oldRemotePresentTable.replaceWith(remotePresentTableFragment);
   } catch (error) {
