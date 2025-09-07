@@ -8,3 +8,4 @@ update-ca-certificates
 /usr/bin/chown root:root /usr/sbin/uit-*
 /usr/bin/chmod 750 /opt/uit-toolbox/ -R
 /usr/bin/chown root:root /opt/uit-toolbox/ -R
+/usr/bin/chown uitweb:uitweb /opt/uit-toolbox/api/ -R

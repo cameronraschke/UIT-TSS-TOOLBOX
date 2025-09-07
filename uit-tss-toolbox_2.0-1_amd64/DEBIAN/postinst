@@ -257,7 +257,7 @@ ExecStart=/opt/uit-toolbox/api/api
 WorkingDirectory=/opt/uit-toolbox/api
 User=uitweb
 Group=uitweb
-Umask=227
+UMask=227
 Restart=on-failure
 EnvironmentFile=/etc/uit-toolbox.env
 
