@@ -919,9 +919,12 @@ func main() {
 		ipRequests: &LimiterMap{rate: rateLimit, burst: rateLimitBurst},
 		blockedIPs: &BlockedMap{banPeriod: rateLimitBanDuration},
 		allowedFiles: map[string]bool{
-			"filesystem.squashfs": true,
-			"initrd.img":          true,
-			"vmlinuz":             true,
+			"filesystem.squashfs":    true,
+			"initrd.img":             true,
+			"vmlinuz":                true,
+			"uit-ca.crt":             true,
+			"uit-web.crt":            true,
+			"uit-toolbox-client.deb": true,
 		},
 	}
 
