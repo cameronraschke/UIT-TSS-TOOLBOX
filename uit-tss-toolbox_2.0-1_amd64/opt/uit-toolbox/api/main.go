@@ -883,9 +883,10 @@ func main() {
 		os.Exit(1)
 	}
 	dbConnString := dbConnScheme + "://" + dbConnUser + ":" + dbConnPass + "@" + dbConnHost + ":" + dbConnPort + "/" + dbConnDBName + "?sslmode=disable"
-	db, err := sql.Open("pgx", dbConnString)
-	if err != nil {
-		log.Error("Unable to connect to database: \n" + err.Error())
+	var dbConnErr error
+	db, dbConnErr = sql.Open("pgx", dbConnString)
+	if dbConnErr != nil {
+		log.Error("Unable to connect to database: \n" + dbConnErr.Error())
 		os.Exit(1)
 	}
 	defer db.Close()
@@ -956,7 +957,6 @@ func main() {
 		setHeadersMiddleware,
 		apiAuth,
 		// csrfMiddleware,
-		denyAllMiddleware,
 	}
 	// refreshTokenMuxChain := muxChain{apiMiddleWare}
 	httpsMux := http.NewServeMux()

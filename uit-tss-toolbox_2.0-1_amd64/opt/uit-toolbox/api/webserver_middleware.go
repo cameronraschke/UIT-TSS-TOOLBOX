@@ -351,7 +351,7 @@ func apiAuth(next http.Handler) http.Handler {
 			}
 		} else if (basicValid && !bearerValid) || (!basicValid && !bearerValid) {
 			sessionCount = countAuthSessions(&authMap)
-			log.Debug("Auth cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + ")")
+			log.Debug("Auth cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + ") " + req.URL.RequestURI())
 			if queryType == "new-token" && strings.TrimSpace(requestBasicToken) != "" {
 				next.ServeHTTP(w, req)
 			} else {
