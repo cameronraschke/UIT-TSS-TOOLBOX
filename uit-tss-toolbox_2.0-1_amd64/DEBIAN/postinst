@@ -146,7 +146,7 @@ if [[ $(groups cameron | grep 'uit'; echo $?) == "1" ]]; then
 fi
 
 chown root:uit /etc/uit-toolbox/ -R
-find /etc/uit-toolbox/ -type d -exec chmod 750 {} \;
+find /etc/uit-toolbox/ -type d -exec chmod 755 {} \;
 find /etc/uit-toolbox/ -type f -exec chmod 640 {} \;
 chown root:uitweb /etc/uit-toolbox/certs/ -R
 find /etc/uit-toolbox/certs/ -type d -exec chmod 750 {} \;
