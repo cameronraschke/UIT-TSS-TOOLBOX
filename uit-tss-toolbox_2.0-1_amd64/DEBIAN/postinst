@@ -260,6 +260,7 @@ Group=uitweb
 UMask=227
 Restart=on-failure
 EnvironmentFile=/etc/uit-toolbox.env
+MemoryMax=4G
 
 [Install]
 WantedBy=multi-user.target

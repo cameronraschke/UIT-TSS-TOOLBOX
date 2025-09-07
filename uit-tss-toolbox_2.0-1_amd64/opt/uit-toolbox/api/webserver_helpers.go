@@ -1,15 +1,19 @@
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"net"
+	"io"
 	"net/http"
+	"net/netip"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"golang.org/x/time/rate"
 )
@@ -20,9 +24,9 @@ type limiterEntry struct {
 }
 
 type LimiterMap struct {
-	m        sync.Map
-	interval int64
-	burst    int
+	m     sync.Map
+	rate  float64
+	burst int
 }
 
 type BlockedMap struct {
@@ -31,8 +35,8 @@ type BlockedMap struct {
 }
 
 var (
+	rateLimit            float64
 	rateLimitBurst       int
-	rateLimitInterval    int64
 	rateLimitBanDuration time.Duration
 	ipRequests           *LimiterMap
 	blockedIPs           *BlockedMap
@@ -40,7 +44,7 @@ var (
 
 func countAuthSessions(m *sync.Map) int {
 	authSessionCount := 0
-	m.Range(func(_, _ interface{}) bool {
+	m.Range(func(_, _ any) bool {
 		authSessionCount++
 		return true
 	})
@@ -60,14 +64,14 @@ func formatHttpError(errorString string) (jsonErrStr string) {
 func (lm *LimiterMap) Get(ip string) *rate.Limiter {
 	curTime := time.Now()
 	newEntry := &limiterEntry{
-		limiter:  rate.NewLimiter(rate.Every(time.Duration(lm.interval)*time.Second), lm.burst),
+		limiter:  rate.NewLimiter(rate.Limit(lm.rate), lm.burst),
 		lastSeen: curTime,
 	}
 	queriedLimiter, exists := lm.m.LoadOrStore(ip, newEntry)
 	entry := queriedLimiter.(*limiterEntry)
 	entry.lastSeen = curTime
 	if !exists {
-		log.Debug("Created new limiter for IP: " + ip + " interval=" + fmt.Sprint(lm.interval) + " burst=" + fmt.Sprint(lm.burst))
+		log.Debug("Created new limiter for IP: " + ip + " rate=" + fmt.Sprint(lm.rate) + " burst=" + fmt.Sprint(lm.burst))
 	}
 
 	return entry.limiter
@@ -142,14 +146,81 @@ func (as *AppState) GetAllBlockedIPs() string {
 	return strings.Join(blocked, ", ")
 }
 
-func getClientIP(r *http.Request) string {
-	var ip string
-	if strings.TrimSpace(r.Header.Get("X-Forwarded-For")) != "" {
-		ip = strings.Split(r.Header.Get("X-Forwarded-For"), ",")[0]
-	} else {
-		ip, _, _ = net.SplitHostPort(r.RemoteAddr)
+func checkValidIP(s string) (isValid bool, isLoopback bool, isLocal bool) {
+	maxStringSize := int64(128)
+	maxCharSize := int(4)
+
+	ipBytes := &io.LimitedReader{
+		R: strings.NewReader(s),
+		N: maxStringSize,
 	}
-	return ip
+	reader := bufio.NewReader(ipBytes)
+
+	var totalBytes int64
+	var b strings.Builder
+	for {
+		char, charSize, err := reader.ReadRune()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Warning("read error in checkValidIP" + err.Error())
+			return false, false, false
+		}
+		if charSize > maxCharSize {
+			log.Warning("IP address contains an invalid Unicode character")
+			return false, false, false
+		}
+		if char == utf8.RuneError && charSize == 1 {
+			return false, false, false
+		}
+		if (char >= '0' && char <= '9') && (char == '.' || char == ':') {
+			log.Warning("IP address contains an invalid character")
+			return false, false, false
+		}
+		totalBytes += int64(charSize)
+		if totalBytes > maxStringSize {
+			log.Warning("IP length exceeded " + strconv.FormatInt(maxStringSize, 10) + " bytes")
+			return false, false, false
+		}
+		b.WriteRune(char)
+	}
+
+	ip := strings.TrimSpace(b.String())
+	if ip == "" {
+		return false, false, false
+	}
+
+	// Reset string builder so GC can get rid of it
+	b.Reset()
+
+	parsedIP, err := netip.ParseAddr(ip)
+	if err != nil {
+		return false, false, false
+	}
+
+	// If unspecified, empty, or wrong byte size
+	if parsedIP.BitLen() != 32 && parsedIP.BitLen() != 128 {
+		log.Warning("IP Address is the incorrect length")
+		return false, false, false
+	}
+
+	if parsedIP.IsUnspecified() || !parsedIP.IsValid() {
+		log.Warning("IP address is unspecified or invalid: " + string(parsedIP.String()))
+		return false, false, false
+	}
+
+	if !parsedIP.Is4() || parsedIP.Is4In6() || parsedIP.Is6() {
+		log.Warning("IP address is not IPv4: " + string(parsedIP.String()))
+		return false, false, false
+	}
+
+	if parsedIP.IsGlobalUnicast() || parsedIP.IsLinkLocalUnicast() || parsedIP.IsInterfaceLocalMulticast() || parsedIP.IsLinkLocalMulticast() || parsedIP.IsMulticast() {
+		log.Warning("IP address is unicase or multicast: " + string(parsedIP.String()))
+		return false, false, false
+	}
+
+	return true, parsedIP.IsLoopback(), parsedIP.IsPrivate()
 }
 
 func generateCSRFToken() (string, error) {

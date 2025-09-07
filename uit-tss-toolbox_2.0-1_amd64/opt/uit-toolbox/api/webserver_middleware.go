@@ -13,6 +13,61 @@ import (
 	"time"
 )
 
+type ctxClientIP struct{}
+
+func limitRequestSizeMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		maxSize := int64(64 << 20)
+		if req.ContentLength > maxSize {
+			log.Warning("Request content length exceeds limit: " + fmt.Sprintf("%.2fMB", float64(req.ContentLength)/1e6))
+			http.Error(w, formatHttpError("Request too large"), http.StatusRequestEntityTooLarge)
+			return
+		}
+		req.Body = http.MaxBytesReader(w, req.Body, maxSize)
+		next.ServeHTTP(w, req)
+	})
+}
+
+func timeoutMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		ctx, cancel := context.WithTimeout(req.Context(), 10*time.Second)
+		defer cancel()
+		req = req.WithContext(ctx)
+		next.ServeHTTP(w, req)
+	})
+}
+
+func storeClientIPMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		// xffHeader := strings.Split(r.Header.Get("X-Forwarded-For"), ",")[0]
+		// xripHeader := strings.TrimSpace(r.Header.Get("X-Real-IP"))
+		// xffExists := xffHeader != ""
+		// xripExists := xripHeader != ""
+
+		ip, port, err := net.SplitHostPort(req.RemoteAddr)
+		if err != nil {
+			log.Warning("Could not parse IP address: " + err.Error())
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+		if strings.TrimSpace(port) == "" {
+			log.Warning("Empty port in request")
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		ipValid, _, _ := checkValidIP(ip)
+		if ipValid {
+			ctx := context.WithValue(req.Context(), ctxClientIP{}, ip)
+			next.ServeHTTP(w, req.WithContext(ctx))
+		}
+
+		log.Warning("Invalid IP address, terminating connection")
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	})
+}
+
 func allowIPRangeMiddleware(allowedCIDR string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +86,7 @@ func allowIPRangeMiddleware(allowedCIDR string) func(http.Handler) http.Handler 
 		})
 	}
 }
+
 func rateLimitMiddleware(app *AppState) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -57,15 +113,6 @@ func rateLimitMiddleware(app *AppState) func(http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		})
 	}
-}
-
-func timeoutMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		ctx, cancel := context.WithTimeout(req.Context(), 10*time.Second)
-		defer cancel()
-		req = req.WithContext(ctx)
-		next.ServeHTTP(w, req)
-	})
 }
 
 func tlsMiddleware(next http.Handler) http.Handler {

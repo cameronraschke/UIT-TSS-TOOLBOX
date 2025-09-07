@@ -1,4 +1,3 @@
-// Don't forget - $ go mod init api; go mod tidy;
 package main
 
 import (
@@ -58,7 +57,7 @@ type AppConfig struct {
 	UIT_TLS_CERT_FILE           string
 	UIT_TLS_KEY_FILE            string
 	UIT_RATE_LIMIT_BURST        int
-	UIT_RATE_LIMIT_INTERVAL     int64
+	UIT_RATE_LIMIT_INTERVAL     float64
 	UIT_RATE_LIMIT_BAN_DURATION time.Duration
 }
 
@@ -554,44 +553,6 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
 //     }
 // }
 
-func startAuthMapCleanup(interval time.Duration) {
-	go func() {
-		for {
-			time.Sleep(interval)
-			authMap.Range(func(k, v interface{}) bool {
-				sessionID := k.(string)
-				authSession := v.(AuthSession)
-				sessionIP := strings.SplitN(sessionID, ":", 2)[0]
-
-				// basicExpiry := authSession.Basic.Expiry.Sub(time.Now())
-				bearerExpiry := time.Until(authSession.Bearer.Expiry)
-
-				// Auth cache entry expires once countdown reaches zero
-				if bearerExpiry.Seconds() <= 0 {
-					authMap.Delete(sessionID)
-					atomic.AddInt64(&authMapEntryCount, -1)
-					sessionCount := countAuthSessions(&authMap)
-					log.Info("(Cleanup) Auth session expired: " + sessionIP + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(sessionCount)) + " session(s))")
-				}
-				return true
-			})
-		}
-	}()
-}
-
-func startIPBlocklistCleanup(appState *AppState, interval time.Duration) {
-	go func() {
-		for {
-			time.Sleep(interval)
-
-			// Get all banned IPs
-			log.Warning("Current blocked IPs: " + appState.GetAllBlockedIPs())
-
-			appState.Cleanup()
-		}
-	}()
-}
-
 func redirectToHTTPSHandler(httpsPort string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		host := r.Host
@@ -806,11 +767,11 @@ func configureEnvironment() AppConfig {
 	if !ok {
 		log.Error("Error getting UIT_RATE_LIMIT_INTERVAL: not found")
 	}
-	var rateLimitIntervalErr error
-	rateLimitInterval, rateLimitIntervalErr = strconv.ParseInt(rateLimitIntervalStr, 10, 64)
-	if rateLimitIntervalErr != nil || rateLimitInterval <= 0 {
-		log.Error("Error converting UIT_RATE_LIMIT_INTERVAL to integer: " + rateLimitIntervalErr.Error())
-		rateLimitInterval = 1
+	var rateLimitErr error
+	rateLimit, rateLimitErr = strconv.ParseFloat(rateLimitIntervalStr, 64)
+	if rateLimitErr != nil || rateLimit <= 0 {
+		log.Error("Error converting UIT_RATE_LIMIT_INTERVAL to float: " + rateLimitErr.Error())
+		rateLimit = 1
 	}
 	rateLimitBanDurationStr, ok := os.LookupEnv("UIT_RATE_LIMIT_BAN_DURATION")
 	if !ok {
@@ -841,7 +802,7 @@ func configureEnvironment() AppConfig {
 		UIT_TLS_CERT_FILE:           tlsCertFile,
 		UIT_TLS_KEY_FILE:            tlsKeyFile,
 		UIT_RATE_LIMIT_BURST:        rateLimitBurst,
-		UIT_RATE_LIMIT_INTERVAL:     rateLimitInterval,
+		UIT_RATE_LIMIT_INTERVAL:     rateLimit,
 		UIT_RATE_LIMIT_BAN_DURATION: rateLimitBanDuration,
 	}
 }
@@ -862,9 +823,11 @@ func main() {
 	configureEnvironment()
 
 	appState := &AppState{
-		ipRequests: &LimiterMap{interval: rateLimitInterval, burst: rateLimitBurst},
+		ipRequests: &LimiterMap{rate: rateLimit, burst: rateLimitBurst},
 		blockedIPs: &BlockedMap{banPeriod: rateLimitBanDuration},
 	}
+
+	backgroundProcesses(appState)
 
 	// Connect to db with pgx
 	log.Info("Attempting connection to database...")
@@ -905,14 +868,18 @@ func main() {
 	db.SetConnMaxLifetime(5 * time.Minute)
 
 	fileServerMuxChain := muxChain{
+		limitRequestSizeMiddleware,
+		timeoutMiddleware,
+		storeClientIPMiddleware,
 		allowIPRangeMiddleware("10.0.0.0/16"),
 		rateLimitMiddleware(appState),
-		timeoutMiddleware,
 	}
 
 	httpRedirectToHttps := muxChain{
-		rateLimitMiddleware(appState),
+		limitRequestSizeMiddleware,
 		timeoutMiddleware,
+		storeClientIPMiddleware,
+		rateLimitMiddleware(appState),
 	}
 
 	httpMux := http.NewServeMux()
@@ -935,10 +902,6 @@ func main() {
 	}()
 	defer httpServer.Close()
 
-	// Start auth map cleanup goroutine
-	startAuthMapCleanup(15 * time.Second)
-	startIPBlocklistCleanup(appState, 1*time.Minute)
-
 	// go func() {
 	//   err := http.ListenAndServe("localhost:6060", nil)
 	//   if err != nil {
@@ -948,9 +911,11 @@ func main() {
 
 	// Route to correct function
 	httpsMuxChain := muxChain{
+		limitRequestSizeMiddleware,
+		timeoutMiddleware,
+		storeClientIPMiddleware,
 		// allowIPRangeMiddleware("10.0.0.0/16"),
 		rateLimitMiddleware(appState),
-		timeoutMiddleware,
 		tlsMiddleware,
 		httpMethodMiddleware,
 		checkHeadersMiddleware,
@@ -958,7 +923,7 @@ func main() {
 		apiAuth,
 		// csrfMiddleware,
 	}
-	// refreshTokenMuxChain := muxChain{apiMiddleWare}
+
 	httpsMux := http.NewServeMux()
 	httpsMux.Handle("/api/auth", httpsMuxChain.thenFunc(getNewBearerToken))
 	httpsMux.Handle("/api/remote", httpsMuxChain.thenFunc(remoteAPI))
