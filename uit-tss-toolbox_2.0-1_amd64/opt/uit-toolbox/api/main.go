@@ -41,11 +41,12 @@ import (
 type AppConfig struct {
 	UIT_WAN_IF                  string
 	UIT_WAN_IP_ADDRESS          string
-	UIT_WAN_ALLOWED_IP          string
+	UIT_WAN_ALLOWED_IP          []string
 	UIT_LAN_IF                  string
 	UIT_LAN_IP_ADDRESS          string
-	UIT_LAN_ALLOWED_IP          string
-	UIT_DB_ADMIN_PASSWD         string
+	UIT_LAN_ALLOWED_IP          []string
+	UIT_ALL_ALLOWED_IP          []string
+	UIT_WEB_SVC_PASSWD          string
 	UIT_DB_CLIENT_PASSWD        string
 	UIT_WEB_USER_DEFAULT_PASSWD string
 	UIT_WEBMASTER_NAME          string
@@ -345,6 +346,7 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
 	if !ok {
 		log.Warning("no IP address stored in context")
 		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
 	}
 
 	// Check for body size that exceeds limit put on by middleware
@@ -704,9 +706,18 @@ func configureEnvironment() AppConfig {
 	if !ok {
 		log.Error("Error getting UIT_WAN_IP_ADDRESS: not found")
 	}
-	wanAllowedIP, ok := os.LookupEnv("UIT_WAN_ALLOWED_IP")
+	envWanAllowedIPStr, ok := os.LookupEnv("UIT_WAN_ALLOWED_IP")
 	if !ok {
 		log.Error("Error getting UIT_WAN_ALLOWED_IP: not found")
+	}
+
+	envWanAllowedIPs := strings.Split(envWanAllowedIPStr, ",")
+	wanAllowedIP := make([]string, 0, len(envWanAllowedIPs))
+	for _, cidr := range envWanAllowedIPs {
+		cidr = strings.TrimSpace(cidr)
+		if cidr != "" {
+			wanAllowedIP = append(wanAllowedIP, cidr)
+		}
 	}
 
 	// LAN interface, IP, and allowed IPs
@@ -718,16 +729,36 @@ func configureEnvironment() AppConfig {
 	if !ok {
 		log.Error("Error getting UIT_LAN_IP_ADDRESS: not found")
 	}
-	lanAllowedIP, ok := os.LookupEnv("UIT_LAN_ALLOWED_IP")
+	envAllowedLanIPStr, ok := os.LookupEnv("UIT_LAN_ALLOWED_IP")
 	if !ok {
 		log.Error("Error getting UIT_LAN_ALLOWED_IP: not found")
 	}
 
+	envLanAllowedIPs := strings.Split(envAllowedLanIPStr, ",")
+	lanAllowedIP := make([]string, 0, len(envLanAllowedIPs))
+	for _, cidr := range envLanAllowedIPs {
+		cidr = strings.TrimSpace(cidr)
+		if cidr != "" {
+			lanAllowedIP = append(lanAllowedIP, cidr)
+		}
+	}
+
+	envAllAllowedIPStr := envAllowedLanIPStr + envWanAllowedIPStr
+	envAllAllowedIPs := make([]string, 0, len(envAllAllowedIPStr))
+	for _, cidr := range envAllAllowedIPs {
+		cidr = strings.TrimSpace(cidr)
+		if cidr != "" {
+			envAllAllowedIPs = append(envAllAllowedIPs, cidr)
+		}
+	}
+
 	// Database credentials
-	dbAdminPasswd, ok := os.LookupEnv("UIT_WEB_SVC_PASSWD")
+	uitWebSvcPasswd, ok := os.LookupEnv("UIT_WEB_SVC_PASSWD")
 	if !ok {
 		log.Error("Error getting UIT_WEB_SVC_PASSWD: not found")
 	}
+	uitWebSvcPasswd = strings.TrimSpace(uitWebSvcPasswd)
+
 	dbClientPasswd, ok := os.LookupEnv("UIT_DB_CLIENT_PASSWD")
 	if !ok {
 		log.Error("Error getting UIT_DB_CLIENT_PASSWD: not found")
@@ -810,7 +841,8 @@ func configureEnvironment() AppConfig {
 		UIT_LAN_IF:                  lanIf,
 		UIT_LAN_IP_ADDRESS:          lanIP,
 		UIT_LAN_ALLOWED_IP:          lanAllowedIP,
-		UIT_DB_ADMIN_PASSWD:         dbAdminPasswd,
+		UIT_ALL_ALLOWED_IP:          envAllAllowedIPs,
+		UIT_WEB_SVC_PASSWD:          uitWebSvcPasswd,
 		UIT_DB_CLIENT_PASSWD:        dbClientPasswd,
 		UIT_WEB_USER_DEFAULT_PASSWD: webUserDefaultPasswd,
 		UIT_WEBMASTER_NAME:          webmasterName,
@@ -839,7 +871,7 @@ func main() {
 		}
 	}()
 
-	configureEnvironment()
+	appConfig := configureEnvironment()
 
 	appState := &AppState{
 		ipRequests: &LimiterMap{rate: rateLimit, burst: rateLimitBurst},
@@ -855,15 +887,7 @@ func main() {
 	dbConnPort := "5432"
 	dbConnUser := "uitweb"
 	dbConnDBName := "uitdb"
-	dbConnPass, ok := os.LookupEnv("UIT_WEB_SVC_PASSWD")
-	if !ok {
-		if strings.TrimSpace(dbConnPass) == "" {
-			log.Error("Error getting UIT_WEB_SVC_PASSWD: empty value")
-		} else {
-			log.Error("Error getting UIT_WEB_SVC_PASSWD: variable not set")
-		}
-		os.Exit(1)
-	}
+	dbConnPass := appConfig.UIT_WEB_SVC_PASSWD
 	dbConnString := dbConnScheme + "://" + dbConnUser + ":" + dbConnPass + "@" + dbConnHost + ":" + dbConnPort + "/" + dbConnDBName + "?sslmode=disable"
 	var dbConnErr error
 	db, dbConnErr = sql.Open("pgx", dbConnString)
@@ -890,7 +914,7 @@ func main() {
 		limitRequestSizeMiddleware,
 		timeoutMiddleware,
 		storeClientIPMiddleware,
-		allowIPRangeMiddleware("10.0.0.0/16"),
+		allowIPRangeMiddleware(appConfig.UIT_LAN_ALLOWED_IP),
 		rateLimitMiddleware(appState),
 	}
 
@@ -898,6 +922,7 @@ func main() {
 		limitRequestSizeMiddleware,
 		timeoutMiddleware,
 		storeClientIPMiddleware,
+		allowIPRangeMiddleware(appConfig.UIT_ALL_ALLOWED_IP),
 		rateLimitMiddleware(appState),
 	}
 
@@ -906,7 +931,7 @@ func main() {
 	httpMux.Handle("/client/iso/live/", fileServerMuxChain.thenFunc(serveLiveISO))
 
 	httpServer := &http.Server{
-		Addr:         "127.0.0.1:8080",
+		Addr:         appConfig.UIT_LAN_IP_ADDRESS + ":80",
 		Handler:      httpMux,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 1 * time.Minute,
@@ -914,9 +939,9 @@ func main() {
 	}
 
 	go func() {
-		log.Info("File server listening on http://127.0.0.1:8080")
+		log.Info("HTTP server listening on http://" + appConfig.UIT_LAN_IP_ADDRESS + ":80")
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Error("File server error: " + err.Error())
+			log.Error("HTTP server error: " + err.Error())
 		}
 	}()
 	defer httpServer.Close()
@@ -933,7 +958,7 @@ func main() {
 		limitRequestSizeMiddleware,
 		timeoutMiddleware,
 		storeClientIPMiddleware,
-		// allowIPRangeMiddleware("10.0.0.0/16"),
+		allowIPRangeMiddleware(appConfig.UIT_ALL_ALLOWED_IP),
 		rateLimitMiddleware(appState),
 		tlsMiddleware,
 		httpMethodMiddleware,

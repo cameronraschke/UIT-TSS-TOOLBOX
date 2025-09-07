@@ -69,19 +69,27 @@ func storeClientIPMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func allowIPRangeMiddleware(allowedCIDR string) func(http.Handler) http.Handler {
+func allowIPRangeMiddleware(acceptedCIDRs []string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			requestIP, ok := GetRequestIP(req)
 			if !ok {
 				log.Warning("no IP address stored in context")
 				http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+				return
 			}
 			parsedRequestIP := net.ParseIP(requestIP)
-			_, ipNet, err := net.ParseCIDR(allowedCIDR)
-			if err != nil || !ipNet.Contains(parsedRequestIP) {
-				http.Error(w, "Forbidden", http.StatusForbidden)
+			if parsedRequestIP == nil {
+				log.Warning("cannot parse request IP")
+				http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 				return
+			}
+			for _, cidr := range acceptedCIDRs {
+				_, ipNet, err := net.ParseCIDR(cidr)
+				if err != nil || !ipNet.Contains(parsedRequestIP) {
+					http.Error(w, "Forbidden", http.StatusForbidden)
+					return
+				}
 			}
 			next.ServeHTTP(w, req)
 		})
@@ -95,6 +103,7 @@ func rateLimitMiddleware(app *AppState) func(http.Handler) http.Handler {
 			if !ok {
 				log.Warning("no IP address stored in context")
 				http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+				return
 			}
 
 			if app.blockedIPs.IsBlocked(requestIP) {
@@ -122,6 +131,7 @@ func tlsMiddleware(next http.Handler) http.Handler {
 		if !ok {
 			log.Warning("no IP address stored in context")
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
 		}
 
 		if req.TLS == nil || !req.TLS.HandshakeComplete {
@@ -163,6 +173,7 @@ func httpMethodMiddleware(next http.Handler) http.Handler {
 		if !ok {
 			log.Warning("no IP address stored in context")
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
 		}
 
 		// Check method
@@ -198,6 +209,7 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 		if !ok {
 			log.Warning("no IP address stored in context")
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
 		}
 
 		// Content length
@@ -279,6 +291,7 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 		if !ok {
 			log.Warning("no IP address stored in context")
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
 		}
 		// Get env vars
 		env := configureEnvironment()
@@ -347,6 +360,7 @@ func apiAuth(next http.Handler) http.Handler {
 		if !ok {
 			log.Warning("no IP address stored in context")
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
 		}
 
 		// Delete expired tokens & malformed entries out of authMap
@@ -434,6 +448,7 @@ func csrfMiddleware(next http.Handler) http.Handler {
 		if !ok {
 			log.Warning("no IP address stored in context")
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
 		}
 
 		requestIP, _, err := net.SplitHostPort(requestIP)
