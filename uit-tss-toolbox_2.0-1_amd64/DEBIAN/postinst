@@ -239,6 +239,7 @@ cp /usr/local/share/ca-certificates/uit-web.crt /srv/uit-toolbox/client/certs/ui
 
 (cd /opt/uit-toolbox/api/
   /usr/local/go/bin/go build .
+  chown uitweb:uitweb /opt/uit-toolbox/api -R
   chmod 750 /opt/uit-toolbox/api/api
 )
 
