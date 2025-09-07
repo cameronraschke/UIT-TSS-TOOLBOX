@@ -669,6 +669,7 @@ func serveLiveISO(w http.ResponseWriter, r *http.Request) {
 
 	resolvedPath, err := filepath.EvalSymlinks(fullFilePathSanitized)
 	if err != nil || !strings.HasPrefix(resolvedPath, basePath) {
+		log.Warning("Attempt to access file outside base path: " + r.RemoteAddr + " (" + resolvedPath + ")")
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
@@ -931,7 +932,9 @@ func main() {
 			log.Error("File server error: " + err.Error())
 		}
 	}()
+	defer httpServer.Close()
 
+	// Start auth map cleanup goroutine
 	startAuthMapCleanup(15 * time.Second)
 	startIPBlocklistCleanup(appState, 1*time.Minute)
 
