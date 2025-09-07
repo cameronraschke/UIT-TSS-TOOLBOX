@@ -41,7 +41,6 @@ var (
 	ipRequests           *LimiterMap
 	blockedIPs           *BlockedMap
 )
-}
 
 func countAuthSessions(m *sync.Map) int {
 	authSessionCount := 0
