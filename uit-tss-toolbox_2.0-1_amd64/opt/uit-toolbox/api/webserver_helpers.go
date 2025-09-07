@@ -27,15 +27,8 @@ var (
 	rateLimitBurst       int
 	rateLimitInterval    int64
 	rateLimitBanDuration time.Duration
-
-	ipRequests = &LimiterMap{
-		interval: rateLimitInterval,
-		burst:    rateLimitBurst,
-	}
-
-	blockedIPs = &BlockedMap{
-		banPeriod: rateLimitBanDuration,
-	}
+	ipRequests           *LimiterMap
+	blockedIPs           *BlockedMap
 )
 
 func countAuthSessions(m *sync.Map) int {

@@ -841,6 +841,15 @@ func main() {
 
 	configureEnvironment()
 
+	ipRequests = &LimiterMap{
+		interval: rateLimitInterval,
+		burst:    rateLimitBurst,
+	}
+
+	blockedIPs = &BlockedMap{
+		banPeriod: rateLimitBanDuration,
+	}
+
 	// Connect to db with pgx
 	log.Info("Attempting connection to database...")
 	dbConnScheme := "postgres"
