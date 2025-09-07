@@ -215,8 +215,8 @@ func checkValidIP(s string) (isValid bool, isLoopback bool, isLocal bool) {
 		return false, false, false
 	}
 
-	if parsedIP.IsGlobalUnicast() || parsedIP.IsLinkLocalUnicast() || parsedIP.IsInterfaceLocalMulticast() || parsedIP.IsLinkLocalMulticast() || parsedIP.IsMulticast() {
-		log.Warning("IP address is unicase or multicast: " + string(parsedIP.String()))
+	if parsedIP.IsInterfaceLocalMulticast() || parsedIP.IsLinkLocalMulticast() || parsedIP.IsMulticast() {
+		log.Warning("IP address is multicast: " + string(parsedIP.String()))
 		return false, false, false
 	}
 
