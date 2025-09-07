@@ -725,9 +725,9 @@ func configureEnvironment() AppConfig {
 	}
 
 	// Database credentials
-	dbAdminPasswd, ok := os.LookupEnv("UIT_DB_ADMIN_PASSWD")
+	dbAdminPasswd, ok := os.LookupEnv("UIT_WEB_SVC_PASSWD")
 	if !ok {
-		log.Error("Error getting UIT_DB_ADMIN_PASSWD: not found")
+		log.Error("Error getting UIT_WEB_SVC_PASSWD: not found")
 	}
 	dbClientPasswd, ok := os.LookupEnv("UIT_DB_CLIENT_PASSWD")
 	if !ok {
@@ -889,12 +889,12 @@ func main() {
 	dbConnPort := "5432"
 	dbConnUser := "uitweb"
 	dbConnDBName := "uitdb"
-	dbConnPass, ok := os.LookupEnv("UIT_DB_ADMIN_PASSWD")
+	dbConnPass, ok := os.LookupEnv("UIT_WEB_SVC_PASSWD")
 	if !ok {
 		if strings.TrimSpace(dbConnPass) == "" {
-			log.Error("Error getting UIT_DB_ADMIN_PASSWD: empty value")
+			log.Error("Error getting UIT_WEB_SVC_PASSWD: empty value")
 		} else {
-			log.Error("Error getting UIT_DB_ADMIN_PASSWD: variable not set")
+			log.Error("Error getting UIT_WEB_SVC_PASSWD: variable not set")
 		}
 		os.Exit(1)
 	}

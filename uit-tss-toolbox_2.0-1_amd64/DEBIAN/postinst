@@ -103,7 +103,6 @@ fi
 for key in "${!configArr[@]}"; do 
   printf "%s\n" "$key=\"${configArr[$key]}\"" >> /etc/uit-toolbox.env
 done
-printf "%s\n" "UIT_WEB_SVC_PASSWD=\"${configArr[UIT_WEB_SVC_PASSWD]}\"" >> /etc/uit-toolbox.env
 sudo chown uitweb:uitweb /etc/uit-toolbox.env
 sudo chmod 400 /etc/uit-toolbox.env
 
