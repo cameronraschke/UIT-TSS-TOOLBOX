@@ -57,14 +57,14 @@ func storeClientIPMiddleware(next http.Handler) http.Handler {
 		}
 
 		ipValid, _, _ := checkValidIP(ip)
-		if ipValid {
-			ctx := context.WithValue(req.Context(), ctxClientIP{}, ip)
-			next.ServeHTTP(w, req.WithContext(ctx))
+		if !ipValid {
+			log.Warning("Invalid IP address, terminating connection")
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
 		}
 
-		log.Warning("Invalid IP address, terminating connection")
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
+		ctx := context.WithValue(req.Context(), ctxClientIP{}, ip)
+		next.ServeHTTP(w, req.WithContext(ctx))
 	})
 }
 
