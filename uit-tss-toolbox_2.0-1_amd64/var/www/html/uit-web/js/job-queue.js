@@ -169,8 +169,7 @@ async function updateOnlineTable(signal) {
         imgContainer.style.height = "135px";
 
         preloadedImg.onload = () => {
-        preloadedImg.classList.add('loaded');
-        // setTimeout(() => { if (oldImg) oldImg.remove(); }, 300);
+            preloadedImg.classList.add('loaded');
         };
         
         preloadedImg.src = screenshotDataURL;

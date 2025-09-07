@@ -928,7 +928,7 @@ func main() {
 
 	httpMux := http.NewServeMux()
 	httpMux.Handle("/", httpRedirectToHttps.then(redirectToHTTPSHandler("31411")))
-	httpMux.Handle("/client/iso/live/", fileServerMuxChain.thenFunc(serveFiles))
+	httpMux.Handle("/client/", fileServerMuxChain.thenFunc(serveFiles))
 
 	httpServer := &http.Server{
 		Addr:         appConfig.UIT_LAN_IP_ADDRESS + ":8080",
