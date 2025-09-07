@@ -190,7 +190,8 @@ chmod 770 /var/www/html/uit-web/bash/uit-print-pdf
 chown www-data:uit /var/www/html/uit-web/bash/convert-to-mp4
 chmod 770 /var/www/html/uit-web/bash/convert-to-mp4
 
-chown root:uitweb /srv/uit-toolbox/ -R
+
+find /srv/uit-toolbox/client/ -type d ! -path "/srv/uit-toolbox/client/iso" ! -path "/srv/uit-toolbox/client/iso/*" -exec chown root:uitweb {} \;
 # Find command w/ directory is different regex
 find /srv/uit-toolbox/ -type d -not -path "*/iso*" -exec chmod 755 {} \;
 find /srv/uit-toolbox/ -type f -not -path "*/iso/*" -exec chmod 664 {} \;
