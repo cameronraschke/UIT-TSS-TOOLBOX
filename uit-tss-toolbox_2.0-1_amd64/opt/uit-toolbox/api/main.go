@@ -62,6 +62,11 @@ type AppConfig struct {
 	UIT_RATE_LIMIT_BAN_DURATION time.Duration
 }
 
+type AppState struct {
+	ipRequests *LimiterMap
+	blockedIPs *BlockedMap
+}
+
 // Mux handlers
 type muxChain []func(http.Handler) http.Handler
 
@@ -841,13 +846,9 @@ func main() {
 
 	configureEnvironment()
 
-	ipRequests = &LimiterMap{
-		interval: rateLimitInterval,
-		burst:    rateLimitBurst,
-	}
-
-	blockedIPs = &BlockedMap{
-		banPeriod: rateLimitBanDuration,
+	appState := &AppState{
+		ipRequests: &LimiterMap{interval: rateLimitInterval, burst: rateLimitBurst},
+		blockedIPs: &BlockedMap{banPeriod: rateLimitBanDuration},
 	}
 
 	// Connect to db with pgx
@@ -889,13 +890,13 @@ func main() {
 
 	fileServerMuxChain := muxChain{
 		allowIPRangeMiddleware("10.0.0.0/16"),
-		rateLimitMiddleware,
+		rateLimitMiddleware(appState),
 		timeoutMiddleware,
 		denyAllMiddleware,
 	}
 
 	httpRedirectToHttps := muxChain{
-		rateLimitMiddleware,
+		rateLimitMiddleware(appState),
 		timeoutMiddleware,
 		denyAllMiddleware,
 	}
@@ -931,7 +932,7 @@ func main() {
 	// Route to correct function
 	httpsMuxChain := muxChain{
 		// allowIPRangeMiddleware("10.0.0.0/16"),
-		rateLimitMiddleware,
+		rateLimitMiddleware(appState),
 		timeoutMiddleware,
 		tlsMiddleware,
 		httpMethodMiddleware,

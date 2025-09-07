@@ -90,15 +90,15 @@ func (bm *BlockedMap) Block(ip string) {
 	bm.m.Store(ip, time.Now().Add(bm.banPeriod))
 }
 
-func getLimiter(requestIP string) *rate.Limiter {
+func GetLimiter(requestIP string) *rate.Limiter {
 	return ipRequests.Get(requestIP)
 }
 
-func isBlocked(requestIP string) bool {
+func IsBlocked(requestIP string) bool {
 	return blockedIPs.IsBlocked(requestIP)
 }
 
-func blockIP(requestIP string) {
+func BlockIP(requestIP string) {
 	blockedIPs.Block(requestIP)
 }
 

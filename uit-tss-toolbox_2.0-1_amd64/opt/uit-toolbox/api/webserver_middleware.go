@@ -31,31 +31,32 @@ func allowIPRangeMiddleware(allowedCIDR string) func(http.Handler) http.Handler 
 		})
 	}
 }
+func rateLimitMiddleware(app *AppState) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requestIP, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				http.Error(w, "Bad Request", http.StatusBadRequest)
+				return
+			}
 
-func rateLimitMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestIP, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			http.Error(w, "Bad Request", http.StatusBadRequest)
-			return
-		}
+			if app.blockedIPs.IsBlocked(requestIP) {
+				log.Warning("Blocked IP attempted request: " + requestIP)
+				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+				return
+			}
 
-		if isBlocked(requestIP) {
-			log.Warning("Blocked IP attempted request: " + requestIP)
-			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
-			return
-		}
+			limiter := app.ipRequests.Get(requestIP)
+			if !limiter.Allow() {
+				app.blockedIPs.Block(requestIP)
+				log.Warning("Client has exceeded rate limit: " + requestIP)
+				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+				return
+			}
 
-		limiter := getLimiter(requestIP)
-		if !limiter.Allow() {
-			blockIP(requestIP)
-			log.Warning("Blocked IP attempted request: " + requestIP)
-			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func timeoutMiddleware(next http.Handler) http.Handler {
