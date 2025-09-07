@@ -263,15 +263,16 @@ async function postData(queryType, jsonStr) {
       throw new Error(`Error fetching data: ${encodeURIComponent(queryType).replace(/'/g, "%27")} (Status: ${response.status})`);
     }
     if (!response.headers || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
-      throw new Error('Response is undefined or not JSON');
+      console.warn('Response is undefined or not JSON');
     }
-
-    if (!data || Object.keys(data).length === 0) {
-      console.warn("Response JSON is empty: " + url);
-    }
+    
     const text = await response.text();
     if (text) {
-      return JSON.parse(text);
+      data = JSON.parse(text);
+      if (!data || Object.keys(data).length === 0) {
+        console.warn("Response JSON is empty: " + url);
+      }
+      return data;
     } 
 
     return null;
