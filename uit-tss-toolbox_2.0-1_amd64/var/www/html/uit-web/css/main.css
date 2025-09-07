@@ -125,14 +125,14 @@ label {
 
 .fade-in {
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 1s ease-in-out;
 }
 .fade-in.loaded {
   opacity: 1;
 }
 .fade-out {
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 1s ease-in-out;
 }
 
 

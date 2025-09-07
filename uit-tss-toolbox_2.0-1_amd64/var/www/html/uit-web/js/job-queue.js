@@ -154,7 +154,13 @@ async function updateOnlineTable(signal) {
         preloadedImg.loading = "lazy";
         preloadedImg.onload = () => {
             preloadedImg.classList.add('loaded');
-            setTimeout(() => { if (oldImg) oldImg.remove(); }, 300);
+            if (oldImg) {
+                oldImg.classList.add('fade-out');
+                oldImg.addEventListener('transitionend', function handler() {
+                oldImg.removeEventListener('transitionend', handler);
+                oldImg.remove();
+            });
+            }
         };
 
         const imgContainer = document.createElement("div");
@@ -252,7 +258,7 @@ async function updateOnlineTable(signal) {
             newTable.classList.add("fade-in");
             setTimeout(() => newTable.classList.add("loaded"), 10);
         }
-    }, 300);
+    }, 1000);
     oldRemotePresentTable.replaceWith(remotePresentTableFragment);
   } catch (error) {
     console.log(error);
