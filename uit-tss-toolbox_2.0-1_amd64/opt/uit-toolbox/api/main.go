@@ -935,6 +935,7 @@ func main() {
 	}()
 
 	startAuthMapCleanup(15 * time.Second)
+	startIPBlocklistCleanup(appState, 1*time.Minute)
 
 	// go func() {
 	//   err := http.ListenAndServe("localhost:6060", nil)
