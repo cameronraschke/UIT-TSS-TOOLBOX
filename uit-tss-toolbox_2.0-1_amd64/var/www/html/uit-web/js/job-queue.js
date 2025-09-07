@@ -141,13 +141,22 @@ async function updateOnlineTable(signal) {
         const screenshotLink = document.createElement("a");
         screenshotLink.setAttribute("target", "_blank");
         screenshotLink.setAttribute("href", "/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(value["tagnumber"]));
-        const screenshotImg = document.createElement("img");
-        screenshotImg.className = 'fade-in';
-        screenshotImg.onload = () => screenshotImg.classList.add('loaded');
-        screenshotImg.setAttribute("style", "max-height: 5em; height: 5em;");
-        screenshotImg.setAttribute("loading", "lazy");
-        screenshotImg.setAttribute("src", screenshotDataURL);
-        screenshotLink.appendChild(screenshotImg);
+
+        const preloadedImg = new window.Image();
+        preloadedImg.width = 240;
+        preloadedImg.height = 135;
+        preloadedImg.className = 'fade-in';
+        preloadedImg.style = "width: 240px; height: 135px; max-width: 100%; object-fit: cover;";
+        preloadedImg.loading = "lazy";
+        preloadedImg.onload = () => {
+            preloadedImg.classList.add('loaded');
+            // Only now add to DOM
+            screenshotLink.appendChild(preloadedImg);
+            screenshotCell.appendChild(screenshotLink);
+        };
+        preloadedImg.src = screenshotDataURL;
+
+        screenshotLink.appendChild(preloadedImg);
         screenshotCell.appendChild(screenshotLink);
       }
 
