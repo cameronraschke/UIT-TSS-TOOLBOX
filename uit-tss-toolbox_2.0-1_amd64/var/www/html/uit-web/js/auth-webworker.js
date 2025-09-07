@@ -34,7 +34,6 @@ function openTokenDB() {
   });
 }
 
-
 function getTokenObject(db, key) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(["uitTokens"], "readonly");
@@ -45,7 +44,6 @@ function getTokenObject(db, key) {
   });
 }
 
-
 function putTokenObject(db, key, value) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(["uitTokens"], "readwrite");
@@ -55,7 +53,6 @@ function putTokenObject(db, key, value) {
     req.onerror = event => reject("Error storing " + key + " in IndexedDB: " + event.target.error);
   });
 }
-
 
 async function checkAndUpdateTokenDB() {
   if (isRequestingNewToken) return;
@@ -108,7 +105,6 @@ async function checkAndUpdateTokenDB() {
   }
 }
 
-
 async function checkToken(bearerToken = null) {
   return new Promise((resolve, reject) => {
     if (!bearerToken) {
@@ -157,7 +153,6 @@ async function checkToken(bearerToken = null) {
       });
   });
 }
-
 
 async function newToken() {
   return new Promise((resolve, reject) => {

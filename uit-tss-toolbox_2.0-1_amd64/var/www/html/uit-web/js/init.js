@@ -14,6 +14,18 @@ tokenDB.onupgradeneeded = (event) => {
 
 const tokenWorker = new Worker('js/auth-webworker.js');
 
+function getCsrfCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return '';
+}
+
+function deleteCookie(name, path = "/", domain) {
+  let cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`;
+  if (domain) cookie += ` domain=${domain};`;
+  document.cookie = cookie;
+}
 
 async function getKeyFromIndexDB(key = null) {
   return new Promise((resolve, reject) => {
@@ -46,7 +58,6 @@ async function getKeyFromIndexDB(key = null) {
   });
 }
 
-
 function escapeHtml(str) {
   if (typeof str !== 'string') {
     return '';
@@ -66,7 +77,6 @@ function escapeHtml(str) {
 
   return str.replace(/[&<>"'`]/g, escapeCharacter);
 }
-
 
 async function generateSHA256Hash(text = null) {
   try {
@@ -88,7 +98,6 @@ async function generateSHA256Hash(text = null) {
   }
 }
 
-
 function getCreds() {
   const loginForm = document.querySelector("#loginForm");
 
@@ -104,7 +113,6 @@ function getCreds() {
     };
 
     const authStr = await generateSHA256Hash(formUser) + ':' + await generateSHA256Hash(formPass);
-    localStorage.setItem('authStr', authStr);
     // Update authStr in the database
     if (authStr === undefined || authStr === null || authStr.length === 0 || authStr == "") {
       console.error("authStr is invalid: " + authStr);
@@ -156,7 +164,7 @@ function getCreds() {
   });
 }
 
-async function fetchData(url) {
+async function fetchData(url, fetchOptions = {}) {
   try {
     if (!url || url.trim().length === 0) {
       throw new Error("No URL specified for fetchData");
@@ -172,7 +180,8 @@ async function fetchData(url) {
 
     const response = await fetch(url, {
       method: 'GET',
-      headers: headers
+      headers: headers,
+      ...(fetchOptions.signal ? { signal: fetchOptions.signal } : {})
     });
 
     // No content (OPTIONS request)
@@ -195,6 +204,66 @@ async function fetchData(url) {
   }
 }
 
+async function postData(queryType, jsonStr) {
+  try {
+    if (!queryType || queryType.trim().length === 0 || typeof queryType !== 'string') {
+      throw new Error("No queryType specified for postData");
+    }
+    if (!jsonStr || jsonStr.trim().length === 0) {
+      // Check if jsonStr is valid JSON
+      try {
+        JSON.parse(jsonStr);
+      } catch (error) {
+        throw new Error("Invalid JSON string specified for postData");
+      }
+      throw new Error("No JSON string specified for postData");
+    }
+
+    // const selection = await window.showOpenFilePicker();
+    // if (selection.length > 0) {
+    //   const file = await selection[0].getFile();
+    //   formData.append("file", file);
+    // }
+
+    // Get bearerToken from IndexedDB
+    const bearerToken = await getBearerToken();
+    const csrfToken = getCsrfCookie('csrf_token');
+
+    
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    headers.append('Authorization', 'Bearer ' + bearerToken);
+    if (csrfToken) {
+      headers.append('X-CSRF-Token', csrfToken);
+    }
+
+    const response = await fetch('https://UIT_WAN_IP_ADDRESS:31411/api/post?type=' + encodeURIComponent(queryType).replace(/'/g, "%27"), {
+      method: 'POST',
+      headers: headers,
+      body: jsonStr,
+      credentials: 'include'
+    });
+
+    // No content (OPTIONS request)
+    if (response.status === 204) {
+      return null;
+    }
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${encodeURIComponent(queryType).replace(/'/g, "%27")} (Status: ${response.status})`);
+    }
+    if (!response.headers || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
+      throw new Error('Response is undefined or not JSON');
+    }
+
+    const data = await response.json();
+    if (!data || Object.keys(data).length === 0) {
+      console.warn("Response JSON is empty: " + url);
+    }
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function getBearerToken() {
   return new Promise((resolve, reject) => {
@@ -237,7 +306,6 @@ async function getBearerToken() {
   });
 }
 
-  
 async function fetchSSE (type, tag = undefined) {
   return new Promise((resolve, reject) => {
 
@@ -276,4 +344,41 @@ async function fetchSSE (type, tag = undefined) {
       sse.close();
     };
   });
-};
+}
+
+async function invalidateSession(basicToken) {
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/x-www-form-urlencoded');
+  headers.append('Authorization', 'Basic ' + basicToken);
+
+  try {
+    const response = await fetch('https://UIT_WAN_IP_ADDRESS:31411/api/post?type=delete_session', {
+      method: 'GET',
+      headers: headers,
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      console.error("Web server error while checking token: " + response.statusText);
+    }
+
+    const data = await response.json();
+    if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
+      console.error('Invalidate session: No data returned from API');
+    }
+    if (data.token && Number(data.ttl) > 0 && (data.valid === true || data.valid === "true")) {
+      console.error("Token not invalidated on the server");
+    }
+  } catch (error) {
+    console.error("Error deleting session: " + error);
+  }
+}
+
+function openImage(imageData) {
+  const byteCharacters = atob(imageData);
+  const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: "image/jpeg" });
+  const blobUrl = URL.createObjectURL(blob);
+  //window.open(blobUrl);
+  window.location.href = blobUrl;
+}

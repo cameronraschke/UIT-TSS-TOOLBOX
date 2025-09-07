@@ -162,28 +162,10 @@ unset($_POST);
     </script>
 
     <script src="/js/include.js?<?php echo filemtime('js/include.js'); ?>"></script>
+    <script src="/js/job-queue.js?<?php echo filemtime('js/job-queue.js'); ?>"></script>
 
     <script>
-
-      async function fetchJobQueueData() {
-        try {
-          const fetchPromises = [
-            updateRemotePresentTable(),
-            updateRemoteOfflineTable()
-          ];
-
-          await Promise.all(fetchPromises);
-
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      }
-
-      setInterval(function() {
-        fetchJobQueueData();
-      }, 3000);
-      fetchJobQueueData();
-
+      updateJobQueue();
       autoFillTags();
     </script>
 
