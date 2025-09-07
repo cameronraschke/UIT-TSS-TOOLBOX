@@ -147,10 +147,6 @@ var (
 func remoteAPI(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
-	if !checkBodySize(w, req) {
-		return
-	}
-
 	var parsedURL *url.URL
 	var err error
 
@@ -277,10 +273,6 @@ func remoteAPI(w http.ResponseWriter, req *http.Request) {
 func postAPI(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
-	if !checkBodySize(w, req) {
-		return
-	}
-
 	var parsedURL *url.URL
 	var err error
 
@@ -348,10 +340,6 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
 	if !ok {
 		log.Warning("no IP address stored in context")
 		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-		return
-	}
-
-	if !checkBodySize(w, req) {
 		return
 	}
 
@@ -587,10 +575,6 @@ func serveFiles(appState *AppState) http.HandlerFunc {
 		if !ok {
 			log.Warning("no IP address stored in context")
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-			return
-		}
-
-		if !checkBodySize(w, req) {
 			return
 		}
 
