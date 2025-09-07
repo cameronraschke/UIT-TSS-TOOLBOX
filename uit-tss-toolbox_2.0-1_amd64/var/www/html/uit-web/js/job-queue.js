@@ -137,7 +137,7 @@ async function updateOnlineTable(signal) {
       // Screenshot cell
       const screenshotCell = document.createElement("td");
       if (value["screenshot"]) {
-        const screenshotDataURL = base64ToBlobUrl(value["screenshot"]);
+        const screenshotDataURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
         const screenshotLink = document.createElement("a");
         screenshotLink.setAttribute("target", "_blank");
         screenshotLink.setAttribute("href", "/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(value["tagnumber"]));

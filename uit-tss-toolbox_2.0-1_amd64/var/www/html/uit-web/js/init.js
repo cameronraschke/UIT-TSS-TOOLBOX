@@ -164,6 +164,17 @@ function getCreds() {
   });
 }
 
+function base64ToBlobUrl(base64, mimeType = 'image/jpeg') {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: mimeType });
+    return URL.createObjectURL(blob);
+}
+
 async function fetchData(url, fetchOptions = {}) {
   try {
     if (!url || url.trim().length === 0) {
