@@ -1,5 +1,5 @@
 let isUpdatingPage = false;
-let jobQueueTimeout = null;
+let jobQueueUpdateTimeout = null;
 let currentAbortController = null;
 
 async function updateJobQueue() {
@@ -23,8 +23,8 @@ async function updateJobQueue() {
     } finally {
         currentAbortController = null;
         isUpdatingPage = false;
-        jobQueueTimeout = setTimeout(() => {
-            updateTimeout = null;
+        jobQueueUpdateTimeout = setTimeout(() => {
+            jobQueueUpdateTimeout = null;
             updateJobQueue();
         }, 2000);
     }
