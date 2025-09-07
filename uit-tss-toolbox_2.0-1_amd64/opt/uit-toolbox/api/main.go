@@ -884,7 +884,21 @@ func main() {
 
 	// Connect to db with pgx
 	log.Info("Attempting connection to database...")
-	const dbConnString = "postgres://uitweb:UIT_WEB_SVC_PASSWD@127.0.0.1:5432/uitdb?sslmode=disable"
+	dbConnScheme := "postgres"
+	dbConnHost := "127.0.0.1"
+	dbConnPort := "5432"
+	dbConnUser := "uitweb"
+	dbConnDBName := "uitdb"
+	dbConnPass, ok := os.LookupEnv("UIT_DB_ADMIN_PASSWD")
+	if !ok {
+		if strings.TrimSpace(dbConnPass) == "" {
+			log.Error("Error getting UIT_DB_ADMIN_PASSWD: empty value")
+		} else {
+			log.Error("Error getting UIT_DB_ADMIN_PASSWD: variable not set")
+		}
+		os.Exit(1)
+	}
+	dbConnString := dbConnScheme + "://" + dbConnUser + ":" + dbConnPass + "@" + dbConnHost + ":" + dbConnPort + "/" + dbConnDBName + "?sslmode=disable"
 	db, err := sql.Open("pgx", dbConnString)
 	if err != nil {
 		log.Error("Unable to connect to database: \n" + err.Error())
