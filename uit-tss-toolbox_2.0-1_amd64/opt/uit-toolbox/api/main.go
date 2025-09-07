@@ -62,8 +62,9 @@ type AppConfig struct {
 }
 
 type AppState struct {
-	ipRequests *LimiterMap
-	blockedIPs *BlockedMap
+	ipRequests   *LimiterMap
+	blockedIPs   *BlockedMap
+	allowedFiles map[string]bool
 }
 
 // Mux handlers
@@ -142,16 +143,14 @@ var (
 	authMap           sync.Map
 	authMapEntryCount int64
 	log               logger.Logger = logger.CreateLogger("console", logger.ParseLogLevel(os.Getenv("UIT_API_LOG_LEVEL")))
-
-	allowedFiles = map[string]bool{
-		"filesystem.squashfs": true,
-		"initrd.img":          true,
-		"vmlinuz":             true,
-	}
 )
 
 func remoteAPI(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
+
+	if !checkBodySize(w, req) {
+		return
+	}
 
 	var parsedURL *url.URL
 	var err error
@@ -279,6 +278,10 @@ func remoteAPI(w http.ResponseWriter, req *http.Request) {
 func postAPI(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
+	if !checkBodySize(w, req) {
+		return
+	}
+
 	var parsedURL *url.URL
 	var err error
 
@@ -349,18 +352,7 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Check for body size that exceeds limit put on by middleware
-	_, err := io.ReadAll(req.Body)
-	if err != nil {
-		// Detect if the error is due to MaxBytesReader limit
-		if strings.Contains(err.Error(), "http: request body too large") {
-			log.Warning("Request body exceeded max size limit")
-			http.Error(w, "Request too large", http.StatusRequestEntityTooLarge)
-			return
-		}
-		// Handle other errors
-		log.Error("Error reading request body: " + err.Error())
-		http.Error(w, "Bad request", http.StatusBadRequest)
+	if !checkBodySize(w, req) {
 		return
 	}
 
@@ -575,8 +567,8 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
 // }
 
 func redirectToHTTPSHandler(httpsPort string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		host := r.Host
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		host := req.Host
 		if colon := strings.LastIndex(host, ":"); colon != -1 {
 			host = host[:colon]
 		}
@@ -584,116 +576,166 @@ func redirectToHTTPSHandler(httpsPort string) http.Handler {
 		if httpsPort != "443" && httpsPort != "" {
 			httpsURL += ":" + httpsPort
 		}
-		httpsURL += r.URL.RequestURI()
-		http.Redirect(w, r, httpsURL, http.StatusMovedPermanently)
+		httpsURL += req.URL.RequestURI()
+		http.Redirect(w, req, httpsURL, http.StatusMovedPermanently)
 	})
 }
 
-func serveFiles(w http.ResponseWriter, r *http.Request) {
-	requestIP := r.RemoteAddr
+func serveFiles(appState *AppState) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		// ctx := req.Context()
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
 
-	basePath := "/srv/uit-toolbox/"
-	rawPath := strings.TrimSpace(r.URL.Path)
-	unescapedPath, err := url.PathUnescape(rawPath)
-	if err != nil {
-		log.Warning("Cannot unescape URL path: " + err.Error())
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
-	sanitizedPath := path.Clean(unescapedPath)
-	sanitizedFileName := path.Base(sanitizedPath)
+		if !checkBodySize(w, req) {
+			return
+		}
 
-	// Check valid UTF-8 and allowed characters
-	var disallowedChars = "~%$#\\<>:\"'`|?*"
-	for _, char := range sanitizedFileName {
-		if char < 32 || char == 127 {
-			log.Warning("Control/non-printable character in filename: " + requestIP)
+		basePath := "/srv/uit-toolbox/"
+		rawPath := strings.TrimSpace(req.URL.Path)
+		unescapedPath, err := url.PathUnescape(rawPath)
+		if err != nil {
+			log.Warning("Cannot unescape URL path: " + err.Error())
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		httpRequestPath := path.Clean(unescapedPath)
+		if httpRequestPath == "/" || httpRequestPath == "." || httpRequestPath == "" {
+			log.Warning("Empty file path requested: " + requestIP)
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
-		if char > 127 {
-			log.Warning("Non-ASCII character in filename: " + requestIP)
+
+		pathRequested, fileRequested := path.Split(httpRequestPath)
+
+		if !path.IsAbs(pathRequested) || fileRequested == "/" || fileRequested == "." || fileRequested == "" {
+			log.Warning("Empty file name requested: " + requestIP)
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
-		if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '-' || char == '_' || char == '.') {
-			log.Warning("Invalid Unicode in filename: " + requestIP)
+
+		fullPath := path.Join(basePath, pathRequested, fileRequested)
+		if len(fullPath) > 255 || !path.IsAbs(fullPath) ||
+			strings.Contains(string(fullPath), "\x00") ||
+			strings.Contains(string(fullPath), "\n") ||
+			strings.Contains(string(fullPath), "\r") ||
+			strings.TrimSpace(fullPath) == "" {
+
+			log.Warning("Invalid file path requested: " + requestIP)
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
-		if strings.ContainsRune(disallowedChars, char) {
-			log.Warning("Disallowed character in filename: " + requestIP)
+
+		if strings.Contains(fullPath, "..") ||
+			strings.Contains(fullPath, "//") ||
+			strings.Contains(fullPath, "../") ||
+			strings.HasPrefix(fullPath, ".") ||
+			strings.HasPrefix(fileRequested, ".") ||
+			strings.Contains(pathRequested, ".") ||
+			strings.HasSuffix(fullPath, ".bak") ||
+			strings.HasSuffix(fullPath, ".tmp") ||
+			strings.HasSuffix(fullPath, ".swp") {
+			log.Warning("Attempt to access restricted file: " + requestIP + " (" + fullPath + ")")
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
+
+		segments := strings.Split(strings.Trim(httpRequestPath, "/"), "/")
+		for _, segment := range segments {
+			if segment == "" {
+				continue
+			}
+
+			if strings.HasPrefix(segment, ".") {
+				log.Warning("Hidden file or directory in path: " + requestIP)
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
+			// Check valid UTF-8 and allowed characters
+			var disallowedChars = "~%$#\\<>:\"'`|?*"
+			for _, char := range fullPath {
+				if char < 32 || char == 127 {
+					log.Warning("Control/non-printable character in filename: " + requestIP)
+					http.Error(w, "Forbidden", http.StatusForbidden)
+					return
+				}
+				if char > 127 {
+					log.Warning("Non-ASCII character in filename: " + requestIP)
+					http.Error(w, "Forbidden", http.StatusForbidden)
+					return
+				}
+				if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '-' || char == '_' || char == '.') {
+					log.Warning("Invalid Unicode in filename: " + requestIP)
+					http.Error(w, "Forbidden", http.StatusForbidden)
+					return
+				}
+				if strings.ContainsRune(disallowedChars, char) {
+					log.Warning("Disallowed character in filename: " + requestIP)
+					http.Error(w, "Forbidden", http.StatusForbidden)
+					return
+				}
+			}
+		}
+
+		if len(appState.allowedFiles) > 0 && !appState.allowedFiles[fileRequested] {
+			log.Warning("File not in whitelist: " + fileRequested)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		log.Info("File request from " + requestIP + " for " + fileRequested)
+
+		resolvedPath, err := filepath.EvalSymlinks(fullPath)
+		if err != nil || !strings.HasPrefix(resolvedPath, basePath) {
+			log.Warning("Attempt to access file outside base path: " + requestIP + " (" + resolvedPath + ")")
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// Open the file
+		f, err := os.Open(resolvedPath)
+		if err != nil {
+			log.Warning("File not found: " + resolvedPath + " (" + err.Error() + ")")
+			http.Error(w, "File not found", http.StatusNotFound)
+			return
+		}
+		defer f.Close()
+
+		// Get file info for headers
+		stat, err := f.Stat()
+		if err != nil {
+			log.Error("Cannot stat file: " + resolvedPath + " (" + err.Error() + ")")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if stat.IsDir() {
+			log.Warning("Attempt to access directory as file: " + resolvedPath)
+			http.Error(w, "Not a file", http.StatusForbidden)
+			return
+		}
+
+		// Set headers
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
+		w.Header().Set("Content-Disposition", "attachment; filename=\""+stat.Name()+"\"")
+
+		// Serve the file
+		_, err = io.Copy(w, f)
+		if err != nil {
+			log.Error("Error sending file: " + err.Error())
+			return
+		}
+		log.Info("Served file: " + resolvedPath + " to " + requestIP)
 	}
-
-	if strings.Contains(sanitizedPath, "..") ||
-		strings.HasPrefix(sanitizedPath, "/") ||
-		strings.HasPrefix(sanitizedFileName, ".") ||
-		strings.HasSuffix(sanitizedFileName, ".bak") ||
-		strings.HasSuffix(sanitizedFileName, ".tmp") ||
-		strings.HasSuffix(sanitizedFileName, ".swp") {
-		log.Warning("Attempt to access restricted file: " + r.RemoteAddr + " (" + sanitizedFileName + ")")
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-
-	if len(allowedFiles) > 0 && !allowedFiles[sanitizedFileName] {
-		log.Warning("File not in whitelist: " + sanitizedFileName)
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-
-	fullFilePathSanitized := path.Join(basePath, sanitizedFileName)
-
-	log.Info("File request from " + requestIP + " for " + sanitizedFileName)
-
-	resolvedPath, err := filepath.EvalSymlinks(fullFilePathSanitized)
-	if err != nil || !strings.HasPrefix(resolvedPath, basePath) {
-		log.Warning("Attempt to access file outside base path: " + r.RemoteAddr + " (" + resolvedPath + ")")
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-
-	// Open the file
-	f, err := os.Open(resolvedPath)
-	if err != nil {
-		log.Warning("File not found: " + resolvedPath + " (" + err.Error() + ")")
-		http.Error(w, "File not found", http.StatusNotFound)
-		return
-	}
-	defer f.Close()
-
-	// Get file info for headers
-	stat, err := f.Stat()
-	if err != nil {
-		log.Error("Cannot stat file: " + resolvedPath + " (" + err.Error() + ")")
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-	if stat.IsDir() {
-		log.Warning("Attempt to access directory as file: " + resolvedPath)
-		http.Error(w, "Not a file", http.StatusForbidden)
-		return
-	}
-
-	// Set headers
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
-	w.Header().Set("Pragma", "no-cache")
-	w.Header().Set("Expires", "0")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
-	w.Header().Set("Content-Disposition", "attachment; filename=\""+stat.Name()+"\"")
-
-	// Serve the file
-	_, err = io.Copy(w, f)
-	if err != nil {
-		log.Error("Error sending file: " + err.Error())
-		return
-	}
-	log.Info("Served file: " + resolvedPath + " to " + r.RemoteAddr)
 }
 
 func configureEnvironment() AppConfig {
@@ -876,6 +918,11 @@ func main() {
 	appState := &AppState{
 		ipRequests: &LimiterMap{rate: rateLimit, burst: rateLimitBurst},
 		blockedIPs: &BlockedMap{banPeriod: rateLimitBanDuration},
+		allowedFiles: map[string]bool{
+			"filesystem.squashfs": true,
+			"initrd.img":          true,
+			"vmlinuz":             true,
+		},
 	}
 
 	backgroundProcesses(appState)
@@ -927,8 +974,8 @@ func main() {
 	}
 
 	httpMux := http.NewServeMux()
+	httpMux.Handle("/client/", fileServerMuxChain.then(serveFiles(appState)))
 	httpMux.Handle("/", httpRedirectToHttps.then(redirectToHTTPSHandler("31411")))
-	httpMux.Handle("/client/", fileServerMuxChain.thenFunc(serveFiles))
 
 	httpServer := &http.Server{
 		Addr:         appConfig.UIT_LAN_IP_ADDRESS + ":8080",

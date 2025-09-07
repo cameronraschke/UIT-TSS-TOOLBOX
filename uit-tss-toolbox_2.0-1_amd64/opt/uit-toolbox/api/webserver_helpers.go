@@ -42,6 +42,24 @@ var (
 	blockedIPs           *BlockedMap
 )
 
+// Check for body size that exceeds limit put on by middleware
+func checkBodySize(w http.ResponseWriter, req *http.Request) bool {
+	_, err := io.ReadAll(req.Body)
+	if err != nil {
+		// Detect if the error is due to MaxBytesReader limit
+		if strings.Contains(err.Error(), "http: request body too large") {
+			log.Warning("Request body exceeded max size limit")
+			http.Error(w, "Request too large", http.StatusRequestEntityTooLarge)
+			return false
+		}
+		// Handle other errors
+		log.Error("Error reading request body: " + err.Error())
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return false
+	}
+	return true
+}
+
 func countAuthSessions(m *sync.Map) int {
 	authSessionCount := 0
 	m.Range(func(_, _ any) bool {
