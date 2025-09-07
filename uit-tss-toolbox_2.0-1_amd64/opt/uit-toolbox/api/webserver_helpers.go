@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -51,15 +52,17 @@ func formatHttpError(errorString string) (jsonErrStr string) {
 }
 
 func (lm *LimiterMap) Get(ip string) *rate.Limiter {
-	newLimiter := rate.NewLimiter(rate.Limit(lm.interval), lm.burst)
-	queriedLimiter, _ := lm.m.LoadOrStore(ip, newLimiter)
-	existingLimiter, ok := queriedLimiter.(*rate.Limiter)
-	if !ok {
-		lm.m.Delete(ip)
-		lm.m.Store(ip, newLimiter)
+	newLimiter := rate.NewLimiter(rate.Every(time.Duration(lm.interval)*time.Second), lm.burst)
+	queriedLimiter, exists := lm.m.LoadOrStore(ip, newLimiter)
+	if !exists {
+		log.Debug("Created new limiter for IP: " + ip + " interval=" + fmt.Sprint(lm.interval) + " burst=" + fmt.Sprint(lm.burst))
 		return newLimiter
+	} else if existingLimiter, ok := queriedLimiter.(*rate.Limiter); ok {
+		return existingLimiter
 	}
-	return existingLimiter
+	lm.m.Delete(ip)
+	lm.m.Store(ip, newLimiter)
+	return newLimiter
 }
 
 func (lm *LimiterMap) Delete(ip string) {

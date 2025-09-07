@@ -41,14 +41,16 @@ func rateLimitMiddleware(next http.Handler) http.Handler {
 		}
 
 		if isBlocked(requestIP) {
-			http.Error(w, "Too Many Requests (IP temporarily blocked)", http.StatusTooManyRequests)
+			log.Warning("Blocked IP attempted request: " + requestIP)
+			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 			return
 		}
 
 		limiter := getLimiter(requestIP)
 		if !limiter.Allow() {
 			blockIP(requestIP)
-			http.Error(w, "Too Many Requests (IP temporarily blocked)", http.StatusTooManyRequests)
+			log.Warning("Blocked IP attempted request: " + requestIP)
+			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 			return
 		}
 
