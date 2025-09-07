@@ -906,13 +906,11 @@ func main() {
 		allowIPRangeMiddleware("10.0.0.0/16"),
 		rateLimitMiddleware(appState),
 		timeoutMiddleware,
-		denyAllMiddleware,
 	}
 
 	httpRedirectToHttps := muxChain{
 		rateLimitMiddleware(appState),
 		timeoutMiddleware,
-		denyAllMiddleware,
 	}
 
 	httpMux := http.NewServeMux()

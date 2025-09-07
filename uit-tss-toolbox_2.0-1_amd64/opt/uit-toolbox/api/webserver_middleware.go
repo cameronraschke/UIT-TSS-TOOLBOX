@@ -132,6 +132,7 @@ func httpMethodMiddleware(next http.Handler) http.Handler {
 			if contentType != "application/x-www-form-urlencoded" && contentType != "application/json" {
 				log.Warning("Invalid Content-Type header: " + contentType + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
 				http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
+				return
 			}
 		}
 		next.ServeHTTP(w, req)
