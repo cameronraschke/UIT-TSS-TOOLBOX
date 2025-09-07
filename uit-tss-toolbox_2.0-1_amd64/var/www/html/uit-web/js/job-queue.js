@@ -213,7 +213,7 @@ async function updateOnlineTable(signal) {
     const oldRemotePresentTable = document.getElementById("remotePresentTable");
     oldRemotePresentTable.classList.add("fade");
     setTimeout(() => {
-        oldTable.replaceWith(remotePresentTableFragment);
+        oldRemotePresentTable.replaceWith(remotePresentTableFragment);
         const newTable = document.getElementById("remotePresentTable");
         newTable.classList.add("fade");
         setTimeout(() => newTable.classList.add("show"), 10);
