@@ -579,6 +579,19 @@ func startAuthMapCleanup(interval time.Duration) {
 	}()
 }
 
+func startIPBlocklistCleanup(appState *AppState, interval time.Duration) {
+	go func() {
+		for {
+			time.Sleep(interval)
+
+			// Get all banned IPs
+			log.Warning("Current blocked IPs: " + appState.GetAllBlockedIPs())
+
+			appState.Cleanup()
+		}
+	}()
+}
+
 func redirectToHTTPSHandler(httpsPort string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		host := r.Host

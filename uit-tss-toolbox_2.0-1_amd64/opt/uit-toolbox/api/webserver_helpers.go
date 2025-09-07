@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
 	"sync"
@@ -12,6 +13,11 @@ import (
 
 	"golang.org/x/time/rate"
 )
+
+type limiterEntry struct {
+	limiter  *rate.Limiter
+	lastSeen time.Time
+}
 
 type LimiterMap struct {
 	m        sync.Map
@@ -52,17 +58,19 @@ func formatHttpError(errorString string) (jsonErrStr string) {
 }
 
 func (lm *LimiterMap) Get(ip string) *rate.Limiter {
-	newLimiter := rate.NewLimiter(rate.Every(time.Duration(lm.interval)*time.Second), lm.burst)
-	queriedLimiter, exists := lm.m.LoadOrStore(ip, newLimiter)
+	curTime := time.Now()
+	newEntry := &limiterEntry{
+		limiter:  rate.NewLimiter(rate.Every(time.Duration(lm.interval)*time.Second), lm.burst),
+		lastSeen: curTime,
+	}
+	queriedLimiter, exists := lm.m.LoadOrStore(ip, newEntry)
+	entry := queriedLimiter.(*limiterEntry)
+	entry.lastSeen = curTime
 	if !exists {
 		log.Debug("Created new limiter for IP: " + ip + " interval=" + fmt.Sprint(lm.interval) + " burst=" + fmt.Sprint(lm.burst))
-		return newLimiter
-	} else if existingLimiter, ok := queriedLimiter.(*rate.Limiter); ok {
-		return existingLimiter
 	}
-	lm.m.Delete(ip)
-	lm.m.Store(ip, newLimiter)
-	return newLimiter
+
+	return entry.limiter
 }
 
 func (lm *LimiterMap) Delete(ip string) {
@@ -70,11 +78,11 @@ func (lm *LimiterMap) Delete(ip string) {
 }
 
 func (bm *BlockedMap) IsBlocked(ip string) bool {
-	val, ok := bm.m.Load(ip)
+	blockTime, ok := bm.m.Load(ip)
 	if !ok {
 		return false
 	}
-	unblockTime, ok := val.(time.Time)
+	unblockTime, ok := blockTime.(time.Time)
 	if !ok {
 		bm.m.Delete(ip)
 		return false
@@ -100,6 +108,48 @@ func IsBlocked(requestIP string) bool {
 
 func BlockIP(requestIP string) {
 	blockedIPs.Block(requestIP)
+}
+
+func (as *AppState) Cleanup() {
+	ttl := time.Now().Add(-10 * time.Minute)
+	as.ipRequests.m.Range(func(key, value any) bool {
+		entry, ok := value.(*limiterEntry)
+		if !ok || entry.lastSeen.Before(ttl) {
+			as.ipRequests.m.Delete(key)
+		}
+		return true
+	})
+
+	curTime := time.Now()
+	as.blockedIPs.m.Range(func(key, value any) bool {
+		unblockTime, ok := value.(time.Time)
+		if !ok || curTime.After(unblockTime) {
+			as.blockedIPs.m.Delete(key)
+		}
+		return true
+	})
+}
+
+func (as *AppState) GetAllBlockedIPs() string {
+	var blocked []string
+	as.blockedIPs.m.Range(func(key, value any) bool {
+		ip, ok := key.(string)
+		if ok {
+			blocked = append(blocked, ip)
+		}
+		return true
+	})
+	return strings.Join(blocked, ", ")
+}
+
+func getClientIP(r *http.Request) string {
+	var ip string
+	if strings.TrimSpace(r.Header.Get("X-Forwarded-For")) != "" {
+		ip = strings.Split(r.Header.Get("X-Forwarded-For"), ",")[0]
+	} else {
+		ip, _, _ = net.SplitHostPort(r.RemoteAddr)
+	}
+	return ip
 }
 
 func generateCSRFToken() (string, error) {

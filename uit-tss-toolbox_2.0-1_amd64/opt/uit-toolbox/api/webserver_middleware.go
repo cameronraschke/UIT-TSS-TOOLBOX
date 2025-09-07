@@ -41,7 +41,7 @@ func rateLimitMiddleware(app *AppState) func(http.Handler) http.Handler {
 			}
 
 			if app.blockedIPs.IsBlocked(requestIP) {
-				log.Warning("Blocked IP attempted request: " + requestIP)
+				log.Debug("Blocked IP attempted request: " + requestIP)
 				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 				return
 			}
@@ -49,7 +49,7 @@ func rateLimitMiddleware(app *AppState) func(http.Handler) http.Handler {
 			limiter := app.ipRequests.Get(requestIP)
 			if !limiter.Allow() {
 				app.blockedIPs.Block(requestIP)
-				log.Warning("Client has exceeded rate limit: " + requestIP)
+				log.Debug("Client has exceeded rate limit: " + requestIP)
 				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 				return
 			}
