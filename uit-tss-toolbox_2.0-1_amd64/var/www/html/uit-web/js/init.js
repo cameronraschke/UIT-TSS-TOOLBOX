@@ -242,7 +242,7 @@ async function postData(queryType, jsonStr) {
 
     
     const headers = new Headers();
-    headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    headers.append('Content-Type', 'application/json');
     headers.append('Authorization', 'Bearer ' + bearerToken);
     if (csrfToken) {
       headers.append('X-CSRF-Token', csrfToken);
@@ -266,11 +266,15 @@ async function postData(queryType, jsonStr) {
       throw new Error('Response is undefined or not JSON');
     }
 
-    const data = await response.json();
     if (!data || Object.keys(data).length === 0) {
       console.warn("Response JSON is empty: " + url);
     }
-    return data;
+    const text = await response.text();
+    if (text) {
+      return JSON.parse(text);
+    } 
+
+    return null;
   } catch (error) {
     throw error;
   }
