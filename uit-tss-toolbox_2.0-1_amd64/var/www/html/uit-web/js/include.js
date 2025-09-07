@@ -197,7 +197,7 @@ async function updateRemoteOfflineTable() {
     var tableBody
     var tableBodyData
     tableBody = document.createElement("tbody");
-    tableBodyData = await fetchData('https://UIT_UIT_WAN_IP_ADDRESS:31411/api/remote?type=remote_offline');
+    tableBodyData = await fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=remote_offline');
 
     Object.entries(tableBodyData).forEach(([key, value]) => {
       let tableBodyRow = document.createElement("tr");
