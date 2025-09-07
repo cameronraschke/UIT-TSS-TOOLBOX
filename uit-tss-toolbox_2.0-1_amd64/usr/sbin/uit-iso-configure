@@ -48,7 +48,7 @@ fi
 			--archive-areas 'main contrib non-free non-free-firmware' \
 			--binary-filesystem fat32 \
 			--binary-images iso-hybrid \
-			--bootappend-live "fetch=10.0.0.1/client/iso/live/filesystem.squashfs \
+			--bootappend-live "fetch=10.0.0.1:8080/client/iso/live/filesystem.squashfs \
  				boot=live toram username=root hostname=uit-toolbox-client \
 				timezone=America/Chicago locales=en_US.UTF-8" \
 			--bootloaders "grub-efi syslinux" \
@@ -265,9 +265,9 @@ echo "${BOLD}Installing the client package${RESET}"
 if [[ $(dpkg-query -l | grep --quiet uit-toolbox-client; echo $?) == 0 ]]; then
 	dpkg --purge uit-toolbox-client 
 	fi
-curl 'http://mickey.uit/client/pkg/uit-toolbox-client.deb' --output /root/uit-toolbox-client.deb &>/dev/null
+curl 'http://mickey.uit:8080/client/pkg/uit-toolbox-client.deb' --output /root/uit-toolbox-client.deb &>/dev/null
 while [[ ! -f /root/uit-toolbox-client.deb ]]; do
-	curl 'http://mickey.uit/client/pkg/uit-toolbox-client.deb' --output /root/uit-toolbox-client.deb &>/dev/null
+	curl 'http://mickey.uit:8080/client/pkg/uit-toolbox-client.deb' --output /root/uit-toolbox-client.deb &>/dev/null
 	sleep 1
 done
 dpkg --install /root/uit-toolbox-client.deb &>/dev/null

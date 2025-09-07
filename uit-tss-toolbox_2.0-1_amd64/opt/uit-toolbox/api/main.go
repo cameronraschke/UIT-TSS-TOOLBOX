@@ -589,11 +589,11 @@ func redirectToHTTPSHandler(httpsPort string) http.Handler {
 	})
 }
 
-func serveLiveISO(w http.ResponseWriter, r *http.Request) {
+func serveFiles(w http.ResponseWriter, r *http.Request) {
 	requestIP := r.RemoteAddr
 
-	basePath := "/srv/uit-toolbox/client/iso/live/"
-	rawPath := strings.TrimPrefix(r.URL.Path, "/client/iso/live/")
+	basePath := "/srv/uit-toolbox/"
+	rawPath := strings.TrimSpace(r.URL.Path)
 	unescapedPath, err := url.PathUnescape(rawPath)
 	if err != nil {
 		log.Warning("Cannot unescape URL path: " + err.Error())
@@ -928,10 +928,10 @@ func main() {
 
 	httpMux := http.NewServeMux()
 	httpMux.Handle("/", httpRedirectToHttps.then(redirectToHTTPSHandler("31411")))
-	httpMux.Handle("/client/iso/live/", fileServerMuxChain.thenFunc(serveLiveISO))
+	httpMux.Handle("/client/iso/live/", fileServerMuxChain.thenFunc(serveFiles))
 
 	httpServer := &http.Server{
-		Addr:         appConfig.UIT_LAN_IP_ADDRESS + ":80",
+		Addr:         appConfig.UIT_LAN_IP_ADDRESS + ":8080",
 		Handler:      httpMux,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 1 * time.Minute,
@@ -939,7 +939,7 @@ func main() {
 	}
 
 	go func() {
-		log.Info("HTTP server listening on http://" + appConfig.UIT_LAN_IP_ADDRESS + ":80")
+		log.Info("HTTP server listening on http://" + appConfig.UIT_LAN_IP_ADDRESS + ":8080")
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Error("HTTP server error: " + err.Error())
 		}
