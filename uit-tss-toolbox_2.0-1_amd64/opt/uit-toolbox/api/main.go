@@ -782,19 +782,20 @@ func configureEnvironment() AppConfig {
 	if !ok {
 		log.Error("Error getting UIT_RATE_LIMIT_BURST: not found")
 	}
-	rateLimitBurst, err := strconv.Atoi(rateLimitBurstStr)
-	if err != nil || rateLimitBurst <= 0 {
-		log.Error("Error converting UIT_RATE_LIMIT_BURST to integer: " + err.Error())
-		rateLimitBurst = 60
+	var rateLimitBurstErr error
+	rateLimitBurst, rateLimitBurstErr = strconv.Atoi(rateLimitBurstStr)
+	if rateLimitBurstErr != nil || rateLimitBurst <= 0 {
+		log.Error("Error converting UIT_RATE_LIMIT_BURST to integer: " + rateLimitBurstErr.Error())
+		rateLimitBurst = 100
 	}
 	rateLimitIntervalStr, ok := os.LookupEnv("UIT_RATE_LIMIT_INTERVAL")
 	if !ok {
 		log.Error("Error getting UIT_RATE_LIMIT_INTERVAL: not found")
 	}
-	var rateLimitErr error
-	rateLimitInterval, rateLimitErr = strconv.ParseInt(rateLimitIntervalStr, 10, 64)
-	if rateLimitErr != nil || rateLimitInterval <= 0 {
-		log.Error("Error converting UIT_RATE_LIMIT_INTERVAL to integer: " + rateLimitErr.Error())
+	var rateLimitIntervalErr error
+	rateLimitInterval, rateLimitIntervalErr = strconv.ParseInt(rateLimitIntervalStr, 10, 64)
+	if rateLimitIntervalErr != nil || rateLimitInterval <= 0 {
+		log.Error("Error converting UIT_RATE_LIMIT_INTERVAL to integer: " + rateLimitIntervalErr.Error())
 		rateLimitInterval = 1
 	}
 	rateLimitBanDurationStr, ok := os.LookupEnv("UIT_RATE_LIMIT_BAN_DURATION")
