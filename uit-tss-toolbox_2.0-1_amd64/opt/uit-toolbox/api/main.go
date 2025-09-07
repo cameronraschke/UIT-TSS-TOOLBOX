@@ -137,7 +137,7 @@ var (
 	db                *sql.DB
 	authMap           sync.Map
 	authMapEntryCount int64
-	log               logger.Logger = logger.CreateLogger("console", logger.ParseLogLevel(os.Getenv("UIT_TOOLBOX_LOG_LEVEL")))
+	log               logger.Logger = logger.CreateLogger("console", logger.ParseLogLevel(os.Getenv("UIT_API_LOG_LEVEL")))
 
 	allowedFiles = map[string]bool{
 		"filesystem.squashfs": true,
