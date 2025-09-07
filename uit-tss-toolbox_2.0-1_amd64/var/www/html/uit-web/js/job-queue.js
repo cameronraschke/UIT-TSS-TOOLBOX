@@ -148,16 +148,12 @@ async function updateOnlineTable(signal) {
         preloadedImg.className = 'fade-in';
         preloadedImg.style = "width: 240px; height: 135px; max-width: 100%; object-fit: cover;";
         preloadedImg.loading = "lazy";
+        preloadedImg.src = screenshotDataURL;
         preloadedImg.onload = () => {
             preloadedImg.classList.add('loaded');
-            // Only now add to DOM
             screenshotLink.appendChild(preloadedImg);
             screenshotCell.appendChild(screenshotLink);
         };
-        preloadedImg.src = screenshotDataURL;
-
-        screenshotLink.appendChild(preloadedImg);
-        screenshotCell.appendChild(screenshotLink);
       }
 
       // Last job time cell
