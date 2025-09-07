@@ -3,6 +3,9 @@ if [[ ! -d /srv/uit-toolbox/client/src/ ]]; then
     mkdir -p /srv/uit-toolbox/client/src/
 fi
 
+if [[ ! -d /etc/uit-toolbox/certs ]]; then
+    mkdir -p /etc/uit-toolbox/certs
+fi
 
 if [[ ! -d /srv/uit-toolbox/client/pkg/ ]]; then
     mkdir -p /srv/uit-toolbox/client/pkg/
@@ -20,6 +23,14 @@ if [[ ! -d /opt/uit-toolbox/sql-backups ]]; then
   mkdir -p /opt/uit-toolbox/sql-backups
 fi
 
+sudo useradd --system --no-create-home --shell /usr/sbin/nologin uitweb
+sudo mkdir -p /etc/uit-toolbox/certs
+sudo chown root:uitweb /etc/uit-toolbox/certs
+sudo chmod 750 /etc/uit-toolbox/certs
+sudo cp /usr/local/share/ca-certificates/uit-web.crt /etc/uit-toolbox/certs/
+sudo cp /usr/local/share/ca-certificates/uit-web.key /etc/uit-toolbox/certs/
+sudo chown root:uitweb /etc/uit-toolbox/certs/uit-web.*
+sudo chmod 640 /etc/uit-toolbox/certs/uit-web.*
 
 # File replacements
 # Insert include.php with modifications for the clients.
@@ -30,32 +41,32 @@ sed --in-place 's/UIT_WEB_SVC_PASSWD/UIT_DB_CLIENT_PASSWD/g' /srv/uit-toolbox/cl
 unset configArr
 declare -A configArr
 
-configArr[UIT_DB_ADMIN_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_DB_ADMIN_PASSWD=' | sed 's/UIT_DB_ADMIN_PASSWD=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_DB_CLIENT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_DB_CLIENT_PASSWD=' | sed 's/UIT_DB_CLIENT_PASSWD=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_WEB_USER_DEFAULT_PASSWD]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WEB_USER_DEFAULT_PASSWD=' | sed 's/UIT_WEB_USER_DEFAULT_PASSWD=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_WEBMASTER_NAME]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WEBMASTER_NAME=' | sed 's/UIT_WEBMASTER_NAME=//g')
-configArr[UIT_WEBMASTER_EMAIL]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WEBMASTER_EMAIL=' | sed 's/UIT_WEBMASTER_EMAIL=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_WEB_USERS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WEB_USERS=' | sed 's/UIT_WEB_USERS=//g')
-configArr[UIT_WAN_IF]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WAN_IF=' | sed 's/UIT_WAN_IF=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_WAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WAN_IP_ADDRESS=' | sed 's/UIT_WAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_LAN_IF]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_LAN_IF=' | sed 's/UIT_LAN_IF=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_LAN_IP_ADDRESS]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_LAN_IP_ADDRESS=' | sed 's/UIT_LAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_WAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_WAN_ALLOWED_IP=' | sed 's/UIT_WAN_ALLOWED_IP=//g')
-configArr[UIT_LAN_ALLOWED_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_LAN_ALLOWED_IP=' | sed 's/UIT_LAN_ALLOWED_IP=//g')
-configArr[UIT_PRINTER_IP]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_PRINTER_IP=' | sed 's/UIT_PRINTER_IP=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_DB_ADMIN_PASSWD]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_DB_ADMIN_PASSWD=' | sed 's/UIT_DB_ADMIN_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_DB_CLIENT_PASSWD]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_DB_CLIENT_PASSWD=' | sed 's/UIT_DB_CLIENT_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WEB_USER_DEFAULT_PASSWD]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_WEB_USER_DEFAULT_PASSWD=' | sed 's/UIT_WEB_USER_DEFAULT_PASSWD=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WEBMASTER_NAME]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_WEBMASTER_NAME=' | sed 's/UIT_WEBMASTER_NAME=//g')
+configArr[UIT_WEBMASTER_EMAIL]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_WEBMASTER_EMAIL=' | sed 's/UIT_WEBMASTER_EMAIL=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WEB_USERS]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_WEB_USERS=' | sed 's/UIT_WEB_USERS=//g')
+configArr[UIT_WAN_IF]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_WAN_IF=' | sed 's/UIT_WAN_IF=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WAN_IP_ADDRESS]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_WAN_IP_ADDRESS=' | sed 's/UIT_WAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_LAN_IF]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_LAN_IF=' | sed 's/UIT_LAN_IF=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_LAN_IP_ADDRESS]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_LAN_IP_ADDRESS=' | sed 's/UIT_LAN_IP_ADDRESS=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_WAN_ALLOWED_IP]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_WAN_ALLOWED_IP=' | sed 's/UIT_WAN_ALLOWED_IP=//g')
+configArr[UIT_LAN_ALLOWED_IP]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_LAN_ALLOWED_IP=' | sed 's/UIT_LAN_ALLOWED_IP=//g')
+configArr[UIT_PRINTER_IP]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_PRINTER_IP=' | sed 's/UIT_PRINTER_IP=//g' | sed 's/[[:space:]]//g')
 configArr[UIT_WEB_SVC_PASSWD]=$(openssl rand 30 | hexdump | tr -d '\n' | sed 's/[[:space:]]//g' | head -n1 | md5sum | awk '{print $1}' | sed 's/[[:space:]]//g')
-configArr[UIT_HTTP_PORT]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_HTTP_PORT=' | sed 's/UIT_HTTP_PORT=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_HTTPS_PORT]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_HTTPS_PORT=' | sed 's/UIT_HTTPS_PORT=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_TLS_CERT_FILE]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_TLS_CERT_FILE=' | sed 's/UIT_TLS_CERT_FILE=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_TLS_KEY_FILE]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_TLS_KEY_FILE=' | sed 's/UIT_TLS_KEY_FILE=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_RATE_LIMIT_BURST]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_RATE_LIMIT_BURST=' | sed 's/UIT_RATE_LIMIT_BURST=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_RATE_LIMIT_INTERVAL]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_RATE_LIMIT_INTERVAL=' | sed 's/UIT_RATE_LIMIT_INTERVAL=//g' | sed 's/[[:space:]]//g')
-configArr[UIT_RATE_LIMIT_BAN_DURATION]=$(cat /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf | grep '^UIT_RATE_LIMIT_BAN_DURATION=' | sed 's/UIT_RATE_LIMIT_BAN_DURATION=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_HTTP_PORT]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_HTTP_PORT=' | sed 's/UIT_HTTP_PORT=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_HTTPS_PORT]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_HTTPS_PORT=' | sed 's/UIT_HTTPS_PORT=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_TLS_CERT_FILE]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_TLS_CERT_FILE=' | sed 's/UIT_TLS_CERT_FILE=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_TLS_KEY_FILE]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_TLS_KEY_FILE=' | sed 's/UIT_TLS_KEY_FILE=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_RATE_LIMIT_BURST]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_RATE_LIMIT_BURST=' | sed 's/UIT_RATE_LIMIT_BURST=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_RATE_LIMIT_INTERVAL]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_RATE_LIMIT_INTERVAL=' | sed 's/UIT_RATE_LIMIT_INTERVAL=//g' | sed 's/[[:space:]]//g')
+configArr[UIT_RATE_LIMIT_BAN_DURATION]=$(cat /etc/uit-toolbox/uit-toolbox.conf | grep '^UIT_RATE_LIMIT_BAN_DURATION=' | sed 's/UIT_RATE_LIMIT_BAN_DURATION=//g' | sed 's/[[:space:]]//g')
 
 function checkNullConfigVals() {
 for checkVal in ${!configArr[@]}; do
   if [[ -z ${configArr[$checkVal]} ]]; then
-    echo "[Error] Missing/NULL parameter ${checkVal} in /etc/opt/uit-toolbox/server/conf.d/uit-toolbox.conf"
+    echo "[Error] Missing/NULL parameter ${checkVal} in /etc/uit-toolbox/uit-toolbox.conf"
     echo ""
     read -p "Value for ${checkVal} is missing. Continue? [y/N] " userInput
     if [[ -z $userInput || $userInput == "n" || $userInput == "N" ]]; then
@@ -132,6 +143,13 @@ if [[ $(groups cameron | grep 'uit'; echo $?) == "1" ]]; then
   groupadd uit
   usermod --append --groups uit cameron
 fi
+
+chown root:uit /etc/uit-toolbox/ -R
+find /etc/uit-toolbox/ -type d -exec chmod 750 {} \;
+find /etc/uit-toolbox/ -type f -exec chmod 640 {} \;
+chown root:uitweb /etc/uit-toolbox/certs/ -R
+find /etc/uit-toolbox/certs/ -type d -exec chmod 750 {} \;
+find /etc/uit-toolbox/certs/ -type f -exec chmod 640 {} \;
 
 /usr/bin/chmod 750 /usr/sbin/uit-*
 /usr/bin/chown root:uit /usr/sbin/uit-*

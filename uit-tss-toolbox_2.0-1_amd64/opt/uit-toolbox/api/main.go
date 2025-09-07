@@ -37,7 +37,7 @@ import (
 
 	_ "net/http/pprof"
 
-	_ "github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type AppConfig struct {

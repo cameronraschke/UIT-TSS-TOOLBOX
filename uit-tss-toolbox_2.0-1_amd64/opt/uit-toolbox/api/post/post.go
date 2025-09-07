@@ -108,19 +108,19 @@ func UpdateClientImages(ctx context.Context, req *http.Request, db *sql.DB, key 
 	for _, fileHeader := range files {
 		file, err := fileHeader.Open()
 		if err != nil {
-			return errors.New("Cannot open uploaded file for reading")
+			return errors.New("cannot open uploaded file for reading")
 		}
 		defer file.Close()
 
 		uploadedImage, imageType, err := image.Decode(file)
 		if err != nil {
-			return errors.New("Cannot decode uploaded file")
+			return errors.New("cannot decode uploaded file")
 		}
 
 		var b bytes.Buffer
 		err = jpeg.Encode(&b, uploadedImage, &jpeg.Options{Quality: 100})
 		if err != nil {
-			return errors.New("Cannot encode uploaded file")
+			return errors.New("cannot encode uploaded file")
 		}
 
 		byteSlice := b.Bytes()
