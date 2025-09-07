@@ -841,6 +841,43 @@ func main() {
 
 	configureEnvironment()
 
+	// Connect to db with pgx
+	log.Info("Attempting connection to database...")
+	dbConnScheme := "postgres"
+	dbConnHost := "127.0.0.1"
+	dbConnPort := "5432"
+	dbConnUser := "uitweb"
+	dbConnDBName := "uitdb"
+	dbConnPass, ok := os.LookupEnv("UIT_WEB_SVC_PASSWD")
+	if !ok {
+		if strings.TrimSpace(dbConnPass) == "" {
+			log.Error("Error getting UIT_WEB_SVC_PASSWD: empty value")
+		} else {
+			log.Error("Error getting UIT_WEB_SVC_PASSWD: variable not set")
+		}
+		os.Exit(1)
+	}
+	dbConnString := dbConnScheme + "://" + dbConnUser + ":" + dbConnPass + "@" + dbConnHost + ":" + dbConnPort + "/" + dbConnDBName + "?sslmode=disable"
+	db, err := sql.Open("pgx", dbConnString)
+	if err != nil {
+		log.Error("Unable to connect to database: \n" + err.Error())
+		os.Exit(1)
+	}
+	defer db.Close()
+
+	// Check if the database connection is valid
+	if err := db.Ping(); err != nil {
+		log.Error("Cannot ping database: \n" + err.Error())
+		os.Exit(1)
+	}
+	log.Info("Connected to database successfully")
+
+	// Set defaults for db connection
+	db.SetMaxOpenConns(30)
+	db.SetMaxIdleConns(10)
+	db.SetConnMaxIdleTime(1 * time.Minute)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
 	fileServerMuxChain := muxChain{
 		allowIPRangeMiddleware("10.0.0.0/16"),
 		rateLimitMiddleware,
@@ -881,42 +918,6 @@ func main() {
 	//     log.Error("Profiler error: " + err.Error())
 	//   }
 	// }()
-
-	// Connect to db with pgx
-	log.Info("Attempting connection to database...")
-	dbConnScheme := "postgres"
-	dbConnHost := "127.0.0.1"
-	dbConnPort := "5432"
-	dbConnUser := "uitweb"
-	dbConnDBName := "uitdb"
-	dbConnPass, ok := os.LookupEnv("UIT_WEB_SVC_PASSWD")
-	if !ok {
-		if strings.TrimSpace(dbConnPass) == "" {
-			log.Error("Error getting UIT_WEB_SVC_PASSWD: empty value")
-		} else {
-			log.Error("Error getting UIT_WEB_SVC_PASSWD: variable not set")
-		}
-		os.Exit(1)
-	}
-	dbConnString := dbConnScheme + "://" + dbConnUser + ":" + dbConnPass + "@" + dbConnHost + ":" + dbConnPort + "/" + dbConnDBName + "?sslmode=disable"
-	db, err := sql.Open("pgx", dbConnString)
-	if err != nil {
-		log.Error("Unable to connect to database: \n" + err.Error())
-		os.Exit(1)
-	}
-	defer db.Close()
-
-	// Check if the database connection is valid
-	if err := db.Ping(); err != nil {
-		log.Error("Cannot ping database: \n" + err.Error())
-		os.Exit(1)
-	}
-	log.Info("Connected to database successfully")
-
-	// Set defaults for db connection
-	db.SetMaxOpenConns(30)
-	db.SetMaxIdleConns(10)
-	db.SetConnMaxIdleTime(1 * time.Minute)
 
 	// Route to correct function
 	httpsMuxChain := muxChain{
@@ -973,8 +974,19 @@ func main() {
 
 	log.Info("Web server ready and listening for requests on https://*:31411")
 
-	log.Error(httpsServer.ListenAndServeTLS("/usr/local/share/ca-certificates/uit-web.crt", "/usr/local/share/ca-certificates/uit-web.key").Error())
-	if err != nil {
+	webCertFile, ok := os.LookupEnv("UIT_TLS_CERT_FILE")
+	if !ok {
+		log.Error("Error getting UIT_TLS_CERT_FILE: variable not set")
+		os.Exit(1)
+	}
+	webKeyFile, ok := os.LookupEnv("UIT_TLS_KEY_FILE")
+	if !ok {
+		log.Error("Error getting UIT_TLS_KEY_FILE: variable not set")
+		os.Exit(1)
+	}
+
+	// Start HTTPS server
+	if err := httpsServer.ListenAndServeTLS(webCertFile, webKeyFile); err != nil {
 		log.Error("Cannot start web server: " + err.Error())
 		os.Exit(1)
 	}
