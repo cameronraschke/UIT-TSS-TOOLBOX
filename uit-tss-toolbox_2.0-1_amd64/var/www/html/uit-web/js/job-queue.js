@@ -2,6 +2,10 @@ let isUpdatingPage = false;
 let jobQueueUpdateTimeout = null;
 let currentAbortController = null;
 
+document.addEventListener('DOMContentLoaded', () => {
+    updateJobQueue();
+});
+
 async function updateJobQueue() {
     if (currentAbortController) {
         currentAbortController.abort();
@@ -26,7 +30,7 @@ async function updateJobQueue() {
         jobQueueUpdateTimeout = setTimeout(() => {
             jobQueueUpdateTimeout = null;
             updateJobQueue();
-        }, 2000);
+        }, 3000);
     }
 }
 

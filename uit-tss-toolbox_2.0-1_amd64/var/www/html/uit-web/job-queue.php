@@ -165,7 +165,6 @@ unset($_POST);
     <script src="/js/job-queue.js?<?php echo filemtime('js/job-queue.js'); ?>"></script>
 
     <script>
-      updateJobQueue();
       autoFillTags();
     </script>
 
