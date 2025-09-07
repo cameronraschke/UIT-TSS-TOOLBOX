@@ -137,7 +137,18 @@ async function updateOnlineTable(signal) {
       // Screenshot cell
       const screenshotCell = document.createElement("td");
       if (value["screenshot"]) {
-        screenshotCell.innerHTML = "<a target='_blank' href='/view-images.php?live_image=1&tagnumber=" + value["tagnumber"] + "'><img style='max-height: 5em; height: 5em;' loading='lazy' src='data:image/jpeg;base64," + value["screenshot"] + "'></a>"
+        const screenshotDataURL = base64ToBlobUrl(value["screenshot"]);
+        const screenshotLink = document.createElement("a");
+        screenshotLink.setAttribute("target", "_blank");
+        screenshotLink.setAttribute("href", "/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(value["tagnumber"]));
+        const screenshotImg = document.createElement("img");
+        screenshotImg.className = 'fade-in';
+        screenshotImg.onload = () => screenshotImg.classList.add('loaded');
+        screenshotImg.setAttribute("style", "max-height: 5em; height: 5em;");
+        screenshotImg.setAttribute("loading", "lazy");
+        screenshotImg.setAttribute("src", screenshotDataURL);
+        screenshotLink.appendChild(screenshotImg);
+        screenshotCell.appendChild(screenshotLink);
       }
 
       // Last job time cell
@@ -211,11 +222,11 @@ async function updateOnlineTable(signal) {
     remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
     remotePresentTableFragment.append(remotePresentTable);
     const oldRemotePresentTable = document.getElementById("remotePresentTable");
-    oldRemotePresentTable.classList.add("fade");
+    oldRemotePresentTable.classList.add("fade-in");
     setTimeout(() => {
         oldRemotePresentTable.replaceWith(remotePresentTableFragment);
         const newTable = document.getElementById("remotePresentTable");
-        newTable.classList.add("fade");
+        newTable.classList.add("fade-in");
         setTimeout(() => newTable.classList.add("show"), 10);
     }, 300);
     oldRemotePresentTable.replaceWith(remotePresentTableFragment);
