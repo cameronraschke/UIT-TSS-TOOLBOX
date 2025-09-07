@@ -123,6 +123,15 @@ label {
 }
 
 
+.fade {
+  transition: opacity 0.3s;
+  opacity: 0;
+}
+.fade.show {
+  opacity: 1;
+}
+
+
 .login-form {
 	position: relative;
 	display: grid;

@@ -137,7 +137,7 @@ async function updateOnlineTable(signal) {
       // Screenshot cell
       const screenshotCell = document.createElement("td");
       if (value["screenshot"]) {
-        screenshotCell.innerHTML = "<a target='_blank' href='/view-images.php?live_image=1&tagnumber=" + value["tagnumber"] + "'><img style='max-height: 5em;' src='data:image/jpeg;base64," + value["screenshot"] + "'></a>"
+        screenshotCell.innerHTML = "<a target='_blank' href='/view-images.php?live_image=1&tagnumber=" + value["tagnumber"] + "'><img style='max-height: 5em; height: 5em;' loading='lazy' src='data:image/jpeg;base64," + value["screenshot"] + "'></a>"
       }
 
       // Last job time cell
@@ -211,6 +211,13 @@ async function updateOnlineTable(signal) {
     remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
     remotePresentTableFragment.append(remotePresentTable);
     const oldRemotePresentTable = document.getElementById("remotePresentTable");
+    oldRemotePresentTable.classList.add("fade");
+    setTimeout(() => {
+        oldTable.replaceWith(remotePresentTableFragment);
+        const newTable = document.getElementById("remotePresentTable");
+        newTable.classList.add("fade");
+        setTimeout(() => newTable.classList.add("show"), 10);
+    }, 300);
     oldRemotePresentTable.replaceWith(remotePresentTableFragment);
   } catch (error) {
     console.log(error);
