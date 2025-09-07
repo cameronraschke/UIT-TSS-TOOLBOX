@@ -19,7 +19,8 @@ func limitRequestSizeMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		maxSize := int64(64 << 20)
 		if req.ContentLength > maxSize {
-			log.Warning("Request content length exceeds limit: " + fmt.Sprintf("%.2fMB", float64(req.ContentLength)/1e6))
+			//req.RemoteAddr used here because the ip has not been assigned to the context yet
+			log.Warning("Request content length exceeds limit: " + fmt.Sprintf("%.2fMB", float64(req.ContentLength)/1e6) + " " + req.RemoteAddr)
 			http.Error(w, formatHttpError("Request too large"), http.StatusRequestEntityTooLarge)
 			return
 		}
@@ -70,30 +71,30 @@ func storeClientIPMiddleware(next http.Handler) http.Handler {
 
 func allowIPRangeMiddleware(allowedCIDR string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ipStr, _, err := net.SplitHostPort(r.RemoteAddr)
-			if err != nil {
-				http.Error(w, "Forbidden", http.StatusForbidden)
-				return
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			requestIP, ok := GetRequestIP(req)
+			if !ok {
+				log.Warning("no IP address stored in context")
+				http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 			}
-			requestIP := net.ParseIP(ipStr)
+			parsedRequestIP := net.ParseIP(requestIP)
 			_, ipNet, err := net.ParseCIDR(allowedCIDR)
-			if err != nil || !ipNet.Contains(requestIP) {
+			if err != nil || !ipNet.Contains(parsedRequestIP) {
 				http.Error(w, "Forbidden", http.StatusForbidden)
 				return
 			}
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, req)
 		})
 	}
 }
 
 func rateLimitMiddleware(app *AppState) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			requestIP, _, err := net.SplitHostPort(r.RemoteAddr)
-			if err != nil {
-				http.Error(w, "Bad Request", http.StatusBadRequest)
-				return
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			requestIP, ok := GetRequestIP(req)
+			if !ok {
+				log.Warning("no IP address stored in context")
+				http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 			}
 
 			if app.blockedIPs.IsBlocked(requestIP) {
@@ -110,21 +111,27 @@ func rateLimitMiddleware(app *AppState) func(http.Handler) http.Handler {
 				return
 			}
 
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, req)
 		})
 	}
 }
 
 func tlsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		}
+
 		if req.TLS == nil || !req.TLS.HandshakeComplete {
-			log.Warning("TLS handshake failed for client " + req.RemoteAddr)
+			log.Warning("TLS handshake failed for client " + requestIP)
 			http.Error(w, formatHttpError("TLS required"), http.StatusUpgradeRequired)
 			return
 		}
 
 		if req.TLS.Version < tls.VersionTLS13 {
-			log.Warning("Rejected connection with weak TLS version from " + req.RemoteAddr)
+			log.Warning("Rejected connection with weak TLS version from " + requestIP)
 			http.Error(w, formatHttpError("TLS version too low"), http.StatusUpgradeRequired)
 			return
 		}
@@ -140,7 +147,7 @@ func tlsMiddleware(next http.Handler) http.Handler {
 			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256:   true,
 		}
 		if weakCiphers[req.TLS.CipherSuite] {
-			log.Warning("Rejected connection with weak cipher suite from " + req.RemoteAddr)
+			log.Warning("Rejected connection with weak cipher suite from " + requestIP)
 			http.Error(w, formatHttpError("Weak cipher suite not allowed"), http.StatusUpgradeRequired)
 			return
 		}
@@ -152,11 +159,10 @@ func tlsMiddleware(next http.Handler) http.Handler {
 func httpMethodMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		// Get IP address
-		requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
-		if err != nil {
-			log.Warning("Cannot parse IP: " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 		}
 
 		// Check method
@@ -188,12 +194,10 @@ func httpMethodMiddleware(next http.Handler) http.Handler {
 
 func checkHeadersMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		// Get IP address
-		requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
-		if err != nil {
-			log.Warning("Cannot parse IP: " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 		}
 
 		// Content length
@@ -271,6 +275,11 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 
 func setHeadersMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		}
 		// Get env vars
 		env := configureEnvironment()
 		webServerIP := env.UIT_WAN_IP_ADDRESS
@@ -278,7 +287,7 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 		cors := http.NewCrossOriginProtection()
 		cors.AddTrustedOrigin("https://" + webServerIP + ":1411")
 		if err := cors.Check(req); err != nil {
-			log.Warning("Request to " + req.URL.RequestURI() + " blocked from " + req.RemoteAddr)
+			log.Warning("Request to " + req.URL.RequestURI() + " blocked from " + requestIP)
 			http.Error(w, formatHttpError("CORS policy violation"), http.StatusForbidden)
 			return
 		}
@@ -334,6 +343,12 @@ func apiAuth(next http.Handler) http.Handler {
 		var requestBearerToken string
 		var sessionCount int = 0
 
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		}
+
 		// Delete expired tokens & malformed entries out of authMap
 		authMap.Range(func(k, v interface{}) bool {
 			sessionID := k.(string)
@@ -352,10 +367,9 @@ func apiAuth(next http.Handler) http.Handler {
 			return true
 		})
 
-		requestIP, _, _ := net.SplitHostPort(req.RemoteAddr)
 		queryType := strings.TrimSpace(req.URL.Query().Get("type"))
 		if strings.TrimSpace(queryType) == "" {
-			log.Warning("No query type defined for request: " + req.RemoteAddr)
+			log.Warning("No query type defined for request: " + requestIP)
 			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
 			return
 		}
@@ -416,10 +430,15 @@ func apiAuth(next http.Handler) http.Handler {
 func csrfMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		// Still testing function
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		}
 
-		requestIP, _, err := net.SplitHostPort(req.RemoteAddr)
+		requestIP, _, err := net.SplitHostPort(requestIP)
 		if err != nil {
-			log.Warning("Cannot parse IP: " + req.RemoteAddr)
+			log.Warning("Cannot parse IP: " + requestIP)
 			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
 			return
 		}
@@ -428,7 +447,7 @@ func csrfMiddleware(next http.Handler) http.Handler {
 		if req.Method == http.MethodPost || req.Method == http.MethodPut || req.Method == http.MethodPatch || req.Method == http.MethodDelete {
 			csrfToken := req.Header.Get("X-CSRF-Token")
 			if strings.TrimSpace(csrfToken) == "" {
-				log.Warning("Missing CSRF token in request from " + req.RemoteAddr)
+				log.Warning("Missing CSRF token in request from " + requestIP)
 				http.Error(w, formatHttpError("Forbidden: missing CSRF token"), http.StatusForbidden)
 				return
 			}
@@ -462,6 +481,8 @@ func csrfMiddleware(next http.Handler) http.Handler {
 
 func denyAllMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Warning("client fallthrough - deny all middleware")
 		http.Error(w, "Access denied", http.StatusForbidden)
+		return
 	})
 }

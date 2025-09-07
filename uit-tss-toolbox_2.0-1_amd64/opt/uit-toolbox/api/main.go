@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"os"
 	"path"
@@ -341,7 +340,27 @@ func postAPI(w http.ResponseWriter, req *http.Request) {
 func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	var basicToken string
-	requestIP, _, _ := net.SplitHostPort(req.RemoteAddr)
+
+	requestIP, ok := GetRequestIP(req)
+	if !ok {
+		log.Warning("no IP address stored in context")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+	}
+
+	// Check for body size that exceeds limit put on by middleware
+	_, err := io.ReadAll(req.Body)
+	if err != nil {
+		// Detect if the error is due to MaxBytesReader limit
+		if strings.Contains(err.Error(), "http: request body too large") {
+			log.Warning("Request body exceeded max size limit")
+			http.Error(w, "Request too large", http.StatusRequestEntityTooLarge)
+			return
+		}
+		// Handle other errors
+		log.Error("Error reading request body: " + err.Error())
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 
 	headers := ParseHeaders(req.Header)
 	if headers.Authorization.Basic != nil {

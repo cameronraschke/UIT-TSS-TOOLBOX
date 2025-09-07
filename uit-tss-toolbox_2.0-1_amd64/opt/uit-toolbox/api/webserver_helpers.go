@@ -232,6 +232,11 @@ func generateCSRFToken() (string, error) {
 	return base64.StdEncoding.EncodeToString(b), nil
 }
 
+func GetRequestIP(r *http.Request) (string, bool) {
+	ip, ok := r.Context().Value(ctxClientIP{}).(string)
+	return ip, ok
+}
+
 func ParseHeaders(header http.Header) HttpHeaders {
 	var headers HttpHeaders
 	var authHeader AuthHeader
