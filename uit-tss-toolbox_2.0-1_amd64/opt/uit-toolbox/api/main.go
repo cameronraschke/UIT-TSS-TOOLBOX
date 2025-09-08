@@ -769,11 +769,12 @@ func configureEnvironment() AppConfig {
 	}
 
 	envAllAllowedIPStr := envAllowedLanIPStr + envWanAllowedIPStr
-	envAllAllowedIPs := make([]string, 0, len(envAllAllowedIPStr))
+	envAllAllowedIPs := strings.Split(envAllAllowedIPStr, ",")
+	allAllowedIPs := make([]string, 0, len(envAllAllowedIPs))
 	for _, cidr := range envAllAllowedIPs {
 		cidr = strings.TrimSpace(cidr)
 		if cidr != "" {
-			envAllAllowedIPs = append(envAllAllowedIPs, cidr)
+			allAllowedIPs = append(allAllowedIPs, cidr)
 		}
 	}
 
@@ -866,7 +867,7 @@ func configureEnvironment() AppConfig {
 		UIT_LAN_IF:                  lanIf,
 		UIT_LAN_IP_ADDRESS:          lanIP,
 		UIT_LAN_ALLOWED_IP:          lanAllowedIP,
-		UIT_ALL_ALLOWED_IP:          envAllAllowedIPs,
+		UIT_ALL_ALLOWED_IP:          allAllowedIPs,
 		UIT_WEB_SVC_PASSWD:          uitWebSvcPasswd,
 		UIT_DB_CLIENT_PASSWD:        dbClientPasswd,
 		UIT_WEB_USER_DEFAULT_PASSWD: webUserDefaultPasswd,
