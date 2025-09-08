@@ -84,12 +84,17 @@ func allowIPRangeMiddleware(acceptedCIDRs []string) func(http.Handler) http.Hand
 				http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 				return
 			}
+			allowed := false
 			for _, cidr := range acceptedCIDRs {
 				_, ipNet, err := net.ParseCIDR(cidr)
-				if err != nil || !ipNet.Contains(parsedRequestIP) {
-					http.Error(w, "Forbidden", http.StatusForbidden)
-					return
+				if err == nil && ipNet.Contains(parsedRequestIP) {
+					allowed = true
+					break
 				}
+			}
+			if !allowed {
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
 			}
 			next.ServeHTTP(w, req)
 		})
