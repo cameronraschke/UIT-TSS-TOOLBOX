@@ -721,6 +721,17 @@ func serveFiles(appState *AppState) http.HandlerFunc {
 	}
 }
 
+func rejectRequest(w http.ResponseWriter, req *http.Request) {
+	requestIP, ok := GetRequestIP(req)
+	if !ok {
+		log.Warning("no IP address stored in context")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+	log.Warning("access denied: " + requestIP + " tried to access " + req.URL.Path)
+	http.Error(w, "Access denied", http.StatusForbidden)
+}
+
 func configureEnvironment() AppConfig {
 	// WAN interface, IP, and allowed IPs
 	wanIf, ok := os.LookupEnv("UIT_WAN_IF")
@@ -962,6 +973,7 @@ func main() {
 
 	httpMux := http.NewServeMux()
 	httpMux.Handle("/client/", fileServerMuxChain.then(serveFiles(appState)))
+	httpMux.Handle("/client", fileServerMuxChain.thenFunc(rejectRequest))
 	httpMux.Handle("/", httpRedirectToHttps.then(redirectToHTTPSHandler("31411")))
 
 	httpServer := &http.Server{

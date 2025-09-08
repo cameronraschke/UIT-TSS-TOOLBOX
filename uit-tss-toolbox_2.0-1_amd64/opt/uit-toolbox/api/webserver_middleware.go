@@ -499,11 +499,3 @@ func csrfMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, req)
 	})
 }
-
-func denyAllMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Warning("client fallthrough - deny all middleware")
-		http.Error(w, "Access denied", http.StatusForbidden)
-		return
-	})
-}
