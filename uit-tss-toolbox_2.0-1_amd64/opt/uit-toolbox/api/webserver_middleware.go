@@ -93,6 +93,7 @@ func allowIPRangeMiddleware(acceptedCIDRs []string) func(http.Handler) http.Hand
 				}
 			}
 			if !allowed {
+				log.Warning("IP address not in allowed range: " + requestIP)
 				http.Error(w, "Forbidden", http.StatusForbidden)
 				return
 			}
