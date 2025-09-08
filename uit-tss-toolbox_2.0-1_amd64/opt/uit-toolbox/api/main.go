@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"unicode/utf8"
 
 	// "net/http/httputil"
 
@@ -35,6 +36,7 @@ import (
 	_ "net/http/pprof"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"golang.org/x/text/unicode/norm"
 )
 
 type AppConfig struct {
@@ -586,8 +588,9 @@ func serveFiles(appState *AppState) http.HandlerFunc {
 			http.Error(w, "Bad request", http.StatusBadRequest)
 			return
 		}
+		normalizedPath := norm.NFC.String(unescapedPath)
 
-		httpRequestPath := path.Clean(unescapedPath)
+		httpRequestPath := path.Clean(normalizedPath)
 		if httpRequestPath == "/" || httpRequestPath == "." || httpRequestPath == "" {
 			log.Warning("Empty file path requested: " + requestIP)
 			http.Error(w, "Forbidden", http.StatusForbidden)
@@ -640,6 +643,11 @@ func serveFiles(appState *AppState) http.HandlerFunc {
 				return
 			}
 			// Check valid UTF-8 and allowed characters
+			if !utf8.ValidString(fullPath) {
+				log.Warning("Invalid UTF-8 in filename: " + requestIP)
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
 			var disallowedChars = "~%$#\\<>:\"'`|?*"
 			for _, char := range fullPath {
 				if char < 32 || char == 127 {
