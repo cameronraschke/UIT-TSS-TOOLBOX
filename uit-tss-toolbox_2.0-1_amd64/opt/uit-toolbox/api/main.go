@@ -768,7 +768,7 @@ func configureEnvironment() AppConfig {
 		}
 	}
 
-	envAllAllowedIPStr := envAllowedLanIPStr + envWanAllowedIPStr
+	envAllAllowedIPStr := envAllowedLanIPStr + "," + envWanAllowedIPStr
 	envAllAllowedIPs := strings.Split(envAllAllowedIPStr, ",")
 	allAllowedIPs := make([]string, 0, len(envAllAllowedIPs))
 	for _, cidr := range envAllAllowedIPs {
