@@ -174,7 +174,7 @@ async function updateOnlineTable(signal) {
         
         preloadedImg.src = screenshotDataURL;
 
-        if (oldImg.src != preloadedImg.src) {
+        if (!oldImg || !oldImg.src || oldImg.src != screenshotDataURL) {
           imgContainer.appendChild(preloadedImg);
           screenshotLink.appendChild(imgContainer);
           screenshotCell.appendChild(screenshotLink);
