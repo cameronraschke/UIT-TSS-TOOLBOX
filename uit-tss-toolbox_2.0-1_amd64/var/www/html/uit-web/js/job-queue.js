@@ -148,6 +148,12 @@ async function updateOnlineTable(signal) {
         screenshotCell.classList.add("image-cell");
         screenshotCell.style.width = "240px";
         screenshotCell.style.height = "135px";
+        
+        const imgContainer = document.createElement("div");
+        imgContainer.style.position = "relative";
+        imgContainer.style.width = "240px";
+        imgContainer.style.height = "135px";
+
         if (value["screenshot"]) {
           const screenshotLink = document.createElement("a");
           screenshotLink.setAttribute("target", "_blank");
@@ -172,10 +178,6 @@ async function updateOnlineTable(signal) {
               }
           };
 
-          const imgContainer = document.createElement("div");
-          imgContainer.style.position = "relative";
-          imgContainer.style.width = "240px";
-          imgContainer.style.height = "135px";
 
           preloadedImg.onload = () => {
             preloadedImg.classList.add('loaded');  
@@ -183,7 +185,6 @@ async function updateOnlineTable(signal) {
           };
           
           preloadedImg.src = newScreenshotURL;
-
 
           imgContainer.appendChild(preloadedImg);
           screenshotLink.appendChild(imgContainer);
