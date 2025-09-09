@@ -226,7 +226,12 @@ func checkValidURLMiddleware(next http.Handler) http.Handler {
 			}
 		}
 
-		ctx := context.WithValue(req.Context(), ctxURLRequest{}, fullPath+"?"+req.URL.RawQuery)
+		var ctx context.Context
+		if strings.TrimSpace(req.URL.RawQuery) == "" {
+			ctx = context.WithValue(req.Context(), ctxURLRequest{}, fullPath)
+		} else {
+			ctx = context.WithValue(req.Context(), ctxURLRequest{}, fullPath+"?"+req.URL.RawQuery)
+		}
 		next.ServeHTTP(w, req.WithContext(ctx))
 	})
 }

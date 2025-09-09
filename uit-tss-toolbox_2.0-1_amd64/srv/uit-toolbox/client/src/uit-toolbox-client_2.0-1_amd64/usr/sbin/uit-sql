@@ -100,9 +100,6 @@ for i in $(ip addr | awk '/state UP/ {print $2}' | sed 's/://g'); do
     fi
 done
 
-fbgrab - > /tmp/screenshot.png
-printf '%s' "live_images|${tagNum}|screenshot|/tmp/screenshot.png" | /opt/uit-toolbox/parse
-
 # Sleep before next loop
 sleep 1
 

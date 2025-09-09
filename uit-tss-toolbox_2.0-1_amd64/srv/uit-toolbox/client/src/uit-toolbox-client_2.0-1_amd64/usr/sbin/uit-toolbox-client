@@ -14,6 +14,7 @@ shredElapsed="0"
 for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+for i in $(ps | grep 'uit-screenshot' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 
 printf '%s' '0' > /root/uptime
 printf '%s' '0' > /tmp/cpu-usage.txt
@@ -467,6 +468,7 @@ function enterTag {
 		coproc uit_cpu { uit-cpu 2>/dev/null; }
 		coproc uit_network { uit-network 2>/dev/null; }
 		coproc uit_sql { uit-sql 2>/dev/null; }
+		coproc uit_sql { uit-screenshot 2>/dev/null; }
 		return
 	else
 		read -p "${BOLD}Please enter the ${GREEN}6-digit tag number${RESET} ${BOLD}followed by ${GREEN}Enter${RESET}${BOLD}:${RESET} " tagNum
@@ -1737,6 +1739,7 @@ function resetForClientRestart {
 	for i in $(ps | grep 'uit-cpu' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-network' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	for i in $(ps | grep 'uit-sql' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
+	for i in $(ps | grep 'uit-screenshot' | awk '{ print $1 }'); do kill "${i}" 2>/dev/null; done
 	dpkg --purge uit-toolbox-client
 	rm -r /root/uit-toolbox-client*
 	rm -r /root/.ssh/known_hosts*

@@ -1,0 +1,13 @@
+#!/bin/bash
+serial=$(dmidecode --string system-serial-number)
+tagNum=$(echo "SELECT tagnumber AS result FROM locations WHERE system_serial = '${serial}' ORDER BY time DESC LIMIT 1" | /opt/uit-toolbox/select)
+while true; do
+    fbgrab - > /tmp/screenshot.png
+    printf '%s' "live_images|${tagNum}|screenshot|/tmp/screenshot.png" | /opt/uit-toolbox/parse
+    # Check if cancel job has been sent
+    if [[ $(echo "SELECT tagnumber AS result FROM remote WHERE tagnumber = '${tagNum}' AND (job_queued = TRUE OR job_active = TRUE)" | /opt/uit-toolbox/select) == ${tagNum} ]]; then
+        sleep 10
+    else
+        sleep 2
+    fi
+done

@@ -351,6 +351,8 @@ CREATE TABLE IF NOT EXISTS client_images (
     primary_image BOOLEAN DEFAULT FALSE
 );
 
+-- CREATE OR REPLACE FUNCTION live_images_function
+-- CREATE OR REPLACE TRIGGER live_images_trigger AFTER UPDATE OF screenshot ON live_images FOR EACH ROW EXECUTE FUNCTION live_images_function();
 CREATE TABLE IF NOT EXISTS live_images (
     tagnumber INTEGER UNIQUE NOT NULL,
     time TIMESTAMP(3) DEFAULT NULL,

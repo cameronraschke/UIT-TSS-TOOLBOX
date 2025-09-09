@@ -173,9 +173,12 @@ async function updateOnlineTable(signal) {
         };
         
         preloadedImg.src = screenshotDataURL;
-        imgContainer.appendChild(preloadedImg);
-        screenshotLink.appendChild(imgContainer);
-        screenshotCell.appendChild(screenshotLink);
+
+        if (oldImg.src != preloadedImg.src) {
+          imgContainer.appendChild(preloadedImg);
+          screenshotLink.appendChild(imgContainer);
+          screenshotCell.appendChild(screenshotLink);
+        }
       }
 
       // Last job time cell
