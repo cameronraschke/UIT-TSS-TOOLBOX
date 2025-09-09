@@ -47,6 +47,7 @@ async function updateOnlineTable(signal) {
     remotePresentTable.style.alignContent = 'left';
 
     const remotePresentHeaderThead = document.createElement("thead");
+    remotePresentHeaderThead.setAttribute("id", "onlineTableHeader")
     Object.entries(remotePresentHeaderData).forEach(([key, value]) => {
       const tagnumberHeader = document.createElement("th");
       tagnumberHeader.innerText = "Online Clients " + value["tagnumber_count"];
@@ -87,6 +88,7 @@ async function updateOnlineTable(signal) {
     });
 
     const remotePresentBodyTbody = document.createElement("tbody");
+    remotePresentHeaderThead.setAttribute("id", "onlineTableBody")
     for (const [key, value] of Object.entries(remotePresentBodyData)) {
       const remotePresentTableBodyTr = document.createElement("tr");
 
@@ -262,18 +264,27 @@ async function updateOnlineTable(signal) {
 
     // remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
     // remotePresentTableFragment.append(remotePresentTable);
-    remotePresentTableFragment.append(remotePresentBodyTbody);
-    const oldRemotePresentTable = document.getElementById("remotePresentTable");
-    oldRemotePresentTable.classList.add("fade-out");
-    setTimeout(() => {
-        oldRemotePresentTable.replaceWith(remotePresentTableFragment);
-        const newTable = document.getElementById("remotePresentTable");
-        if (newTable) {
-            newTable.classList.add("fade-in");
-            setTimeout(() => newTable.classList.add("loaded"), 10);
-        }
-    }, 1000);
-    oldRemotePresentTable.replaceWith(remotePresentTableFragment);
+    const remotePresentTbodyFragment = new DocumentFragment();
+    remotePresentTbodyFragment.append(remotePresentBodyTbody);
+    const remotePresentTheadFragment = new DocumentFragment();
+    remotePresentTheadFragment.append(remotePresentHeaderThead);
+
+    const oldRemotePresentTbody = document.getElementById("onlineTableBody");
+    const oldRemotePresentThead = document.getElementById("onlineTableHeader");
+
+
+    // oldRemotePresentTbody.classList.add("fade-out");
+    // oldRemotePresentThead.classList.add("fade-out");
+    // setTimeout(() => {
+    //     oldRemotePresentTbody.replaceWith(remotePresentTableFragment);
+    //     const newTable = document.getElementById("remotePresentTable");
+    //     if (newTable) {
+    //         newTable.classList.add("fade-in");
+    //         setTimeout(() => newTable.classList.add("loaded"), 10);
+    //     }
+    // }, 1000);
+    oldRemotePresentTbody.replaceWith(remotePresentTbodyFragment);
+    oldRemotePresentThead.replaceWith(remotePresentTheadFragment);
   } catch (error) {
     console.log(error);
   }
