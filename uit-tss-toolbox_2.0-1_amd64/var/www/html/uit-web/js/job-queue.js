@@ -41,7 +41,6 @@ async function updateOnlineTable(signal) {
       fetchData('https://UIT_WAN_IP_ADDRESS:31411/api/remote?type=remote_present', { signal })
     ]);
 
-    const remotePresentTableFragment = new DocumentFragment();
     const remotePresentTable = document.createElement("table");
     remotePresentTable.setAttribute('id', 'remotePresentTable');
     remotePresentTable.style.alignContent = 'left';
@@ -88,7 +87,7 @@ async function updateOnlineTable(signal) {
     });
 
     const remotePresentBodyTbody = document.createElement("tbody");
-    remotePresentHeaderThead.setAttribute("id", "onlineTableBody")
+    remotePresentBodyTbody.setAttribute("id", "onlineTableBody")
     for (const [key, value] of Object.entries(remotePresentBodyData)) {
       const remotePresentTableBodyTr = document.createElement("tr");
 
@@ -145,7 +144,7 @@ async function updateOnlineTable(signal) {
 
       if (!oldImg || oldSHA256 != newSHA256) {
         screenshotCell = document.createElement("td");
-        screenshotCell.setAttribute("id", "screenshot-cell");
+        screenshotCell.setAttribute("id", "screenshot-cell" + value["tagnumber"]);
         screenshotCell.style.width = "240px";
         screenshotCell.style.height = "135px";
         if (value["screenshot"]) {
@@ -190,8 +189,8 @@ async function updateOnlineTable(signal) {
           screenshotCell.appendChild(screenshotLink);
         }
       } else {
-        screenshotCell = document.getElementById("screenshot-cell");
-        screenshotCell.setAttribute("id", "screenshot-cell");
+        screenshotCell = document.getElementById("screenshot-cell" + value["tagnumber"]);
+        screenshotCell.setAttribute("id", "screenshot-cell" + value["tagnumber"]);
       }
 
       // Last job time cell
@@ -262,15 +261,22 @@ async function updateOnlineTable(signal) {
       remotePresentBodyTbody.append(remotePresentTableBodyTr)
     }
 
-    // remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
-    // remotePresentTableFragment.append(remotePresentTable);
-    const remotePresentTbodyFragment = new DocumentFragment();
-    remotePresentTbodyFragment.append(remotePresentBodyTbody);
-    const remotePresentTheadFragment = new DocumentFragment();
-    remotePresentTheadFragment.append(remotePresentHeaderThead);
+    const oldRemotePresentTable = document.getElementById("remotePresentTable");
+    if (!oldRemotePresentTable) {
+      const remotePresentTableFragment = new DocumentFragment();
+      remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
+      remotePresentTableFragment.append(remotePresentTable);
+    } else {
+      const remotePresentTheadFragment = new DocumentFragment();
+      remotePresentTheadFragment.append(remotePresentHeaderThead);
+      const remotePresentTbodyFragment = new DocumentFragment();
+      remotePresentTbodyFragment.append(remotePresentBodyTbody);
+      const oldRemotePresentTbody = document.getElementById("onlineTableBody");
+      const oldRemotePresentThead = document.getElementById("onlineTableHeader");
+      oldRemotePresentTbody.replaceWith(remotePresentTbodyFragment);
+      oldRemotePresentThead.replaceWith(remotePresentTheadFragment);
+    }
 
-    const oldRemotePresentTbody = document.getElementById("onlineTableBody");
-    const oldRemotePresentThead = document.getElementById("onlineTableHeader");
 
 
     // oldRemotePresentTbody.classList.add("fade-out");
@@ -283,8 +289,6 @@ async function updateOnlineTable(signal) {
     //         setTimeout(() => newTable.classList.add("loaded"), 10);
     //     }
     // }, 1000);
-    oldRemotePresentTbody.replaceWith(remotePresentTbodyFragment);
-    oldRemotePresentThead.replaceWith(remotePresentTheadFragment);
   } catch (error) {
     console.log(error);
   }
