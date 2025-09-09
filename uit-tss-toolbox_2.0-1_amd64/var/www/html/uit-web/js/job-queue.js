@@ -137,44 +137,46 @@ async function updateOnlineTable(signal) {
       // Screenshot cell
       const screenshotCell = document.createElement("td");
       const oldImg = document.getElementById("screenshot-" + value["tagnumber"]);
-      screenshotCell.style.width = "240px";
-      screenshotCell.style.height = "135px";
-      if (value["screenshot"]) {
-        const screenshotDataURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
-        const screenshotLink = document.createElement("a");
-        screenshotLink.setAttribute("target", "_blank");
-        screenshotLink.setAttribute("href", "/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(value["tagnumber"]));
+      const screenshotDataURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
 
-        const preloadedImg = new window.Image();
-        preloadedImg.className = 'fade-in';
-        preloadedImg.id = "screenshot-" + value["tagnumber"];
-        preloadedImg.width = 240;
-        preloadedImg.height = 135;
-        preloadedImg.style = "width: 240px; height: 135px; max-width: 100%; max-height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;";
-        preloadedImg.loading = "lazy";
-        preloadedImg.onload = () => {
-            preloadedImg.classList.add('loaded');
-            if (oldImg) {
-                oldImg.classList.add('fade-out');
-                oldImg.addEventListener('transitionend', function handler() {
-                oldImg.removeEventListener('transitionend', handler);
-                oldImg.remove();
-            });
-            }
-        };
+      if (!oldImg || !oldImg.src || oldImg.src != screenshotDataURL) {
+        screenshotCell.style.width = "240px";
+        screenshotCell.style.height = "135px";
+        if (value["screenshot"]) {
+          const screenshotLink = document.createElement("a");
+          screenshotLink.setAttribute("target", "_blank");
+          screenshotLink.setAttribute("href", "/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(value["tagnumber"]));
 
-        const imgContainer = document.createElement("div");
-        imgContainer.style.position = "relative";
-        imgContainer.style.width = "240px";
-        imgContainer.style.height = "135px";
+          const preloadedImg = new window.Image();
+          preloadedImg.className = 'fade-in';
+          preloadedImg.id = "screenshot-" + value["tagnumber"];
+          preloadedImg.width = 240;
+          preloadedImg.height = 135;
+          preloadedImg.style = "width: 240px; height: 135px; max-width: 100%; max-height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;";
+          preloadedImg.loading = "lazy";
+          preloadedImg.onload = () => {
+              preloadedImg.classList.add('loaded');
+              if (oldImg) {
+                  oldImg.classList.add('fade-out');
+                  oldImg.addEventListener('transitionend', function handler() {
+                  oldImg.removeEventListener('transitionend', handler);
+                  oldImg.remove();
+              });
+              }
+          };
 
-        preloadedImg.onload = () => {
-            preloadedImg.classList.add('loaded');
-        };
-        
-        preloadedImg.src = screenshotDataURL;
+          const imgContainer = document.createElement("div");
+          imgContainer.style.position = "relative";
+          imgContainer.style.width = "240px";
+          imgContainer.style.height = "135px";
 
-        if (!oldImg || !oldImg.src || oldImg.src != screenshotDataURL) {
+          preloadedImg.onload = () => {
+              preloadedImg.classList.add('loaded');
+          };
+          
+          preloadedImg.src = screenshotDataURL;
+
+
           imgContainer.appendChild(preloadedImg);
           screenshotLink.appendChild(imgContainer);
           screenshotCell.appendChild(screenshotLink);
