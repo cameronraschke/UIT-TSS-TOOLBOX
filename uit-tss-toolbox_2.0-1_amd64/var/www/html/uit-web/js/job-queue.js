@@ -157,10 +157,7 @@ async function updateOnlineTable(signal) {
       const newScreenshotURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
 
       if (!oldImg || oldSHA256 != newSHA256) {
-        
-
         if (value["screenshot"]) {
-
           const preloadedImg = new window.Image();
           preloadedImg.className = 'fade-in';
           preloadedImg.id = "screenshot-" + value["tagnumber"];
@@ -194,13 +191,13 @@ async function updateOnlineTable(signal) {
           const placeholder = document.createElement("div");
           placeholder.style.width = "240px";
           placeholder.style.height = "135px";
-          placeholder.style.background = "#eee url('/images/placeholder.png') center center no-repeat";
           placeholder.style.backgroundSize = "cover";
           placeholder.style.position = "absolute";
           placeholder.style.top = "0";
           placeholder.style.left = "0";
           imgContainer.appendChild(placeholder);
-          screenshotCell.appendChild(imgContainer);
+          screenshotLink.appendChild(imgContainer);
+          screenshotCell.replaceWith(imgContainer);
         }
       } else {
         const oldScreenshot = document.getElementById("screenshot-cell" + value["tagnumber"]);
@@ -208,7 +205,7 @@ async function updateOnlineTable(signal) {
 
         imgContainer.appendChild(oldScreenshot);
         screenshotLink.appendChild(imgContainer);
-        screenshotCell.appendChild(screenshotLink);
+        screenshotCell.replaceWith(screenshotLink);
       }
 
       // Last job time cell
