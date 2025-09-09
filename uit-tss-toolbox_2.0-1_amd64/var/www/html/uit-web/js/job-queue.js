@@ -87,7 +87,7 @@ async function updateOnlineTable(signal) {
     });
 
     const remotePresentBodyTbody = document.createElement("tbody");
-    Object.entries(remotePresentBodyData).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(remotePresentBodyData)) {
       const remotePresentTableBodyTr = document.createElement("tr");
 
       // Tag Number
@@ -135,11 +135,13 @@ async function updateOnlineTable(signal) {
       tagnumberCell.append(beforeTagnumberBodySpan1, tagnumberBodyA1, afterTagnumberBodySpan2);
 
       // Screenshot cell
-      const screenshotCell = document.createElement("td");
       const oldImg = document.getElementById("screenshot-" + value["tagnumber"]);
+      const newSHA256 = await generateSHA256Hash(value["screenshot"]);
+      const oldSHA256 = oldImg ? oldImg.getAttribute("data-base64-hash") : null;
       const screenshotDataURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
 
-      if (!oldImg || !oldImg.src || oldImg.src != screenshotDataURL) {
+      if (!oldImg || oldSHA256 != newSHA256) {
+        const screenshotCell = document.createElement("td");
         screenshotCell.style.width = "240px";
         screenshotCell.style.height = "135px";
         if (value["screenshot"]) {
@@ -150,6 +152,7 @@ async function updateOnlineTable(signal) {
           const preloadedImg = new window.Image();
           preloadedImg.className = 'fade-in';
           preloadedImg.id = "screenshot-" + value["tagnumber"];
+          preloadedImg.setAttribute("data-base64-hash", newSHA256);
           preloadedImg.width = 240;
           preloadedImg.height = 135;
           preloadedImg.style = "width: 240px; height: 135px; max-width: 100%; max-height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;";
@@ -182,6 +185,7 @@ async function updateOnlineTable(signal) {
           screenshotCell.appendChild(screenshotLink);
         }
       }
+      URL.revokeObjectURL(screenshotDataURL);
 
       // Last job time cell
       const lastJobTimeCell = document.createElement("td");
@@ -249,7 +253,7 @@ async function updateOnlineTable(signal) {
 
       remotePresentTableBodyTr.append(tagnumberCell, screenshotCell, lastJobTimeCell, locationCell, statusCell, osInstalledCell, batteryChargeCell, uptimeCell, cpuTempCell, diskTempCell, wattsNowCell)
       remotePresentBodyTbody.append(remotePresentTableBodyTr)
-    });
+    }
 
     remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
     remotePresentTableFragment.append(remotePresentTable);
