@@ -145,6 +145,7 @@ async function updateOnlineTable(signal) {
       if (!oldImg || oldSHA256 != newSHA256) {
         screenshotCell = document.createElement("td");
         screenshotCell.setAttribute("id", "screenshot-cell" + value["tagnumber"]);
+        screenshotCell.classList.add("image-cell");
         screenshotCell.style.width = "240px";
         screenshotCell.style.height = "135px";
         if (value["screenshot"]) {
