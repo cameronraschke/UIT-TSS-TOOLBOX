@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 
 	// "net/http/httputil"
@@ -143,6 +144,13 @@ var (
 func remoteAPI(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
+	requestURL, ok := GetRequestURL(req)
+	if !ok {
+		log.Warning("no URL stored in context")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+
 	var parsedURL *url.URL
 	var err error
 
@@ -160,9 +168,9 @@ func remoteAPI(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Parse URL
-	parsedURL, err = url.Parse(req.URL.RequestURI())
+	parsedURL, err = url.Parse(requestURL)
 	if err != nil {
-		log.Warning("Cannot parse URL ( " + req.RemoteAddr + "): " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
+		log.Warning("Cannot parse URL ( " + req.RemoteAddr + "): " + " " + err.Error() + " (" + requestURL + ")")
 		return
 	}
 	// path := parsedURL.Path
@@ -269,6 +277,13 @@ func remoteAPI(w http.ResponseWriter, req *http.Request) {
 func postAPI(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
+	requestURL, ok := GetRequestURL(req)
+	if !ok {
+		log.Warning("no URL stored in context")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+
 	var parsedURL *url.URL
 	var err error
 
@@ -286,9 +301,9 @@ func postAPI(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Parse URL
-	parsedURL, err = url.Parse(req.URL.RequestURI())
+	parsedURL, err = url.Parse(requestURL)
 	if err != nil {
-		log.Warning("Cannot parse URL ( " + req.RemoteAddr + "): " + " " + err.Error() + " (" + req.URL.RequestURI() + ")")
+		log.Warning("Cannot parse URL ( " + req.RemoteAddr + "): " + " " + err.Error() + " (" + requestURL + ")")
 		return
 	}
 	// path := parsedURL.Path
@@ -551,6 +566,13 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
 
 func redirectToHTTPSHandler(httpsPort string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		requestURL, ok := GetRequestURL(req)
+		if !ok {
+			log.Warning("no URL stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+
 		host := req.Host
 		if colon := strings.LastIndex(host, ":"); colon != -1 {
 			host = host[:colon]
@@ -559,7 +581,7 @@ func redirectToHTTPSHandler(httpsPort string) http.Handler {
 		if httpsPort != "443" && httpsPort != "" {
 			httpsURL += ":" + httpsPort
 		}
-		httpsURL += req.URL.RequestURI()
+		httpsURL += host + requestURL
 		http.Redirect(w, req, httpsURL, http.StatusMovedPermanently)
 	})
 }
@@ -573,8 +595,17 @@ func serveFiles(appState *AppState) http.HandlerFunc {
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 			return
 		}
+		requestURL, ok := GetRequestURL(req)
+		if !ok {
+			log.Warning("no URL stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
 
 		basePath := "/srv/uit-toolbox/"
+
+		fullPath := path.Join(basePath, requestURL)
+		_, fileRequested := path.Split(fullPath)
 
 		if len(appState.allowedFiles) > 0 && !appState.allowedFiles[fileRequested] {
 			log.Warning("File not in whitelist: " + fileRequested)
@@ -870,6 +901,7 @@ func main() {
 		limitRequestSizeMiddleware,
 		timeoutMiddleware,
 		storeClientIPMiddleware,
+		checkValidURLMiddleware,
 		allowIPRangeMiddleware(appConfig.UIT_LAN_ALLOWED_IP),
 		rateLimitMiddleware(appState),
 	}
@@ -878,6 +910,7 @@ func main() {
 		limitRequestSizeMiddleware,
 		timeoutMiddleware,
 		storeClientIPMiddleware,
+		checkValidURLMiddleware,
 		allowIPRangeMiddleware(appConfig.UIT_ALL_ALLOWED_IP),
 		rateLimitMiddleware(appState),
 	}
@@ -915,6 +948,7 @@ func main() {
 		limitRequestSizeMiddleware,
 		timeoutMiddleware,
 		storeClientIPMiddleware,
+		checkValidURLMiddleware,
 		allowIPRangeMiddleware(appConfig.UIT_ALL_ALLOWED_IP),
 		rateLimitMiddleware(appState),
 		tlsMiddleware,

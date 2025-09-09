@@ -126,7 +126,7 @@ func checkValidURLMiddleware(next http.Handler) http.Handler {
 
 		// URL query
 		if strings.ContainsAny(req.URL.RawQuery, "<>\"'%;()+") {
-			log.Warning("Invalid characters in query parameters: " + req.URL.RawQuery + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+			log.Warning("Invalid characters in query parameters: " + "( " + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
 			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
 			return
 		}
@@ -176,6 +176,16 @@ func checkValidURLMiddleware(next http.Handler) http.Handler {
 
 		// Split URL path into path + file name
 		_, fileRequested := path.Split(fullPath)
+		if strings.HasPrefix(fileRequested, ".") ||
+			strings.HasPrefix(fileRequested, "~") ||
+			strings.HasSuffix(fileRequested, ".tmp") ||
+			strings.HasSuffix(fileRequested, ".bak") ||
+			strings.HasSuffix(fileRequested, ".swp") {
+
+			log.Warning("Invalid characters in file requested")
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
 
 		pathSegments := strings.Split(strings.Trim(fullPath, "/"), "/")
 		for _, segment := range pathSegments {
@@ -190,7 +200,7 @@ func checkValidURLMiddleware(next http.Handler) http.Handler {
 					http.Error(w, "Forbidden", http.StatusForbidden)
 					return
 				}
-				if char > 127 || char > unicode.MaxASCII {
+				if char > 127 || char > unicode.MaxASCII || char > unicode.MaxLatin1 {
 					log.Warning("Non-ASCII character in filename: " + requestIP)
 					http.Error(w, "Forbidden", http.StatusForbidden)
 					return
@@ -203,8 +213,9 @@ func checkValidURLMiddleware(next http.Handler) http.Handler {
 				// 	!unicode.IsControl(char)
 
 				if !unicode.In(char, unicode.Digit, unicode.Letter, unicode.Mark, unicode.Number, unicode.Punct, unicode.Space) {
-					log.Warning("Invalid UTF-8 Char")
+					log.Warning("Invalid Unicode Char")
 					http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
+					return
 				}
 
 				if strings.ContainsRune(disallowedPathChars, char) {
@@ -215,7 +226,7 @@ func checkValidURLMiddleware(next http.Handler) http.Handler {
 			}
 		}
 
-		ctx := context.WithValue(req.Context(), ctxURLRequest{}, ip)
+		ctx := context.WithValue(req.Context(), ctxURLRequest{}, fullPath+req.URL.RawQuery)
 		next.ServeHTTP(w, req.WithContext(ctx))
 	})
 }
@@ -299,6 +310,12 @@ func httpMethodMiddleware(next http.Handler) http.Handler {
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 			return
 		}
+		requestURL, ok := GetRequestURL(req)
+		if !ok {
+			log.Warning("no URL stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
 
 		// Check method
 		validMethods := map[string]bool{
@@ -318,7 +335,7 @@ func httpMethodMiddleware(next http.Handler) http.Handler {
 		if req.Method == http.MethodPost || req.Method == http.MethodPut {
 			contentType := req.Header.Get("Content-Type")
 			if contentType != "application/x-www-form-urlencoded" && contentType != "application/json" {
-				log.Warning("Invalid Content-Type header: " + contentType + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+				log.Warning("Invalid Content-Type header: " + contentType + " (" + requestIP + ": " + req.Method + " " + requestURL + ")")
 				http.Error(w, formatHttpError("Invalid content type"), http.StatusUnsupportedMediaType)
 				return
 			}
@@ -335,6 +352,12 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 			return
 		}
+		requestURL, ok := GetRequestURL(req)
+		if !ok {
+			log.Warning("no URL stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
 
 		// Content length
 		if req.ContentLength > 64<<20 {
@@ -346,7 +369,7 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 		// Origin header
 		origin := req.Header.Get("Origin")
 		if origin != "" && len(origin) > 2048 {
-			log.Warning("Invalid Origin header: " + origin + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+			log.Warning("Invalid Origin header: " + origin + " (" + requestIP + ": " + req.Method + " " + requestURL + ")")
 			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
 			return
 		}
@@ -354,7 +377,7 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 		// Host header
 		host := req.Host
 		if strings.TrimSpace(host) == "" || strings.ContainsAny(host, " <>\"'%;()&+") || len(host) > 255 {
-			log.Warning("Invalid Host header: " + host + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+			log.Warning("Invalid Host header: " + host + " (" + requestIP + ": " + req.Method + " " + requestURL + ")")
 			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
 			return
 		}
@@ -362,7 +385,7 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 		// User-Agent header
 		userAgent := req.Header.Get("User-Agent")
 		if userAgent == "" || len(userAgent) > 256 {
-			log.Warning("Invalid User-Agent header: " + userAgent + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+			log.Warning("Invalid User-Agent header: " + userAgent + " (" + requestIP + ": " + req.Method + " " + requestURL + ")")
 			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
 			return
 		}
@@ -370,7 +393,7 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 		// Referer header
 		referer := req.Header.Get("Referer")
 		if referer != "" && len(referer) > 2048 {
-			log.Warning("Invalid Referer header: " + referer + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+			log.Warning("Invalid Referer header: " + referer + " (" + requestIP + ": " + req.Method + " " + requestURL + ")")
 			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
 			return
 		}
@@ -378,7 +401,7 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 		// Other headers
 		// for key, value := range req.Header {
 		//   if strings.ContainsAny(key, "<>\"'%;()&+") || strings.ContainsAny(value[0], "<>\"'%;()&+") {
-		//     log.Warning("Invalid characters in header '" + key + "': " + value[0] + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+		//     log.Warning("Invalid characters in header '" + key + "': " + value[0] + " (" + requestIP + ": " + req.Method + " " + requestURL + ")")
 		//     http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
 		//     return
 		//   }
@@ -396,6 +419,13 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 			return
 		}
+		requestURL, ok := GetRequestURL(req)
+		if !ok {
+			log.Warning("no URL stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+
 		// Get env vars
 		env := configureEnvironment()
 		webServerIP := env.UIT_WAN_IP_ADDRESS
@@ -403,7 +433,7 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 		cors := http.NewCrossOriginProtection()
 		cors.AddTrustedOrigin("https://" + webServerIP + ":1411")
 		if err := cors.Check(req); err != nil {
-			log.Warning("Request to " + req.URL.RequestURI() + " blocked from " + requestIP)
+			log.Warning("Request to " + requestURL + " blocked from " + requestIP)
 			http.Error(w, formatHttpError("CORS policy violation"), http.StatusForbidden)
 			return
 		}
@@ -439,15 +469,7 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("X-Download-Options", "noopen")
 		w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
-
-		// JSON or SSE response
-		parsedURL, _ := url.Parse(req.URL.RequestURI())
-		queries, _ := url.ParseQuery(parsedURL.RawQuery)
-		if queries.Get("sse") == "true" {
-			w.Header().Set("Content-Type", "text/event-stream")
-		} else {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 		next.ServeHTTP(w, req)
 	})
@@ -462,6 +484,12 @@ func apiAuth(next http.Handler) http.Handler {
 		requestIP, ok := GetRequestIP(req)
 		if !ok {
 			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+		requestURL, ok := GetRequestURL(req)
+		if !ok {
+			log.Warning("no URL stored in context")
 			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 			return
 		}
@@ -529,7 +557,7 @@ func apiAuth(next http.Handler) http.Handler {
 			}
 		} else if (basicValid && !bearerValid) || (!basicValid && !bearerValid) {
 			sessionCount = countAuthSessions(&authMap)
-			log.Debug("Auth cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + ") " + req.URL.RequestURI())
+			log.Debug("Auth cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + ") " + requestURL)
 			if queryType == "new-token" && strings.TrimSpace(requestBasicToken) != "" {
 				next.ServeHTTP(w, req)
 			} else {

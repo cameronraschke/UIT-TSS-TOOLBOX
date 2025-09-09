@@ -237,6 +237,11 @@ func GetRequestIP(r *http.Request) (string, bool) {
 	return ip, ok
 }
 
+func GetRequestURL(r *http.Request) (string, bool) {
+	ip, ok := r.Context().Value(ctxURLRequest{}).(string)
+	return ip, ok
+}
+
 func ParseHeaders(header http.Header) HttpHeaders {
 	var headers HttpHeaders
 	var authHeader AuthHeader
