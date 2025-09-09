@@ -120,6 +120,7 @@ unset($_POST);
         <thead id="onlineTableHeader">
           <tr>
             <th>Tag Number</th>
+            <th>Screenshot</th>
             <th>Last Job Time</th>
             <th>Location</th>
             <th>Current Status</th>
