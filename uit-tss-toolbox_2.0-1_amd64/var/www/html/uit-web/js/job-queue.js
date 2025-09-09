@@ -135,13 +135,15 @@ async function updateOnlineTable(signal) {
       tagnumberCell.append(beforeTagnumberBodySpan1, tagnumberBodyA1, afterTagnumberBodySpan2);
 
       // Screenshot cell
+      let screenshotCell = undefined;
       const oldImg = document.getElementById("screenshot-" + value["tagnumber"]);
       const newSHA256 = await generateSHA256Hash(value["screenshot"]);
       const oldSHA256 = oldImg ? oldImg.getAttribute("data-base64-hash") : null;
       const screenshotDataURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
 
       if (!oldImg || oldSHA256 != newSHA256) {
-        const screenshotCell = document.createElement("td");
+        screenshotCell = document.createElement("td");
+        screenshotCell.setAttribute("id", "screenshot-cell");
         screenshotCell.style.width = "240px";
         screenshotCell.style.height = "135px";
         if (value["screenshot"]) {
@@ -184,6 +186,9 @@ async function updateOnlineTable(signal) {
           screenshotLink.appendChild(imgContainer);
           screenshotCell.appendChild(screenshotLink);
         }
+      } else {
+        screenshotCell = document.getElementById("screenshot-cell");
+        screenshotCell.setAttribute("id", "screenshot-cell");
       }
       URL.revokeObjectURL(screenshotDataURL);
 
