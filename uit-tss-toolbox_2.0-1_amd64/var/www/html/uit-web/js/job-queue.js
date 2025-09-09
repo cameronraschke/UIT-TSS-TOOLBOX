@@ -263,6 +263,9 @@ async function updateOnlineTable(signal) {
     }
 
     const oldRemotePresentTable = document.getElementById("remotePresentTable");
+    const oldRemotePresentTbody = document.getElementById("onlineTableBody");
+    const oldRemotePresentThead = document.getElementById("onlineTableHeader");
+
     if (!oldRemotePresentTable) {
       const remotePresentTableFragment = new DocumentFragment();
       remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
@@ -272,24 +275,25 @@ async function updateOnlineTable(signal) {
       remotePresentTheadFragment.append(remotePresentHeaderThead);
       const remotePresentTbodyFragment = new DocumentFragment();
       remotePresentTbodyFragment.append(remotePresentBodyTbody);
-      const oldRemotePresentTbody = document.getElementById("onlineTableBody");
-      const oldRemotePresentThead = document.getElementById("onlineTableHeader");
-      oldRemotePresentTbody.replaceWith(remotePresentTbodyFragment);
-      oldRemotePresentThead.replaceWith(remotePresentTheadFragment);
+      
+      oldRemotePresentTbody.classList.add("fade-out");
+      oldRemotePresentThead.classList.add("fade-out");
+      setTimeout(() => {
+        oldRemotePresentThead.replaceWith(remotePresentTheadFragment);
+        oldRemotePresentTbody.replaceWith(remotePresentTbodyFragment);
+        const newRemotePresentThead = document.getElementById("onlineTableHeader");
+        const newRemotePresentTbody = document.getElementById("onlineTableBody");
+        if (newRemotePresentTbody && newRemotePresentThead) {
+            newRemotePresentThead.classList.add("fade-in");
+            newRemotePresentTbody.classList.add("fade-in");
+            setTimeout(() => newTable.classList.add("loaded"), 10);
+        }
+    }, 1000);
     }
 
 
 
-    // oldRemotePresentTbody.classList.add("fade-out");
-    // oldRemotePresentThead.classList.add("fade-out");
-    // setTimeout(() => {
-    //     oldRemotePresentTbody.replaceWith(remotePresentTableFragment);
-    //     const newTable = document.getElementById("remotePresentTable");
-    //     if (newTable) {
-    //         newTable.classList.add("fade-in");
-    //         setTimeout(() => newTable.classList.add("loaded"), 10);
-    //     }
-    // }, 1000);
+    
   } catch (error) {
     console.log(error);
   }
