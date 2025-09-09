@@ -131,7 +131,7 @@ unset($_POST);
             <th>Power Usage</th>
           </tr>
         </thead>
-        <tbody id="onlineTableBody></tbody>
+        <tbody id="onlineTableBody"></tbody>
       </table>
     </div>
 
