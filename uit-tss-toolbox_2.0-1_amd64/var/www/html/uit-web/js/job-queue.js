@@ -156,58 +156,47 @@ async function updateOnlineTable(signal) {
       const oldSHA256 = oldImg ? oldImg.getAttribute("data-base64-hash") : null;
       const newScreenshotURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
 
-      if (!oldImg || oldSHA256 != newSHA256) {
-        if (value["screenshot"]) {
-          const preloadedImg = new window.Image();
-          preloadedImg.className = 'fade-in';
-          preloadedImg.id = "screenshot-" + value["tagnumber"];
-          preloadedImg.setAttribute("data-base64-hash", newSHA256);
-          preloadedImg.width = 240;
-          preloadedImg.height = 135;
-          preloadedImg.style = "width: 240px; height: 135px; max-width: 100%; max-height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;";
-          preloadedImg.loading = "lazy";
-          preloadedImg.onload = () => {
-              preloadedImg.classList.add('loaded');
-              if (oldImg) {
-                  oldImg.classList.add('fade-out');
-                  oldImg.addEventListener('transitionend', function handler() {
-                  oldImg.removeEventListener('transitionend', handler);
-                  oldImg.remove();
-              });
-              }
-          };
+      if (value["screenshot"]) {
+        const preloadedImg = new window.Image();
+        preloadedImg.className = 'fade-in';
+        preloadedImg.id = "screenshot-" + value["tagnumber"];
+        preloadedImg.setAttribute("data-base64-hash", newSHA256);
+        preloadedImg.width = 240;
+        preloadedImg.height = 135;
+        preloadedImg.style = "width: 240px; height: 135px; max-width: 100%; max-height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;";
+        preloadedImg.loading = "lazy";
+        preloadedImg.onload = () => {
+            preloadedImg.classList.add('loaded');
+            if (oldImg) {
+                oldImg.classList.add('fade-out');
+                oldImg.addEventListener('transitionend', function handler() {
+                oldImg.removeEventListener('transitionend', handler);
+                oldImg.remove();
+            });
+            }
+        };
 
-          preloadedImg.onload = () => {
-            preloadedImg.classList.add('loaded');  
-            URL.revokeObjectURL(newScreenshotURL);
-          };
-          
-          preloadedImg.src = newScreenshotURL;
+        preloadedImg.onload = () => {
+          preloadedImg.classList.add('loaded');  
+          URL.revokeObjectURL(newScreenshotURL);
+        };
+        
+        preloadedImg.src = newScreenshotURL;
 
-          imgContainer.appendChild(preloadedImg);
-          screenshotLink.appendChild(imgContainer);
-          screenshotCell.appendChild(screenshotLink);
-        } else {
-          const placeholder = document.createElement("div");
-          placeholder.style.width = "240px";
-          placeholder.style.height = "135px";
-          placeholder.style.backgroundSize = "cover";
-          placeholder.style.position = "absolute";
-          placeholder.style.top = "0";
-          placeholder.style.left = "0";
-          imgContainer.appendChild(placeholder);
-          screenshotLink.appendChild(imgContainer);
-          screenshotCell.replaceWith(imgContainer);
-        }
-      } else {
-        const oldScreenshot = document.getElementById("screenshot" + value["tagnumber"]);
-        if (oldScreenshot) {
-          oldScreenshot.setAttribute("id", "screenshot" + value["tagnumber"]);
-          imgContainer.appendChild(oldScreenshot);
-        }
-
+        imgContainer.appendChild(preloadedImg);
         screenshotLink.appendChild(imgContainer);
-        screenshotCell.replaceWith(screenshotLink);
+        screenshotCell.appendChild(screenshotLink);
+      } else {
+        const placeholder = document.createElement("div");
+        placeholder.style.width = "240px";
+        placeholder.style.height = "135px";
+        placeholder.style.backgroundSize = "cover";
+        placeholder.style.position = "absolute";
+        placeholder.style.top = "0";
+        placeholder.style.left = "0";
+        imgContainer.appendChild(placeholder);
+        screenshotLink.appendChild(imgContainer);
+        screenshotCell.replaceWith(imgContainer);
       }
 
       // Last job time cell
