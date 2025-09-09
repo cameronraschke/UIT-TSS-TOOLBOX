@@ -139,7 +139,7 @@ async function updateOnlineTable(signal) {
       const oldImg = document.getElementById("screenshot-" + value["tagnumber"]);
       const newSHA256 = await generateSHA256Hash(value["screenshot"]);
       const oldSHA256 = oldImg ? oldImg.getAttribute("data-base64-hash") : null;
-      const screenshotDataURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
+      const newScreenshotURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
 
       if (!oldImg || oldSHA256 != newSHA256) {
         screenshotCell = document.createElement("td");
@@ -176,10 +176,11 @@ async function updateOnlineTable(signal) {
           imgContainer.style.height = "135px";
 
           preloadedImg.onload = () => {
-              preloadedImg.classList.add('loaded');
+            preloadedImg.classList.add('loaded');  
+            URL.revokeObjectURL(newScreenshotURL);
           };
           
-          preloadedImg.src = screenshotDataURL;
+          preloadedImg.src = newScreenshotURL;
 
 
           imgContainer.appendChild(preloadedImg);
@@ -190,7 +191,6 @@ async function updateOnlineTable(signal) {
         screenshotCell = document.getElementById("screenshot-cell");
         screenshotCell.setAttribute("id", "screenshot-cell");
       }
-      URL.revokeObjectURL(screenshotDataURL);
 
       // Last job time cell
       const lastJobTimeCell = document.createElement("td");
@@ -260,8 +260,9 @@ async function updateOnlineTable(signal) {
       remotePresentBodyTbody.append(remotePresentTableBodyTr)
     }
 
-    remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
-    remotePresentTableFragment.append(remotePresentTable);
+    // remotePresentTable.append(remotePresentHeaderThead, remotePresentBodyTbody);
+    // remotePresentTableFragment.append(remotePresentTable);
+    remotePresentTableFragment.append(remotePresentBodyTbody);
     const oldRemotePresentTable = document.getElementById("remotePresentTable");
     oldRemotePresentTable.classList.add("fade-out");
     setTimeout(() => {
