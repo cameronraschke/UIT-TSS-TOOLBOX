@@ -136,28 +136,30 @@ async function updateOnlineTable(signal) {
       tagnumberCell.append(beforeTagnumberBodySpan1, tagnumberBodyA1, afterTagnumberBodySpan2);
 
       // Screenshot cell
-      let screenshotCell = undefined;
+      const screenshotCell = document.createElement("td");
+      screenshotCell.setAttribute("id", "screenshot-cell" + value["tagnumber"]);
+      screenshotCell.classList.add("image-cell");
+      screenshotCell.style.width = "240px";
+      screenshotCell.style.height = "135px";
+
+      const imgContainer = document.createElement("div");
+      imgContainer.style.position = "relative";
+      imgContainer.style.width = "240px";
+      imgContainer.style.height = "135px";
+
+      const screenshotLink = document.createElement("a");
+      screenshotLink.setAttribute("target", "_blank");
+      screenshotLink.setAttribute("href", "/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(value["tagnumber"]));
+
       const oldImg = document.getElementById("screenshot-" + value["tagnumber"]);
       const newSHA256 = await generateSHA256Hash(value["screenshot"]);
       const oldSHA256 = oldImg ? oldImg.getAttribute("data-base64-hash") : null;
       const newScreenshotURL = base64ToBlobUrl(value["screenshot"], "image/jpeg");
 
       if (!oldImg || oldSHA256 != newSHA256) {
-        screenshotCell = document.createElement("td");
-        screenshotCell.setAttribute("id", "screenshot-cell" + value["tagnumber"]);
-        screenshotCell.classList.add("image-cell");
-        screenshotCell.style.width = "240px";
-        screenshotCell.style.height = "135px";
         
-        const imgContainer = document.createElement("div");
-        imgContainer.style.position = "relative";
-        imgContainer.style.width = "240px";
-        imgContainer.style.height = "135px";
 
         if (value["screenshot"]) {
-          const screenshotLink = document.createElement("a");
-          screenshotLink.setAttribute("target", "_blank");
-          screenshotLink.setAttribute("href", "/view-images.php?live_image=1&tagnumber=" + encodeURIComponent(value["tagnumber"]));
 
           const preloadedImg = new window.Image();
           preloadedImg.className = 'fade-in';
@@ -177,7 +179,6 @@ async function updateOnlineTable(signal) {
               });
               }
           };
-
 
           preloadedImg.onload = () => {
             preloadedImg.classList.add('loaded');  
@@ -202,8 +203,12 @@ async function updateOnlineTable(signal) {
           screenshotCell.appendChild(imgContainer);
         }
       } else {
-        screenshotCell = document.getElementById("screenshot-cell" + value["tagnumber"]);
-        screenshotCell.setAttribute("id", "screenshot-cell" + value["tagnumber"]);
+        const oldScreenshot = document.getElementById("screenshot-cell" + value["tagnumber"]);
+        oldScreenshot.setAttribute("id", "screenshot-cell" + value["tagnumber"]);
+
+        imgContainer.appendChild(oldScreenshot);
+        screenshotLink.appendChild(imgContainer);
+        screenshotCell.appendChild(screenshotLink);
       }
 
       // Last job time cell
