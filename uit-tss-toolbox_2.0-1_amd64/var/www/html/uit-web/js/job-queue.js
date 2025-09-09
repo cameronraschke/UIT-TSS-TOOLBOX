@@ -200,8 +200,8 @@ async function updateOnlineTable(signal) {
           screenshotCell.replaceWith(imgContainer);
         }
       } else {
-        const oldScreenshot = document.getElementById("screenshot-cell" + value["tagnumber"]);
-        oldScreenshot.setAttribute("id", "screenshot-cell" + value["tagnumber"]);
+        const oldScreenshot = document.getElementById("screenshot" + value["tagnumber"]);
+        oldScreenshot.setAttribute("id", "screenshot" + value["tagnumber"]);
 
         imgContainer.appendChild(oldScreenshot);
         screenshotLink.appendChild(imgContainer);
