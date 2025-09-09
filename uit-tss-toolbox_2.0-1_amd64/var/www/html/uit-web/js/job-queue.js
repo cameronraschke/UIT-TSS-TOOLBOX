@@ -30,7 +30,7 @@ async function updateJobQueue() {
         jobQueueUpdateTimeout = setTimeout(() => {
             jobQueueUpdateTimeout = null;
             updateJobQueue();
-        }, 3000);
+        }, 5000);
     }
 }
 
