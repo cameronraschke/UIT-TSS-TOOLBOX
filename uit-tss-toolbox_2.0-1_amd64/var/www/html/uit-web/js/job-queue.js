@@ -188,6 +188,17 @@ async function updateOnlineTable(signal) {
           imgContainer.appendChild(preloadedImg);
           screenshotLink.appendChild(imgContainer);
           screenshotCell.appendChild(screenshotLink);
+        } else {
+          const placeholder = document.createElement("div");
+          placeholder.style.width = "240px";
+          placeholder.style.height = "135px";
+          placeholder.style.background = "#eee url('/images/placeholder.png') center center no-repeat";
+          placeholder.style.backgroundSize = "cover";
+          placeholder.style.position = "absolute";
+          placeholder.style.top = "0";
+          placeholder.style.left = "0";
+          imgContainer.appendChild(placeholder);
+          screenshotCell.appendChild(imgContainer);
         }
       } else {
         screenshotCell = document.getElementById("screenshot-cell" + value["tagnumber"]);
@@ -275,24 +286,9 @@ async function updateOnlineTable(signal) {
       remotePresentTheadFragment.append(remotePresentHeaderThead);
       const remotePresentTbodyFragment = new DocumentFragment();
       remotePresentTbodyFragment.append(remotePresentBodyTbody);
-      
-      oldRemotePresentTbody.classList.add("fade-out");
-      oldRemotePresentThead.classList.add("fade-out");
-      setTimeout(() => {
-        oldRemotePresentThead.replaceWith(remotePresentTheadFragment);
-        oldRemotePresentTbody.replaceWith(remotePresentTbodyFragment);
-        const newRemotePresentThead = document.getElementById("onlineTableHeader");
-        const newRemotePresentTbody = document.getElementById("onlineTableBody");
-        if (newRemotePresentTbody && newRemotePresentThead) {
-            newRemotePresentThead.classList.add("fade-in");
-            newRemotePresentTbody.classList.add("fade-in");
-            setTimeout(() => newTable.classList.add("loaded"), 10);
-        }
-    }, 1000);
+      oldRemotePresentThead.replaceWith(remotePresentTheadFragment);
+      oldRemotePresentTbody.replaceWith(remotePresentTbodyFragment);
     }
-
-
-
     
   } catch (error) {
     console.log(error);
