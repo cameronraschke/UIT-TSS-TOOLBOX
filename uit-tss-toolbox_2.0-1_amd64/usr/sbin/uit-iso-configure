@@ -264,7 +264,12 @@ echo ""
 echo "${BOLD}Installing the client package${RESET}"
 if [[ $(dpkg-query -l | grep --quiet uit-toolbox-client; echo $?) == 0 ]]; then
 	dpkg --purge uit-toolbox-client 
-	fi
+fi
+
+if [[ -f /root/uit-toolbox-client.deb ]]; then
+	rm /root/uit-toolbox-client.deb
+fi
+
 curl 'http://mickey.uit:8080/client/pkg/uit-toolbox-client.deb' --output /root/uit-toolbox-client.deb &>/dev/null
 while [[ ! -f /root/uit-toolbox-client.deb ]]; do
 	curl 'http://mickey.uit:8080/client/pkg/uit-toolbox-client.deb' --output /root/uit-toolbox-client.deb &>/dev/null
