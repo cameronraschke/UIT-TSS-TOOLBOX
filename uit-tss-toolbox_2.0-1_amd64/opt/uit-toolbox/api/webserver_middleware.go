@@ -8,12 +8,18 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"path"
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
+
+	"golang.org/x/text/unicode/norm"
 )
 
 type ctxClientIP struct{}
+type ctxURLRequest struct{}
 
 func limitRequestSizeMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -100,6 +106,118 @@ func allowIPRangeMiddleware(acceptedCIDRs []string) func(http.Handler) http.Hand
 			next.ServeHTTP(w, req)
 		})
 	}
+}
+
+func checkValidURLMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("No IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+
+		// URL length
+		if len(req.URL.RequestURI()) > 2048 || len(req.URL.RequestURI()) > 2048 {
+			log.Warning("Request URL length exceeds limit: " + fmt.Sprintf("%d", len(req.URL.RequestURI())) + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+			http.Error(w, formatHttpError("Request URI too long"), http.StatusRequestURITooLong)
+			return
+		}
+
+		// URL query
+		if strings.ContainsAny(req.URL.RawQuery, "<>\"'%;()+") {
+			log.Warning("Invalid characters in query parameters: " + req.URL.RawQuery + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
+			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+			return
+		}
+
+		// Check URL path
+		var disallowedPathChars = "~%$#\\<>:\"'`|?*\x00\r\n"
+		// Get unescaped path (decode URL) & normalize UTF-8
+		rawPath := strings.TrimSpace(req.URL.Path)
+		if rawPath == "" || len(rawPath) > 255 {
+			log.Warning("Empty URL requested from: " + requestIP)
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+		unescapedPath, err := url.PathUnescape(rawPath)
+		if err != nil {
+			log.Warning("Cannot unescape URL path: " + err.Error())
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+		normalizedPath := norm.NFC.String(unescapedPath)
+		if !utf8.ValidString(normalizedPath) ||
+			!path.IsAbs(normalizedPath) ||
+			strings.Contains(normalizedPath, "..") ||
+			strings.Contains(normalizedPath, "//") ||
+			strings.HasPrefix(normalizedPath, ".") ||
+			strings.HasSuffix(normalizedPath, ".") ||
+			strings.ContainsAny(normalizedPath, disallowedPathChars) {
+			log.Warning("Normalized URL path is invalid: " + requestIP)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// Clean entire path and format the URL path
+		fullPath := path.Clean(normalizedPath)
+		if !path.IsAbs(fullPath) ||
+			strings.TrimSpace(fullPath) == "" ||
+			strings.Contains(fullPath, "..") ||
+			strings.Contains(fullPath, "../") ||
+			fullPath == "/" ||
+			fullPath == "." ||
+			fullPath == "" {
+
+			log.Warning("Empty file path requested: " + requestIP)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// Split URL path into path + file name
+		_, fileRequested := path.Split(fullPath)
+
+		pathSegments := strings.Split(strings.Trim(fullPath, "/"), "/")
+		for _, segment := range pathSegments {
+			if segment == "" {
+				continue
+			}
+
+			// Check valid ASCII & UTF-8
+			for _, char := range fullPath {
+				if char < 32 || char == 127 {
+					log.Warning("Control/non-printable character in filename: " + requestIP)
+					http.Error(w, "Forbidden", http.StatusForbidden)
+					return
+				}
+				if char > 127 || char > unicode.MaxASCII {
+					log.Warning("Non-ASCII character in filename: " + requestIP)
+					http.Error(w, "Forbidden", http.StatusForbidden)
+					return
+				}
+				// if !(unicode.IsPrint(char) ||
+				// 	unicode.Isletter(char) ||
+				// 	unicode.isNumber(char) ||
+				// 	unicode.IsDigit(char)) ||
+				// 	!unicode.isSpace(char)
+				// 	!unicode.IsControl(char)
+
+				if !unicode.In(char, unicode.Digit, unicode.Letter, unicode.Mark, unicode.Number, unicode.Punct, unicode.Space) {
+					log.Warning("Invalid UTF-8 Char")
+					http.Error(w, formatHttpError("Forbidden"), http.StatusForbidden)
+				}
+
+				if strings.ContainsRune(disallowedPathChars, char) {
+					log.Warning("Disallowed character in filename: " + requestIP)
+					http.Error(w, "Forbidden", http.StatusForbidden)
+					return
+				}
+			}
+		}
+
+		ctx := context.WithValue(req.Context(), ctxURLRequest{}, ip)
+		next.ServeHTTP(w, req.WithContext(ctx))
+	})
 }
 
 func rateLimitMiddleware(app *AppState) func(http.Handler) http.Handler {
@@ -222,27 +340,6 @@ func checkHeadersMiddleware(next http.Handler) http.Handler {
 		if req.ContentLength > 64<<20 {
 			log.Warning("Request content length exceeds limit: " + fmt.Sprintf("%.2fMB", float64(req.ContentLength)/1e6))
 			http.Error(w, formatHttpError("Request too large"), http.StatusRequestEntityTooLarge)
-			return
-		}
-
-		// URL length
-		if len(req.URL.RequestURI()) > 2048 {
-			log.Warning("Request URL length exceeds limit: " + fmt.Sprintf("%d", len(req.URL.RequestURI())) + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Request URI too long"), http.StatusRequestURITooLong)
-			return
-		}
-
-		// URL path
-		if strings.ContainsAny(req.URL.Path, "<>\"'%;()&+") {
-			log.Warning("Invalid characters in URL path: " + req.URL.Path + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
-
-		// URL query
-		if strings.ContainsAny(req.URL.RawQuery, "<>\"'%;()+") {
-			log.Warning("Invalid characters in query parameters: " + req.URL.RawQuery + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
 			return
 		}
 

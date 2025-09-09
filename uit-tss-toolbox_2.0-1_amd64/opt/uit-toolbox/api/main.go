@@ -5,9 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
-	"unicode/utf8"
 
 	// "net/http/httputil"
 
@@ -26,9 +24,6 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-
-	// "log"
-	// "log/slog"
 	"uit-toolbox/api/database"
 	"uit-toolbox/api/logger"
 	"uit-toolbox/api/post"
@@ -36,7 +31,6 @@ import (
 	_ "net/http/pprof"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"golang.org/x/text/unicode/norm"
 )
 
 type AppConfig struct {
@@ -581,97 +575,6 @@ func serveFiles(appState *AppState) http.HandlerFunc {
 		}
 
 		basePath := "/srv/uit-toolbox/"
-		rawPath := strings.TrimSpace(req.URL.Path)
-		unescapedPath, err := url.PathUnescape(rawPath)
-		if err != nil {
-			log.Warning("Cannot unescape URL path: " + err.Error())
-			http.Error(w, "Bad request", http.StatusBadRequest)
-			return
-		}
-		normalizedPath := norm.NFC.String(unescapedPath)
-
-		httpRequestPath := path.Clean(normalizedPath)
-		if httpRequestPath == "/" || httpRequestPath == "." || httpRequestPath == "" {
-			log.Warning("Empty file path requested: " + requestIP)
-			http.Error(w, "Forbidden", http.StatusForbidden)
-			return
-		}
-
-		pathRequested, fileRequested := path.Split(httpRequestPath)
-
-		if !path.IsAbs(pathRequested) || fileRequested == "/" || fileRequested == "." || fileRequested == "" {
-			log.Warning("Empty file name requested: " + requestIP)
-			http.Error(w, "Forbidden", http.StatusForbidden)
-			return
-		}
-
-		fullPath := path.Join(basePath, pathRequested, fileRequested)
-		if len(fullPath) > 255 || !path.IsAbs(fullPath) ||
-			strings.Contains(string(fullPath), "\x00") ||
-			strings.Contains(string(fullPath), "\n") ||
-			strings.Contains(string(fullPath), "\r") ||
-			strings.TrimSpace(fullPath) == "" {
-
-			log.Warning("Invalid file path requested: " + requestIP)
-			http.Error(w, "Forbidden", http.StatusForbidden)
-			return
-		}
-
-		if strings.Contains(fullPath, "..") ||
-			strings.Contains(fullPath, "//") ||
-			strings.Contains(fullPath, "../") ||
-			strings.HasPrefix(fullPath, ".") ||
-			strings.HasPrefix(fileRequested, ".") ||
-			strings.Contains(pathRequested, ".") ||
-			strings.HasSuffix(fullPath, ".bak") ||
-			strings.HasSuffix(fullPath, ".tmp") ||
-			strings.HasSuffix(fullPath, ".swp") {
-			log.Warning("Attempt to access restricted file: " + requestIP + " (" + fullPath + ")")
-			http.Error(w, "Forbidden", http.StatusForbidden)
-			return
-		}
-
-		segments := strings.Split(strings.Trim(httpRequestPath, "/"), "/")
-		for _, segment := range segments {
-			if segment == "" {
-				continue
-			}
-
-			if strings.HasPrefix(segment, ".") {
-				log.Warning("Hidden file or directory in path: " + requestIP)
-				http.Error(w, "Forbidden", http.StatusForbidden)
-				return
-			}
-			// Check valid UTF-8 and allowed characters
-			if !utf8.ValidString(fullPath) {
-				log.Warning("Invalid UTF-8 in filename: " + requestIP)
-				http.Error(w, "Forbidden", http.StatusForbidden)
-				return
-			}
-			var disallowedChars = "~%$#\\<>:\"'`|?*"
-			for _, char := range fullPath {
-				if char < 32 || char == 127 {
-					log.Warning("Control/non-printable character in filename: " + requestIP)
-					http.Error(w, "Forbidden", http.StatusForbidden)
-					return
-				}
-				if char > 127 {
-					log.Warning("Non-ASCII character in filename: " + requestIP)
-					http.Error(w, "Forbidden", http.StatusForbidden)
-					return
-				}
-				// if !(unicode.IsLetter(char) || unicode.IsDigit(char) || char == '-' || char == '_' || char == '.') {
-				// 	log.Warning("Invalid Unicode in filename: " + requestIP)
-				// 	http.Error(w, "Forbidden", http.StatusForbidden)
-				// 	return
-				// }
-				if strings.ContainsRune(disallowedChars, char) {
-					log.Warning("Disallowed character in filename: " + requestIP)
-					http.Error(w, "Forbidden", http.StatusForbidden)
-					return
-				}
-			}
-		}
 
 		if len(appState.allowedFiles) > 0 && !appState.allowedFiles[fileRequested] {
 			log.Warning("File not in whitelist: " + fileRequested)
