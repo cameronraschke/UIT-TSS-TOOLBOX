@@ -269,7 +269,7 @@ func remoteAPI(w http.ResponseWriter, req *http.Request) {
 		io.WriteString(w, availableJobsJson)
 		return
 	default:
-		log.Warning("No query type defined")
+		log.Warning("No query type defined: " + requestURL)
 		return
 	}
 }

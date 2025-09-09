@@ -118,7 +118,7 @@ func checkValidURLMiddleware(next http.Handler) http.Handler {
 		}
 
 		// URL length
-		if len(req.URL.RequestURI()) > 2048 || len(req.URL.RequestURI()) > 2048 {
+		if len(req.URL.RequestURI()) > 2048 {
 			log.Warning("Request URL length exceeds limit: " + fmt.Sprintf("%d", len(req.URL.RequestURI())) + " (" + requestIP + ": " + req.Method + " " + req.URL.RequestURI() + ")")
 			http.Error(w, formatHttpError("Request URI too long"), http.StatusRequestURITooLong)
 			return
@@ -226,7 +226,7 @@ func checkValidURLMiddleware(next http.Handler) http.Handler {
 			}
 		}
 
-		ctx := context.WithValue(req.Context(), ctxURLRequest{}, fullPath+req.URL.RawQuery)
+		ctx := context.WithValue(req.Context(), ctxURLRequest{}, fullPath+"?"+req.URL.RawQuery)
 		next.ServeHTTP(w, req.WithContext(ctx))
 	})
 }
