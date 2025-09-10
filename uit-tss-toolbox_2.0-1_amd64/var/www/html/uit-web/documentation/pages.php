@@ -7,7 +7,7 @@ if ($_SESSION['authorized'] != "yes") {
   die();
 }
 
-$db = new db();
+$db = new dbPSQL();
 ?>
 
 <html>
