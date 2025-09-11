@@ -9,7 +9,6 @@ const passwordStar = document.getElementById("password-star");
 
 function checkUsernameValidity() {
     const usernameValid = usernameInput.checkValidity();
-    console.log("username: " + usernameValid);
     if (!usernameValid) {
         usernameStar.style.display = "block";
         usernameStar.style.color = "red";
@@ -21,7 +20,6 @@ function checkUsernameValidity() {
 
 function checkPasswordValidity() {
     const passwordValid = passwordInput.checkValidity();
-    console.log("password: " + passwordValid);
     if (!passwordValid) {
         passwordStar.style.display = "block";
         passwordStar.style.color = "red";
@@ -86,6 +84,7 @@ loginForm.addEventListener("submit", (event) => {
     // Simulate a login request
     setTimeout(() => {
         console.log(jsonData);
+        window.location.replace("../html/login.html");
         submitInProgress = false;
     }, 1000);
 });
