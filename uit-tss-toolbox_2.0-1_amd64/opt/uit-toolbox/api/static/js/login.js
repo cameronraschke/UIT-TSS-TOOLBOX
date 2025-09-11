@@ -85,7 +85,7 @@ loginForm.addEventListener("submit", (event) => {
 
     // Simulate a login request
     setTimeout(() => {
-        console.log("Login successful");
+        console.log(jsonData);
         submitInProgress = false;
     }, 1000);
 });
