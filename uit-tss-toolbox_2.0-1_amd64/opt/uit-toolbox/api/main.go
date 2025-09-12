@@ -452,6 +452,17 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
 		}
 
 		http.SetCookie(w, &http.Cookie{
+			Name:     "uit_basic_token",
+			Value:    basicToken,
+			Path:     "/",
+			Expires:  time.Now().Add(20 * time.Minute),
+			MaxAge:   20 * 60,
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteStrictMode,
+		})
+
+		http.SetCookie(w, &http.Cookie{
 			Name:     "csrf_token",
 			Value:    csrfToken,
 			Path:     "/",
@@ -504,7 +515,7 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
 	bearerTTL = 0.0
 	matchedSession = nil
 
-	authMap.Range(func(k, v interface{}) bool {
+	authMap.Range(func(k, v any) bool {
 		sessionID := k.(string)
 		authSession := v.(AuthSession)
 		sessionIP := strings.SplitN(sessionID, ":", 2)[0]
@@ -557,13 +568,153 @@ func checkAuthSession(authMap *sync.Map, requestIP string, requestBasicToken str
 	return
 }
 
-// func GetInfoHandler(w http.ResponseWriter, r *http.Request) {
-//     w.Header().Set("Content-Type", "application/json")
-//     if err := json.NewEncoder(w).Encode(db.Stats()); err != nil {
-//         http.Error(w, "Error encoding response", http.StatusInternalServerError)
-//         return
-//     }
-// }
+func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+
+	requestIP, ok := GetRequestIP(req)
+	if !ok {
+		log.Warning("no IP address stored in context")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+	requestCookie := req.Cookies()
+
+	var requestBasicToken string
+
+	for _, cookie := range requestCookie {
+		if cookie.Name == "uit_basic_token" {
+			requestBasicToken = cookie.Value
+		}
+	}
+	if strings.TrimSpace(requestBasicToken) == "" {
+		log.Info("No Basic token cookie provided for HTML login: " + requestIP)
+		return
+	}
+	// Check if DB connection is valid
+	if db == nil {
+		log.Error("Connection to database failed while attempting API Auth")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+
+	// Check if the Basic token exists in the database
+	sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
+	rows, err := db.QueryContext(ctx, sqlCode, requestBasicToken)
+	if err != nil {
+		log.Error("Cannot query database for API Auth: " + err.Error())
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var dbToken string
+
+		if err := rows.Scan(&dbToken); err != nil {
+			log.Error("Error scanning token: " + err.Error())
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if ctx.Err() != nil {
+			log.Error("Context error: " + ctx.Err().Error())
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if strings.TrimSpace(dbToken) == "" {
+			log.Info("DB token has 0 length")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusUnauthorized)
+			return
+		}
+
+		if dbToken != requestBasicToken {
+			log.Info("Incorrect credentials provided for token refresh: " + req.RemoteAddr)
+			http.Error(w, formatHttpError("Forbidden"), http.StatusUnauthorized)
+			return
+		}
+
+		hash := make([]byte, 32)
+		_, err := rand.Read(hash)
+		if err != nil {
+			log.Error("Cannot generate token: " + err.Error())
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+		bearerToken := fmt.Sprintf("%x", hash)
+		if strings.TrimSpace(bearerToken) == "" {
+			log.Error("Failed to generate bearer token")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+
+		sessionID := fmt.Sprintf("%s:%s", requestIP, bearerToken)
+
+		// Set expiry time
+		basicTTL := 60 * time.Minute
+		bearerTTL := 60 * time.Second
+		basicExpiry := time.Now().Add(basicTTL)
+		bearerExpiry := time.Now().Add(bearerTTL)
+
+		basic := BasicToken{Token: requestBasicToken, Expiry: basicExpiry, NotBefore: time.Now(), TTL: time.Until(basicExpiry).Seconds(), IP: requestIP, Valid: true}
+		bearer := BearerToken{Token: bearerToken, Expiry: bearerExpiry, NotBefore: time.Now(), TTL: time.Until(bearerExpiry).Seconds(), IP: requestIP, Valid: true}
+		csrfToken, err := generateCSRFToken()
+		if err != nil {
+			log.Error("Cannot generate CSRF token: " + err.Error())
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+		_, exists := authMap.Load(sessionID)
+		authMap.Store(sessionID, AuthSession{Basic: basic, Bearer: bearer, CSRF: csrfToken})
+
+		value, ok := authMap.Load(sessionID)
+		if !ok {
+			log.Error("Cannot load auth session from authMap")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "uit_basic_token",
+			Value:    requestBasicToken,
+			Path:     "/",
+			Expires:  time.Now().Add(20 * time.Minute),
+			MaxAge:   20 * 60,
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteStrictMode,
+		})
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "csrf_token",
+			Value:    csrfToken,
+			Path:     "/",
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteStrictMode,
+		})
+
+		authSession := value.(AuthSession)
+
+		if authSession.Bearer.Token != bearerToken || authSession.Bearer.TTL <= 0 ||
+			!authSession.Bearer.Valid || authSession.Bearer.IP != requestIP ||
+			time.Now().After(authSession.Bearer.Expiry) || time.Now().Before(authSession.Bearer.NotBefore) {
+			log.Error("Error while creating new bearer token: " + requestIP)
+			authMap.Delete(sessionID)
+			atomic.AddInt64(&authMapEntryCount, -1)
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+
+		sessionCount := countAuthSessions(&authMap)
+		if exists {
+			log.Info("Auth session exists: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
+		} else {
+			atomic.AddInt64(&authMapEntryCount, 1)
+			log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
+		}
+
+		return
+	}
+}
 
 func redirectToHTTPSHandler(httpsPort string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -1065,7 +1216,20 @@ func main() {
 	// }()
 
 	// Route to correct function
-	httpsMuxChain := muxChain{
+	httpsNoAuth := muxChain{
+		limitRequestSizeMiddleware,
+		timeoutMiddleware,
+		storeClientIPMiddleware,
+		checkValidURLMiddleware,
+		allowIPRangeMiddleware(appConfig.UIT_ALL_ALLOWED_IP),
+		rateLimitMiddleware(appState),
+		tlsMiddleware,
+		httpMethodMiddleware,
+		checkHeadersMiddleware,
+		setHeadersMiddleware,
+	}
+
+	httpsApiAuth := muxChain{
 		limitRequestSizeMiddleware,
 		timeoutMiddleware,
 		storeClientIPMiddleware,
@@ -1077,10 +1241,9 @@ func main() {
 		checkHeadersMiddleware,
 		setHeadersMiddleware,
 		apiAuth,
-		// csrfMiddleware,
 	}
 
-	httpsMuxLoginChain := muxChain{
+	httpsCookieAuth := muxChain{
 		limitRequestSizeMiddleware,
 		timeoutMiddleware,
 		storeClientIPMiddleware,
@@ -1091,19 +1254,25 @@ func main() {
 		httpMethodMiddleware,
 		checkHeadersMiddleware,
 		setHeadersMiddleware,
+		httpCookieAuth,
 	}
 
 	httpsMux := http.NewServeMux()
-	httpsMux.Handle("/api/auth", httpsMuxChain.thenFunc(getNewBearerToken))
-	httpsMux.Handle("/api/static/", httpsMuxChain.then(serveHTML(appState)))
-	httpsMux.Handle("/api/remote", httpsMuxChain.thenFunc(remoteAPI))
-	httpsMux.Handle("/api/post", httpsMuxChain.thenFunc(postAPI))
-	httpsMux.Handle("/api/locations", httpsMuxChain.thenFunc(remoteAPI))
+	httpsMux.Handle("/api/auth", httpsApiAuth.thenFunc(getNewBearerToken))
+	httpsMux.Handle("/api/static/", httpsApiAuth.then(serveHTML(appState)))
+	httpsMux.Handle("/api/remote", httpsApiAuth.thenFunc(remoteAPI))
+	httpsMux.Handle("/api/post", httpsApiAuth.thenFunc(postAPI))
+	httpsMux.Handle("/api/locations", httpsApiAuth.thenFunc(remoteAPI))
 
-	httpsMux.Handle("/login.html", httpsMuxLoginChain.then(serveHTML(appState)))
-	httpsMux.Handle("/js/", httpsMuxLoginChain.then(serveHTML(appState)))
-	httpsMux.Handle("/css/", httpsMuxLoginChain.then(serveHTML(appState)))
-	httpsMux.Handle("/", httpsMuxLoginChain.then(serveHTML(appState)))
+	httpsMux.Handle("GET /login.html", httpsNoAuth.then(serveHTML(appState)))
+	httpsMux.Handle("POST /login.html", httpsNoAuth.then(verifyCookieLogin(appState)))
+	httpsMux.Handle("/js/login.js", httpsNoAuth.then(serveHTML(appState)))
+	httpsMux.Handle("/css/desktop.css", httpsNoAuth.then(serveHTML(appState)))
+	httpsMux.Handle("/favicon.ico", httpsNoAuth.then(serveHTML(appState)))
+
+	httpsMux.Handle("/js/", httpsCookieAuth.then(serveHTML(appState)))
+	httpsMux.Handle("/css/", httpsCookieAuth.then(serveHTML(appState)))
+	httpsMux.Handle("/", httpsCookieAuth.then(serveHTML(appState)))
 	// httpsMux.HandleFunc("/dbstats/", GetInfoHandler)
 
 	log.Info("Starting web server")

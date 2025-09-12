@@ -574,6 +574,84 @@ func apiAuth(next http.Handler) http.Handler {
 	})
 }
 
+func httpCookieAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+		requestURL, ok := GetRequestURL(req)
+		if !ok {
+			log.Warning("no URL stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+
+		basicCookie, errBasic := req.Cookie("uit_basic")
+		bearerCookie, errBearer := req.Cookie("uit_bearer")
+
+		if errBasic != nil || strings.TrimSpace(basicCookie.Value) == "" ||
+			errBearer != nil || strings.TrimSpace(bearerCookie.Value) == "" {
+			log.Warning("Missing auth cookies")
+			http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
+			return
+		}
+
+		requestBasicToken := basicCookie.Value
+		requestBearerToken := bearerCookie.Value
+
+		// Clean up expired tokens
+		var sessionCount int
+		authMap.Range(func(k, v any) bool {
+			sessionID := k.(string)
+			authSession := v.(AuthSession)
+			sessionIP := strings.SplitN(sessionID, ":", 2)[0]
+			bearerExpiry := time.Until(authSession.Bearer.Expiry)
+			if bearerExpiry.Seconds() <= 0 {
+				authMap.Delete(sessionID)
+				sessionCount = countAuthSessions(&authMap)
+				log.Info("Auth session expired: " + sessionIP + " (TTL: " + fmt.Sprintf("%.2f", bearerExpiry.Seconds()) + ", " + strconv.Itoa(int(sessionCount)) + " session(s))")
+			}
+			return true
+		})
+
+		// Check session using the cookie value as bearer token
+		basicValid, bearerValid, _, _, _ := checkAuthSession(&authMap, requestIP, "", requestBearerToken)
+
+		if basicValid && bearerValid {
+			http.SetCookie(w, &http.Cookie{
+				Name:     "uit_basic",
+				Value:    requestBasicToken,
+				Path:     "/",
+				Expires:  time.Now().Add(20 * time.Minute),
+				MaxAge:   20 * 60,
+				Secure:   true,
+				HttpOnly: true,
+				SameSite: http.SameSiteStrictMode,
+			})
+			http.SetCookie(w, &http.Cookie{
+				Name:     "uit_bearer",
+				Value:    requestBearerToken,
+				Path:     "/",
+				Expires:  time.Now().Add(20 * time.Minute),
+				MaxAge:   20 * 60,
+				Secure:   true,
+				HttpOnly: true,
+				SameSite: http.SameSiteStrictMode,
+			})
+			next.ServeHTTP(w, req)
+			return
+		} else {
+			sessionCount = countAuthSessions(&authMap)
+			log.Debug("Auth cookie cache miss: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + ") " + requestURL)
+			http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
+			return
+		}
+	})
+}
+
 func csrfMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		// Still testing function

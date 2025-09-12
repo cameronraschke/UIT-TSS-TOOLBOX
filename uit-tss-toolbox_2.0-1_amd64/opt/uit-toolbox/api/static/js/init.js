@@ -137,3 +137,19 @@ async function getKeyFromIndexDB(key = null) {
         throw new Error("Error accessing IndexedDB: " + error);
     }
 }
+
+async function generateSHA256Hash(input) {
+    if (!input || input.length === 0 || typeof input !== "string" || input.trim() === "") {
+      throw new Error("Hash input is invalid: " + input);
+    }
+
+    const encoder = new TextEncoder();
+    const encodedInput = encoder.encode(input);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", encodedInput);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashStr = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    if (!hashStr || hashStr.length === 0 || typeof hashStr !== "string" || hashStr.trim() === "") {
+      throw new Error("Hash generation failed: " + input);
+    }
+    return hashStr;
+}
