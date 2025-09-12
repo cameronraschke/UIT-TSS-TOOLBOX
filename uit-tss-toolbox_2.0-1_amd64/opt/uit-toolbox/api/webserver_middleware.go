@@ -474,7 +474,6 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("X-Download-Options", "noopen")
 		w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 		next.ServeHTTP(w, req)
 	})
@@ -485,6 +484,8 @@ func apiAuth(next http.Handler) http.Handler {
 		var requestBasicToken string
 		var requestBearerToken string
 		var sessionCount int = 0
+
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 		requestIP, ok := GetRequestIP(req)
 		if !ok {

@@ -19,6 +19,7 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"database/sql"
+	"html/template"
 	"net/url"
 	"runtime/debug"
 	"slices"
@@ -723,7 +724,7 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 		}
 
 		// Set headers
-		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
@@ -731,12 +732,22 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
 		w.Header().Set("Content-Disposition", "attachment; filename=\""+stat.Name()+"\"")
 
-		// Serve the file
-		_, err = io.Copy(w, f)
+		// Parse the template
+		htmlTemp, err := template.ParseFiles(resolvedPath)
 		if err != nil {
-			log.Error("Error sending file: " + err.Error())
+			log.Warning("Cannot parse template file: " + err.Error())
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+
+		// Execute the template
+		err = htmlTemp.Execute(w, nil)
+		if err != nil {
+			log.Error("Error executing template: " + err.Error())
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
 		log.Info("Served file: " + resolvedPath + " to " + requestIP)
 	}
 }
