@@ -16,6 +16,14 @@ button {
     flex-wrap: wrap;
 }
 
+.flex-container.header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem 1rem 2rem;
+    border-bottom: 1px solid #ccc;
+}
+
 .flex-container.footer {
     flex-direction: column;
     align-items: center;
@@ -34,6 +42,15 @@ button {
 .flex-box {
     display: flex;
     justify-content: space-around;
+}
+
+.flex-box.header {
+    display: flex;
+    align-items: center;
+}
+.flex-box.nav {
+    display: flex;
+    gap: 1rem;
 }
 
 .flex-box.footer {
