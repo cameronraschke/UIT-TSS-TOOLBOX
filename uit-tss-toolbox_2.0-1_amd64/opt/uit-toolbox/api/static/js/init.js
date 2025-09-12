@@ -1,3 +1,19 @@
+const tokenDB = indexedDB.open("uitTokens", 1);
+tokenDB.onupgradeneeded = (event) => {
+  const db = event.target.result;
+  console.log(`Upgrading to version ${db.version}`);
+
+  const objectStore = db.createObjectStore("uitTokens", {
+    keyPath: "tokenType",
+  });
+
+  objectStore.createIndex("authStr", "authStr", { unique: true });
+  objectStore.createIndex("basicToken", "basicToken", { unique: true });
+  objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
+};
+
+const tokenWorker = new Worker('js/auth-webworker.js');
+
 function jsonToBase64(jsonString) {
     try {
         if (typeof jsonString !== 'string') {
@@ -49,5 +65,75 @@ function base64ToJson(base64String) {
         return JSON.stringify(jsonParsed);
     } catch (error) {
         console.log("Error decoding base64: " + error);
+    }
+}
+
+async function fetchData(url, fetchOptions = {}) {
+  try {
+    if (!url || url.trim().length === 0) {
+      throw new Error("No URL specified for fetchData");
+    }
+
+    // Get bearerToken from IndexedDB
+    const bearerToken = await getKeyFromIndexDB("bearerToken");
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    headers.append('credentials', 'include');
+    headers.append('Authorization', 'Bearer ' + bearerToken);
+    
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: headers,
+      ...(fetchOptions.signal ? { signal: fetchOptions.signal } : {})
+    });
+
+    // No content (OPTIONS request)
+    if (response.status === 204) {
+      return null;
+    }
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${url} ${response.status}`);
+    }
+    if (!response.headers || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
+      throw new Error('Response is undefined or not JSON');
+    }
+    const data = await response.json();
+    if (!data || Object.keys(data).length === 0 || (data && typeof data === 'object' && Object.prototype.hasOwnProperty.call(data, '__proto__'))) {
+      console.warn("Response JSON is empty: " + url);
+    }
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getKeyFromIndexDB(key = null) {
+    if (!key || key.length === 0 || typeof key !== "string" || key.trim() === "") {
+      throw new Error("Key is invalid: " + key);
+    }
+
+    try {
+        const dbConn = await new Promise((resolve, reject) => {
+            const tokenDBConnection = indexedDB.open("uitTokens", 1);
+            tokenDBConnection.onsuccess = (event) => resolve(event.target.result);
+            tokenDBConnection.onerror = (event) => reject("Error opening IndexedDB: " + event.target.error);
+        });
+
+        const tokenTransaction = dbConn.transaction(["uitTokens"], "readwrite");
+        const tokenObjectStore = tokenTransaction.objectStore("uitTokens");
+
+        const tokenObj = await new Promise((resolve, reject) => {
+            const tokenRequest = tokenObjectStore.get(key);
+            tokenRequest.onsuccess = event => resolve(event.target.result);
+            tokenRequest.onerror = event => reject("Error querying token from IndexedDB: " + event.target.error);
+        });
+
+        if (!tokenObj || !tokenObj.value || typeof tokenObj.value !== "string" || tokenObj.value.trim() === "") {
+            throw new Error("No token found for key: " + key);
+        }
+        return tokenObj.value;
+    } catch (error) {
+        throw new Error("Error accessing IndexedDB: " + error);
     }
 }

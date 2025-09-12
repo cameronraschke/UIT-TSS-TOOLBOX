@@ -463,7 +463,7 @@ func setHeadersMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
 		w.Header().Set("X-Frame-Options", "DENY")
-		w.Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; frame-ancestors 'self'")
 		w.Header().Set("Strict-Transport-Security", "max-age=86400; includeSubDomains")
 		w.Header().Set("X-Accel-Buffering", "no")
 		w.Header().Set("Referrer-Policy", "no-referrer")

@@ -663,6 +663,83 @@ func serveFiles(appState *AppState) http.HandlerFunc {
 	}
 }
 
+func serveHTML(appState *AppState) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		// ctx := req.Context()
+		requestIP, ok := GetRequestIP(req)
+		if !ok {
+			log.Warning("no IP address stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+		requestURL, ok := GetRequestURL(req)
+		if !ok {
+			log.Warning("no URL stored in context")
+			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+			return
+		}
+
+		basePath := "/opt/uit-toolbox/static/"
+
+		fullPath := path.Join(basePath, requestURL)
+		_, fileRequested := path.Split(fullPath)
+
+		if len(appState.allowedFiles) > 0 && !appState.allowedFiles[fileRequested] {
+			log.Warning("File not in whitelist: " + fileRequested)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		log.Info("File request from " + requestIP + " for " + fileRequested)
+
+		resolvedPath, err := filepath.EvalSymlinks(fullPath)
+		if err != nil || !strings.HasPrefix(resolvedPath, basePath) {
+			log.Warning("Attempt to access file outside base path: " + requestIP + " (" + resolvedPath + ")")
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// Open the file
+		f, err := os.Open(resolvedPath)
+		if err != nil {
+			log.Warning("File not found: " + resolvedPath + " (" + err.Error() + ")")
+			http.Error(w, "File not found", http.StatusNotFound)
+			return
+		}
+		defer f.Close()
+
+		// Get file info for headers
+		stat, err := f.Stat()
+		if err != nil {
+			log.Error("Cannot stat file: " + resolvedPath + " (" + err.Error() + ")")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if stat.IsDir() {
+			log.Warning("Attempt to access directory as file: " + resolvedPath)
+			http.Error(w, "Not a file", http.StatusForbidden)
+			return
+		}
+
+		// Set headers
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
+		w.Header().Set("Content-Disposition", "attachment; filename=\""+stat.Name()+"\"")
+
+		// Serve the file
+		_, err = io.Copy(w, f)
+		if err != nil {
+			log.Error("Error sending file: " + err.Error())
+			return
+		}
+		log.Info("Served file: " + resolvedPath + " to " + requestIP)
+	}
+}
+
 func rejectRequest(w http.ResponseWriter, req *http.Request) {
 	requestIP, ok := GetRequestIP(req)
 	if !ok {
@@ -862,6 +939,14 @@ func main() {
 			"uit-ca.crt":             true,
 			"uit-web.crt":            true,
 			"uit-toolbox-client.deb": true,
+			"desktop.css":            true,
+			"footer.html":            true,
+			"index.html":             true,
+			"login.html":             true,
+			"auth-webworker.js":      true,
+			"footer.js":              true,
+			"init.js":                true,
+			"login.js":               true,
 		},
 	}
 
@@ -961,9 +1046,12 @@ func main() {
 
 	httpsMux := http.NewServeMux()
 	httpsMux.Handle("/api/auth", httpsMuxChain.thenFunc(getNewBearerToken))
+	httpsMux.Handle("/api/static/", httpsMuxChain.then(serveHTML(appState)))
 	httpsMux.Handle("/api/remote", httpsMuxChain.thenFunc(remoteAPI))
 	httpsMux.Handle("/api/post", httpsMuxChain.thenFunc(postAPI))
 	httpsMux.Handle("/api/locations", httpsMuxChain.thenFunc(remoteAPI))
+	httpsMux.Handle("/login.html", httpsMuxChain.then(serveHTML(appState)))
+	httpsMux.Handle("/", httpsMuxChain.then(serveHTML(appState)))
 	// httpsMux.HandleFunc("/dbstats/", GetInfoHandler)
 
 	log.Info("Starting web server")
