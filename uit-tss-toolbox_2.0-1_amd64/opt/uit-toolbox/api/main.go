@@ -615,7 +615,6 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 	hashedPasswordString := hex.EncodeToString(hashedPassword[:])
 
 	var requestBasicToken = hashedUsernameString + ":" + hashedPasswordString
-	log.Debug("Basic token from JSON body: " + requestBasicToken)
 
 	// If cookie is provided, override the Basic token from json body
 	// This allows session persistence via cookies

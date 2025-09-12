@@ -590,17 +590,14 @@ func httpCookieAuth(next http.Handler) http.Handler {
 		}
 
 		basicCookie, errBasic := req.Cookie("uit_basic_token")
-		bearerCookie, errBearer := req.Cookie("uit_bearer_token")
 
-		if errBasic != nil || strings.TrimSpace(basicCookie.Value) == "" ||
-			errBearer != nil || strings.TrimSpace(bearerCookie.Value) == "" {
-			log.Warning("Missing auth cookies")
+		if errBasic != nil || strings.TrimSpace(basicCookie.Value) == "" {
+			log.Warning("Missing basic auth cookie")
 			http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
 			return
 		}
 
 		requestBasicToken := basicCookie.Value
-		requestBearerToken := bearerCookie.Value
 
 		// Clean up expired tokens
 		var sessionCount int
@@ -618,22 +615,12 @@ func httpCookieAuth(next http.Handler) http.Handler {
 		})
 
 		// Check session using the cookie value as bearer token
-		basicValid, bearerValid, _, _, _ := checkAuthSession(&authMap, requestIP, "", requestBearerToken)
+		basicValid, _, _, _, _ := checkAuthSession(&authMap, requestIP, "", "")
 
-		if basicValid || bearerValid {
+		if basicValid {
 			http.SetCookie(w, &http.Cookie{
-				Name:     "uit_basic",
+				Name:     "uit_basic_token",
 				Value:    requestBasicToken,
-				Path:     "/",
-				Expires:  time.Now().Add(20 * time.Minute),
-				MaxAge:   20 * 60,
-				Secure:   true,
-				HttpOnly: true,
-				SameSite: http.SameSiteStrictMode,
-			})
-			http.SetCookie(w, &http.Cookie{
-				Name:     "uit_bearer",
-				Value:    requestBearerToken,
 				Path:     "/",
 				Expires:  time.Now().Add(20 * time.Minute),
 				MaxAge:   20 * 60,
