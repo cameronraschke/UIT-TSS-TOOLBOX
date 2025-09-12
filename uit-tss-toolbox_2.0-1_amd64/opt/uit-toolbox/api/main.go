@@ -724,7 +724,17 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 		}
 
 		// Set headers
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		if strings.HasSuffix(fileRequested, ".html") {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		} else if strings.HasSuffix(fileRequested, ".css") {
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		} else if strings.HasSuffix(fileRequested, ".js") {
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		} else {
+			log.Warning("Unknown file type requested: " + fileRequested)
+			http.Error(w, "Unsupported Media Type", http.StatusUnsupportedMediaType)
+			return
+		}
 		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
@@ -952,6 +962,8 @@ func main() {
 			"uit-web.crt":            true,
 			"uit-toolbox-client.deb": true,
 			"desktop.css":            true,
+			"favicon.ico":            true,
+			"header.html":            true,
 			"footer.html":            true,
 			"index.html":             true,
 			"login.html":             true,
