@@ -1044,13 +1044,26 @@ func main() {
 		// csrfMiddleware,
 	}
 
+	httpsMuxLoginChain := muxChain{
+		limitRequestSizeMiddleware,
+		timeoutMiddleware,
+		storeClientIPMiddleware,
+		checkValidURLMiddleware,
+		allowIPRangeMiddleware(appConfig.UIT_ALL_ALLOWED_IP),
+		rateLimitMiddleware(appState),
+		tlsMiddleware,
+		httpMethodMiddleware,
+		checkHeadersMiddleware,
+		setHeadersMiddleware,
+	}
+
 	httpsMux := http.NewServeMux()
 	httpsMux.Handle("/api/auth", httpsMuxChain.thenFunc(getNewBearerToken))
 	httpsMux.Handle("/api/static/", httpsMuxChain.then(serveHTML(appState)))
 	httpsMux.Handle("/api/remote", httpsMuxChain.thenFunc(remoteAPI))
 	httpsMux.Handle("/api/post", httpsMuxChain.thenFunc(postAPI))
 	httpsMux.Handle("/api/locations", httpsMuxChain.thenFunc(remoteAPI))
-	httpsMux.Handle("/login.html", httpsMuxChain.then(serveHTML(appState)))
+	httpsMux.Handle("/login.html", httpsMuxLoginChain.then(serveHTML(appState)))
 	httpsMux.Handle("/", httpsMuxChain.then(serveHTML(appState)))
 	// httpsMux.HandleFunc("/dbstats/", GetInfoHandler)
 

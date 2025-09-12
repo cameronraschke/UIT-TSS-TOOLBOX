@@ -500,7 +500,7 @@ func apiAuth(next http.Handler) http.Handler {
 		}
 
 		// Delete expired tokens & malformed entries out of authMap
-		authMap.Range(func(k, v interface{}) bool {
+		authMap.Range(func(k, v any) bool {
 			sessionID := k.(string)
 			authSession := v.(AuthSession)
 			sessionIP := strings.SplitN(sessionID, ":", 2)[0]
@@ -518,11 +518,11 @@ func apiAuth(next http.Handler) http.Handler {
 		})
 
 		queryType := strings.TrimSpace(req.URL.Query().Get("type"))
-		if strings.TrimSpace(queryType) == "" {
-			log.Warning("No query type defined for request: " + requestIP)
-			http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-			return
-		}
+		// if strings.TrimSpace(queryType) == "" {
+		// 	log.Warning("No query type defined for request: " + requestIP)
+		// 	http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+		// 	return
+		// }
 
 		headers := ParseHeaders(req.Header)
 		if headers.Authorization.Basic != nil {
@@ -541,7 +541,7 @@ func apiAuth(next http.Handler) http.Handler {
 		basicValid, bearerValid, _, bearerTTL, matchedSession := checkAuthSession(&authMap, requestIP, requestBasicToken, requestBearerToken)
 
 		if (basicValid && bearerValid) || bearerValid {
-			if queryType == "check-token" {
+			if strings.TrimSpace(queryType) == "check-token" {
 				jsonData, err := json.Marshal(returnedJsonToken{
 					Token: matchedSession.Bearer.Token,
 					TTL:   bearerTTL,
@@ -555,10 +555,6 @@ func apiAuth(next http.Handler) http.Handler {
 				return
 			} else if strings.TrimSpace(queryType) != "" {
 				next.ServeHTTP(w, req)
-			} else {
-				log.Warning("No query type defined for bearer token: " + requestIP)
-				http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
-				return
 			}
 		} else if (basicValid && !bearerValid) || (!basicValid && !bearerValid) {
 			sessionCount = countAuthSessions(&authMap)
