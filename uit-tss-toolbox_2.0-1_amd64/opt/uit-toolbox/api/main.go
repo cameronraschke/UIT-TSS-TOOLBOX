@@ -579,7 +579,17 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 		return
 	}
+
+	requestURL, ok := GetRequestURL(req)
+	if !ok {
+		log.Warning("no URL stored in context")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+
 	requestCookie := req.Cookies()
+
+	log.Info("Verifying cookie login from IP: " + requestIP + " URL: " + requestURL + " Cookies: " + fmt.Sprintf("%d", len(requestCookie)))
 
 	// Decode POSTed username and password from json body
 	var requestBody struct {
