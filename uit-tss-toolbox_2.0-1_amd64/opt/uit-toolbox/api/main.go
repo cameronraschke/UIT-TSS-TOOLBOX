@@ -1075,8 +1075,11 @@ func main() {
 	httpsMux.Handle("/api/remote", httpsMuxChain.thenFunc(remoteAPI))
 	httpsMux.Handle("/api/post", httpsMuxChain.thenFunc(postAPI))
 	httpsMux.Handle("/api/locations", httpsMuxChain.thenFunc(remoteAPI))
+
 	httpsMux.Handle("/login.html", httpsMuxLoginChain.then(serveHTML(appState)))
-	httpsMux.Handle("/", httpsMuxChain.then(serveHTML(appState)))
+	httpsMux.Handle("/js/", httpsMuxLoginChain.then(serveHTML(appState)))
+	httpsMux.Handle("/css/", httpsMuxLoginChain.then(serveHTML(appState)))
+	httpsMux.Handle("/", httpsMuxLoginChain.then(serveHTML(appState)))
 	// httpsMux.HandleFunc("/dbstats/", GetInfoHandler)
 
 	log.Info("Starting web server")

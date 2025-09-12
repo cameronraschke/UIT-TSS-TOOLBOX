@@ -534,7 +534,7 @@ func apiAuth(next http.Handler) http.Handler {
 		}
 
 		if strings.TrimSpace(requestBearerToken) == "" && strings.TrimSpace(requestBasicToken) == "" {
-			log.Warning("Empty value for Authorization header")
+			log.Warning("Empty value for Authorization header: " + requestIP + " ( " + requestURL + ")")
 			http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
 			return
 		}
@@ -567,7 +567,7 @@ func apiAuth(next http.Handler) http.Handler {
 				return
 			}
 		} else {
-			log.Warning("No valid authentication found for request: " + requestIP)
+			log.Warning("No valid authentication found for request: " + requestIP + " ( " + requestURL + ")")
 			http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
 			return
 		}
