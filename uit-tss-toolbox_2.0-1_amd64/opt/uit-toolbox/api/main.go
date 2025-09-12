@@ -723,38 +723,50 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 			return
 		}
 
-		// Set headers
-		if strings.HasSuffix(fileRequested, ".html") {
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			w.Header().Set("Content-Disposition", "inline; filename=\""+stat.Name()+"\"")
-		} else if strings.HasSuffix(fileRequested, ".css") {
-			w.Header().Set("Content-Type", "text/css; charset=utf-8")
-		} else if strings.HasSuffix(fileRequested, ".js") {
-			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-		} else {
-			log.Warning("Unknown file type requested: " + fileRequested)
-			http.Error(w, "Unsupported Media Type", http.StatusUnsupportedMediaType)
-			return
-		}
 		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Content-Disposition", "inline; filename=\""+stat.Name()+"\"")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
 
-		// Parse the template
-		htmlTemp, err := template.ParseFiles(resolvedPath)
-		if err != nil {
-			log.Warning("Cannot parse template file: " + err.Error())
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
+		// Set headers
+		if strings.HasSuffix(fileRequested, ".html") {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			// Parse the template
+			htmlTemp, err := template.ParseFiles(resolvedPath)
+			if err != nil {
+				log.Warning("Cannot parse template file: " + err.Error())
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
 
-		// Execute the template
-		err = htmlTemp.Execute(w, nil)
-		if err != nil {
-			log.Error("Error executing template: " + err.Error())
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			// Execute the template
+			err = htmlTemp.Execute(w, nil)
+			if err != nil {
+				log.Error("Error executing template: " + err.Error())
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+		} else if strings.HasSuffix(fileRequested, ".css") {
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+			// Serve the CSS file
+			_, err = io.Copy(w, f)
+			if err != nil {
+				log.Error("Error sending file: " + err.Error())
+				return
+			}
+		} else if strings.HasSuffix(fileRequested, ".js") {
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+			// Serve the JS file
+			_, err = io.Copy(w, f)
+			if err != nil {
+				log.Error("Error sending file: " + err.Error())
+				return
+			}
+		} else {
+			log.Warning("Unknown file type requested: " + fileRequested)
+			http.Error(w, "Unsupported Media Type", http.StatusUnsupportedMediaType)
 			return
 		}
 
