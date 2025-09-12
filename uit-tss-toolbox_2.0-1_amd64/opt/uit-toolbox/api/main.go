@@ -694,7 +694,8 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 
 		resolvedPath, err := filepath.EvalSymlinks(fullPath)
 		if err != nil || !strings.HasPrefix(resolvedPath, basePath) {
-			log.Warning("Attempt to access file outside base path: " + requestIP + " (" + resolvedPath + ")")
+			log.Warning("Error resolving symlink: " + err.Error())
+			log.Warning("Attempt to access file outside base path: " + requestIP + " (" + fullPath + ":" + resolvedPath + ")")
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
