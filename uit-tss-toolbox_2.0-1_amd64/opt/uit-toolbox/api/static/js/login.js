@@ -81,10 +81,12 @@ loginForm.addEventListener("submit", async (event) => {
         };
 
         jsonData = JSON.stringify(payload);
+        if (!jsonData || jsonData.length === 0) throw new Error('No data to send to login API');
 
         const response = await fetch('/login.html', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
+            credentials: "include",
             body: jsonData
         });
 

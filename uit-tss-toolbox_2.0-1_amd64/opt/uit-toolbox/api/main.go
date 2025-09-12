@@ -634,6 +634,7 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 	// Check if the Basic token exists in the database
 	requestedHash := sha256.Sum256([]byte(requestBasicToken))
 	basicTokenHash := hex.EncodeToString(requestedHash[:])
+	log.Debug("Basic token hash: " + basicTokenHash)
 	sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE CONCAT(username, ':', password) = $1`
 	rows, err := db.QueryContext(ctx, sqlCode, basicTokenHash)
 	if err != nil {
