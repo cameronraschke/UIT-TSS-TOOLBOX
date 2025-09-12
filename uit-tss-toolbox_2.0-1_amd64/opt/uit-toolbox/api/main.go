@@ -730,7 +730,7 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 		w.Header().Set("Expires", "0")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
-		w.Header().Set("Content-Disposition", "attachment; filename=\""+stat.Name()+"\"")
+		w.Header().Set("Content-Disposition", "inline; filename=\""+stat.Name()+"\"")
 
 		// Parse the template
 		htmlTemp, err := template.ParseFiles(resolvedPath)
