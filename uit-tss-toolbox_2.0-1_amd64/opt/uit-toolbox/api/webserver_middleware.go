@@ -628,7 +628,7 @@ func httpCookieAuth(next http.Handler) http.Handler {
 				HttpOnly: true,
 				SameSite: http.SameSiteStrictMode,
 			})
-			log.Debug("Auth session extended: " + requestIP + " " + requestURL)
+			log.Debug("Auth session extended: " + requestIP)
 			next.ServeHTTP(w, req)
 			return
 		} else {
