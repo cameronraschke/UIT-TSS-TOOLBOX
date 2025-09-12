@@ -82,7 +82,7 @@ loginForm.addEventListener("submit", async (event) => {
 
         jsonData = JSON.stringify(payload);
 
-        const response = await fetch('/login.php', {
+        const response = await fetch('/login.html', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
             body: jsonData
