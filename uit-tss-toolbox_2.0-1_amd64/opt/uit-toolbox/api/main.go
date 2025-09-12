@@ -726,6 +726,7 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 		// Set headers
 		if strings.HasSuffix(fileRequested, ".html") {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Header().Set("Content-Disposition", "inline; filename=\""+stat.Name()+"\"")
 		} else if strings.HasSuffix(fileRequested, ".css") {
 			w.Header().Set("Content-Type", "text/css; charset=utf-8")
 		} else if strings.HasSuffix(fileRequested, ".js") {
@@ -740,7 +741,6 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 		w.Header().Set("Expires", "0")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
-		w.Header().Set("Content-Disposition", "inline; filename=\""+stat.Name()+"\"")
 
 		// Parse the template
 		htmlTemp, err := template.ParseFiles(resolvedPath)
