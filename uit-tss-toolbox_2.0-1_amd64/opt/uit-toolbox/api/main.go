@@ -728,6 +728,21 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 		atomic.AddInt64(&authMapEntryCount, 1)
 		log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
 	}
+
+	returnedJsonStruct := returnedJsonToken{
+		Token: authSession.Bearer.Token,
+		TTL:   authSession.Bearer.TTL,
+		Valid: authSession.Bearer.Valid,
+	}
+
+	jsonData, err := json.Marshal(returnedJsonStruct)
+	if err != nil {
+		log.Error("Cannot marshal Token to JSON: " + err.Error())
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(jsonData)
 }
 
 func redirectToHTTPSHandler(httpsPort string) http.Handler {
