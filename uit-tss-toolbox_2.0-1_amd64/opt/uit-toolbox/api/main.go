@@ -679,7 +679,7 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 			return
 		}
 
-		basePath := "/opt/uit-toolbox/static/"
+		basePath := "/opt/uit-toolbox/api/static/"
 
 		fullPath := path.Join(basePath, requestURL)
 		_, fileRequested := path.Split(fullPath)
