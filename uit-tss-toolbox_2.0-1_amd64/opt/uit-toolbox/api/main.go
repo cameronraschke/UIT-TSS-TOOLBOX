@@ -1265,7 +1265,7 @@ func main() {
 	httpsMux.Handle("/api/locations", httpsApiAuth.thenFunc(remoteAPI))
 
 	httpsMux.Handle("GET /login.html", httpsNoAuth.then(serveHTML(appState)))
-	httpsMux.Handle("POST /login.html", httpsNoAuth.then(verifyCookieLogin(appState)))
+	httpsMux.Handle("POST /login.html", httpsNoAuth.thenFunc(verifyCookieLogin))
 	httpsMux.Handle("/js/login.js", httpsNoAuth.then(serveHTML(appState)))
 	httpsMux.Handle("/css/desktop.css", httpsNoAuth.then(serveHTML(appState)))
 	httpsMux.Handle("/favicon.ico", httpsNoAuth.then(serveHTML(appState)))
