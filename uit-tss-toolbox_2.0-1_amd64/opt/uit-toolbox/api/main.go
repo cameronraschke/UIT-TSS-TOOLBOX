@@ -10,6 +10,7 @@ import (
 
 	// "net/http/httputil"
 
+	"encoding/hex"
 	"encoding/json"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"strings"
 	// "crypto/sha256"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/tls"
 	"database/sql"
 	"html/template"
@@ -579,7 +581,29 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 	}
 	requestCookie := req.Cookies()
 
-	var requestBasicToken string
+	// Decode POSTed username and password from json body
+	var requestBody struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	if err := json.NewDecoder(req.Body).Decode(&requestBody); err != nil {
+		log.Warning("Failed to decode JSON body: " + err.Error())
+		http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+		return
+	}
+
+	// Get username from json body
+	if strings.TrimSpace(requestBody.Username) == "" || strings.TrimSpace(requestBody.Password) == "" {
+		log.Info("No username or password provided for HTML login: " + requestIP)
+		http.Error(w, formatHttpError("Bad request"), http.StatusBadRequest)
+		return
+	}
+
+	var requestBasicToken = requestBody.Username + ":" + requestBody.Password
+
+	// If cookie is provided, override the Basic token from json body
+	// This allows session persistence via cookies
+	// If both are provided, the cookie takes precedence
 
 	for _, cookie := range requestCookie {
 		if cookie.Name == "uit_basic_token" {
@@ -598,8 +622,10 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Check if the Basic token exists in the database
-	sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') = $1`
-	rows, err := db.QueryContext(ctx, sqlCode, requestBasicToken)
+	requestedHash := sha256.Sum256([]byte(requestBasicToken))
+	basicTokenHash := hex.EncodeToString(requestedHash[:])
+	sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE CONCAT(username, ':', password) = $1`
+	rows, err := db.QueryContext(ctx, sqlCode, basicTokenHash)
 	if err != nil {
 		log.Error("Cannot query database for API Auth: " + err.Error())
 		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
@@ -607,112 +633,90 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		var dbToken string
-
-		if err := rows.Scan(&dbToken); err != nil {
-			log.Error("Error scanning token: " + err.Error())
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-		if ctx.Err() != nil {
-			log.Error("Context error: " + ctx.Err().Error())
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-		if strings.TrimSpace(dbToken) == "" {
-			log.Info("DB token has 0 length")
-			http.Error(w, formatHttpError("Internal server error"), http.StatusUnauthorized)
-			return
-		}
-
-		if dbToken != requestBasicToken {
-			log.Info("Incorrect credentials provided for token refresh: " + req.RemoteAddr)
-			http.Error(w, formatHttpError("Forbidden"), http.StatusUnauthorized)
-			return
-		}
-
-		hash := make([]byte, 32)
-		_, err := rand.Read(hash)
-		if err != nil {
-			log.Error("Cannot generate token: " + err.Error())
-			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-			return
-		}
-		bearerToken := fmt.Sprintf("%x", hash)
-		if strings.TrimSpace(bearerToken) == "" {
-			log.Error("Failed to generate bearer token")
-			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-			return
-		}
-
-		sessionID := fmt.Sprintf("%s:%s", requestIP, bearerToken)
-
-		// Set expiry time
-		basicTTL := 60 * time.Minute
-		bearerTTL := 60 * time.Second
-		basicExpiry := time.Now().Add(basicTTL)
-		bearerExpiry := time.Now().Add(bearerTTL)
-
-		basic := BasicToken{Token: requestBasicToken, Expiry: basicExpiry, NotBefore: time.Now(), TTL: time.Until(basicExpiry).Seconds(), IP: requestIP, Valid: true}
-		bearer := BearerToken{Token: bearerToken, Expiry: bearerExpiry, NotBefore: time.Now(), TTL: time.Until(bearerExpiry).Seconds(), IP: requestIP, Valid: true}
-		csrfToken, err := generateCSRFToken()
-		if err != nil {
-			log.Error("Cannot generate CSRF token: " + err.Error())
-			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-			return
-		}
-		_, exists := authMap.Load(sessionID)
-		authMap.Store(sessionID, AuthSession{Basic: basic, Bearer: bearer, CSRF: csrfToken})
-
-		value, ok := authMap.Load(sessionID)
-		if !ok {
-			log.Error("Cannot load auth session from authMap")
-			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-			return
-		}
-
-		http.SetCookie(w, &http.Cookie{
-			Name:     "uit_basic_token",
-			Value:    requestBasicToken,
-			Path:     "/",
-			Expires:  time.Now().Add(20 * time.Minute),
-			MaxAge:   20 * 60,
-			Secure:   true,
-			HttpOnly: true,
-			SameSite: http.SameSiteStrictMode,
-		})
-
-		http.SetCookie(w, &http.Cookie{
-			Name:     "csrf_token",
-			Value:    csrfToken,
-			Path:     "/",
-			Secure:   true,
-			HttpOnly: true,
-			SameSite: http.SameSiteStrictMode,
-		})
-
-		authSession := value.(AuthSession)
-
-		if authSession.Bearer.Token != bearerToken || authSession.Bearer.TTL <= 0 ||
-			!authSession.Bearer.Valid || authSession.Bearer.IP != requestIP ||
-			time.Now().After(authSession.Bearer.Expiry) || time.Now().Before(authSession.Bearer.NotBefore) {
-			log.Error("Error while creating new bearer token: " + requestIP)
-			authMap.Delete(sessionID)
-			atomic.AddInt64(&authMapEntryCount, -1)
-			http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
-			return
-		}
-
-		sessionCount := countAuthSessions(&authMap)
-		if exists {
-			log.Info("Auth session exists: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
-		} else {
-			atomic.AddInt64(&authMapEntryCount, 1)
-			log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
-		}
-
+	if !rows.Next() {
+		log.Info("No matching Basic token found in database: " + requestIP)
+		http.Error(w, formatHttpError("Unauthorized"), http.StatusUnauthorized)
 		return
+	}
+
+	hash := make([]byte, 32)
+	_, err = rand.Read(hash)
+	if err != nil {
+		log.Error("Cannot generate token: " + err.Error())
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+	bearerToken := fmt.Sprintf("%x", hash)
+	if strings.TrimSpace(bearerToken) == "" {
+		log.Error("Failed to generate bearer token")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+
+	sessionID := fmt.Sprintf("%s:%s", requestIP, bearerToken)
+
+	// Set expiry time
+	basicTTL := 60 * time.Minute
+	bearerTTL := 60 * time.Second
+	basicExpiry := time.Now().Add(basicTTL)
+	bearerExpiry := time.Now().Add(bearerTTL)
+
+	basic := BasicToken{Token: requestBasicToken, Expiry: basicExpiry, NotBefore: time.Now(), TTL: time.Until(basicExpiry).Seconds(), IP: requestIP, Valid: true}
+	bearer := BearerToken{Token: bearerToken, Expiry: bearerExpiry, NotBefore: time.Now(), TTL: time.Until(bearerExpiry).Seconds(), IP: requestIP, Valid: true}
+	csrfToken, err := generateCSRFToken()
+	if err != nil {
+		log.Error("Cannot generate CSRF token: " + err.Error())
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+	_, exists := authMap.Load(sessionID)
+	authMap.Store(sessionID, AuthSession{Basic: basic, Bearer: bearer, CSRF: csrfToken})
+
+	value, ok := authMap.Load(sessionID)
+	if !ok {
+		log.Error("Cannot load auth session from authMap")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "uit_basic_token",
+		Value:    requestBasicToken,
+		Path:     "/",
+		Expires:  time.Now().Add(20 * time.Minute),
+		MaxAge:   20 * 60,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "csrf_token",
+		Value:    csrfToken,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	authSession := value.(AuthSession)
+
+	if authSession.Bearer.Token != bearerToken || authSession.Bearer.TTL <= 0 ||
+		!authSession.Bearer.Valid || authSession.Bearer.IP != requestIP ||
+		time.Now().After(authSession.Bearer.Expiry) || time.Now().Before(authSession.Bearer.NotBefore) {
+		log.Error("Error while creating new bearer token: " + requestIP)
+		authMap.Delete(sessionID)
+		atomic.AddInt64(&authMapEntryCount, -1)
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+
+	sessionCount := countAuthSessions(&authMap)
+	if exists {
+		log.Info("Auth session exists: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
+	} else {
+		atomic.AddInt64(&authMapEntryCount, 1)
+		log.Info("New auth session created: " + requestIP + " (Sessions: " + strconv.Itoa(int(sessionCount)) + " TTL: " + fmt.Sprintf("%.2f", authSession.Bearer.TTL) + "s)")
 	}
 }
 

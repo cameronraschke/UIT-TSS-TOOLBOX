@@ -589,8 +589,8 @@ func httpCookieAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		basicCookie, errBasic := req.Cookie("uit_basic")
-		bearerCookie, errBearer := req.Cookie("uit_bearer")
+		basicCookie, errBasic := req.Cookie("uit_basic_token")
+		bearerCookie, errBearer := req.Cookie("uit_bearer_token")
 
 		if errBasic != nil || strings.TrimSpace(basicCookie.Value) == "" ||
 			errBearer != nil || strings.TrimSpace(bearerCookie.Value) == "" {
@@ -620,7 +620,7 @@ func httpCookieAuth(next http.Handler) http.Handler {
 		// Check session using the cookie value as bearer token
 		basicValid, bearerValid, _, _, _ := checkAuthSession(&authMap, requestIP, "", requestBearerToken)
 
-		if basicValid && bearerValid {
+		if basicValid || bearerValid {
 			http.SetCookie(w, &http.Cookie{
 				Name:     "uit_basic",
 				Value:    requestBasicToken,

@@ -39,72 +39,70 @@ passwordInput.addEventListener("keyup", () => {
     checkPasswordValidity();
 });
 
-loginForm.addEventListener("submit", async (event) => {
-    if (submitInProgress) return;
-    submitInProgress = true;
-    event.preventDefault();
-    const usernameValid = usernameInput.reportValidity();
-    const passwordValid = passwordInput.reportValidity();
-    const formData = new FormData(loginForm);
-    if (!formData.has("username") || !formData.has("password")) {
-        console.log("Username or password not provided");
-        return;
-    }
-    if (formData.get("username").trim() === "" || formData.get("password").trim() === "") {
-        console.log("Username or password is empty");
-        return;
-    }
-    if (formData.get("username").length > 20 || formData.get("password").length > 64) {
-        console.log("Username or password is too long");
-        return;
-    }
-    if (formData.get("username").length < 3 || formData.get("password").length < 8) {
-        console.log("Username or password is too short");
-        return;
-    }
-    if (/\s/.test(formData.get("username")) || /\s/.test(formData.get("password"))) {
-        console.log("Username or password contains whitespace");
-        return;
-    }
-    if (!usernameValid || !passwordValid) {
-        console.log("Invalid formatting in username or password\nUsername: " + usernameValid.validationMessage + "\n" + passwordValid.validationMessage);
-        return;
-    }
+// loginForm.addEventListener("submit", async (event) => {
+//     if (submitInProgress) return;
+//     submitInProgress = true;
+//     event.preventDefault();
+//     const usernameValid = usernameInput.reportValidity();
+//     const passwordValid = passwordInput.reportValidity();
+//     const formData = new FormData(loginForm);
+//     if (!formData.has("username") || !formData.has("password")) {
+//         console.log("Username or password not provided");
+//         return;
+//     }
+//     if (formData.get("username").trim() === "" || formData.get("password").trim() === "") {
+//         console.log("Username or password is empty");
+//         return;
+//     }
+//     if (formData.get("username").length > 20 || formData.get("password").length > 64) {
+//         console.log("Username or password is too long");
+//         return;
+//     }
+//     if (formData.get("username").length < 3 || formData.get("password").length < 8) {
+//         console.log("Username or password is too short");
+//         return;
+//     }
+//     if (/\s/.test(formData.get("username")) || /\s/.test(formData.get("password"))) {
+//         console.log("Username or password contains whitespace");
+//         return;
+//     }
+//     if (!usernameValid || !passwordValid) {
+//         console.log("Invalid formatting in username or password\nUsername: " + usernameValid.validationMessage + "\n" + passwordValid.validationMessage);
+//         return;
+//     }
 
-    const usernameValue = formData.get("username").trim();
-    const passwordValue = formData.get("password").trim();
+//     const usernameValue = formData.get("username").trim();
+//     const passwordValue = formData.get("password").trim();
 
-    try {
-        const usernameHash = await generateSHA256Hash(usernameValue);
-        const passwordHash = await generateSHA256Hash(passwordValue);
-        const authStr = usernameHash + ':' + passwordHash;
-        const payload = {
-            authStr: authStr
-        };
+//     try {
+//         const payload = {
+//             username: usernameValue,
+//             password: passwordValue
+//         };
 
-        jsonData = JSON.stringify(payload);
+//         jsonData = JSON.stringify(payload);
 
-        const response = await fetch('/login.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
-            body: jsonData
-        });
+//         const response = await fetch('/login.php', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json'},
+//             body: jsonData
+//         });
 
-        if (!response.ok) throw new Error('Network response was not ok: ' + response.statusText);
-        const data = await response.json();
-        if (!data || (typeof data === "object" && Object.keys(data).length === 0) || !data.token || data.token.length === 0) {
-            throw new Error('No data returned from login API');
-        }
+//         if (!response.ok) throw new Error('Network response was not ok: ' + response.statusText);
+//         const data = await response.json();
+//         if (!data || (typeof data === "object" && Object.keys(data).length === 0) || !data.token || data.token.length === 0) {
+//             throw new Error('No data returned from login API');
+//         }
 
-        await setKeyFromIndexDB("bearerToken", data.token);
-        window.location.href = "/index.php";
-    } catch (error) {
-        console.error('There was a problem with the fetch operation:', error);
-        submitInProgress = false;
-    } finally {
-        submitInProgress = false;
-    }
-});
+//         await setKeyFromIndexDB("bearerToken", data.token);
+//         window.location.href = "/index.php";
+//     } catch (error) {
+//         console.error('There was a problem with the fetch operation:', error);
+//         submitInProgress = false;
+//     } finally {
+//         submitInProgress = false;
+//     }
+// });
 
 async function setKeyFromIndexDB(key, value) {
     try {
