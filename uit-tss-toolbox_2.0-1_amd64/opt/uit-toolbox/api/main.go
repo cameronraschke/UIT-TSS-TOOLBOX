@@ -609,7 +609,13 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var requestBasicToken = requestBody.Username + ":" + requestBody.Password
+	hashedUsername := sha256.Sum256([]byte(requestBody.Username))
+	hashedUsernameString := hex.EncodeToString(hashedUsername[:])
+	hashedPassword := sha256.Sum256([]byte(requestBody.Password))
+	hashedPasswordString := hex.EncodeToString(hashedPassword[:])
+
+	var requestBasicToken = hashedUsernameString + ":" + hashedPasswordString
+	log.Debug("Basic token from JSON body: " + requestBasicToken)
 
 	// If cookie is provided, override the Basic token from json body
 	// This allows session persistence via cookies
@@ -632,11 +638,8 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Check if the Basic token exists in the database
-	requestedHash := sha256.Sum256([]byte(requestBasicToken))
-	basicTokenHash := hex.EncodeToString(requestedHash[:])
-	log.Debug("Basic token hash: " + basicTokenHash)
-	sqlCode := `SELECT ENCODE(SHA256(CONCAT(username, ':', password)::bytea), 'hex') as token FROM logins WHERE CONCAT(username, ':', password) = $1`
-	rows, err := db.QueryContext(ctx, sqlCode, basicTokenHash)
+	sqlCode := `SELECT username as token FROM logins WHERE CONCAT(username, ':', password) = $1`
+	rows, err := db.QueryContext(ctx, sqlCode, requestBasicToken)
 	if err != nil {
 		log.Error("Cannot query database for API Auth: " + err.Error())
 		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
