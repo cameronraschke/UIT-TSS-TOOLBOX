@@ -964,7 +964,15 @@ func rejectRequest(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
 		return
 	}
-	log.Warning("access denied: " + requestIP + " tried to access " + req.URL.Path)
+
+	requestURL, ok := GetRequestURL(req)
+	if !ok {
+		log.Warning("no URL stored in context")
+		http.Error(w, formatHttpError("Internal server error"), http.StatusInternalServerError)
+		return
+	}
+
+	log.Warning("access denied: " + requestIP + " tried to access " + requestURL)
 	http.Error(w, "Access denied", http.StatusForbidden)
 }
 
