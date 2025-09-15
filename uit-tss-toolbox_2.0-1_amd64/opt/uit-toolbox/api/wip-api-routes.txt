@@ -13,7 +13,7 @@ For a given request method and variable:
         - GET/POST (/api/server_time[?...])
             - POST variables:
                 >client_time [POST: time, RET: boolean]*
-                >null GET    [GET: null, RET: time string ISO formatted]
+                             [GET:  null, RET: time string ISO formatted]
             -note: client_time (POST only) returns a
                 boolean if client_time is within
                 margin of error of the server's time
@@ -21,20 +21,20 @@ For a given request method and variable:
         - GET (/api/lookup[?...])
             - GET variables:
                 >tagnumber      [GET: integer, RET: (string, integer)]***
-                >system_serial  [GET: string, RET: (string, integer)]***
+                >system_serial  [GET: string,  RET: (string, integer)]***
             -note: If GETing data, you must specify
                    tagnumber OR system_serial, not both
             -note: The API will return the tagnumber and 
                    system_serial variables
 
 
-hardware data
+-- Hardware Data --
 overall disk health
     - GET (/api/hardware/disk_health[?...])
         - GET/POST variables:
-            >date       [GET: date string, RET: float]*
+            >date       [GET:  date string, RET: float]*
                         [POST: date string, RET: null]**
-            >percentage [POST: float, RET: err]**
+            >percentage [POST: float,       RET: err]**
     -note: If updating the percentage for a given date, the
            date and percentage BOTH have to be specified in
            the POST body request.
@@ -42,54 +42,61 @@ overall disk health
 overall battery health
     - GET (/api/hardware/battery_health[?...])
         - GET/POST variables:
-            >date       [GET: date string RET: float]*
-                        [POST: date string RET: null]**
-            >percentage [POST: float, RET: err]**
+            >date       [GET:  date (string), RET: float]*
+                        [POST: date (string), RET: null]**
+            >percentage [POST: float,         RET: err]**
     -note: If updating the percentage for a given date, the
            date and percentage BOTH have to be specified in
            the POST body request.
 
-hardware data by tag
+general hardware data by tag
     - GET/POST (/api/client/hardware[?...])
         - GET/POST variables: 
-            >tagnumber                  [GET: integer, RET: all others]*
+            >tagnumber                  [GET:  integer, RET: all others]*
                                         [POST: integer, RET: err]**
-            >ethernet_mac               [POST: string, RET: err]
-            >wifi_mac                   [POST: string, RET: err]
-            >model                      [POST: string, RET: err]
-            >uuid (system UUID in DMI)  [POST: string, RET: err]
-            >SKU                        [POST: string, RET: err]
-            >chassis_type               [POST: string, RET: err]
-            >cpu_manufacturer           [POST: string, RET: err]
-            >cpu_model                  [POST: string, RET: err]
-            >cpu_max_speed              [POST: float, RET: err]
-            >cpu_cores                  [POST: integer, RET: err]
-            >cpu_threads                [POST: integer, RET: err]
-            >motherboard_manufacturer   [POST: string, RET: err]
-            >motherboard_serial         [POST: string, RET: err]
-            >system_manufacturer        [POST: string, RET: err]
+            >ethernet_mac               [POST: string,  RET: err]
+            >wifi_mac                   [POST: string,  RET: err]
+            >model                      [POST: string,  RET: err]
+            >uuid (system UUID in DMI)  [POST: string,  RET: err]
+            >SKU                        [POST: string,  RET: err]
+            >chassis_type               [POST: string,  RET: err]
+            >motherboard_manufacturer   [POST: string,  RET: err]
+            >motherboard_serial         [POST: string,  RET: err]
+            >system_manufacturer        [POST: string,  RET: err]
         -note: like many other endpoints, if you GET a certain variable,
                all other variables will be returned (hence, "all others").
 
+CPU data by tag
+    - GET/POST (/api/client/hardware/cpu[?...])
+        - GET/POST variables:
+            >tagnumber                  [GET:  integer, RET: all others]*
+                                        [POST: integer, RET: err]**
+            >cpu_manufacturer           [POST: string,  RET: err]
+            >cpu_model                  [POST: string,  RET: err]
+            >cpu_max_speed              [POST: float,   RET: err]
+            >cpu_cores                  [POST: integer, RET: err]
+            >cpu_threads                [POST: integer, RET: err]
+        -note: like many other endpoints, if you GET a certain variable,
+               all other variables will be returned (hence, "all others").
 
 disk data by tag
     - GET/POST (/api/client/hardware/disk[?...])
         - GET/POST variables: 
-            >tagnumber*                 [GET: integer, RET: all others]*
+            >tagnumber*                 [GET:  integer, RET: all others]*
                                         [POST: integer, RET: err]**
-            >name (in linux e.g. sda)   [POST: string, RET: err]
-            >model                      [POST: string, RET: err]
-            >serial                     [POST: string, RET: err]
-            >firmware                   [POST: string, RET: err]
+            >name (in linux e.g. sda)   [POST: string,  RET: err]
+            >model                      [POST: string,  RET: err]
+            >serial                     [POST: string,  RET: err]
+            >firmware                   [POST: string,  RET: err]
             >temp                       [POST: integer, RET: err]
             >size (capacity in GB)      [POST: integer, RET: err]
             >reads (total)              [POST: integer, RET: err]
             >writes (total)             [POST: integer, RET: err]
             >power_on_hours             [POST: integer, RET: err]
             >power_cycles               [POST: integer, RET: err]
-            >type                       [POST: string, RET: err]
-            >generic_error              [POST: string, RET: err]
-            >data_integrity_error       [POST: string, RET: err]
+            >type                       [POST: string,  RET: err]
+            >generic_error              [POST: string,  RET: err]
+            >data_integrity_error       [POST: string,  RET: err]
             >total_error_count          [POST: integer, RET: err]
         -note: like many other endpoints, if you GET a certain variable,
             all other variables will be returned (hence, "all others").
@@ -97,36 +104,85 @@ disk data by tag
 battery data by tag
     - GET/POST (/api/client/hardware/battery[?...])
         - GET/POST variables: 
-            >tagnumber*         [GET: integer, RET: all others]*
-                                [POST: string, RET: err]**
-            >current_charge     [POST: integer, RET: err]
-            >factory_charge     [POST: integer, RET: err]
-            >overall_health     [POST: float, RET: err]
-            >charge_cycles      [POST: integer, RET: err]
-            >model              [POST: string, RET: err]
-            >capactiy           [POST: integer, RET: err]
-            >serial             [POST: string, RET: err]
-            >manufacturer       [POST: string, RET: err]
+            >tagnumber          [GET:  integer,  RET: all others]*
+                                [POST: integer,  RET: err]**
+            >current_charge     [POST: integer,  RET: err]
+            >factory_charge     [POST: integer,  RET: err]
+            >overall_health     [POST: float,    RET: err]
+            >charge_cycles      [POST: integer,  RET: err]
+            >model              [POST: string,   RET: err]
+            >capactiy           [POST: integer,  RET: err]
+            >serial             [POST: string,   RET: err]
+            >manufacturer       [POST: string,   RET: err]
         -note: like many other endpoints, if you GET a certain variable,
             all other variables will be returned (hence, "all others").
 
 RAM/memory data by tag
     - GET/POST (/api/client/hardware/memory[?...])
-        - GET/POST variables: tagnumber*, serial, capacity, speed
-            -note: RAM serial for 2+ sticks is concatenated 
-                    into one string separated by two dashes (--)
+        - GET/POST variables: 
+            >tagnumber  [GET:  integer, RET: all others]*
+                        [POST: integer, RET: err]**
+            >serial     [POST: string,  RET: err]
+            >capacity   [POST: integer, RET: err]
+            >speed      [POST: integer, RET: err]
+        -note: RAM serial for 2+ sticks is concatenated 
+                into one string where each stick's serial
+                number is separated by two dashes (--)
+        -note: like many other endpoints, if you GET a certain variable,
+        all other variables will be returned (hence, "all others").
 
-Hardware temps
-    - GET/POST (/api/client/hardware/temp)
+Hardware temps by tag
+    - GET/POST (/api/client/hardware/temp/cpu[?...])
         - GET/POST variables:
-            CPU Temp (POST: float, GET: float)
+            >tagnumber [GET:  integer,  RET: float]
+                       [GET:  null,     RET: cpu_min/cpu_max/cpu_avg]
+                       [POST: integer,  RET: err]**
+            >cpu       [POST: float,    RET: err] 
+            >cpu_min   [Readonly,       RET: float]
+            >cpu_max   [Readonly,       RET: float]
+            >cpu_avg   [Readonly,       RET: float]
 
+    - GET/POST (/api/client/hardware/temp/disk[?...])
+        - GET/POST variables:
+            >tagnumber [GET:  integer,  RET: float]
+                       [GET:  null,     RET: disk_min/disk_max/disk_avg]
+                       [POST: integer,  RET: err]**
+            >disk      [POST: float,    RET: err]
+            >disk_min  [Readonly,       RET: float]
+            >disk_max  [Readonly,       RET: float]
+            >disk_avg  [Readonly,       RET: float]
+        -note: if no GET tagnumber query is specified, 
+                then the min/max/avg temps are returned
+                for all online clients
+        -note: like many other endpoints, if you GET a certain variable,
+                all other variables will be returned (hence, "all others").
+                      
 
-software/firmware data by tag
-    - GET/POST (/api/client/software[?...])
-        - GET/POST variables: tagnumber*, bios_version, 
-                         bios_date, bios_revision,
-                         boot_time
+-- Software Data --
+BIOS data
+    - GET/POST (/api/client/software/bios[?...])
+        - GET/POST variables: 
+            >tagnumber          [GET:  integer,  RET: all others]*
+                                [POST: integer,  RET: err]**
+            >bios_version       [POST: string,   RET: err]
+            >bios_date          [POST: date,     RET: err]
+            >bios_revision      [POST: string,   RET: err]
+        -note: like many other endpoints, if you GET a certain variable,
+                all other variables will be returned (hence, "all others").
+
+OS data
+- GET/POST (/api/client/software/os[?...])
+    - GET/POST variables: 
+        >tagnumber          [GET:  integer,   RET: all others]*
+                            [POST: integer,   RET: err]**
+        >os_installed       [POST: boolean,   RET: err]
+        >os_name            [POST: string,    RET: err]
+        >os_version         [POST: string,    RET: err]
+        >os_installed_time  [POST: datetime,  RET: err]
+        >boot_time          [POST: integer,   RET: err]
+    -note: like many other endpoints, if you GET a certain variable,
+            all other variables will be returned (hence, "all others").
+
 
 
 -- Job Queue Data --
@@ -141,7 +197,7 @@ job queue and queue position data for clients
         - GET/POST (/api/client/job_queue[?...])
             - GET/POST variables: tagnumber*, queued_job, 
                              job_active, queue_position
-                             
+
 jobs available by tag
     - GET (/api/client/job_available[?...])
         - GET variables: tagnumber*, job_name
@@ -166,8 +222,8 @@ remote job queue data
 
 job queue data by tag
     -online/offline, current status & queued job
-        - GET (/api/job_queue/client?tagnumber=?formatted=)
-        - GET (/api/job_queue/client?serial=?formatted=)
+        - GET (/api/job_queue/client?tagnumber=&formatted=)
+        - GET (/api/job_queue/client?serial=&formatted=)
     -update queued job
         - POST (/api/job_queue/client?tagnumber=)
         - POST (/api/job_queue/client?serial=)
@@ -183,5 +239,7 @@ All checkouts
             - GET (/api/checkouts/current?tagnumber=)
         -historical log for a given client
             - GET (/api/checkouts/all-time?tagnumber=)
+
+-- Location Data --
 
 /api/
