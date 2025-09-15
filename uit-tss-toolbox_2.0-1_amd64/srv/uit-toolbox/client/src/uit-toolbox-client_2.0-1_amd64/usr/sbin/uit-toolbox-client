@@ -440,7 +440,7 @@ fi
 	done
 
 	printf '%s' "system-stats|cpu|${UUID}" | /opt/uit-toolbox/parse
-	printf '%s' "system-stats|network|${UUID}" | /opt/uit-toolbox/parse.
+	printf '%s' "system-stats|network|${UUID}" | /opt/uit-toolbox/parse
 }
 
 function checkNetwork {
