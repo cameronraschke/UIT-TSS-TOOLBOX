@@ -7,11 +7,11 @@
 - [ ] Double-check all return types
 
 ## For a given request method and variable:
-<sup>*</sup> = mandatory for the request method
-<sup>**</sup> = mandatory, and must be specified with both:
+<sup>\*</sup> = mandatory for the request method
+<sup>\*\*</sup> = mandatory, and must be specified with both:
     1. all other variables with the same request method
     2. all other variables denoted with <sup>**</sup>
-<sup>***</sup> = At least one, but not all, of the denoted variables are mandatory
+<sup>\*\*\*</sup> = At least one, but not all, of the denoted variables are mandatory
 
 -- General Data --
     -server time
