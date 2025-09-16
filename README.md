@@ -15,11 +15,11 @@
 - [ ] Test and implement all endpoints
 
 ## For a given request method and variable:
-- \* = mandatory for the request method
-- \*\* = mandatory, and must be specified with both:
+- **\*** = mandatory for the request method
+- **\*\*** = mandatory, and must be specified with both:
   - 1. all other variables with the same request method
   - 2. all other variables denoted with \*\*
-- \*\*\* = At least one, but not all, of the denoted variables are mandatory
+- **\*\*\*** = At least one, but not all, of the denoted variables are mandatory
 
 ## General Data
 ### Server time
