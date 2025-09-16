@@ -7,6 +7,10 @@
 
 ## To-do
 - [ ] Implement all WIP endpoints
+  - [ ] GET endpoints
+  - [ ] POST endpoints
+  - [ ] PUT endpoints
+  - [ ] DELETE endpoints
 - [ ] Double-check all return types
 - [ ] Test and implement all endpoints
 
@@ -19,24 +23,25 @@
 
 ## General Data
 ### Server time
-- GET/POST (/api/server_time[?...])
-- POST variables:
-  - client_time [POST: time, RET: boolean]<sup>\*</sup>
-  - [GET:  null, RET: time string ISO formatted]
-> [!NOTE]
-> client_time (POST only) returns a boolean if client_time is within margin of error of the server's time
-### Reverse Client Lookup
-- GET (/api/lookup[?...])
+- **GET/POST <ins>/api/server_time[?...]</ins>**
 - GET variables:
-  - tagnumber      [GET: integer, RET: all others]<sup>\*\*\*</sup>
-  - system_serial  [GET: string,  RET: all others]<sup>\*\*\*</sup>
+  - *(NULL GET)*: [GET:  NULL, RET: time string ISO formatted]
+- POST variables:
+  - *client_time*: [POST: time, RET: boolean]<sup>\*</sup>
+> [!NOTE]
+> *client_time* (POST only) returns a boolean if *client_time* is within margin of error of the server's time
+### Reverse Client Lookup
+- **GET <ins>/api/lookup[?...]</ins>**
+- GET variables:
+  - *tagnumber*:      [GET: integer, RET: all others]<sup>\*\*\*</sup>
+  - *system_serial*:  [GET: string,  RET: all others]<sup>\*\*\*</sup>
 > [!NOTE] 
-> If GETing data, you must specify the tagnumber OR system_serial, not both
+> If GETing data, you must specify the *tagnumber* OR *system_serial*, not both
 
 
--- Hardware Data --
-overall disk health
-- GET (/api/hardware/disk_health[?...])
+## Hardware Data
+### Overall Disk Health
+- GET /api/hardware/overview/disk_health[?...]
 - GET/POST variables:
 >date       [GET:  date string, RET: float]*
 [POST: date string, RET: null]**
