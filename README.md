@@ -1,8 +1,9 @@
 # API endpoints
-> [!IMPORTANT]
-> Not all endpoints are implemented and/or actively used. Use API with caution.
-> [!IMPORTANT]
-> Each request within an endpoint will have a request method, and then input/output types for each method. "RET" denotes the returned type. If the "all others" type is specified, it means that all other variables for that endpoint will be returned. This is common in many GET requests.
+[!IMPORTANT]
+Not all endpoints are implemented and/or actively used. Use API with caution.
+
+[!IMPORTANT]
+Each request within an endpoint will have a request method, and then input/output types for each method. "RET" denotes the returned type. If the "all others" type is specified, it means that all other variables for that endpoint will be returned. This is common in many GET requests.
 
 ## To-do
 - [ ] Implement all WIP endpoints
@@ -22,15 +23,15 @@
 - POST variables:
   - client_time [POST: time, RET: boolean]<sup>\*</sup>
   - [GET:  null, RET: time string ISO formatted]
-    > [!NOTE]
-    > client_time (POST only) returns a boolean if client_time is within margin of error of the server's time
+    [!NOTE]
+    client_time (POST only) returns a boolean if client_time is within margin of error of the server's time
 ### Reverse Client Lookup
 - GET (/api/lookup[?...])
 - GET variables:
   - tagnumber      [GET: integer, RET: all others]<sup>\*\*\*</sup>
   - system_serial  [GET: string,  RET: all others]<sup>\*\*\*</sup>
-    > [!NOTE] 
-    > If GETing data, you must specify the tagnumber OR system_serial, not both
+    [!NOTE] 
+    If GETing data, you must specify the tagnumber OR system_serial, not both
 
 
 -- Hardware Data --
