@@ -1299,11 +1299,9 @@ func main() {
 	}
 
 	httpsMux := http.NewServeMux()
-	httpsMux.Handle("/api/auth", httpsApiAuth.thenFunc(getNewBearerToken))
-	httpsMux.Handle("/api/static/", httpsApiAuth.then(serveHTML(appState)))
-	httpsMux.Handle("/api/remote", httpsApiAuth.thenFunc(remoteAPI))
-	httpsMux.Handle("/api/post", httpsApiAuth.thenFunc(postAPI))
-	httpsMux.Handle("/api/locations", httpsApiAuth.thenFunc(remoteAPI))
+	httpsMux.Handle("GET /api/server_time", httpsApiAuth.thenFunc(getServerTime))
+	httpsMux.Handle("GET /api/lookup", httpsApiAuth.thenFunc(getClientLookup))
+	httpsMux.Handle("GET /api/client/hardware", httpsApiAuth.thenFunc(getHardwareData))
 
 	httpsMux.Handle("GET /login.html", httpsNoAuth.then(serveHTML(appState)))
 	httpsMux.Handle("POST /login.html", httpsNoAuth.thenFunc(verifyCookieLogin))
