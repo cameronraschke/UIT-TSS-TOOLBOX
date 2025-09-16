@@ -1302,6 +1302,11 @@ func main() {
 	httpsMux.Handle("GET /api/server_time", httpsApiAuth.thenFunc(getServerTime))
 	httpsMux.Handle("GET /api/lookup", httpsApiAuth.thenFunc(getClientLookup))
 	httpsMux.Handle("GET /api/client/hardware", httpsApiAuth.thenFunc(getHardwareData))
+	httpsMux.Handle("GET /api/client/bios", httpsApiAuth.thenFunc(getBiosData))
+	httpsMux.Handle("GET /api/client/os", httpsApiAuth.thenFunc(getOSData))
+	httpsMux.Handle("GET /api/job_queue/overview", httpsApiAuth.thenFunc(getJobQueueOverview))
+	httpsMux.Handle("GET /api/job_queue/client/queued_job", httpsApiAuth.thenFunc(getClientQueuedJobs))
+	httpsMux.Handle("GET /api/job_queue/client/job_available", httpsApiAuth.thenFunc(getClientAvailableJobs))
 
 	httpsMux.Handle("GET /login.html", httpsNoAuth.then(serveHTML(appState)))
 	httpsMux.Handle("POST /login.html", httpsNoAuth.thenFunc(verifyCookieLogin))

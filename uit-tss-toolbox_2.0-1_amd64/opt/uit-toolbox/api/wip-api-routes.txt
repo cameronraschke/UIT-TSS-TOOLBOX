@@ -179,6 +179,7 @@ OS data
         >os_name            [POST: string,    RET: err]
         >os_version         [POST: string,    RET: err]
         >os_installed_time  [POST: datetime,  RET: err]
+        >tpm_version        [POST: string,    RET: err]
         >boot_time          [POST: integer,   RET: err]
     -note: like many other endpoints, if you GET a certain variable,
             all other variables will be returned (hence, "all others").
@@ -187,25 +188,30 @@ OS data
 
 -- Job Queue Data --
 job queue and queue position data for clients
-    - GET (/api/job_queue[?...])
+    - GET (/api/job_queue/overview[?...])
         - GET variables: total_queued_jobs, 
                     total_active_jobs,
                     total_active_blocking_jobs
             -blocking jobs are jobs that have to be
               queued, e.g. clone jobs.
     -job active by tag
-        - GET/POST (/api/client/job_queue[?...])
+        - GET/POST (/api/job_queue/client/queued_job[?...])
             - GET/POST variables: tagnumber*, queued_job, 
                              job_active, queue_position
 
 jobs available by tag
-    - GET (/api/client/job_available[?...])
+    - GET (/api/job_queue/client/job_available[?...])
         - GET variables: tagnumber*, job_name
             -note: job_name returns boolean if job_name is 
                     or is not available for tag number. Tag
                     must be specified if job_name is specified.
 
-                     
+all possible jobs
+    - GET (/api/job_queue/overview/all_jobs)
+        - GET variables:
+            >tagnumber  [GET: integer, RET: all others]
+            >job_name   [GET: null,    RET: comma separated string]              
+
 
 -- Job control
 uuid, time, date, location, job_type, erase_mode, clone_mode, erase_time, clone_time, clone_master, image_name, image_name_formatted, 
@@ -214,11 +220,20 @@ uuid, time, date, location, job_type, erase_mode, clone_mode, erase_time, clone_
 -- Job Queue Data (server/client side) --
 remote job queue data
     -online clients
-        - GET (/api/job_queue/online)
+        - GET (/api/job_queue/overview/online)
+            - GET variables:
+                >tagnumber      [GET: integer, RET: all others]
+                >present        [Readonly,     RET: datetime]
+                >present_bool   [Readonly,     RET: boolean]
+                >uptime         [Readonly,     RET: duration]
+                >status         [Readonly,     RET: string]
+                >job_queued     [Readonly,     RET: string]
+                >job_active     [Readonly,     RET; boolean] 
+                >queue_position [Readonly,     RET: integer]
     -update queued job for all online clients
-        - POST (/api/job_queue/online)
+        - POST (/api/job_queue/overview/online)
     -offline clients
-        - GET (/api/job_queue/offline)
+        - GET (/api/job_queue/overview/offline)
 
 job queue data by tag
     -online/offline, current status & queued job
@@ -241,5 +256,20 @@ All checkouts
             - GET (/api/checkouts/all-time?tagnumber=)
 
 -- Location Data --
+list of locations and number of entries data
+    - GET (/api/locations/overview)
 
-/api/
+location by tagnumber
+    - GET (/api/locations/client[?...])
+        - GET variables:
+            >tagnumber      [GET: integer,  RET: all others]
+                            [POST: integer, RET: err]
+            >system_serial  [POST: string,  RET: err]
+            >location       [POST: string,  RET: err]
+            >department     [POST: string,  RET: err]
+            >ad_domain      [POST: string,  RET: err]
+            >working        [POST: boolean, RET: err]
+            >note           [POST: string,  RET: err]
+            >disk_removed   [POST: boolean, RET: err]
+
+-- Notes data --
