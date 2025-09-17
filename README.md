@@ -3,7 +3,7 @@
 > Not all endpoints are implemented and/or actively used. Use API with caution.
 
 > [!IMPORTANT]
-> Unless otherwise noted, a GET request will always return all other variables, regardless of request type. State-chaning requests (POST, DELETE, PUSH, etc.) requests will usually only return an error, unless otherwise noted.
+> Unless otherwise noted, a GET request will always return all other variables, regardless of request type. State-chaning requests (POST, DELETE, PUSH, etc.) requests will usually only return an error, unless otherwise noted with "Output POST Variables".
 
 ## To-do
 - [ ] Implement all WIP endpoints
@@ -17,17 +17,41 @@
 ## General Data
 ### Server time
 - **<ins>/api/server_time[?...]</ins>**
-- GET variables:
+<details>
+<summary>Input GET Variables</summary>
 
 | Variable | Type | Null |
 |---------:|------|------|
 |null      |null  |Yes   |
 
-- POST variables:
+</details>
 
-| Variable  | Type                                            | Null |
-|----------:|-------------------------------------------------|------|
-|client_time|time string formatted (YYYY-MM-DD hh:mm:ss.vvv)  |No    |
+<details>
+<summary>Output GET Variables</summary>
+
+| Variable   | Type                                              | Null |
+|-----------:|---------------------------------------------------|------|
+|client_time |*time string formatted (YYYY-MM-DD hh:mm:ss.vvv)*  |No    |
+
+</details>
+
+<details>
+<summary>Input POST Variables</summary>
+
+| Variable  | Type                                              | Null |
+|-----------|---------------------------------------------------|------|
+|client_time|*time string formatted (YYYY-MM-DD hh:mm:ss.vvv)*  |No    |
+
+</details>
+
+<details>
+<summary>Output POST Variables</summary>
+
+| Variable                | Type      |
+|------------------------:|-----------|
+| client_has_correct_time | *boolean* |
+
+</details>
 
 > [!NOTE]
 > *client_time* (POST only) returns a boolean if *client_time* is within margin of error of the server's time
@@ -36,7 +60,7 @@
 - GET variables:
 
 |   Variable   |   Type   |  Null  |
-|-------------:|----------|--------|
+|--------------|----------|--------|
 |tagnumber     | *int*    | Yes/No |
 |system_serial | *string* | Yes/No |
 
