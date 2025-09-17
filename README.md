@@ -15,7 +15,7 @@
 - [ ] Test and implement all endpoints
 
 ## General Data
-### Server time - **<ins>/api/server_time[?...]</ins>**
+### Server time - **/api/server_time[?...]**
 <details open>
 <summary>Input GET Variables</summary>
 
