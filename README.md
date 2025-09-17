@@ -2,9 +2,6 @@
 > [!IMPORTANT]
 > Not all endpoints are implemented and/or actively used. Use API with caution.
 
-> [!IMPORTANT]
-> Each request within an endpoint will have a request method, and then input/output types for each method. "RET" denotes the returned type. If the "all others" type is specified, it means that all other variables for that endpoint will be returned. This is common in many GET requests.
-
 ## To-do
 - [ ] Implement all WIP endpoints
   - [ ] GET endpoints
@@ -14,54 +11,53 @@
 - [ ] Double-check all return types
 - [ ] Test and implement all endpoints
 
-## For a given request method and variable:
-- **\*** = mandatory for the request method
-- **\*\*** = mandatory, and must be specified with both:
-  - 1. all other variables with the same request method
-  - 2. all other variables denoted with \*\*
-- **\*\*\*** = At least one, but not all, of the denoted variables are mandatory
-
 ## General Data
 ### Server time
-- **GET/POST <ins>/api/server_time[?...]</ins>**
+- **<ins>/api/server_time[?...]</ins>**
 - GET variables:
-  - *(NULL GET)*: [GET:  NULL, RET: time string ISO formatted]
+  - *(NULL GET)*: [GET:  null, RET: time string ISO formatted]
 - POST variables:
-  - *client_time*: [POST: time, RET: boolean]<sup>\*</sup>
+  - *client_time*: [POST: time, RET: boolean]
 > [!NOTE]
 > *client_time* (POST only) returns a boolean if *client_time* is within margin of error of the server's time
 ### Reverse Client Lookup
-- **GET <ins>/api/lookup[?...]</ins>**
+- **<ins>/api/lookup[?...]</ins>**
 - GET variables:
-  - *tagnumber*:      [GET: integer, RET: all others]<sup>\*\*\*</sup>
-  - *system_serial*:  [GET: string,  RET: all others]<sup>\*\*\*</sup>
+  - *tagnumber*: *int*
+  - *system_serial*: *string*
+- **Returns**:
+> {
+>   "tagnumber": *int*,
+>   "system_serial": *string*
+> }
+
 > [!NOTE] 
 > If GETing data, you must specify the *tagnumber* OR *system_serial*, not both
 
 
 ## Hardware Data
-### Overall Disk Health
-- GET /api/hardware/overview/disk_health[?...]
-- GET/POST variables:
->date       [GET:  date string, RET: float]*
-[POST: date string, RET: null]**
->percentage [POST: float,       RET: err]**
--note: If updating the percentage for a given date, the
-date and percentage BOTH have to be specified in
-the POST body request.
+### Overall Disk Health By Date
+- **<ins>/api/hardware/overview/disk_health[?...]</ins>**
+- GET variables:
+  - *date*       [GET:  date string, RET: float]
+- POST variables:
+  - *date*       [POST: date string, RET: null]
+  - *percentage* [POST: float,       RET: err]
+> [!NOTE]
+> If updating the percentage for a given date, **both** the *date* and *percentage* have to be specified in the POST body request.
 
-overall battery health
-- GET (/api/hardware/battery_health[?...])
-- GET/POST variables:
->date       [GET:  date (string), RET: float]*
-[POST: date (string), RET: null]**
->percentage [POST: float,         RET: err]**
--note: If updating the percentage for a given date, the
-date and percentage BOTH have to be specified in
-the POST body request.
+### Overall Battery Health By Date
+- **<ins>/api/hardware/battery_health[?...]</ins>**
+- GET variables:
+  - *date*       [GET:  date string, RET: float]
+- POST variables:
+  - *date*       [POST: date (string), RET: null]
+  - *percentage* [POST: float,         RET: err]
+> [!NOTE]
+> If updating the percentage for a given date, **both** the *date* and *percentage* have to be specified in the POST body request.
 
 general hardware data by tag
-- GET/POST (/api/client/hardware[?...])
+- GET/POST <ins>/api/client/hardware[?...]</ins>
 - GET/POST variables: 
 >tagnumber                  [GET:  integer, RET: all others]*
 [POST: integer, RET: err]**
