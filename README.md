@@ -14,8 +14,9 @@
 - [ ] Double-check all return types
 - [ ] Test and implement all endpoints
 
-## General Data
-### Server time - **/api/server_time[?...]**
+# General Data
+## Server time
+### **/api/server_time[?...]**
 <details open>
 <summary>Input GET Variables</summary>
 
@@ -54,7 +55,7 @@
 
 > [!NOTE]
 > *client_time* (POST only) returns a boolean if *client_time* is within margin of error of the server's time
-### Reverse Client Lookup
+## Reverse Client Lookup
 - **<ins>/api/lookup[?...]</ins>**
 - GET variables:
 
