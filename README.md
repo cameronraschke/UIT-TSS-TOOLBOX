@@ -18,18 +18,23 @@
 ### Server time
 - **<ins>/api/server_time[?...]</ins>**
 - GET variables:
+
 | Variable | Type | Null |
 |---------:|------|------|
 |null      |null  |Yes   |
+
 - POST variables:
+
 | Variable  | Type                                            | Null |
 |----------:|-------------------------------------------------|------|
 |client_time|time string formatted (YYYY-MM-DD hh:mm:ss.vvv)  |No    |
+
 > [!NOTE]
 > *client_time* (POST only) returns a boolean if *client_time* is within margin of error of the server's time
 ### Reverse Client Lookup
 - **<ins>/api/lookup[?...]</ins>**
 - GET variables:
+
 |   Variable   |   Type   |  Null  |
 |-------------:|----------|--------|
 |tagnumber     | *int*    | Yes/No |
