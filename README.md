@@ -2,6 +2,9 @@
 > [!IMPORTANT]
 > Not all endpoints are implemented and/or actively used. Use API with caution.
 
+> [!IMPORTANT]
+> Unless otherwise noted, a GET request will always return all other variables, regardless of request type. State-chaning requests (POST, DELETE, PUSH, etc.) requests will usually only return an error, unless otherwise noted.
+
 ## To-do
 - [ ] Implement all WIP endpoints
   - [ ] GET endpoints
@@ -15,21 +18,22 @@
 ### Server time
 - **<ins>/api/server_time[?...]</ins>**
 - GET variables:
-  - *(NULL GET)*: [GET:  null, RET: time string ISO formatted]
+| Variable | Type | Null |
+|---------:|------|------|
+|null      |null  |Yes   |
 - POST variables:
-  - *client_time*: [POST: time, RET: boolean]
+| Variable  | Type                                            | Null |
+|----------:|-------------------------------------------------|------|
+|client_time|time string formatted (YYYY-MM-DD hh:mm:ss.vvv)  |No    |
 > [!NOTE]
 > *client_time* (POST only) returns a boolean if *client_time* is within margin of error of the server's time
 ### Reverse Client Lookup
 - **<ins>/api/lookup[?...]</ins>**
 - GET variables:
-  - *tagnumber*: *int*
-  - *system_serial*: *string*
-- **Returns**:
-> {
->   "tagnumber": *int*,
->   "system_serial": *string*
-> }
+|   Variable   |   Type   |  Null  |
+|-------------:|----------|--------|
+|tagnumber     | *int*    | Yes/No |
+|system_serial | *string* | Yes/No |
 
 > [!NOTE] 
 > If GETing data, you must specify the *tagnumber* OR *system_serial*, not both
