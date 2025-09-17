@@ -15,9 +15,8 @@
 - [ ] Test and implement all endpoints
 
 ## General Data
-### Server time
-- **<ins>/api/server_time[?...]</ins>**
-<details>
+### Server time - **<ins>/api/server_time[?...]</ins>**
+<details open>
 <summary>Input GET Variables</summary>
 
 | Variable | Type | Null |
@@ -26,7 +25,7 @@
 
 </details>
 
-<details>
+<details open>
 <summary>Output GET Variables</summary>
 
 | Variable   | Type                                              | Null |
@@ -35,7 +34,7 @@
 
 </details>
 
-<details>
+<details open>
 <summary>Input POST Variables</summary>
 
 | Variable  | Type                                              | Null |
@@ -44,7 +43,7 @@
 
 </details>
 
-<details>
+<details open>
 <summary>Output POST Variables</summary>
 
 | Variable                | Type      |
