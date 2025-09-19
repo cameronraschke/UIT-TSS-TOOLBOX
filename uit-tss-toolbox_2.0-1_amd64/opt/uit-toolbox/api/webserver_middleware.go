@@ -617,7 +617,7 @@ func httpCookieAuth(next http.Handler) http.Handler {
 		// Check session using the cookie value as bearer token
 		basicValid, _, _, _, _ := checkAuthSession(&authMap, requestIP, requestBasicToken, "")
 
-		if basicValid {
+		if basicValid && !strings.HasSuffix(requestURL, "/logout") {
 			http.SetCookie(w, &http.Cookie{
 				Name:     "uit_basic_token",
 				Value:    requestBasicToken,
