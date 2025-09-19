@@ -11,8 +11,7 @@ tokenDB.onupgradeneeded = (event) => {
   objectStore.createIndex("basicToken", "basicToken", { unique: true });
   objectStore.createIndex("bearerToken", "bearerToken", { unique: true });
 };
-
-const tokenWorker = new Worker('js/auth-webworker.js');
+// const tokenWorker = new Worker('js/auth-webworker.js');
 
 function jsonToBase64(jsonString) {
     try {
@@ -68,7 +67,7 @@ function base64ToJson(base64String) {
     }
 }
 
-async function fetchData(url, fetchOptions = {}) {
+async function fetchData(url, returnText = false, fetchOptions = {}) {
   try {
     if (!url || url.trim().length === 0) {
       throw new Error("No URL specified for fetchData");
@@ -78,7 +77,7 @@ async function fetchData(url, fetchOptions = {}) {
     const bearerToken = await getKeyFromIndexDB("bearerToken");
     const headers = new Headers();
     headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    headers.append('credentials', 'include');
+    headers.append('credentials', 'same-origin');
     headers.append('Authorization', 'Bearer ' + bearerToken);
     
 
@@ -96,14 +95,17 @@ async function fetchData(url, fetchOptions = {}) {
     if (!response.ok) {
       throw new Error(`Error fetching data: ${url} ${response.status}`);
     }
-    if (!response.headers || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
-      throw new Error('Response is undefined or not JSON');
-    }
-    const data = await response.json();
-    if (!data || Object.keys(data).length === 0 || (data && typeof data === 'object' && Object.prototype.hasOwnProperty.call(data, '__proto__'))) {
+    // if (!response.headers || !response.headers.get('Content-Type') || !response.headers.get('Content-Type').includes('application/json')) {
+    //   throw new Error('Response is undefined or not JSON');
+    // }
+
+    const textData = await response.text();
+    const jsonData = await JSON.parse(textData);
+    if (!jsonData || Object.keys(jsonData).length === 0 || (jsonData && typeof jsonData === 'object' && Object.prototype.hasOwnProperty.call(jsonData, '__proto__'))) {
       console.warn("Response JSON is empty: " + url);
     }
-    return data;
+    if (returnText) return textData;
+    if (!returnText) return jsonData;
   } catch (error) {
     throw error;
   }
