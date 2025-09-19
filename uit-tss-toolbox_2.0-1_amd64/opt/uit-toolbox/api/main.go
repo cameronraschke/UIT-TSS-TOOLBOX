@@ -1172,6 +1172,7 @@ func main() {
 			"login.html":             true,
 			"auth-webworker.js":      true,
 			"footer.js":              true,
+			"header.js":              true,
 			"init.js":                true,
 			"include.js":             true,
 			"login.js":               true,
