@@ -75,12 +75,12 @@ button {
     text-align: left;
 }
 .flex-box.home.inventory-summary-section table thead {
-    background-color: beige;
+    background-color: #FFF9D9;
     font-weight: bold;
     border-bottom: 2px solid black;
 }
 .flex-box.home.inventory-summary-section table tfoot {
-    background-color: beige;
+    background-color: #FFF9D9;
     border-top: 2px solid black;
     border-bottom: 2px solid black;
     font-weight: bold;

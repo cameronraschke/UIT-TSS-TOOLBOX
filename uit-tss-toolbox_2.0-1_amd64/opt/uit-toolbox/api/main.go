@@ -669,8 +669,8 @@ func verifyCookieLogin(w http.ResponseWriter, req *http.Request) {
 	sessionID := fmt.Sprintf("%s:%s", requestIP, bearerToken)
 
 	// Set expiry time
-	basicTTL := 60 * time.Minute
-	bearerTTL := 60 * time.Second
+	basicTTL := 20 * time.Minute
+	bearerTTL := 20 * time.Minute
 	basicExpiry := time.Now().Add(basicTTL)
 	bearerExpiry := time.Now().Add(bearerTTL)
 
@@ -1184,6 +1184,14 @@ func main() {
 			"init.js":                true,
 			"include.js":             true,
 			"login.js":               true,
+			"inventory.html":         true,
+			"inventory.js":           true,
+			"checkouts.html":         true,
+			"checkouts.js":           true,
+			"job_queue.html":         true,
+			"job_queue.js":           true,
+			"reports.html":           true,
+			"reports.js":             true,
 		},
 	}
 

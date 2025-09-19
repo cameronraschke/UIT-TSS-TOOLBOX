@@ -628,6 +628,17 @@ func httpCookieAuth(next http.Handler) http.Handler {
 				HttpOnly: true,
 				SameSite: http.SameSiteStrictMode,
 			})
+			basicExpiry := time.Now().Add(20 * time.Minute)
+			bearerExpiry := time.Now().Add(10 * time.Minute)
+			basic := BasicToken{Token: requestBasicToken, Expiry: basicExpiry, NotBefore: time.Now(), TTL: time.Until(basicExpiry).Seconds(), IP: requestIP, Valid: true}
+			bearer := BearerToken{Token: requestBasicToken, Expiry: bearerExpiry, NotBefore: time.Now(), TTL: time.Until(bearerExpiry).Seconds(), IP: requestIP, Valid: true}
+
+			authSession := AuthSession{
+				Basic:  basic,
+				Bearer: bearer,
+			}
+			sessionID := requestIP + ":" + requestBasicToken
+			authMap.Store(sessionID, authSession)
 			log.Debug("Auth session extended: " + requestIP)
 			next.ServeHTTP(w, req)
 			return
