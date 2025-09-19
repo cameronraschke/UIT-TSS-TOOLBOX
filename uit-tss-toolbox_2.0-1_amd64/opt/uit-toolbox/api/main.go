@@ -427,7 +427,7 @@ func getNewBearerToken(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		sessionID := fmt.Sprintf("%s:%s", requestIP, bearerToken)
+		sessionID := fmt.Sprintf("%s:%s", requestIP, basicToken)
 
 		// Set expiry time
 		basicTTL := 60 * time.Minute

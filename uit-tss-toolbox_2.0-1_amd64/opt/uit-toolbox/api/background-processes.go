@@ -15,6 +15,8 @@ func backgroundProcesses(appState *AppState) {
 	startAuthMapCleanup(15 * time.Second)
 	// Start IP blocklist cleanup goroutine
 	startIPBlocklistCleanup(appState, 1*time.Minute)
+	// Print auth session count every minute
+	printAuthMapCount(1 * time.Minute)
 	// Start memory monitor goroutine
 	startMemoryMonitor(4000*1024*1024, 5*time.Second) // 4GB limit, check every 5s
 }
@@ -44,13 +46,23 @@ func startAuthMapCleanup(interval time.Duration) {
 	}()
 }
 
+func printAuthMapCount(interval time.Duration) {
+	go func() {
+		for {
+			time.Sleep(interval)
+			sessionCount := countAuthSessions(&authMap)
+			log.Info("Current auth sessions: " + strconv.Itoa(int(sessionCount)))
+		}
+	}()
+}
+
 func startIPBlocklistCleanup(appState *AppState, interval time.Duration) {
 	go func() {
 		for {
 			time.Sleep(interval)
 
 			// Get all banned IPs
-			log.Warning("(Background) Current blocked IPs: " + appState.GetAllBlockedIPs())
+			log.Info("(Background) Current blocked IPs: " + appState.GetAllBlockedIPs())
 
 			appState.Cleanup()
 		}
