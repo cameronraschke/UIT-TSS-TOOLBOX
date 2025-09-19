@@ -6,3 +6,4 @@ async function drawHeader() {
     console.error("Error fetching header:", error);
   }
 }
+drawHeader();

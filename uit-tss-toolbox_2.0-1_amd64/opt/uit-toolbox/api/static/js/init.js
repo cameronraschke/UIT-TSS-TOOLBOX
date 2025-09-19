@@ -85,6 +85,7 @@ async function fetchData(url, fetchOptions = {}) {
     const response = await fetch(url, {
       method: 'GET',
       headers: headers,
+      credentials: 'same-origin',
       ...(fetchOptions.signal ? { signal: fetchOptions.signal } : {})
     });
 

@@ -6,3 +6,4 @@ async function drawFooter() {
     console.error("Error fetching footer:", error);
   }
 }
+drawFooter();
