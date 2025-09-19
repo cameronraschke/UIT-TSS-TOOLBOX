@@ -100,12 +100,15 @@ async function fetchData(url, returnText = false, fetchOptions = {}) {
     // }
 
     const textData = await response.text();
-    const jsonData = await JSON.parse(textData);
-    if (!jsonData || Object.keys(jsonData).length === 0 || (jsonData && typeof jsonData === 'object' && Object.prototype.hasOwnProperty.call(jsonData, '__proto__'))) {
-      console.warn("Response JSON is empty: " + url);
-    }
+    
     if (returnText) return textData;
-    if (!returnText) return jsonData;
+    if (!returnText) {
+      const jsonData = await JSON.parse(textData);
+      if (!jsonData || Object.keys(jsonData).length === 0 || (jsonData && typeof jsonData === 'object' && Object.prototype.hasOwnProperty.call(jsonData, '__proto__'))) {
+        console.warn("Response JSON is empty: " + url);
+      }
+      return jsonData;
+    }
   } catch (error) {
     throw error;
   }
