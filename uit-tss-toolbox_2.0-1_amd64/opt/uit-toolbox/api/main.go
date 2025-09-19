@@ -990,6 +990,7 @@ func logoutHandler(appState *AppState) http.HandlerFunc {
 			Value:    "",
 			Path:     "/",
 			Expires:  time.Unix(0, 0),
+			MaxAge:   -1,
 			HttpOnly: true,
 		})
 		http.SetCookie(w, &http.Cookie{
@@ -997,13 +998,17 @@ func logoutHandler(appState *AppState) http.HandlerFunc {
 			Value:    "",
 			Path:     "/",
 			Expires:  time.Unix(0, 0),
+			MaxAge:   -1,
 			HttpOnly: true,
 		})
 		authMap.Range(func(k, v any) bool {
 			sessionID := k.(string)
 			authSession := v.(AuthSession)
+			// Diagnostic log to help determine why sessions may not match
+			log.Debug("Logout scan: sessionID=" + sessionID + " basic.token=" + authSession.Basic.Token + " basic.ip=" + authSession.Basic.IP + " cookie=" + cookie.Value + " requestIP=" + requestIP)
 			if authSession.Basic.Token == cookie.Value && authSession.Basic.IP == requestIP {
 				authMap.Delete(sessionID)
+				atomic.AddInt64(&authMapEntryCount, -1)
 				log.Info("Invalidated session: " + sessionID)
 				return false
 			}
