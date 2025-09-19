@@ -874,6 +874,47 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 			return
 		}
 
+		if fileRequested == "logout" {
+			// Invalidate cookies
+			var basicToken *http.Cookie
+			for _, cookie := range req.Cookies() {
+				if cookie.Name == "uit_basic_token" {
+					basicToken = cookie
+				}
+			}
+			if basicToken == nil || strings.TrimSpace(basicToken.Value) == "" {
+				log.Info("No Basic token cookie provided for logout: " + requestIP)
+				http.Redirect(w, req, "/login.html", http.StatusSeeOther)
+				return
+			}
+			http.SetCookie(w, &http.Cookie{
+				Name:     "uit_basic_token",
+				Value:    "",
+				Path:     "/",
+				Expires:  time.Unix(0, 0),
+				HttpOnly: true,
+			})
+			http.SetCookie(w, &http.Cookie{
+				Name:     "csrf_token",
+				Value:    "",
+				Path:     "/",
+				Expires:  time.Unix(0, 0),
+				HttpOnly: true,
+			})
+			authMap.Range(func(k, v any) bool {
+				sessionID := k.(string)
+				authSession := v.(AuthSession)
+				if authSession.Basic.Token == basicToken.Value && authSession.Basic.IP == requestIP {
+					authMap.Delete(sessionID)
+					log.Info("Invalidated session: " + sessionID)
+				}
+				return true
+			})
+			// Redirect to login page
+			http.Redirect(w, req, "/login.html", http.StatusSeeOther)
+			return
+		}
+
 		log.Info("File request from " + requestIP + " for " + fileRequested)
 
 		resolvedPath, err := filepath.EvalSymlinks(fullPath)
@@ -1184,6 +1225,7 @@ func main() {
 			"init.js":                true,
 			"include.js":             true,
 			"login.js":               true,
+			"logout.js":              true,
 			"inventory.html":         true,
 			"inventory.js":           true,
 			"checkouts.html":         true,
@@ -1331,6 +1373,7 @@ func main() {
 	httpsMux.Handle("/css/desktop.css", httpsNoAuth.then(serveHTML(appState)))
 	httpsMux.Handle("/favicon.ico", httpsNoAuth.then(serveHTML(appState)))
 
+	httpsMux.Handle("GET /logout", httpsCookieAuth.then(serveHTML(appState)))
 	httpsMux.Handle("/js/", httpsCookieAuth.then(serveHTML(appState)))
 	httpsMux.Handle("/css/", httpsCookieAuth.then(serveHTML(appState)))
 	httpsMux.Handle("/", httpsCookieAuth.then(serveHTML(appState)))
