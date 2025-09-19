@@ -23,7 +23,7 @@ async function logout() {
   sessionStorage.clear();
   try {
     const response = await fetch("/logout", {
-      method: "POST",
+      method: "GET",
       credentials: "same-origin"
     });
     if (!response.ok) {
