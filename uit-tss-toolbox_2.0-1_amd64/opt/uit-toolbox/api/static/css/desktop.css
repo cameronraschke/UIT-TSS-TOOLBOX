@@ -3,7 +3,7 @@ body {
     margin: 0;
 }
 
-h1 {
+h1, h2 {
     text-align: center;
 }
 
@@ -16,6 +16,13 @@ button {
     flex-wrap: wrap;
 }
 
+.flex-container.home {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem 1rem 2rem;
+    gap: 1rem;
+}
 .flex-container.header {
     flex-direction: row;
     justify-content: space-between;
@@ -41,15 +48,84 @@ button {
 
 .flex-box {
     display: flex;
-    justify-content: space-around;
 }
 
+.flex-box.home {
+    display: flex;
+    flex: 1 1 45%;
+    font-size: 1.1rem;
+}
+.flex-box.home.inventory-summary-section {
+    display: flex;
+    align-self: flex-start;
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    background-color: #f9f9f9;
+}
+.flex-box.home.inventory-summary-section div {
+    width: 100%;
+}
+.flex-box.home.inventory-summary-section table {
+    width: 100%;
+    background-color: white;
+    border-collapse: collapse;
+    margin-top: 5rem;
+    text-align: left;
+}
+.flex-box.home.inventory-summary-section table thead {
+    background-color: beige;
+    font-weight: bold;
+    border-bottom: 2px solid black;
+}
+.flex-box.home.inventory-summary-section table tfoot {
+    background-color: beige;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+    font-weight: bold;
+    padding: 1rem 1rem 1rem 1rem;
+}
+.flex-box.home.inventory-summary-section table td, .flex-box.home.inventory-summary-section table th {
+    padding: 1rem 1rem 1rem 1rem;
+}
+.flex-box.home.inventory-summary-section table tr {
+    border-bottom: 1px solid #ddd;
+}
+.flex-box.home.inventory-summary-section table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+.flex-box.home.notes-section {
+    display: flex;
+    align-self: flex-start;
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    background-color: #f9f9f9;
+}
+.flex-box.home.notes-section div {
+    width: 100%;
+}
 .flex-box.header {
     display: flex;
-    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 .flex-box.nav {
     display: flex;
+    width: 100dvw;
+    justify-content: space-between;
+    align-items: center;
+}
+.nav-left {
+    display: flex;
+    justify-self: flex-start;
+    gap: 1rem;
+}
+.nav-right {
+    display: flex;
+    justify-self: flex-end;
     gap: 1rem;
 }
 
