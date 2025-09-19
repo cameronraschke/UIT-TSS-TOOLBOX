@@ -947,6 +947,14 @@ func serveHTML(appState *AppState) http.HandlerFunc {
 				log.Error("Error sending file: " + err.Error())
 				return
 			}
+		} else if strings.HasSuffix(fileRequested, ".ico") {
+			w.Header().Set("Content-Type", "image/x-icon")
+			// Serve the favicon
+			_, err = io.Copy(w, f)
+			if err != nil {
+				log.Error("Error sending file: " + err.Error())
+				return
+			}
 		} else {
 			log.Warning("Unknown file type requested: " + fileRequested)
 			http.Error(w, "Unsupported Media Type", http.StatusUnsupportedMediaType)
